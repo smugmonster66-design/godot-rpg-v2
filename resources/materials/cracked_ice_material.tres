@@ -1,0 +1,16 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://cracked_ice_mat"]
+
+[ext_resource type="Shader" path="res://assets/shaders/cracked_ice.gdshader" id="1_shader"]
+
+[resource]
+shader = ExtResource("1_shader")
+shader_parameter/ice_color = Color(0.7, 0.85, 1.0, 1.0)
+shader_parameter/glow_color = Color(0.4, 0.7, 1.0, 1.0)
+shader_parameter/glow_strength = 0.3
+shader_parameter/glow_pulse_speed = 1.5
+shader_parameter/crack_scale = 8.0
+shader_parameter/crack_intensity = 0.6
+shader_parameter/crack_sharpness = 4.0
+shader_parameter/crack_color = Color(0.2, 0.4, 0.6, 1.0)
+shader_parameter/shimmer_strength = 0.15
+shader_parameter/shimmer_speed = 2.0

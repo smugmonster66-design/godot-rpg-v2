@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=6 format=3 uid="uid://cw312lbitxooi"]
+
+[ext_resource type="Resource" path="res://resources/affixes/elements/slashing_element.tres" id="1_l8hqh"]
+[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/d6-basic-fill.png" id="2_0cata"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_i3uo7"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_pkp4x"]
+[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/d6-basic-stroke.png" id="5_xiln3"]
+
+[resource]
+script = ExtResource("4_pkp4x")
+display_name = "D6"
+element = 1
+element_affix = ExtResource("1_l8hqh")
+fill_texture = ExtResource("2_0cata")
+stroke_texture = ExtResource("5_xiln3")

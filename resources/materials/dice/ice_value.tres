@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://shaders/dice/ice/ice_value.gdshader" id="1_shader"]
+
+[resource]
+shader = ExtResource("1_shader")
+shader_parameter/text_color = Color(0.8, 0.92, 1, 1)
+shader_parameter/frost_color = Color(0.6, 0.8, 0.95, 1)
+shader_parameter/shimmer_speed = 0.6

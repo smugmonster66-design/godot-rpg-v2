@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://yqcuq20fomfu"]
+
+[ext_resource type="PackedScene" path="res://scenes/ui/components/dice/pool/pool_die_object_base.tscn" id="1_base"]
+
+[node name="PoolDieD12" instance=ExtResource("1_base")]
+
+[node name="ValueLabel" parent="." index="2"]
+offset_left = -23.0
+offset_top = -45.0
+offset_right = 27.0
+offset_bottom = 38.0
+theme_override_font_sizes/font_size = 44
+text = "12"

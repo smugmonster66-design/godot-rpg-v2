@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Action" load_steps=4 format=3 uid="uid://0qvrbeo7ewkh"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_1uyve"]
+[ext_resource type="Resource" uid="uid://ckg5yjnjv62yg" path="res://resources/action_effects/test_effect_base_damage.tres" id="2_a86kc"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_g1veu"]
+
+[resource]
+script = ExtResource("2_g1veu")
+action_id = "charges_test_action"
+action_name = "Test Charges"
+action_description = "An action with limited charges per turn."
+charge_type = 1
+max_charges = 2
+effects = Array[ExtResource("1_1uyve")]([ExtResource("2_a86kc")])
+metadata/_custom_type_script = "uid://b1kctq61bwysh"

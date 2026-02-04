@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://bsbjo77cp5hgw"]
+
+[ext_resource type="Shader" uid="uid://cneqo6rshq0fd" path="res://shaders/dice/blunt/blunt_fill.gdshader" id="1_shader"]
+
+[resource]
+shader = ExtResource("1_shader")
+shader_parameter/iron_base = Color(0.32, 0.32, 0.35, 1)
+shader_parameter/highlight_color = Color(0.5, 0.5, 0.52, 1)
+shader_parameter/shadow_color = Color(0.15, 0.15, 0.18, 1)
+shader_parameter/bevel_strength = 0.6
+shader_parameter/light_direction = Vector2(-0.7, -0.7)

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=2 format=3 uid="uid://bpl1hnnv1v8hb"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_te2xr"]
+
+[resource]
+script = ExtResource("1_te2xr")
+effect_name = "Fire Damage Base"
+damage_type = 3
+metadata/_custom_type_script = "uid://dqmfu54osidoc"

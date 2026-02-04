@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=2 format=3 uid="uid://c6ttp4y2n167w"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_b3pnf"]
+
+[resource]
+script = ExtResource("1_b3pnf")
+effect_name = "Add Chill Stacks - all enemies"
+target = 2
+effect_type = 2
+metadata/_custom_type_script = "uid://dqmfu54osidoc"

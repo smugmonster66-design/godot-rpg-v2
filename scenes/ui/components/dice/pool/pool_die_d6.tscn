@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://bxqtkedv2ygd3"]
+
+[ext_resource type="PackedScene" path="res://scenes/ui/components/dice/pool/pool_die_object_base.tscn" id="1_base"]
+
+[node name="PoolDieD6" instance=ExtResource("1_base")]
+
+[node name="ValueLabel" parent="." index="2"]
+offset_left = -42.0
+offset_right = -2.0

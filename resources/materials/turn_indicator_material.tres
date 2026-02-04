@@ -1,0 +1,15 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://bwfd8np5fyexg"]
+
+[ext_resource type="Shader" uid="uid://dacpc0fiye4cc" path="res://assets/shaders/turn_indicator.gdshader" id="1_sutko"]
+
+[resource]
+shader = ExtResource("1_sutko")
+shader_parameter/glow_color = Color(1, 0.2, 0.2, 1)
+shader_parameter/glow_width = 6.0
+shader_parameter/spin_speed = 2.0
+shader_parameter/pulse_speed = 3.0
+shader_parameter/pulse_intensity = 0.3
+shader_parameter/num_segments = 4
+shader_parameter/segment_gap = 0.15
+shader_parameter/is_circle = true
+shader_parameter/corner_radius = 0.1

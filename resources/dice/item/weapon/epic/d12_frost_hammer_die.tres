@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=6 format=3 uid="uid://ctsfrcjdr4fmn"]
+
+[ext_resource type="Texture2D" uid="uid://r7bikgya1ua8" path="res://assets/dice/d12s/d12-basic-fill.png" id="1_0op0h"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_vcewc"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_bvhej"]
+[ext_resource type="Resource" uid="uid://qp4xkm0f3sx" path="res://resources/dice_affixes/visual effect affixes/ice_dice_visualeffect_affix.tres" id="3_3w1pp"]
+[ext_resource type="Texture2D" uid="uid://d3cgge7kyfsqd" path="res://assets/dice/d12s/d12-basic-stroke.png" id="4_3w1pp"]
+
+[resource]
+script = ExtResource("2_bvhej")
+display_name = "Frost Hammer Die"
+die_type = 12
+fill_texture = ExtResource("1_0op0h")
+stroke_texture = ExtResource("4_3w1pp")
+inherent_affixes = Array[ExtResource("1_vcewc")]([ExtResource("3_3w1pp")])
+metadata/_custom_type_script = "uid://d3l85pyscg85h"

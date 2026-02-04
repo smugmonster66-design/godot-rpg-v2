@@ -1,0 +1,74 @@
+[gd_scene load_steps=3 format=3 uid="uid://u4538t4heese"]
+
+[ext_resource type="Script" uid="uid://b6e5135cvd8vj" path="res://scripts/ui/menus/skills_tab.gd" id="1_l3cke"]
+[ext_resource type="PackedScene" uid="uid://oquaqbwome63" path="res://scenes/ui/menus/skill_button.tscn" id="2_5ah0g"]
+
+[node name="SkillsTab" type="Control" node_paths=PackedStringArray("skill_points_label", "class_name_label", "tree_points_label", "tree_tab_container", "tree_tab_1", "tree_tab_2", "tree_tab_3", "skill_grid") groups=["player_menu_tab_content"]]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_l3cke")
+skill_points_label = NodePath("VBoxContainer/Header/SkillPointsLabel")
+class_name_label = NodePath("VBoxContainer/Header/ClassNameLabel")
+tree_points_label = NodePath("VBoxContainer/Header/TreePointsLabel")
+tree_tab_container = NodePath("VBoxContainer/TreeTabContainer")
+tree_tab_1 = NodePath("VBoxContainer/TreeTabContainer/TreeTab1")
+tree_tab_2 = NodePath("VBoxContainer/TreeTabContainer/TreeTab2")
+tree_tab_3 = NodePath("VBoxContainer/TreeTabContainer/TreeTab3")
+skill_grid = NodePath("VBoxContainer/ScrollContainer/SkillGrid")
+skill_button_scene = ExtResource("2_5ah0g")
+metadata/_tab_index = 1
+metadata/tab_name = "Skills"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+custom_minimum_size = Vector2(400, 600)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="ClassNameLabel" type="Label" parent="VBoxContainer/Header"]
+layout_mode = 2
+text = "CLASS"
+
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer/Header"]
+layout_mode = 2
+
+[node name="SkillPointsLabel" type="Label" parent="VBoxContainer/Header"]
+layout_mode = 2
+text = "Skill Points 0/0"
+
+[node name="TreePointsLabel" type="Label" parent="VBoxContainer/Header"]
+layout_mode = 2
+text = "Tree Points 0/0"
+
+[node name="TreeTabContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="TreeTab1" type="Button" parent="VBoxContainer/TreeTabContainer"]
+layout_mode = 2
+toggle_mode = true
+text = "Tree 1"
+
+[node name="TreeTab2" type="Button" parent="VBoxContainer/TreeTabContainer"]
+layout_mode = 2
+toggle_mode = true
+text = "Tree 2"
+
+[node name="TreeTab3" type="Button" parent="VBoxContainer/TreeTabContainer"]
+layout_mode = 2
+toggle_mode = true
+text = "Tree 3"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SkillGrid" type="GridContainer" parent="VBoxContainer/ScrollContainer"]
+layout_mode = 2
+columns = 7

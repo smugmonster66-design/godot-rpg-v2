@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://shaders/dice/poison/poison_stroke.gdshader" id="1_shader"]
+
+[resource]
+shader = ExtResource("1_shader")
+shader_parameter/corrode_color = Color(0.15, 0.35, 0.1, 1)
+shader_parameter/drip_color = Color(0.3, 0.7, 0.15, 1)
+shader_parameter/drip_speed = 0.7
+shader_parameter/corrode_amount = 0.6

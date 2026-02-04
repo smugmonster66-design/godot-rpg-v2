@@ -1,0 +1,12 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://slashing_fill_mat"]
+
+[ext_resource type="Shader" path="res://shaders/dice/slashing/slashing_fill.gdshader" id="1_shader"]
+
+[resource]
+shader = ExtResource("1_shader")
+shader_parameter/steel_color = Color(0.75, 0.78, 0.82, 1)
+shader_parameter/highlight_color = Color(1, 1, 1, 1)
+shader_parameter/metallic_strength = 0.6
+shader_parameter/sweep_speed = 0.8
+shader_parameter/sweep_width = 0.12
+shader_parameter/reflection_intensity = 0.25

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=3 format=3 uid="uid://bjjh553nkxst3"]
+
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_35sk6"]
+[ext_resource type="PackedScene" uid="uid://bwf37oja2yabr" path="res://scenes/effects/sparkle_particles.tscn" id="1_ixeym"]
+
+[resource]
+script = ExtResource("1_35sk6")
+trigger = 2
+visual_effect_type = 3
+particle_scene = ExtResource("1_ixeym")
+visual_priority = 10
+metadata/_custom_type_script = "uid://s6ivem1wgjrx"

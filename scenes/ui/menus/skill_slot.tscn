@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=3 uid="uid://dc6lgapbg6aax"]
+
+[ext_resource type="Script" uid="uid://ct6sd4oa2ey4i" path="res://scripts/ui/menus/skill_slot.gd" id="1_ejxct"]
+[ext_resource type="PackedScene" uid="uid://oquaqbwome63" path="res://scenes/ui/menus/skill_button.tscn" id="2_4gbtw"]
+
+[node name="SkillSlot" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ejxct")
+
+[node name="SkillButton" parent="." instance=ExtResource("2_4gbtw")]
+layout_mode = 1
+
+[node name="Spacer" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

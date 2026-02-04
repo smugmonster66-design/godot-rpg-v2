@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://shaders/dice/fire/fire_fill.gdshader" id="1_shader"]
+
+[resource]
+shader = ExtResource("1_shader")
+shader_parameter/fire_core = Color(1, 0.9, 0.3, 1)
+shader_parameter/fire_mid = Color(1, 0.5, 0.1, 1)
+shader_parameter/fire_edge = Color(0.8, 0.2, 0.05, 1)
+shader_parameter/flame_speed = 1.5
+shader_parameter/flame_intensity = 0.8

@@ -1,0 +1,43 @@
+[gd_scene load_steps=3 format=3 uid="uid://ds3fslulucbxd"]
+
+[ext_resource type="Script" uid="uid://d4kgr46j64rf6" path="res://scripts/ui/map/dice_grid.gd" id="1_jqjy0"]
+[ext_resource type="PackedScene" uid="uid://deob7tvt1qkgs" path="res://scenes/ui/map/die_slot.tscn" id="2_ql1br"]
+
+[node name="DiceGrid" type="GridContainer" groups=["dice_grid"]]
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+columns = 10
+script = ExtResource("1_jqjy0")
+show_empty_slots = false
+
+[node name="DieSlot" parent="." instance=ExtResource("2_ql1br")]
+layout_mode = 2
+
+[node name="DieSlot2" parent="." instance=ExtResource("2_ql1br")]
+layout_mode = 2
+
+[node name="DieSlot3" parent="." instance=ExtResource("2_ql1br")]
+layout_mode = 2
+
+[node name="DieSlot4" parent="." instance=ExtResource("2_ql1br")]
+layout_mode = 2
+
+[node name="DieSlot5" parent="." instance=ExtResource("2_ql1br")]
+layout_mode = 2
+
+[node name="DieSlot6" parent="." instance=ExtResource("2_ql1br")]
+layout_mode = 2
+
+[node name="DieSlot7" parent="." instance=ExtResource("2_ql1br")]
+layout_mode = 2
+
+[node name="DieSlot8" parent="." instance=ExtResource("2_ql1br")]
+layout_mode = 2
+
+[node name="DieSlot9" parent="." instance=ExtResource("2_ql1br")]
+layout_mode = 2
+
+[node name="DieSlot10" parent="." instance=ExtResource("2_ql1br")]
+layout_mode = 2

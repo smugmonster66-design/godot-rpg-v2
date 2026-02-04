@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=2 format=3 uid="uid://danr1s5heb5vy"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_tlee7"]
+
+[resource]
+script = ExtResource("1_tlee7")
+effect_name = "Frost Damage"
+target = 2
+damage_type = 4
+metadata/_custom_type_script = "uid://dqmfu54osidoc"

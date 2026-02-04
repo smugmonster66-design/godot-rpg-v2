@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://shaders/dice/fire/fire_stroke.gdshader" id="1_shader"]
+
+[resource]
+shader = ExtResource("1_shader")
+shader_parameter/ember_color = Color(1, 0.4, 0.1, 1)
+shader_parameter/ash_color = Color(0.3, 0.15, 0.1, 1)
+shader_parameter/pulse_speed = 2.0
+shader_parameter/ember_intensity = 0.8

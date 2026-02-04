@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=5 format=3 uid="uid://slashing_element_affix"]
+
+[ext_resource type="Script" path="res://resources/data/dice_affix.gd" id="1_script"]
+[ext_resource type="ShaderMaterial" uid="uid://slashing_fill_mat" path="res://resources/materials/dice/slashing_fill.tres" id="2_fill"]
+[ext_resource type="ShaderMaterial" uid="uid://slashing_stroke_mat" path="res://resources/materials/dice/slashing_stroke.tres" id="3_stroke"]
+[ext_resource type="ShaderMaterial" uid="uid://slashing_value_mat" path="res://resources/materials/dice/slashing_value.tres" id="4_value"]
+
+[resource]
+script = ExtResource("1_script")
+affix_id = "element_slashing"
+affix_name = "Slashing"
+description = "This die deals slashing damage with razor-sharp steel edges."
+rarity = 1
+fill_effect_type = 4
+fill_shader_material = ExtResource("2_fill")
+stroke_effect_type = 4
+stroke_shader_material = ExtResource("3_stroke")
+value_effect_type = 4
+value_shader_material = ExtResource("4_value")

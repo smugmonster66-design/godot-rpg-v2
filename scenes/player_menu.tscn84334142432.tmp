@@ -1,0 +1,93 @@
+[gd_scene load_steps=4 format=3 uid="uid://b4cwd535525ap"]
+
+[ext_resource type="Script" uid="uid://dp3d3aduyrmtn" path="res://scripts/player_menu.gd" id="1_20rq3"]
+[ext_resource type="Script" uid="uid://cdqwy6mxd4qwy" path="res://scripts/character_tab.gd" id="2_f0r6v"]
+[ext_resource type="Script" uid="uid://b6e5135cvd8vj" path="res://scripts/skills_tab.gd" id="3_t2ate"]
+
+[node name="PlayerMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_20rq3")
+
+[node name="MenuPanel" type="Panel" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBox" type="VBoxContainer" parent="MenuPanel"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="TabContainer" type="TabContainer" parent="MenuPanel/VBox"]
+layout_mode = 2
+current_tab = 0
+
+[node name="Character" type="Control" parent="MenuPanel/VBox/TabContainer"]
+layout_mode = 2
+script = ExtResource("2_f0r6v")
+metadata/_tab_index = 0
+
+[node name="VBox" type="VBoxContainer" parent="MenuPanel/VBox/TabContainer/Character"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="ClassLabel" type="Label" parent="MenuPanel/VBox/TabContainer/Character/VBox"]
+layout_mode = 2
+
+[node name="LevelLabel" type="Label" parent="MenuPanel/VBox/TabContainer/Character/VBox"]
+layout_mode = 2
+
+[node name="ExpBar" type="ProgressBar" parent="MenuPanel/VBox/TabContainer/Character/VBox"]
+layout_mode = 2
+
+[node name="ExpLabel" type="Label" parent="MenuPanel/VBox/TabContainer/Character/VBox"]
+layout_mode = 2
+
+[node name="StatsContainer" type="VBoxContainer" parent="MenuPanel/VBox/TabContainer/Character/VBox"]
+layout_mode = 2
+
+[node name="Skills" type="Control" parent="MenuPanel/VBox/TabContainer"]
+visible = false
+layout_mode = 2
+script = ExtResource("3_t2ate")
+metadata/_tab_index = 1
+
+[node name="VBox" type="VBoxContainer" parent="MenuPanel/VBox/TabContainer/Skills"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="SkillPointsLabel" type="Label" parent="MenuPanel/VBox/TabContainer/Skills/VBox"]
+layout_mode = 2
+
+[node name="ClassLabel" type="Label" parent="MenuPanel/VBox/TabContainer/Skills/VBox"]
+layout_mode = 2
+
+[node name="TreeTabs" type="TabContainer" parent="MenuPanel/VBox/TabContainer/Skills/VBox"]
+layout_mode = 2
+
+[node name="ResetButton" type="Button" parent="MenuPanel/VBox/TabContainer/Skills/VBox"]
+layout_mode = 2
+
+[node name="Equipment" type="Control" parent="MenuPanel/VBox/TabContainer"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 2
+
+[node name="Inventory" type="Control" parent="MenuPanel/VBox/TabContainer"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 3
+
+[node name="Quests" type="Control" parent="MenuPanel/VBox/TabContainer"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 4
+
+[node name="CloseButton" type="Button" parent="MenuPanel/VBox/TabContainer"]
+visible = false
+layout_mode = 2
+text = "Close"
+metadata/_tab_index = 5

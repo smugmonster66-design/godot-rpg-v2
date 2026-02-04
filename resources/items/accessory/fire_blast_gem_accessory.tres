@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=5 format=3 uid="uid://dn2hvhv24b1t6"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_a48xk"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="2_axan3"]
+[ext_resource type="Texture2D" uid="uid://d3cgge7kyfsqd" path="res://assets/dice/d12s/d12-basic-stroke.png" id="2_ut183"]
+[ext_resource type="Resource" uid="uid://blnj583gkfe63" path="res://resources/affixes/accessories/first/fireblast_action_affix.tres" id="2_w3sgi"]
+
+[resource]
+script = ExtResource("2_axan3")
+item_name = "Gem of Blasting"
+description = "Like fire trapped inside a diamond. "
+icon = ExtResource("2_ut183")
+rarity = 2
+equip_slot = 7
+manual_first_affix = ExtResource("2_w3sgi")
+metadata/_custom_type_script = "uid://gax4pbuq25uv"

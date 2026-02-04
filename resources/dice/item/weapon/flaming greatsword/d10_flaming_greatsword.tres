@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=3 format=3 uid="uid://daeqgiro34u58"]
+
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_l73cq"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_bpppr"]
+
+[resource]
+script = ExtResource("2_bpppr")
+die_type = 10
+metadata/_custom_type_script = "uid://d3l85pyscg85h"

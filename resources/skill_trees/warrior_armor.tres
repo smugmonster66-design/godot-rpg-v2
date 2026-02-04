@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="SkillTree" load_steps=3 format=3 uid="uid://cjpycoh3jpgdj"]
+
+[ext_resource type="Script" uid="uid://cukfw0heumnic" path="res://scripts/data/skill_tree.gd" id="1_ikeqf"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="2_sr1ey"]
+
+[resource]
+script = ExtResource("1_ikeqf")
+tree_id = "armor"
+tree_name = "Armor"
+description = "TO ARM...or..."
+metadata/_custom_type_script = "uid://cukfw0heumnic"

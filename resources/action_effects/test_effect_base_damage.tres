@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=2 format=3 uid="uid://ckg5yjnjv62yg"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_tbq26"]
+
+[resource]
+script = ExtResource("1_tbq26")
+effect_name = "Fireball Test"
+target = 2
+damage_type = 3
+base_damage = 10
+metadata/_custom_type_script = "uid://dqmfu54osidoc"

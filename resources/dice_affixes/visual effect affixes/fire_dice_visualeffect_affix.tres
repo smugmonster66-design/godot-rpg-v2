@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=3 format=3 uid="uid://drvpqghml1xdi"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_vua75"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_u8qkg"]
+
+[resource]
+script = ExtResource("2_u8qkg")
+affix_name = "Fire Die"
+description = "Turns the die into fire damage."
+metadata/_custom_type_script = "uid://s6ivem1wgjrx"

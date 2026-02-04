@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Action" load_steps=3 format=3 uid="uid://bssiypid634be"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_e5nns"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_s011m"]
+
+[resource]
+script = ExtResource("1_e5nns")
+action_name = "Flame Strike"
+action_description = "A slash for 2D+10 [color=red]Fire[/color] damage."
+die_slots = 2
+base_damage = 10
+damage_multiplier = 2.0
+metadata/_custom_type_script = "uid://b1kctq61bwysh"

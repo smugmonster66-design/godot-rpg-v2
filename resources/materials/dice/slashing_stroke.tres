@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://slashing_stroke_mat"]
+
+[ext_resource type="Shader" path="res://shaders/dice/slashing/slashing_stroke.gdshader" id="1_shader"]
+
+[resource]
+shader = ExtResource("1_shader")
+shader_parameter/edge_color = Color(0.9, 0.92, 0.95, 1)
+shader_parameter/sharp_highlight = Color(1, 1, 1, 1)
+shader_parameter/edge_sharpness = 6.0
+shader_parameter/glint_speed = 1.5
+shader_parameter/glint_intensity = 0.7

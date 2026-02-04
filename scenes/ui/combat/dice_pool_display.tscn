@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://bb07mxj58qxpy"]
+
+[ext_resource type="Script" uid="uid://diqx70v4mjo7k" path="res://scripts/ui/combat/dice_pool_display.gd" id="1_pyobk"]
+
+[node name="DicePoolDisplay" type="HBoxContainer"]
+theme_override_constants/separation = 10
+alignment = 1
+script = ExtResource("1_pyobk")

@@ -1,0 +1,17 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://c7ivlm0ttuq4n"]
+
+[ext_resource type="Shader" uid="uid://dgf5ej828wie3" path="res://assets/shaders/water_wave.gdshader" id="1_wjoh2"]
+
+[resource]
+shader = ExtResource("1_wjoh2")
+shader_parameter/wave_amplitude = 0.02
+shader_parameter/wave_frequency = 8.0
+shader_parameter/wave_speed = 3.0
+shader_parameter/tint_color = Color(0.3, 0.6, 1, 1)
+shader_parameter/tint_strength = 0.3
+shader_parameter/distortion_strength = 0.015
+shader_parameter/sine_amplitude = 0.06000000285
+shader_parameter/sine_frequency = 13.5530006437675
+shader_parameter/sine_speed = 2.0
+shader_parameter/sine_horizontal = true
+shader_parameter/sine_vertical = false

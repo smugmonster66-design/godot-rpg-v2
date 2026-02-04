@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://shaders/dice/shadow/shadow_fill.gdshader" id="1_shader"]
+
+[resource]
+shader = ExtResource("1_shader")
+shader_parameter/void_color = Color(0.05, 0.02, 0.08, 1)
+shader_parameter/shadow_mid = Color(0.15, 0.08, 0.2, 1)
+shader_parameter/shadow_purple = Color(0.3, 0.15, 0.4, 1)
+shader_parameter/swirl_speed = 0.4
+shader_parameter/darkness = 0.85

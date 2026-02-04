@@ -1,0 +1,120 @@
+[gd_scene load_steps=7 format=3 uid="uid://c0w3t10mfnowo"]
+
+[ext_resource type="Script" uid="uid://cs3ncaepru3rn" path="res://scripts/ui/bottom_ui_panel.gd" id="1_1ip7k"]
+[ext_resource type="PackedScene" uid="uid://ds3fslulucbxd" path="res://scenes/ui/map/dice_grid.tscn" id="1_5ue3t"]
+[ext_resource type="Texture2D" uid="uid://bk7srh475afct" path="res://assets/ui/portrait frames/placeholder/placeholder_frame_front.png" id="1_algh6"]
+[ext_resource type="Texture2D" uid="uid://78pjnt2x1fn1" path="res://assets/characters/Bones/portraits/bones_placeholder_portrait.png" id="1_px728"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_1ip7k"]
+texture = ExtResource("1_algh6")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_bpvbv"]
+texture = ExtResource("1_algh6")
+
+[node name="BottomUIPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(342, 342)
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -400.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("1_1ip7k")
+
+[node name="MainHBox" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="PortraitSection" type="VBoxContainer" parent="MainHBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="PortraitVBox" type="VBoxContainer" parent="MainHBox/PortraitSection"]
+layout_mode = 2
+alignment = 1
+
+[node name="PortraitContainer" type="Control" parent="MainHBox/PortraitSection/PortraitVBox"]
+custom_minimum_size = Vector2(400, 400)
+layout_mode = 2
+
+[node name="BackPanel" type="Panel" parent="MainHBox/PortraitSection/PortraitVBox/PortraitContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_1ip7k")
+
+[node name="PortraitTexture" type="TextureRect" parent="MainHBox/PortraitSection/PortraitVBox/PortraitContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_px728")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="FrontPanel" type="Panel" parent="MainHBox/PortraitSection/PortraitVBox/PortraitContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_bpvbv")
+
+[node name="LeftSection" type="VBoxContainer" parent="MainHBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="MainHBox/LeftSection"]
+layout_mode = 2
+text = "Classname Lvl X"
+horizontal_alignment = 1
+
+[node name="HealthBar" type="ProgressBar" parent="MainHBox/LeftSection"]
+custom_minimum_size = Vector2(300, 40)
+layout_mode = 2
+
+[node name="ManaBar" type="ProgressBar" parent="MainHBox/LeftSection"]
+custom_minimum_size = Vector2(300, 40)
+layout_mode = 2
+
+[node name="ExpBar" type="ProgressBar" parent="MainHBox/LeftSection"]
+custom_minimum_size = Vector2(300, 40)
+layout_mode = 2
+
+[node name="DiceSection" type="VBoxContainer" parent="MainHBox/LeftSection"]
+layout_mode = 2
+
+[node name="DiceHeader" type="HBoxContainer" parent="MainHBox/LeftSection/DiceSection"]
+visible = false
+layout_mode = 2
+
+[node name="DiceTitle" type="Label" parent="MainHBox/LeftSection/DiceSection/DiceHeader"]
+layout_mode = 2
+text = "Dice Hand"
+
+[node name="Spacer" type="Control" parent="MainHBox/LeftSection/DiceSection/DiceHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DiceCountLabel" type="Label" parent="MainHBox/LeftSection/DiceSection/DiceHeader" groups=["dice_count_label"]]
+layout_mode = 2
+text = "0/10"
+
+[node name="DiceGrid" parent="MainHBox/LeftSection/DiceSection" instance=ExtResource("1_5ue3t")]
+layout_mode = 2
+columns = 5
+
+[node name="RightSection" type="VBoxContainer" parent="MainHBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="MenuButton" type="Button" parent="MainHBox/RightSection"]
+layout_mode = 2
+size_flags_vertical = 4
+text = "MENU"

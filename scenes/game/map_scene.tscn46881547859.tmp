@@ -1,0 +1,139 @@
+[gd_scene load_steps=9 format=3 uid="uid://cx781vq4omutw"]
+
+[ext_resource type="Script" uid="uid://ex7lxpkjwyaa" path="res://scripts/game/map_manager.gd" id="1_yjpty"]
+[ext_resource type="Script" uid="uid://fxekowigxepb" path="res://scripts/ui/components/add_gear_button.gd" id="2_2b48g"]
+[ext_resource type="PackedScene" uid="uid://b4cwd535525ap" path="res://scenes/ui/menus/player_menu.tscn" id="2_gvwpr"]
+[ext_resource type="Script" uid="uid://cmngrutsjny1t" path="res://scripts/ui/combat/post_combat_summary.gd" id="3_2b48g"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_3c4m5"]
+[ext_resource type="Resource" uid="uid://dewowlwg6ekcd" path="res://resources/items/head/rusty_helm.tres" id="4_bg5j8"]
+[ext_resource type="Resource" uid="uid://do2lai1diivsb" path="res://resources/items/main hand/flaming_greatsword.tres" id="5_t547c"]
+[ext_resource type="PackedScene" uid="uid://cqp8tlucqj7xe" path="res://scenes/ui/map/map_dice_panel.tscn" id="8_bg5j8"]
+
+[node name="MapScene" type="Node2D"]
+script = ExtResource("1_yjpty")
+
+[node name="MapNodesContainer" type="Node2D" parent="."]
+
+[node name="TownNode" type="Node2D" parent="MapNodesContainer"]
+
+[node name="Sprite2D" type="Sprite2D" parent="MapNodesContainer/TownNode"]
+
+[node name="Area2D" type="Area2D" parent="MapNodesContainer/TownNode"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MapNodesContainer/TownNode/Area2D"]
+
+[node name="ForestNode" type="Node2D" parent="MapNodesContainer"]
+
+[node name="Sprite2D" type="Sprite2D" parent="MapNodesContainer/ForestNode"]
+
+[node name="Area2D" type="Area2D" parent="MapNodesContainer/ForestNode"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MapNodesContainer/ForestNode/Area2D"]
+
+[node name="DungeonNode" type="Node2D" parent="MapNodesContainer"]
+
+[node name="Sprite2D" type="Sprite2D" parent="MapNodesContainer/DungeonNode"]
+
+[node name="Area2D" type="Area2D" parent="MapNodesContainer/DungeonNode"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MapNodesContainer/DungeonNode/Area2D"]
+
+[node name="PathLines" type="Node2D" parent="."]
+
+[node name="PlayerIcon" type="Node2D" parent="."]
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+
+[node name="TopBar" type="HBoxContainer" parent="UILayer"]
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -108.5
+offset_right = 794.0
+offset_bottom = 108.5
+grow_vertical = 2
+alignment = 1
+
+[node name="MenuButton" type="Button" parent="UILayer/TopBar"]
+layout_mode = 2
+text = "Menu"
+
+[node name="CombatButton" type="Button" parent="UILayer/TopBar"]
+layout_mode = 2
+text = "Test Combat"
+
+[node name="AddStartingGearButton" type="Button" parent="UILayer/TopBar"]
+layout_mode = 2
+text = "Add Starting Gear"
+script = ExtResource("2_2b48g")
+starting_items = Array[ExtResource("3_3c4m5")]([ExtResource("4_bg5j8"), ExtResource("5_t547c")])
+
+[node name="PlayerMenu" parent="UILayer" instance=ExtResource("2_gvwpr")]
+visible = false
+custom_minimum_size = Vector2(300, 400)
+
+[node name="PostCombatSummary" type="Control" parent="UILayer"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("3_2b48g")
+
+[node name="ColorRect" type="ColorRect" parent="UILayer/PostCombatSummary"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+color = Color(0.019735243, 0.019479254, 0, 0.7647059)
+
+[node name="CenterContainer" type="CenterContainer" parent="UILayer/PostCombatSummary"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="PanelContainer" type="PanelContainer" parent="UILayer/PostCombatSummary/CenterContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Combat Ended"
+
+[node name="HSeparator" type="HSeparator" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ExpSection" type="VBoxContainer" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ExpLabel" type="Label" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer/ExpSection"]
+layout_mode = 2
+text = "Exp. Gained"
+
+[node name="ExpValue" type="Label" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer/ExpSection"]
+layout_mode = 2
+text = "+100 XP"
+
+[node name="HSeparator2" type="HSeparator" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="LootSection" type="VBoxContainer" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="LootLabel" type="Label" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer/LootSection"]
+layout_mode = 2
+text = "Loot Earned"
+
+[node name="LootGrid" type="GridContainer" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer/LootSection"]
+layout_mode = 2
+columns = 3
+
+[node name="HSeparator3" type="HSeparator" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="CloseButton" type="Button" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Close"
+
+[node name="MapDicePanel" parent="UILayer" instance=ExtResource("8_bg5j8")]

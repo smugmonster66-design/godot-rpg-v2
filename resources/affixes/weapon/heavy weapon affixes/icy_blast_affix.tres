@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=3 format=3 uid="uid://nvqiwprh2rv0"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_8cptt"]
+[ext_resource type="Resource" uid="uid://dichqyjowjanf" path="res://resources/actions/items/weapons/heavy/first/icy_blast_action.tres" id="1_hb7h0"]
+
+[resource]
+script = ExtResource("1_8cptt")
+affix_name = "Icy Blast"
+description = "Grants the Icy Blast action. "
+category = 31
+granted_action = ExtResource("1_hb7h0")
+metadata/_custom_type_script = "uid://c8ianog20smkw"

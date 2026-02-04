@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://shaders/dice/poison/poison_value.gdshader" id="1_shader"]
+
+[resource]
+shader = ExtResource("1_shader")
+shader_parameter/text_color = Color(0.4, 0.85, 0.25, 1)
+shader_parameter/glow_color = Color(0.6, 1, 0.3, 1)
+shader_parameter/pulse_speed = 1.0
+shader_parameter/sickness = 0.5

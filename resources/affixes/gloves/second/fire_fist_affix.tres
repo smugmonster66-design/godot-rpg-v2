@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=2 format=3 uid="uid://b2x3mu74rqjni"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_p68cr"]
+
+[resource]
+script = ExtResource("1_p68cr")
+affix_name = "Fire Fist"
+description = "Adds +5 Fire damage to each attack."
+category = 9
+metadata/_custom_type_script = "uid://c8ianog20smkw"

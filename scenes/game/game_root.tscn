@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3 uid="uid://b2w217jydc2gl"]
+
+[ext_resource type="Script" uid="uid://c2ftibv05ag52" path="res://scripts/game/game_root.gd" id="1_pevc5"]
+[ext_resource type="PackedScene" uid="uid://dg4shmm2jhcnd" path="res://scenes/game/combat_scene.tscn" id="2_n6w2t"]
+[ext_resource type="PackedScene" uid="uid://cx781vq4omutw" path="res://scenes/game/map_scene.tscn" id="4_0krdv"]
+[ext_resource type="PackedScene" uid="uid://c0w3t10mfnowo" path="res://scenes/ui/bottom_ui_panel.tscn" id="5_n6w2t"]
+
+[node name="GameRoot" type="Node"]
+script = ExtResource("1_pevc5")
+
+[node name="MapLayer" type="CanvasLayer" parent="."]
+
+[node name="MapScene" parent="MapLayer" instance=ExtResource("4_0krdv")]
+
+[node name="CombatLayer" type="CanvasLayer" parent="."]
+visible = false
+
+[node name="CombatScene" parent="CombatLayer" instance=ExtResource("2_n6w2t")]
+
+[node name="PersistentUILayer" type="CanvasLayer" parent="."]
+layer = 100
+
+[node name="BottomUIPanel" parent="PersistentUILayer" instance=ExtResource("5_n6w2t")]
+offset_top = -342.0

@@ -1,0 +1,58 @@
+[gd_scene load_steps=2 format=3 uid="uid://4ahxkdbgy447"]
+
+[ext_resource type="Script" uid="uid://ckcnmmdmj10wo" path="res://scripts/ui/combat/action_field.gd" id="1_vm0q0"]
+
+[node name="ActionField" type="PanelContainer"]
+custom_minimum_size = Vector2(120, 100)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_vm0q0")
+metadata/_edit_vertical_guides_ = [-146.0]
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 10
+
+[node name="NameLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Action"
+horizontal_alignment = 1
+
+[node name="ChargeLabel" type="Label" parent="VBoxContainer"]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+horizontal_alignment = 2
+vertical_alignment = 2
+
+[node name="IconContainer" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="VBoxContainer/IconContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/IconContainer/CenterContainer"]
+layout_mode = 2
+
+[node name="IconRect" type="TextureRect" parent="VBoxContainer/IconContainer/CenterContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="DieSlotsGrid" type="GridContainer" parent="VBoxContainer/IconContainer/CenterContainer/VBoxContainer"]
+layout_mode = 2
+columns = 3
+
+[node name="SlotPanel" type="PanelContainer" parent="VBoxContainer/IconContainer/CenterContainer/VBoxContainer/DieSlotsGrid"]
+layout_mode = 2
+
+[node name="EmptyLabel" type="Label" parent="VBoxContainer/IconContainer/CenterContainer/VBoxContainer/DieSlotsGrid/SlotPanel"]
+layout_mode = 2
+text = "><"
+
+[node name="DescriptionLabel" type="RichTextLabel" parent="VBoxContainer"]
+layout_mode = 2
+text = "This is a description."

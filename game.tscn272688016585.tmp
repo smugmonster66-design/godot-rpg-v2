@@ -1,0 +1,105 @@
+[gd_scene load_steps=12 format=3 uid="uid://bw4jquy61ce3a"]
+
+[ext_resource type="PackedScene" uid="uid://d325vmjfr8dlf" path="res://scenes/combat_scene.tscn" id="1_e2o6t"]
+[ext_resource type="PackedScene" uid="uid://brga04ti1y5vh" path="res://scenes/player.tscn" id="1_eow3j"]
+[ext_resource type="Script" uid="uid://dxanjr8m2qo1i" path="res://game.gd" id="1_j5wjh"]
+[ext_resource type="Script" uid="uid://0iq7cbeuaa3f" path="res://scripts/combat_manager.gd" id="2_ryrav"]
+[ext_resource type="PackedScene" uid="uid://ois4nkcx0waa" path="res://scenes/combatant.tscn" id="3_7jktm"]
+[ext_resource type="Script" uid="uid://csfsyn7uokgyl" path="res://scripts/dice_pool.gd" id="4_ryrav"]
+[ext_resource type="PackedScene" uid="uid://4u2ommgd5k44" path="res://scenes/die.tscn" id="5_eow3j"]
+[ext_resource type="PackedScene" uid="uid://4ahxkdbgy447" path="res://scenes/action_field.tscn" id="6_ryrav"]
+[ext_resource type="PackedScene" uid="uid://c3n86aq4hwd5s" path="res://scenes/map_scene.tscn" id="9_hve3p"]
+[ext_resource type="PackedScene" uid="uid://b4cwd535525ap" path="res://scenes/player_menu.tscn" id="9_vef74"]
+[ext_resource type="Script" uid="uid://ex7lxpkjwyaa" path="res://scripts/map_scene.gd" id="10_mfdv2"]
+
+[node name="GAME" type="Node2D"]
+script = ExtResource("1_j5wjh")
+
+[node name="Player" parent="." instance=ExtResource("1_eow3j")]
+
+[node name="CombatScene" parent="." instance=ExtResource("1_e2o6t")]
+visible = false
+script = ExtResource("2_ryrav")
+
+[node name="Player" parent="CombatScene" instance=ExtResource("3_7jktm")]
+position = Vector2(130, 546)
+
+[node name="Enemy1" parent="CombatScene" instance=ExtResource("3_7jktm")]
+position = Vector2(129, 57)
+max_health = 80
+
+[node name="DicePool" type="HBoxContainer" parent="CombatScene"]
+custom_minimum_size = Vector2(700, 10)
+offset_top = 461.0
+offset_right = 700.0
+offset_bottom = 501.0
+theme_override_constants/separation = 10
+script = ExtResource("4_ryrav")
+die_scene = ExtResource("5_eow3j")
+
+[node name="ActionFields" type="HBoxContainer" parent="CombatScene"]
+offset_left = 82.0
+offset_top = 146.0
+offset_right = 472.0
+offset_bottom = 246.0
+theme_override_constants/separation = 15
+
+[node name="ActionField" parent="CombatScene/ActionFields" instance=ExtResource("6_ryrav")]
+layout_mode = 2
+
+[node name="ActionField2" parent="CombatScene/ActionFields" instance=ExtResource("6_ryrav")]
+layout_mode = 2
+action_type = 1
+
+[node name="ActionField3" parent="CombatScene/ActionFields" instance=ExtResource("6_ryrav")]
+layout_mode = 2
+action_type = 2
+
+[node name="ActionButtons" type="HBoxContainer" parent="CombatScene"]
+offset_left = 350.0
+offset_top = 350.0
+offset_right = 390.0
+offset_bottom = 390.0
+
+[node name="ConfirmButton" type="Button" parent="CombatScene/ActionButtons"]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+text = "Confirm"
+
+[node name="CancelButton" type="Button" parent="CombatScene/ActionButtons"]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+text = "Cancel"
+
+[node name="EndTurnButton" type="Button" parent="CombatScene"]
+custom_minimum_size = Vector2(120, 50)
+offset_left = 600.0
+offset_top = 500.0
+offset_right = 678.0
+offset_bottom = 531.0
+text = "End Turn"
+
+[node name="MapScene" parent="." instance=ExtResource("9_hve3p")]
+script = ExtResource("10_mfdv2")
+
+[node name="MapNodesContainer" type="Node2D" parent="MapScene"]
+
+[node name="UILayer" type="CanvasLayer" parent="MapScene"]
+
+[node name="CombatButton" type="Button" parent="MapScene/UILayer"]
+custom_minimum_size = Vector2(40, 40)
+offset_left = 478.0
+offset_top = 500.0
+offset_right = 547.0
+offset_bottom = 540.0
+text = "Combat"
+
+[node name="MenuButton" type="Button" parent="MapScene/UILayer"]
+custom_minimum_size = Vector2(40, 40)
+offset_left = 322.0
+offset_top = 561.0
+offset_right = 375.0
+offset_bottom = 601.0
+text = "Menu"
+
+[node name="PlayerMenu" parent="MapScene/UILayer" instance=ExtResource("9_vef74")]

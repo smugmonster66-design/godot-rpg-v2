@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://ctpamire6rmbu"]
+
+[ext_resource type="Script" uid="uid://dtbkqbsfd8dmb" path="res://scripts/ui/components/die_visual.gd" id="1_fgpu3"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fgpu3"]
+bg_color = Color(0.60038817, 0.60038817, 0.60038817, 0)
+
+[node name="DieVisual" type="PanelContainer"]
+theme_override_styles/panel = SubResource("StyleBoxFlat_fgpu3")
+script = ExtResource("1_fgpu3")
+
+[node name="DieFaceContainer" type="Control" parent="."]
+custom_minimum_size = Vector2(124, 124)
+layout_mode = 2
+mouse_filter = 2

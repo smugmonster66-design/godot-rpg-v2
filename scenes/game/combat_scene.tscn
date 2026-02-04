@@ -1,0 +1,28 @@
+[gd_scene load_steps=8 format=3 uid="uid://dg4shmm2jhcnd"]
+
+[ext_resource type="Script" uid="uid://0iq7cbeuaa3f" path="res://scripts/game/combat_manager.gd" id="1_c5idb"]
+[ext_resource type="Script" uid="uid://xged2nhfokvn" path="res://scripts/game/encounter_spawner.gd" id="2_c5idb"]
+[ext_resource type="PackedScene" uid="uid://c2m3pot6xne0s" path="res://scenes/entities/player_combatant.tscn" id="2_v0jgu"]
+[ext_resource type="PackedScene" uid="uid://0uycurmcavjg" path="res://scenes/ui/combat/combat_ui.tscn" id="3_c5idb"]
+[ext_resource type="PackedScene" uid="uid://cdsc00wnnfyi7" path="res://scenes/entities/combatant.tscn" id="3_vspht"]
+[ext_resource type="Script" uid="uid://d1imaich82oxv" path="res://scripts/ui/combat/combat_ui.gd" id="4_v0jgu"]
+[ext_resource type="Script" uid="uid://cpl03s2dvdv4s" path="res://scripts/effects/combat_animation_player.gd" id="7_8ldcr"]
+
+[node name="CombatScene" type="Node2D"]
+script = ExtResource("1_c5idb")
+
+[node name="EncounterSpawner" type="Node2D" parent="."]
+script = ExtResource("2_c5idb")
+combatant_scene = ExtResource("3_vspht")
+
+[node name="PlayerCombatant" parent="." instance=ExtResource("2_v0jgu")]
+max_health = 25
+
+[node name="CombatUILayer" parent="." instance=ExtResource("3_c5idb")]
+script = ExtResource("4_v0jgu")
+
+[node name="EffectsLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="CombatAnimationPlayer" type="AnimationPlayer" parent="."]
+script = ExtResource("7_8ldcr")

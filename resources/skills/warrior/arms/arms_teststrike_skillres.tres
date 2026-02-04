@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=4 format=3 uid="uid://dehqol3khl2ij"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_yt0ck"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="2_hxjes"]
+[ext_resource type="Resource" uid="uid://dpcfado7cj3m3" path="res://resources/affixes/player skill affixes/warrior/arms/arms_test_strike_affix.tres" id="2_ryasl"]
+
+[resource]
+script = ExtResource("2_hxjes")
+skill_id = "arms_test_strike"
+skill_name = "Arms Test Strike"
+description = "Gain a new action: Arms Test Strike."
+column = 4
+rank_1_affixes = Array[ExtResource("1_yt0ck")]([ExtResource("2_ryasl")])
+metadata/_custom_type_script = "uid://bd327xjbfmua2"

@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://c0mbat_d8_001"]
+
+[ext_resource type="PackedScene" uid="uid://c0mbat_d1e_base" path="res://scenes/ui/components/dice/combat/combat_die_object_base.tscn" id="1_base"]
+
+[node name="CombatDieD8" instance=ExtResource("1_base")]

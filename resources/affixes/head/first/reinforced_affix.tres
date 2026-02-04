@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=2 format=3 uid="uid://4cwn55rka7c7"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_lknrn"]
+
+[resource]
+script = ExtResource("1_lknrn")
+affix_name = "Reinforced"
+description = "+5 Armor"
+categories = Array[String](["armor_bonus"])
+effect_number = 5.0
+metadata/_custom_type_script = "uid://c8ianog20smkw"

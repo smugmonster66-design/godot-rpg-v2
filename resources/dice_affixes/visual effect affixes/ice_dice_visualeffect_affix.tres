@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=5 format=3 uid="uid://qp4xkm0f3sx"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_jcsaf"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_tqevo"]
+[ext_resource type="Resource" uid="uid://5reowlmk0shu" path="res://resources/preview_effects/frost_hammer_preview.tres" id="2_jcsaf"]
+[ext_resource type="Material" path="res://resources/materials/cracked_ice_material.tres" id="2_lwcop"]
+
+[resource]
+script = ExtResource("1_tqevo")
+affix_name = "Ice Dice"
+description = "Makes the affixed die look icy."
+visual_effect_type = 4
+shader_material = ExtResource("2_lwcop")
+preview_effects = Array[ExtResource("1_jcsaf")]([ExtResource("2_jcsaf")])
+metadata/_custom_type_script = "uid://s6ivem1wgjrx"

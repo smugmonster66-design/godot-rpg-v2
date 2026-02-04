@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://slashing_value_mat"]
+
+[ext_resource type="Shader" path="res://shaders/dice/slashing/slashing_value.gdshader" id="1_shader"]
+
+[resource]
+shader = ExtResource("1_shader")
+shader_parameter/engrave_color = Color(0.25, 0.27, 0.3, 1)
+shader_parameter/shadow_color = Color(0.1, 0.1, 0.12, 1)
+shader_parameter/highlight_color = Color(0.6, 0.62, 0.65, 1)
+shader_parameter/depth = 0.6
+shader_parameter/light_direction = Vector2(-0.5, -0.7)

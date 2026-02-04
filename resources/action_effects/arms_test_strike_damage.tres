@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=2 format=3 uid="uid://43l22tcflx3i"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_dv55i"]
+
+[resource]
+script = ExtResource("1_dv55i")
+effect_name = "Arms Strike Damage"
+base_damage = 4
+damage_multiplier = 2.0
+metadata/_custom_type_script = "uid://dqmfu54osidoc"

@@ -1,0 +1,81 @@
+[gd_scene load_steps=3 format=3 uid="uid://dofeq3txtonis"]
+
+[ext_resource type="Script" uid="uid://diwnfbide3q17" path="res://scripts/ui/combat/enemy_panel.gd" id="1_o7t4d"]
+[ext_resource type="PackedScene" uid="uid://c1kmjpwav45is" path="res://scenes/ui/combat/enemy_slot.tscn" id="2_g7aqa"]
+
+[node name="EnemyPanel" type="VBoxContainer"]
+offset_right = 388.0
+offset_bottom = 234.0
+theme_override_constants/separation = 16
+alignment = 1
+script = ExtResource("1_o7t4d")
+
+[node name="Control2" type="Control" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SlotsContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+alignment = 1
+
+[node name="EnemySlot1" parent="SlotsContainer" instance=ExtResource("2_g7aqa")]
+layout_mode = 2
+
+[node name="EnemySlot2" parent="SlotsContainer" instance=ExtResource("2_g7aqa")]
+layout_mode = 2
+
+[node name="EnemySlot3" parent="SlotsContainer" instance=ExtResource("2_g7aqa")]
+layout_mode = 2
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EnemyDiceHand" type="PanelContainer" parent="."]
+visible = false
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="EnemyDiceHand"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="EnemyDiceHand/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ActionLabel" type="Label" parent="EnemyDiceHand/MarginContainer/VBox"]
+layout_mode = 2
+text = "EnemyTurn"
+horizontal_alignment = 1
+
+[node name="HandContainer" type="HBoxContainer" parent="EnemyDiceHand/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="DiceHandGrid" type="HBoxContainer" parent="EnemyDiceHand/MarginContainer/VBox/HandContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Arrow" type="Label" parent="EnemyDiceHand/MarginContainer/VBox/HandContainer"]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "→"
+vertical_alignment = 1
+
+[node name="CurrentActionPanel" type="PanelContainer" parent="EnemyDiceHand/MarginContainer/VBox/HandContainer"]
+visible = false
+custom_minimum_size = Vector2(120, 50)
+layout_mode = 2
+
+[node name="ActionName" type="Label" parent="EnemyDiceHand/MarginContainer/VBox/HandContainer/CurrentActionPanel"]
+layout_mode = 2
+text = "AttackAction"
+horizontal_alignment = 1
+vertical_alignment = 1

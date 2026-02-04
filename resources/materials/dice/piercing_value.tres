@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://shaders/dice/piercing/piercing_value.gdshader" id="1_shader"]
+
+[resource]
+shader = ExtResource("1_shader")
+shader_parameter/text_color = Color(0.9, 0.9, 0.95, 1)
+shader_parameter/shadow_color = Color(0.4, 0.42, 0.45, 1)
+shader_parameter/sheen_intensity = 0.6

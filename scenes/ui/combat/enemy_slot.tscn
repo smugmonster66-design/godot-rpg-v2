@@ -1,0 +1,87 @@
+[gd_scene load_steps=4 format=3 uid="uid://c1kmjpwav45is"]
+
+[ext_resource type="Script" uid="uid://c6e0qeqjwtccy" path="res://scripts/ui/combat/enemy_slot.gd" id="1_8vtss"]
+[ext_resource type="Material" uid="uid://bwfd8np5fyexg" path="res://resources/materials/turn_indicator_material.tres" id="2_uy3ip"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8vtss"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.9853031, 0.7671745, 0, 1)
+
+[node name="EnemySlot" type="PanelContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_8vtss")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="DicePoolBar" type="HBoxContainer" parent="MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+alignment = 1
+
+[node name="Portrait" type="TextureRect" parent="MarginContainer/VBox"]
+custom_minimum_size = Vector2(100, 80)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SelectionIndicator" type="Panel" parent="MarginContainer/VBox/Portrait"]
+visible = false
+custom_minimum_size = Vector2(100, 80)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_8vtss")
+
+[node name="TurnIndicatorRect" type="Control" parent="MarginContainer/VBox/Portrait"]
+visible = false
+material = ExtResource("2_uy3ip")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ColorRect" type="ColorRect" parent="MarginContainer/VBox/Portrait/TurnIndicatorRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="NameLabel" type="Label" parent="MarginContainer/VBox"]
+layout_mode = 2
+text = "<Name>"
+horizontal_alignment = 1
+
+[node name="HealthBar" type="TextureProgressBar" parent="MarginContainer/VBox"]
+custom_minimum_size = Vector2(100, 16)
+layout_mode = 2
+value = 100.0
+
+[node name="HealthLabel" type="Label" parent="MarginContainer/VBox"]
+layout_mode = 2
+horizontal_alignment = 1
+
+[node name="TurnIndicatorRect" type="ColorRect" parent="MarginContainer/VBox"]
+layout_mode = 2
+color = Color(1, 0, 1, 0.27100003)

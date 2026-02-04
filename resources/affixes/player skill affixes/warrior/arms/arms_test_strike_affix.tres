@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=3 format=3 uid="uid://dpcfado7cj3m3"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_rj7k4"]
+[ext_resource type="Resource" uid="uid://bqp2x4md1qdej" path="res://resources/actions/class-based/warrior/arms/arms_test_strike_action.tres" id="1_srs5i"]
+
+[resource]
+script = ExtResource("1_rj7k4")
+affix_name = "Arms Test Strike"
+description = "Grants the Arms Test Strike action."
+category = 20
+granted_action = ExtResource("1_srs5i")
+metadata/_custom_type_script = "uid://c8ianog20smkw"

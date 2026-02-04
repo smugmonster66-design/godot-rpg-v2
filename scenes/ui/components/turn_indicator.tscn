@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://bmn2dna0lqrqf"]
+
+[ext_resource type="Script" uid="uid://cya137ll587m1" path="res://scripts/ui/components/turn_indicator.gd" id="1_o7322"]
+
+[node name="TurnIndicator" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_o7322")

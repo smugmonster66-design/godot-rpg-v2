@@ -1,0 +1,104 @@
+[gd_scene load_steps=3 format=3 uid="uid://cqp8tlucqj7xe"]
+
+[ext_resource type="Script" uid="uid://dovahdak8uhox" path="res://scripts/ui/map/map_dice_panel.gd" id="1_map_dice_panel"]
+[ext_resource type="PackedScene" uid="uid://ds3fslulucbxd" path="res://scenes/ui/map/dice_grid.tscn" id="2_bqx1x"]
+
+[node name="MapDicePanel" type="PanelContainer" groups=["map_dice_panels"]]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -292.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("1_map_dice_panel")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Spacer" type="Control" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MainVBox" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="HBoxContainer/MainVBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="PortraitPanel" type="PanelContainer" parent="HBoxContainer/MainVBox/Header"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+
+[node name="Portrait" type="TextureRect" parent="HBoxContainer/MainVBox/Header/PortraitPanel" groups=["player_portrait"]]
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="InfoVBox" type="VBoxContainer" parent="HBoxContainer/MainVBox/Header"]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="HBoxContainer/MainVBox/Header/InfoVBox" groups=["player_name_label"]]
+layout_mode = 2
+text = "Name"
+
+[node name="HealthContainer" type="VBoxContainer" parent="HBoxContainer/MainVBox/Header/InfoVBox"]
+layout_mode = 2
+
+[node name="HealthLabel" type="Label" parent="HBoxContainer/MainVBox/Header/InfoVBox/HealthContainer" groups=["player_health_label"]]
+layout_mode = 2
+text = "100/100"
+
+[node name="HealthBar" type="TextureProgressBar" parent="HBoxContainer/MainVBox/Header/InfoVBox/HealthContainer" groups=["player_health_bar"]]
+layout_mode = 2
+value = 100.0
+
+[node name="ManaContainer" type="VBoxContainer" parent="HBoxContainer/MainVBox/Header/InfoVBox"]
+layout_mode = 2
+
+[node name="ManaLabel" type="Label" parent="HBoxContainer/MainVBox/Header/InfoVBox/ManaContainer" groups=["player_mana_label"]]
+layout_mode = 2
+text = "25/25"
+
+[node name="ManaBar" type="TextureProgressBar" parent="HBoxContainer/MainVBox/Header/InfoVBox/ManaContainer" groups=["player_mana_bar"]]
+layout_mode = 2
+
+[node name="ExpContainer" type="VBoxContainer" parent="HBoxContainer/MainVBox/Header/InfoVBox"]
+layout_mode = 2
+
+[node name="ExpLabel" type="Label" parent="HBoxContainer/MainVBox/Header/InfoVBox/ExpContainer" groups=["player_exp_label"]]
+layout_mode = 2
+text = "22/100"
+
+[node name="ExpBar" type="TextureProgressBar" parent="HBoxContainer/MainVBox/Header/InfoVBox/ExpContainer" groups=["player_exp_bar"]]
+layout_mode = 2
+
+[node name="HSeparator" type="HSeparator" parent="HBoxContainer/MainVBox"]
+layout_mode = 2
+
+[node name="DiceSection" type="VBoxContainer" parent="HBoxContainer/MainVBox"]
+layout_mode = 2
+
+[node name="DiceHeader" type="HBoxContainer" parent="HBoxContainer/MainVBox/DiceSection"]
+layout_mode = 2
+
+[node name="DiceTitle" type="Label" parent="HBoxContainer/MainVBox/DiceSection/DiceHeader"]
+layout_mode = 2
+text = "Dice Hand"
+
+[node name="Spacer" type="Control" parent="HBoxContainer/MainVBox/DiceSection/DiceHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DiceCountLabel" type="Label" parent="HBoxContainer/MainVBox/DiceSection/DiceHeader" groups=["dice_count_label"]]
+layout_mode = 2
+text = "0/10"
+
+[node name="DiceGrid" parent="HBoxContainer/MainVBox/DiceSection" instance=ExtResource("2_bqx1x")]
+layout_mode = 2
+columns = 10
+
+[node name="Spacer2" type="Control" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="SkillTree" load_steps=3 format=3 uid="uid://d1ma2pq208r6h"]
+
+[ext_resource type="Script" uid="uid://cukfw0heumnic" path="res://scripts/data/skill_tree.gd" id="1_oyiyv"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="2_cxfiv"]
+
+[resource]
+script = ExtResource("1_oyiyv")
+tree_id = "berserker"
+tree_name = "Berserker"
+description = "RAAGGHHHH"
+metadata/_custom_type_script = "uid://cukfw0heumnic"

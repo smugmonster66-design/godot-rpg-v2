@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=3 format=3 uid="uid://gmrfuoi5syc7"]
+
+[ext_resource type="Resource" uid="uid://ctea5d701n0tn" path="res://resources/affixes/gloves/first/agile_affix.tres" id="1_csji6"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="1_gggoh"]
+
+[resource]
+script = ExtResource("1_gggoh")
+item_name = "Agile Gloves"
+description = "Spiffy gloves."
+rarity = 1
+equip_slot = 2
+manual_first_affix = ExtResource("1_csji6")
+metadata/_custom_type_script = "uid://gax4pbuq25uv"

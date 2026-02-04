@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://c457eolhd5tul"]
+
+[ext_resource type="PackedScene" uid="uid://bmga53i2fyko4" path="res://scenes/ui/components/dice/combat/combat_die_object_base.tscn" id="1_base"]
+
+[node name="CombatDieD12" instance=ExtResource("1_base")]
+
+[node name="ValueLabel" parent="." index="2"]
+offset_left = -24.0
+offset_top = -45.0
+offset_right = 26.0
+offset_bottom = 38.0
+theme_override_font_sizes/font_size = 44
+text = "12"

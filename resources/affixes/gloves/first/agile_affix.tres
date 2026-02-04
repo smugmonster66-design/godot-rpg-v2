@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=2 format=3 uid="uid://ctea5d701n0tn"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_gfacm"]
+
+[resource]
+script = ExtResource("1_gfacm")
+affix_name = "Agile"
+description = "+ 1 Agility"
+category = 2
+effect_number = 1.0
+metadata/_custom_type_script = "uid://c8ianog20smkw"

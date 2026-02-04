@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=5 format=3 uid="uid://do2lai1diivsb"]
+
+[ext_resource type="Resource" uid="uid://bssiypid634be" path="res://resources/actions/flame_strike.tres" id="1_xasjj"]
+[ext_resource type="Texture2D" uid="uid://dpgym07n0ucvh" path="res://assets/textures/items/main hand/flaming_greatsword.png" id="2_c7kro"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="2_ee0ol"]
+[ext_resource type="Resource" uid="uid://ue2sfwflxqox" path="res://resources/affixes/weapon/legendary/flareburst_affix.tres" id="3_ee0ol"]
+
+[resource]
+script = ExtResource("2_ee0ol")
+item_name = "Flaming Greatsword"
+description = "Hecking big fire sword."
+icon = ExtResource("2_c7kro")
+rarity = 4
+equip_slot = 6
+unique_affix = ExtResource("3_ee0ol")
+grants_dice = Array[int]([8])
+grants_action = true
+action = ExtResource("1_xasjj")
+metadata/_custom_type_script = "uid://gax4pbuq25uv"

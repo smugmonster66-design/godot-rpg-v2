@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="PreviewEffect" load_steps=2 format=3 uid="uid://th7a1kmff4ud"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_lhdni"]
+
+[resource]
+script = ExtResource("1_lhdni")
+metadata/_custom_type_script = "uid://cd6s6myukugle"

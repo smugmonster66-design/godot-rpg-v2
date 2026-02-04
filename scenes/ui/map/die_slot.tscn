@@ -1,0 +1,71 @@
+[gd_scene load_steps=3 format=3 uid="uid://deob7tvt1qkgs"]
+
+[ext_resource type="Script" uid="uid://c38lua4f68kv0" path="res://scripts/ui/map/die_slot.gd" id="1_x72hv"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pg7sh"]
+bg_color = Color(0.15847227, 0.15847233, 0.15847221, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="DieSlot" type="PanelContainer"]
+custom_minimum_size = Vector2(64, 64)
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_pg7sh")
+script = ExtResource("1_x72hv")
+
+[node name="Content" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="DieDisplay" type="VBoxContainer" parent="Content" groups=["die_display"]]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="TypeLabel" type="Label" parent="Content/DieDisplay"]
+layout_mode = 2
+
+[node name="ValueLabel" type="Label" parent="Content/DieDisplay" groups=["value_label"]]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "X"
+
+[node name="BottomRow" type="HBoxContainer" parent="Content/DieDisplay"]
+layout_mode = 2
+mouse_filter = 2
+alignment = 1
+
+[node name="ModifierLabel" type="Label" parent="Content/DieDisplay/BottomRow" groups=["modifier_label"]]
+visible = false
+layout_mode = 2
+text = "+modtext"
+horizontal_alignment = 1
+
+[node name="AffixIndicator" type="Label" parent="Content/DieDisplay/BottomRow" groups=["affix_indicator"]]
+visible = false
+layout_mode = 2
+text = "◆"
+horizontal_alignment = 1
+
+[node name="EmptyDisplay" type="CenterContainer" parent="Content"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="EmptyLabel" type="Label" parent="Content/EmptyDisplay"]
+layout_mode = 2
+text = "+"
+horizontal_alignment = 1
+
+[node name="LockIcon" type="Label" parent="." groups=["lock_icon"]]
+visible = false
+layout_mode = 2
+text = "🔒"
+horizontal_alignment = 1

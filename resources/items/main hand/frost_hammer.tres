@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=6 format=3 uid="uid://dynp53wsejoff"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_w0p44"]
+[ext_resource type="Resource" uid="uid://ctsfrcjdr4fmn" path="res://resources/dice/item/weapon/epic/d12_frost_hammer_die.tres" id="2_8i1hf"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="2_rbef4"]
+[ext_resource type="Texture2D" uid="uid://cehygalcjcvxu" path="res://assets/items/weapons/epic/frost-hammer.png" id="3_8i1hf"]
+[ext_resource type="Resource" uid="uid://nvqiwprh2rv0" path="res://resources/affixes/weapon/heavy weapon affixes/icy_blast_affix.tres" id="4_vfvme"]
+
+[resource]
+script = ExtResource("2_rbef4")
+item_name = "Frost Hammer"
+description = "The ice somehow doesn't break when you hit something with it. "
+icon = ExtResource("3_8i1hf")
+rarity = 3
+equip_slot = 6
+manual_first_affix = ExtResource("4_vfvme")
+grants_dice = Array[ExtResource("1_w0p44")]([ExtResource("2_8i1hf")])
+metadata/_custom_type_script = "uid://gax4pbuq25uv"

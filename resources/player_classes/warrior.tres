@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="PlayerClass" load_steps=12 format=3 uid="uid://flk40m735lxj"]
+
+[ext_resource type="Script" uid="uid://n4huc4i0nhvn" path="res://resources/data/player_class.gd" id="1_3nn7d"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_agdky"]
+[ext_resource type="Resource" uid="uid://35lrxcygw5uc" path="res://resources/skill_trees/warrior_arms.tres" id="2_jreak"]
+[ext_resource type="Resource" uid="uid://cjpycoh3jpgdj" path="res://resources/skill_trees/warrior_armor.tres" id="3_6qkit"]
+[ext_resource type="Resource" uid="uid://d1ma2pq208r6h" path="res://resources/skill_trees/warrior_berserker.tres" id="4_3jdp8"]
+[ext_resource type="Resource" uid="uid://cw312lbitxooi" path="res://resources/dice/base elemental dice/d6_blunt.tres" id="6_3jdp8"]
+[ext_resource type="Resource" uid="uid://l2yabmsdy176" path="res://resources/dice/base elemental dice/d6_slashing.tres" id="7_wtd5a"]
+[ext_resource type="Resource" uid="uid://b5ueqg374e25a" path="res://resources/dice/base elemental dice/d6_fire.tres" id="8_wtd5a"]
+[ext_resource type="Resource" uid="uid://nebufhkvm6a4" path="res://resources/dice/base elemental dice/d6_ice.tres" id="9_1cmot"]
+[ext_resource type="Resource" uid="uid://cxxmf2cusj1uo" path="res://resources/dice/base elemental dice/d6_shock.tres" id="10_57q0a"]
+[ext_resource type="Resource" uid="uid://cfl45vqle17ud" path="res://resources/dice/base elemental dice/d6_poison.tres" id="11_t4woy"]
+
+[resource]
+script = ExtResource("1_3nn7d")
+base_health = 120
+mana_per_level = 0
+strength_per_level = 2.0
+starting_dice = Array[ExtResource("2_agdky")]([ExtResource("6_3jdp8"), ExtResource("7_wtd5a"), ExtResource("8_wtd5a"), ExtResource("9_1cmot"), ExtResource("10_57q0a"), ExtResource("11_t4woy")])
+skill_tree_1 = ExtResource("2_jreak")
+skill_tree_2 = ExtResource("3_6qkit")
+skill_tree_3 = ExtResource("4_3jdp8")
+metadata/_custom_type_script = "uid://n4huc4i0nhvn"

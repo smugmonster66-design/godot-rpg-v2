@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://b4oxnael3p4wu"]
+
+[ext_resource type="PackedScene" uid="uid://dvrkmsp036gy1" path="res://scenes/ui/components/dice/die_object_base.tscn" id="1_base"]
+[ext_resource type="Script" uid="uid://b6u4d6y3fx67b" path="res://scripts/ui/components/dice/pool_die_object.gd" id="2_script"]
+
+[node name="PoolDieObject" instance=ExtResource("1_base")]
+script = ExtResource("2_script")
+
+[node name="ValueLabel" parent="." index="2"]
+offset_left = -20.0
+offset_top = -30.0
+offset_right = 20.0
+offset_bottom = 53.0
+theme_override_constants/outline_size = 12
+theme_override_font_sizes/font_size = 60

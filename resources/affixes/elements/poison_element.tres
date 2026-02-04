@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://resources/data/dice_affix.gd" id="1_script"]
+[ext_resource type="ShaderMaterial" path="res://resources/materials/dice/poison_fill.tres" id="2_fill"]
+[ext_resource type="ShaderMaterial" path="res://resources/materials/dice/poison_stroke.tres" id="3_stroke"]
+[ext_resource type="ShaderMaterial" path="res://resources/materials/dice/poison_value.tres" id="4_value"]
+
+[resource]
+script = ExtResource("1_script")
+affix_name = "Poison Element"
+description = "Toxic venom corrodes all"
+show_in_summary = false
+fill_effect_type = 4
+fill_shader_material = ExtResource("2_fill")
+stroke_effect_type = 4
+stroke_shader_material = ExtResource("3_stroke")
+value_effect_type = 3
+value_shader_material = ExtResource("4_value")

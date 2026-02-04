@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=3 uid="uid://bdd66ionmp5y0"]
+
+[ext_resource type="PackedScene" uid="uid://d3857al3f5842" path="res://scenes/ui/components/dice/die_face_base.tscn" id="1_4ao8q"]
+
+[node name="DiceFace" instance=ExtResource("1_4ao8q")]
+
+[node name="ValueLabel" parent="." index="1"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.008064516
+anchor_top = -0.024193548
+anchor_right = 1.0080645
+anchor_bottom = 0.9758065
+offset_left = -1.0
+offset_top = 3.0
+offset_right = -1.0
+offset_bottom = 3.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/outline_size = 12
+theme_override_font_sizes/font_size = 44
+text = "12"
+metadata/_edit_use_anchors_ = true

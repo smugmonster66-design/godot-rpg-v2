@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://qq02h5qtu0mk"]
+
+[ext_resource type="Script" uid="uid://rfaodmh7b3ie" path="res://scripts/effects/shader_effect.gd" id="1_0dxlq"]
+[ext_resource type="Shader" uid="uid://b875ee43tox0d" path="res://assets/shaders/damage_flash.gdshader" id="2_k5ip2"]
+
+[node name="ShaderEffect" type="Node2D"]
+script = ExtResource("1_0dxlq")
+shader = ExtResource("2_k5ip2")
+duration = 0.3

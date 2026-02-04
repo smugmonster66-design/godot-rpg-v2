@@ -1,0 +1,406 @@
+[gd_scene load_steps=8 format=3 uid="uid://b4cwd535525ap"]
+
+[ext_resource type="Script" uid="uid://dp3d3aduyrmtn" path="res://scripts/ui/menus/player_menu.gd" id="1_20rq3"]
+[ext_resource type="Script" uid="uid://cdqwy6mxd4qwy" path="res://scripts/ui/menus/character_tab.gd" id="2_f0r6v"]
+[ext_resource type="ButtonGroup" uid="uid://bsujbjirutqfu" path="res://resources/ui/menu_tab_button_group.tres" id="2_g81ij"]
+[ext_resource type="PackedScene" uid="uid://u4538t4heese" path="res://scenes/ui/menus/skills_tab.tscn" id="3_s5lmw"]
+[ext_resource type="Script" uid="uid://bwbb5eko3ov7e" path="res://scripts/ui/menus/equipment_tab.gd" id="4_fbi1g"]
+[ext_resource type="Script" uid="uid://bbod52832org3" path="res://scripts/ui/menus/inventory_tab.gd" id="5_ldd5v"]
+[ext_resource type="ButtonGroup" uid="uid://d0jptqsddd8xr" path="res://resources/ui/inventory_category_button_group.tres" id="7_stsf8"]
+
+[node name="PlayerMenu" type="Control"]
+custom_minimum_size = Vector2(400, 430)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_20rq3")
+
+[node name="PanelContainer" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TabButtons" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="CharacterButton" type="Button" parent="PanelContainer/VBoxContainer/TabButtons" groups=["menu_tab_buttons", "player_menu_tab_button"]]
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+button_group = ExtResource("2_g81ij")
+text = "Char"
+metadata/tab_name = "Character"
+
+[node name="SkillsButton" type="Button" parent="PanelContainer/VBoxContainer/TabButtons" groups=["menu_tab_buttons", "player_menu_tab_button"]]
+layout_mode = 2
+toggle_mode = true
+button_group = ExtResource("2_g81ij")
+text = "Skills"
+metadata/tab_name = "Skills"
+
+[node name="EquipmentButton" type="Button" parent="PanelContainer/VBoxContainer/TabButtons" groups=["menu_tab_buttons", "player_menu_tab_button"]]
+layout_mode = 2
+toggle_mode = true
+button_group = ExtResource("2_g81ij")
+text = "Equipment"
+metadata/tab_name = "Equipment"
+
+[node name="InventoryButton" type="Button" parent="PanelContainer/VBoxContainer/TabButtons" groups=["menu_tab_buttons", "player_menu_tab_button"]]
+layout_mode = 2
+toggle_mode = true
+button_group = ExtResource("2_g81ij")
+text = "Inventory
+"
+metadata/tab_name = "Inventory"
+
+[node name="Quests" type="Button" parent="PanelContainer/VBoxContainer/TabButtons" groups=["menu_tab_buttons", "player_menu_tab_button"]]
+layout_mode = 2
+toggle_mode = true
+button_group = ExtResource("2_g81ij")
+text = "Quests"
+metadata/tab_name = "Quests"
+
+[node name="CloseButton" type="Button" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+text = "Close"
+
+[node name="ContentArea" type="PanelContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Character" type="Control" parent="PanelContainer/VBoxContainer/ContentArea" groups=["player_menu_tab_content"]]
+visible = false
+layout_mode = 2
+script = ExtResource("2_f0r6v")
+metadata/tab_name = "Character"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Character"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="ClassLabel" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer" groups=["character_tab_ui"]]
+layout_mode = 2
+text = "Class: X"
+metadata/ui_role = "\"class_label\""
+
+[node name="LevelLabel" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer" groups=["character_tab_ui"]]
+layout_mode = 2
+text = "Lvl: X"
+metadata/ui_role = "\"level_label\""
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer"]
+layout_mode = 2
+
+[node name="ExpLabel" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer/HBoxContainer" groups=["character_tab_ui"]]
+layout_mode = 2
+text = "Exp:"
+metadata/ui_role = "\"exp_label\""
+
+[node name="Control" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="ExpBar" type="ProgressBar" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer/HBoxContainer" groups=["character_tab_ui"]]
+layout_mode = 2
+value = 50.0
+metadata/ui_role = "\"exp_bar\""
+
+[node name="StatsContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer" groups=["character_tab_ui"]]
+layout_mode = 2
+metadata/ui_role = "\"stats_container\""
+
+[node name="Skills" parent="PanelContainer/VBoxContainer/ContentArea" groups=["player_menu_tab_content"] instance=ExtResource("3_s5lmw")]
+layout_mode = 2
+metadata/tab_name = "Skills"
+
+[node name="Equipment" type="Control" parent="PanelContainer/VBoxContainer/ContentArea" groups=["player_menu_tab_content"]]
+layout_mode = 2
+script = ExtResource("4_fbi1g")
+metadata/tab_name = "Equipment"
+
+[node name="CenterContainer" type="CenterContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="EquipmentGrid" type="GridContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer" groups=["equipment_grid"]]
+layout_mode = 2
+columns = 3
+
+[node name="Control" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid"]
+layout_mode = 2
+
+[node name="Head Slot" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid"]
+layout_mode = 2
+
+[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Head Slot"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Head Slot"]
+layout_mode = 2
+text = "Head"
+
+[node name="Control2" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid"]
+layout_mode = 2
+
+[node name="MainHand Slot" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid"]
+layout_mode = 2
+
+[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/MainHand Slot"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/MainHand Slot"]
+layout_mode = 2
+text = "Main Hand"
+
+[node name="Torso Slot" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid"]
+layout_mode = 2
+
+[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Torso Slot"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Torso Slot"]
+layout_mode = 2
+text = "Torso"
+
+[node name="OffHand Slot" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid"]
+layout_mode = 2
+
+[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/OffHand Slot"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/OffHand Slot"]
+layout_mode = 2
+text = "Off Hand"
+
+[node name="Gloves Slot" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid"]
+layout_mode = 2
+
+[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Gloves Slot"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Gloves Slot"]
+layout_mode = 2
+text = "Gloves"
+
+[node name="Boots Slot" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid"]
+layout_mode = 2
+
+[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Boots Slot"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Boots Slot"]
+layout_mode = 2
+text = "Boots"
+
+[node name="Accessory Slot" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid"]
+layout_mode = 2
+
+[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Accessory Slot"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Accessory Slot"]
+layout_mode = 2
+text = "Accessory"
+
+[node name="EquipmentDetailsPanel" type="PanelContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer" groups=["equipment_details_panel"]]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="DetailsVBox" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentDetailsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="UnequipButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentDetailsPanel/DetailsVBox"]
+layout_mode = 2
+text = "Unequip"
+
+[node name="ItemName" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentDetailsPanel/DetailsVBox"]
+layout_mode = 2
+text = "No Item Selected"
+horizontal_alignment = 1
+
+[node name="ItemImage" type="TextureRect" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentDetailsPanel/DetailsVBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+stretch_mode = 5
+
+[node name="ItemDescription" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentDetailsPanel/DetailsVBox"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="AffixesContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentDetailsPanel/DetailsVBox"]
+layout_mode = 2
+
+[node name="Inventory" type="Control" parent="PanelContainer/VBoxContainer/ContentArea" groups=["player_menu_tab_content"]]
+visible = false
+layout_mode = 2
+script = ExtResource("5_ldd5v")
+metadata/tab_name = "Inventory"
+
+[node name="MainVBox" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MainLayout" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox"]
+layout_mode = 2
+
+[node name="CategorySidebar" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MainLayout"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+
+[node name="AllButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MainLayout/CategorySidebar" groups=["inventory_category_button"]]
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+button_group = ExtResource("7_stsf8")
+text = "All"
+metadata/category_name = "All"
+
+[node name="HeadButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MainLayout/CategorySidebar" groups=["inventory_category_button"]]
+layout_mode = 2
+toggle_mode = true
+button_group = ExtResource("7_stsf8")
+text = "Head"
+metadata/category_name = "Head"
+
+[node name="TorsoButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MainLayout/CategorySidebar" groups=["inventory_category_button"]]
+layout_mode = 2
+toggle_mode = true
+button_group = ExtResource("7_stsf8")
+text = "Torso"
+metadata/category_name = "Torso"
+
+[node name="GlovesButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MainLayout/CategorySidebar" groups=["inventory_category_button"]]
+layout_mode = 2
+toggle_mode = true
+button_group = ExtResource("7_stsf8")
+text = "Gloves"
+metadata/category_name = "Gloves"
+
+[node name="BootsButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MainLayout/CategorySidebar" groups=["inventory_category_button"]]
+layout_mode = 2
+toggle_mode = true
+button_group = ExtResource("7_stsf8")
+text = "Boots"
+metadata/category_name = "Boots"
+
+[node name="MainHandButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MainLayout/CategorySidebar" groups=["inventory_category_button"]]
+layout_mode = 2
+toggle_mode = true
+button_group = ExtResource("7_stsf8")
+text = "Main Hand"
+metadata/category_name = "Main Hand"
+
+[node name="OffHandButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MainLayout/CategorySidebar" groups=["inventory_category_button"]]
+layout_mode = 2
+toggle_mode = true
+button_group = ExtResource("7_stsf8")
+text = "Off Hand"
+metadata/category_name = "Off Hand"
+
+[node name="AccessoryButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MainLayout/CategorySidebar" groups=["inventory_category_button"]]
+layout_mode = 2
+toggle_mode = true
+button_group = ExtResource("7_stsf8")
+text = "Accessory"
+metadata/category_name = "Accessory"
+
+[node name="ConsumableButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MainLayout/CategorySidebar" groups=["inventory_category_button"]]
+layout_mode = 2
+toggle_mode = true
+button_group = ExtResource("7_stsf8")
+text = "Consumable"
+metadata/category_name = "Consumable"
+
+[node name="InventoryArea" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MainLayout"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MainLayout/InventoryArea"]
+custom_minimum_size = Vector2(700, 400)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="ItemGrid" type="GridContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MainLayout/InventoryArea/ScrollContainer" groups=["inventory_grid"]]
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 5
+
+[node name="InventoryDetailsPanel" type="PanelContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox" groups=["inventory_details_panel"]]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="DetailsVBox" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ItemName" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox"]
+layout_mode = 2
+text = "No Item Selected"
+horizontal_alignment = 1
+
+[node name="ItemImage" type="TextureRect" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+stretch_mode = 5
+
+[node name="ItemDescription" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="AffixesContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox"]
+layout_mode = 2
+
+[node name="ActionButtons" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="UseButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox/ActionButtons"]
+layout_mode = 2
+text = "Use"
+
+[node name="EquipButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox/ActionButtons"]
+layout_mode = 2
+text = "Equip"
+
+[node name="Quests" type="Control" parent="PanelContainer/VBoxContainer/ContentArea" groups=["player_menu_tab_content"]]
+visible = false
+layout_mode = 2
+metadata/tab_name = "Quests"

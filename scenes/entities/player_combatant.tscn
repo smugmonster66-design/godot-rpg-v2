@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://c2m3pot6xne0s"]
+
+[ext_resource type="Script" uid="uid://ceyed44ep0gxt" path="res://scripts/entities/combatant.gd" id="1_41eky"]
+
+[node name="PlayerCombatant" type="Node2D"]
+script = ExtResource("1_41eky")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="HealthLabel" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="NameLabel" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0

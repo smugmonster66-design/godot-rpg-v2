@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=3 format=3 uid="uid://bgdacj1mitxxo"]
+
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_yovjx"]
+[ext_resource type="Material" uid="uid://c7ivlm0ttuq4n" path="res://resources/materials/water_wave_material.tres" id="2_jk1t2"]
+
+[resource]
+script = ExtResource("1_yovjx")
+affix_name = "Water Enchant"
+description = "A test die affix for a water enchantment visual effect"
+visual_effect_type = 4
+shader_material = ExtResource("2_jk1t2")
+metadata/_custom_type_script = "uid://s6ivem1wgjrx"

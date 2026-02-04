@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=5 format=3 uid="uid://c7ar04tamljyc"]
+
+[ext_resource type="Texture2D" uid="uid://r7bikgya1ua8" path="res://assets/dice/d12s/d12-basic-fill.png" id="1_2etk1"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_qmskg"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="3_eurdy"]
+[ext_resource type="Texture2D" uid="uid://d3cgge7kyfsqd" path="res://assets/dice/d12s/d12-basic-stroke.png" id="4_p6cje"]
+
+[resource]
+script = ExtResource("3_eurdy")
+display_name = "D12 Basic"
+die_type = 12
+fill_texture = ExtResource("1_2etk1")
+stroke_texture = ExtResource("4_p6cje")
+metadata/_custom_type_script = "uid://d3l85pyscg85h"

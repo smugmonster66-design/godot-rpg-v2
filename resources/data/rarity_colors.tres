@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="RarityColors" load_steps=2 format=3 uid="uid://cfqeliywdtulk"]
+
+[ext_resource type="Script" uid="uid://bqcfxbjffrud3" path="res://resources/data/rarity_colors.gd" id="1_wp6pr"]
+
+[resource]
+script = ExtResource("1_wp6pr")
+metadata/_custom_type_script = "uid://bqcfxbjffrud3"

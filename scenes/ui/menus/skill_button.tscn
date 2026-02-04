@@ -1,0 +1,44 @@
+[gd_scene load_steps=2 format=3 uid="uid://oquaqbwome63"]
+
+[ext_resource type="Script" uid="uid://bxgc88xa0lbgj" path="res://scripts/ui/menus/skill_button.gd" id="1_d5ye0"]
+
+[node name="SkillButton" type="PanelContainer"]
+custom_minimum_size = Vector2(80, 80)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_d5ye0")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="IconRect" type="TextureRect" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "SkillName"
+horizontal_alignment = 1
+
+[node name="RankLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "0/1"
+horizontal_alignment = 1
+
+[node name="LockOverlay" type="ColorRect" parent="."]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.84705883)
+
+[node name="HighlightPanel" type="Panel" parent="."]
+visible = false
+layout_mode = 2
+mouse_filter = 2

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="Action" load_steps=2 format=3 uid="uid://cm70x2t3nt4kx"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_rho0f"]
+
+[resource]
+script = ExtResource("1_rho0f")
+action_name = "Sword Slash"
+action_description = "A slash for 1D+1 [color=brown]Physical[/color] damage."
+base_damage = 1
+metadata/_custom_type_script = "uid://b1kctq61bwysh"

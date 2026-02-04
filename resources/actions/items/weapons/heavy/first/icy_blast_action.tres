@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Action" load_steps=5 format=3 uid="uid://dichqyjowjanf"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_872f5"]
+[ext_resource type="Resource" uid="uid://danr1s5heb5vy" path="res://resources/action_effects/damage_effects/frost/frost_damage_base.tres" id="2_dmdyt"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_ef3gx"]
+[ext_resource type="Resource" uid="uid://c6ttp4y2n167w" path="res://resources/action_effects/status_conditions/add_chill_stacks.tres" id="3_yd0je"]
+
+[resource]
+script = ExtResource("2_ef3gx")
+action_id = "icy_blast"
+action_name = "Icy Blast"
+action_description = "A blast of freezing wind that deals 1D Ice damage to all enemies and applies 3 Chill stacks."
+charge_type = 1
+effects = Array[ExtResource("1_872f5")]([ExtResource("2_dmdyt"), ExtResource("3_yd0je")])
+metadata/_custom_type_script = "uid://b1kctq61bwysh"

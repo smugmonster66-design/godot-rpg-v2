@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://ois4nkcx0waa"]
+
+[ext_resource type="Script" uid="uid://ceyed44ep0gxt" path="res://scripts/entities/combatant.gd" id="1_ufeq6"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_8cehy"]
+size = Vector2(64, 64)
+
+[node name="Combatant" type="Node2D"]
+script = ExtResource("1_ufeq6")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = SubResource("PlaceholderTexture2D_8cehy")
+
+[node name="HealthLabel" type="Label" parent="."]
+offset_left = -28.0
+offset_top = -31.0
+offset_right = 30.0
+offset_bottom = -8.0
+text = "HP: 100"
+horizontal_alignment = 1

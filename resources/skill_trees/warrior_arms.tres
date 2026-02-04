@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SkillTree" load_steps=5 format=3 uid="uid://35lrxcygw5uc"]
+
+[ext_resource type="Script" uid="uid://cukfw0heumnic" path="res://scripts/data/skill_tree.gd" id="1_fed6w"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="2_58ahb"]
+[ext_resource type="Resource" uid="uid://dehqol3khl2ij" path="res://resources/skills/warrior/arms/arms_teststrike_skillres.tres" id="3_q6jt2"]
+[ext_resource type="Resource" uid="uid://bum1jltfshss" path="res://resources/skills/warrior/arms/skilres_test_cleave.tres" id="4_785x0"]
+
+[resource]
+script = ExtResource("1_fed6w")
+tree_id = "arms"
+tree_name = "Arms"
+description = "TO ARMS!!!!"
+tier_1_skills = Array[ExtResource("2_58ahb")]([ExtResource("3_q6jt2")])
+tier_2_skills = Array[ExtResource("2_58ahb")]([ExtResource("4_785x0")])
+metadata/_custom_type_script = "uid://cukfw0heumnic"
