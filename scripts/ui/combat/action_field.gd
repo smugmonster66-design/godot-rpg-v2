@@ -1,27 +1,27 @@
 # res://scripts/ui/combat/action_field.gd
-# Action field - accepts dice drops for combat actions
+# Action field with icon, die slots, element-based styling, and damage preview
+# Updated to use CombatDieObject for placed dice
 extends PanelContainer
 class_name ActionField
 
 # ============================================================================
-# DEBUG TOGGLE - set to false to silence drag/drop debug prints
-# ============================================================================
-const DEBUG_DROP: bool = true
-
-# ============================================================================
 # ENUMS
 # ============================================================================
-enum ActionType { ATTACK, DEFEND, HEAL, BUFF, DEBUFF, SPECIAL }
+enum ActionType {
+	ATTACK,
+	DEFEND,
+	HEAL,
+	SPECIAL
+}
 
 # ============================================================================
 # EXPORTS
 # ============================================================================
-@export var action_name: String = "Action"
-@export var action_description: String = ""
-@export var action_icon: Texture2D = null
 @export var action_type: ActionType = ActionType.ATTACK
+@export var action_name: String = "Action"
+@export var action_icon: Texture2D = null
+@export_multiline var action_description: String = "Does something."
 
-@export_group("Combat")
 @export var die_slots: int = 1
 @export var base_damage: int = 0
 @export var damage_multiplier: float = 1.0
@@ -76,7 +76,7 @@ var dmg_preview_label: Label = null
 var fill_texture: NinePatchRect = null
 var stroke_texture: NinePatchRect = null
 var mult_label: Label = null
-var element_label: Label = null
+var element_icon: TextureRect = null
 
 # ============================================================================
 # STATE
@@ -121,21 +121,12 @@ const ELEMENT_NAMES = {
 
 func _ready():
 	_discover_nodes()
-	# FIX #2: Use recursive version instead of direct-children-only
-	_set_children_mouse_pass_recursive(self)
+	_set_children_mouse_pass()
 	setup_drop_target()
 	create_die_slots()
 	refresh_ui()
 	_apply_element_shader()
 	_update_damage_preview()
-	
-	if DEBUG_DROP:
-		print("🎯 ActionField._ready() complete: '%s'" % action_name)
-		print("    mouse_filter = %s" % _mouse_filter_name(mouse_filter))
-		print("    die_slots_grid = %s" % ("found" if die_slots_grid else "NULL ⚠️"))
-		print("    die_slot_panels.size() = %d" % die_slot_panels.size())
-		print("    die_slots (export) = %d" % die_slots)
-		_debug_print_mouse_filter_tree(self, "    ")
 
 func _discover_nodes():
 	name_label = find_child("NameLabel", true, false) as Label
@@ -148,30 +139,170 @@ func _discover_nodes():
 	fill_texture = find_child("FillTexture", true, false) as NinePatchRect
 	stroke_texture = find_child("StrokeTexture", true, false) as NinePatchRect
 	mult_label = find_child("MultLabel", true, false) as Label
-	element_label = find_child("ElementLabel", true, false) as Label
-	
-	if DEBUG_DROP and not die_slots_grid:
-		push_warning("ActionField '%s': DieSlotsGrid NOT FOUND! Die slots cannot be created." % action_name)
-		# Try to find anything grid-like as fallback
-		var possible = find_child("*Grid*", true, false)
-		if possible:
-			push_warning("  Found possible alternative: %s (%s)" % [possible.name, possible.get_class()])
+	element_icon = find_child("ElementIcon", true, false) as TextureRect
 
-
-func _set_children_mouse_pass_recursive(node: Node):
-	"""FIX #2: Recursively set all Control descendants to MOUSE_FILTER_PASS
-	so they don't intercept drops intended for the ActionField itself.
-	Skips the ActionField root (which needs MOUSE_FILTER_STOP)."""
-	for child in node.get_children():
-		if child is Control and child != self:
+func _set_children_mouse_pass():
+	for child in get_children():
+		if child is Control:
 			child.mouse_filter = Control.MOUSE_FILTER_PASS
-		_set_children_mouse_pass_recursive(child)
-
 
 func setup_drop_target():
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	if DEBUG_DROP:
-		print("🎯 ActionField.setup_drop_target(): mouse_filter = STOP")
+
+# ============================================================================
+# ELEMENT SHADER
+# ============================================================================
+
+func _apply_element_shader():
+	"""Apply the appropriate shader material based on element type"""
+	var material = _get_element_material(element)
+	
+	if fill_texture and material:
+		fill_texture.material = material.duplicate()
+	
+	# Optionally tint if no shader available
+	if fill_texture and not material:
+		fill_texture.modulate = ELEMENT_COLORS.get(element, Color.WHITE)
+
+func _get_element_material(elem: ActionEffect.DamageType) -> ShaderMaterial:
+	"""Get the shader material for an element type"""
+	match elem:
+		ActionEffect.DamageType.SLASHING:
+			return slashing_material
+		ActionEffect.DamageType.BLUNT:
+			return blunt_material
+		ActionEffect.DamageType.PIERCING:
+			return piercing_material
+		ActionEffect.DamageType.FIRE:
+			return fire_material
+		ActionEffect.DamageType.ICE:
+			return ice_material
+		ActionEffect.DamageType.SHOCK:
+			return shock_material
+		ActionEffect.DamageType.POISON:
+			return poison_material
+		ActionEffect.DamageType.SHADOW:
+			return shadow_material
+		_:
+			return null
+
+func set_element(new_element: ActionEffect.DamageType):
+	"""Change the element and update visuals"""
+	element = new_element
+	if element_icon:
+		element_icon.modulate = ELEMENT_COLORS.get(element, Color.WHITE)
+		element_icon.tooltip_text = ELEMENT_NAMES.get(element, "")
+	_apply_element_shader()
+	_update_damage_preview()
+
+# ============================================================================
+# DAMAGE PREVIEW
+# ============================================================================
+
+func _update_damage_preview():
+	"""Update the damage preview label based on placed dice state"""
+	if not dmg_preview_label:
+		return
+	
+	# Non-damage actions show different text
+	if action_type == ActionType.DEFEND:
+		dmg_preview_label.text = "Defense"
+		return
+	elif action_type == ActionType.HEAL:
+		_update_heal_preview()
+		return
+	elif action_type == ActionType.SPECIAL:
+		dmg_preview_label.text = "Special"
+		return
+	
+	var element_name = ELEMENT_NAMES.get(element, "")
+	var element_color = ELEMENT_COLORS.get(element, Color.WHITE)
+	
+	if placed_dice.size() == 0:
+		# Show formula: "2D+10 Fire"
+		dmg_preview_label.text = _get_damage_formula()
+	else:
+		# Show calculated damage: "→ 28 Fire"
+		var total_damage = _calculate_preview_damage()
+		dmg_preview_label.text = "→ %d %s" % [total_damage, element_name]
+	
+	# Tint label with element color
+	dmg_preview_label.add_theme_color_override("font_color", element_color)
+
+func _update_heal_preview():
+	"""Update preview for heal actions"""
+	if placed_dice.size() == 0:
+		dmg_preview_label.text = _get_heal_formula()
+	else:
+		var total_heal = _calculate_preview_heal()
+		dmg_preview_label.text = "→ %d HP" % total_heal
+	
+	dmg_preview_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4))
+
+func _get_damage_formula() -> String:
+	"""Get the damage formula string (e.g., '2D+10 Fire')"""
+	var parts: Array[String] = []
+	var element_name = ELEMENT_NAMES.get(element, "")
+	
+	# Dice component
+	if die_slots > 0:
+		parts.append("%dD" % die_slots)
+	
+	# Base damage component
+	if base_damage > 0:
+		if parts.size() > 0:
+			parts.append("+%d" % base_damage)
+		else:
+			parts.append(str(base_damage))
+	elif parts.size() == 0:
+		parts.append("0")
+	
+	var formula = "".join(parts)
+	
+	# Element name
+	if element_name:
+		formula += " %s" % element_name
+	
+	return formula
+
+func _get_heal_formula() -> String:
+	"""Get the heal formula string"""
+	var parts: Array[String] = []
+	
+	if die_slots > 0:
+		parts.append("%dD" % die_slots)
+	
+	if base_damage > 0:  # Using base_damage for heal amount
+		if parts.size() > 0:
+			parts.append("+%d" % base_damage)
+		else:
+			parts.append(str(base_damage))
+	
+	if parts.size() == 0:
+		return "Heal"
+	
+	var formula = "".join(parts)
+	return formula + " HP"
+
+func _calculate_preview_damage() -> int:
+	"""Calculate damage with currently placed dice"""
+	var dice_total = get_total_dice_value()
+	var raw_damage = (dice_total + base_damage) * damage_multiplier
+	return int(raw_damage)
+
+func _calculate_preview_heal() -> int:
+	"""Calculate heal with currently placed dice"""
+	var dice_total = get_total_dice_value()
+	var raw_heal = (dice_total + base_damage) * damage_multiplier
+	return int(raw_heal)
+
+func get_total_dice_value() -> int:
+	"""Get sum of all placed dice values"""
+	var total = 0
+	for die in placed_dice:
+		if die:
+			total += die.get_total_value()
+	return total
 
 # ============================================================================
 # CONFIGURATION
@@ -196,6 +327,7 @@ func configure_from_dict(action_data: Dictionary):
 	elif action_data.has("element"):
 		element = action_data.get("element", ActionEffect.DamageType.SLASHING)
 	else:
+		# Try to infer from first damage effect
 		element = _infer_element_from_effects(action_data)
 	
 	if action_resource:
@@ -207,12 +339,15 @@ func configure_from_dict(action_data: Dictionary):
 		_update_damage_preview()
 
 func _infer_element_from_effects(action_data: Dictionary) -> ActionEffect.DamageType:
+	"""Try to infer element from action effects"""
 	var effects = action_data.get("effects", [])
 	if action_resource and action_resource.effects.size() > 0:
 		effects = action_resource.effects
+	
 	for effect in effects:
 		if effect is ActionEffect and effect.effect_type == ActionEffect.EffectType.DAMAGE:
 			return effect.damage_type
+	
 	return ActionEffect.DamageType.SLASHING
 
 func refresh_ui():
@@ -220,16 +355,16 @@ func refresh_ui():
 		name_label.text = action_name
 	if icon_rect:
 		icon_rect.texture = action_icon
-	if element_label:
-		element_label.text = ELEMENT_NAMES.get(element, "")
-		element_label.add_theme_color_override("font_color", ELEMENT_COLORS.get(element, Color.WHITE))
+	if element_icon:
+		element_icon.modulate = ELEMENT_COLORS.get(element, Color.WHITE)
+		element_icon.tooltip_text = ELEMENT_NAMES.get(element, "")
 	if mult_label:
 		if damage_multiplier != 1.0:
 			mult_label.text = "×%.1f" % damage_multiplier
 			mult_label.show()
 		else:
 			mult_label.hide()
-	# Remove description — compact card doesn't use it
+	
 	create_die_slots()
 	update_charge_display()
 	update_disabled_state()
@@ -241,11 +376,8 @@ func refresh_ui():
 
 func create_die_slots():
 	if not die_slots_grid:
-		if DEBUG_DROP:
-			push_warning("ActionField '%s': Cannot create die slots - die_slots_grid is null!" % action_name)
 		return
 	
-	# Clear existing
 	for child in die_slots_grid.get_children():
 		child.queue_free()
 	die_slot_panels.clear()
@@ -253,14 +385,10 @@ func create_die_slots():
 	for i in range(die_slots):
 		var slot = Panel.new()
 		slot.custom_minimum_size = SLOT_SIZE
-		# FIX: MOUSE_FILTER_PASS so drops pass through to ActionField
 		slot.mouse_filter = Control.MOUSE_FILTER_PASS
 		_setup_empty_slot(slot)
 		die_slots_grid.add_child(slot)
 		die_slot_panels.append(slot)
-	
-	if DEBUG_DROP:
-		print("🎯 ActionField '%s': Created %d die slot panels" % [action_name, die_slot_panels.size()])
 
 func _setup_empty_slot(slot: Panel):
 	var style = StyleBoxFlat.new()
@@ -287,6 +415,7 @@ func consume_charge():
 func update_charge_display():
 	if not charge_label:
 		return
+	
 	if action_resource and action_resource.charge_type != Action.ChargeType.UNLIMITED:
 		charge_label.text = "%d/%d" % [action_resource.current_charges, action_resource.max_charges]
 		charge_label.show()
@@ -308,92 +437,24 @@ func refresh_charge_state():
 	update_disabled_state()
 
 # ============================================================================
-# DRAG AND DROP — with full debug instrumentation
+# DRAG AND DROP
 # ============================================================================
 
 func _can_drop_data(_pos: Vector2, data: Variant) -> bool:
-	# =========================================================================
-	# DEBUG: This is the critical function. If this never prints, the
-	# ActionField is never even being considered as a drop target.
-	# Possible causes:
-	#   - mouse_filter on this node or an ancestor is IGNORE
-	#   - A sibling/overlay Control (like the drag preview) is blocking
-	#   - This node is invisible or has zero size
-	#   - A ScrollContainer parent is intercepting the drag
-	# =========================================================================
-	
-	if DEBUG_DROP:
-		print("=" .repeat(60))
-		print("🎯 ActionField._can_drop_data() CALLED on '%s'" % action_name)
-		print("    Position: %s" % _pos)
-		print("    Data type: %s" % type_string(typeof(data)))
-		print("    Data is Dictionary: %s" % (data is Dictionary))
-		if data is Dictionary:
-			print("    Data keys: %s" % str(data.keys()))
-			print("    Data.type = '%s'" % data.get("type", "<missing>"))
-			print("    Data.die = %s" % (data.get("die").display_name if data.get("die") else "null"))
-		print("    --- Field State ---")
-		print("    is_disabled: %s" % is_disabled)
-		print("    placed_dice.size(): %d" % placed_dice.size())
-		print("    die_slot_panels.size(): %d" % die_slot_panels.size())
-		print("    has_charges(): %s" % has_charges())
-		print("    mouse_filter: %s" % _mouse_filter_name(mouse_filter))
-		print("    visible: %s, size: %s" % [visible, size])
-	
-	# --- Actual checks with per-check debug ---
-	
 	if is_disabled:
-		if DEBUG_DROP:
-			print("    ❌ REJECTED: is_disabled")
 		return false
-	
 	if not data is Dictionary:
-		if DEBUG_DROP:
-			print("    ❌ REJECTED: data is not Dictionary (type=%s)" % type_string(typeof(data)))
 		return false
-	
-	var data_type = data.get("type", "")
-	if data_type != "combat_die" and data_type != "die_slot":
-		if DEBUG_DROP:
-			print("    ❌ REJECTED: type='%s' (expected 'combat_die' or 'die_slot')" % data_type)
+	if data.get("type") != "combat_die" and data.get("type") != "die_slot":
 		return false
-	
-	# FIX #3: Guard against empty die_slot_panels
-	if die_slot_panels.size() == 0:
-		if DEBUG_DROP:
-			print("    ❌ REJECTED: die_slot_panels is EMPTY (slots not created!)")
-			print("    💡 Check that DieSlotsGrid node exists in scene and die_slots > 0")
-		return false
-	
 	if placed_dice.size() >= die_slot_panels.size():
-		if DEBUG_DROP:
-			print("    ❌ REJECTED: slots full (%d/%d)" % [placed_dice.size(), die_slot_panels.size()])
 		return false
-	
 	if not has_charges():
-		if DEBUG_DROP:
-			print("    ❌ REJECTED: no charges remaining")
 		return false
-	
-	if DEBUG_DROP:
-		print("    ✅ ACCEPTED - ready to receive die!")
-	
-	# Visual feedback: highlight the drop target
-	_show_drop_highlight(true)
-	
 	return true
 
-
 func _drop_data(_pos: Vector2, data: Variant):
-	if DEBUG_DROP:
-		print("=" .repeat(60))
-		print("🎯 ActionField._drop_data() CALLED on '%s'" % action_name)
-	
-	_show_drop_highlight(false)
-	
 	if not data is Dictionary:
-		if DEBUG_DROP:
-			print("    ❌ data is not Dictionary, aborting")
 		return
 	
 	var die = data.get("die") as DieResource
@@ -402,64 +463,12 @@ func _drop_data(_pos: Vector2, data: Variant):
 	var source_pos = data.get("source_position", global_position) as Vector2
 	var source_idx = data.get("slot_index", -1) as int
 	
-	if DEBUG_DROP:
-		print("    die: %s" % (die.display_name if die else "null"))
-		print("    source_obj: %s" % (source_obj != null))
-		print("    source_visual: %s" % (source_visual != null))
-		print("    source_pos: %s" % source_pos)
-		print("    source_idx: %d" % source_idx)
-	
-	# Mark the source die as placed so it knows not to snap back
 	if source_obj and source_obj.has_method("mark_as_placed"):
 		source_obj.mark_as_placed()
-		if DEBUG_DROP:
-			print("    ✅ Marked source_obj as placed")
 	elif source_visual and source_visual.has_method("mark_as_placed"):
 		source_visual.mark_as_placed()
-		if DEBUG_DROP:
-			print("    ✅ Marked source_visual as placed")
 	
 	place_die_animated(die, source_pos, source_visual, source_idx)
-
-
-func _show_drop_highlight(show: bool):
-	"""Visual feedback when hovering over valid drop target"""
-	if show:
-		modulate = Color(1.2, 1.2, 0.9)
-	else:
-		if not is_disabled:
-			modulate = Color.WHITE
-
-
-# ============================================================================
-# DEBUG HELPERS
-# ============================================================================
-
-func _mouse_filter_name(mf: int) -> String:
-	match mf:
-		Control.MOUSE_FILTER_STOP: return "STOP"
-		Control.MOUSE_FILTER_PASS: return "PASS"
-		Control.MOUSE_FILTER_IGNORE: return "IGNORE"
-		_: return "UNKNOWN(%d)" % mf
-
-
-func _debug_print_mouse_filter_tree(node: Node, indent: String = ""):
-	"""Print the mouse_filter of every Control in the tree (for debugging)"""
-	if not DEBUG_DROP:
-		return
-	if node is Control:
-		var ctrl = node as Control
-		print("%s%s [%s] mouse_filter=%s size=%s visible=%s" % [
-			indent,
-			ctrl.name,
-			ctrl.get_class(),
-			_mouse_filter_name(ctrl.mouse_filter),
-			ctrl.size,
-			ctrl.visible
-		])
-	for child in node.get_children():
-		_debug_print_mouse_filter_tree(child, indent + "  ")
-
 
 # ============================================================================
 # DIE PLACEMENT
@@ -467,8 +476,6 @@ func _debug_print_mouse_filter_tree(node: Node, indent: String = ""):
 
 func place_die_animated(die: DieResource, from_pos: Vector2, source_visual: Control = null, source_idx: int = -1):
 	if placed_dice.size() >= die_slot_panels.size():
-		if DEBUG_DROP:
-			print("    ⚠️ place_die_animated: no slots available!")
 		return
 	
 	placed_dice.append(die)
@@ -481,20 +488,15 @@ func place_die_animated(die: DieResource, from_pos: Vector2, source_visual: Cont
 	var slot_idx = placed_dice.size() - 1
 	var slot = die_slot_panels[slot_idx]
 	
-	# Clear existing children in slot
 	for child in slot.get_children():
 		child.queue_free()
 	
 	var visual = _create_placed_visual(die)
 	if visual:
 		slot.add_child(visual)
+		visual.custom_minimum_size = Vector2.ZERO
 		dice_visuals.append(visual)
 		_animate_placement(visual, slot, from_pos)
-		if DEBUG_DROP:
-			print("    ✅ Die placed in slot %d, visual created" % slot_idx)
-	else:
-		if DEBUG_DROP:
-			print("    ⚠️ Failed to create placed visual for %s" % die.display_name)
 	
 	update_icon_state()
 	_update_damage_preview()
@@ -508,17 +510,18 @@ func place_die(die: DieResource):
 	place_die_animated(die, global_position, null, -1)
 
 func _create_placed_visual(die: DieResource) -> Control:
-	# Try new DieObject system
+	# Try to use new DieObject system
 	if die.has_method("instantiate_combat_visual"):
 		var obj = die.instantiate_combat_visual()
 		if obj:
 			obj.draggable = false
 			obj.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			obj.custom_minimum_size = Vector2.ZERO
 			obj.set_display_scale(DIE_SCALE)
 			obj.position = (SLOT_SIZE - obj.base_size) / 2
 			return obj
 	
-	# Fallback to DieVisual
+	# Fallback to old DieVisual if available
 	var die_visual_scene = load("res://scenes/ui/components/die_visual.tscn")
 	if die_visual_scene:
 		var visual = die_visual_scene.instantiate()
@@ -545,87 +548,86 @@ func _animate_placement(visual: Control, _slot: Panel, _from_pos: Vector2):
 	tw.tween_property(visual, "scale", Vector2(DIE_SCALE, DIE_SCALE), snap_duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	tw.tween_property(visual, "modulate", Color.WHITE, snap_duration)
 
-# ============================================================================
-# STATE QUERIES
-# ============================================================================
-
 func is_ready_to_confirm() -> bool:
-	return placed_dice.size() > 0
-
-func get_total_dice_value() -> int:
-	var total = 0
-	for die in placed_dice:
-		total += die.get_total_value()
-	return total
-
-func calculate_damage() -> int:
-	return base_damage + int(get_total_dice_value() * damage_multiplier)
+	return placed_dice.size() >= die_slots and placed_dice.size() > 0
 
 # ============================================================================
-# CLEAR / CANCEL
+# UI UPDATES
 # ============================================================================
 
-func clear_dice():
-	"""Clear all placed dice without returning them"""
-	placed_dice.clear()
+func update_icon_state():
+	if not icon_rect:
+		return
+	if is_disabled:
+		icon_rect.modulate = Color(0.3, 0.3, 0.3)
+	elif placed_dice.size() > 0:
+		icon_rect.modulate = Color(0.5, 0.5, 0.5)
+	else:
+		icon_rect.modulate = Color.WHITE
+
+func _gui_input(event: InputEvent):
+	if is_disabled:
+		return
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		if is_ready_to_confirm():
+			action_selected.emit(self)
+
+# ============================================================================
+# CANCEL / CLEAR
+# ============================================================================
+
+func cancel_action():
+	for i in range(placed_dice.size()):
+		var die = placed_dice[i]
+		var info = dice_source_info[i] if i < dice_source_info.size() else {}
+		var target_pos = info.get("position", Vector2.ZERO)
+		dice_returned.emit(die, target_pos)
+	
+	_clear_placed_dice()
+	action_cancelled.emit(self)
+	dice_return_complete.emit()
+
+func _clear_placed_dice():
+	for obj in dice_visuals:
+		if is_instance_valid(obj):
+			obj.queue_free()
 	dice_visuals.clear()
+	placed_dice.clear()
 	dice_source_info.clear()
 	
 	for slot in die_slot_panels:
-		for child in slot.get_children():
-			child.queue_free()
 		_setup_empty_slot(slot)
 	
 	update_icon_state()
 	_update_damage_preview()
 
-func cancel_action():
-	"""Return all dice to pool and clear"""
-	for i in range(placed_dice.size()):
-		var die = placed_dice[i]
-		var info = dice_source_info[i] if i < dice_source_info.size() else {}
-		var target_pos = info.get("position", Vector2.ZERO) as Vector2
-		dice_returned.emit(die, target_pos)
-	
-	clear_dice()
-	action_cancelled.emit(self)
-	dice_return_complete.emit()
+func consume_dice():
+	_clear_placed_dice()
+	update_icon_state()
+
+func clear_dice():
+	"""Alias for consume_dice - clears placed dice from slots"""
+	_clear_placed_dice()
+	update_icon_state()
+
+func reset_charges():
+	if action_resource:
+		action_resource.reset_charges_for_combat()
+	refresh_charge_state()
 
 # ============================================================================
-# VISUALS
+# ACTION DATA
 # ============================================================================
 
-func update_icon_state():
-	"""Update icon opacity based on whether dice are placed"""
-	if icon_rect:
-		icon_rect.modulate.a = 0.3 if placed_dice.size() > 0 else 1.0
-
-func _update_damage_preview():
-	if not dmg_preview_label:
-		return
-	if placed_dice.size() > 0:
-		dmg_preview_label.text = str(calculate_damage())
-		dmg_preview_label.show()
-	else:
-		dmg_preview_label.hide()
-
-func _apply_element_shader():
-	"""Apply the appropriate element shader to fill/stroke textures"""
-	var mat = _get_shader_for_element(element)
-	if mat:
-		if fill_texture:
-			fill_texture.material = mat
-		# Optionally also apply to stroke
-	# Could also set element color label/border here
-
-func _get_shader_for_element(elem: ActionEffect.DamageType) -> ShaderMaterial:
-	match elem:
-		ActionEffect.DamageType.SLASHING: return slashing_material
-		ActionEffect.DamageType.BLUNT: return blunt_material
-		ActionEffect.DamageType.PIERCING: return piercing_material
-		ActionEffect.DamageType.FIRE: return fire_material
-		ActionEffect.DamageType.ICE: return ice_material
-		ActionEffect.DamageType.SHOCK: return shock_material
-		ActionEffect.DamageType.POISON: return poison_material
-		ActionEffect.DamageType.SHADOW: return shadow_material
-		_: return null
+func get_action_data() -> Dictionary:
+	return {
+		"name": action_name,
+		"action_type": action_type,
+		"element": element,
+		"base_damage": base_damage,
+		"damage_multiplier": damage_multiplier,
+		"placed_dice": placed_dice,
+		"total_value": get_total_dice_value(),
+		"source": source,
+		"action_resource": action_resource
+	}
