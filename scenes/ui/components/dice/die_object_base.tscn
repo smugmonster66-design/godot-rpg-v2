@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://47wpo2vpt2l0" path="res://scripts/ui/components/dice/die_object_base.gd" id="1_script"]
 
 [node name="DieObjectBase" type="Control"]
+custom_minimum_size = Vector2(124, 124)
 layout_mode = 3
 anchors_preset = 0
 offset_right = 124.0

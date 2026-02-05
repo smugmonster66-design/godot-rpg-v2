@@ -369,13 +369,9 @@ func on_turn_start():
 	
 	is_enemy_turn = false
 	
-	# Set hide flag BEFORE refreshing so visuals are created hidden
-	if roll_animator:
-		if dice_pool_display and "hide_for_roll_animation" in dice_pool_display:
-			dice_pool_display.hide_for_roll_animation = true
-	
-	# Refresh the hand display (visuals created hidden if animator active)
-	refresh_dice_pool()
+	# Do NOT call refresh_dice_pool() here — roll_hand()'s signals
+	# already trigger DicePoolDisplay.refresh() via hand_rolled/hand_changed.
+	# Calling it again would cancel the entrance animation.
 	
 	# Reset action fields
 	for field in action_fields:
@@ -412,10 +408,7 @@ func on_turn_start():
 	# Select first living enemy as default
 	if enemy_panel:
 		enemy_panel.select_first_living_enemy()
-	
-	# Start roll animation (non-blocking — dice reveal staggered)
-	if roll_animator:
-		roll_animator.play_roll_sequence()
+
 
 
 func set_player_turn(is_player: bool):

@@ -22,6 +22,8 @@ signal die_clicked(die_object: Control, die: DieResource)
 # ============================================================================
 var dice_pool: PlayerDiceCollection = null
 var die_visuals: Array[Control] = []
+var _refresh_pending: bool = false
+var _is_animating_entrance: bool = false
 var hide_for_roll_animation: bool = false
 
 
@@ -70,6 +72,9 @@ func refresh():
 		print("  ⚠️ No dice_pool")
 		return
 	
+	# Kill any in-progress entrance animation
+	_is_animating_entrance = false
+	
 	clear_display()
 	
 	var hand = dice_pool.hand
@@ -79,21 +84,31 @@ func refresh():
 		var die = hand[i]
 		var visual = _create_die_visual(die, i)
 		if visual:
+			visual.modulate.a = 0.0  # Start invisible for entrance animation
 			add_child(visual)
 			die_visuals.append(visual)
 			print("    ✅ Created visual for %s (value=%d)" % [die.display_name, die.get_total_value()])
 		else:
 			print("    ❌ Failed to create visual for %s" % die.display_name)
+	
+	# Animate the hand appearing
+	_animate_hand_entrance()
+
 
 func clear_display():
-	"""Remove all die visuals"""
+	"""Remove all die visuals immediately so they don't corrupt layout"""
 	for visual in die_visuals:
 		if is_instance_valid(visual):
+			remove_child(visual)
 			visual.queue_free()
 	die_visuals.clear()
 	
+	# Clear any stragglers not tracked in die_visuals
 	for child in get_children():
+		remove_child(child)
 		child.queue_free()
+
+
 
 func _create_die_visual(die: DieResource, index: int) -> Control:
 	"""Create a draggable die visual - tries new system, falls back to old"""
@@ -166,11 +181,62 @@ func _on_new_die_clicked(die_obj):
 
 func _on_hand_rolled(_hand: Array):
 	print("🎲 DicePoolDisplay: hand_rolled signal")
-	refresh()
+	_request_refresh()
 
 func _on_hand_changed():
 	print("🎲 DicePoolDisplay: hand_changed signal")
+	_request_refresh()
+
+
+# ============================================================================
+# DEFERRED REFRESH (prevents triple-refresh in one frame)
+# ============================================================================
+
+func _request_refresh():
+	"""Request a refresh — deferred so multiple signals in one frame only trigger once"""
+	if _refresh_pending:
+		return
+	_refresh_pending = true
+	call_deferred("_do_deferred_refresh")
+
+func _do_deferred_refresh():
+	"""Execute the actual refresh (called once per frame max)"""
+	_refresh_pending = false
 	refresh()
+
+# ============================================================================
+# HAND ENTRANCE ANIMATION
+# ============================================================================
+
+func _animate_hand_entrance():
+	"""Animate dice appearing in the hand one by one"""
+	_is_animating_entrance = true
+	
+	for i in range(die_visuals.size()):
+		if not _is_animating_entrance:
+			# Animation was cancelled (new refresh started)
+			break
+		
+		var visual = die_visuals[i]
+		if not is_instance_valid(visual):
+			continue
+		
+		var delay = i * 0.08  # Stagger each die
+		
+		var tween = create_tween()
+		tween.tween_interval(delay)
+		
+		# Scale up from small + fade in
+		visual.scale = Vector2(0.3, 0.3)
+		tween.tween_property(visual, "modulate:a", 1.0, 0.15)
+		tween.parallel().tween_property(visual, "scale", Vector2.ONE, 0.2).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		
+		# Play the CombatDieObject roll animation after it appears
+		if visual.has_method("play_roll_animation"):
+			tween.tween_callback(visual.play_roll_animation)
+	
+	_is_animating_entrance = false
+
 
 # ============================================================================
 # UTILITY

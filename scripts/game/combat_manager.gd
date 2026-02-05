@@ -341,22 +341,38 @@ func _start_player_turn():
 	"""Start player's turn"""
 	combat_state = CombatState.PLAYER_TURN
 	
-	# Set the hide flag BEFORE roll_hand so the signal-triggered refresh
-	# also creates hidden visuals (prevents one-frame flash)
-	if combat_ui and combat_ui.dice_pool_display:
-		if "hide_for_roll_animation" in combat_ui.dice_pool_display:
-			if combat_ui.roll_animator:
-				combat_ui.dice_pool_display.hide_for_roll_animation = true
+	print("🎲 _start_player_turn debug:")
+	print("  player: %s" % player)
+	print("  GameManager.player: %s" % GameManager.player)
+	print("  Same player? %s" % (player == GameManager.player))
 	
 	if player and player.dice_pool:
+		print("  player.dice_pool: %s" % player.dice_pool)
+		print("  GameManager.player.dice_pool: %s" % GameManager.player.dice_pool)
+		print("  Same dice_pool? %s" % (player.dice_pool == GameManager.player.dice_pool))
+		print("  POOL size: %d" % player.dice_pool.dice.size())
+		print("  GameManager POOL size: %d" % GameManager.player.dice_pool.dice.size())
+		
+		for die in player.dice_pool.dice:
+			print("    - %s from %s" % [die.display_name, die.source])
+		
+		# Roll the hand — this triggers hand_rolled signal which starts
+		# the DicePoolDisplay entrance animation
 		player.dice_pool.roll_hand()
+	else:
+		print("  ⚠️ No player (%s) or dice_pool (%s)!" % [player != null, player.dice_pool if player else null])
+	
+	# Wait for the roll entrance animation to play before enabling UI
+	# (dice count * 0.08s stagger + 0.2s for the last die to finish)
+	var dice_count = player.dice_pool.hand.size() if player and player.dice_pool else 0
+	var animation_duration = dice_count * 0.08 + 0.25
+	await get_tree().create_timer(animation_duration).timeout
 	
 	if combat_ui:
 		if combat_ui.has_method("on_turn_start"):
 			combat_ui.on_turn_start()
 		if combat_ui.has_method("set_player_turn"):
 			combat_ui.set_player_turn(true)
-
 
 
 func _on_player_end_turn():
