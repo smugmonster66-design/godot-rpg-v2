@@ -15,6 +15,7 @@ offset_right = 40.0
 offset_bottom = 40.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_pg7sh")
 script = ExtResource("1_x72hv")
+die_display_scale = 0.30000000000000004
 
 [node name="Content" type="MarginContainer" parent="."]
 layout_mode = 2

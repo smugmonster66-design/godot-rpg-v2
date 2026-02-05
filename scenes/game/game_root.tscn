@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://b2w217jydc2gl"]
+[gd_scene load_steps=6 format=3 uid="uid://b2w217jydc2gl"]
 
 [ext_resource type="Script" uid="uid://c2ftibv05ag52" path="res://scripts/game/game_root.gd" id="1_pevc5"]
 [ext_resource type="PackedScene" uid="uid://dg4shmm2jhcnd" path="res://scenes/game/combat_scene.tscn" id="2_n6w2t"]
 [ext_resource type="PackedScene" uid="uid://cx781vq4omutw" path="res://scenes/game/map_scene.tscn" id="4_0krdv"]
+[ext_resource type="Texture2D" uid="uid://b5idgxy5pjm63" path="res://assets/ui/panels/9patch_bones.png" id="4_n6w2t"]
 [ext_resource type="PackedScene" uid="uid://c0w3t10mfnowo" path="res://scenes/ui/bottom_ui_panel.tscn" id="5_n6w2t"]
 
 [node name="GameRoot" type="Node"]
@@ -19,6 +20,23 @@ visible = false
 
 [node name="PersistentUILayer" type="CanvasLayer" parent="."]
 layer = 100
+
+[node name="PanelContainer" type="PanelContainer" parent="PersistentUILayer"]
+custom_minimum_size = Vector2(0, 342)
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="NinePatchRect" type="NinePatchRect" parent="PersistentUILayer/PanelContainer"]
+layout_mode = 2
+texture = ExtResource("4_n6w2t")
+patch_margin_left = 75
+patch_margin_top = 75
+patch_margin_right = 75
+patch_margin_bottom = 75
 
 [node name="BottomUIPanel" parent="PersistentUILayer" instance=ExtResource("5_n6w2t")]
 offset_top = -342.0

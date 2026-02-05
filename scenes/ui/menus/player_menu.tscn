@@ -1,12 +1,79 @@
-[gd_scene load_steps=8 format=3 uid="uid://b4cwd535525ap"]
+[gd_scene load_steps=41 format=3 uid="uid://b4cwd535525ap"]
 
 [ext_resource type="Script" uid="uid://dp3d3aduyrmtn" path="res://scripts/ui/menus/player_menu.gd" id="1_20rq3"]
 [ext_resource type="Script" uid="uid://cdqwy6mxd4qwy" path="res://scripts/ui/menus/character_tab.gd" id="2_f0r6v"]
 [ext_resource type="ButtonGroup" uid="uid://bsujbjirutqfu" path="res://resources/ui/menu_tab_button_group.tres" id="2_g81ij"]
+[ext_resource type="Texture2D" uid="uid://b5idgxy5pjm63" path="res://assets/ui/panels/9patch_bones.png" id="3_eh24w"]
+[ext_resource type="Texture2D" uid="uid://bpkhfqgtg4ssm" path="res://assets/ui/menu_tabs/tab_tombstone_smallest.png" id="3_l2cgi"]
 [ext_resource type="PackedScene" uid="uid://u4538t4heese" path="res://scenes/ui/menus/skills_tab.tscn" id="3_s5lmw"]
 [ext_resource type="Script" uid="uid://bwbb5eko3ov7e" path="res://scripts/ui/menus/equipment_tab.gd" id="4_fbi1g"]
+[ext_resource type="Texture2D" uid="uid://c5mddh5nwebte" path="res://assets/ui/icons/navigation/bonesface.png" id="4_r8ij3"]
+[ext_resource type="Texture2D" uid="uid://c04i58mn00lig" path="res://assets/ui/icons/navigation/skills.png" id="5_ibuud"]
 [ext_resource type="Script" uid="uid://bbod52832org3" path="res://scripts/ui/menus/inventory_tab.gd" id="5_ldd5v"]
+[ext_resource type="Texture2D" uid="uid://dsjye5e1a20jo" path="res://assets/ui/icons/navigation/lamellar.png" id="6_5yqe8"]
+[ext_resource type="Texture2D" uid="uid://bpllwm2ge8x8f" path="res://assets/ui/icons/navigation/knapsack.png" id="7_0ykkh"]
 [ext_resource type="ButtonGroup" uid="uid://d0jptqsddd8xr" path="res://resources/ui/inventory_category_button_group.tres" id="7_stsf8"]
+[ext_resource type="Texture2D" uid="uid://cd3spd0a83jkp" path="res://assets/ui/icons/navigation/quest.png" id="8_k87m2"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_owa7x"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_n1b4v"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ulu45"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_r8ij3"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ibuud"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_l2cgi"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5yqe8"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0ykkh"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_k87m2"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_44kn6"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_abe77"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_24nm8"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_32abn"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_h53ip"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ootsk"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vfsao"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_t1rrh"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_lhrnl"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0dmwo"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_g3tuo"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_17tdq"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5igvc"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_eld08"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_e5bwt"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3dsdx"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_4vmr3"]
+texture = ExtResource("3_eh24w")
+texture_margin_left = 75.0
+texture_margin_top = 75.0
+texture_margin_right = 75.0
+texture_margin_bottom = 75.0
+expand_margin_left = 10.0
+expand_margin_right = 10.0
+expand_margin_bottom = 8.0
 
 [node name="PlayerMenu" type="Control"]
 custom_minimum_size = Vector2(400, 430)
@@ -26,6 +93,166 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="TabButtons" type="HBoxContainer" parent="PanelContainer"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.124
+anchor_right = 0.5
+anchor_bottom = 0.14
+offset_left = -458.0
+offset_right = 458.0
+offset_bottom = 180.0
+grow_horizontal = 2
+alignment = 1
+
+[node name="CharacterButton" type="Button" parent="PanelContainer/TabButtons" groups=["menu_tab_buttons", "player_menu_tab_button"]]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_owa7x")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_n1b4v")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_ulu45")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_r8ij3")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_ibuud")
+toggle_mode = true
+button_pressed = true
+button_group = ExtResource("2_g81ij")
+icon = ExtResource("3_l2cgi")
+icon_alignment = 1
+metadata/tab_name = "Character"
+
+[node name="IconTexture" type="TextureRect" parent="PanelContainer/TabButtons/CharacterButton"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.574
+anchor_right = 0.583
+anchor_bottom = 0.574
+offset_left = -64.0
+offset_top = -64.0
+offset_right = 64.0
+offset_bottom = 64.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("4_r8ij3")
+stretch_mode = 5
+
+[node name="SkillsButton" type="Button" parent="PanelContainer/TabButtons" groups=["menu_tab_buttons", "player_menu_tab_button"]]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_l2cgi")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_5yqe8")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_0ykkh")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_k87m2")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_44kn6")
+toggle_mode = true
+button_group = ExtResource("2_g81ij")
+icon = ExtResource("3_l2cgi")
+metadata/tab_name = "Skills"
+
+[node name="IconTexture" type="TextureRect" parent="PanelContainer/TabButtons/SkillsButton"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.574
+anchor_right = 0.583
+anchor_bottom = 0.574
+offset_left = -64.0
+offset_top = -64.0
+offset_right = 64.0
+offset_bottom = 64.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("5_ibuud")
+stretch_mode = 5
+
+[node name="EquipmentButton" type="Button" parent="PanelContainer/TabButtons" groups=["menu_tab_buttons", "player_menu_tab_button"]]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_abe77")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_24nm8")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_32abn")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_h53ip")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_ootsk")
+toggle_mode = true
+button_group = ExtResource("2_g81ij")
+icon = ExtResource("3_l2cgi")
+metadata/tab_name = "Equipment"
+
+[node name="IconTexture" type="TextureRect" parent="PanelContainer/TabButtons/EquipmentButton"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.574
+anchor_right = 0.583
+anchor_bottom = 0.574
+offset_left = -64.0
+offset_top = -64.0
+offset_right = 64.0
+offset_bottom = 64.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("6_5yqe8")
+stretch_mode = 5
+
+[node name="InventoryButton" type="Button" parent="PanelContainer/TabButtons" groups=["menu_tab_buttons", "player_menu_tab_button"]]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_vfsao")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_t1rrh")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_lhrnl")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_0dmwo")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_g3tuo")
+toggle_mode = true
+button_group = ExtResource("2_g81ij")
+icon = ExtResource("3_l2cgi")
+metadata/tab_name = "Inventory"
+
+[node name="IconTexture" type="TextureRect" parent="PanelContainer/TabButtons/InventoryButton"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.574
+anchor_right = 0.583
+anchor_bottom = 0.574
+offset_left = -64.0
+offset_top = -64.0
+offset_right = 64.0
+offset_bottom = 64.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("7_0ykkh")
+stretch_mode = 5
+
+[node name="Quests" type="Button" parent="PanelContainer/TabButtons" groups=["menu_tab_buttons", "player_menu_tab_button"]]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_17tdq")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_5igvc")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_eld08")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_e5bwt")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_3dsdx")
+toggle_mode = true
+button_group = ExtResource("2_g81ij")
+icon = ExtResource("3_l2cgi")
+metadata/tab_name = "Quests"
+
+[node name="IconTexture" type="TextureRect" parent="PanelContainer/TabButtons/Quests"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.574
+anchor_right = 0.583
+anchor_bottom = 0.574
+offset_left = -64.0
+offset_top = -64.0
+offset_right = 64.0
+offset_bottom = 64.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("8_k87m2")
+stretch_mode = 5
+
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
 layout_mode = 1
 anchors_preset = 15
@@ -34,56 +261,14 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TabButtons" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+[node name="Control" type="Control" parent="PanelContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 400)
 layout_mode = 2
-alignment = 1
-
-[node name="CharacterButton" type="Button" parent="PanelContainer/VBoxContainer/TabButtons" groups=["menu_tab_buttons", "player_menu_tab_button"]]
-layout_mode = 2
-toggle_mode = true
-button_pressed = true
-button_group = ExtResource("2_g81ij")
-text = "Char"
-metadata/tab_name = "Character"
-
-[node name="SkillsButton" type="Button" parent="PanelContainer/VBoxContainer/TabButtons" groups=["menu_tab_buttons", "player_menu_tab_button"]]
-layout_mode = 2
-toggle_mode = true
-button_group = ExtResource("2_g81ij")
-text = "Skills"
-metadata/tab_name = "Skills"
-
-[node name="EquipmentButton" type="Button" parent="PanelContainer/VBoxContainer/TabButtons" groups=["menu_tab_buttons", "player_menu_tab_button"]]
-layout_mode = 2
-toggle_mode = true
-button_group = ExtResource("2_g81ij")
-text = "Equipment"
-metadata/tab_name = "Equipment"
-
-[node name="InventoryButton" type="Button" parent="PanelContainer/VBoxContainer/TabButtons" groups=["menu_tab_buttons", "player_menu_tab_button"]]
-layout_mode = 2
-toggle_mode = true
-button_group = ExtResource("2_g81ij")
-text = "Inventory
-"
-metadata/tab_name = "Inventory"
-
-[node name="Quests" type="Button" parent="PanelContainer/VBoxContainer/TabButtons" groups=["menu_tab_buttons", "player_menu_tab_button"]]
-layout_mode = 2
-toggle_mode = true
-button_group = ExtResource("2_g81ij")
-text = "Quests"
-metadata/tab_name = "Quests"
-
-[node name="CloseButton" type="Button" parent="PanelContainer/VBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 8
-size_flags_vertical = 8
-text = "Close"
 
 [node name="ContentArea" type="PanelContainer" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxTexture_4vmr3")
 
 [node name="Character" type="Control" parent="PanelContainer/VBoxContainer/ContentArea" groups=["player_menu_tab_content"]]
 visible = false
@@ -127,9 +312,8 @@ metadata/ui_role = "\"exp_bar\""
 layout_mode = 2
 metadata/ui_role = "\"stats_container\""
 
-[node name="Skills" parent="PanelContainer/VBoxContainer/ContentArea" groups=["player_menu_tab_content"] instance=ExtResource("3_s5lmw")]
+[node name="Skills" parent="PanelContainer/VBoxContainer/ContentArea" instance=ExtResource("3_s5lmw")]
 layout_mode = 2
-metadata/tab_name = "Skills"
 
 [node name="Equipment" type="Control" parent="PanelContainer/VBoxContainer/ContentArea" groups=["player_menu_tab_content"]]
 layout_mode = 2
@@ -273,6 +457,47 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="InventoryDetailsPanel" type="PanelContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox" groups=["inventory_details_panel"]]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="DetailsVBox" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ItemName" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox"]
+layout_mode = 2
+text = "No Item Selected"
+horizontal_alignment = 1
+
+[node name="ItemImage" type="TextureRect" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+stretch_mode = 5
+
+[node name="ItemDescription" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="AffixesContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox"]
+layout_mode = 2
+
+[node name="ActionButtons" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="UseButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox/ActionButtons"]
+layout_mode = 2
+text = "Use"
+
+[node name="EquipButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox/ActionButtons"]
+layout_mode = 2
+text = "Equip"
+
 [node name="MainLayout" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox"]
 layout_mode = 2
 
@@ -359,48 +584,16 @@ theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 10
 columns = 5
 
-[node name="InventoryDetailsPanel" type="PanelContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox" groups=["inventory_details_panel"]]
-custom_minimum_size = Vector2(0, 150)
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="DetailsVBox" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="ItemName" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox"]
-layout_mode = 2
-text = "No Item Selected"
-horizontal_alignment = 1
-
-[node name="ItemImage" type="TextureRect" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox"]
-layout_mode = 2
-size_flags_horizontal = 4
-stretch_mode = 5
-
-[node name="ItemDescription" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox"]
-custom_minimum_size = Vector2(0, 50)
-layout_mode = 2
-autowrap_mode = 3
-
-[node name="AffixesContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox"]
-layout_mode = 2
-
-[node name="ActionButtons" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox"]
-layout_mode = 2
-size_flags_vertical = 4
-theme_override_constants/separation = 10
-alignment = 1
-
-[node name="UseButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox/ActionButtons"]
-layout_mode = 2
-text = "Use"
-
-[node name="EquipButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox/ActionButtons"]
-layout_mode = 2
-text = "Equip"
-
 [node name="Quests" type="Control" parent="PanelContainer/VBoxContainer/ContentArea" groups=["player_menu_tab_content"]]
 visible = false
 layout_mode = 2
 metadata/tab_name = "Quests"
+
+[node name="CloseButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+text = "Close"
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2

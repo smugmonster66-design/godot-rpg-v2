@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dc8lbywl5enyv"
-path="res://.godot/imported/character.png-6adb1fa0a879ed96c67ba921ce1b8144.ctex"
+uid="uid://b5idgxy5pjm63"
+path="res://.godot/imported/9patch_bones.png-8f40e9b0e6b973498829cdfc84a1a1b3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/icons/navigation/character.png"
-dest_files=["res://.godot/imported/character.png-6adb1fa0a879ed96c67ba921ce1b8144.ctex"]
+source_file="res://assets/ui/panels/9patch_bones.png"
+dest_files=["res://.godot/imported/9patch_bones.png-8f40e9b0e6b973498829cdfc84a1a1b3.ctex"]
 
 [params]
 

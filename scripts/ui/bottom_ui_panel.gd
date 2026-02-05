@@ -22,9 +22,9 @@ signal menu_button_pressed
 # Left section - stats and dice
 @onready var left_section: VBoxContainer = $MainHBox/LeftSection
 @onready var class_label: Label = $MainHBox/LeftSection/Label
-@onready var health_bar: ProgressBar = $MainHBox/LeftSection/HealthBar
-@onready var mana_bar: ProgressBar = $MainHBox/LeftSection/ManaBar
-@onready var exp_bar: ProgressBar = $MainHBox/LeftSection/ExpBar
+@onready var health_bar: TextureProgressBar = $MainHBox/LeftSection/HealthBar
+@onready var mana_bar: TextureProgressBar = $MainHBox/LeftSection/ManaBar
+@onready var exp_bar: TextureProgressBar = $MainHBox/LeftSection/ExpBar
 
 # Dice section
 @onready var dice_section: VBoxContainer = $MainHBox/LeftSection/DiceSection
