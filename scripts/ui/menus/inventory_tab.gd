@@ -65,32 +65,32 @@ func _ready():
 	print("🎒 InventoryTab: Ready")
 
 func _discover_ui_elements():
-	"""Discover UI elements via self-registration groups"""
-	# Find inventory grid by group
-	var grids = get_tree().get_nodes_in_group("inventory_grid")
+	"""Discover UI elements within this tab's own subtree"""
+	# Find inventory grid locally (it's a child of this node)
+	var grids = find_children("ItemGrid", "GridContainer", true, false)
 	if grids.size() > 0:
 		inventory_grid = grids[0]
 		print("  ✓ Inventory grid registered")
 	else:
-		print("  ⚠️ No inventory_grid found - add ItemGrid to group 'inventory_grid'")
-	
-	# Find category buttons by group
-	var buttons = get_tree().get_nodes_in_group("inventory_category_button")
+		print("  ⚠️ No ItemGrid found in subtree")
+
+	# Find category buttons locally
+	var buttons = find_children("*Button", "Button", true, false)
 	for button in buttons:
-		if button is Button:
+		if button.is_in_group("inventory_category_button"):
 			category_buttons.append(button)
-		var cat_name = button.get_meta("category_name", "")
-		if cat_name:
-			button.toggled.connect(_on_category_button_toggled.bind(cat_name))
-			print("  ✓ Connected category button: %s" % cat_name)
-	
-	# Find details panel by group (optional)
-	var panels = get_tree().get_nodes_in_group("inventory_details_panel")
+			var cat_name = button.get_meta("category_name", "")
+			if cat_name:
+				button.toggled.connect(_on_category_button_toggled.bind(cat_name))
+				print("  ✓ Connected category button: %s" % cat_name)
+
+	# Find details panel locally
+	var panels = find_children("*DetailsPanel*", "PanelContainer", true, false)
 	if panels.size() > 0:
 		item_details_panel = panels[0]
 		print("  ✓ Details panel registered")
 	else:
-		print("  ⚠️ No inventory details panel found in scene")
+		print("  ⚠️ No inventory details panel found")
 
 # ============================================================================
 # PUBLIC API
