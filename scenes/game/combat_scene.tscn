@@ -26,3 +26,6 @@ layer = 10
 
 [node name="CombatAnimationPlayer" type="AnimationPlayer" parent="."]
 script = ExtResource("7_8ldcr")
+
+[node name="DragOverlayLayer" type="CanvasLayer" parent="."]
+layer = 10

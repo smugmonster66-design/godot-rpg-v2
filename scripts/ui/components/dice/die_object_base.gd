@@ -532,8 +532,17 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	
 	# Create manual preview (not using set_drag_preview to avoid can't-drop cursor)
 	_manual_preview = create_drag_preview()
-	_manual_preview.z_index = 100  # Always on top
-	get_tree().root.add_child(_manual_preview)
+	_manual_preview.z_index = 100
+	# Disable mouse on entire preview tree so it doesn't block drop targets
+	_disable_mouse_recursive(_manual_preview)
+	
+	# Parent to DragOverlayLayer so preview renders above CombatUILayer
+	var drag_layer = get_tree().root.find_child("DragOverlayLayer", true, false)
+	if drag_layer:
+		drag_layer.add_child(_manual_preview)
+	else:
+		get_tree().root.add_child(_manual_preview)
+	
 	_update_manual_preview_position()
 	set_process(true)
 	
@@ -587,3 +596,10 @@ func get_die() -> DieResource:
 
 func is_being_dragged() -> bool:
 	return _is_being_dragged
+
+func _disable_mouse_recursive(node: Control):
+	"""Disable mouse on all children so preview doesn't block drop targets"""
+	node.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for child in node.get_children():
+		if child is Control:
+			_disable_mouse_recursive(child)
