@@ -302,3 +302,118 @@ func _get_source_info(die_index: int) -> Dictionary:
 				info["fill_material"] = hv.fill_texture.material
 	
 	return info
+
+# ============================================================================
+# GENERIC ROLL SEQUENCE (works for player or enemy)
+# ============================================================================
+
+func play_roll_sequence_for(target_display: Control, visuals: Array, source_position: Vector2 = Vector2.ZERO) -> void:
+	"""Play the roll animation for any set of die visuals.
+	
+	Args:
+		target_display: The container that holds the visuals (for clearing hide flag).
+		visuals: Array of die visual Controls (must already be children, hidden at alpha 0).
+		source_position: Global position projectiles originate from.
+			If Vector2.ZERO, uses bottom-center of viewport.
+	"""
+	if visuals.is_empty():
+		roll_animation_complete.emit()
+		return
+	
+	# Wait one frame for layout
+	await get_tree().process_frame
+	
+	# Determine source
+	var source_center: Vector2
+	if source_position != Vector2.ZERO:
+		source_center = source_position
+	else:
+		var viewport_size = get_viewport().get_visible_rect().size
+		source_center = Vector2(viewport_size.x / 2, viewport_size.y)
+	
+	_is_animating = true
+	print("🎬 CombatRollAnimator: Starting roll sequence for %d dice (generic)" % visuals.size())
+	
+	# ── Step 1: Ensure all visuals hidden ──
+	for visual in visuals:
+		if is_instance_valid(visual):
+			visual.modulate = Color(1, 1, 1, 0)
+	
+	# ── Step 2: Fire staggered per-die animations ──
+	var total = visuals.size()
+	for i in range(total):
+		_animate_generic_die_delayed(i, visuals[i], source_center, i * stagger_delay)
+	
+	# ── Step 3: Wait for last die to finish ──
+	var total_wait = (total - 1) * stagger_delay + flash_duration + travel_duration + pop_duration + 0.1
+	await get_tree().create_timer(total_wait).timeout
+	
+	# ── Step 4: Cleanup - ensure all visible ──
+	for visual in visuals:
+		if is_instance_valid(visual):
+			visual.modulate = Color.WHITE
+	
+	# Clear hide flag on the display
+	if target_display and "hide_for_roll_animation" in target_display:
+		target_display.hide_for_roll_animation = false
+	
+	_is_animating = false
+	print("🎬 CombatRollAnimator: Generic roll sequence complete")
+	roll_animation_complete.emit()
+
+
+func _animate_generic_die_delayed(index: int, hand_visual: Control, source_center: Vector2, delay: float):
+	"""Start a single generic die animation after a delay."""
+	if delay > 0:
+		get_tree().create_timer(delay).timeout.connect(
+			func(): _do_animate_generic_die(index, hand_visual, source_center),
+			CONNECT_ONE_SHOT
+		)
+	else:
+		_do_animate_generic_die(index, hand_visual, source_center)
+
+
+func _do_animate_generic_die(_index: int, hand_visual: Control, source_center: Vector2):
+	"""Execute three-phase animation for one die with explicit source position."""
+	if not is_instance_valid(hand_visual):
+		return
+	
+	var target_center = hand_visual.global_position + hand_visual.size / 2
+	
+	# ── Phase 1: Brief pause (no pool die to flash for enemies) ──
+	await get_tree().create_timer(flash_duration).timeout
+	
+	# ── Phase 2: Projectile travels from source to hand slot ──
+	var source_info: Dictionary = {}
+	source_info["global_center"] = source_center
+	
+	# Try to get texture from the hand visual's die resource
+	if hand_visual is DieObjectBase and hand_visual.die_resource:
+		source_info["fill_texture"] = hand_visual.die_resource.fill_texture
+	
+	var projectile = _spawn_projectile(source_info)
+	projectile.global_position = source_center - projectile_size / 2
+	projectile.start_emitting()
+	
+	var travel_tween = create_tween()
+	travel_tween.tween_property(
+		projectile, "global_position",
+		target_center - projectile_size / 2,
+		travel_duration
+	).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC)
+	
+	await travel_tween.finished
+	
+	# ── Phase 3: Reveal with pop, clean up projectile ──
+	projectile.stop_emitting()
+	if projectile.visual:
+		projectile.visual.visible = false
+	
+	get_tree().create_timer(0.3).timeout.connect(
+		func():
+			if is_instance_valid(projectile):
+				projectile.queue_free(),
+		CONNECT_ONE_SHOT
+	)
+	
+	_reveal_hand_die(hand_visual)

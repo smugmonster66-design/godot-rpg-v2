@@ -35,6 +35,9 @@ var selection_enabled: bool = false
 var current_enemy: Combatant = null
 var hand_dice_visuals: Array[Control] = []
 var is_animating: bool = false
+var hide_for_roll_animation: bool = false  
+
+
 
 # ============================================================================
 # INITIALIZATION
@@ -206,8 +209,12 @@ func show_dice_hand(enemy_combatant: Combatant):
 	for die in hand_dice:
 		var visual = _create_die_visual(die)
 		if visual:
+			# Start invisible when roll animation is pending
+			if hide_for_roll_animation:
+				visual.modulate = Color(1, 1, 1, 0)
 			dice_hand_grid.add_child(visual)
 			hand_dice_visuals.append(visual)
+
 
 func hide_dice_hand():
 	"""Hide the dice hand display"""

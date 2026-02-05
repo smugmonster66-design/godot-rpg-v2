@@ -560,6 +560,10 @@ func _start_enemy_turn(enemy: Combatant):
 	if combat_ui and combat_ui.has_method("set_player_turn"):
 		combat_ui.set_player_turn(false)
 	
+	# Tell enemy panel to create dice hidden (same pattern as player)
+	if combat_ui and combat_ui.enemy_panel:
+		combat_ui.enemy_panel.hide_for_roll_animation = true
+	
 	enemy.start_turn()
 	
 	if combat_ui and combat_ui.has_method("show_enemy_hand"):
@@ -568,7 +572,23 @@ func _start_enemy_turn(enemy: Combatant):
 	# Small delay to let UI update
 	await get_tree().create_timer(0.3).timeout
 	
+	# Play roll animation - projectiles come from the enemy's portrait
+	if combat_ui and combat_ui.roll_animator and combat_ui.enemy_panel:
+		var enemy_panel = combat_ui.enemy_panel
+		var source_pos = _get_enemy_portrait_position(enemy_panel.get_enemy_index(enemy))
+		
+		# Wait one frame for layout
+		await get_tree().process_frame
+		
+		await combat_ui.roll_animator.play_roll_sequence_for(
+			enemy_panel,
+			enemy_panel.hand_dice_visuals,
+			source_pos
+		)
+	
 	_process_enemy_turn(enemy)
+
+
 
 func _process_enemy_turn(enemy: Combatant):
 	"""Process enemy AI decisions"""
