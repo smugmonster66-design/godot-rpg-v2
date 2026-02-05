@@ -118,6 +118,7 @@ func _discover_all_nodes():
 		enemy_action_label = enemy_hand_container.find_child("ActionLabel", true, false) as Label
 	print("    EnemyHandDisplay: %s" % ("✓" if enemy_hand_container else "✗"))
 
+
 func _ensure_scrollable_grid():
 	"""Find scrollable action grid from scene"""
 	var fields_area = find_child("ActionFieldsArea", true, false)
@@ -131,17 +132,37 @@ func _ensure_scrollable_grid():
 		push_error("ActionFieldsScroll not found!")
 		return
 	
+	# =========================================================================
+	# FIX: ScrollContainer defaults to MOUSE_FILTER_STOP which intercepts
+	# drag-drop events before they reach ActionField children inside.
+	# Setting to PASS lets drops fall through to the ActionFields.
+	# =========================================================================
+	action_fields_scroll.mouse_filter = Control.MOUSE_FILTER_PASS
+	print("    🔧 ActionFieldsScroll mouse_filter → PASS (drag-drop fix)")
+	
+	# Check for CenterContainer between ScrollContainer and Grid
+	var center = action_fields_scroll.find_child("CenterContainer", true, false)
+	if center and center is Control:
+		center.mouse_filter = Control.MOUSE_FILTER_PASS
+		print("    🔧 CenterContainer mouse_filter → PASS (drag-drop fix)")
+	
 	# Find grid (inside CenterContainer)
 	action_fields_grid = action_fields_scroll.find_child("ActionFieldsGrid", true, false) as GridContainer
 	if not action_fields_grid:
 		push_error("ActionFieldsGrid not found!")
 		return
 	
+	# Grid also needs PASS so it doesn't eat the drop
+	action_fields_grid.mouse_filter = Control.MOUSE_FILTER_PASS
+	print("    🔧 ActionFieldsGrid mouse_filter → PASS (drag-drop fix)")
+	
 	# Configure scroll settings
 	_configure_scroll_container()
 	
 	print("    ActionFieldsScroll: ✓")
 	print("    ActionFieldsGrid: ✓")
+
+
 
 func _configure_scroll_container():
 	"""Configure scroll container settings"""
@@ -437,6 +458,7 @@ func _on_actions_changed():
 
 var _refreshing_action_fields: bool = false
 
+
 func refresh_action_fields():
 	"""Rebuild action fields grid from player's available actions"""
 	if _refreshing_action_fields:
@@ -470,6 +492,14 @@ func refresh_action_fields():
 		if field:
 			action_fields_grid.add_child(field)
 			action_fields.append(field)
+			# =================================================================
+			# SAFETY: Ensure player fields are STOP (not IGNORE).
+			# configure_from_dict → update_disabled_state can set IGNORE
+			# if has_charges() returns false before action_resource is
+			# fully initialized. This forces STOP for non-disabled fields.
+			# =================================================================
+			if not field.is_disabled:
+				field.mouse_filter = Control.MOUSE_FILTER_STOP
 	
 	_refreshing_action_fields = false
 
@@ -493,7 +523,35 @@ func _create_action_field(action_data: Dictionary) -> ActionField:
 	field.action_selected.connect(_on_action_field_selected)
 	field.dice_returned.connect(_on_dice_returned)
 	
+	# =========================================================================
+	# DEBUG: After the field enters the tree and _ready() runs, verify it is
+	# properly configured to receive drops. Checks the full ancestor chain.
+	# =========================================================================
+	field.tree_entered.connect(func():
+		await get_tree().process_frame
+		print("🔍 ActionField '%s' post-ready check:" % field.action_name)
+		print("    mouse_filter: %s" % _mf_name(field.mouse_filter))
+		print("    die_slot_panels: %d" % field.die_slot_panels.size())
+		print("    die_slots_grid: %s" % ("found" if field.die_slots_grid else "NULL ⚠️"))
+		print("    is_disabled: %s" % field.is_disabled)
+		print("    size: %s" % field.size)
+		print("    global_position: %s" % field.global_position)
+		
+		# Walk ancestor chain and flag any IGNORE nodes that block drops
+		var node = field.get_parent()
+		while node:
+			if node is Control:
+				var mf = _mf_name(node.mouse_filter)
+				if node.mouse_filter == Control.MOUSE_FILTER_IGNORE:
+					push_warning("⚠️ Ancestor '%s' has MOUSE_FILTER_IGNORE — blocks drops to ActionField!" % node.name)
+				print("    ↑ %s [%s] mouse_filter=%s" % [node.name, node.get_class(), mf])
+			node = node.get_parent()
+	, CONNECT_ONE_SHOT)
+	
 	return field
+
+
+
 
 func _on_action_field_selected(field: ActionField):
 	"""Action field was clicked or had die dropped"""
@@ -1076,6 +1134,15 @@ func animate_enemy_die_placement(_enemy_combatant: Combatant, _die: DieResource,
 	tween.tween_property(visual, "scale", Vector2(0.5, 0.5), 0.3)
 	
 	await tween.finished
+
+
+func _mf_name(mf: int) -> String:
+	"""Convert mouse_filter int to readable name for debug logging"""
+	match mf:
+		Control.MOUSE_FILTER_STOP: return "STOP"
+		Control.MOUSE_FILTER_PASS: return "PASS"
+		Control.MOUSE_FILTER_IGNORE: return "IGNORE"
+		_: return "UNKNOWN(%d)" % mf
 
 func on_enemy_died(enemy_index: int):
 	"""Handle enemy death"""
