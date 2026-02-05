@@ -57,31 +57,32 @@ func _check_existing_player():
 		print("🎮 GameRoot: Player already exists, initializing UI now")
 		_on_player_created(GameManager.player)
 
+
+
 func _setup_player_menu():
-	"""Find PlayerMenu in MapScene and reparent to PersistentUILayer"""
 	if not map_scene:
 		print("  ⚠️ No map_scene to search for PlayerMenu")
 		return
 	
-	# Look for PlayerMenu in MapScene's UILayer
 	player_menu = map_scene.find_child("PlayerMenu", true, false)
 	
 	if player_menu:
 		print("  ✅ Found PlayerMenu in MapScene — reparenting to PersistentUILayer")
 		
-		# Reparent: remove from MapScene's UILayer → add to PersistentUILayer
 		player_menu.get_parent().remove_child(player_menu)
 		ui_layer.add_child(player_menu)
-		
-		# Ensure it starts hidden and fills the screen above the bottom panel
 		player_menu.hide()
 		
-		# Pass reference to BottomUI for toggle
+		# Align PlayerMenu bottom to BottomUIPanel top
+		if bottom_ui:
+			player_menu.offset_bottom = -bottom_ui.size.y
+		
 		if bottom_ui and bottom_ui.has_method("set_player_menu"):
 			bottom_ui.set_player_menu(player_menu)
 			print("  ✅ Connected PlayerMenu to BottomUI")
 	else:
 		print("  ⚠️ PlayerMenu not found in MapScene")
+
 
 
 func _on_player_created(player: Resource):

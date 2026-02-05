@@ -61,6 +61,8 @@ func _discover_and_connect_children():
 			button.pressed.connect(_on_close_pressed)
 			print("  ✓ Connected close button")
 			break
+			
+	print("📋 Found %d tab buttons, %d content panels" % [tab_buttons.size(), tab_content_panels.size()])
 
 func _register_tab(tab: Control):
 	"""Register a menu tab"""

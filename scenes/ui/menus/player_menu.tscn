@@ -260,10 +260,12 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
 [node name="Control" type="Control" parent="PanelContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 400)
 layout_mode = 2
+mouse_filter = 2
 
 [node name="ContentArea" type="PanelContainer" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
