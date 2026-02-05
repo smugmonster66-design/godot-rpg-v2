@@ -356,45 +356,40 @@ func _start_player_turn():
 		for die in player.dice_pool.dice:
 			print("    - %s from %s" % [die.display_name, die.source])
 		
-		# Roll the hand — triggers hand_rolled → DicePoolDisplay.refresh()
-		# Visuals are created but HIDDEN (hide_for_roll_animation = true)
+		# Clear stale action field dice BEFORE rolling new hand
+		if combat_ui:
+			for field in combat_ui.action_fields:
+				if is_instance_valid(field) and field.placed_dice.size() > 0:
+					field.clear_dice()
+		
+		# Tell DicePoolDisplay to skip its built-in entrance animation
+		if combat_ui and combat_ui.dice_pool_display:
+			combat_ui.dice_pool_display.hide_for_roll_animation = true
+		
+		# Roll the hand — triggers hand_rolled signal → DicePoolDisplay.refresh()
 		player.dice_pool.roll_hand()
+		
+		# Kick off the projectile roll animation (needs one frame for refresh to create visuals)
+		await get_tree().process_frame
+		if combat_ui and combat_ui.roll_animator:
+			combat_ui.roll_animator.play_roll_sequence()
 	else:
 		print("  ⚠️ No player (%s) or dice_pool (%s)!" % [player != null, player.dice_pool if player else null])
 	
-	# Play the roll entrance animation (flash → projectile → reveal per die)
-	# This awaits until ALL dice have been revealed
-	if combat_ui and combat_ui.has_method("play_roll_animation"):
-		await combat_ui.play_roll_animation()
+	# Wait for the roll animation to finish before enabling UI
+	if combat_ui and combat_ui.roll_animator:
+		await combat_ui.roll_animator.roll_animation_complete
 	else:
-		# Fallback: short delay if no animation system available
+		# Fallback: estimate duration if no animator
 		var dice_count = player.dice_pool.hand.size() if player and player.dice_pool else 0
-		await get_tree().create_timer(dice_count * 0.08 + 0.25).timeout
+		var animation_duration = dice_count * 0.08 + 0.25
+		await get_tree().create_timer(animation_duration).timeout
 	
-	# NOW enable player interaction (after animation is done)
 	if combat_ui:
 		if combat_ui.has_method("on_turn_start"):
 			combat_ui.on_turn_start()
 		if combat_ui.has_method("set_player_turn"):
 			combat_ui.set_player_turn(true)
-
-
-	# Play the roll entrance animation (flash → projectile → reveal per die)
-	# This awaits until ALL dice have been revealed
-	if combat_ui and combat_ui.has_method("play_roll_animation"):
-		await combat_ui.play_roll_animation()
-	else:
-		# Fallback: short delay if no animation system available
-		var dice_count = player.dice_pool.hand.size() if player and player.dice_pool else 0
-		await get_tree().create_timer(dice_count * 0.08 + 0.25).timeout
-
-	# NOW enable player interaction (after animation is done)
-	if combat_ui:
-		if combat_ui.has_method("on_turn_start"):
-			combat_ui.on_turn_start()
-		if combat_ui.has_method("set_player_turn"):
-			combat_ui.set_player_turn(true)
-
 
 func _on_player_end_turn():
 	"""Player ended their turn"""

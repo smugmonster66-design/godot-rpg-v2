@@ -262,6 +262,7 @@ func initialize_ui(p_player: Player, p_enemies):
 	roll_animator = CombatRollAnimator.new()
 	roll_animator.name = "RollAnimator"
 	add_child(roll_animator)
+	roll_animator.initialize(dice_pool_display)
 
 	# Initialize with hand display + optional pool grid for source positions
 	var bottom_ui_grid = _find_pool_dice_grid()
@@ -377,10 +378,9 @@ func on_turn_start():
 	# already trigger DicePoolDisplay.refresh() via hand_rolled/hand_changed.
 	# Calling it again would cancel the entrance animation.
 	
-	# Reset action fields
-	for field in action_fields:
-		if is_instance_valid(field) and field.has_method("cancel_action") and field.placed_dice.size() > 0:
-			field.cancel_action()
+	# Action fields already cleared by CombatManager._start_player_turn()
+	# before roll_hand(). Do NOT call cancel_action() here — it fires
+	# restore_to_hand() which emits hand_changed and restarts the animation.
 	
 	# Hide action buttons
 	if action_buttons_container:
@@ -412,7 +412,6 @@ func on_turn_start():
 	# Select first living enemy as default
 	if enemy_panel:
 		enemy_panel.select_first_living_enemy()
-
 
 
 func set_player_turn(is_player: bool):

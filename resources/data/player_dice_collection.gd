@@ -195,8 +195,10 @@ func roll_hand():
 			affix_mod = " (base %d)" % die.current_value
 		print("  %s = %d%s" % [die.display_name, die.get_total_value(), affix_mod])
 	
+	# FIX: Only emit hand_rolled — both signals route to _request_refresh()
+	# in DicePoolDisplay, so emitting hand_changed too risks a second
+	# deferred refresh that restarts the entrance animation.
 	hand_rolled.emit(hand.duplicate())
-	hand_changed.emit()
 
 func _create_hand_die(pool_die: DieResource, pool_index: int) -> DieResource:
 	"""Create a hand die as a copy of a pool die"""
