@@ -80,6 +80,98 @@ func is_animating() -> bool:
 	return _is_animating
 
 # ============================================================================
+# POSITION COMPUTATION - Bypass layout system entirely
+# ============================================================================
+
+func _compute_hand_target_positions(hand_visuals: Array) -> Array[Vector2]:
+	"""Compute center positions for each die in the HBoxContainer manually.
+	
+	This avoids relying on Godot's layout propagation timing by calculating
+	where each die SHOULD be based on container properties + die minimum sizes.
+	"""
+	var positions: Array[Vector2] = []
+	
+	if not dice_pool_display or hand_visuals.is_empty():
+		return positions
+	
+	# Get each visual's expected size from minimum size
+	var sizes: Array[Vector2] = []
+	var total_width: float = 0.0
+	var max_height: float = 0.0
+	for visual in hand_visuals:
+		var s: Vector2
+		if is_instance_valid(visual):
+			s = visual.get_combined_minimum_size()
+			if s == Vector2.ZERO:
+				s = visual.custom_minimum_size
+			if s == Vector2.ZERO:
+				s = visual.size
+		else:
+			s = Vector2.ZERO
+		sizes.append(s)
+		total_width += s.x
+		max_height = max(max_height, s.y)
+	
+	# Get HBoxContainer separation
+	var separation: float = 0.0
+	if dice_pool_display is HBoxContainer:
+		separation = dice_pool_display.get_theme_constant("separation")
+	if hand_visuals.size() > 1:
+		total_width += separation * (hand_visuals.size() - 1)
+	
+	# Container global rect
+	var container_pos: Vector2 = dice_pool_display.global_position
+	var container_size: Vector2 = dice_pool_display.size
+	
+	# Determine starting X based on alignment
+	var start_x: float
+	var alignment_val: int = 0  # LEFT default
+	if dice_pool_display is HBoxContainer:
+		alignment_val = dice_pool_display.alignment
+	
+	match alignment_val:
+		BoxContainer.ALIGNMENT_CENTER:
+			start_x = container_pos.x + (container_size.x - total_width) / 2.0
+		BoxContainer.ALIGNMENT_END:
+			start_x = container_pos.x + container_size.x - total_width
+		_:  # ALIGNMENT_BEGIN
+			start_x = container_pos.x
+	
+	# Compute each die's center position
+	var current_x: float = start_x
+	for i in range(hand_visuals.size()):
+		var center_x: float = current_x + sizes[i].x / 2.0
+		var center_y: float = container_pos.y + container_size.y / 2.0
+		positions.append(Vector2(center_x, center_y))
+		current_x += sizes[i].x + separation
+	
+	return positions
+
+
+func _validate_positions(positions: Array[Vector2], count: int) -> bool:
+	"""Check if layout positions look valid (not all stacked at the same point)."""
+	if positions.size() < 2:
+		return positions.size() == count  # Single die is always "valid"
+	
+	# Check if all positions are identical or nearly identical
+	var first = positions[0]
+	var all_same = true
+	for i in range(1, positions.size()):
+		if positions[i].distance_to(first) > 5.0:  # 5px tolerance
+			all_same = false
+			break
+	
+	if all_same:
+		return false  # All stacked = layout hasn't propagated
+	
+	# Check if any position is at origin (0,0) which suggests no layout
+	for pos in positions:
+		if pos.length() < 1.0:
+			return false
+	
+	return true
+
+# ============================================================================
 # MAIN SEQUENCE
 # ============================================================================
 
@@ -96,7 +188,16 @@ func play_roll_sequence() -> void:
 		roll_animation_complete.emit()
 		return
 	
-	# Wait one frame to ensure DicePoolDisplay has finished layout
+	# Force container visible BEFORE frame waits.
+	# The dice are already modulate alpha 0 so nothing shows prematurely,
+	# but the container must be visible for layout to propagate AND for
+	# the projectile → reveal animation to actually be seen by the player.
+	if not dice_pool_display.visible:
+		print("🎬 DicePoolDisplay was hidden — forcing visible for roll animation")
+		dice_pool_display.visible = true
+	
+	# Wait two frames for layout propagation (needs visible container)
+	await get_tree().process_frame
 	await get_tree().process_frame
 	
 	var hand_visuals: Array = _get_hand_visuals()
@@ -115,18 +216,65 @@ func play_roll_sequence() -> void:
 			if "draggable" in visual:
 				visual.draggable = false
 	
+	# ── Step 1b: Compute target positions ──
+	# Try reading from layout first
+	var layout_positions: Array[Vector2] = []
+	for visual in hand_visuals:
+		if is_instance_valid(visual):
+			layout_positions.append(visual.global_position + visual.size / 2.0)
+		else:
+			layout_positions.append(Vector2.ZERO)
+	
+	# Compute manual positions as fallback
+	var manual_positions: Array[Vector2] = _compute_hand_target_positions(hand_visuals)
+	
+	# Validate layout positions — if all stacked at same point, use manual
+	var layout_looks_valid: bool = _validate_positions(layout_positions, hand_visuals.size())
+	
+	# ── DIAGNOSTIC LOGGING ──
+	print("  🔍 DicePoolDisplay ref valid: %s" % is_instance_valid(dice_pool_display))
+	print("  🔍 DicePoolDisplay: pos=%s, size=%s, visible=%s" % [
+		dice_pool_display.global_position,
+		dice_pool_display.size,
+		dice_pool_display.visible
+	])
+	if dice_pool_display is HBoxContainer:
+		print("  🔍 HBoxContainer alignment=%d, separation=%d" % [
+			dice_pool_display.alignment,
+			dice_pool_display.get_theme_constant("separation")
+		])
+	for i in range(hand_visuals.size()):
+		var v = hand_visuals[i]
+		if is_instance_valid(v):
+			print("  🔍 Die[%d]: gpos=%s, size=%s, min_size=%s, combined_min=%s, in_tree=%s" % [
+				i, v.global_position, v.size, v.custom_minimum_size,
+				v.get_combined_minimum_size(), v.is_inside_tree()
+			])
+	print("  🔍 Layout positions: %s (valid=%s)" % [layout_positions, layout_looks_valid])
+	print("  🔍 Manual positions: %s" % [manual_positions])
+	# ── END DIAGNOSTIC ──
+	
+	var target_positions: Array[Vector2] = []
+	if layout_looks_valid:
+		target_positions = layout_positions
+		print("  ✅ Using layout positions")
+	elif manual_positions.size() == hand_visuals.size():
+		target_positions = manual_positions
+		print("  ⚠️ Layout positions invalid — using manually computed positions")
+	else:
+		target_positions = layout_positions
+		print("  ❌ Both position methods failed — using layout positions as-is")
+	
 	# ── Step 2: Fire staggered per-die animations ──
 	var total = hand_visuals.size()
 	for i in range(total):
-		_animate_single_die_delayed(i, hand_visuals[i], i * stagger_delay)
+		_animate_single_die_delayed(i, hand_visuals[i], target_positions[i], i * stagger_delay)
 	
 	# ── Step 3: Wait for the LAST die to finish all 3 phases ──
-	# Last die starts at (total-1)*stagger_delay, then needs flash + travel + pop
 	var total_wait = (total - 1) * stagger_delay + flash_duration + travel_duration + pop_duration + 0.1
 	await get_tree().create_timer(total_wait).timeout
 	
 	# ── Step 4: Cleanup ──
-	# Ensure all dice are fully visible in case any animation glitched
 	for visual in hand_visuals:
 		if is_instance_valid(visual):
 			visual.modulate = Color.WHITE
@@ -145,17 +293,17 @@ func play_roll_sequence() -> void:
 # PER-DIE ANIMATION (3 phases: Flash → Travel → Reveal)
 # ============================================================================
 
-func _animate_single_die_delayed(index: int, hand_visual: Control, delay: float):
+func _animate_single_die_delayed(index: int, hand_visual: Control, target_center: Vector2, delay: float):
 	"""Start a single die's animation after a delay (non-blocking)."""
 	if delay > 0:
 		get_tree().create_timer(delay).timeout.connect(
-			func(): _do_animate_die(index, hand_visual),
+			func(): _do_animate_die(index, hand_visual, target_center),
 			CONNECT_ONE_SHOT
 		)
 	else:
-		_do_animate_die(index, hand_visual)
+		_do_animate_die(index, hand_visual, target_center)
 
-func _do_animate_die(index: int, hand_visual: Control):
+func _do_animate_die(index: int, hand_visual: Control, target_center: Vector2):
 	"""Execute the three-phase animation for one die."""
 	if not is_instance_valid(hand_visual):
 		return
@@ -163,8 +311,7 @@ func _do_animate_die(index: int, hand_visual: Control):
 	var source_info = _get_source_info(index)
 	var source_center = source_info.get("global_center", Vector2.ZERO)
 	
-	# Target = center of the hand die's destination slot
-	var target_center = hand_visual.global_position + hand_visual.size / 2
+	# target_center is pre-captured/computed — do NOT read from hand_visual here
 	
 	# ── Phase 1: Flash/glow the pool die ──
 	_flash_pool_die(source_info)
@@ -187,11 +334,9 @@ func _do_animate_die(index: int, hand_visual: Control):
 	# ── Phase 3: Reveal hand die with pop, clean up projectile ──
 	projectile.stop_emitting()
 	
-	# Hide projectile visual immediately so it doesn't linger at destination
 	if projectile.visual:
 		projectile.visual.visible = false
 	
-	# Brief delay so trail particles fade before freeing
 	get_tree().create_timer(0.3).timeout.connect(
 		func():
 			if is_instance_valid(projectile):
@@ -212,12 +357,10 @@ func _flash_pool_die(source_info: Dictionary):
 		if visual.has_method("play_roll_source_animation"):
 			visual.play_roll_source_animation()
 		else:
-			# Fallback: simple modulate flash (bright white → back to normal)
 			var tween = visual.create_tween()
 			tween.tween_property(visual, "modulate", Color(2.0, 2.0, 2.0), flash_duration * 0.4)
 			tween.tween_property(visual, "modulate", Color.WHITE, flash_duration * 0.6)
 	else:
-		# No pool visual available — nothing to flash
 		pass
 
 # ============================================================================
@@ -242,14 +385,11 @@ func _spawn_projectile(source_info: Dictionary) -> RollProjectile:
 
 func _reveal_hand_die(hand_visual: Control):
 	"""Make the hand die visible with a scale pop animation."""
-	# Snap to fully visible
 	hand_visual.modulate = Color.WHITE
 	
-	# Re-enable dragging
 	if "draggable" in hand_visual:
 		hand_visual.draggable = true
 	
-	# Scale pop: start larger, bounce down to normal
 	var base_scale = Vector2.ONE
 	hand_visual.scale = base_scale * pop_scale
 	
@@ -267,7 +407,6 @@ func _get_hand_visuals() -> Array:
 	if dice_pool_display and "die_visuals" in dice_pool_display:
 		return dice_pool_display.die_visuals
 	
-	# Fallback: find DieObjectBase children
 	var visuals: Array = []
 	if dice_pool_display:
 		for child in dice_pool_display.get_children():
@@ -281,17 +420,14 @@ func _get_source_info(die_index: int) -> Dictionary:
 	"""
 	var info: Dictionary = {}
 	
-	# Try getting info from the pool DiceGrid
 	if pool_dice_grid and is_instance_valid(pool_dice_grid) and pool_dice_grid.visible:
 		if pool_dice_grid.has_method("get_slot_info"):
 			info = pool_dice_grid.get_slot_info(die_index)
 	
-	# Fallback source position: bottom center of screen
 	if not info.has("global_center"):
 		var viewport_size = get_viewport().get_visible_rect().size
 		info["global_center"] = Vector2(viewport_size.x / 2, viewport_size.y)
 	
-	# If we still don't have texture info, try getting from hand visual's die_resource
 	if not info.has("fill_texture") and dice_pool_display:
 		var hand_visuals = _get_hand_visuals()
 		if die_index < hand_visuals.size():
@@ -320,10 +456,15 @@ func play_roll_sequence_for(target_display: Control, visuals: Array, source_posi
 		roll_animation_complete.emit()
 		return
 	
-	# Wait one frame for layout
+	# Force container visible for layout propagation and visible animation
+	if target_display and not target_display.visible:
+		print("🎬 Target display was hidden — forcing visible for roll animation")
+		target_display.visible = true
+	
+	# Wait two frames for layout propagation
+	await get_tree().process_frame
 	await get_tree().process_frame
 	
-	# Determine source
 	var source_center: Vector2
 	if source_position != Vector2.ZERO:
 		source_center = source_position
@@ -339,10 +480,18 @@ func play_roll_sequence_for(target_display: Control, visuals: Array, source_posi
 		if is_instance_valid(visual):
 			visual.modulate = Color(1, 1, 1, 0)
 	
+	# ── Step 1b: Pre-capture target positions ──
+	var captured_targets: Array[Vector2] = []
+	for visual in visuals:
+		if is_instance_valid(visual):
+			captured_targets.append(visual.global_position + visual.size / 2.0)
+		else:
+			captured_targets.append(Vector2.ZERO)
+	
 	# ── Step 2: Fire staggered per-die animations ──
 	var total = visuals.size()
 	for i in range(total):
-		_animate_generic_die_delayed(i, visuals[i], source_center, i * stagger_delay)
+		_animate_generic_die_delayed(i, visuals[i], source_center, captured_targets[i], i * stagger_delay)
 	
 	# ── Step 3: Wait for last die to finish ──
 	var total_wait = (total - 1) * stagger_delay + flash_duration + travel_duration + pop_duration + 0.1
@@ -353,7 +502,6 @@ func play_roll_sequence_for(target_display: Control, visuals: Array, source_posi
 		if is_instance_valid(visual):
 			visual.modulate = Color.WHITE
 	
-	# Clear hide flag on the display
 	if target_display and "hide_for_roll_animation" in target_display:
 		target_display.hide_for_roll_animation = false
 	
@@ -362,32 +510,29 @@ func play_roll_sequence_for(target_display: Control, visuals: Array, source_posi
 	roll_animation_complete.emit()
 
 
-func _animate_generic_die_delayed(index: int, hand_visual: Control, source_center: Vector2, delay: float):
+func _animate_generic_die_delayed(index: int, hand_visual: Control, source_center: Vector2, target_center: Vector2, delay: float):
 	"""Start a single generic die animation after a delay."""
 	if delay > 0:
 		get_tree().create_timer(delay).timeout.connect(
-			func(): _do_animate_generic_die(index, hand_visual, source_center),
+			func(): _do_animate_generic_die(index, hand_visual, source_center, target_center),
 			CONNECT_ONE_SHOT
 		)
 	else:
-		_do_animate_generic_die(index, hand_visual, source_center)
+		_do_animate_generic_die(index, hand_visual, source_center, target_center)
 
 
-func _do_animate_generic_die(_index: int, hand_visual: Control, source_center: Vector2):
+func _do_animate_generic_die(_index: int, hand_visual: Control, source_center: Vector2, target_center: Vector2):
 	"""Execute three-phase animation for one die with explicit source position."""
 	if not is_instance_valid(hand_visual):
 		return
 	
-	var target_center = hand_visual.global_position + hand_visual.size / 2
+	# target_center is pre-captured — do NOT read from hand_visual here
 	
-	# ── Phase 1: Brief pause (no pool die to flash for enemies) ──
 	await get_tree().create_timer(flash_duration).timeout
 	
-	# ── Phase 2: Projectile travels from source to hand slot ──
 	var source_info: Dictionary = {}
 	source_info["global_center"] = source_center
 	
-	# Try to get texture from the hand visual's die resource
 	if hand_visual is DieObjectBase and hand_visual.die_resource:
 		source_info["fill_texture"] = hand_visual.die_resource.fill_texture
 	
@@ -404,7 +549,6 @@ func _do_animate_generic_die(_index: int, hand_visual: Control, source_center: V
 	
 	await travel_tween.finished
 	
-	# ── Phase 3: Reveal with pop, clean up projectile ──
 	projectile.stop_emitting()
 	if projectile.visual:
 		projectile.visual.visible = false

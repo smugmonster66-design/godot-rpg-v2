@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://b3q876dvj5ajn"]
+
+[ext_resource type="Shader" uid="uid://2nitdgy6rehv" path="res://shaders/pixel_smear.gdshader" id="1"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/smear_amount = 0.2000000095
+shader_parameter/spread = 0.5
+shader_parameter/sprite_size = Vector2(64, 64)

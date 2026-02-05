@@ -1,6 +1,7 @@
-[gd_scene load_steps=16 format=3 uid="uid://c32i80y6ybrjw"]
+[gd_scene load_steps=17 format=3 uid="uid://c32i80y6ybrjw"]
 
 [ext_resource type="Script" uid="uid://s2wf44twmwso" path="res://scripts/effects/sprite_effect.gd" id="1_okqj3"]
+[ext_resource type="Material" uid="uid://b8gspsjh00g72" path="res://resources/materials/cartoon_smooth_material.tres" id="2_nc41g"]
 [ext_resource type="Texture2D" uid="uid://b7oqd5i4brkah" path="res://assets/spriteframes/impacts/small_detonation_effect_spriteframes.png" id="2_okqj3"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_nc41g"]
@@ -99,6 +100,7 @@ animations = [{
 script = ExtResource("1_okqj3")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+material = ExtResource("2_nc41g")
 sprite_frames = SubResource("SpriteFrames_26xc1")
 frame = 11
 frame_progress = 1.0

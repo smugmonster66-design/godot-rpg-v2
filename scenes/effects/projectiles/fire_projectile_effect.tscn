@@ -1,7 +1,8 @@
-[gd_scene load_steps=20 format=3 uid="uid://c3p7ducv02ae7"]
+[gd_scene load_steps=21 format=3 uid="uid://c3p7ducv02ae7"]
 
 [ext_resource type="Script" uid="uid://dhg3menrmqvi7" path="res://scripts/effects/projectile_effect.gd" id="1_fic8k"]
 [ext_resource type="Texture2D" uid="uid://pghsu5w31mdt" path="res://assets/spriteframes/projectiles/magic_projectile_spriteframes.png" id="2_j5k17"]
+[ext_resource type="Material" uid="uid://b8gspsjh00g72" path="res://resources/materials/cartoon_smooth_material.tres" id="2_sqr5j"]
 [ext_resource type="Texture2D" uid="uid://c6hfpnookob8g" path="res://assets/particles/star_09.png" id="3_sqr5j"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_fic8k"]
@@ -44,7 +45,7 @@ region = Rect2(512, 0, 64, 64)
 atlas = ExtResource("2_j5k17")
 region = Rect2(576, 0, 64, 64)
 
-[sub_resource type="SpriteFrames" id="SpriteFrames_pdtbf"]
+[sub_resource type="SpriteFrames" id="SpriteFrames_3wtjc"]
 animations = [{
 "frames": [{
 "duration": 1.0,
@@ -79,7 +80,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"default",
-"speed": 15.0
+"speed": 12.0
 }]
 
 [sub_resource type="Gradient" id="Gradient_nlhed"]
@@ -115,11 +116,13 @@ scale_curve = SubResource("CurveTexture_7scna")
 color_ramp = SubResource("GradientTexture1D_ikowk")
 
 [node name="ProjectileEffect" type="Node2D"]
+scale = Vector2(4, 4)
 script = ExtResource("1_fic8k")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-sprite_frames = SubResource("SpriteFrames_pdtbf")
-frame_progress = 0.6127347
+material = ExtResource("2_sqr5j")
+sprite_frames = SubResource("SpriteFrames_3wtjc")
+frame_progress = 0.28688365
 
 [node name="GPUParticles2D" type="GPUParticles2D" parent="."]
 emitting = false
