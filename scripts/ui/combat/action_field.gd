@@ -592,25 +592,25 @@ func _create_placed_visual(die: DieResource) -> Control:
 
 
 func _animate_placement(visual: Control, _slot: Panel, _from_pos: Vector2):
-	var target_scale = visual.scale  # The fitted scale from _fit_visual_to_slot
-	visual.scale = target_scale * 1.3  # Start 30% bigger
+	# Pop animation using scale from center pivot
+	visual.scale = Vector2(1.3, 1.3)
 	visual.modulate = Color(1.2, 1.2, 0.9)
 	var tw = create_tween()
 	tw.set_parallel(true)
-	tw.tween_property(visual, "scale", target_scale, snap_duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tw.tween_property(visual, "scale", Vector2.ONE, snap_duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	tw.tween_property(visual, "modulate", Color.WHITE, snap_duration)
 
 
 
 
-
 func _fit_visual_to_slot(visual: Control):
-	"""Scale and position a die visual to fit within SLOT_SIZE"""
-	var die_size: Vector2 = visual.base_size if "base_size" in visual else visual.size
+	"""Force die visual to match slot size exactly"""
+	var die_size: Vector2 = visual.base_size if "base_size" in visual else Vector2(124, 124)
 	var fit_scale: float = min(SLOT_SIZE.x / die_size.x, SLOT_SIZE.y / die_size.y)
 	
-	# Prevent the visual from expanding the slot
-	visual.custom_minimum_size = Vector2.ZERO
+	# Tell layout system this control is slot-sized
+	visual.custom_minimum_size = SLOT_SIZE
+	visual.size = SLOT_SIZE
 	
 	# Break out of anchor-based layout
 	visual.set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -619,12 +619,27 @@ func _fit_visual_to_slot(visual: Control):
 	visual.set_anchor(SIDE_RIGHT, 0)
 	visual.set_anchor(SIDE_BOTTOM, 0)
 	
-	# Place pivot at die center, then offset so pivot lands at slot center
-	visual.pivot_offset = die_size / 2
-	visual.position = (SLOT_SIZE - die_size) / 2
-	visual.size = die_size  # AFTER position so offsets calculate correctly
-	visual.scale = Vector2(fit_scale, fit_scale)
-
+	# Sit at origin of slot, no offset needed
+	visual.position = Vector2.ZERO
+	
+	# No scale — children with FULL_RECT anchors will resize to slot size naturally
+	visual.scale = Vector2.ONE
+	visual.pivot_offset = SLOT_SIZE / 2
+	
+	# Scale down the value label to match the slot ratio
+	var value_label = visual.find_child("ValueLabel", true, false) as Label
+	if value_label:
+		var original_font_size = value_label.get_theme_font_size("font_size")
+		value_label.add_theme_font_size_override("font_size", int(original_font_size * fit_scale))
+		
+		var original_outline = value_label.get_theme_constant("outline_size")
+		value_label.add_theme_constant_override("outline_size", int(original_outline * fit_scale))
+		
+		# Scale the label's offsets to match
+		value_label.offset_left *= fit_scale
+		value_label.offset_top *= fit_scale
+		value_label.offset_right *= fit_scale
+		value_label.offset_bottom *= fit_scale
 
 
 
