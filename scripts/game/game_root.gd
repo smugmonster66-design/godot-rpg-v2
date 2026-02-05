@@ -108,7 +108,6 @@ func _on_player_created(player: Resource):
 # ============================================================================
 
 func start_combat(encounter: Resource = null):
-	"""Show combat layer on top of map, pause map"""
 	if is_in_combat:
 		push_warning("GameRoot: Already in combat!")
 		return
@@ -116,16 +115,20 @@ func start_combat(encounter: Resource = null):
 	print("⚔️ GameRoot: Starting combat overlay")
 	is_in_combat = true
 	
-	# Pause map (stays visible underneath but frozen)
 	map_scene.process_mode = Node.PROCESS_MODE_DISABLED
-	
-	# Show and enable combat layer
 	combat_layer.visible = true
 	combat_layer.process_mode = Node.PROCESS_MODE_INHERIT
 	
-	# Notify UI
+	# >>> NEW: Tell CombatManager to pick up the encounter <
+	var combat_manager = combat_scene.find_child("CombatManager", true, false)
+	if not combat_manager:
+		combat_manager = combat_scene  # CombatScene might BE the manager
+	if combat_manager and combat_manager.has_method("check_pending_encounter"):
+		combat_manager.check_pending_encounter()
+	
 	if bottom_ui and bottom_ui.has_method("on_combat_started"):
 		bottom_ui.on_combat_started()
+
 
 func end_combat(player_won: bool = true):
 	"""Hide combat layer, resume map"""
