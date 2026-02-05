@@ -1,6 +1,6 @@
 # res://scripts/ui/combat/combat_roll_animator.gd
 # Orchestrates dice roll animations at the start of each player turn
-# Sequence: Pool die flash → Projectile travels → Hand die revealed with pop
+# Sequence per die: Pool die flash → Projectile travels to hand slot → Pop reveal
 # Add as a child node of CombatUI (or CombatUILayer)
 extends Node
 class_name CombatRollAnimator
@@ -10,13 +10,13 @@ class_name CombatRollAnimator
 # ============================================================================
 @export_group("Timing")
 ## Delay between each die's animation start (staggered, not sequential)
-@export var stagger_delay: float = 0.12
-## Duration of the pool die flash effect
-@export var flash_duration: float = 0.15
+@export var stagger_delay: float = 0.15
+## Duration of the pool die flash/glow effect
+@export var flash_duration: float = 0.2
 ## Duration of projectile travel from pool to hand
-@export var travel_duration: float = 0.35
+@export var travel_duration: float = 0.4
 ## Duration of the hand die scale pop on reveal
-@export var pop_duration: float = 0.15
+@export var pop_duration: float = 0.2
 
 @export_group("Visuals")
 ## Scale multiplier for the hand die pop effect (1.3 = 30% larger)
@@ -63,16 +63,18 @@ func _ready():
 	canvas_layer.add_child(_projectile_container)
 
 func initialize(hand_display: Control, pool_grid = null):
-	"""Call during CombatUI.initialize_ui() to set references
+	"""Call during CombatUI.initialize_ui() to set references.
 	
 	Args:
-		hand_display: The DicePoolDisplay node showing combat hand dice
+		hand_display: The DicePoolDisplay node showing combat hand dice.
 		pool_grid: (Optional) The DiceGrid from BottomUI showing pool dice.
-		           If null, projectiles originate from bottom-center of screen.
+			If null, projectiles originate from bottom-center of screen.
 	"""
 	dice_pool_display = hand_display
 	pool_dice_grid = pool_grid
-	print_debug("🎬 CombatRollAnimator initialized (pool_grid: %s)" % (pool_grid != null))
+	print("🎬 CombatRollAnimator initialized (hand_display: %s, pool_grid: %s)" % [
+		hand_display != null, pool_grid != null
+	])
 
 func is_animating() -> bool:
 	return _is_animating
@@ -83,50 +85,68 @@ func is_animating() -> bool:
 
 func play_roll_sequence() -> void:
 	"""Play the full roll animation for all hand dice.
-	Non-blocking — fires staggered animations and emits roll_animation_complete when done.
-	Call after roll_hand() and DicePoolDisplay.refresh().
+	
+	IMPORTANT: Call AFTER roll_hand() and DicePoolDisplay.refresh() have completed.
+	The DicePoolDisplay must have its die_visuals populated but they should be hidden.
+	
+	Fires staggered animations per die, then emits roll_animation_complete when done.
 	"""
 	if not dice_pool_display:
 		push_warning("CombatRollAnimator: No dice_pool_display — skipping animation")
 		roll_animation_complete.emit()
 		return
 	
+	# Wait one frame to ensure DicePoolDisplay has finished layout
+	await get_tree().process_frame
+	
 	var hand_visuals: Array = _get_hand_visuals()
 	if hand_visuals.is_empty():
+		print("🎬 CombatRollAnimator: No hand visuals found — skipping")
 		roll_animation_complete.emit()
 		return
 	
 	_is_animating = true
+	print("🎬 CombatRollAnimator: Starting roll sequence for %d dice" % hand_visuals.size())
 	
-	# Hide all hand visuals and disable dragging until revealed
+	# ── Step 1: Hide ALL hand visuals and disable dragging ──
 	for visual in hand_visuals:
 		if is_instance_valid(visual):
-			visual.modulate = Color(1, 1, 1, 0)
+			visual.modulate = Color(1, 1, 1, 0)  # Fully transparent
 			if "draggable" in visual:
 				visual.draggable = false
 	
-	# Fire staggered animations (non-blocking per die)
+	# ── Step 2: Fire staggered per-die animations ──
 	var total = hand_visuals.size()
 	for i in range(total):
 		_animate_single_die_delayed(i, hand_visuals[i], i * stagger_delay)
 	
-	# Wait for the last die to finish all phases
-	var total_wait = (total - 1) * stagger_delay + flash_duration + travel_duration + pop_duration + 0.05
+	# ── Step 3: Wait for the LAST die to finish all 3 phases ──
+	# Last die starts at (total-1)*stagger_delay, then needs flash + travel + pop
+	var total_wait = (total - 1) * stagger_delay + flash_duration + travel_duration + pop_duration + 0.1
 	await get_tree().create_timer(total_wait).timeout
+	
+	# ── Step 4: Cleanup ──
+	# Ensure all dice are fully visible in case any animation glitched
+	for visual in hand_visuals:
+		if is_instance_valid(visual):
+			visual.modulate = Color.WHITE
+			if "draggable" in visual:
+				visual.draggable = true
 	
 	# Clear the hide flag on the display
 	if dice_pool_display and "hide_for_roll_animation" in dice_pool_display:
 		dice_pool_display.hide_for_roll_animation = false
 	
 	_is_animating = false
+	print("🎬 CombatRollAnimator: Roll sequence complete")
 	roll_animation_complete.emit()
 
 # ============================================================================
-# PER-DIE ANIMATION
+# PER-DIE ANIMATION (3 phases: Flash → Travel → Reveal)
 # ============================================================================
 
 func _animate_single_die_delayed(index: int, hand_visual: Control, delay: float):
-	"""Start a single die's animation after a delay (non-blocking)"""
+	"""Start a single die's animation after a delay (non-blocking)."""
 	if delay > 0:
 		get_tree().create_timer(delay).timeout.connect(
 			func(): _do_animate_die(index, hand_visual),
@@ -136,19 +156,21 @@ func _animate_single_die_delayed(index: int, hand_visual: Control, delay: float)
 		_do_animate_die(index, hand_visual)
 
 func _do_animate_die(index: int, hand_visual: Control):
-	"""Execute the three-phase animation for one die"""
+	"""Execute the three-phase animation for one die."""
 	if not is_instance_valid(hand_visual):
 		return
 	
 	var source_info = _get_source_info(index)
 	var source_center = source_info.get("global_center", Vector2.ZERO)
+	
+	# Target = center of the hand die's destination slot
 	var target_center = hand_visual.global_position + hand_visual.size / 2
 	
-	# ── Phase 1: Flash pool die ──
+	# ── Phase 1: Flash/glow the pool die ──
 	_flash_pool_die(source_info)
 	await get_tree().create_timer(flash_duration).timeout
 	
-	# ── Phase 2: Projectile travel ──
+	# ── Phase 2: Projectile travels from pool to hand slot ──
 	var projectile = _spawn_projectile(source_info)
 	projectile.global_position = source_center - projectile_size / 2
 	projectile.start_emitting()
@@ -162,8 +184,13 @@ func _do_animate_die(index: int, hand_visual: Control):
 	
 	await travel_tween.finished
 	
-	# ── Phase 3: Reveal hand die with pop ──
+	# ── Phase 3: Reveal hand die with pop, clean up projectile ──
 	projectile.stop_emitting()
+	
+	# Hide projectile visual immediately so it doesn't linger at destination
+	if projectile.visual:
+		projectile.visual.visible = false
+	
 	# Brief delay so trail particles fade before freeing
 	get_tree().create_timer(0.3).timeout.connect(
 		func():
@@ -171,9 +198,6 @@ func _do_animate_die(index: int, hand_visual: Control):
 				projectile.queue_free(),
 		CONNECT_ONE_SHOT
 	)
-	# Hide projectile visual immediately so it doesn't linger
-	if projectile.visual:
-		projectile.visual.visible = false
 	
 	_reveal_hand_die(hand_visual)
 
@@ -182,23 +206,26 @@ func _do_animate_die(index: int, hand_visual: Control):
 # ============================================================================
 
 func _flash_pool_die(source_info: Dictionary):
-	"""Flash the pool die to indicate it's being rolled"""
+	"""Flash/glow the pool die to indicate it's being rolled."""
 	var visual = source_info.get("visual", null)
 	if visual and is_instance_valid(visual):
 		if visual.has_method("play_roll_source_animation"):
 			visual.play_roll_source_animation()
 		else:
-			# Fallback: simple modulate flash
+			# Fallback: simple modulate flash (bright white → back to normal)
 			var tween = visual.create_tween()
-			tween.tween_property(visual, "modulate", Color(1.8, 1.8, 1.8), flash_duration * 0.5)
-			tween.tween_property(visual, "modulate", Color.WHITE, flash_duration * 0.5)
+			tween.tween_property(visual, "modulate", Color(2.0, 2.0, 2.0), flash_duration * 0.4)
+			tween.tween_property(visual, "modulate", Color.WHITE, flash_duration * 0.6)
+	else:
+		# No pool visual available — nothing to flash
+		pass
 
 # ============================================================================
 # PHASE 2: PROJECTILE
 # ============================================================================
 
 func _spawn_projectile(source_info: Dictionary) -> RollProjectile:
-	"""Create and configure a projectile matching the source die's appearance"""
+	"""Create and configure a projectile matching the source die's appearance."""
 	var projectile = RollProjectile.new()
 	_projectile_container.add_child(projectile)
 	
@@ -214,7 +241,7 @@ func _spawn_projectile(source_info: Dictionary) -> RollProjectile:
 # ============================================================================
 
 func _reveal_hand_die(hand_visual: Control):
-	"""Make the hand die visible with a scale pop animation"""
+	"""Make the hand die visible with a scale pop animation."""
 	# Snap to fully visible
 	hand_visual.modulate = Color.WHITE
 	
@@ -236,7 +263,7 @@ func _reveal_hand_die(hand_visual: Control):
 # ============================================================================
 
 func _get_hand_visuals() -> Array:
-	"""Get the list of CombatDieObject visuals from the hand display"""
+	"""Get the list of CombatDieObject visuals from the hand display."""
 	if dice_pool_display and "die_visuals" in dice_pool_display:
 		return dice_pool_display.die_visuals
 	

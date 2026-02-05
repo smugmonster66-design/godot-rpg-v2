@@ -356,18 +356,39 @@ func _start_player_turn():
 		for die in player.dice_pool.dice:
 			print("    - %s from %s" % [die.display_name, die.source])
 		
-		# Roll the hand — this triggers hand_rolled signal which starts
-		# the DicePoolDisplay entrance animation
+		# Roll the hand — triggers hand_rolled → DicePoolDisplay.refresh()
+		# Visuals are created but HIDDEN (hide_for_roll_animation = true)
 		player.dice_pool.roll_hand()
 	else:
 		print("  ⚠️ No player (%s) or dice_pool (%s)!" % [player != null, player.dice_pool if player else null])
 	
-	# Wait for the roll entrance animation to play before enabling UI
-	# (dice count * 0.08s stagger + 0.2s for the last die to finish)
-	var dice_count = player.dice_pool.hand.size() if player and player.dice_pool else 0
-	var animation_duration = dice_count * 0.08 + 0.25
-	await get_tree().create_timer(animation_duration).timeout
+	# Play the roll entrance animation (flash → projectile → reveal per die)
+	# This awaits until ALL dice have been revealed
+	if combat_ui and combat_ui.has_method("play_roll_animation"):
+		await combat_ui.play_roll_animation()
+	else:
+		# Fallback: short delay if no animation system available
+		var dice_count = player.dice_pool.hand.size() if player and player.dice_pool else 0
+		await get_tree().create_timer(dice_count * 0.08 + 0.25).timeout
 	
+	# NOW enable player interaction (after animation is done)
+	if combat_ui:
+		if combat_ui.has_method("on_turn_start"):
+			combat_ui.on_turn_start()
+		if combat_ui.has_method("set_player_turn"):
+			combat_ui.set_player_turn(true)
+
+
+	# Play the roll entrance animation (flash → projectile → reveal per die)
+	# This awaits until ALL dice have been revealed
+	if combat_ui and combat_ui.has_method("play_roll_animation"):
+		await combat_ui.play_roll_animation()
+	else:
+		# Fallback: short delay if no animation system available
+		var dice_count = player.dice_pool.hand.size() if player and player.dice_pool else 0
+		await get_tree().create_timer(dice_count * 0.08 + 0.25).timeout
+
+	# NOW enable player interaction (after animation is done)
 	if combat_ui:
 		if combat_ui.has_method("on_turn_start"):
 			combat_ui.on_turn_start()

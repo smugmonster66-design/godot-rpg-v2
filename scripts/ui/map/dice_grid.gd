@@ -279,36 +279,30 @@ func clear_highlights():
 	for slot in slots:
 		slot.modulate = Color.WHITE
 
-func get_slot_info(index: int) -> Dictionary:
-	"""Get position and visual data for a slot (used by CombatRollAnimator).
-	Returns: {global_center, visual, fill_texture, fill_material, die_resource, tint}
+func get_slot_info(slot_index: int) -> Dictionary:
+	"""Return position + visual info for a pool slot.
+	Used by CombatRollAnimator for projectile origin.
 	"""
-	if index < 0 or index >= slots.size():
-		return {}
-	
-	var slot = slots[index]
-	var result: Dictionary = {
-		"global_center": slot.global_position + slot.size / 2,
-	}
-	
-	# Get visual info from the PoolDieObject in the slot
-	if slot.current_die_visual and is_instance_valid(slot.current_die_visual):
-		var vis = slot.current_die_visual
-		result["visual"] = vis
-		if vis is DieObjectBase:
-			if vis.fill_texture and vis.fill_texture is TextureRect:
-				result["fill_texture"] = vis.fill_texture.texture
-				result["fill_material"] = vis.fill_texture.material
-			if vis.die_resource:
-				result["tint"] = vis.die_resource.color
-	
-	# Fallback texture from the DieResource itself
-	if slot.die:
-		result["die_resource"] = slot.die
-		if not result.has("fill_texture") and slot.die.fill_texture:
-			result["fill_texture"] = slot.die.fill_texture
-	
-	if not result.has("tint"):
-		result["tint"] = Color.WHITE
-	
-	return result
+	var info: Dictionary = {}
+
+	if slot_index < 0 or slot_index >= slots.size():
+		return info
+
+	var slot = slots[slot_index]
+	if not is_instance_valid(slot):
+		return info
+
+	# Position
+	info["global_center"] = slot.global_position + slot.size / 2
+	info["visual"] = slot
+
+	# Try to get texture/material from the slot's die visual
+	if slot.current_die_visual and slot.current_die_visual is DieObjectBase:
+		var die_obj = slot.current_die_visual
+		if die_obj.die_resource:
+			info["fill_texture"] = die_obj.die_resource.fill_texture
+		if die_obj.fill_texture:
+			info["fill_material"] = die_obj.fill_texture.material
+		info["tint"] = die_obj.modulate
+
+	return info

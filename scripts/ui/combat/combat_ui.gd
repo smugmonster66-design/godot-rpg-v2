@@ -258,12 +258,16 @@ func initialize_ui(p_player: Player, p_enemies):
 	# Reset all charges for combat start
 	reset_action_charges_for_combat()
 	
-	# Create roll animator
+	# Create and initialize roll animator
 	roll_animator = CombatRollAnimator.new()
 	roll_animator.name = "RollAnimator"
 	add_child(roll_animator)
-	
-	
+
+	# Initialize with hand display + optional pool grid for source positions
+	var bottom_ui_grid = _find_pool_dice_grid()
+	roll_animator.initialize(dice_pool_display, bottom_ui_grid)
+		
+		
 	print("🎮 CombatUI initialization complete")
 
 func _setup_health_display():
@@ -1149,22 +1153,48 @@ func animate_enemy_die_placement(_enemy_combatant: Combatant, _die: DieResource,
 
 
 func _find_pool_dice_grid():
-	"""Find the BottomUI's DiceGrid for roll animation source positions"""
-	# Try via BottomUIPanel
-	var bottom_ui = get_tree().get_first_node_in_group("bottom_ui")
-	if bottom_ui:
-		var grid = bottom_ui.find_child("DiceGrid", true, false)
-		if grid:
-			return grid
-	
+	"""Try to find the BottomUI's DiceGrid for pool die source positions.
+	Returns null if not found (animator will use fallback bottom-center).
+	"""
 	# Try via group
-	var grids = get_tree().get_nodes_in_group("dice_grid")
-	for grid in grids:
-		if grid is DiceGrid and grid.grid_mode == DiceGrid.GridMode.POOL:
-			return grid
-	
-	return null  # Will use fallback position (bottom center of screen)
+	var bottom_ui = get_tree().get_first_node_in_group("bottom_ui")
+	if bottom_ui and "dice_grid" in bottom_ui:
+		return bottom_ui.dice_grid
 
+	# Fallback: search parent's children
+	var parent = get_parent()
+	if parent:
+		var bottom = parent.find_child("BottomUIPanel", true, false)
+		if bottom and "dice_grid" in bottom:
+			return bottom.dice_grid
+
+	return null
+
+
+func play_roll_animation() -> void:
+	"""Play the dice roll entrance animation.
+	Called by CombatManager at the start of each player turn, AFTER roll_hand()
+	and DicePoolDisplay.refresh() have run.
+	Awaitable — returns when the full animation sequence is complete.
+	"""
+	if roll_animator:
+		print("🎮 CombatUI: Playing roll animation via CombatRollAnimator")
+		# Set the flag so DicePoolDisplay knows dice should start hidden
+		if dice_pool_display and "hide_for_roll_animation" in dice_pool_display:
+			dice_pool_display.hide_for_roll_animation = true
+		roll_animator.play_roll_sequence()
+		await roll_animator.roll_animation_complete
+	else:
+		# Fallback: just make everything visible immediately
+		push_warning("CombatUI: No roll_animator — showing dice immediately")
+		if dice_pool_display:
+			for visual in dice_pool_display.die_visuals:
+				if is_instance_valid(visual):
+					visual.modulate = Color.WHITE
+					if "draggable" in visual:
+						visual.draggable = true
+			if "hide_for_roll_animation" in dice_pool_display:
+				dice_pool_display.hide_for_roll_animation = false
 
 
 func _mf_name(mf: int) -> String:

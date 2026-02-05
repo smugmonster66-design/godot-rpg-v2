@@ -1,6 +1,9 @@
 # res://scripts/ui/combat/dice_pool_display.gd
 # Combat hand display - shows rolled dice available for actions
 # Uses CombatDieObject for each die, with fallback to DieVisual
+#
+# IMPORTANT: This display creates visuals HIDDEN. The CombatRollAnimator is
+# solely responsible for revealing each die with the projectile animation.
 extends HBoxContainer
 class_name DicePoolDisplay
 
@@ -23,9 +26,9 @@ signal die_clicked(die_object: Control, die: DieResource)
 var dice_pool: PlayerDiceCollection = null
 var die_visuals: Array[Control] = []
 var _refresh_pending: bool = false
-var _is_animating_entrance: bool = false
+## When true, newly created visuals start invisible + non-draggable.
+## CombatRollAnimator sets this before refresh and clears it after animation.
 var hide_for_roll_animation: bool = false
-
 
 # ============================================================================
 # INITIALIZATION
@@ -65,15 +68,18 @@ func initialize(pool):
 # ============================================================================
 
 func refresh():
-	"""Refresh the display to match current hand"""
+	"""Refresh the display to match current hand.
+	
+	Visuals are created HIDDEN (alpha = 0, draggable = false).
+	The CombatRollAnimator reveals each die with the projectile animation.
+	For mid-turn refreshes (e.g. die consumed), hide_for_roll_animation will
+	be false, so dice appear immediately.
+	"""
 	print("🎲 DicePoolDisplay.refresh()")
 	
 	if not dice_pool:
 		print("  ⚠️ No dice_pool")
 		return
-	
-	# Kill any in-progress entrance animation
-	_is_animating_entrance = false
 	
 	clear_display()
 	
@@ -84,15 +90,20 @@ func refresh():
 		var die = hand[i]
 		var visual = _create_die_visual(die, i)
 		if visual:
-			visual.modulate.a = 0.0  # Start invisible for entrance animation
+			# Start invisible when roll animation is pending
+			if hide_for_roll_animation:
+				visual.modulate.a = 0.0
 			add_child(visual)
 			die_visuals.append(visual)
-			print("    ✅ Created visual for %s (value=%d)" % [die.display_name, die.get_total_value()])
+			print("    ✅ Created visual for %s (value=%d)%s" % [
+				die.display_name,
+				die.get_total_value(),
+				" [HIDDEN]" if hide_for_roll_animation else ""
+			])
 		else:
 			print("    ❌ Failed to create visual for %s" % die.display_name)
 	
-	# Animate the hand appearing
-	_animate_hand_entrance()
+	# No entrance animation here — CombatRollAnimator handles all reveal
 
 
 func clear_display():
@@ -107,7 +118,6 @@ func clear_display():
 	for child in get_children():
 		remove_child(child)
 		child.queue_free()
-
 
 
 func _create_die_visual(die: DieResource, index: int) -> Control:
@@ -127,6 +137,7 @@ func _create_die_visual(die: DieResource, index: int) -> Control:
 			if combat_obj.has_signal("clicked"):
 				combat_obj.clicked.connect(_on_new_die_clicked)
 			
+			# If roll animation is pending, start hidden + non-draggable
 			if hide_for_roll_animation:
 				combat_obj.modulate = Color(1, 1, 1, 0)
 				combat_obj.draggable = false
@@ -155,6 +166,10 @@ func _create_die_visual(die: DieResource, index: int) -> Control:
 		var visual = scene.instantiate()
 		if visual.has_method("set_die"):
 			visual.set_die(die)
+		
+		if hide_for_roll_animation:
+			visual.modulate = Color(1, 1, 1, 0)
+		
 		return visual
 	
 	print("      ❌ No visual system available!")
@@ -187,7 +202,6 @@ func _on_hand_changed():
 	print("🎲 DicePoolDisplay: hand_changed signal")
 	_request_refresh()
 
-
 # ============================================================================
 # DEFERRED REFRESH (prevents triple-refresh in one frame)
 # ============================================================================
@@ -203,40 +217,6 @@ func _do_deferred_refresh():
 	"""Execute the actual refresh (called once per frame max)"""
 	_refresh_pending = false
 	refresh()
-
-# ============================================================================
-# HAND ENTRANCE ANIMATION
-# ============================================================================
-
-func _animate_hand_entrance():
-	"""Animate dice appearing in the hand one by one"""
-	_is_animating_entrance = true
-	
-	for i in range(die_visuals.size()):
-		if not _is_animating_entrance:
-			# Animation was cancelled (new refresh started)
-			break
-		
-		var visual = die_visuals[i]
-		if not is_instance_valid(visual):
-			continue
-		
-		var delay = i * 0.08  # Stagger each die
-		
-		var tween = create_tween()
-		tween.tween_interval(delay)
-		
-		# Scale up from small + fade in
-		visual.scale = Vector2(0.3, 0.3)
-		tween.tween_property(visual, "modulate:a", 1.0, 0.15)
-		tween.parallel().tween_property(visual, "scale", Vector2.ONE, 0.2).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-		
-		# Play the CombatDieObject roll animation after it appears
-		if visual.has_method("play_roll_animation"):
-			tween.tween_callback(visual.play_roll_animation)
-	
-	_is_animating_entrance = false
-
 
 # ============================================================================
 # UTILITY
