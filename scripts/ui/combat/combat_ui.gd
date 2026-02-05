@@ -32,6 +32,9 @@ var current_enemy_display: Combatant = null
 # Temp animation visuals (for cleanup)
 var temp_animation_visuals: Array[Control] = []
 
+var roll_animator: CombatRollAnimator = null
+
+
 # ============================================================================
 # STATE
 # ============================================================================
@@ -255,6 +258,12 @@ func initialize_ui(p_player: Player, p_enemies):
 	# Reset all charges for combat start
 	reset_action_charges_for_combat()
 	
+	# Create roll animator
+	roll_animator = CombatRollAnimator.new()
+	roll_animator.name = "RollAnimator"
+	add_child(roll_animator)
+	
+	
 	print("🎮 CombatUI initialization complete")
 
 func _setup_health_display():
@@ -360,7 +369,12 @@ func on_turn_start():
 	
 	is_enemy_turn = false
 	
-	# Refresh the hand display
+	# Set hide flag BEFORE refreshing so visuals are created hidden
+	if roll_animator:
+		if dice_pool_display and "hide_for_roll_animation" in dice_pool_display:
+			dice_pool_display.hide_for_roll_animation = true
+	
+	# Refresh the hand display (visuals created hidden if animator active)
 	refresh_dice_pool()
 	
 	# Reset action fields
@@ -398,6 +412,11 @@ func on_turn_start():
 	# Select first living enemy as default
 	if enemy_panel:
 		enemy_panel.select_first_living_enemy()
+	
+	# Start roll animation (non-blocking — dice reveal staggered)
+	if roll_animator:
+		roll_animator.play_roll_sequence()
+
 
 func set_player_turn(is_player: bool):
 	"""Update UI for whose turn it is"""
@@ -1134,6 +1153,25 @@ func animate_enemy_die_placement(_enemy_combatant: Combatant, _die: DieResource,
 	tween.tween_property(visual, "scale", Vector2(0.5, 0.5), 0.3)
 	
 	await tween.finished
+
+
+func _find_pool_dice_grid():
+	"""Find the BottomUI's DiceGrid for roll animation source positions"""
+	# Try via BottomUIPanel
+	var bottom_ui = get_tree().get_first_node_in_group("bottom_ui")
+	if bottom_ui:
+		var grid = bottom_ui.find_child("DiceGrid", true, false)
+		if grid:
+			return grid
+	
+	# Try via group
+	var grids = get_tree().get_nodes_in_group("dice_grid")
+	for grid in grids:
+		if grid is DiceGrid and grid.grid_mode == DiceGrid.GridMode.POOL:
+			return grid
+	
+	return null  # Will use fallback position (bottom center of screen)
+
 
 
 func _mf_name(mf: int) -> String:

@@ -22,6 +22,8 @@ signal die_clicked(die_object: Control, die: DieResource)
 # ============================================================================
 var dice_pool: PlayerDiceCollection = null
 var die_visuals: Array[Control] = []
+var hide_for_roll_animation: bool = false
+
 
 # ============================================================================
 # INITIALIZATION
@@ -110,6 +112,10 @@ func _create_die_visual(die: DieResource, index: int) -> Control:
 			if combat_obj.has_signal("clicked"):
 				combat_obj.clicked.connect(_on_new_die_clicked)
 			
+			if hide_for_roll_animation:
+				combat_obj.modulate = Color(1, 1, 1, 0)
+				combat_obj.draggable = false
+			
 			return combat_obj
 		else:
 			print("      ⚠️ instantiate_combat_visual returned null")
@@ -120,6 +126,10 @@ func _create_die_visual(die: DieResource, index: int) -> Control:
 		var visual = die_visual_scene.instantiate()
 		if visual.has_method("set_die"):
 			visual.set_die(die)
+		
+		if hide_for_roll_animation:
+			visual.modulate = Color(1, 1, 1, 0)
+		
 		return visual
 	
 	# Try loading DieVisual directly

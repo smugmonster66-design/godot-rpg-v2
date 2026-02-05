@@ -416,6 +416,13 @@ func hide_hover():
 		var tween = create_tween()
 		tween.tween_property(self, "scale", Vector2.ONE, 0.1)
 
+func play_roll_source_animation():
+	"""Flash when this die is the source of a roll projectile"""
+	var tween = create_tween()
+	tween.tween_property(self, "modulate", Color(1.8, 1.8, 1.8), 0.1)
+	tween.tween_property(self, "modulate", Color.WHITE, 0.15)
+
+
 func play_roll_animation():
 	"""Play roll complete animation (combat dice)"""
 	if animation_player and animation_player.has_animation("roll_complete"):

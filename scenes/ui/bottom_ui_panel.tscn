@@ -17,7 +17,7 @@ texture = ExtResource("1_algh6")
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_bpvbv"]
 texture = ExtResource("1_algh6")
 
-[node name="BottomUIPanel" type="PanelContainer"]
+[node name="BottomUIPanel" type="PanelContainer" groups=["bottom_ui"]]
 custom_minimum_size = Vector2(342, 342)
 anchors_preset = 12
 anchor_top = 1.0
