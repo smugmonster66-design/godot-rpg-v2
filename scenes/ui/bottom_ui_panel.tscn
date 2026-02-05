@@ -39,7 +39,12 @@ script = ExtResource("1_1ip7k")
 layout_mode = 2
 alignment = 2
 
+[node name="Control" type="Control" parent="MainHBox"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+
 [node name="PortraitSection" type="VBoxContainer" parent="MainHBox"]
+visible = false
 layout_mode = 2
 alignment = 1
 
@@ -148,3 +153,6 @@ layout_mode = 2
 text = "Begin Test Combat"
 script = ExtResource("9_2my3p")
 encounter = ExtResource("10_25ydp")
+
+[node name="MarginContainer" type="MarginContainer" parent="MainHBox"]
+layout_mode = 2
