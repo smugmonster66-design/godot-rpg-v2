@@ -493,8 +493,56 @@ func place_die_animated(die: DieResource, from_pos: Vector2, source_visual: Cont
 	
 	var visual = _create_placed_visual(die)
 	if visual:
+		print_debug("=== PRE ADD_CHILD ===")
+		print_debug("  visual type: ", visual.get_class(), " script: ", visual.get_script())
+		print_debug("  visual size: ", visual.size)
+		print_debug("  visual min_size: ", visual.custom_minimum_size)
+		print_debug("  visual scale: ", visual.scale)
+		print_debug("  slot size: ", slot.size)
+		print_debug("  slot min_size: ", slot.custom_minimum_size)
+		
 		slot.add_child(visual)
-		visual.custom_minimum_size = Vector2.ZERO
+		
+		print_debug("=== POST ADD_CHILD (before fit) ===")
+		print_debug("  visual size: ", visual.size)
+		print_debug("  visual min_size: ", visual.custom_minimum_size)
+		print_debug("  visual position: ", visual.position)
+		print_debug("  visual scale: ", visual.scale)
+		print_debug("  visual anchors: L=", visual.anchor_left, " T=", visual.anchor_top, " R=", visual.anchor_right, " B=", visual.anchor_bottom)
+		print_debug("  visual offsets: L=", visual.offset_left, " T=", visual.offset_top, " R=", visual.offset_right, " B=", visual.offset_bottom)
+		print_debug("  visual layout_mode: ", visual.get("layout_mode"))
+		print_debug("  slot size now: ", slot.size)
+		
+		_fit_visual_to_slot(visual)
+		
+		print_debug("=== POST FIT ===")
+		print_debug("  visual size: ", visual.size)
+		print_debug("  visual min_size: ", visual.custom_minimum_size)
+		print_debug("  visual position: ", visual.position)
+		print_debug("  visual scale: ", visual.scale)
+		print_debug("  visual anchors: L=", visual.anchor_left, " T=", visual.anchor_top, " R=", visual.anchor_right, " B=", visual.anchor_bottom)
+		print_debug("  visual pivot: ", visual.pivot_offset)
+		print_debug("  slot size now: ", slot.size)
+		
+		visual.ready.connect(func():
+			print_debug("=== VISUAL _READY FIRED ===")
+			print_debug("  visual size: ", visual.size)
+			print_debug("  visual min_size: ", visual.custom_minimum_size)
+			print_debug("  visual position: ", visual.position)
+			print_debug("  visual scale: ", visual.scale)
+			print_debug("  visual anchors: L=", visual.anchor_left, " T=", visual.anchor_top, " R=", visual.anchor_right, " B=", visual.anchor_bottom)
+		, CONNECT_ONE_SHOT)
+		
+		get_tree().process_frame.connect(func():
+			if is_instance_valid(visual) and is_instance_valid(slot):
+				print_debug("=== NEXT FRAME ===")
+				print_debug("  visual size: ", visual.size)
+				print_debug("  visual min_size: ", visual.custom_minimum_size)
+				print_debug("  visual position: ", visual.position)
+				print_debug("  visual scale: ", visual.scale)
+				print_debug("  slot size: ", slot.size)
+		, CONNECT_ONE_SHOT)
+		
 		dice_visuals.append(visual)
 		_animate_placement(visual, slot, from_pos)
 	
@@ -506,6 +554,8 @@ func place_die_animated(die: DieResource, from_pos: Vector2, source_visual: Cont
 		action_ready.emit(self)
 		action_selected.emit(self)
 
+
+
 func place_die(die: DieResource):
 	place_die_animated(die, global_position, null, -1)
 
@@ -516,9 +566,9 @@ func _create_placed_visual(die: DieResource) -> Control:
 		if obj:
 			obj.draggable = false
 			obj.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			obj.custom_minimum_size = Vector2.ZERO
-			obj.set_display_scale(DIE_SCALE)
-			obj.position = (SLOT_SIZE - obj.base_size) / 2
+			#obj.custom_minimum_size = Vector2.ZERO
+			#obj.set_display_scale(DIE_SCALE)
+			#obj.position = (SLOT_SIZE - obj.base_size) / 2
 			return obj
 	
 	# Fallback to old DieVisual if available
@@ -540,13 +590,45 @@ func _create_placed_visual(die: DieResource) -> Control:
 	lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
 	return lbl
 
+
 func _animate_placement(visual: Control, _slot: Panel, _from_pos: Vector2):
-	visual.scale = Vector2(1.3 * DIE_SCALE, 1.3 * DIE_SCALE)
+	var target_scale = visual.scale  # The fitted scale from _fit_visual_to_slot
+	visual.scale = target_scale * 1.3  # Start 30% bigger
 	visual.modulate = Color(1.2, 1.2, 0.9)
 	var tw = create_tween()
 	tw.set_parallel(true)
-	tw.tween_property(visual, "scale", Vector2(DIE_SCALE, DIE_SCALE), snap_duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tw.tween_property(visual, "scale", target_scale, snap_duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	tw.tween_property(visual, "modulate", Color.WHITE, snap_duration)
+
+
+
+
+
+func _fit_visual_to_slot(visual: Control):
+	"""Scale and position a die visual to fit within SLOT_SIZE"""
+	var die_size: Vector2 = visual.base_size if "base_size" in visual else visual.size
+	var fit_scale: float = min(SLOT_SIZE.x / die_size.x, SLOT_SIZE.y / die_size.y)
+	
+	# Prevent the visual from expanding the slot
+	visual.custom_minimum_size = Vector2.ZERO
+	
+	# Break out of anchor-based layout
+	visual.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	visual.set_anchor(SIDE_LEFT, 0)
+	visual.set_anchor(SIDE_TOP, 0)
+	visual.set_anchor(SIDE_RIGHT, 0)
+	visual.set_anchor(SIDE_BOTTOM, 0)
+	
+	# Place pivot at die center, then offset so pivot lands at slot center
+	visual.pivot_offset = die_size / 2
+	visual.position = (SLOT_SIZE - die_size) / 2
+	visual.size = die_size  # AFTER position so offsets calculate correctly
+	visual.scale = Vector2(fit_scale, fit_scale)
+
+
+
+
+
 
 func is_ready_to_confirm() -> bool:
 	return placed_dice.size() >= die_slots and placed_dice.size() > 0
