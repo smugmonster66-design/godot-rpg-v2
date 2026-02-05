@@ -12,47 +12,72 @@ grow_vertical = 2
 script = ExtResource("1_vm0q0")
 metadata/_edit_vertical_guides_ = [-146.0]
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="FillTexture" type="NinePatchRect" parent="."]
+layout_mode = 2
+
+[node name="StrokeTexture" type="NinePatchRect" parent="."]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 theme_override_constants/separation = 10
 
-[node name="NameLabel" type="Label" parent="VBoxContainer"]
+[node name="HeaderRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
+
+[node name="IconRect" type="TextureRect" parent="MarginContainer/VBoxContainer/HeaderRow"]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 18
 text = "Action"
 horizontal_alignment = 1
 
-[node name="ChargeLabel" type="Label" parent="VBoxContainer"]
+[node name="ElementBadge" type="PanelContainer" parent="MarginContainer/VBoxContainer/HeaderRow"]
+layout_mode = 2
+
+[node name="ElementIcon" type="TextureRect" parent="MarginContainer/VBoxContainer/HeaderRow/ElementBadge"]
+layout_mode = 2
+
+[node name="DieSlotRow" type="CenterContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="DieSlotsGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/DieSlotRow"]
+layout_mode = 2
+columns = 3
+
+[node name="SlotPanel" type="PanelContainer" parent="MarginContainer/VBoxContainer/DieSlotRow/DieSlotsGrid"]
+layout_mode = 2
+
+[node name="EmptyLabel" type="Label" parent="MarginContainer/VBoxContainer/DieSlotRow/DieSlotsGrid/SlotPanel"]
+layout_mode = 2
+text = "><"
+
+[node name="FooterRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="DmgPreviewLabel" type="Label" parent="MarginContainer/VBoxContainer/FooterRow"]
+layout_mode = 2
+
+[node name="MultLabel" type="Label" parent="MarginContainer/VBoxContainer/FooterRow"]
+layout_mode = 2
+
+[node name="FooterSpacer" type="Control" parent="MarginContainer/VBoxContainer/FooterRow"]
+layout_mode = 2
+
+[node name="ChargeLabel" type="Label" parent="MarginContainer/VBoxContainer/FooterRow"]
 custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
 horizontal_alignment = 2
 vertical_alignment = 2
-
-[node name="IconContainer" type="PanelContainer" parent="VBoxContainer"]
-layout_mode = 2
-
-[node name="CenterContainer" type="CenterContainer" parent="VBoxContainer/IconContainer"]
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/IconContainer/CenterContainer"]
-layout_mode = 2
-
-[node name="IconRect" type="TextureRect" parent="VBoxContainer/IconContainer/CenterContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="DieSlotsGrid" type="GridContainer" parent="VBoxContainer/IconContainer/CenterContainer/VBoxContainer"]
-layout_mode = 2
-columns = 3
-
-[node name="SlotPanel" type="PanelContainer" parent="VBoxContainer/IconContainer/CenterContainer/VBoxContainer/DieSlotsGrid"]
-layout_mode = 2
-
-[node name="EmptyLabel" type="Label" parent="VBoxContainer/IconContainer/CenterContainer/VBoxContainer/DieSlotsGrid/SlotPanel"]
-layout_mode = 2
-text = "><"
-
-[node name="DescriptionLabel" type="RichTextLabel" parent="VBoxContainer"]
-layout_mode = 2
-text = "This is a description."

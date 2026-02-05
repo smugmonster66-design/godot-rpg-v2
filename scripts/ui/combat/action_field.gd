@@ -75,6 +75,8 @@ var description_label: RichTextLabel = null
 var dmg_preview_label: Label = null
 var fill_texture: NinePatchRect = null
 var stroke_texture: NinePatchRect = null
+var mult_label: Label = null
+var element_label: Label = null
 
 # ============================================================================
 # STATE
@@ -145,6 +147,8 @@ func _discover_nodes():
 	dmg_preview_label = find_child("DmgPreviewLabel", true, false) as Label
 	fill_texture = find_child("FillTexture", true, false) as NinePatchRect
 	stroke_texture = find_child("StrokeTexture", true, false) as NinePatchRect
+	mult_label = find_child("MultLabel", true, false) as Label
+	element_label = find_child("ElementLabel", true, false) as Label
 	
 	if DEBUG_DROP and not die_slots_grid:
 		push_warning("ActionField '%s': DieSlotsGrid NOT FOUND! Die slots cannot be created." % action_name)
@@ -216,9 +220,16 @@ func refresh_ui():
 		name_label.text = action_name
 	if icon_rect:
 		icon_rect.texture = action_icon
-	if description_label:
-		description_label.text = action_description
-	
+	if element_label:
+		element_label.text = ELEMENT_NAMES.get(element, "")
+		element_label.add_theme_color_override("font_color", ELEMENT_COLORS.get(element, Color.WHITE))
+	if mult_label:
+		if damage_multiplier != 1.0:
+			mult_label.text = "×%.1f" % damage_multiplier
+			mult_label.show()
+		else:
+			mult_label.hide()
+	# Remove description — compact card doesn't use it
 	create_die_slots()
 	update_charge_display()
 	update_disabled_state()
@@ -504,7 +515,7 @@ func _create_placed_visual(die: DieResource) -> Control:
 			obj.draggable = false
 			obj.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			obj.set_display_scale(DIE_SCALE)
-			obj.position = (SLOT_SIZE - obj.base_size * DIE_SCALE) / 2
+			obj.position = (SLOT_SIZE - obj.base_size) / 2
 			return obj
 	
 	# Fallback to DieVisual
