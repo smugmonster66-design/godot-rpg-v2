@@ -119,6 +119,8 @@ func start_combat(encounter: Resource = null):
 	combat_layer.visible = true
 	combat_layer.process_mode = Node.PROCESS_MODE_INHERIT
 	
+	ui_layer.layer = 5
+	
 	# >>> NEW: Tell CombatManager to pick up the encounter <
 	var combat_manager = combat_scene.find_child("CombatManager", true, false)
 	if not combat_manager:
@@ -149,6 +151,8 @@ func end_combat(player_won: bool = true):
 	
 	# Resume map
 	map_scene.process_mode = Node.PROCESS_MODE_INHERIT
+	
+	ui_layer.layer = 100
 	
 	# Notify UI
 	if bottom_ui and bottom_ui.has_method("on_combat_ended"):
