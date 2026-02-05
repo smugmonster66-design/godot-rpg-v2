@@ -468,10 +468,21 @@ func create_drag_preview() -> Control:
 	preview.offset_bottom = base_size.y
 	preview.size = base_size
 	
+	# FIX: Recursively disable mouse on ALL children so preview doesn't
+	# intercept drag events meant for ActionFields below
+	_disable_mouse_recursive(preview)
+	
 	# Show preview effects and apply stored materials
 	_activate_preview_effects(preview)
 	
 	return preview
+
+func _disable_mouse_recursive(node: Control):
+	"""Disable mouse input on all descendants so drag preview doesn't block drop targets"""
+	node.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for child in node.get_children():
+		if child is Control:
+			_disable_mouse_recursive(child)
 
 func _activate_preview_effects(preview: Control):
 	"""Activate preview effects on a preview copy"""
@@ -533,15 +544,19 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	# Create manual preview (not using set_drag_preview to avoid can't-drop cursor)
 	_manual_preview = create_drag_preview()
 	_manual_preview.z_index = 100
-	# Disable mouse on entire preview tree so it doesn't block drop targets
-	_disable_mouse_recursive(_manual_preview)
 	
-	# Parent to DragOverlayLayer so preview renders above CombatUILayer
+	# FIX: Parent to DragOverlayLayer so preview renders above CombatUILayer
+	# DragOverlayLayer should be a CanvasLayer with layer=10 in combat_scene.tscn
 	var drag_layer = get_tree().root.find_child("DragOverlayLayer", true, false)
 	if drag_layer:
 		drag_layer.add_child(_manual_preview)
 	else:
-		get_tree().root.add_child(_manual_preview)
+		# Fallback: add to parent CanvasLayer so z_index works on same canvas
+		var canvas_parent = _find_parent_canvas_layer()
+		if canvas_parent:
+			canvas_parent.add_child(_manual_preview)
+		else:
+			get_tree().root.add_child(_manual_preview)
 	
 	_update_manual_preview_position()
 	set_process(true)
@@ -555,6 +570,15 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 		"source_position": global_position,
 		"slot_index": get_index()
 	}
+
+func _find_parent_canvas_layer() -> CanvasLayer:
+	"""Walk up the tree to find the nearest CanvasLayer ancestor"""
+	var node = get_parent()
+	while node:
+		if node is CanvasLayer:
+			return node
+		node = node.get_parent()
+	return null
 
 func _process(_delta: float):
 	if _manual_preview and _is_being_dragged:
@@ -596,10 +620,3 @@ func get_die() -> DieResource:
 
 func is_being_dragged() -> bool:
 	return _is_being_dragged
-
-func _disable_mouse_recursive(node: Control):
-	"""Disable mouse on all children so preview doesn't block drop targets"""
-	node.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	for child in node.get_children():
-		if child is Control:
-			_disable_mouse_recursive(child)

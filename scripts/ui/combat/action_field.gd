@@ -136,10 +136,16 @@ func _discover_nodes():
 	fill_texture = find_child("FillTexture", true, false) as NinePatchRect
 	stroke_texture = find_child("StrokeTexture", true, false) as NinePatchRect
 
+
 func _set_children_mouse_pass():
-	for child in get_children():
+	_recursive_set_mouse_pass(self)
+
+func _recursive_set_mouse_pass(node: Node):
+	for child in node.get_children():
 		if child is Control:
 			child.mouse_filter = Control.MOUSE_FILTER_PASS
+		_recursive_set_mouse_pass(child)
+
 
 func setup_drop_target():
 	mouse_filter = Control.MOUSE_FILTER_STOP

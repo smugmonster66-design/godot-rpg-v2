@@ -28,4 +28,4 @@ layer = 10
 script = ExtResource("7_8ldcr")
 
 [node name="DragOverlayLayer" type="CanvasLayer" parent="."]
-layer = 10
+layer = 20
