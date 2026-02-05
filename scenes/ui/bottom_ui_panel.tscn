@@ -1,9 +1,15 @@
-[gd_scene load_steps=7 format=3 uid="uid://c0w3t10mfnowo"]
+[gd_scene load_steps=13 format=3 uid="uid://c0w3t10mfnowo"]
 
 [ext_resource type="Script" uid="uid://cs3ncaepru3rn" path="res://scripts/ui/bottom_ui_panel.gd" id="1_1ip7k"]
 [ext_resource type="PackedScene" uid="uid://ds3fslulucbxd" path="res://scenes/ui/map/dice_grid.tscn" id="1_5ue3t"]
 [ext_resource type="Texture2D" uid="uid://bk7srh475afct" path="res://assets/ui/portrait frames/placeholder/placeholder_frame_front.png" id="1_algh6"]
 [ext_resource type="Texture2D" uid="uid://78pjnt2x1fn1" path="res://assets/characters/Bones/portraits/bones_placeholder_portrait.png" id="1_px728"]
+[ext_resource type="Script" uid="uid://fxekowigxepb" path="res://scripts/ui/components/add_gear_button.gd" id="5_5kghg"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="6_tu5g0"]
+[ext_resource type="Resource" uid="uid://dn2hvhv24b1t6" path="res://resources/items/accessory/fire_blast_gem_accessory.tres" id="7_2my3p"]
+[ext_resource type="Resource" uid="uid://dynp53wsejoff" path="res://resources/items/main hand/frost_hammer.tres" id="8_25ydp"]
+[ext_resource type="Script" uid="uid://bmitbn1xm1k41" path="res://scripts/ui/components/combat_button.gd" id="9_2my3p"]
+[ext_resource type="Resource" uid="uid://couqhbcv0nj5p" path="res://resources/encounters/goblin_solo.tres" id="10_25ydp"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_1ip7k"]
 texture = ExtResource("1_algh6")
@@ -118,3 +124,15 @@ alignment = 1
 layout_mode = 2
 size_flags_vertical = 4
 text = "MENU"
+
+[node name="AddStartingGearButton" type="Button" parent="MainHBox/RightSection"]
+layout_mode = 2
+text = "Add Starting Gear"
+script = ExtResource("5_5kghg")
+starting_items = Array[ExtResource("6_tu5g0")]([ExtResource("7_2my3p"), ExtResource("8_25ydp")])
+
+[node name="CombatButton" type="Button" parent="MainHBox/RightSection"]
+layout_mode = 2
+text = "Begin Test Combat"
+script = ExtResource("9_2my3p")
+encounter = ExtResource("10_25ydp")

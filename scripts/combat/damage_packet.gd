@@ -88,13 +88,19 @@ func calculate_final_damage(defender_stats: Dictionary, defense_mult: float = 1.
 	
 	return roundi(total)
 
+
 func _get_reduction_for_type(type: ActionEffect.DamageType, stats: Dictionary) -> float:
-	"""Get the appropriate resistance for a damage type"""
+	"""Get the appropriate resistance for a damage type.
+	Piercing ignores a fraction of armor (configured in CombatCalculator).
+	"""
 	match type:
 		ActionEffect.DamageType.SLASHING, \
-		ActionEffect.DamageType.BLUNT, \
-		ActionEffect.DamageType.PIERCING:
+		ActionEffect.DamageType.BLUNT:
 			return stats.get("armor", 0)
+		ActionEffect.DamageType.PIERCING:
+			# Piercing ignores a fraction of armor
+			var armor = stats.get("armor", 0)
+			return armor * (1.0 - CombatCalculator.PIERCING_ARMOR_PENETRATION)
 		ActionEffect.DamageType.FIRE:
 			return stats.get("fire_resist", 0)
 		ActionEffect.DamageType.ICE:

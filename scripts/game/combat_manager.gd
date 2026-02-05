@@ -726,14 +726,8 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 
 
 func _calculate_damage(action_data: Dictionary, attacker, defender) -> int:
-	"""Calculate damage using the new system"""
+	"""Calculate damage using split elemental damage system"""
 	var placed_dice: Array = action_data.get("placed_dice", [])
-	
-	# Get dice values
-	var dice_values: Array[int] = []
-	for die in placed_dice:
-		if die is DieResource:
-			dice_values.append(die.get_total_value())
 	
 	# Get action effects (from Action resource if available)
 	var effects: Array[ActionEffect] = []
@@ -750,7 +744,8 @@ func _calculate_damage(action_data: Dictionary, attacker, defender) -> int:
 		legacy_effect.effect_type = ActionEffect.EffectType.DAMAGE
 		legacy_effect.base_damage = action_data.get("base_damage", 0)
 		legacy_effect.damage_multiplier = action_data.get("damage_multiplier", 1.0)
-		legacy_effect.dice_count = dice_values.size()
+		legacy_effect.damage_type = action_data.get("element", ActionEffect.DamageType.SLASHING)
+		legacy_effect.dice_count = placed_dice.size()
 		effects = [legacy_effect]
 	
 	# Get attacker's affix manager (players have one, enemies might not)
@@ -763,28 +758,47 @@ func _calculate_damage(action_data: Dictionary, attacker, defender) -> int:
 	# Get defender stats
 	var defender_stats = _get_defender_stats(defender)
 	
-	# Use CombatCalculator if available
+	# Use CombatCalculator with DieResource array (not int array)
 	if attacker_affixes:
 		var result = CombatCalculator.calculate_attack_damage(
 			attacker_affixes,
 			effects,
-			dice_values,
+			placed_dice,  # Pass DieResource array directly — no longer extracting ints
 			defender_stats
 		)
+		
+		# Log the element breakdown for debugging
+		if result.element_breakdown.size() > 1:
+			print("  🎯 Split damage: %s" % str(result.element_breakdown))
+		
 		return result.total_damage
 	
-	# Simple fallback calculation
-	var dice_total = 0
-	for v in dice_values:
-		dice_total += v
+	# Simple fallback calculation (no affixes — still uses split damage)
+	var packet = DamagePacket.new()
+	var action_element = action_data.get("element", ActionEffect.DamageType.SLASHING)
+	
+	for die in placed_dice:
+		if die is DieResource:
+			var die_value = float(die.get_total_value())
+			var die_type = die.get_effective_damage_type(action_element)
+			if die.is_element_match(action_element):
+				die_value *= CombatCalculator.ELEMENT_MATCH_BONUS
+			packet.add_damage(die_type, die_value)
+		elif die is int:
+			packet.add_damage(action_element, float(die))
 	
 	var base = action_data.get("base_damage", 0)
-	var mult = action_data.get("damage_multiplier", 1.0)
-	var raw_damage = int((dice_total + base) * mult)
+	if base > 0:
+		packet.add_damage(action_element, float(base))
 	
-	# Apply armor
-	var armor = defender_stats.get("armor", 0)
-	return max(0, raw_damage - armor)
+	var mult = action_data.get("damage_multiplier", 1.0)
+	if mult != 1.0:
+		packet.apply_multiplier(mult)
+	
+	var total = packet.calculate_final_damage(defender_stats)
+	return total
+
+
 
 func _calculate_heal(action_data: Dictionary, healer) -> int:
 	"""Calculate healing amount"""

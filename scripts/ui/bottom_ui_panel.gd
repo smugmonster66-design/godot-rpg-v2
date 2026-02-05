@@ -138,8 +138,8 @@ func _update_stats_display():
 	
 	# Experience bar
 	if exp_bar and player.active_class:
-		exp_bar.max_value = player.active_class.exp_to_next_level
-		exp_bar.value = player.active_class.current_exp
+		exp_bar.max_value = player.active_class.get_exp_for_next_level()
+		exp_bar.value = player.active_class.experience
 
 func _update_dice_count():
 	"""Update the dice count label"""

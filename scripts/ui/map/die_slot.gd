@@ -27,11 +27,34 @@ enum DragType {
 @export var accepts_drops: bool = true
 @export var slot_index: int = 0
 
+@export_group("Display")
+## Scale of the die visual inside the slot (base die is 124×124).
+## Slot size is derived automatically: 124 * scale + padding.
+@export_range(0.1, 1.0, 0.05) var die_display_scale: float = 0.6:
+	set(value):
+		die_display_scale = value
+		_apply_slot_size()
+		if is_node_ready():
+			update_display()
+
+## Padding in pixels around the die visual inside the slot.
+@export var slot_padding: int = 8:
+	set(value):
+		slot_padding = value
+		_apply_slot_size()
+		if is_node_ready():
+			update_display()
+
 @export_group("Colors")
 @export var empty_color: Color = Color(0.15, 0.15, 0.2)
 @export var hover_color: Color = Color(0.2, 0.2, 0.3)
 @export var selected_color: Color = Color(0.25, 0.3, 0.35)
 @export var drag_target_color: Color = Color(0.2, 0.3, 0.2)
+
+# ============================================================================
+# CONSTANTS
+# ============================================================================
+const BASE_DIE_SIZE: float = 124.0
 
 # ============================================================================
 # STATE
@@ -51,8 +74,13 @@ var _base_style: StyleBox = null
 func _ready():
 	_setup_style()
 	mouse_filter = MOUSE_FILTER_STOP
-	custom_minimum_size = Vector2(80, 80)
+	_apply_slot_size()
 	update_display()
+
+func _apply_slot_size():
+	"""Derive slot minimum size from die_display_scale + padding."""
+	var slot_dim = int(BASE_DIE_SIZE * die_display_scale) + slot_padding
+	custom_minimum_size = Vector2(slot_dim, slot_dim)
 
 func _setup_style():
 	var style = StyleBoxFlat.new()
@@ -101,11 +129,23 @@ func _show_die():
 	current_die_visual = die.instantiate_pool_visual()
 	if current_die_visual:
 		current_die_visual.draggable = false  # Slot handles drag
-		current_die_visual.set_display_scale(0.6)
-		current_die_visual.position = Vector2(4, 4)
+		current_die_visual.set_display_scale(die_display_scale)
+		var offset = slot_padding / 2.0
+		current_die_visual.position = Vector2(offset, offset)
 		add_child(current_die_visual)
-		# Set mouse_filter AFTER add_child so _ready() doesn't override it
+		
+		# CRITICAL: Override AFTER add_child() because DieObjectBase._ready()
+		# sets custom_minimum_size = base_size (124×124), which forces the
+		# PanelContainer to expand to fit. Zero it out so the slot respects
+		# our _apply_slot_size() dimensions instead.
+		current_die_visual.custom_minimum_size = Vector2.ZERO
+		current_die_visual.size = Vector2(BASE_DIE_SIZE, BASE_DIE_SIZE)
 		current_die_visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		
+		# Hide the value label — pool slots show dice visuals only
+		var val_label = current_die_visual.find_child("ValueLabel", true, false)
+		if val_label:
+			val_label.hide()
 
 func _show_empty():
 	if current_die_visual and is_instance_valid(current_die_visual):

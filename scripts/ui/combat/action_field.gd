@@ -188,7 +188,7 @@ func set_element(new_element: ActionEffect.DamageType):
 	_update_damage_preview()
 
 # ============================================================================
-# DAMAGE PREVIEW
+# DAMAGE PREVIEW (Split Elemental — UPDATED)
 # ============================================================================
 
 func _update_damage_preview():
@@ -207,19 +207,68 @@ func _update_damage_preview():
 		dmg_preview_label.text = "Special"
 		return
 	
-	var element_name = ELEMENT_NAMES.get(element, "")
-	var element_color = ELEMENT_COLORS.get(element, Color.WHITE)
-	
 	if placed_dice.size() == 0:
-		# Show formula: "2D+10 ×1.5 Fire"
+		# No dice placed — show formula: "2D+10 ×1.5 Fire"
 		dmg_preview_label.text = _get_damage_formula()
+		var element_color = ELEMENT_COLORS.get(element, Color.WHITE)
+		dmg_preview_label.add_theme_color_override("font_color", element_color)
 	else:
-		# Show calculated damage: "→ 28 Fire"
-		var total_damage = _calculate_preview_damage()
-		dmg_preview_label.text = "→ %d %s" % [total_damage, element_name]
+		# Dice placed — show split elemental breakdown via CombatCalculator
+		var preview = CombatCalculator.calculate_preview_damage(
+			placed_dice, element, base_damage, damage_multiplier
+		)
+		dmg_preview_label.text = _format_damage_preview(preview)
+		
+		# Tint label with primary element color (action's element)
+		var element_color = ELEMENT_COLORS.get(element, Color.WHITE)
+		dmg_preview_label.add_theme_color_override("font_color", element_color)
+
+func _format_damage_preview(preview: Dictionary) -> String:
+	"""Format the split damage preview into a readable string.
 	
-	# Tint label with element color
-	dmg_preview_label.add_theme_color_override("font_color", element_color)
+	Single element:  '→ 18 Fire'
+	Multi element:   '→ 14 Ice / 4 Fire'
+	
+	Sorts by damage descending so the biggest contributor shows first.
+	"""
+	if preview.is_empty():
+		return "→ 0"
+	
+	# Build array of [damage, type] pairs and sort descending
+	var entries: Array = []
+	for damage_type in preview:
+		var amount = preview[damage_type]
+		if amount > 0.0:
+			entries.append({"type": damage_type, "amount": amount})
+	
+	if entries.is_empty():
+		return "→ 0"
+	
+	entries.sort_custom(func(a, b): return a.amount > b.amount)
+	
+	# Format each entry
+	var parts: Array[String] = []
+	for entry in entries:
+		var type_name = ELEMENT_NAMES.get(entry.type, "???")
+		parts.append("%d %s" % [int(entry.amount), type_name])
+	
+	return "→ " + " / ".join(parts)
+
+func _calculate_preview_damage() -> int:
+	"""Calculate total preview damage (backward compat helper).
+	Returns the sum across all elements, pre-defense.
+	"""
+	var preview = CombatCalculator.calculate_preview_damage(
+		placed_dice, element, base_damage, damage_multiplier
+	)
+	var total = 0.0
+	for type in preview:
+		total += preview[type]
+	return int(total)
+
+# ============================================================================
+# HEAL PREVIEW
+# ============================================================================
 
 func _update_heal_preview():
 	"""Update preview for heal actions"""
@@ -230,6 +279,16 @@ func _update_heal_preview():
 		dmg_preview_label.text = "→ %d HP" % total_heal
 	
 	dmg_preview_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4))
+
+func _calculate_preview_heal() -> int:
+	"""Calculate heal with currently placed dice"""
+	var dice_total = get_total_dice_value()
+	var raw_heal = (dice_total + base_damage) * damage_multiplier
+	return int(raw_heal)
+
+# ============================================================================
+# FORMULAS
+# ============================================================================
 
 func _get_damage_formula() -> String:
 	"""Get the damage formula string (e.g., '2D+10 ×1.5 Fire')"""
@@ -283,18 +342,6 @@ func _get_heal_formula() -> String:
 		formula += " ×%.1f" % damage_multiplier
 	
 	return formula + " HP"
-
-func _calculate_preview_damage() -> int:
-	"""Calculate damage with currently placed dice"""
-	var dice_total = get_total_dice_value()
-	var raw_damage = (dice_total + base_damage) * damage_multiplier
-	return int(raw_damage)
-
-func _calculate_preview_heal() -> int:
-	"""Calculate heal with currently placed dice"""
-	var dice_total = get_total_dice_value()
-	var raw_heal = (dice_total + base_damage) * damage_multiplier
-	return int(raw_heal)
 
 func get_total_dice_value() -> int:
 	"""Get sum of all placed dice values"""

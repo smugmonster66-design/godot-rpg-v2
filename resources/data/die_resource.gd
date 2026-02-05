@@ -344,6 +344,78 @@ func get_affix_summary() -> String:
 	return "\n".join(lines)
 
 # ============================================================================
+# ELEMENT → DAMAGE TYPE MAPPING
+# ============================================================================
+
+## Maps DieResource.Element → ActionEffect.DamageType
+## NONE has no mapping — caller must handle it (inherit from action)
+const ELEMENT_TO_DAMAGE_TYPE = {
+	Element.SLASHING: ActionEffect.DamageType.SLASHING,
+	Element.BLUNT: ActionEffect.DamageType.BLUNT,
+	Element.PIERCING: ActionEffect.DamageType.PIERCING,
+	Element.FIRE: ActionEffect.DamageType.FIRE,
+	Element.ICE: ActionEffect.DamageType.ICE,
+	Element.SHOCK: ActionEffect.DamageType.SHOCK,
+	Element.POISON: ActionEffect.DamageType.POISON,
+	Element.SHADOW: ActionEffect.DamageType.SHADOW,
+}
+
+func get_effective_element() -> Element:
+	"""Get the die's effective element after dice affix overrides.
+	Priority: ADD_DAMAGE_TYPE affix > innate element > NONE
+	"""
+	# Check applied affixes first (highest priority)
+	for affix in applied_affixes:
+		if affix and affix.effect_type == DiceAffix.EffectType.ADD_DAMAGE_TYPE:
+			var type_str = affix.get_damage_type()
+			var mapped = _string_to_element(type_str)
+			if mapped != Element.NONE:
+				return mapped
+	
+	# Check inherent affixes
+	for affix in inherent_affixes:
+		if affix and affix.effect_type == DiceAffix.EffectType.ADD_DAMAGE_TYPE:
+			var type_str = affix.get_damage_type()
+			var mapped = _string_to_element(type_str)
+			if mapped != Element.NONE:
+				return mapped
+	
+	# Fall back to innate element
+	return element
+
+func get_effective_damage_type(action_element: ActionEffect.DamageType) -> ActionEffect.DamageType:
+	"""Get the DamageType this die contributes as.
+	If NONE, inherits the action's element. Otherwise maps to its own type.
+	"""
+	var eff_element = get_effective_element()
+	if eff_element == Element.NONE:
+		return action_element
+	return ELEMENT_TO_DAMAGE_TYPE.get(eff_element, action_element)
+
+func is_element_match(action_element: ActionEffect.DamageType) -> bool:
+	"""Check if this die's effective element matches the action's element.
+	NONE dice never count as a match (they inherit, but don't get the bonus).
+	"""
+	var eff_element = get_effective_element()
+	if eff_element == Element.NONE:
+		return false
+	return ELEMENT_TO_DAMAGE_TYPE.get(eff_element, null) == action_element
+
+static func _string_to_element(type_str: String) -> Element:
+	"""Convert a damage type string from DiceAffix to Element enum"""
+	match type_str.to_upper():
+		"SLASHING": return Element.SLASHING
+		"BLUNT": return Element.BLUNT
+		"PIERCING": return Element.PIERCING
+		"FIRE": return Element.FIRE
+		"ICE": return Element.ICE
+		"SHOCK": return Element.SHOCK
+		"POISON": return Element.POISON
+		"SHADOW": return Element.SHADOW
+		_: return Element.NONE
+
+
+# ============================================================================
 # DUPLICATION
 # ============================================================================
 
