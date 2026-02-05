@@ -23,6 +23,11 @@ var current_tab_name: String = ""
 
 func _ready():
 	hide()
+	
+	for button in get_tree().get_nodes_in_group("player_menu_tab_button"):
+		print_debug("Button: %s, global_rect: %s, mouse_filter: %s" % [button.name, button.get_global_rect(), button.mouse_filter])
+	
+	
 	await get_tree().process_frame  # Wait for children to be ready
 	_discover_and_connect_children()
 
