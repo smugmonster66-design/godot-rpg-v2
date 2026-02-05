@@ -103,6 +103,8 @@ func open_menu(p_player: Player):
 		var tab_name = button.get_meta("tab_name", "")
 		button.button_pressed = (tab_name == "Character")
 	
+	_update_button_visuals()
+	
 	show()
 	print("📋 PlayerMenu: Opened")
 
@@ -155,6 +157,8 @@ func _on_tab_button_toggled(button_pressed: bool, tab_name: String):
 	"""Tab button toggled"""
 	if button_pressed:
 		_show_tab(tab_name)
+	_update_button_visuals()
+		
 
 func _on_close_pressed():
 	"""Close button pressed"""
@@ -183,6 +187,14 @@ func _on_skill_learned(skill: SkillResource, new_rank: int):
 # ============================================================================
 # INPUT HANDLING
 # ============================================================================
+
+
+func _update_button_visuals():
+	for btn in tab_buttons:
+		if btn.button_pressed:
+			btn.modulate = Color(1.0, 1.0, 1.0, 1.0)
+		else:
+			btn.modulate = Color(0.5, 0.5, 0.5, 1.0)
 
 func _input(event):
 	if visible and event.is_action_pressed("ui_cancel"):

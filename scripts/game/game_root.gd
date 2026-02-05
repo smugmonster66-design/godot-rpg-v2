@@ -8,7 +8,7 @@ extends Node
 @onready var map_layer: CanvasLayer = $MapLayer
 @onready var combat_layer: CanvasLayer = $CombatLayer
 @onready var ui_layer: CanvasLayer = $PersistentUILayer
-
+@onready var bottom_panel: PanelContainer = $PersistentUILayer/PanelContainer
 @onready var map_scene: Node = $MapLayer/MapScene
 @onready var combat_scene: Node = $CombatLayer/CombatScene
 @onready var bottom_ui: Control = $PersistentUILayer/BottomUIPanel
@@ -58,10 +58,8 @@ func _check_existing_player():
 		_on_player_created(GameManager.player)
 
 
-
 func _setup_player_menu():
 	if not map_scene:
-		print("  ⚠️ No map_scene to search for PlayerMenu")
 		return
 	
 	player_menu = map_scene.find_child("PlayerMenu", true, false)
@@ -72,17 +70,16 @@ func _setup_player_menu():
 		player_menu.get_parent().remove_child(player_menu)
 		ui_layer.add_child(player_menu)
 		player_menu.hide()
+		player_menu.z_index = -1
 		
-		# Align PlayerMenu bottom to BottomUIPanel top
-		if bottom_ui:
-			player_menu.offset_bottom = -bottom_ui.size.y
+		# Match bottom to PanelContainer's top using anchor instead of offset
+		if bottom_panel:
+			player_menu.anchor_bottom = bottom_panel.anchor_top
+			player_menu.offset_bottom = bottom_panel.offset_top
 		
 		if bottom_ui and bottom_ui.has_method("set_player_menu"):
 			bottom_ui.set_player_menu(player_menu)
 			print("  ✅ Connected PlayerMenu to BottomUI")
-	else:
-		print("  ⚠️ PlayerMenu not found in MapScene")
-
 
 
 func _on_player_created(player: Resource):
