@@ -1,5 +1,5 @@
 # equipment_tab.gd - Equipment management tab
-# Uses existing scene structure, no programmatic UI creation
+# Uses EquipSlotButton components for slot display
 extends Control
 
 # ============================================================================
@@ -17,11 +17,10 @@ var player: Player = null
 var selected_slot: String = ""
 var selected_item: Dictionary = {}
 
-# Equipment slot containers (discovered from scene)
+# Equipment slot components (discovered from scene) — slot_name -> EquipSlotButton
 var slot_buttons: Dictionary = {}
 
 # UI references
-var equipment_grid: GridContainer
 var item_details_panel: PanelContainer
 
 # ============================================================================
@@ -37,48 +36,32 @@ func _ready():
 
 func _discover_ui_elements():
 	"""Discover UI elements from existing scene"""
-	# Find equipment grid by group
-	var grids = get_tree().get_nodes_in_group("equipment_grid")
-	if grids.size() > 0:
-		equipment_grid = grids[0]
-		print("  ✓ Equipment grid registered")
-		_discover_equipment_slots()
-	else:
-		print("  ⚠️ No equipment_grid found - add EquipmentGrid to group 'equipment_grid'")
+	_discover_equipment_slots()
 	
-	# Find or create item details panel
+	# Find item details panel
 	var panels = get_tree().get_nodes_in_group("equipment_details_panel")
 	if panels.size() > 0:
 		item_details_panel = panels[0]
 		print("  ✓ Equipment details panel registered")
+		
+		# Connect unequip button
+		var unequip_buttons = item_details_panel.find_children("*Unequip*", "Button", true, false)
+		if unequip_buttons.size() > 0:
+			unequip_buttons[0].pressed.connect(_on_unequip_pressed)
 	else:
 		print("  ⚠️ No equipment details panel found in scene")
 
 func _discover_equipment_slots():
-	"""Find all equipment slot containers that exist in the scene"""
-	if not equipment_grid:
-		return
+	"""Find all EquipSlotButton instances in the scene"""
+	var slot_nodes := find_children("*", "EquipSlotButton", true, false)
 	
-	# Find all VBoxContainer children that are slot containers
-	var containers = equipment_grid.find_children("*Slot", "VBoxContainer", false, false)
+	for slot_node: EquipSlotButton in slot_nodes:
+		slot_buttons[slot_node.slot_name] = slot_node
+		slot_node.slot_clicked.connect(_on_slot_clicked)
+		print("  ✓ Discovered equipment slot: %s" % slot_node.slot_name)
 	
-	for container in containers:
-		# Extract slot name: "Head Slot" -> "Head", "MainHand Slot" -> "Main Hand"
-		var slot_name = container.name.replace(" Slot", "")
-		
-		# Handle MainHand/OffHand naming
-		if slot_name == "MainHand":
-			slot_name = "Main Hand"
-		elif slot_name == "OffHand":
-			slot_name = "Off Hand"
-		
-		slot_buttons[slot_name] = container
-		
-		# Connect button signal
-		var button = container.get_node_or_null("SlotButton")
-		if button:
-			button.pressed.connect(_on_slot_clicked.bind(slot_name))
-			print("  ✓ Discovered equipment slot: %s" % slot_name)
+	if slot_buttons.is_empty():
+		print("  ⚠️ No EquipSlotButton instances found in scene")
 
 # ============================================================================
 # PUBLIC API
@@ -106,36 +89,7 @@ func refresh():
 		_update_equipment_slot(slot_name)
 	
 	_update_offhand_state()
-	
 	_update_item_details()
-
-
-func _update_offhand_state():
-	"""Dim off-hand slot if heavy weapon is equipped"""
-	var offhand_container = slot_buttons.get("Off Hand")
-	if not offhand_container:
-		return
-	
-	var main_hand_item = player.equipment.get("Main Hand")
-	var is_heavy = main_hand_item != null and main_hand_item.get("is_heavy", false)
-	
-	if is_heavy:
-		# Dim the entire off-hand slot to 50%
-		offhand_container.modulate = Color(1, 1, 1, 0.5)
-		
-		# Optionally disable the button
-		var button = offhand_container.get_node_or_null("SlotButton")
-		if button:
-			button.disabled = true
-			button.tooltip_text = "Blocked by two-handed weapon"
-	else:
-		# Restore normal state
-		offhand_container.modulate = Color(1, 1, 1, 1)
-		
-		var button = offhand_container.get_node_or_null("SlotButton")
-		if button:
-			button.disabled = false
-			button.tooltip_text = ""
 
 func on_external_data_change():
 	"""Called when other tabs modify player data"""
@@ -147,108 +101,38 @@ func on_external_data_change():
 # ============================================================================
 
 func _update_equipment_slot(slot_name: String):
-	"""Update a single slot's display"""
-	var slot_container = slot_buttons.get(slot_name)
-	if not slot_container:
-		print("  ⚠️ No slot container found for: %s" % slot_name)
-		return
-	
-	var button = slot_container.get_node_or_null("SlotButton")
-	if not button:
-		print("  ⚠️ No button found in slot: %s" % slot_name)
+	"""Update a single slot's display via its EquipSlotButton"""
+	var slot: EquipSlotButton = slot_buttons.get(slot_name)
+	if not slot:
+		print("  ⚠️ No EquipSlotButton found for: %s" % slot_name)
 		return
 	
 	var item = player.equipment.get(slot_name)
 	
 	if item:
-		# Show equipped item
 		print("  ⚔️ Slot %s has item: %s" % [slot_name, item.get("name", "?")])
-		_apply_item_visual(button, item)
+		slot.apply_item(item)
 	else:
-		# Empty slot
 		print("  ⚔️ Slot %s is empty" % slot_name)
-		_apply_empty_visual(button)
+		slot.clear()
 
-func _apply_item_visual(button: Button, item: Dictionary):
-	"""Apply item visual to button"""
-	# Clear any previous styling
-	button.text = ""
-	button.icon = null
+func _update_offhand_state():
+	"""Dim off-hand slot if heavy weapon is equipped"""
+	var offhand_slot: EquipSlotButton = slot_buttons.get("Off Hand")
+	if not offhand_slot:
+		return
 	
-	# Remove old style overrides
-	button.remove_theme_stylebox_override("normal")
-	button.remove_theme_stylebox_override("hover")
-	button.remove_theme_stylebox_override("pressed")
-	button.remove_theme_font_size_override("font_size")
+	var main_hand_item = player.equipment.get("Main Hand")
+	var is_heavy = main_hand_item != null and main_hand_item.get("is_heavy", false)
 	
-	if item.has("icon") and item.icon:
-		# Show item icon
-		button.icon = item.icon
-		button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		button.expand_icon = true
-		
-		# CRITICAL: Set these properties for icon display
-		button.custom_minimum_size = Vector2(80, 80)
-		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		button.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		
-		# Create a minimal background so button is visible
-		var bg_style = StyleBoxFlat.new()
-		bg_style.bg_color = Color(0.15, 0.15, 0.15, 0.8)
-		bg_style.set_corner_radius_all(4)
-		bg_style.set_border_width_all(1)
-		bg_style.border_color = Color(0.3, 0.3, 0.3)
-		button.add_theme_stylebox_override("normal", bg_style)
-		
-		# Hover state
-		var hover_style = bg_style.duplicate()
-		hover_style.border_color = Color(0.5, 0.5, 0.5)
-		button.add_theme_stylebox_override("hover", hover_style)
-		
-		# Pressed state
-		var pressed_style = bg_style.duplicate()
-		pressed_style.bg_color = Color(0.2, 0.2, 0.2, 0.9)
-		button.add_theme_stylebox_override("pressed", pressed_style)
+	if is_heavy:
+		offhand_slot.modulate = Color(1, 1, 1, 0.5)
+		offhand_slot.slot_button.disabled = true
+		offhand_slot.slot_button.tooltip_text = "Blocked by two-handed weapon"
 	else:
-		# Show colored placeholder with item initial
-		var stylebox = StyleBoxFlat.new()
-		stylebox.bg_color = _get_item_color(item)
-		stylebox.set_corner_radius_all(4)
-		button.add_theme_stylebox_override("normal", stylebox)
-		button.add_theme_stylebox_override("hover", stylebox)
-		button.add_theme_stylebox_override("pressed", stylebox)
-		
-		# Show first letter of item name
-		var item_name = item.get("name", "?")
-		button.text = item_name[0] if item_name.length() > 0 else "?"
-		button.add_theme_font_size_override("font_size", 24)
-
-func _apply_empty_visual(button: Button):
-	"""Apply empty slot visual"""
-	button.icon = null
-	button.text = "Empty"
-	button.add_theme_font_size_override("font_size", 12)
-	
-	var stylebox = StyleBoxFlat.new()
-	stylebox.bg_color = Color(0.2, 0.2, 0.2, 0.5)
-	stylebox.border_color = Color(0.4, 0.4, 0.4)
-	stylebox.set_border_width_all(2)
-	stylebox.set_corner_radius_all(4)
-	button.add_theme_stylebox_override("normal", stylebox)
-	button.add_theme_stylebox_override("hover", stylebox)
-	button.add_theme_stylebox_override("pressed", stylebox)
-
-func _get_item_color(item: Dictionary) -> Color:
-	"""Get color based on item slot type"""
-	match item.get("slot", ""):
-		"Head": return Color(0.6, 0.4, 0.4)
-		"Torso": return Color(0.4, 0.6, 0.4)
-		"Gloves": return Color(0.4, 0.4, 0.6)
-		"Boots": return Color(0.5, 0.5, 0.3)
-		"Main Hand": return Color(0.7, 0.3, 0.3)
-		"Off Hand": return Color(0.3, 0.5, 0.5)
-		"Accessory": return Color(0.6, 0.3, 0.6)
-		_: return Color(0.5, 0.5, 0.5)
+		offhand_slot.modulate = Color(1, 1, 1, 1)
+		offhand_slot.slot_button.disabled = false
+		offhand_slot.slot_button.tooltip_text = ""
 
 func _update_item_details():
 	"""Update the item details panel"""
@@ -343,6 +227,18 @@ func _create_affix_display(container: VBoxContainer, affix: Dictionary):
 	vbox.add_child(desc_label)
 	
 	container.add_child(affix_panel)
+
+func _get_item_color(item: Dictionary) -> Color:
+	"""Get color based on item slot type — used for details panel placeholder"""
+	match item.get("slot", ""):
+		"Head": return Color(0.6, 0.4, 0.4)
+		"Torso": return Color(0.4, 0.6, 0.4)
+		"Gloves": return Color(0.4, 0.4, 0.6)
+		"Boots": return Color(0.5, 0.5, 0.3)
+		"Main Hand": return Color(0.7, 0.3, 0.3)
+		"Off Hand": return Color(0.3, 0.5, 0.5)
+		"Accessory": return Color(0.6, 0.3, 0.6)
+		_: return Color(0.5, 0.5, 0.5)
 
 # ============================================================================
 # SIGNAL HANDLERS

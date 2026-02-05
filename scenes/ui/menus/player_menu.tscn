@@ -1,4 +1,4 @@
-[gd_scene load_steps=41 format=3 uid="uid://b4cwd535525ap"]
+[gd_scene load_steps=50 format=3 uid="uid://b4cwd535525ap"]
 
 [ext_resource type="Script" uid="uid://dp3d3aduyrmtn" path="res://scripts/ui/menus/player_menu.gd" id="1_20rq3"]
 [ext_resource type="Script" uid="uid://cdqwy6mxd4qwy" path="res://scripts/ui/menus/character_tab.gd" id="2_f0r6v"]
@@ -14,6 +14,8 @@
 [ext_resource type="Texture2D" uid="uid://bpllwm2ge8x8f" path="res://assets/ui/icons/navigation/knapsack.png" id="7_0ykkh"]
 [ext_resource type="ButtonGroup" uid="uid://d0jptqsddd8xr" path="res://resources/ui/inventory_category_button_group.tres" id="7_stsf8"]
 [ext_resource type="Texture2D" uid="uid://cd3spd0a83jkp" path="res://assets/ui/icons/navigation/quest.png" id="8_k87m2"]
+[ext_resource type="Script" uid="uid://62txpm6utl1n" path="res://scripts/ui/menus/equip_slot_button.gd" id="13_ibuud"]
+[ext_resource type="Texture2D" uid="uid://0wsimnnpbfag" path="res://assets/ui/menu_tabs/equipment tab assets/128x128.png" id="14_5yqe8"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_owa7x"]
 
@@ -74,6 +76,27 @@ texture_margin_bottom = 75.0
 expand_margin_left = 10.0
 expand_margin_right = 10.0
 expand_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_44kn6"]
+texture = ExtResource("14_5yqe8")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_abe77"]
+texture = ExtResource("14_5yqe8")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_24nm8"]
+texture = ExtResource("14_5yqe8")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_32abn"]
+texture = ExtResource("14_5yqe8")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_0ykkh"]
+texture = ExtResource("14_5yqe8")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_k87m2"]
+texture = ExtResource("14_5yqe8")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_5yqe8"]
+texture = ExtResource("14_5yqe8")
 
 [node name="PlayerMenu" type="Control"]
 custom_minimum_size = Vector2(400, 430)
@@ -315,6 +338,7 @@ layout_mode = 2
 metadata/ui_role = "\"stats_container\""
 
 [node name="Skills" parent="PanelContainer/VBoxContainer/ContentArea" instance=ExtResource("3_s5lmw")]
+visible = false
 layout_mode = 2
 
 [node name="Equipment" type="Control" parent="PanelContainer/VBoxContainer/ContentArea" groups=["player_menu_tab_content"]]
@@ -322,7 +346,7 @@ layout_mode = 2
 script = ExtResource("4_fbi1g")
 metadata/tab_name = "Equipment"
 
-[node name="CenterContainer" type="CenterContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -330,119 +354,258 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer"]
 layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="LeftColumn" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 alignment = 1
 
-[node name="EquipmentGrid" type="GridContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer" groups=["equipment_grid"]]
+[node name="TorsoSlot" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/LeftColumn"]
 layout_mode = 2
-columns = 3
+size_flags_horizontal = 0
+size_flags_vertical = 6
+script = ExtResource("13_ibuud")
+slot_name = "Torso"
 
-[node name="Control" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid"]
-layout_mode = 2
+[node name="Panel" type="Panel" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/LeftColumn/TorsoSlot"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 1
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_styles/panel = SubResource("StyleBoxTexture_44kn6")
 
-[node name="Head Slot" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid"]
-layout_mode = 2
+[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/LeftColumn/TorsoSlot"]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
 
-[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Head Slot"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Head Slot"]
-layout_mode = 2
-text = "Head"
-
-[node name="Control2" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid"]
-layout_mode = 2
-
-[node name="MainHand Slot" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid"]
-layout_mode = 2
-
-[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/MainHand Slot"]
+[node name="Spacer" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/LeftColumn"]
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/MainHand Slot"]
+[node name="MainHandSlot" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/LeftColumn"]
 layout_mode = 2
-text = "Main Hand"
+size_flags_horizontal = 0
+size_flags_vertical = 3
+script = ExtResource("13_ibuud")
+slot_name = "Main Hand"
 
-[node name="Torso Slot" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid"]
-layout_mode = 2
+[node name="Panel" type="Panel" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/LeftColumn/MainHandSlot"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 1
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_styles/panel = SubResource("StyleBoxTexture_abe77")
 
-[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Torso Slot"]
-layout_mode = 2
+[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/LeftColumn/MainHandSlot"]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
 
-[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Torso Slot"]
-layout_mode = 2
-text = "Torso"
-
-[node name="OffHand Slot" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid"]
-layout_mode = 2
-
-[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/OffHand Slot"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/OffHand Slot"]
-layout_mode = 2
-text = "Off Hand"
-
-[node name="Gloves Slot" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid"]
+[node name="Spacer2" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/LeftColumn"]
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 
-[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Gloves Slot"]
+[node name="GlovesSlot" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/LeftColumn"]
+layout_mode = 2
+size_flags_horizontal = 0
+script = ExtResource("13_ibuud")
+slot_name = "Gloves"
+
+[node name="Panel" type="Panel" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/LeftColumn/GlovesSlot"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -128.0
+offset_right = 128.0
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxTexture_24nm8")
+
+[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/LeftColumn/GlovesSlot"]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+
+[node name="MidColumn" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="HeadSlot" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/MidColumn"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+script = ExtResource("13_ibuud")
+slot_name = "Head"
+
+[node name="Panel" type="Panel" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/MidColumn/HeadSlot"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_styles/panel = SubResource("StyleBoxTexture_32abn")
+
+[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/MidColumn/HeadSlot"]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+
+[node name="Spacer" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/MidColumn"]
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Gloves Slot"]
-layout_mode = 2
-text = "Gloves"
-
-[node name="Boots Slot" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid"]
+[node name="Spacer2" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/MidColumn"]
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 
-[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Boots Slot"]
+[node name="Spacer3" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/MidColumn"]
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Boots Slot"]
-layout_mode = 2
-text = "Boots"
-
-[node name="Accessory Slot" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid"]
+[node name="Spacer4" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/MidColumn"]
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 
-[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Accessory Slot"]
+[node name="RightColumn" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AccessorySlot" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/RightColumn"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 6
+script = ExtResource("13_ibuud")
+slot_name = "Accessory"
+
+[node name="Panel" type="Panel" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/RightColumn/AccessorySlot"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -128.0
+offset_bottom = 128.0
+grow_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxTexture_0ykkh")
+
+[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/RightColumn/AccessorySlot"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_right = 8.0
+offset_bottom = 8.0
+grow_horizontal = 0
+
+[node name="Spacer3" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/RightColumn"]
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentGrid/Accessory Slot"]
+[node name="OffHandSlot" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/RightColumn"]
 layout_mode = 2
-text = "Accessory"
+size_flags_horizontal = 8
+size_flags_vertical = 3
+script = ExtResource("13_ibuud")
+slot_name = "Off Hand"
 
-[node name="EquipmentDetailsPanel" type="PanelContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer" groups=["equipment_details_panel"]]
-custom_minimum_size = Vector2(0, 150)
+[node name="Panel" type="Panel" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/RightColumn/OffHandSlot"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -128.0
+offset_bottom = 128.0
+grow_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxTexture_k87m2")
+
+[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/RightColumn/OffHandSlot"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_right = 8.0
+offset_bottom = 8.0
+grow_horizontal = 0
+
+[node name="Spacer2" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/RightColumn"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+
+[node name="BootsSlot" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/RightColumn"]
+layout_mode = 2
+size_flags_horizontal = 8
+script = ExtResource("13_ibuud")
+slot_name = "Boots"
+
+[node name="Panel" type="Panel" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/RightColumn/BootsSlot"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -128.0
+offset_top = -128.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxTexture_5yqe8")
+
+[node name="SlotButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/MarginContainer/HBoxContainer/RightColumn/BootsSlot"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_top = -8.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="Control" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer"]
+custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
+
+[node name="EquipmentDetailsPanel" type="PanelContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer" groups=["equipment_details_panel"]]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="DetailsVBox" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentDetailsPanel"]
+[node name="DetailsVBox" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/EquipmentDetailsPanel"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="UnequipButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentDetailsPanel/DetailsVBox"]
+[node name="UnequipButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/EquipmentDetailsPanel/DetailsVBox"]
 layout_mode = 2
 text = "Unequip"
 
-[node name="ItemName" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentDetailsPanel/DetailsVBox"]
+[node name="ItemName" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/EquipmentDetailsPanel/DetailsVBox"]
 layout_mode = 2
 text = "No Item Selected"
 horizontal_alignment = 1
 
-[node name="ItemImage" type="TextureRect" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentDetailsPanel/DetailsVBox"]
+[node name="ItemImage" type="TextureRect" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/EquipmentDetailsPanel/DetailsVBox"]
 layout_mode = 2
 size_flags_horizontal = 4
 stretch_mode = 5
 
-[node name="ItemDescription" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentDetailsPanel/DetailsVBox"]
+[node name="ItemDescription" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/EquipmentDetailsPanel/DetailsVBox"]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 autowrap_mode = 3
 
-[node name="AffixesContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/CenterContainer/VBoxContainer/EquipmentDetailsPanel/DetailsVBox"]
+[node name="AffixesContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/EquipmentDetailsPanel/DetailsVBox"]
 layout_mode = 2
 
 [node name="Inventory" type="Control" parent="PanelContainer/VBoxContainer/ContentArea" groups=["player_menu_tab_content"]]
