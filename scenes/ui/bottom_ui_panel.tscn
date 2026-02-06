@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://c0w3t10mfnowo"]
+[gd_scene load_steps=19 format=3 uid="uid://c0w3t10mfnowo"]
 
 [ext_resource type="Script" uid="uid://cs3ncaepru3rn" path="res://scripts/ui/bottom_ui_panel.gd" id="1_1ip7k"]
 [ext_resource type="PackedScene" uid="uid://ds3fslulucbxd" path="res://scenes/ui/map/dice_grid.tscn" id="1_5ue3t"]
@@ -13,6 +13,8 @@
 [ext_resource type="Resource" uid="uid://dynp53wsejoff" path="res://resources/items/main hand/frost_hammer.tres" id="8_25ydp"]
 [ext_resource type="Script" uid="uid://bmitbn1xm1k41" path="res://scripts/ui/components/combat_button.gd" id="9_2my3p"]
 [ext_resource type="Resource" uid="uid://couqhbcv0nj5p" path="res://resources/encounters/goblin_solo.tres" id="10_25ydp"]
+[ext_resource type="Resource" uid="uid://dima28tp43612" path="res://resources/items/equipment_sets/test_set/test_set_head.tres" id="12_3kms2"]
+[ext_resource type="Resource" uid="uid://br5c2wc3gpp21" path="res://resources/items/equipment_sets/test_set/test_set_torso.tres" id="13_q6t8w"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_smlgd"]
 
@@ -146,7 +148,7 @@ text = "MENU"
 layout_mode = 2
 text = "Add Starting Gear"
 script = ExtResource("5_5kghg")
-starting_items = Array[ExtResource("6_tu5g0")]([ExtResource("7_2my3p"), ExtResource("8_25ydp")])
+starting_items = Array[ExtResource("6_tu5g0")]([ExtResource("7_2my3p"), ExtResource("8_25ydp"), ExtResource("12_3kms2"), ExtResource("13_q6t8w")])
 
 [node name="CombatButton" type="Button" parent="MainHBox/RightSection"]
 layout_mode = 2

@@ -32,6 +32,7 @@ enum EquipSlot {
 @export var icon: Texture2D = null
 @export var rarity: Rarity = Rarity.COMMON
 @export var equip_slot: EquipSlot = EquipSlot.MAIN_HAND
+@export var set_definition: SetDefinition = null
 
 # ============================================================================
 # AFFIX SYSTEM - TABLES
@@ -271,5 +272,12 @@ func to_dict() -> Dictionary:
 	# Add action if granted
 	if grants_action and action:
 		dict["actions"] = [action.to_dict()]
+	
+	# ── NEW: Equipment set ──
+	if set_definition:
+		dict["set_definition"] = set_definition
+		dict["set_name"] = set_definition.set_name
+		dict["set_id"] = set_definition.set_id
+		dict["set_color"] = set_definition.set_color
 	
 	return dict

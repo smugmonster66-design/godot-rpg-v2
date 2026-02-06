@@ -302,19 +302,22 @@ script = ExtResource("2_f0r6v")
 metadata/tab_name = "Character"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Character"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="ClassLabel" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer" groups=["character_tab_ui"]]
 layout_mode = 2
 text = "Class: X"
-metadata/ui_role = "\"class_label\""
+metadata/ui_role = "class_label"
 
 [node name="LevelLabel" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer" groups=["character_tab_ui"]]
 layout_mode = 2
 text = "Lvl: X"
-metadata/ui_role = "\"level_label\""
+metadata/ui_role = "level_label"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer"]
 layout_mode = 2
@@ -322,7 +325,7 @@ layout_mode = 2
 [node name="ExpLabel" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer/HBoxContainer" groups=["character_tab_ui"]]
 layout_mode = 2
 text = "Exp:"
-metadata/ui_role = "\"exp_label\""
+metadata/ui_role = "exp_label"
 
 [node name="Control" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer/HBoxContainer"]
 custom_minimum_size = Vector2(10, 0)
@@ -331,17 +334,18 @@ layout_mode = 2
 [node name="ExpBar" type="ProgressBar" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer/HBoxContainer" groups=["character_tab_ui"]]
 layout_mode = 2
 value = 50.0
-metadata/ui_role = "\"exp_bar\""
+metadata/ui_role = "exp_bar"
 
 [node name="StatsContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer" groups=["character_tab_ui"]]
 layout_mode = 2
-metadata/ui_role = "\"stats_container\""
+metadata/ui_role = "stats_container"
 
 [node name="Skills" parent="PanelContainer/VBoxContainer/ContentArea" instance=ExtResource("3_s5lmw")]
 visible = false
 layout_mode = 2
 
 [node name="Equipment" type="Control" parent="PanelContainer/VBoxContainer/ContentArea" groups=["player_menu_tab_content"]]
+visible = false
 layout_mode = 2
 script = ExtResource("4_fbi1g")
 metadata/tab_name = "Equipment"
@@ -609,7 +613,6 @@ autowrap_mode = 3
 layout_mode = 2
 
 [node name="Inventory" type="Control" parent="PanelContainer/VBoxContainer/ContentArea" groups=["player_menu_tab_content"]]
-visible = false
 layout_mode = 2
 script = ExtResource("5_ldd5v")
 metadata/tab_name = "Inventory"
@@ -651,7 +654,7 @@ layout_mode = 2
 
 [node name="ActionButtons" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/InventoryDetailsPanel/DetailsVBox"]
 layout_mode = 2
-size_flags_vertical = 4
+size_flags_vertical = 10
 theme_override_constants/separation = 10
 alignment = 1
 

@@ -311,6 +311,33 @@ func _update_item_details():
 			var affix_display = _create_affix_display(affix)
 			affix_container.add_child(affix_display)
 	
+	# Show set info
+	if affix_containers.size() > 0 and selected_item.has("set_definition"):
+		var affix_container = affix_containers[0]
+		var set_def: SetDefinition = selected_item.get("set_definition")
+		if set_def:
+			# Set header
+			var set_header = Label.new()
+			var equipped_count: int = 0
+			if player and player.set_tracker:
+				equipped_count = player.set_tracker.get_equipped_count(set_def.set_id)
+			set_header.text = "%s (%d/%d)" % [set_def.set_name, equipped_count, set_def.get_total_pieces()]
+			set_header.add_theme_font_size_override("font_size", 14)
+			set_header.add_theme_color_override("font_color", set_def.set_color)
+			affix_container.add_child(set_header)
+			
+			# Threshold bonuses
+			for threshold in set_def.thresholds:
+				var is_active = player and player.set_tracker and player.set_tracker.is_threshold_active(set_def.set_id, threshold.required_pieces)
+				var threshold_label = Label.new()
+				var prefix = "✓" if is_active else "✗"
+				threshold_label.text = "  %s (%d) %s" % [prefix, threshold.required_pieces, threshold.description]
+				threshold_label.add_theme_font_size_override("font_size", 12)
+				threshold_label.add_theme_color_override("font_color", Color.GREEN if is_active else Color(0.4, 0.4, 0.4))
+				threshold_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				affix_container.add_child(threshold_label)
+	
+	
 	# Determine which buttons to show
 	var is_equipment = selected_item.has("slot")
 	var is_consumable = selected_item.get("type", "") == "Consumable"

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SetDefinition" load_steps=7 format=3 uid="uid://bxkwoge7q1eqj"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_in73v"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="2_uhjhd"]
+[ext_resource type="Script" uid="uid://b22o7ui6xfdwt" path="res://resources/data/set_definition.gd" id="3_c64w6"]
+[ext_resource type="Script" uid="uid://cilhv0qd8ef4n" path="res://resources/data/set_bonus_threshold.gd" id="4_m2g4m"]
+[ext_resource type="Resource" uid="uid://bg4mxggcws5vi" path="res://resources/sets/Test_Set/test_set_2set.tres" id="5_uhjhd"]
+[ext_resource type="Resource" uid="uid://bbp5fwlarbtu" path="res://resources/sets/Test_Set/test_set_3set.tres" id="6_c64w6"]
+
+[resource]
+script = ExtResource("3_c64w6")
+set_name = "Bones' Bones"
+set_id = &"test_set"
+thresholds = Array[ExtResource("4_m2g4m")]([ExtResource("5_uhjhd"), ExtResource("6_c64w6")])

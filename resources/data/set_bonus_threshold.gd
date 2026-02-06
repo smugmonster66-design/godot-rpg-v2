@@ -35,13 +35,21 @@ class_name SetBonusThreshold
 ## They do NOT apply to non-set dice in the player's pool.
 @export var dice_affixes: Array[DiceAffix] = []
 
+
+@export_group("Granted Action")
+
+## Combat action granted when this threshold activates.
+## Works like EquippableItem.grants_action — the action appears in combat.
+@export var granted_action: Action = null
+
+
 # ============================================================================
 # UTILITY
 # ============================================================================
 
 func has_any_bonus() -> bool:
 	"""Check if this threshold actually grants anything"""
-	return affixes.size() > 0 or dice_affixes.size() > 0
+	return affixes.size() > 0 or dice_affixes.size() > 0 or granted_action != null
 
 func get_summary() -> String:
 	"""Get a formatted summary string for UI"""
@@ -53,6 +61,8 @@ func get_summary() -> String:
 		parts.append(affix.affix_name)
 	for dice_affix in dice_affixes:
 		parts.append(dice_affix.affix_name)
+	if granted_action:
+		parts.append(granted_action.action_name if "action_name" in granted_action else "Action")
 	
 	if parts.is_empty():
 		return "(%d) No effect" % required_pieces

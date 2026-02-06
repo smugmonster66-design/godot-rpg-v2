@@ -149,6 +149,19 @@ func get_granted_actions() -> Array:
 	
 	return actions
 
+
+func get_granted_dice() -> Array[DieResource]:
+	"""Get all dice granted by affixes"""
+	var dice: Array[DieResource] = []
+	
+	for affix in get_pool(Affix.Category.DICE):
+		for die in affix.granted_dice:
+			if die:
+				dice.append(die)
+	
+	return dice
+
+
 # ============================================================================
 # DEBUG
 # ============================================================================

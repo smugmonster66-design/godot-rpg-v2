@@ -32,6 +32,15 @@ class_name SetDefinition
 ## Thresholds should be ordered by required_pieces ascending.
 @export var thresholds: Array[SetBonusThreshold] = []
 
+
+@export_group("Granted Dice")
+
+## Dice added to the player's pool when this threshold activates.
+## Removed when the threshold deactivates.
+@export var granted_dice: Array[DieResource] = []
+
+
+
 # ============================================================================
 # MEMBER ITEMS (Optional - for UI display)
 # ============================================================================

@@ -82,6 +82,8 @@ var dice_pool: PlayerDiceCollection = null
 # AFFIX MANAGER
 # ============================================================================
 var affix_manager: AffixPoolManager = AffixPoolManager.new()
+var set_tracker: SetTracker = SetTracker.new()
+
 
 # ============================================================================
 # SIGNALS
@@ -110,6 +112,8 @@ func _init():
 	# NOTE: Do NOT call add_child() here - Resource can't have children
 	# GameManager.initialize_player() calls: add_child(player.dice_pool)
 	
+	set_tracker.initialize(self)
+	
 	print("🎲 Player resource initialized")
 
 # ============================================================================
@@ -122,7 +126,24 @@ func get_total_stat(stat_name: String) -> int:
 	var class_bonus = 0
 	if active_class:
 		class_bonus = active_class.get_stat_bonus(stat_name)
-	return base_value + equipment_bonus + class_bonus
+	
+	# Affix pool flat bonuses
+	var affix_bonus: int = 0
+	var bonus_category = _stat_to_bonus_category(stat_name)
+	if bonus_category >= 0:
+		for affix in affix_manager.get_pool(bonus_category):
+			affix_bonus += int(affix.apply_effect())
+	
+	var subtotal = base_value + equipment_bonus + class_bonus + affix_bonus
+	
+	# Affix pool multipliers
+	var mult_category = _stat_to_multiplier_category(stat_name)
+	if mult_category >= 0:
+		for affix in affix_manager.get_pool(mult_category):
+			subtotal = int(subtotal * affix.apply_effect())
+	
+	return subtotal
+
 
 func get_equipment_stat_bonus(stat_name: String) -> int:
 	var bonus = 0
@@ -140,21 +161,53 @@ func get_armor() -> int:
 	var total = base_armor + get_equipment_stat_bonus("armor")
 	if active_class:
 		total += active_class.get_stat_bonus("armor")
+	
+	# Affix pool bonus
+	for affix in affix_manager.get_pool(Affix.Category.ARMOR_BONUS):
+		total += int(affix.apply_effect())
+	
 	total = max(0, total - status_effects["corrode"]["amount"])
 	return total
+
 
 func get_barrier() -> int:
 	var total = base_barrier + get_equipment_stat_bonus("barrier")
 	if active_class:
 		total += active_class.get_stat_bonus("barrier")
+	
+	# Affix pool bonus
+	for affix in affix_manager.get_pool(Affix.Category.BARRIER_BONUS):
+		total += int(affix.apply_effect())
+	
 	return total
 
+
 func recalculate_stats():
-	var new_max_mana = 50 + get_total_stat("intellect") * 2
+	# ── Max HP ──
+	var base_hp: int = 100  # Or whatever your base formula is
+	var hp_bonus: int = 0
+	for affix in affix_manager.get_pool(Affix.Category.HEALTH_BONUS):
+		hp_bonus += int(affix.apply_effect())
+	var new_max_hp = base_hp + hp_bonus
+	if new_max_hp != max_hp:
+		var old_max = max_hp
+		max_hp = new_max_hp
+		# Scale current HP proportionally so equipping doesn't leave you at 100/600
+		current_hp = clampi(roundi(current_hp * (float(max_hp) / float(old_max))), 1, max_hp)
+		hp_changed.emit(current_hp, max_hp)
+	
+	# ── Max Mana ──
+	var base_mana: int = 50 + get_total_stat("intellect") * 2
+	var mana_bonus: int = 0
+	for affix in affix_manager.get_pool(Affix.Category.MANA_BONUS):
+		mana_bonus += int(affix.apply_effect())
+	var new_max_mana = base_mana + mana_bonus
 	if new_max_mana != max_mana:
+		var old_max_mana = max_mana
 		max_mana = new_max_mana
-		current_mana = min(current_mana, max_mana)
+		current_mana = clampi(roundi(current_mana * (float(max_mana) / float(old_max_mana))), 0, max_mana)
 		mana_changed.emit(current_mana, max_mana)
+
 
 # ============================================================================
 # HEALTH & MANA
@@ -528,6 +581,29 @@ func _add_item_affixes(item: Dictionary):
 			if affix is Affix:
 				affix_manager.add_affix(affix)
 				print("  ✅ Added affix to manager: %s" % affix.affix_name)
+				
+				# Handle dice-granting affixes
+				if affix.category == Affix.Category.DICE and affix.granted_dice.size() > 0:
+					_apply_affix_dice(affix, item_name)
+
+func _apply_affix_dice(affix: Affix, source_name: String):
+	"""Add dice granted by an affix to the player's pool"""
+	if not dice_pool:
+		return
+	
+	for die_template in affix.granted_dice:
+		if die_template is DieResource:
+			var die_copy = die_template.duplicate_die()
+			die_copy.source = source_name
+			
+			# Apply visual effects if the affix has them
+			if affix.dice_visual_affix:
+				die_copy.add_affix(affix.dice_visual_affix)
+			
+			dice_pool.add_die(die_copy)
+			print("  🎲 Affix granted die: %s (from %s)" % [die_copy.display_name, source_name])
+
+
 
 func _remove_item_affixes(item: Dictionary):
 	var item_name = item.get("name", "Unknown Item")
@@ -546,8 +622,44 @@ func get_defense_stats() -> Dictionary:
 	}
 
 func get_resist(element: String) -> int:
-	"""Get total resist for an element"""
 	var base = get(element + "_resist") if (element + "_resist") in self else 0
 	var equipment_bonus = get_equipment_stat_bonus(element + "_resist")
-	# Could add affix bonuses here too
+	
+	# Affix pool bonus
+	var resist_category = _element_to_resist_category(element)
+	if resist_category >= 0:
+		for affix in affix_manager.get_pool(resist_category):
+			equipment_bonus += int(affix.apply_effect())
+	
 	return base + equipment_bonus
+
+
+
+# ============================================================================
+# AFFIX CATEGORY MAPPING HELPERS
+# ============================================================================
+
+func _stat_to_bonus_category(stat_name: String) -> int:
+	match stat_name:
+		"strength": return Affix.Category.STRENGTH_BONUS
+		"agility": return Affix.Category.AGILITY_BONUS
+		"intellect": return Affix.Category.INTELLECT_BONUS
+		"luck": return Affix.Category.LUCK_BONUS
+		_: return -1
+
+func _stat_to_multiplier_category(stat_name: String) -> int:
+	match stat_name:
+		"strength": return Affix.Category.STRENGTH_MULTIPLIER
+		"agility": return Affix.Category.AGILITY_MULTIPLIER
+		"intellect": return Affix.Category.INTELLECT_MULTIPLIER
+		"luck": return Affix.Category.LUCK_MULTIPLIER
+		_: return -1
+
+func _element_to_resist_category(element: String) -> int:
+	match element:
+		"fire": return Affix.Category.FIRE_RESIST_BONUS
+		"ice": return Affix.Category.ICE_RESIST_BONUS
+		"shock": return Affix.Category.SHOCK_RESIST_BONUS
+		"poison": return Affix.Category.POISON_RESIST_BONUS
+		"shadow": return Affix.Category.SHADOW_RESIST_BONUS
+		_: return -1

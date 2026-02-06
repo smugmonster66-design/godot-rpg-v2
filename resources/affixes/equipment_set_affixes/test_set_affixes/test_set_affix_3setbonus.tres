@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=3 format=3 uid="uid://dwvpdmbjdmieb"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_sdblb"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_4yvkh"]
+
+[resource]
+script = ExtResource("2_4yvkh")
+affix_name = "Test Set Affix Rank 2"
+description = "The second rank effect of the Test Set set bonus. "
+category = 15
+effect_number = 500.0
+metadata/_custom_type_script = "uid://c8ianog20smkw"

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=5 format=3 uid="uid://dima28tp43612"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_nyqfa"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="2_kuqf8"]
+[ext_resource type="Texture2D" uid="uid://cehygalcjcvxu" path="res://assets/items/weapons/epic/frost-hammer.png" id="2_lskbn"]
+[ext_resource type="Resource" uid="uid://bxkwoge7q1eqj" path="res://resources/sets/Test_Set/test_set_definition.tres" id="3_kuqf8"]
+
+[resource]
+script = ExtResource("2_kuqf8")
+item_name = "Bones' Skull"
+description = "Debug head for equipment sets."
+icon = ExtResource("2_lskbn")
+rarity = 4
+equip_slot = 0
+set_definition = ExtResource("3_kuqf8")
+metadata/_custom_type_script = "uid://gax4pbuq25uv"

@@ -67,6 +67,8 @@ enum Category {
 @export_group("Display")
 ## Whether this affix appears in item summary tooltips
 @export var show_in_summary: bool = true
+@export var show_in_active_list: bool = true
+
 
 # ============================================================================
 # CATEGORIZATION
@@ -95,6 +97,16 @@ var source_type: String = ""
 ## Drag an Action resource here if this affix grants a combat action
 @export var granted_action: Action = null
 
+
+# ============================================================================
+# GRANTED DICE (for DICE category)
+# ============================================================================
+@export_group("Granted Dice")
+## Dice added to the player's pool when this affix is active.
+## Use with category DICE. Drag DieResource files here.
+@export var granted_dice: Array[DieResource] = []
+
+
 # ============================================================================
 # DICE VISUAL EFFECTS (NEW)
 # ============================================================================
@@ -114,12 +126,18 @@ func apply_effect() -> Variant:
 	if granted_action and category == Category.NEW_ACTION:
 		return granted_action
 	
+	# If this grants dice, return them
+	if granted_dice.size() > 0 and category == Category.DICE:
+		return granted_dice
+	
 	if effect_number != 0.0:
 		return effect_number
 	elif effect_data.size() > 0:
 		return effect_data
 	
 	return 0.0
+
+
 
 func can_stack_with(other_affix: Affix) -> bool:
 	"""Check if this affix can stack with another"""

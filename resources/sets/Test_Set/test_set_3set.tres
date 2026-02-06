@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SetBonusThreshold" load_steps=5 format=3 uid="uid://bbp5fwlarbtu"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_t186m"]
+[ext_resource type="Resource" uid="uid://dwvpdmbjdmieb" path="res://resources/affixes/equipment_set_affixes/test_set_affixes/test_set_affix_3setbonus.tres" id="2_ipy87"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_naish"]
+[ext_resource type="Script" uid="uid://cilhv0qd8ef4n" path="res://resources/data/set_bonus_threshold.gd" id="4_w5p6o"]
+
+[resource]
+script = ExtResource("4_w5p6o")
+required_pieces = 3
+description = "The second rank of the test set."
+affixes = Array[ExtResource("1_t186m")]([ExtResource("2_ipy87")])
+metadata/_custom_type_script = "uid://cilhv0qd8ef4n"

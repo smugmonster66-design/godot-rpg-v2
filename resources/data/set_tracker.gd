@@ -124,6 +124,9 @@ func recalculate_all():
 	# ── Step 4: Update stored state ──
 	_equipped_counts = new_counts
 	_known_sets = new_known
+	
+	# ── Step 5: Recalculate player stats with new set bonuses ──
+	player.recalculate_stats()
 
 # ============================================================================
 # ACTIVATION / DEACTIVATION
@@ -152,8 +155,22 @@ func _activate_set(set_def: SetDefinition, equipped_count: int):
 			print("  🎲 Set dice affix activated: %s (from %s %d-piece)" % [
 				dice_affix.affix_name, set_def.set_name, threshold.required_pieces
 			])
+		
+		# Register granted action as a NEW_ACTION affix
+		if threshold.granted_action:
+			var action_affix = Affix.new()
+			action_affix.affix_name = "%s %d-piece Action" % [set_def.set_name, threshold.required_pieces]
+			action_affix.category = Affix.Category.NEW_ACTION
+			action_affix.granted_action = threshold.granted_action
+			action_affix.source = source_name
+			action_affix.source_type = "set"
+			player.affix_manager.add_affix(action_affix)
+			print("  ⚔️ Set action activated: %s (from %s %d-piece)" % [
+				action_affix.affix_name, set_def.set_name, threshold.required_pieces
+			])
 	
 	_active_thresholds[set_def.set_id] = active
+
 
 func _deactivate_set(set_def: SetDefinition):
 	"""Remove all active affixes for a set."""
