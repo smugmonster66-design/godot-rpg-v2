@@ -1,5 +1,13 @@
-# dice_affix_processor.gd - Processes and applies dice affixes
-# Handles position checking, neighbor targeting, and effect application
+# res://resources/data/dice_affix_processor.gd
+# Processes and applies dice affixes
+# Handles position checking, condition evaluation, neighbor targeting,
+# dynamic value resolution, compound sub-effects, and effect application.
+#
+# v2.1 CHANGELOG:
+#   - ON_USE trigger now scoped to triggering die via context["triggering_die"]
+#   - Consumed dice (is_consumed == true) are skipped during activation collection
+#   - The full stable hand array is preserved for neighbor resolution
+#   - All other behavior unchanged from v2
 extends RefCounted
 class_name DiceAffixProcessor
 
@@ -13,8 +21,22 @@ signal effect_applied(die: DieResource, effect_type: DiceAffix.EffectType, value
 # MAIN PROCESSING
 # ============================================================================
 
-func process_trigger(dice: Array[DieResource], trigger: DiceAffix.Trigger) -> Dictionary:
-	"""Process all affixes with a specific trigger across all dice
+func process_trigger(dice: Array[DieResource], trigger: DiceAffix.Trigger, context: Dictionary = {}) -> Dictionary:
+	"""Process all affixes with a specific trigger across all dice.
+	
+	Args:
+		dice: The array of dice to process (hand or pool). For ON_USE, this
+		      should be the FULL stable hand (not a single-die wrapper) so
+		      that neighbor targeting works correctly.
+		trigger: Which trigger to fire.
+		context: Runtime state from PlayerDiceCollection. Keys may include:
+			- used_count (int): How many dice consumed so far this turn.
+			- used_indices (Array[int]): Pool slot indices of consumed dice.
+			- original_hand_size (int): Hand size at start of turn.
+			- turn_number (int): Current combat turn.
+			- combat_modifiers (Array[CombatModifier]): Active persistent mods.
+			- triggering_die (DieResource): [ON_USE only] The die being used.
+			- triggering_index (int): [ON_USE only] Index of triggering die in hand.
 	
 	Returns a dictionary of changes made:
 	{
@@ -32,6 +54,7 @@ func process_trigger(dice: Array[DieResource], trigger: DiceAffix.Trigger) -> Di
 	}
 	
 	var total_dice = dice.size()
+	var triggering_die = context.get("triggering_die", null)
 	
 	# First pass: collect all affixes that should activate
 	var activations: Array[Dictionary] = []
@@ -39,6 +62,19 @@ func process_trigger(dice: Array[DieResource], trigger: DiceAffix.Trigger) -> Di
 	for i in range(total_dice):
 		var die = dice[i]
 		die.slot_index = i  # Update slot tracking
+		
+		# --- v2.1: Skip consumed dice (they already fired their ON_USE) ---
+		# Exception: the triggering die itself isn't consumed YET (it's about to be)
+		if die.is_consumed and die != triggering_die:
+			continue
+		
+		# --- v2.1: For ON_USE, only the triggering die fires its affixes ---
+		# Neighbor dice don't fire their own ON_USE affixes just because a
+		# different die was used. They CAN be targets of the triggering die's
+		# affixes though — that's handled by target resolution, not here.
+		if trigger == DiceAffix.Trigger.ON_USE and triggering_die != null:
+			if die != triggering_die:
+				continue
 		
 		for affix in die.get_all_affixes():
 			if affix.trigger != trigger:
@@ -48,6 +84,14 @@ func process_trigger(dice: Array[DieResource], trigger: DiceAffix.Trigger) -> Di
 			if not affix.check_position(i, total_dice):
 				continue
 			
+			# --- v2: Evaluate condition ---
+			var condition_multiplier := 1.0
+			if affix.has_condition():
+				var cond_result = affix.evaluate_condition(die, dice, i, context)
+				if cond_result.blocked:
+					continue  # Condition not met — skip this affix
+				condition_multiplier = cond_result.multiplier
+			
 			# Get target dice indices
 			var targets = affix.get_target_indices(i, total_dice)
 			
@@ -55,30 +99,94 @@ func process_trigger(dice: Array[DieResource], trigger: DiceAffix.Trigger) -> Di
 				"source_index": i,
 				"source_die": die,
 				"affix": affix,
-				"targets": targets
+				"targets": targets,
+				"condition_multiplier": condition_multiplier,
 			})
 	
 	# Second pass: apply effects
 	for activation in activations:
-		_apply_affix_effect(
-			dice,
-			activation.source_die,
-			activation.affix,
-			activation.targets,
-			result
-		)
+		var affix: DiceAffix = activation.affix
+		
+		if affix.is_compound():
+			# --- v2: Process sub-effects ---
+			_apply_compound_effect(
+				dice,
+				activation.source_die,
+				affix,
+				activation.source_index,
+				activation.condition_multiplier,
+				context,
+				result
+			)
+		else:
+			# Single effect (original path + v2 value resolution)
+			_apply_affix_effect(
+				dice,
+				activation.source_die,
+				affix,
+				activation.targets,
+				activation.condition_multiplier,
+				context,
+				result
+			)
 		
 		affix_activated.emit(activation.source_die, activation.affix, activation.targets)
 	
 	return result
 
 # ============================================================================
-# EFFECT APPLICATION
+# COMPOUND EFFECT PROCESSING (v2)
+# ============================================================================
+
+func _apply_compound_effect(dice: Array[DieResource], source_die: DieResource,
+		affix: DiceAffix, source_index: int, parent_multiplier: float,
+		context: Dictionary, result: Dictionary):
+	"""Process all sub-effects of a compound affix."""
+	var total_dice = dice.size()
+	
+	for sub in affix.sub_effects:
+		# Determine targets for this sub-effect
+		var sub_targets: Array[int]
+		if sub.override_target:
+			sub_targets = affix.get_target_indices_for(sub.target_override, source_index, total_dice)
+		else:
+			sub_targets = affix.get_target_indices(source_index, total_dice)
+		
+		# Check sub-effect's own condition override
+		var sub_multiplier := parent_multiplier
+		if sub.condition_override:
+			var cond_result = sub.condition_override.evaluate(source_die, dice, source_index, context)
+			if cond_result.blocked:
+				continue  # This sub-effect's condition not met
+			sub_multiplier *= cond_result.multiplier
+		
+		# Apply this sub-effect
+		_apply_sub_effect(dice, source_die, affix, sub, sub_targets, sub_multiplier, context, result)
+
+func _apply_sub_effect(dice: Array[DieResource], source_die: DieResource,
+		parent_affix: DiceAffix, sub: DiceAffixSubEffect, target_indices: Array[int],
+		multiplier: float, context: Dictionary, result: Dictionary):
+	"""Apply a single DiceAffixSubEffect to its targets."""
+	for target_index in target_indices:
+		if target_index < 0 or target_index >= dice.size():
+			continue
+		
+		var target_die = dice[target_index]
+		var resolved_value = _resolve_value_for_sub(sub, source_die, target_die, dice, context) * multiplier
+		
+		_dispatch_effect(dice, source_die, target_die, target_index,
+			sub.effect_type, resolved_value, sub.effect_data, parent_affix, context, result)
+		
+		effect_applied.emit(target_die, sub.effect_type, resolved_value)
+
+# ============================================================================
+# SINGLE EFFECT APPLICATION (updated with value resolution + context)
 # ============================================================================
 
 func _apply_affix_effect(dice: Array[DieResource], source_die: DieResource, 
-		affix: DiceAffix, target_indices: Array[int], result: Dictionary):
-	"""Apply a single affix effect to target dice"""
+		affix: DiceAffix, target_indices: Array[int], condition_multiplier: float,
+		context: Dictionary, result: Dictionary):
+	"""Apply a single affix effect to target dice."""
 	
 	for target_index in target_indices:
 		if target_index < 0 or target_index >= dice.size():
@@ -86,99 +194,187 @@ func _apply_affix_effect(dice: Array[DieResource], source_die: DieResource,
 		
 		var target_die = dice[target_index]
 		
-		match affix.effect_type:
-			# Value modifications
-			DiceAffix.EffectType.MODIFY_VALUE_FLAT:
-				_apply_value_flat(target_die, target_index, affix, result)
-			
-			DiceAffix.EffectType.MODIFY_VALUE_PERCENT:
-				_apply_value_percent(target_die, target_index, affix, result)
-			
-			DiceAffix.EffectType.SET_MINIMUM_VALUE:
-				_apply_set_minimum(target_die, target_index, affix, result)
-			
-			DiceAffix.EffectType.SET_MAXIMUM_VALUE:
-				_apply_set_maximum(target_die, target_index, affix, result)
-			
-			# Tag modifications
-			DiceAffix.EffectType.ADD_TAG:
-				_apply_add_tag(target_die, target_index, affix, result)
-			
-			DiceAffix.EffectType.REMOVE_TAG:
-				_apply_remove_tag(target_die, target_index, affix, result)
-			
-			DiceAffix.EffectType.COPY_TAGS:
-				_apply_copy_tags(dice, source_die, target_die, target_index, affix, result)
-			
-			# Reroll effects
-			DiceAffix.EffectType.GRANT_REROLL:
-				_apply_grant_reroll(target_die, target_index, affix, result)
-			
-			DiceAffix.EffectType.AUTO_REROLL_LOW:
-				_apply_auto_reroll(target_die, target_index, affix, result)
-			
-			# Special effects
-			DiceAffix.EffectType.DUPLICATE_ON_MAX:
-				_apply_duplicate_on_max(dice, target_die, target_index, affix, result)
-			
-			DiceAffix.EffectType.LOCK_DIE:
-				_apply_lock_die(target_die, target_index, affix, result)
-			
-			DiceAffix.EffectType.CHANGE_DIE_TYPE:
-				_apply_change_type(target_die, target_index, affix, result)
-			
-			DiceAffix.EffectType.COPY_NEIGHBOR_VALUE:
-				_apply_copy_value(dice, source_die, target_die, target_index, affix, result)
-			
-			# Combat effects - these are handled differently (stored for combat use)
-			DiceAffix.EffectType.ADD_DAMAGE_TYPE:
-				_apply_damage_type(target_die, target_index, affix, result)
-			
-			DiceAffix.EffectType.GRANT_STATUS_EFFECT:
-				_apply_status_effect(target_die, target_index, affix, result)
+		# --- v2: Resolve dynamic value ---
+		var resolved_value = _resolve_value(affix, source_die, target_die, dice, context)
+		resolved_value *= condition_multiplier
 		
-		effect_applied.emit(target_die, affix.effect_type, affix.effect_value)
+		_dispatch_effect(dice, source_die, target_die, target_index,
+			affix.effect_type, resolved_value, affix.effect_data, affix, context, result)
+		
+		effect_applied.emit(target_die, affix.effect_type, resolved_value)
+
+# ============================================================================
+# EFFECT DISPATCH — Routes to specific handler by EffectType
+# ============================================================================
+
+func _dispatch_effect(dice: Array[DieResource], source_die: DieResource,
+		target_die: DieResource, target_index: int, etype: DiceAffix.EffectType,
+		resolved_value: float, edata: Dictionary, affix_or_parent: DiceAffix,
+		context: Dictionary, result: Dictionary):
+	"""Central dispatcher that routes to the correct handler."""
+	
+	match etype:
+		# --- Value modifications ---
+		DiceAffix.EffectType.MODIFY_VALUE_FLAT:
+			_apply_value_flat(target_die, target_index, resolved_value, affix_or_parent, result)
+		
+		DiceAffix.EffectType.MODIFY_VALUE_PERCENT:
+			_apply_value_percent(target_die, target_index, resolved_value, affix_or_parent, result)
+		
+		DiceAffix.EffectType.SET_MINIMUM_VALUE:
+			_apply_set_minimum(target_die, target_index, resolved_value, result)
+		
+		DiceAffix.EffectType.SET_MAXIMUM_VALUE:
+			_apply_set_maximum(target_die, target_index, resolved_value, result)
+		
+		# --- Tag modifications ---
+		DiceAffix.EffectType.ADD_TAG:
+			var tag = edata.get("tag", "")
+			_apply_add_tag(target_die, target_index, tag, result)
+		
+		DiceAffix.EffectType.REMOVE_TAG:
+			var tag = edata.get("tag", "")
+			_apply_remove_tag(target_die, target_index, tag, result)
+		
+		DiceAffix.EffectType.COPY_TAGS:
+			_apply_copy_tags(source_die, target_die, target_index, result)
+		
+		DiceAffix.EffectType.REMOVE_ALL_TAGS:
+			_apply_remove_all_tags(target_die, target_index, result)
+		
+		# --- Reroll effects ---
+		DiceAffix.EffectType.GRANT_REROLL:
+			_apply_grant_reroll(target_die, target_index, affix_or_parent, result)
+		
+		DiceAffix.EffectType.AUTO_REROLL_LOW:
+			var threshold = edata.get("threshold", 0)
+			_apply_auto_reroll(target_die, target_index, threshold, affix_or_parent, result)
+		
+		# --- Special effects ---
+		DiceAffix.EffectType.DUPLICATE_ON_MAX:
+			_apply_duplicate_on_max(target_die, target_index, result)
+		
+		DiceAffix.EffectType.LOCK_DIE:
+			_apply_lock_die(target_die, target_index, result)
+		
+		DiceAffix.EffectType.CHANGE_DIE_TYPE:
+			var new_type = int(edata.get("new_type", 6))
+			_apply_change_type(target_die, target_index, new_type, result)
+		
+		DiceAffix.EffectType.COPY_NEIGHBOR_VALUE:
+			_apply_copy_value(dice, source_die, target_die, target_index, affix_or_parent, result)
+		
+		# --- Combat effects ---
+		DiceAffix.EffectType.ADD_DAMAGE_TYPE:
+			_apply_damage_type(target_die, target_index, edata, result)
+		
+		DiceAffix.EffectType.GRANT_STATUS_EFFECT:
+			_apply_status_effect(target_die, target_index, edata, result)
+		
+		# --- NEW v2 effects ---
+		DiceAffix.EffectType.RANDOMIZE_ELEMENT:
+			var elements = edata.get("elements", ["FIRE", "ICE", "SHOCK", "POISON"])
+			_apply_randomize_element(target_die, target_index, elements, result)
+		
+		DiceAffix.EffectType.LEECH_HEAL:
+			var percent = edata.get("percent", resolved_value)
+			_apply_leech_heal(target_die, target_index, percent, result)
+		
+		DiceAffix.EffectType.DESTROY_SELF:
+			_apply_destroy_self(source_die, source_die.slot_index, result)
+		
+		DiceAffix.EffectType.SET_ELEMENT:
+			var element_str = edata.get("element", "NONE")
+			_apply_set_element(target_die, target_index, element_str, result)
+		
+		DiceAffix.EffectType.CREATE_COMBAT_MODIFIER:
+			if affix_or_parent.combat_modifier:
+				_apply_create_combat_modifier(source_die, affix_or_parent.combat_modifier, result)
+
+# ============================================================================
+# VALUE RESOLUTION (v2)
+# ============================================================================
+
+func _resolve_value(affix: DiceAffix, source_die: DieResource,
+		target_die: DieResource, dice: Array[DieResource], context: Dictionary) -> float:
+	"""Resolve the runtime value for an affix based on its ValueSource."""
+	match affix.value_source:
+		DiceAffix.ValueSource.STATIC:
+			return affix.effect_value
+		DiceAffix.ValueSource.SELF_VALUE:
+			return float(source_die.get_total_value())
+		DiceAffix.ValueSource.SELF_VALUE_FRACTION:
+			return float(source_die.get_total_value()) * affix.effect_value
+		DiceAffix.ValueSource.NEIGHBOR_VALUE:
+			return float(target_die.get_total_value())
+		DiceAffix.ValueSource.NEIGHBOR_PERCENT:
+			return float(target_die.get_total_value()) * affix.effect_value
+		DiceAffix.ValueSource.CONTEXT_USED_COUNT:
+			return float(context.get("used_count", 0)) * affix.effect_value
+		DiceAffix.ValueSource.SELF_TAGS:
+			return affix.effect_value  # Tags handled separately in dispatch
+	return affix.effect_value
+
+func _resolve_value_for_sub(sub: DiceAffixSubEffect, source_die: DieResource,
+		target_die: DieResource, dice: Array[DieResource], context: Dictionary) -> float:
+	"""Resolve the runtime value for a sub-effect based on its ValueSource."""
+	match sub.value_source:
+		DiceAffix.ValueSource.STATIC:
+			return sub.effect_value
+		DiceAffix.ValueSource.SELF_VALUE:
+			return float(source_die.get_total_value())
+		DiceAffix.ValueSource.SELF_VALUE_FRACTION:
+			return float(source_die.get_total_value()) * sub.effect_value
+		DiceAffix.ValueSource.NEIGHBOR_VALUE:
+			return float(target_die.get_total_value())
+		DiceAffix.ValueSource.NEIGHBOR_PERCENT:
+			return float(target_die.get_total_value()) * sub.effect_value
+		DiceAffix.ValueSource.CONTEXT_USED_COUNT:
+			return float(context.get("used_count", 0)) * sub.effect_value
+		DiceAffix.ValueSource.SELF_TAGS:
+			return sub.effect_value
+	return sub.effect_value
 
 # ============================================================================
 # VALUE EFFECT IMPLEMENTATIONS
 # ============================================================================
 
-func _apply_value_flat(die: DieResource, index: int, affix: DiceAffix, result: Dictionary):
+func _apply_value_flat(die: DieResource, index: int, value: float, affix: DiceAffix, result: Dictionary):
 	"""Apply flat value modification"""
 	var old_value = die.modified_value
-	die.apply_flat_modifier(affix.get_value_modifier())
+	die.apply_flat_modifier(value)
 	
 	if old_value != die.modified_value:
 		_record_value_change(result, index, old_value, die.modified_value)
-		print("    📊 %s: %d -> %d (flat +%.0f from %s)" % [
+		print("    📊 %s: %d -> %d (flat %+.0f from %s)" % [
 			die.display_name, old_value, die.modified_value, 
-			affix.get_value_modifier(), affix.affix_name
+			value, affix.affix_name
 		])
 
-func _apply_value_percent(die: DieResource, index: int, affix: DiceAffix, result: Dictionary):
+func _apply_value_percent(die: DieResource, index: int, value: float, affix: DiceAffix, result: Dictionary):
 	"""Apply percentage value modification"""
 	var old_value = die.modified_value
-	die.apply_percent_modifier(affix.get_value_modifier())
+	die.apply_percent_modifier(value)
 	
 	if old_value != die.modified_value:
 		_record_value_change(result, index, old_value, die.modified_value)
 		print("    📊 %s: %d -> %d (x%.2f from %s)" % [
 			die.display_name, old_value, die.modified_value,
-			affix.get_value_modifier(), affix.affix_name
+			value, affix.affix_name
 		])
 
-func _apply_set_minimum(die: DieResource, index: int, affix: DiceAffix, result: Dictionary):
+func _apply_set_minimum(die: DieResource, index: int, value: float, result: Dictionary):
 	"""Set minimum value"""
 	var old_value = die.modified_value
-	die.set_minimum_value(int(affix.get_value_modifier()))
+	die.set_minimum_value(int(value))
 	
 	if old_value != die.modified_value:
 		_record_value_change(result, index, old_value, die.modified_value)
 
-func _apply_set_maximum(die: DieResource, index: int, affix: DiceAffix, result: Dictionary):
+func _apply_set_maximum(die: DieResource, index: int, value: float, result: Dictionary):
 	"""Set maximum value"""
 	var old_value = die.modified_value
-	die.set_maximum_value(int(affix.get_value_modifier()))
+	die.set_maximum_value(int(value))
 	
 	if old_value != die.modified_value:
 		_record_value_change(result, index, old_value, die.modified_value)
@@ -187,28 +383,35 @@ func _apply_set_maximum(die: DieResource, index: int, affix: DiceAffix, result: 
 # TAG EFFECT IMPLEMENTATIONS
 # ============================================================================
 
-func _apply_add_tag(die: DieResource, index: int, affix: DiceAffix, result: Dictionary):
+func _apply_add_tag(die: DieResource, index: int, tag: String, result: Dictionary):
 	"""Add tag to die"""
-	var tag = affix.get_effect_tag()
 	if tag and not die.has_tag(tag):
 		die.add_tag(tag)
 		_record_tag_added(result, index, tag)
 		print("    🏷️ %s gained tag: %s" % [die.display_name, tag])
 
-func _apply_remove_tag(die: DieResource, index: int, affix: DiceAffix, result: Dictionary):
+func _apply_remove_tag(die: DieResource, index: int, tag: String, result: Dictionary):
 	"""Remove tag from die"""
-	var tag = affix.get_effect_tag()
 	if tag and die.has_tag(tag):
 		die.remove_tag(tag)
 		_record_tag_removed(result, index, tag)
 
-func _apply_copy_tags(dice: Array[DieResource], source: DieResource, target: DieResource, 
-		index: int, affix: DiceAffix, result: Dictionary):
+func _apply_copy_tags(source: DieResource, target: DieResource, 
+		index: int, result: Dictionary):
 	"""Copy tags from source die to target"""
 	for tag in source.get_tags():
 		if not target.has_tag(tag):
 			target.add_tag(tag)
 			_record_tag_added(result, index, tag)
+
+func _apply_remove_all_tags(die: DieResource, index: int, result: Dictionary):
+	"""Remove ALL tags from die (v2 — used by Purify)"""
+	var removed_tags = die.get_tags().duplicate()
+	for tag in removed_tags:
+		die.remove_tag(tag)
+		_record_tag_removed(result, index, tag)
+	if removed_tags.size() > 0:
+		print("    🏷️ %s: removed all %d tags" % [die.display_name, removed_tags.size()])
 
 # ============================================================================
 # REROLL EFFECT IMPLEMENTATIONS
@@ -223,9 +426,8 @@ func _apply_grant_reroll(die: DieResource, index: int, affix: DiceAffix, result:
 		"affix": affix.affix_name
 	})
 
-func _apply_auto_reroll(die: DieResource, index: int, affix: DiceAffix, result: Dictionary):
+func _apply_auto_reroll(die: DieResource, index: int, threshold: int, affix: DiceAffix, result: Dictionary):
 	"""Auto-reroll if below threshold"""
-	var threshold = affix.get_threshold()
 	if die.current_value <= threshold:
 		var old_value = die.current_value
 		die.roll()
@@ -244,8 +446,7 @@ func _apply_auto_reroll(die: DieResource, index: int, affix: DiceAffix, result: 
 # SPECIAL EFFECT IMPLEMENTATIONS
 # ============================================================================
 
-func _apply_duplicate_on_max(dice: Array[DieResource], die: DieResource, 
-		index: int, affix: DiceAffix, result: Dictionary):
+func _apply_duplicate_on_max(die: DieResource, index: int, result: Dictionary):
 	"""Duplicate die if max value rolled"""
 	if die.is_max_roll():
 		result.special_effects.append({
@@ -255,7 +456,7 @@ func _apply_duplicate_on_max(dice: Array[DieResource], die: DieResource,
 		})
 		print("    ✨ %s rolled max! Duplicate triggered" % die.display_name)
 
-func _apply_lock_die(die: DieResource, index: int, affix: DiceAffix, result: Dictionary):
+func _apply_lock_die(die: DieResource, index: int, result: Dictionary):
 	"""Lock die from being consumed"""
 	die.is_locked = true
 	result.special_effects.append({
@@ -263,9 +464,8 @@ func _apply_lock_die(die: DieResource, index: int, affix: DiceAffix, result: Dic
 		"die_index": index
 	})
 
-func _apply_change_type(die: DieResource, index: int, affix: DiceAffix, result: Dictionary):
+func _apply_change_type(die: DieResource, index: int, new_type: int, result: Dictionary):
 	"""Change die type"""
-	var new_type = affix.get_new_die_type()
 	var old_type = die.die_type
 	die.die_type = new_type
 	result.special_effects.append({
@@ -278,11 +478,9 @@ func _apply_change_type(die: DieResource, index: int, affix: DiceAffix, result: 
 func _apply_copy_value(dice: Array[DieResource], source: DieResource, target: DieResource,
 		index: int, affix: DiceAffix, result: Dictionary):
 	"""Copy percentage of neighbor's value"""
-	# Find the source die based on affix target direction
 	var source_index = source.slot_index
 	var neighbor: DieResource = null
 	
-	# Determine which neighbor based on affix configuration
 	if affix.neighbor_target == DiceAffix.NeighborTarget.LEFT and source_index > 0:
 		neighbor = dice[source_index - 1]
 	elif affix.neighbor_target == DiceAffix.NeighborTarget.RIGHT and source_index < dice.size() - 1:
@@ -305,10 +503,10 @@ func _apply_copy_value(dice: Array[DieResource], source: DieResource, target: Di
 # COMBAT EFFECT IMPLEMENTATIONS
 # ============================================================================
 
-func _apply_damage_type(die: DieResource, index: int, affix: DiceAffix, result: Dictionary):
+func _apply_damage_type(die: DieResource, index: int, edata: Dictionary, result: Dictionary):
 	"""Add damage type to die for combat"""
-	var damage_type = affix.get_damage_type()
-	var percent = affix.get_percent()
+	var damage_type = edata.get("type", "physical")
+	var percent = edata.get("percent", 0.0)
 	
 	result.special_effects.append({
 		"type": "damage_type",
@@ -317,18 +515,88 @@ func _apply_damage_type(die: DieResource, index: int, affix: DiceAffix, result: 
 		"percent": percent
 	})
 	
-	# Also add as tag for easy checking
 	die.add_tag(damage_type)
 
-func _apply_status_effect(die: DieResource, index: int, affix: DiceAffix, result: Dictionary):
+func _apply_status_effect(die: DieResource, index: int, edata: Dictionary, result: Dictionary):
 	"""Store status effect to apply on use"""
-	var status = affix.get_status_effect()
+	var status = edata.get("status", {})
 	
 	result.special_effects.append({
 		"type": "status_effect",
 		"die_index": index,
 		"status": status
 	})
+
+# ============================================================================
+# NEW v2 EFFECT IMPLEMENTATIONS
+# ============================================================================
+
+func _apply_randomize_element(die: DieResource, index: int, elements: Array, result: Dictionary):
+	"""Set die element to a random choice from the given list."""
+	if elements.size() == 0:
+		return
+	
+	var chosen: String = elements[randi() % elements.size()]
+	var mapped = DieResource._string_to_element(chosen)
+	var old_element = die.element
+	die.element = mapped
+	
+	result.special_effects.append({
+		"type": "randomize_element",
+		"die_index": index,
+		"old_element": old_element,
+		"new_element": mapped,
+		"element_name": chosen
+	})
+	print("    🎨 %s element randomized to %s" % [die.display_name, chosen])
+
+func _apply_leech_heal(die: DieResource, index: int, percent: float, result: Dictionary):
+	"""Store leech heal data for combat resolution.
+	The CombatManager/Calculator reads this from special_effects after damage."""
+	result.special_effects.append({
+		"type": "leech_heal",
+		"die_index": index,
+		"percent": percent
+	})
+	print("    💚 %s will leech %.0f%% of damage as healing" % [die.display_name, percent * 100])
+
+func _apply_destroy_self(die: DieResource, index: int, result: Dictionary):
+	"""Mark this die for permanent removal from the pool after use.
+	PlayerDiceCollection handles the actual removal from special_effects."""
+	result.special_effects.append({
+		"type": "destroy_from_pool",
+		"die_index": index,
+		"pool_slot_index": die.slot_index,
+		"die_name": die.display_name
+	})
+	print("    💀 %s marked for permanent destruction" % die.display_name)
+
+func _apply_set_element(die: DieResource, index: int, element_str: String, result: Dictionary):
+	"""Set die element to a specific element."""
+	var mapped = DieResource._string_to_element(element_str)
+	var old_element = die.element
+	die.element = mapped
+	
+	result.special_effects.append({
+		"type": "set_element",
+		"die_index": index,
+		"old_element": old_element,
+		"new_element": mapped
+	})
+
+func _apply_create_combat_modifier(source_die: DieResource, modifier: CombatModifier, result: Dictionary):
+	"""Push a persistent CombatModifier into special_effects.
+	PlayerDiceCollection picks this up and adds it to combat_modifiers."""
+	var mod_copy = modifier.duplicate(true)
+	mod_copy.source_slot_index = source_die.slot_index
+	if not mod_copy.source_name:
+		mod_copy.source_name = source_die.display_name
+	
+	result.special_effects.append({
+		"type": "create_combat_modifier",
+		"modifier": mod_copy
+	})
+	print("    🛡️ Combat modifier created from %s: %s" % [source_die.display_name, mod_copy])
 
 # ============================================================================
 # RESULT TRACKING HELPERS

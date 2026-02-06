@@ -1,16 +1,20 @@
-[gd_resource type="Resource" script_class="PlayerClass" load_steps=6 format=3 uid="uid://flk40m735lxj"]
+[gd_resource type="Resource" script_class="PlayerClass" load_steps=9 format=3 uid="uid://flk40m735lxj"]
 
 [ext_resource type="Script" uid="uid://n4huc4i0nhvn" path="res://resources/data/player_class.gd" id="1_3nn7d"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_agdky"]
 [ext_resource type="Resource" uid="uid://35lrxcygw5uc" path="res://resources/skill_trees/warrior_arms.tres" id="2_jreak"]
 [ext_resource type="Resource" uid="uid://cjpycoh3jpgdj" path="res://resources/skill_trees/warrior_armor.tres" id="3_6qkit"]
 [ext_resource type="Resource" uid="uid://d1ma2pq208r6h" path="res://resources/skill_trees/warrior_berserker.tres" id="4_3jdp8"]
+[ext_resource type="Resource" uid="uid://byir7m1xtkf74" path="res://resources/dice/d6_basic.tres" id="6_wtd5a"]
+[ext_resource type="Resource" uid="uid://dwysjqe3dgrcc" path="res://resources/dice/d6_siphon.tres" id="7_1cmot"]
+[ext_resource type="Resource" uid="uid://b5ueqg374e25a" path="res://resources/dice/base elemental dice/d6_fire.tres" id="8_57q0a"]
 
 [resource]
 script = ExtResource("1_3nn7d")
 base_health = 120
 mana_per_level = 0
 strength_per_level = 2.0
+starting_dice = Array[ExtResource("2_agdky")]([ExtResource("6_wtd5a"), ExtResource("7_1cmot"), ExtResource("8_57q0a")])
 skill_tree_1 = ExtResource("2_jreak")
 skill_tree_2 = ExtResource("3_6qkit")
 skill_tree_3 = ExtResource("4_3jdp8")

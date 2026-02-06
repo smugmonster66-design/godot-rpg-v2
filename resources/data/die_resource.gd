@@ -1,6 +1,11 @@
 # res://resources/data/die_resource.gd
 # Individual die with type, image, element, and dice affixes
 # Updated to support DieObject scenes for combat and pool displays
+#
+# v2.1 CHANGELOG:
+#   - Added is_consumed: bool — marks hand dice as used without removing from array
+#   - Updated duplicate_die() to copy is_consumed (defaults false)
+#   - is_consumed is runtime-only (not serialized — hand is transient)
 extends Resource
 class_name DieResource
 
@@ -54,7 +59,7 @@ var icon: Texture2D:
 		fill_texture = value
 
 # ============================================================================
-# DIE OBJECT SCENES (NEW)
+# DIE OBJECT SCENES
 # ============================================================================
 @export_group("Die Object Scenes")
 ## Scene used to display this die in combat (shows rolled value)
@@ -94,6 +99,12 @@ var slot_index: int = -1            # Position in pool (for affix requirements)
 # Locking
 var is_locked: bool = false         # Can't be removed
 var can_reroll: bool = true         # Can use reroll abilities
+
+# Hand consumption state (v2.1)
+## True when this hand die has been placed in an action field this turn.
+## The die stays in the hand array to preserve positional relationships
+## for neighbor-targeting affixes. UI reads this to hide/grey out the die.
+var is_consumed: bool = false
 
 # ============================================================================
 # ELEMENT NAMES
@@ -279,7 +290,7 @@ func clear_applied_affixes():
 
 func get_all_affixes() -> Array[DiceAffix]:
 	"""Get combined element, inherent, and applied affixes.
-	   Element affix is applied first (as base visual), then inherent, then applied.
+	Element affix is applied first (as base visual), then inherent, then applied.
 	   Later affixes can overwrite visual effects from earlier ones."""
 	var all: Array[DiceAffix] = []
 	
@@ -414,7 +425,6 @@ static func _string_to_element(type_str: String) -> Element:
 		"SHADOW": return Element.SHADOW
 		_: return Element.NONE
 
-
 # ============================================================================
 # DUPLICATION
 # ============================================================================
@@ -436,6 +446,7 @@ func duplicate_die() -> DieResource:
 	copy.tags = tags.duplicate()
 	copy.is_locked = is_locked
 	copy.can_reroll = can_reroll
+	copy.is_consumed = false  # Fresh copies are never consumed
 	
 	# Deep copy inherent affixes
 	for affix in inherent_affixes:
@@ -479,6 +490,7 @@ func to_dict() -> Dictionary:
 		"can_reroll": can_reroll,
 		"inherent_affixes": inherent_data,
 		"applied_affixes": applied_data,
+		# is_consumed is NOT serialized — hand is transient
 	}
 
 static func from_dict(data: Dictionary) -> DieResource:
