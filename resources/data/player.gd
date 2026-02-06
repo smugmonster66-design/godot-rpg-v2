@@ -277,7 +277,7 @@ func equip_item(item: Dictionary, slot: String = "") -> bool:
 			unequip_item(target_slot)
 		equipment[target_slot] = item
 	
-	inventory.erase(item)
+	#inventory.erase(item)
 	
 	_add_item_affixes(item)
 	apply_item_dice(item)
@@ -301,8 +301,8 @@ func unequip_item(slot: String) -> bool:
 	else:
 		equipment[slot] = null
 	
-	if not inventory.has(item):
-		inventory.append(item)
+	#if not inventory.has(item):
+		#inventory.append(item)
 	
 	equipment_changed.emit(slot, null)
 	recalculate_stats()
@@ -663,3 +663,11 @@ func _element_to_resist_category(element: String) -> int:
 		"poison": return Affix.Category.POISON_RESIST_BONUS
 		"shadow": return Affix.Category.SHADOW_RESIST_BONUS
 		_: return -1
+		
+		
+func is_item_equipped(item: Dictionary) -> bool:
+	"""Check if a specific item is currently equipped in any slot"""
+	for slot in equipment:
+		if equipment[slot] == item:
+			return true
+	return false

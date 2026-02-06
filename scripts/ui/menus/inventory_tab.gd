@@ -10,9 +10,30 @@ extends Control
 @export var use_rarity_shaders: bool = true
 
 @export_group("Shader Settings")
-@export_range(0.0, 0.5) var border_width: float = 0.08
-@export_range(0.0, 2.0) var glow_strength: float = 0.8
-@export_range(0.0, 5.0) var pulse_speed: float = 1.5
+
+## How many pixels outward the shader searches for alpha edges
+@export_range(1.0, 20.0) var glow_radius: float = 4.0
+
+## Falloff curve power: low = wide soft spread, high = tight sharp edge
+@export_range(0.5, 4.0) var glow_softness: float = 2.0
+
+## What fraction of the radius the glow fills (0 = hairline at edge, 1 = full radius)
+@export_range(0.0, 1.0) var glow_width: float = 0.6
+
+## Overall brightness multiplier for the glow
+@export_range(0.0, 5.0) var glow_strength: float = 1.5
+
+## Tint vs additive mix (0 = pure additive bloom, 1 = pure color tint)
+@export_range(0.0, 1.0) var glow_blend: float = 0.6
+
+## Color intensity of the glow (0 = white/gray, 1 = normal, 2 = oversaturated)
+@export_range(0.0, 2.0) var glow_saturation: float = 1.0
+
+## How fast the glow pulses (0 = no animation)
+@export_range(0.0, 5.0) var pulse_speed: float = 1.0
+
+## How much the brightness oscillates when pulsing
+@export_range(0.0, 1.0) var pulse_amount: float = 0.15
 
 # ============================================================================
 # SIGNALS (emitted upward)
@@ -28,7 +49,7 @@ signal item_equipped(item: Dictionary)
 # ============================================================================
 var player: Player = null
 var selected_item: Dictionary = {}
-var item_buttons: Array[TextureButton] = []
+var item_buttons: Array[Control] = []
 var category_buttons: Array[Button] = []
 
 # UI references
@@ -40,6 +61,9 @@ var current_category: String = "All"
 
 # Shader resources
 var rarity_shader: Shader = null
+
+# Add to STATE section
+var _selected_button: TextureButton = null
 
 # ============================================================================
 # INITIALIZATION
@@ -65,32 +89,35 @@ func _ready():
 	print("🎒 InventoryTab: Ready")
 
 func _discover_ui_elements():
-	"""Discover UI elements within this tab's own subtree"""
-	# Find inventory grid locally (it's a child of this node)
-	var grids = find_children("ItemGrid", "GridContainer", true, false)
+	# Find inventory grid WITHIN THIS TAB (not global tree)
+	var grids = []
+	for child in find_children("*", "GridContainer", true, false):
+		if child.is_in_group("inventory_grid"):
+			grids.append(child)
+	
 	if grids.size() > 0:
 		inventory_grid = grids[0]
 		print("  ✓ Inventory grid registered")
 	else:
-		print("  ⚠️ No ItemGrid found in subtree")
-
-	# Find category buttons locally
-	var buttons = find_children("*Button", "Button", true, false)
-	for button in buttons:
+		print("  ⚠️ No inventory_grid found")
+	
+	# Find category buttons WITHIN THIS TAB
+	for button in find_children("*", "Button", true, false):
 		if button.is_in_group("inventory_category_button"):
 			category_buttons.append(button)
 			var cat_name = button.get_meta("category_name", "")
 			if cat_name:
 				button.toggled.connect(_on_category_button_toggled.bind(cat_name))
 				print("  ✓ Connected category button: %s" % cat_name)
-
-	# Find details panel locally
-	var panels = find_children("*DetailsPanel*", "PanelContainer", true, false)
-	if panels.size() > 0:
-		item_details_panel = panels[0]
-		print("  ✓ Details panel registered")
-	else:
-		print("  ⚠️ No inventory details panel found")
+	
+	# Find details panel WITHIN THIS TAB
+	for panel in find_children("*", "PanelContainer", true, false):
+		if panel.is_in_group("inventory_details_panel"):
+			item_details_panel = panel
+			print("  ✓ Details panel registered")
+			break
+	
+	_update_category_button_visuals()
 
 # ============================================================================
 # PUBLIC API
@@ -183,8 +210,12 @@ func _get_filtered_items() -> Array:
 	
 	return filtered
 
-func _create_item_button(item: Dictionary) -> TextureButton:
-	"""Create a button for an inventory item with rarity shader"""
+func _create_item_button(item: Dictionary) -> Control:
+	"""Create a button for an inventory item with rarity shader and equipped overlay"""
+	# Wrapper so we can layer the overlay
+	var wrapper = Control.new()
+	wrapper.custom_minimum_size = Vector2(80, 80)
+	
 	var btn = TextureButton.new()
 	btn.custom_minimum_size = Vector2(80, 80)
 	btn.ignore_texture_size = true
@@ -204,28 +235,61 @@ func _create_item_button(item: Dictionary) -> TextureButton:
 	if use_rarity_shaders and rarity_shader and rarity_colors:
 		_apply_rarity_shader_to_button(btn, item)
 	
-	btn.pressed.connect(_on_item_button_pressed.bind(item))
+	btn.pressed.connect(_on_item_button_pressed.bind(item, btn))
+	wrapper.add_child(btn)
 	
-	return btn
+	# Equipped overlay
+	if player and player.is_item_equipped(item):
+		# Dim the icon slightly
+		btn.modulate = Color(0.6, 0.6, 0.6, 1.0)
+		
+		# "E" badge in top-right corner
+		var badge = Label.new()
+		badge.text = "E"
+		badge.add_theme_font_size_override("font_size", 14)
+		badge.add_theme_color_override("font_color", Color.WHITE)
+		badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		badge.custom_minimum_size = Vector2(20, 20)
+		badge.position = Vector2(58, 0)
+		
+		# Badge background
+		var badge_bg = Panel.new()
+		var style = StyleBoxFlat.new()
+		style.bg_color = Color(0.2, 0.6, 0.2, 0.9)
+		style.set_corner_radius_all(4)
+		badge_bg.add_theme_stylebox_override("panel", style)
+		badge_bg.custom_minimum_size = Vector2(20, 20)
+		badge_bg.position = Vector2(58, 0)
+		badge_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		
+		wrapper.add_child(badge_bg)
+		wrapper.add_child(badge)
+	
+	return wrapper
+
 
 func _apply_rarity_shader_to_button(button: TextureButton, item: Dictionary):
-	"""Apply rarity border shader to a button"""
-	# Create shader material
+	"""Apply rarity outline glow shader to a button"""
 	var shader_material = ShaderMaterial.new()
 	shader_material.shader = rarity_shader
 	
-	# Get rarity color
 	var rarity_name = item.get("rarity", "Common")
-	var border_color = rarity_colors.get_color_for_rarity(rarity_name)
+	var color = rarity_colors.get_color_for_rarity(rarity_name)
 	
-	# Set shader parameters
-	shader_material.set_shader_parameter("border_color", border_color)
-	shader_material.set_shader_parameter("border_width", border_width)
+	shader_material.set_shader_parameter("border_color", color)
+	shader_material.set_shader_parameter("glow_radius", glow_radius)
+	shader_material.set_shader_parameter("glow_softness", glow_softness)
+	shader_material.set_shader_parameter("glow_width", glow_width)
 	shader_material.set_shader_parameter("glow_strength", glow_strength)
+	shader_material.set_shader_parameter("glow_blend", glow_blend)
+	shader_material.set_shader_parameter("glow_saturation", glow_saturation)
 	shader_material.set_shader_parameter("pulse_speed", pulse_speed)
+	shader_material.set_shader_parameter("pulse_amount", pulse_amount)
 	
-	# Apply material
 	button.material = shader_material
+
 
 func _get_item_type_color(item: Dictionary) -> Color:
 	"""Get color for item type (fallback when no icon)"""
@@ -251,7 +315,7 @@ func _update_item_details():
 	var image_rects = item_details_panel.find_children("*Image*", "TextureRect", true, false)
 	var desc_labels = item_details_panel.find_children("*Desc*", "Label", true, false)
 	var affix_containers = item_details_panel.find_children("*Affix*", "VBoxContainer", true, false)
-	var action_buttons_containers = item_details_panel.find_children("ActionButtons", "HBoxContainer", true, false)
+	var action_buttons_containers = find_children("ActionButtons", "HBoxContainer", true, false)
 	
 	print("  Found %d ActionButtons containers" % action_buttons_containers.size())
 	
@@ -302,41 +366,40 @@ func _update_item_details():
 		desc_labels[0].text = selected_item.get("description", "No description.")
 	
 	# Show affixes
-	if affix_containers.size() > 0 and selected_item.has("affixes"):
+	if affix_containers.size() > 0:
 		var affix_container = affix_containers[0]
 		for child in affix_container.get_children():
 			child.queue_free()
 		
-		for affix in selected_item.affixes:
-			var affix_display = _create_affix_display(affix)
-			affix_container.add_child(affix_display)
-	
-	# Show set info
-	if affix_containers.size() > 0 and selected_item.has("set_definition"):
-		var affix_container = affix_containers[0]
-		var set_def: SetDefinition = selected_item.get("set_definition")
-		if set_def:
-			# Set header
-			var set_header = Label.new()
-			var equipped_count: int = 0
-			if player and player.set_tracker:
-				equipped_count = player.set_tracker.get_equipped_count(set_def.set_id)
-			set_header.text = "%s (%d/%d)" % [set_def.set_name, equipped_count, set_def.get_total_pieces()]
-			set_header.add_theme_font_size_override("font_size", 14)
-			set_header.add_theme_color_override("font_color", set_def.set_color)
-			affix_container.add_child(set_header)
-			
-			# Threshold bonuses
-			for threshold in set_def.thresholds:
-				var is_active = player and player.set_tracker and player.set_tracker.is_threshold_active(set_def.set_id, threshold.required_pieces)
-				var threshold_label = Label.new()
-				var prefix = "✓" if is_active else "✗"
-				threshold_label.text = "  %s (%d) %s" % [prefix, threshold.required_pieces, threshold.description]
-				threshold_label.add_theme_font_size_override("font_size", 12)
-				threshold_label.add_theme_color_override("font_color", Color.GREEN if is_active else Color(0.4, 0.4, 0.4))
-				threshold_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-				affix_container.add_child(threshold_label)
-	
+		if selected_item.has("affixes"):
+			for affix in selected_item.affixes:
+				var affix_display = _create_affix_display(affix)
+				affix_container.add_child(affix_display)
+		
+		# Show set info
+		if selected_item.has("set_definition"):
+			var set_def: SetDefinition = selected_item.get("set_definition")
+			if set_def:
+				# Set header
+				var set_header = Label.new()
+				var equipped_count: int = 0
+				if player and player.set_tracker:
+					equipped_count = player.set_tracker.get_equipped_count(set_def.set_id)
+				set_header.text = "%s (%d/%d)" % [set_def.set_name, equipped_count, set_def.get_total_pieces()]
+				#set_header.add_theme_font_size_override("font_size", 14)
+				set_header.add_theme_color_override("font_color", set_def.set_color)
+				affix_container.add_child(set_header)
+				
+				# Threshold bonuses
+				for threshold in set_def.thresholds:
+					var is_active = player and player.set_tracker and player.set_tracker.is_threshold_active(set_def.set_id, threshold.required_pieces)
+					var threshold_label = Label.new()
+					var prefix = "✓" if is_active else "✗"
+					threshold_label.text = "  %s (%d) %s" % [prefix, threshold.required_pieces, threshold.description]
+					#threshold_label.add_theme_font_size_override("font_size", 12)
+					threshold_label.add_theme_color_override("font_color", Color.GREEN if is_active else Color(0.4, 0.4, 0.4))
+					threshold_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+					affix_container.add_child(threshold_label)
 	
 	# Determine which buttons to show
 	var is_equipment = selected_item.has("slot")
@@ -375,7 +438,12 @@ func _update_item_details():
 		if is_equipment:
 			print("  ✅ Showing Equip button")
 			equip_btn.show()
-			equip_btn.disabled = false  # CRITICAL: Make sure it's enabled!
+			equip_btn.disabled = false
+			# Toggle label based on equipped state
+			if player and player.is_item_equipped(selected_item):
+				equip_btn.text = "Unequip"
+			else:
+				equip_btn.text = "Equip"
 			print("    Button disabled state: %s" % equip_btn.disabled)
 			# Disconnect old connections
 			for connection in equip_btn.pressed.get_connections():
@@ -388,6 +456,7 @@ func _update_item_details():
 			print("  ❌ Hiding Equip button")
 			equip_btn.hide()
 
+
 func _create_affix_display(affix: Dictionary) -> PanelContainer:
 	"""Create a display panel for an affix"""
 	var panel = PanelContainer.new()
@@ -398,14 +467,14 @@ func _create_affix_display(affix: Dictionary) -> PanelContainer:
 	# Affix name
 	var name_label = Label.new()
 	name_label.text = affix.get("display_name", affix.get("name", "Unknown"))
-	name_label.add_theme_font_size_override("font_size", 13)
+	#name_label.add_theme_font_size_override("font_size", 13)
 	name_label.add_theme_color_override("font_color", Color(0.9, 0.7, 0.3))
 	vbox.add_child(name_label)
 	
 	# Affix description
 	var desc_label = Label.new()
 	desc_label.text = affix.get("description", "")
-	desc_label.add_theme_font_size_override("font_size", 11)
+	#desc_label.add_theme_font_size_override("font_size", 11)
 	desc_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(desc_label)
@@ -421,13 +490,24 @@ func _on_category_button_toggled(button_pressed: bool, category_name: String):
 	if button_pressed:
 		current_category = category_name
 		print("🎒 Category changed to: %s" % category_name)
+		_update_category_button_visuals()
 		refresh()
 
-func _on_item_button_pressed(item: Dictionary):
+func _on_item_button_pressed(item: Dictionary, button: TextureButton):
 	"""Item button clicked"""
 	selected_item = item
+	_highlight_selected_button(button)
 	_update_item_details()
 	item_selected.emit(item)  # Bubble up
+
+
+func _highlight_selected_button(button: TextureButton):
+	# Reset previous selection
+	if _selected_button and is_instance_valid(_selected_button):
+		_selected_button.modulate = Color.WHITE
+	# Highlight new selection
+	_selected_button = button
+	_selected_button.modulate = Color(1.2, 1.2, 0.8)  # Slight bright/warm tint
 
 func _on_use_item_pressed():
 	"""Use item button pressed"""
@@ -464,13 +544,22 @@ func _use_consumable(item: Dictionary):
 	refresh()
 
 func _on_equip_item_pressed():
-	"""Equip item button pressed"""
+	"""Equip/unequip item button pressed"""
 	print("🔘 Equip button pressed!")
 	print("  Selected item: %s" % selected_item.get("name", "Unknown"))
 	print("  Player exists: %s" % (player != null))
 	
 	if selected_item.is_empty() or not player:
 		print("  ❌ Cannot equip - selected_item empty or no player")
+		return
+	
+	if player.is_item_equipped(selected_item):
+		# Already equipped — unequip it
+		var slot = selected_item.get("slot", "")
+		if player.unequip_item(slot):
+			print("✅ Unequipped: %s" % selected_item.get("name", "Unknown"))
+			data_changed.emit()
+			refresh()
 		return
 	
 	print("  Attempting to equip...")
@@ -481,9 +570,17 @@ func _on_equip_item_pressed():
 		var item_name = selected_item.get("name", "Unknown")
 		print("✅ Equipped: %s" % item_name)
 		
-		item_equipped.emit(selected_item)  # Bubble up
-		data_changed.emit()  # Bubble up
-		selected_item = {}
+		item_equipped.emit(selected_item)
+		data_changed.emit()
 		refresh()
 	else:
 		print("❌ Failed to equip item")
+
+
+func _update_category_button_visuals():
+	"""Dim unselected category buttons to 50%"""
+	for button in category_buttons:
+		if button.button_pressed:
+			button.modulate = Color(1.0, 1.0, 1.0, 1.0)
+		else:
+			button.modulate = Color(1.0, 1.0, 1.0, 0.5)
