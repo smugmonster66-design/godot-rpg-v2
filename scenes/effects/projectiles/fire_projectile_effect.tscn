@@ -122,7 +122,7 @@ script = ExtResource("1_fic8k")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 material = ExtResource("2_sqr5j")
 sprite_frames = SubResource("SpriteFrames_3wtjc")
-frame_progress = 0.28688365
+frame_progress = 0.31295785
 
 [node name="GPUParticles2D" type="GPUParticles2D" parent="."]
 emitting = false

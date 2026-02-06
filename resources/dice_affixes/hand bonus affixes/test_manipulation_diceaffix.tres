@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=3 format=3 uid="uid://ddtrblaan05o6"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_qs2lu"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_irnhn"]
+
+[resource]
+script = ExtResource("2_irnhn")
+affix_name = "Left Boost +2"
+description = "Boosts the die to the left of this one +2 on roll."
+position_requirement = 3
+neighbor_target = 1
+effect_value = 2.0
+metadata/_custom_type_script = "uid://s6ivem1wgjrx"
