@@ -84,3 +84,46 @@ func _flash_color(color: Color):
 	var tween = create_tween()
 	tween.tween_property(self, "modulate", color, 0.1)
 	tween.tween_property(self, "modulate", Color.WHITE, 0.2)
+
+
+func set_display_value(val: int):
+	"""Override the displayed value without changing die_resource."""
+	if value_label:
+		value_label.text = str(val)
+
+
+func animate_value_to(new_val: int, duration: float = 0.25, flash_color: Color = Color.WHITE):
+	"""Animate the value label from its current displayed number to new_val.
+	
+	The number ticks through each integer for a satisfying count effect.
+	An optional flash_color pulses the label (green for gain, red for loss)."""
+	if not value_label:
+		return
+	
+	var current_text = value_label.text
+	var current_val = int(current_text) if current_text.is_valid_int() else new_val
+	if current_val == new_val:
+		return
+	
+	# Tick the number through each integer
+	var tick_tween = create_tween()
+	tick_tween.tween_method(
+		func(v: float):
+			if is_instance_valid(self) and value_label:
+				value_label.text = str(int(v)),
+		float(current_val), float(new_val), duration
+	)
+	
+	# Flash the label color
+	if flash_color != Color.WHITE and value_label:
+		var label_tween = value_label.create_tween()
+		label_tween.tween_property(value_label, "modulate", flash_color, duration * 0.3)
+		label_tween.tween_property(value_label, "modulate", Color.WHITE, duration * 0.7)
+	
+	# Scale pop on the label
+	var original_scale = value_label.scale if value_label.scale != Vector2.ZERO else Vector2.ONE
+	var pop_tween = value_label.create_tween()
+	pop_tween.tween_property(value_label, "scale", original_scale * 1.3, duration * 0.3) \
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	pop_tween.tween_property(value_label, "scale", original_scale, duration * 0.7) \
+		.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)

@@ -20,15 +20,22 @@ class_name DiceAffixSubEffect
 # VALUE CONFIGURATION
 # ============================================================================
 
+
 ## Static value for this sub-effect (like DiceAffix.effect_value).
 @export var effect_value: float = 0.0
 
 ## Where does the magnitude come from? Uses DiceAffix.ValueSource.
 @export var value_source: DiceAffix.ValueSource = DiceAffix.ValueSource.STATIC
 
+## Minimum absolute magnitude for this sub-effect. When non-zero, the resolved
+## value is clamped so its absolute value is at least this (preserving sign).
+## Example: Siphon with 25% drain + min_effect_magnitude=1 always drains at least 1.
+@export var min_effect_magnitude: float = 0.0
+
 ## Complex data for effects needing multiple values.
 ## Same format as DiceAffix.effect_data (tag names, thresholds, etc.)
 @export var effect_data: Dictionary = {}
+
 
 # ============================================================================
 # TARGET OVERRIDE

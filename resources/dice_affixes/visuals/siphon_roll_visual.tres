@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="AffixRollVisual" load_steps=2 format=3 uid="uid://d3uu2vnk22o50"]
+
+[ext_resource type="Script" uid="uid://c33s0iuxxiyrc" path="res://resources/data/affix_roll_visual.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+animation_type = 1
+projectile_color = Color(0.4, 1, 0.4, 0.9)
+trail_color = Color(0.48452926, 0.9063318, 0.48452926, 0.6)
+projectile_size = Vector2(28, 28)
+travel_duration = 0.35
+source_flash_color = Color(0.5, 1.5, 0.5, 1)
+source_scale_pulse = 1.15
+target_flash_color = Color(1.5, 0.5, 0.5, 1)
+target_scale_pulse = 1.1

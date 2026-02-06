@@ -8,6 +8,15 @@
 #   - Consumed dice (is_consumed == true) are skipped during activation collection
 #   - The full stable hand array is preserved for neighbor resolution
 #   - All other behavior unchanged from v2
+#
+# v2.2 CHANGELOG:
+#   - Added PARENT_TARGET_VALUE/PERCENT and SNAPSHOT_TARGET_VALUE/PERCENT ValueSources
+#   - Compound effects now snapshot ALL dice values before sub-effect iteration
+#     via context["_compound_snapshot"] (Dict[int, int]: die_index -> pre-mod value)
+#   - PARENT_TARGET_* resolves from parent affix's neighbor_target using snapshot
+#   - SNAPSHOT_TARGET_* resolves from the sub-effect's own target die using snapshot
+#   - _apply_sub_effect and _resolve_value_for_sub accept source_index + parent_affix
+#   - New helper: _get_parent_target_die() resolves first die from parent's neighbor_target
 extends RefCounted
 class_name DiceAffixProcessor
 
@@ -135,7 +144,7 @@ func process_trigger(dice: Array[DieResource], trigger: DiceAffix.Trigger, conte
 	return result
 
 # ============================================================================
-# COMPOUND EFFECT PROCESSING (v2)
+# COMPOUND EFFECT PROCESSING (v2, updated v2.2)
 # ============================================================================
 
 func _apply_compound_effect(dice: Array[DieResource], source_die: DieResource,
@@ -143,6 +152,15 @@ func _apply_compound_effect(dice: Array[DieResource], source_die: DieResource,
 		context: Dictionary, result: Dictionary):
 	"""Process all sub-effects of a compound affix."""
 	var total_dice = dice.size()
+	
+	# --- v2.2: Snapshot ALL dice values before any sub-effects modify them ---
+	# This enables symmetric steal/transfer effects and any sub-effect that
+	# needs pre-modification values of any die (own target, parent target, etc.).
+	# Keyed by die index for O(1) lookups.
+	var compound_snapshot := {}
+	for idx in range(total_dice):
+		compound_snapshot[idx] = dice[idx].get_total_value()
+	context["_compound_snapshot"] = compound_snapshot
 	
 	for sub in affix.sub_effects:
 		# Determine targets for this sub-effect
@@ -161,18 +179,21 @@ func _apply_compound_effect(dice: Array[DieResource], source_die: DieResource,
 			sub_multiplier *= cond_result.multiplier
 		
 		# Apply this sub-effect
-		_apply_sub_effect(dice, source_die, affix, sub, sub_targets, sub_multiplier, context, result)
+		_apply_sub_effect(dice, source_die, affix, sub, sub_targets, source_index, sub_multiplier, context, result)
+	
+	# Clean up snapshot from context
+	context.erase("_compound_snapshot")
 
 func _apply_sub_effect(dice: Array[DieResource], source_die: DieResource,
 		parent_affix: DiceAffix, sub: DiceAffixSubEffect, target_indices: Array[int],
-		multiplier: float, context: Dictionary, result: Dictionary):
+		source_index: int, multiplier: float, context: Dictionary, result: Dictionary):
 	"""Apply a single DiceAffixSubEffect to its targets."""
 	for target_index in target_indices:
 		if target_index < 0 or target_index >= dice.size():
 			continue
 		
 		var target_die = dice[target_index]
-		var resolved_value = _resolve_value_for_sub(sub, source_die, target_die, dice, context) * multiplier
+		var resolved_value = _resolve_value_for_sub(sub, source_die, target_die, target_index, dice, source_index, parent_affix, context) * multiplier
 		
 		_dispatch_effect(dice, source_die, target_die, target_index,
 			sub.effect_type, resolved_value, sub.effect_data, parent_affix, context, result)
@@ -187,7 +208,6 @@ func _apply_affix_effect(dice: Array[DieResource], source_die: DieResource,
 		affix: DiceAffix, target_indices: Array[int], condition_multiplier: float,
 		context: Dictionary, result: Dictionary):
 	"""Apply a single affix effect to target dice."""
-	
 	for target_index in target_indices:
 		if target_index < 0 or target_index >= dice.size():
 			continue
@@ -316,24 +336,68 @@ func _resolve_value(affix: DiceAffix, source_die: DieResource,
 	return affix.effect_value
 
 func _resolve_value_for_sub(sub: DiceAffixSubEffect, source_die: DieResource,
-		target_die: DieResource, dice: Array[DieResource], context: Dictionary) -> float:
-	"""Resolve the runtime value for a sub-effect based on its ValueSource."""
+		target_die: DieResource, target_index: int, dice: Array[DieResource],
+		source_index: int, parent_affix: DiceAffix, context: Dictionary) -> float:
+	"""Resolve the runtime value for a sub-effect based on its ValueSource.
+	Applies min_effect_magnitude clamping when configured."""
+	var raw: float
 	match sub.value_source:
 		DiceAffix.ValueSource.STATIC:
-			return sub.effect_value
+			raw = sub.effect_value
 		DiceAffix.ValueSource.SELF_VALUE:
-			return float(source_die.get_total_value())
+			raw = float(source_die.get_total_value())
 		DiceAffix.ValueSource.SELF_VALUE_FRACTION:
-			return float(source_die.get_total_value()) * sub.effect_value
+			raw = float(source_die.get_total_value()) * sub.effect_value
 		DiceAffix.ValueSource.NEIGHBOR_VALUE:
-			return float(target_die.get_total_value())
+			raw = float(target_die.get_total_value())
 		DiceAffix.ValueSource.NEIGHBOR_PERCENT:
-			return float(target_die.get_total_value()) * sub.effect_value
+			raw = float(target_die.get_total_value()) * sub.effect_value
 		DiceAffix.ValueSource.CONTEXT_USED_COUNT:
-			return float(context.get("used_count", 0)) * sub.effect_value
+			raw = float(context.get("used_count", 0)) * sub.effect_value
 		DiceAffix.ValueSource.SELF_TAGS:
-			return sub.effect_value
-	return sub.effect_value
+			raw = sub.effect_value
+		DiceAffix.ValueSource.PARENT_TARGET_VALUE:
+			var parent_target = _get_parent_target_die(parent_affix, source_index, dice)
+			if parent_target:
+				var snap = context.get("_compound_snapshot", {})
+				var pt_idx = dice.find(parent_target)
+				raw = float(snap.get(pt_idx, parent_target.get_total_value()))
+			else:
+				raw = float(target_die.get_total_value())
+		DiceAffix.ValueSource.PARENT_TARGET_PERCENT:
+			var parent_target = _get_parent_target_die(parent_affix, source_index, dice)
+			if parent_target:
+				var snap = context.get("_compound_snapshot", {})
+				var pt_idx = dice.find(parent_target)
+				raw = float(snap.get(pt_idx, parent_target.get_total_value())) * sub.effect_value
+			else:
+				raw = float(target_die.get_total_value()) * sub.effect_value
+		DiceAffix.ValueSource.SNAPSHOT_TARGET_VALUE:
+			var snap = context.get("_compound_snapshot", {})
+			raw = float(snap.get(target_index, target_die.get_total_value()))
+		DiceAffix.ValueSource.SNAPSHOT_TARGET_PERCENT:
+			var snap = context.get("_compound_snapshot", {})
+			raw = float(snap.get(target_index, target_die.get_total_value())) * sub.effect_value
+		_:
+			raw = sub.effect_value
+	
+	# Apply minimum magnitude clamping (preserves sign)
+	if sub.min_effect_magnitude > 0.0 and raw != 0.0:
+		if absf(raw) < sub.min_effect_magnitude:
+			raw = sub.min_effect_magnitude * signf(raw)
+	
+	return raw
+
+
+func _get_parent_target_die(parent_affix: DiceAffix, source_index: int,
+		dice: Array[DieResource]) -> DieResource:
+	"""Resolve the first die from the parent affix's neighbor_target.
+	Used by PARENT_TARGET_VALUE/PERCENT so a sub-effect targeting SELF
+	can derive its value from the parent's target (e.g. LEFT neighbor)."""
+	var parent_targets = parent_affix.get_target_indices(source_index, dice.size())
+	if parent_targets.size() > 0 and parent_targets[0] >= 0 and parent_targets[0] < dice.size():
+		return dice[parent_targets[0]]
+	return null
 
 # ============================================================================
 # VALUE EFFECT IMPLEMENTATIONS

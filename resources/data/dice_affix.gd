@@ -101,6 +101,10 @@ enum ValueSource {
 	NEIGHBOR_PERCENT,    # Targeted neighbor's get_total_value() * effect_value
 	CONTEXT_USED_COUNT,  # context.used_count * effect_value
 	SELF_TAGS,           # For tag-copy effects: uses source die's tags
+	PARENT_TARGET_VALUE,   # (v2.1) First die from parent affix's neighbor_target — raw value
+	PARENT_TARGET_PERCENT, # (v2.1) First die from parent affix's neighbor_target — value * effect_value
+	SNAPSHOT_TARGET_VALUE,
+	SNAPSHOT_TARGET_PERCENT,
 }
 
 enum VisualEffectType {
@@ -276,6 +280,17 @@ enum ValueEffectType {
 ## Effects that only appear on the drag preview, not the normal die display
 ## Add PreviewEffect resources here - each one can have fill/stroke/label effects
 @export var preview_effects: Array[PreviewEffect] = []
+
+
+# ============================================================================
+# ROLL VISUAL EFFECT (v2.2) — animated effect on affix activation
+# ============================================================================
+@export_group("Roll Animation")
+## Optional visual animation played when this affix activates.
+## Supports projectiles between dice, flash/pulse on source and/or target.
+@export var roll_visual: AffixRollVisual = null
+
+
 
 # ============================================================================
 # SOURCE TRACKING

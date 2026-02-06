@@ -34,6 +34,7 @@ var temp_animation_visuals: Array[Control] = []
 
 var roll_animator: CombatRollAnimator = null
 
+var affix_visual_animator: AffixVisualAnimator = null
 
 # ============================================================================
 # STATE
@@ -262,8 +263,36 @@ func initialize_ui(p_player: Player, p_enemies):
 	roll_animator = CombatRollAnimator.new()
 	roll_animator.name = "RollAnimator"
 	add_child(roll_animator)
-	roll_animator.initialize(dice_pool_display)
+	
+	# Initialize with hand display + optional pool grid for source positions
+	var bottom_ui_grid = _find_pool_dice_grid()
+	roll_animator.initialize(dice_pool_display, bottom_ui_grid)
+	
+	# --- v2.2: Affix visual animator (roll effects, projectiles between dice) ---
+	affix_visual_animator = AffixVisualAnimator.new()
+	affix_visual_animator.name = "AffixVisualAnimator"
+	add_child(affix_visual_animator)
+	if player and player.dice_pool and "affix_processor" in player.dice_pool and player.dice_pool.affix_processor:
+		affix_visual_animator.initialize(dice_pool_display, player.dice_pool.affix_processor, roll_animator)
+		print("  ✅ AffixVisualAnimator initialized")
+	else:
+		push_warning("CombatUI: Could not initialize AffixVisualAnimator — no affix_processor found")
+	
+	print("🎮 CombatUI initialization complete")
 
+
+
+func _setup_affix_visual_animator():
+	affix_visual_animator = AffixVisualAnimator.new()
+	affix_visual_animator.name = "AffixVisualAnimator"
+	add_child(affix_visual_animator)
+	
+	# Get the processor from the player's dice collection
+	var processor = player.dice_pool.affix_processor
+	affix_visual_animator.initialize(dice_pool_display, processor)
+	
+	
+	
 	# Initialize with hand display + optional pool grid for source positions
 	var bottom_ui_grid = _find_pool_dice_grid()
 	roll_animator.initialize(dice_pool_display, bottom_ui_grid)

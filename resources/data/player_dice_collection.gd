@@ -67,6 +67,14 @@ var _current_turn: int = 0
 ## We defer destruction to avoid modifying the pool mid-iteration.
 var _pending_destructions: Array[int] = []  # pool slot indices
 
+
+## Deferred value changes from roll affixes + combat modifiers.
+## Populated by roll_hand(), consumed by AffixVisualAnimator during playback.
+## Format: {die_index: {from: int, to: int}}
+var pending_value_animations: Dictionary = {}
+
+
+
 # ============================================================================
 # LEGACY COMPATIBILITY
 # ============================================================================
@@ -260,8 +268,12 @@ func _process_reorder_affixes():
 # ============================================================================
 
 func roll_hand():
-	"""Roll the HAND from POOL - call at start of each combat turn.
-	Creates rolled copies of each pool die. Resets all consumed state."""
+	"""Roll dice from pool into hand for this combat turn.
+	Creates rolled copies of each pool die. Resets all consumed state.
+	
+	v2.3: Deferred value display — affixes process normally but dice are
+	reverted to pre-affix values before hand_rolled is emitted. The visual
+	animator animates values to final during affix visual playback."""
 	_current_turn += 1
 	print("🎲 Rolling hand from pool (%d dice)... [Turn %d]" % [dice.size(), _current_turn])
 	
@@ -269,41 +281,56 @@ func roll_hand():
 	hand.clear()
 	used_pool_indices.clear()
 	_pending_destructions.clear()
+	pending_value_animations.clear()
 	
 	# Create rolled copies of each pool die
 	for i in range(dice.size()):
 		var pool_die = dice[i]
 		var hand_die = _create_hand_die(pool_die, i)
 		hand_die.roll()
-		hand_die.is_consumed = false  # Explicitly reset consumed state
+		hand_die.is_consumed = false
 		hand.append(hand_die)
 		print("  [%d] %s rolled %d" % [i, hand_die.display_name, hand_die.get_total_value()])
 	
 	_original_hand_size = hand.size()
 	
-	# Process ON_ROLL affixes on the hand
+	# === Snapshot base rolled values BEFORE any modifications ===
+	var pre_values: Dictionary = {}
+	for i in range(hand.size()):
+		pre_values[i] = hand[i].get_total_value()
+	
+	# Process ON_ROLL affixes on the hand (modifies values on DieResource)
 	if affix_processor:
 		print("  Processing roll affixes...")
 		var ctx = _build_context()
 		var result = affix_processor.process_trigger(hand, DiceAffix.Trigger.ON_ROLL, ctx)
 		_handle_affix_results(result)
 	
-	# --- v2: Apply persistent combat modifiers ---
+	# Apply persistent combat modifiers (also modifies values)
 	_apply_combat_modifiers()
 	
-	# Print final values
-	print("🎲 Hand ready (%d dice):" % hand.size())
-	for die in hand:
-		var affix_mod = ""
-		if die.modified_value != die.current_value:
-			affix_mod = " (base %d)" % die.current_value
-		print("  %s = %d%s" % [die.display_name, die.get_total_value(), affix_mod])
+	# === Build deferred value changes and revert to base ===
+	for i in range(hand.size()):
+		var post_val = hand[i].get_total_value()
+		if pre_values[i] != post_val:
+			pending_value_animations[i] = {"from": pre_values[i], "to": post_val}
+			# Revert die to pre-affix value for initial display
+			hand[i].modified_value = pre_values[i]
 	
-	# FIX: Only emit hand_rolled — both signals route to _request_refresh()
-	# in DicePoolDisplay, so emitting hand_changed too risks a second
-	# deferred refresh that restarts the entrance animation.
+	if not pending_value_animations.is_empty():
+		print("  🎬 Deferred %d value animations for visual playback" % pending_value_animations.size())
+		for idx in pending_value_animations:
+			var c = pending_value_animations[idx]
+			print("    [%d] %d → %d" % [idx, c.from, c.to])
+	
+	# Print current (pre-affix) values
+	print("🎲 Hand ready (%d dice) — showing base values:" % hand.size())
+	for die in hand:
+		print("  %s = %d" % [die.display_name, die.get_total_value()])
+	
+	# Emit hand_rolled — visuals will show base values.
+	# AffixVisualAnimator will animate to final values during playback.
 	hand_rolled.emit(hand.duplicate())
-
 func _create_hand_die(pool_die: DieResource, pool_index: int) -> DieResource:
 	"""Create a hand die as a copy of a pool die"""
 	var hand_die = pool_die.duplicate_die()

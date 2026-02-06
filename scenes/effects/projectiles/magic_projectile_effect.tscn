@@ -119,7 +119,7 @@ script = ExtResource("1_nlhed")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_pdtbf")
-frame_progress = 0.66048384
+frame_progress = 0.99691385
 
 [node name="GPUParticles2D" type="GPUParticles2D" parent="."]
 emitting = false
