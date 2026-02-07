@@ -35,7 +35,7 @@ var _effects_container: Control = null
 # ============================================================================
 var _active_animations: int = 0
 
-## Pending activations queued when visuals don't exist yet (e.g. during roll_hand).
+## Pending activations queued when affix_activated fires during a roll.
 ## Flushed after CombatRollAnimator completes or when flush_pending() is called.
 var _pending_activations: Array[Dictionary] = []
 
@@ -81,27 +81,21 @@ func initialize(hand_display: DicePoolDisplay, processor: DiceAffixProcessor, ro
 # ============================================================================
 
 func _on_affix_activated(source_die: DieResource, affix: DiceAffix, targets: Array[int]):
-	"""Called when any affix fires. Queue if visuals don't exist yet, play if they do."""
+	"""Called when any affix fires. Always queues for playback after roll completes."""
 	if not affix.roll_visual:
 		return
 	if affix.roll_visual.animation_type == AffixRollVisual.AnimationType.NONE:
 		return
 	
-	var source_visual = _get_die_visual(source_die.slot_index)
-	
-	if not source_visual:
-		# Visuals not created yet (e.g. during roll_hand before refresh).
-		# Queue for playback after roll animation reveals the dice.
-		_pending_activations.append({
-			"source_slot": source_die.slot_index,
-			"roll_visual": affix.roll_visual,
-			"targets": targets.duplicate(),
-		})
-		print("  🎬 AffixVisualAnimator: Queued %s (visuals pending)" % affix.affix_name)
-		return
-	
-	# Visuals exist — play immediately
-	_play_activation(affix.roll_visual, source_die.slot_index, targets)
+	# Always queue — on turn 2+ stale visuals may still exist when this fires,
+	# and playing immediately would target nodes about to be destroyed by refresh.
+	# flush_pending() plays them once fresh visuals are guaranteed to exist.
+	_pending_activations.append({
+		"source_slot": source_die.slot_index,
+		"roll_visual": affix.roll_visual,
+		"targets": targets.duplicate(),
+	})
+	print("  🎬 AffixVisualAnimator: Queued %s" % affix.affix_name)
 
 
 func _on_roll_animation_complete():
@@ -133,22 +127,10 @@ func flush_pending():
 
 
 func _play_activation(rv: AffixRollVisual, source_slot: int, targets: Array):
-	"""Resolve visuals from slot indices and play the animation.
-	Skips playback if no actual value changes occurred for involved dice."""
+	"""Resolve visuals from slot indices and play the animation."""
 	var source_visual = _get_die_visual(source_slot)
 	if not source_visual:
-		print("  ⚠️ AffixVisualAnimator: Still no visual for source index %d" % source_slot)
-		return
-	
-	# Skip visual if no actual value changes occurred for any involved dice
-	var has_any_change = not _get_value_change(source_slot).is_empty()
-	if not has_any_change:
-		for t_idx in targets:
-			if not _get_value_change(t_idx).is_empty():
-				has_any_change = true
-				break
-	if not has_any_change:
-		print("  🎬 AffixVisualAnimator: Skipping visual — no value change")
+		print("  ⚠️ AffixVisualAnimator: No visual for source index %d" % source_slot)
 		return
 	
 	# Collect target visuals
@@ -162,8 +144,10 @@ func _play_activation(rv: AffixRollVisual, source_slot: int, targets: Array):
 	if target_visuals.is_empty():
 		target_visuals.append(source_visual)
 	
-	# Play the visual (non-blocking fire-and-forget, tracked by counter)
+	# Play the visual — affix_activated already confirmed the affix fired,
+	# so always play. Value animations are applied if available but aren't required.
 	await _play_roll_visual(rv, source_visual, target_visuals)
+
 
 # ============================================================================
 # DEFERRED VALUE ANIMATION
@@ -275,6 +259,8 @@ func _play_roll_visual(rv: AffixRollVisual, source: Control, targets: Array[Cont
 			await _play_die_effect_single(rv, source, false)
 		AffixRollVisual.AnimationType.ON_BOTH:
 			await _play_both(rv, source, targets)
+		AffixRollVisual.AnimationType.SCATTER_CONVERGE:
+			await _play_scatter_converge(rv, source, targets)
 	
 	_active_animations -= 1
 	if _active_animations <= 0:
@@ -386,6 +372,102 @@ func _play_projectile(rv: AffixRollVisual, source: Control, targets: Array[Contr
 	# Wait for target effect to finish
 	if rv.target_effect_duration > 0:
 		await get_tree().create_timer(rv.target_effect_duration).timeout
+
+
+# ============================================================================
+# SCATTER-CONVERGE ANIMATION (Combat Effect System v3)
+# ============================================================================
+
+func _play_scatter_converge(rv: AffixRollVisual, source: Control, targets: Array[Control]):
+	"""Play scatter-converge effect between source and target dice.
+	Particles scatter from one die and converge on the other.
+	Direction is controlled by rv.combat_effect_direction."""
+	
+	if not rv.combat_effect_preset:
+		push_warning("AffixVisualAnimator: SCATTER_CONVERGE has no combat_effect_preset")
+		return
+	
+	var target = targets[0] if targets.size() > 0 else null
+	if not target or not is_instance_valid(target):
+		return
+	
+	# Determine scatter/converge positions based on direction
+	var scatter_node: Control   # Die particles scatter FROM
+	var converge_node: Control  # Die particles converge ON
+	
+	if rv.combat_effect_direction == AffixRollVisual.ProjectileDirection.TARGET_TO_SOURCE:
+		# Siphon: scatter from neighbor (target), converge on self (source)
+		scatter_node = target
+		converge_node = source
+	else:
+		# Push/curse: scatter from self (source), converge on neighbor (target)
+		scatter_node = source
+		converge_node = target
+	
+	var scatter_center = scatter_node.global_position + scatter_node.size / 2.0
+	var converge_center = converge_node.global_position + converge_node.size / 2.0
+	
+	# --- Flash/pulse on scatter origin (drain feedback) ---
+	if rv.combat_effect_direction == AffixRollVisual.ProjectileDirection.TARGET_TO_SOURCE:
+		# Target gets drained — flash red
+		_flash_die(scatter_node, rv.target_flash_color, rv.target_scale_pulse, rv.target_effect_duration)
+		# Animate target value change (drain down)
+		var drain_change = _get_value_change_for_visual(scatter_node)
+		if not drain_change.is_empty():
+			_animate_die_value(scatter_node, drain_change, rv.target_effect_duration)
+	else:
+		_flash_die(scatter_node, rv.source_flash_color, rv.source_scale_pulse, rv.source_effect_duration)
+		var source_change = _get_value_change_for_visual(scatter_node)
+		if not source_change.is_empty():
+			_animate_die_value(scatter_node, source_change, rv.source_effect_duration)
+	
+	# --- Build particle appearance info ---
+	# Only pass die texture if scatter_use_die_texture is enabled on the roll visual.
+	# Otherwise particles use the generated soft circle glow (energy orbs).
+	var die_info: Dictionary = {}
+	var particle_color: Color = rv.projectile_color if rv.projectile_color != Color.WHITE else Color(0.4, 1.0, 0.4, 0.9)
+	die_info["tint"] = particle_color
+	# Pass tint as element color so the base_shape glow matches instead of defaulting to white
+	die_info["element"] = particle_color
+	
+	if rv.scatter_use_die_texture:
+		# Pass die face texture so particles look like tiny die copies
+		if scatter_node is DieObjectBase:
+			if scatter_node.die_resource:
+				die_info["fill_texture"] = scatter_node.die_resource.fill_texture
+				die_info["element"] = scatter_node.die_resource.element
+			if scatter_node.fill_texture:
+				die_info["fill_material"] = scatter_node.fill_texture.material
+		elif "die_data" in scatter_node and scatter_node.die_data:
+			die_info["fill_texture"] = scatter_node.die_data.fill_texture
+			die_info["element"] = scatter_node.die_data.element
+	
+	# --- Spawn the scatter-converge effect ---
+	var preset = rv.combat_effect_preset
+	var container: Control = _effects_container
+	
+	var effect = ScatterConvergeEffect.new()
+	container.add_child(effect)
+	effect.configure(preset, scatter_center, converge_center, die_info)
+	
+	# Connect impact signal for arrival feedback
+	if effect.has_signal("impact"):
+		effect.impact.connect(func():
+			# Flash/pulse on converge destination (gain feedback)
+			if rv.combat_effect_direction == AffixRollVisual.ProjectileDirection.TARGET_TO_SOURCE:
+				_flash_die(converge_node, rv.source_flash_color, rv.source_scale_pulse, rv.source_effect_duration)
+				var gain_change = _get_value_change_for_visual(converge_node)
+				if not gain_change.is_empty():
+					_animate_die_value(converge_node, gain_change, rv.source_effect_duration)
+			else:
+				_flash_die(converge_node, rv.target_flash_color, rv.target_scale_pulse, rv.target_effect_duration)
+				var target_change = _get_value_change_for_visual(converge_node)
+				if not target_change.is_empty():
+					_animate_die_value(converge_node, target_change, rv.target_effect_duration)
+		, CONNECT_ONE_SHOT)
+	
+	effect.play()
+	await effect.finished
 
 
 # ============================================================================
@@ -727,10 +809,14 @@ func _get_die_visual(die_index: int) -> Control:
 	"""Resolve a hand die index to its CombatDieObject visual node."""
 	if not dice_pool_display:
 		return null
-	
-	if die_index >= 0 and die_index < dice_pool_display.die_visuals.size():
-		var visual = dice_pool_display.die_visuals[die_index]
-		if is_instance_valid(visual):
-			return visual
-	
+	if "die_visuals" in dice_pool_display:
+		var visuals = dice_pool_display.die_visuals
+		if die_index >= 0 and die_index < visuals.size():
+			var v = visuals[die_index]
+			if is_instance_valid(v):
+				return v
+	# Fallback: search children by slot_index
+	for child in dice_pool_display.get_children():
+		if child is CombatDieObject and child.slot_index == die_index:
+			return child
 	return null

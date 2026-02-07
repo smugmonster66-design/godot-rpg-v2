@@ -4,7 +4,7 @@
 [ext_resource type="Material" path="res://resources/materials/siphon_fill.tres" id="1_iveck"]
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_el40r"]
 [ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_4hdgg"]
-[ext_resource type="Resource" path="res://resources/dice_affixes/visuals/siphon_roll_visual.tres" id="3_6wk1v"]
+[ext_resource type="Resource" uid="uid://bvxyqaib3skdn" path="res://resources/dice_affixes/visuals/siphon_roll_visual.tres" id="3_6wk1v"]
 [ext_resource type="Material" path="res://resources/materials/siphon_stroke.tres" id="4_6wk1v"]
 [ext_resource type="Resource" uid="uid://rfqs21yyd26t" path="res://resources/dice_affixes/sub-effects/sub_siphon_gain.tres" id="6_papkd"]
 [ext_resource type="Resource" uid="uid://dlw5ujn5w7yyk" path="res://resources/dice_affixes/sub-effects/sub_siphon_drain.tres" id="7_ih2lc"]

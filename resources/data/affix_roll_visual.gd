@@ -2,11 +2,12 @@
 # Configures visual effects that play when an affix activates.
 # Attach to DiceAffix.roll_visual in the inspector.
 #
-# Supports four modes:
-#   PROJECTILE    — tween a visual between source ↔ target die
-#   ON_TARGET     — flash / pulse / particles on affected die(s)
-#   ON_SOURCE     — flash / pulse / particles on the affix owner
-#   ON_BOTH       — independent effects on source AND target(s)
+# Supports five modes:
+#   PROJECTILE        — tween a visual between source ↔ target die
+#   ON_TARGET         — flash / pulse / particles on affected die(s)
+#   ON_SOURCE         — flash / pulse / particles on the affix owner
+#   ON_BOTH           — independent effects on source AND target(s)
+#   SCATTER_CONVERGE  — scatter-converge particle burst (combat effect system v3)
 #
 # Custom scene overrides:
 #   projectile_scene    — replaces entire built-in projectile with a custom scene
@@ -23,11 +24,12 @@ class_name AffixRollVisual
 # ============================================================================
 
 enum AnimationType {
-	NONE,           ## No roll visual
-	PROJECTILE,     ## Tween a projectile between source ↔ target
-	ON_TARGET,      ## Play effect on target die only
-	ON_SOURCE,      ## Play effect on source die only
-	ON_BOTH,        ## Independent effects on source AND target
+	NONE,               ## No roll visual
+	PROJECTILE,         ## Tween a projectile between source ↔ target
+	ON_TARGET,          ## Play effect on target die only
+	ON_SOURCE,          ## Play effect on source die only
+	ON_BOTH,            ## Independent effects on source AND target
+	SCATTER_CONVERGE,   ## Scatter-converge particle burst (combat effect system v3)
 }
 
 enum ProjectileDirection {
@@ -127,6 +129,26 @@ enum ProjectileDirection {
 @export var target_shader: ShaderMaterial = null
 
 # ============================================================================
+# COMBAT EFFECT SYSTEM (v3) — new three-track effect pipeline
+# ============================================================================
+@export_group("Combat Effect")
+
+## Preset for scatter-converge or any CombatEffectPreset-based animation.
+## Used when animation_type == SCATTER_CONVERGE.
+## Drag a ScatterConvergePreset (or any CombatEffectPreset subclass) here.
+@export var combat_effect_preset: Resource = null
+
+## Direction for scatter-converge: which die scatters, which converges.
+## TARGET_TO_SOURCE = particles scatter FROM target, converge ON source (siphon).
+## SOURCE_TO_TARGET = particles scatter FROM source, converge ON target (push/curse).
+## Reuses the existing ProjectileDirection enum.
+@export var combat_effect_direction: ProjectileDirection = ProjectileDirection.TARGET_TO_SOURCE
+
+## When enabled, scatter-converge particles use tiny copies of the die face
+## texture instead of generated energy orbs. Great for shatter/consume effects.
+@export var scatter_use_die_texture: bool = false
+
+# ============================================================================
 # TIMING
 # ============================================================================
 @export_group("Timing")
@@ -142,10 +164,10 @@ enum ProjectileDirection {
 # ============================================================================
 
 func has_source_effect() -> bool:
-	return animation_type in [AnimationType.ON_SOURCE, AnimationType.ON_BOTH, AnimationType.PROJECTILE]
+	return animation_type in [AnimationType.ON_SOURCE, AnimationType.ON_BOTH, AnimationType.PROJECTILE, AnimationType.SCATTER_CONVERGE]
 
 func has_target_effect() -> bool:
-	return animation_type in [AnimationType.ON_TARGET, AnimationType.ON_BOTH, AnimationType.PROJECTILE]
+	return animation_type in [AnimationType.ON_TARGET, AnimationType.ON_BOTH, AnimationType.PROJECTILE, AnimationType.SCATTER_CONVERGE]
 
 func get_total_duration() -> float:
 	"""Estimated total duration for sequencing."""
@@ -158,4 +180,9 @@ func get_total_duration() -> float:
 			return start_delay + source_effect_duration
 		AnimationType.ON_TARGET:
 			return start_delay + target_effect_duration
+		AnimationType.SCATTER_CONVERGE:
+			# Estimate from preset if available, otherwise use a reasonable default
+			if combat_effect_preset and combat_effect_preset.has_method("get_total_duration"):
+				return start_delay + combat_effect_preset.get_total_duration()
+			return start_delay + 1.0
 	return 0.0

@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ScatterConvergePreset" load_steps=2 format=3 uid="uid://cgjts8okn71d"]
+
+[ext_resource type="Script" uid="uid://cmbegqqe1bg0y" path="res://resources/effects/scatter_converge_preset.gd" id="1_qkwap"]
+
+[resource]
+script = ExtResource("1_qkwap")
+particle_count = 8
+particle_size = Vector2(48, 48)
+scatter_duration = 0.15000000000000002
+scatter_radius_min = 20.0
+scatter_radius_max = 50.0
+directional_bias = 0.5
+scatter_spread_deg = 100.0
+hang_duration = 0.1
+hang_drift = 2.0
+converge_shrink = 0.4
+scatter_start_scale = 0.5
+scale_pop_duration = 0.04
+trails_enabled = true
+trail_count = 2
+trail_interval = 0.05
+trail_fade_duration = 0.1
+impact_flash_scale = 1.7
+base_shape_opacity = 0.9
+metadata/_custom_type_script = "uid://cmbegqqe1bg0y"
