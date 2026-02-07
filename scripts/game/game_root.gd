@@ -18,6 +18,9 @@ extends Node
 var player_menu: Control = null
 var post_combat_summary: Control = null
 
+# Add to node references section
+var portrait_controller: Control = null
+
 # ============================================================================
 # STATE
 # ============================================================================
@@ -59,25 +62,25 @@ func _check_existing_player():
 
 func _setup_persistent_ui():
 	"""Find and wire up persistent UI elements in PersistentUILayer"""
-
+	
 	# PlayerMenu — lives directly in PersistentUILayer
 	player_menu = ui_layer.find_child("PlayerMenu", true, false)
 	if player_menu:
 		player_menu.hide()
 		player_menu.z_index = -1
-
+		
 		# Position menu above the bottom panel
 		if bottom_panel:
 			player_menu.anchor_bottom = bottom_panel.anchor_top
 			player_menu.offset_bottom = bottom_panel.offset_top
-
+			
 		# Give BottomUIPanel the menu reference for toggle
 		if bottom_ui and bottom_ui.has_method("set_player_menu"):
 			bottom_ui.set_player_menu(player_menu)
 			print("  ✅ PlayerMenu wired to BottomUI")
 	else:
 		push_warning("GameRoot: PlayerMenu not found in PersistentUILayer!")
-
+		
 	# PostCombatSummary — also in PersistentUILayer
 	post_combat_summary = ui_layer.find_child("PostCombatSummary", true, false)
 	if post_combat_summary:
@@ -88,6 +91,16 @@ func _setup_persistent_ui():
 		print("  ✅ PostCombatSummary found")
 	else:
 		print("  ⚠️ PostCombatSummary not found in PersistentUILayer")
+	
+	# PortraitController — click-to-open menu
+	portrait_controller = ui_layer.find_child("PortraitContainer", true, false)
+	if portrait_controller and portrait_controller.has_signal("portrait_clicked"):
+		if not portrait_controller.portrait_clicked.is_connected(_on_portrait_clicked):
+			portrait_controller.portrait_clicked.connect(_on_portrait_clicked)
+		print("  ✅ PortraitController connected")
+	else:
+		print("  ⚠️ PortraitController not found or missing portrait_clicked signal")
+	
 
 func _on_player_created(player: Resource):
 	"""Called when GameManager creates the player"""
@@ -102,6 +115,18 @@ func _on_player_created(player: Resource):
 			push_warning("BottomUI has no initialize method")
 	else:
 		push_warning("bottom_ui is null!")
+		
+	
+	# Initialize portrait controller with player
+	if portrait_controller and portrait_controller.has_method("set_player"):
+		portrait_controller.set_player(player)
+		print("  ✅ PortraitController initialized with player")
+
+
+func _on_portrait_clicked():
+	"""Portrait clicked — toggle player menu"""
+	if player_menu and player_menu.has_method("toggle_menu") and GameManager.player:
+		player_menu.toggle_menu(GameManager.player)
 
 # ============================================================================
 # LAYER MANAGEMENT

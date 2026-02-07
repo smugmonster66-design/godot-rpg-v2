@@ -32,6 +32,8 @@ var game_root: Node = null
 # Combat results to pass to summary
 var last_combat_results: Dictionary = {}
 
+
+
 # ============================================================================
 # COMBAT ENCOUNTER SYSTEM
 # ============================================================================
@@ -147,6 +149,7 @@ func load_map_scene():
 	
 	scene_changed.emit(map_scene_instance)
 
+
 func load_combat_scene():
 	"""Load the combat scene (legacy mode)"""
 	print("⚔️ Loading combat scene...")
@@ -162,14 +165,13 @@ func load_combat_scene():
 		# Initialize after adding to tree
 		if combat_scene_instance.has_method("initialize_combat"):
 			combat_scene_instance.initialize_combat(player)
-		
-		
 	
 	# Hide map
 	if map_scene_instance:
 		map_scene_instance.hide()
 	
 	scene_changed.emit(combat_scene_instance)
+
 
 # ============================================================================
 # COMBAT ENCOUNTER SYSTEM

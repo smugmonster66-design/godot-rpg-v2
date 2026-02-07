@@ -29,29 +29,22 @@ func _ready():
 	_discover_ui_elements()
 	print("👤 CharacterTab: Ready")
 
+
 func _discover_ui_elements():
-	"""Discover UI elements via self-registration groups"""
+	"""Discover UI elements scoped to this tab's subtree"""
 	await get_tree().process_frame  # Let children register themselves
 	
-	# Find labels by group
-	var labels = get_tree().get_nodes_in_group("character_tab_ui")
-	for label in labels:
-		match label.get_meta("ui_role", ""):
-			"class_label": class_label = label
-			"level_label": level_label = label
-			"exp_label": exp_label = label
-	
-	# Find progress bars
-	var bars = get_tree().get_nodes_in_group("character_tab_ui")
-	for bar in bars:
-		if bar.get_meta("ui_role", "") == "exp_bar":
-			exp_bar = bar
-	
-	# Find stats container
-	var containers = get_tree().get_nodes_in_group("character_tab_ui")
-	for container in containers:
-		if container.get_meta("ui_role", "") == "stats_container":
-			stats_container = container
+	# Find all tagged children within THIS tab only
+	var ui_nodes = find_children("*", "", true, false)
+	for node in ui_nodes:
+		if not node.is_in_group("character_tab_ui"):
+			continue
+		match node.get_meta("ui_role", ""):
+			"class_label": class_label = node
+			"level_label": level_label = node
+			"exp_label": exp_label = node
+			"exp_bar": exp_bar = node
+			"stats_container": stats_container = node
 	
 	# Log what we found
 	if class_label: print("  ✓ Class label registered")
@@ -59,8 +52,6 @@ func _discover_ui_elements():
 	if exp_label: print("  ✓ Exp label registered")
 	if exp_bar: print("  ✓ Exp bar registered")
 	if stats_container: print("  ✓ Stats container registered")
-
-# No _create_ui_structure() - we only use what's in the scene!
 
 # ============================================================================
 # PUBLIC API

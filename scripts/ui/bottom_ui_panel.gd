@@ -225,18 +225,3 @@ func refresh_dice():
 func refresh_stats():
 	"""Refresh the stats display"""
 	_update_stats_display()
-
-func set_portrait(texture: Texture2D):
-	"""Set the portrait texture"""
-	if portrait_texture:
-		portrait_texture.texture = texture
-
-func set_back_panel_style(style: StyleBox):
-	"""Set the back panel style (behind portrait)"""
-	if portrait_back_panel:
-		portrait_back_panel.add_theme_stylebox_override("panel", style)
-
-func set_front_panel_style(style: StyleBox):
-	"""Set the front panel style (frame in front of portrait)"""
-	if portrait_front_panel:
-		portrait_front_panel.add_theme_stylebox_override("panel", style)
