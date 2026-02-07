@@ -30,6 +30,8 @@ var dice_pool_display: DicePoolDisplay = null
 var _effects_layer: CanvasLayer = null
 var _effects_container: Control = null
 
+var effect_player: CombatEffectPlayer = null
+
 # ============================================================================
 # QUEUE — track active animations and deferred playback
 # ============================================================================
@@ -57,7 +59,7 @@ func _ready():
 	_effects_layer.add_child(_effects_container)
 
 
-func initialize(hand_display: DicePoolDisplay, processor: DiceAffixProcessor, roll_animator: CombatRollAnimator = null):
+func initialize(hand_display: DicePoolDisplay, processor: DiceAffixProcessor, roll_animator: CombatRollAnimator = null, p_effect_player: CombatEffectPlayer = null):
 	"""Connect to the processor's signal and store display reference.
 	Call during CombatUI setup, after the processor is created.
 	
@@ -382,54 +384,45 @@ func _play_scatter_converge(rv: AffixRollVisual, source: Control, targets: Array
 	"""Play scatter-converge effect between source and target dice.
 	Particles scatter from one die and converge on the other.
 	Direction is controlled by rv.combat_effect_direction."""
-	
-	if not rv.combat_effect_preset:
-		push_warning("AffixVisualAnimator: SCATTER_CONVERGE has no combat_effect_preset")
+	var target = targets[0] if targets.size() > 0 else source
+	if source == target:
+		# Self-targeting: just flash
+		_flash_die(source, rv.source_flash_color, rv.source_scale_pulse, rv.source_effect_duration)
+		var self_change = _get_value_change_for_visual(source)
+		if not self_change.is_empty():
+			_animate_die_value(source, self_change, rv.source_effect_duration)
+		if rv.source_effect_duration > 0:
+			await get_tree().create_timer(rv.source_effect_duration).timeout
 		return
-	
-	var target = targets[0] if targets.size() > 0 else null
-	if not target or not is_instance_valid(target):
-		return
-	
-	# Determine scatter/converge positions based on direction
-	var scatter_node: Control   # Die particles scatter FROM
-	var converge_node: Control  # Die particles converge ON
-	
+
+	# Determine scatter/converge based on direction
+	var scatter_node: Control
+	var converge_node: Control
 	if rv.combat_effect_direction == AffixRollVisual.ProjectileDirection.TARGET_TO_SOURCE:
-		# Siphon: scatter from neighbor (target), converge on self (source)
 		scatter_node = target
 		converge_node = source
 	else:
-		# Push/curse: scatter from self (source), converge on neighbor (target)
 		scatter_node = source
 		converge_node = target
-	
+
 	var scatter_center = scatter_node.global_position + scatter_node.size / 2.0
 	var converge_center = converge_node.global_position + converge_node.size / 2.0
-	
-	# --- Flash/pulse on scatter origin (drain feedback) ---
-	if rv.combat_effect_direction == AffixRollVisual.ProjectileDirection.TARGET_TO_SOURCE:
-		# Target gets drained — flash red
-		_flash_die(scatter_node, rv.target_flash_color, rv.target_scale_pulse, rv.target_effect_duration)
-		# Animate target value change (drain down)
-		var drain_change = _get_value_change_for_visual(scatter_node)
-		if not drain_change.is_empty():
-			_animate_die_value(scatter_node, drain_change, rv.target_effect_duration)
-	else:
-		_flash_die(scatter_node, rv.source_flash_color, rv.source_scale_pulse, rv.source_effect_duration)
-		var source_change = _get_value_change_for_visual(scatter_node)
-		if not source_change.is_empty():
-			_animate_die_value(scatter_node, source_change, rv.source_effect_duration)
-	
-	# --- Build particle appearance info ---
-	# Only pass die texture if scatter_use_die_texture is enabled on the roll visual.
-	# Otherwise particles use the generated soft circle glow (energy orbs).
+
+	# Flash + value animation on scatter origin (e.g. drained die goes 5→4)
+	_flash_die(scatter_node, rv.target_flash_color, rv.target_scale_pulse, rv.target_effect_duration)
+	var scatter_change = _get_value_change_for_visual(scatter_node)
+	if not scatter_change.is_empty():
+		_animate_die_value(scatter_node, scatter_change, rv.target_effect_duration)
+
+	# Build die_info for particle appearance
+	# When scatter_use_die_texture is off, particles use energy orbs tinted by projectile_color.
+	# Otherwise particles use the die face texture.
 	var die_info: Dictionary = {}
 	var particle_color: Color = rv.projectile_color if rv.projectile_color != Color.WHITE else Color(0.4, 1.0, 0.4, 0.9)
 	die_info["tint"] = particle_color
 	# Pass tint as element color so the base_shape glow matches instead of defaulting to white
 	die_info["element"] = particle_color
-	
+
 	if rv.scatter_use_die_texture:
 		# Pass die face texture so particles look like tiny die copies
 		if scatter_node is DieObjectBase:
@@ -441,19 +434,33 @@ func _play_scatter_converge(rv: AffixRollVisual, source: Control, targets: Array
 		elif "die_data" in scatter_node and scatter_node.die_data:
 			die_info["fill_texture"] = scatter_node.die_data.fill_texture
 			die_info["element"] = scatter_node.die_data.element
-	
-	# --- Spawn the scatter-converge effect ---
+
 	var preset = rv.combat_effect_preset
-	var container: Control = _effects_container
-	
-	var effect = ScatterConvergeEffect.new()
-	container.add_child(effect)
-	effect.configure(preset, scatter_center, converge_center, die_info)
-	
-	# Connect impact signal for arrival feedback
-	if effect.has_signal("impact"):
-		effect.impact.connect(func():
-			# Flash/pulse on converge destination (gain feedback)
+
+	# --- Play via CombatEffectPlayer if available, otherwise direct ---
+	if effect_player:
+		var scatter_idx = scatter_node.slot_index if "slot_index" in scatter_node else -1
+		var converge_idx = converge_node.slot_index if "slot_index" in converge_node else -1
+
+		var from_target: CombatEffectTarget
+		var to_target: CombatEffectTarget
+		if scatter_idx >= 0:
+			from_target = CombatEffectTarget.die(scatter_idx)
+		else:
+			from_target = CombatEffectTarget.position(scatter_center)
+		if converge_idx >= 0:
+			to_target = CombatEffectTarget.die(converge_idx)
+		else:
+			to_target = CombatEffectTarget.position(converge_center)
+
+		var eid = effect_player.play_scatter_converge_fire_and_forget(
+			preset, from_target, to_target, die_info
+		)
+
+		# Connect impact — filter by our effect ID, manual disconnect after
+		var impact_cb = func(id):
+			if id != eid:
+				return
 			if rv.combat_effect_direction == AffixRollVisual.ProjectileDirection.TARGET_TO_SOURCE:
 				_flash_die(converge_node, rv.source_flash_color, rv.source_scale_pulse, rv.source_effect_duration)
 				var gain_change = _get_value_change_for_visual(converge_node)
@@ -464,10 +471,40 @@ func _play_scatter_converge(rv: AffixRollVisual, source: Control, targets: Array
 				var target_change = _get_value_change_for_visual(converge_node)
 				if not target_change.is_empty():
 					_animate_die_value(converge_node, target_change, rv.target_effect_duration)
-		, CONNECT_ONE_SHOT)
-	
-	effect.play()
-	await effect.finished
+
+		effect_player.effect_impact.connect(impact_cb)
+
+		# Wait for OUR effect to finish (skip other effects' signals)
+		while true:
+			var finished_id = await effect_player.effect_finished
+			if finished_id == eid:
+				break
+
+		# Clean up impact callback
+		if effect_player.effect_impact.is_connected(impact_cb):
+			effect_player.effect_impact.disconnect(impact_cb)
+	else:
+		# Direct fallback — spawn ScatterConvergeEffect ourselves
+		var effect = ScatterConvergeEffect.new()
+		_effects_container.add_child(effect)
+		effect.configure(preset, scatter_center, converge_center, die_info)
+
+		if effect.has_signal("impact"):
+			effect.impact.connect(func():
+				if rv.combat_effect_direction == AffixRollVisual.ProjectileDirection.TARGET_TO_SOURCE:
+					_flash_die(converge_node, rv.source_flash_color, rv.source_scale_pulse, rv.source_effect_duration)
+					var gain_change = _get_value_change_for_visual(converge_node)
+					if not gain_change.is_empty():
+						_animate_die_value(converge_node, gain_change, rv.source_effect_duration)
+				else:
+					_flash_die(converge_node, rv.target_flash_color, rv.target_scale_pulse, rv.target_effect_duration)
+					var target_change = _get_value_change_for_visual(converge_node)
+					if not target_change.is_empty():
+						_animate_die_value(converge_node, target_change, rv.target_effect_duration)
+			, CONNECT_ONE_SHOT)
+
+		effect.play()
+		await effect.finished
 
 
 # ============================================================================

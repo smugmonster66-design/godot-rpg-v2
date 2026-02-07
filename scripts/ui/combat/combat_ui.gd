@@ -36,6 +36,7 @@ var roll_animator: CombatRollAnimator = null
 
 var affix_visual_animator: AffixVisualAnimator = null
 
+var effect_player: CombatEffectPlayer = null
 # ============================================================================
 # STATE
 # ============================================================================
@@ -273,12 +274,20 @@ func initialize_ui(p_player: Player, p_enemies):
 	affix_visual_animator.name = "AffixVisualAnimator"
 	add_child(affix_visual_animator)
 	if player and player.dice_pool and "affix_processor" in player.dice_pool and player.dice_pool.affix_processor:
-		affix_visual_animator.initialize(dice_pool_display, player.dice_pool.affix_processor, roll_animator)
+		affix_visual_animator.initialize(dice_pool_display, player.dice_pool.affix_processor, roll_animator, effect_player)
 		print("  ✅ AffixVisualAnimator initialized")
 	else:
 		push_warning("CombatUI: Could not initialize AffixVisualAnimator — no affix_processor found")
 	
 	print("🎮 CombatUI initialization complete")
+	
+	
+	# --- Combat effect player (general purpose visual effects) ---
+	effect_player = CombatEffectPlayer.new()
+	effect_player.name = "CombatEffectPlayer"
+	add_child(effect_player)
+	effect_player.initialize(dice_pool_display, enemy_panel, player_health_display)
+	print("  ✅ CombatEffectPlayer initialized")	
 
 
 
