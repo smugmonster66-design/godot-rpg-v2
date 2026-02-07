@@ -1,10 +1,11 @@
-[gd_scene load_steps=4 format=3 uid="uid://u4538t4heese"]
+[gd_scene load_steps=5 format=3 uid="uid://u4538t4heese"]
 
 [ext_resource type="Script" uid="uid://b6e5135cvd8vj" path="res://scripts/ui/menus/skills_tab.gd" id="1_l3cke"]
 [ext_resource type="PackedScene" uid="uid://oquaqbwome63" path="res://scenes/ui/menus/skill_button.tscn" id="2_5ah0g"]
 [ext_resource type="Script" uid="uid://d3gigfro8412y" path="res://scripts/ui/menus/skill_tree_canvas.gd" id="3_3is3b"]
+[ext_resource type="PackedScene" uid="uid://dmqxmg63alred" path="res://scenes/ui/menus/skill_popup.tscn" id="4_6r40r"]
 
-[node name="SkillsTab" type="Control" node_paths=PackedStringArray("skill_points_label", "class_name_label", "tree_points_label", "tree_tab_container", "tree_tab_1", "tree_tab_2", "tree_tab_3", "skill_canvas") groups=["player_menu_tab_content"]]
+[node name="SkillsTab" type="Control" node_paths=PackedStringArray("skill_points_label", "class_name_label", "tree_points_label", "tree_tab_container", "tree_tab_1", "tree_tab_2", "tree_tab_3", "skill_canvas", "skill_popup") groups=["player_menu_tab_content"]]
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_l3cke")
@@ -16,6 +17,7 @@ tree_tab_1 = NodePath("VBoxContainer/TreeTabContainer/TreeTab1")
 tree_tab_2 = NodePath("VBoxContainer/TreeTabContainer/TreeTab2")
 tree_tab_3 = NodePath("VBoxContainer/TreeTabContainer/TreeTab3")
 skill_canvas = NodePath("VBoxContainer/ScrollContainer/SkillTreeCanvas")
+skill_popup = NodePath("SkillPopup")
 metadata/_tab_index = 1
 metadata/tab_name = "Skills"
 
@@ -76,3 +78,6 @@ script = ExtResource("3_3is3b")
 draw_grid_bg = false
 skill_button_scene = ExtResource("2_5ah0g")
 metadata/_custom_type_script = "uid://d3gigfro8412y"
+
+[node name="SkillPopup" parent="." instance=ExtResource("4_6r40r")]
+layout_mode = 1

@@ -25,6 +25,9 @@ signal skill_learned(skill: SkillResource, new_rank: int)
 @export_group("Skill Canvas")
 @export var skill_canvas: SkillTreeCanvas
 
+@export_group("Skill Popup")
+@export var skill_popup: SkillPopup
+
 # ============================================================================
 # STATE
 # ============================================================================
@@ -39,6 +42,8 @@ func _ready():
 	_connect_tab_buttons()
 	if skill_canvas:
 		skill_canvas.skill_clicked.connect(_on_skill_clicked)
+	if skill_popup:
+		skill_popup.learn_pressed.connect(_on_popup_learn_pressed)
 	_show_tree(0)
 	print("🌳 SkillsTab: Ready")
 
@@ -238,17 +243,27 @@ func _update_all_skill_buttons():
 	skill_canvas.update_all_states(_get_skill_rank_callable(), points_spent)
 
 # ============================================================================
-# SKILL LEARNING
+# SKILL POPUP
 # ============================================================================
 
 func _on_skill_clicked(skill: SkillResource):
-	"""Handle skill button click"""
-	if not player or not player.active_class:
-		print("🌳 No player or class")
+	"""Handle skill button click — show popup with skill details."""
+	if not skill or not skill_popup:
 		return
 	
-	if not skill:
-		print("🌳 No skill on clicked button")
+	if not player or not player.active_class:
+		return
+	
+	var current_rank = _get_skill_rank(skill.skill_id)
+	var tree_points = _get_points_spent_in_current_tree()
+	var can_learn = skill.can_learn(_get_skill_rank_callable(), tree_points)
+	var available_points = player.active_class.get_available_skill_points()
+	
+	skill_popup.show_skill(skill, current_rank, can_learn, available_points)
+
+func _on_popup_learn_pressed(skill: SkillResource):
+	"""Handle Learn button press from popup."""
+	if not skill or not player or not player.active_class:
 		return
 	
 	var skill_id = skill.skill_id
@@ -260,7 +275,7 @@ func _on_skill_clicked(skill: SkillResource):
 		print("🌳 %s is already maxed (%d/%d)" % [skill.skill_name, current_rank, max_rank])
 		return
 	
-	# Check requirements using new system
+	# Check requirements
 	var tree_points = _get_points_spent_in_current_tree()
 	if not skill.can_learn(_get_skill_rank_callable(), tree_points):
 		print("🌳 Requirements not met for %s" % skill.skill_name)
@@ -276,6 +291,10 @@ func _on_skill_clicked(skill: SkillResource):
 		return
 	
 	_learn_skill(skill)
+
+# ============================================================================
+# SKILL LEARNING
+# ============================================================================
 
 func _log_missing_requirements(skill: SkillResource, tree_points: int):
 	"""Log detailed info about missing requirements"""
@@ -319,6 +338,14 @@ func _learn_skill(skill: SkillResource):
 	
 	skill_learned.emit(skill, new_rank)
 	refresh()
+	
+	# Refresh the popup to show updated rank/state
+	if skill_popup and skill_popup.visible:
+		var updated_rank = _get_skill_rank(skill_id)
+		var tree_points = _get_points_spent_in_current_tree()
+		var can_learn = skill.can_learn(_get_skill_rank_callable(), tree_points)
+		var available_points = player.active_class.get_available_skill_points()
+		skill_popup.show_skill(skill, updated_rank, can_learn, available_points)
 
 # ============================================================================
 # RESET

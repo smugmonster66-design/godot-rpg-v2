@@ -1,0 +1,107 @@
+[gd_scene load_steps=2 format=3 uid="uid://dmqxmg63alred"]
+
+[ext_resource type="Script" uid="uid://ck2sof202atyx" path="res://scripts/ui/menus/skill_popup.gd" id="1_xcuef"]
+
+[node name="SkillPopup" type="Control" node_paths=PackedStringArray("skill_name_label", "description_label", "rank_label", "cost_label", "prerequisites_label", "icon_rect", "overlay", "learn_button", "close_button")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_xcuef")
+skill_name_label = NodePath("Overlay/PopupPanel/MarginContainer/VBox/SkillNameLabel")
+description_label = NodePath("Overlay/PopupPanel/MarginContainer/VBox/DescriptionLabel")
+rank_label = NodePath("Overlay/PopupPanel/MarginContainer/VBox/StatsHBox/RankLabel")
+cost_label = NodePath("Overlay/PopupPanel/MarginContainer/VBox/StatsHBox/CostLabel")
+prerequisites_label = NodePath("Overlay/PopupPanel/MarginContainer/VBox/PrerequisitesLabel")
+icon_rect = NodePath("Overlay/PopupPanel/MarginContainer/VBox/IconRect")
+overlay = NodePath("Overlay")
+learn_button = NodePath("Overlay/PopupPanel/MarginContainer/VBox/ButtonsHBox/LearnButton")
+close_button = NodePath("Overlay/PopupPanel/MarginContainer/VBox/ButtonsHBox/CloseButton")
+
+[node name="Overlay" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PopupPanel" type="PanelContainer" parent="Overlay"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -250.0
+offset_right = 200.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Overlay/PopupPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Overlay/PopupPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="SkillNameLabel" type="Label" parent="Overlay/PopupPanel/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+
+[node name="IconRect" type="TextureRect" parent="Overlay/PopupPanel/MarginContainer/VBox"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+stretch_mode = 5
+
+[node name="DescriptionLabel" type="RichTextLabel" parent="Overlay/PopupPanel/MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+fit_content = true
+scroll_active = false
+
+[node name="StatsHBox" type="HBoxContainer" parent="Overlay/PopupPanel/MarginContainer/VBox"]
+layout_mode = 2
+
+[node name="RankLabel" type="Label" parent="Overlay/PopupPanel/MarginContainer/VBox/StatsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Rank XX"
+
+[node name="CostLabel" type="Label" parent="Overlay/PopupPanel/MarginContainer/VBox/StatsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Cost: XX"
+horizontal_alignment = 2
+
+[node name="PrerequisitesLabel" type="Label" parent="Overlay/PopupPanel/MarginContainer/VBox"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+text = "Requires: X"
+autowrap_mode = 2
+
+[node name="ButtonsHBox" type="HBoxContainer" parent="Overlay/PopupPanel/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="CloseButton" type="Button" parent="Overlay/PopupPanel/MarginContainer/VBox/ButtonsHBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Close"
+
+[node name="LearnButton" type="Button" parent="Overlay/PopupPanel/MarginContainer/VBox/ButtonsHBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Learn"

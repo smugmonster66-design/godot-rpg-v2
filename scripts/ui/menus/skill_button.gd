@@ -185,24 +185,3 @@ func _on_mouse_exited():
 # ============================================================================
 # TOOLTIP
 # ============================================================================
-
-func _make_custom_tooltip(for_text: String) -> Object:
-	# Return null to use default tooltip behavior
-	return null
-
-func _get_tooltip(at_position: Vector2) -> String:
-	if not skill:
-		return ""
-	
-	var tooltip = "[b]%s[/b]\n" % skill.skill_name
-	tooltip += skill.description + "\n\n"
-	tooltip += "Rank: %d / %d\n" % [current_rank, skill.get_max_rank()]
-	tooltip += "Cost: %d skill point(s)" % skill.skill_point_cost
-	
-	if skill.required_skills.size() > 0:
-		tooltip += "\n\nRequires:"
-		for req in skill.required_skills:
-			if req:
-				tooltip += "\n  • %s" % req.skill_name
-	
-	return tooltip
