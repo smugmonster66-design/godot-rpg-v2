@@ -19,14 +19,19 @@ var tab_content_panels: Dictionary = {}  # tab_name -> Control
 var current_tab_name: String = ""
 var close_button: Button = null
 
+var _content_area: Control = null
+var _tab_buttons: Control = null
+
+
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
 
 func _ready():
 	hide()
-	await get_tree().process_frame  # Wait for children to be ready
+	await get_tree().process_frame
 	_discover_and_connect_children()
+
 
 func _discover_and_connect_children():
 	"""Discover all menu components within our own subtree"""
@@ -41,7 +46,6 @@ func _discover_and_connect_children():
 			tab_buttons.append(button)
 			button.toggled.connect(_on_tab_button_toggled.bind(tab_name))
 			print("  ✓ Connected tab button: %s" % tab_name)
-
 	# --- Tab Content Panels ---
 	# Find controls with tab_name metadata that are in the content group
 	var all_controls = find_children("*", "Control", true, true)
@@ -54,6 +58,9 @@ func _discover_and_connect_children():
 				tab_content_panels[tab_name] = node
 				_register_tab(node)
 				print("  ✓ Registered content: %s" % tab_name)
+				# Cache for click-outside detection
+	_content_area = find_child("ContentArea", true, false)
+	_tab_buttons = find_child("TabButtons", true, false)
 
 	# --- Close Button ---
 	# Find by name within our subtree (owned=true to include scene-defined nodes)
@@ -199,6 +206,21 @@ func _on_skill_learned(skill: SkillResource, new_rank: int):
 # ============================================================================
 
 func _input(event):
-	if visible and event.is_action_pressed("ui_cancel"):
+	if not visible:
+		return
+
+	if event.is_action_pressed("ui_cancel"):
 		close_menu()
 		get_viewport().set_input_as_handled()
+		return
+
+	# Click outside visible menu content → close
+	if event is InputEventMouseButton and not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		var inside := false
+		if _content_area and _content_area.get_global_rect().has_point(event.position):
+			inside = true
+		if _tab_buttons and _tab_buttons.get_global_rect().has_point(event.position):
+			inside = true
+		if not inside:
+			close_menu()
+			get_viewport().set_input_as_handled()

@@ -405,7 +405,7 @@ func _update_ko_state():
 
 func _on_gui_input(event: InputEvent):
 	"""Handle click on portrait to open character sheet."""
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+	if event is InputEventMouseButton and not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		portrait_clicked.emit()
 		accept_event()
 

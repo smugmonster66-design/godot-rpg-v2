@@ -906,6 +906,7 @@ layout_mode = 2
 metadata/tab_name = "Quests"
 
 [node name="CloseButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 8
