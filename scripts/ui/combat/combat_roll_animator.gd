@@ -24,6 +24,16 @@ class_name CombatRollAnimator
 ## Size of the traveling projectile in pixels
 @export var projectile_size: Vector2 = Vector2(48, 48)
 
+
+@export_group("Scatter Converge")
+## Preset for the scatter-converge burst during roll reveals
+@export var roll_scatter_preset: ScatterConvergePreset = null
+## Optional base particle texture (soft circle). Null = auto-generated.
+@export var scatter_base_texture: Texture2D = null
+## Enable scatter-converge instead of plain projectile
+@export var use_scatter_converge: bool = true
+
+
 # ============================================================================
 # REFERENCES (set via initialize())
 # ============================================================================
@@ -304,47 +314,59 @@ func _animate_single_die_delayed(index: int, hand_visual: Control, target_center
 		_do_animate_die(index, hand_visual, target_center)
 
 func _do_animate_die(index: int, hand_visual: Control, target_center: Vector2):
-	"""Execute the three-phase animation for one die."""
 	if not is_instance_valid(hand_visual):
 		return
-	
+
 	var source_info = _get_source_info(index)
 	var source_center = source_info.get("global_center", Vector2.ZERO)
-	
-	# target_center is pre-captured/computed — do NOT read from hand_visual here
-	
-	# ── Phase 1: Flash/glow the pool die ──
+
+	# ── Phase 1: Flash the pool die ──
 	_flash_pool_die(source_info)
 	await get_tree().create_timer(flash_duration).timeout
-	
-	# ── Phase 2: Projectile travels from pool to hand slot ──
-	var projectile = _spawn_projectile(source_info)
-	projectile.global_position = source_center - projectile_size / 2
-	projectile.start_emitting()
-	
-	var travel_tween = create_tween()
-	travel_tween.tween_property(
-		projectile, "global_position",
-		target_center - projectile_size / 2,
-		travel_duration
-	).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC)
-	
-	await travel_tween.finished
-	
-	# ── Phase 3: Reveal hand die with pop, clean up projectile ──
-	projectile.stop_emitting()
-	
-	if projectile.visual:
-		projectile.visual.visible = false
-	
-	get_tree().create_timer(0.3).timeout.connect(
-		func():
-			if is_instance_valid(projectile):
-				projectile.queue_free(),
-		CONNECT_ONE_SHOT
-	)
-	
-	_reveal_hand_die(hand_visual)
+
+	# ── Phase 2: Travel (scatter-converge or plain projectile) ──
+	if use_scatter_converge and roll_scatter_preset:
+		# Build die_info dict with element data
+		var die_info = {
+			"fill_texture": source_info.get("fill_texture", null),
+			"fill_material": source_info.get("fill_material", null),
+			"tint": source_info.get("tint", Color.WHITE),
+			"element": source_info.get("element", 0),
+		}
+
+		var effect = ScatterConvergeEffect.new()
+		_projectile_container.add_child(effect)
+		effect.configure(roll_scatter_preset, source_center, target_center, die_info, scatter_base_texture)
+
+		# Connect impact signal for early reveal
+		effect.impact.connect(func(): _reveal_hand_die(hand_visual), CONNECT_ONE_SHOT)
+
+		await effect.finished
+	else:
+		# Original projectile path
+		var projectile = _spawn_projectile(source_info)
+		projectile.global_position = source_center - projectile_size / 2
+		projectile.start_emitting()
+
+		var travel_tween = create_tween()
+		travel_tween.tween_property(
+			projectile, "global_position",
+			target_center - projectile_size / 2,
+			travel_duration
+		).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC)
+		await travel_tween.finished
+
+		projectile.stop_emitting()
+		if projectile.visual:
+			projectile.visual.visible = false
+		get_tree().create_timer(0.3).timeout.connect(
+			func():
+				if is_instance_valid(projectile):
+					projectile.queue_free(),
+			CONNECT_ONE_SHOT
+		)
+		_reveal_hand_die(hand_visual)
+
 
 # ============================================================================
 # PHASE 1: POOL DIE FLASH
@@ -415,8 +437,9 @@ func _get_hand_visuals() -> Array:
 	return visuals
 
 func _get_source_info(die_index: int) -> Dictionary:
-	"""Get position, texture, material, and visual ref for a pool die slot.
+	"""Get position, texture, material, element, and visual ref for a pool die slot.
 	Falls back to bottom-center of viewport if pool grid unavailable.
+	Used by both RollProjectile and ScatterConvergeEffect.
 	"""
 	var info: Dictionary = {}
 	
@@ -436,6 +459,14 @@ func _get_source_info(die_index: int) -> Dictionary:
 				info["fill_texture"] = hv.die_resource.fill_texture
 			if hv is DieObjectBase and hv.fill_texture:
 				info["fill_material"] = hv.fill_texture.material
+	
+	# Element data for scatter-converge particle coloring
+	if not info.has("element") and dice_pool_display:
+		var hand_visuals = _get_hand_visuals()
+		if die_index < hand_visuals.size():
+			var hv = hand_visuals[die_index]
+			if hv is DieObjectBase and hv.die_resource:
+				info["element"] = hv.die_resource.element
 	
 	return info
 

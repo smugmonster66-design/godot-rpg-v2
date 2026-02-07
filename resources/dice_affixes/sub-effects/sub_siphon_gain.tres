@@ -6,5 +6,6 @@
 script = ExtResource("1_4wdug")
 effect_value = 0.25
 value_source = 8
+min_effect_magnitude = 1.0
 override_target = true
 metadata/_custom_type_script = "uid://dus4mn8lo7dm5"

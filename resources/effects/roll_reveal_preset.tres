@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="ScatterConvergePreset" load_steps=2 format=3 uid="uid://cts3x4u4gco0k"]
+
+[ext_resource type="Script" uid="uid://cmbegqqe1bg0y" path="res://resources/effects/scatter_converge_preset.gd" id="1_3imcy"]
+
+[resource]
+script = ExtResource("1_3imcy")

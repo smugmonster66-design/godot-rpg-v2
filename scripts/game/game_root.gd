@@ -12,6 +12,8 @@ extends Node
 @onready var map_scene: Node = $MapLayer/MapScene
 @onready var combat_scene: Node = $CombatLayer/CombatScene
 @onready var bottom_ui: Control = $PersistentUILayer/BottomUIPanel
+@onready var portrait_controller: PortraitController = $PersistentUILayer/PortraitVBox/PortraitContainer
+
 
 # Found from MapScene
 var player_menu: Control = null
@@ -85,21 +87,35 @@ func _setup_player_menu():
 func _on_player_created(player: Resource):
 	"""Called when GameManager creates the player"""
 	print("🎮 GameRoot: Player created, initializing UI")
-	print("  player: %s" % player)
-	print("  player.dice_pool: %s" % player.get("dice_pool"))
-	if player.dice_pool:
-		print("  dice_pool.dice.size(): %d" % player.dice_pool.dice.size())
-	print("  bottom_ui: %s" % bottom_ui)
 	
 	# Initialize BottomUI with player
 	if bottom_ui:
 		if bottom_ui.has_method("initialize"):
 			bottom_ui.initialize(player)
 			print("  ✅ BottomUI initialized with player")
+	
+	# Initialize portrait controller
+	if portrait_controller:
+		portrait_controller.set_player(player)
+		portrait_controller.portrait_clicked.connect(_on_portrait_clicked)
+		print("  ✅ PortraitController initialized with player")
+
+func _on_portrait_clicked():
+	"""Portrait clicked — open character sheet."""
+	if bottom_ui and bottom_ui.has_method("_on_menu_button_pressed"):
+		bottom_ui._on_menu_button_pressed()
+	elif player_menu:
+		if player_menu.visible:
+			if player_menu.has_method("close_menu"):
+				player_menu.close_menu()
+			else:
+				player_menu.hide()
 		else:
-			print("  ❌ BottomUI has no initialize method - is script attached?")
-	else:
-		print("  ❌ bottom_ui is null!")
+			if player_menu.has_method("open_menu") and GameManager.player:
+				player_menu.open_menu(GameManager.player)
+			else:
+				player_menu.show()
+
 
 # ============================================================================
 # LAYER MANAGEMENT

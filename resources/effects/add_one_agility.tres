@@ -1,8 +1,0 @@
-[gd_resource type="Resource" script_class="ActionEffect" load_steps=2 format=3 uid="uid://baoo2ina7fw41"]
-
-[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_rsha4"]
-
-[resource]
-script = ExtResource("1_rsha4")
-effect_name = "Agility"
-metadata/_custom_type_script = "uid://dqmfu54osidoc"

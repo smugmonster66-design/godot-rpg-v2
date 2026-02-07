@@ -94,9 +94,7 @@ func set_display_value(val: int):
 
 func animate_value_to(new_val: int, duration: float = 0.25, flash_color: Color = Color.WHITE):
 	"""Animate the value label from its current displayed number to new_val.
-	
-	The number ticks through each integer for a satisfying count effect.
-	An optional flash_color pulses the label (green for gain, red for loss)."""
+	The number ticks through each integer with a color flash."""
 	if not value_label:
 		return
 	
@@ -119,11 +117,3 @@ func animate_value_to(new_val: int, duration: float = 0.25, flash_color: Color =
 		var label_tween = value_label.create_tween()
 		label_tween.tween_property(value_label, "modulate", flash_color, duration * 0.3)
 		label_tween.tween_property(value_label, "modulate", Color.WHITE, duration * 0.7)
-	
-	# Scale pop on the label
-	var original_scale = value_label.scale if value_label.scale != Vector2.ZERO else Vector2.ONE
-	var pop_tween = value_label.create_tween()
-	pop_tween.tween_property(value_label, "scale", original_scale * 1.3, duration * 0.3) \
-		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-	pop_tween.tween_property(value_label, "scale", original_scale, duration * 0.7) \
-		.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
