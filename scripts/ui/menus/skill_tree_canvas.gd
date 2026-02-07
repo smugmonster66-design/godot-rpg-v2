@@ -41,7 +41,7 @@ const GRID_COLUMNS: int = 7
 # ============================================================================
 # STATE
 # ============================================================================
-## skill_id -> SkillButton node
+## skill_id -> SkillButton node (active buttons for current tree)
 var skill_buttons: Dictionary = {}
 ## skill_id -> SkillResource (for line drawing)
 var skill_map: Dictionary = {}
@@ -49,86 +49,96 @@ var skill_map: Dictionary = {}
 var skill_rank_getter: Callable
 ## Total tree points spent (for line coloring)
 var tree_points_spent: int = 0
-
+## Computed center offset — never touches canvas_margin
 var _center_offset_x: float = 0.0
+## Pool of inactive SkillButton nodes ready for reuse
+var _button_pool: Array[SkillButton] = []
 
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
 
 func _ready():
-	if get_parent():
-		get_parent().resized.connect(_on_parent_resized)
-	# Warm up the button scene
+	# Pre-instantiate a few buttons into the pool to warm up
 	if skill_button_scene:
-		skill_button_scene.instantiate().queue_free()
-
-func _on_parent_resized():
-	_update_canvas_size()
-	for skill_id in skill_map:
-		var skill = skill_map[skill_id]
-		var button = skill_buttons[skill_id]
-		button.position = _get_cell_position(skill.tier, skill.column)
-	queue_redraw()
-
-
+		for i in range(5):
+			var btn = skill_button_scene.instantiate() as SkillButton
+			if btn:
+				btn.set_anchors_preset(Control.PRESET_TOP_LEFT)
+				btn.skill_clicked.connect(_on_button_clicked)
+				btn.hide()
+				add_child(btn)
+				_button_pool.append(btn)
 
 # ============================================================================
 # BUILD
 # ============================================================================
 
 func build(tree: SkillTree, rank_getter: Callable, points_spent: int = 0):
-	"""Rebuild the entire canvas for a skill tree."""
-	_clear()
 	skill_rank_getter = rank_getter
 	tree_points_spent = points_spent
+	_recycle_all_buttons()
 
 	if not tree:
+		queue_redraw()
 		return
 
-	_update_canvas_size()
+	# Wait one frame for ScrollContainer to finalize our size
+	if size.x <= 0:
+		await get_tree().process_frame
 
-	# Place buttons across frames to avoid a hitch
+	_compute_center_offset()
+
 	for skill in tree.get_all_skills():
 		if not skill:
 			continue
-		_create_skill_button(skill)
+		_place_skill_button(skill)
 
-	# Update states after all buttons exist
 	for skill_id in skill_buttons:
 		_update_button_state(skill_buttons[skill_id])
 
+	_update_canvas_size()
 	queue_redraw()
-	print("🌳 Canvas built for %s: %d buttons" % [tree.tree_name, skill_buttons.size()])
 
 
-func _clear():
-	"""Remove all skill buttons."""
-	for child in get_children():
-		child.queue_free()
+
+func _recycle_all_buttons():
+	"""Return all active buttons to the pool instead of freeing them."""
+	for skill_id in skill_buttons:
+		var btn: SkillButton = skill_buttons[skill_id]
+		btn.skill = null
+		btn.hide()
+		_button_pool.append(btn)
 	skill_buttons.clear()
 	skill_map.clear()
 
-func _create_skill_button(skill: SkillResource):
-	"""Instance a SkillButton, position it, and track it."""
-	if not skill_button_scene:
-		push_warning("SkillTreeCanvas: No skill_button_scene assigned!")
-		return
+func _get_pooled_button() -> SkillButton:
+	"""Get a button from the pool, or create a new one if empty."""
+	if _button_pool.size() > 0:
+		return _button_pool.pop_back()
 
-	var button: SkillButton = skill_button_scene.instantiate() as SkillButton
+	# Pool empty — create a new button
+	if not skill_button_scene:
+		return null
+	var btn = skill_button_scene.instantiate() as SkillButton
+	if btn:
+		btn.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		btn.skill_clicked.connect(_on_button_clicked)
+		add_child(btn)
+	return btn
+
+func _place_skill_button(skill: SkillResource):
+	"""Grab a pooled button, assign the skill, and position it."""
+	var button = _get_pooled_button()
 	if not button:
-		push_warning("SkillTreeCanvas: skill_button_scene didn't produce a SkillButton")
+		push_warning("SkillTreeCanvas: Could not get a button for %s" % skill.skill_id)
 		return
 
 	button.skill = skill
-	button.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	button.position = _get_cell_position(skill.tier, skill.column)
 	button.size = cell_size
+	button.show()
 
-	# Connect click signal
-	button.skill_clicked.connect(_on_button_clicked)
-
-	add_child(button)
 	skill_buttons[skill.skill_id] = button
 	skill_map[skill.skill_id] = skill
 
@@ -145,28 +155,40 @@ func _get_cell_position(tier: int, column: int) -> Vector2:
 	var y = canvas_margin.y + row * (cell_size.y + cell_padding.y)
 	return Vector2(x, y)
 
-
 func _get_cell_center(tier: int, column: int) -> Vector2:
 	"""Get the center point of a cell (for line drawing)."""
 	return _get_cell_position(tier, column) + cell_size * 0.5
 
 
+
+func _compute_center_offset():
+	"""Calculate the horizontal offset so column 3's center aligns with screen center."""
+	var mid_col = GRID_COLUMNS / 2.0
+	var target_center = size.x / 2.0
+	var mid_button_local = mid_col * (cell_size.x + cell_padding.x) + cell_size.x / 2.0
+	_center_offset_x = max(canvas_margin.x, target_center - mid_button_local)
+
 func _update_canvas_size():
-	"""Set custom_minimum_size so ScrollContainer knows our full extent."""
+	"""Set custom_minimum_size so ScrollContainer knows our full extent.
+	Uses fixed canvas_margin, NOT the centering offset."""
 	var grid_w = GRID_COLUMNS * cell_size.x + (GRID_COLUMNS - 1) * cell_padding.x
 	var grid_h = GRID_ROWS * cell_size.y + (GRID_ROWS - 1) * cell_padding.y
-	var parent_width = get_parent().size.x if get_parent() else grid_w
-	_center_offset_x = max(canvas_margin.x, (parent_width - grid_w) / 2.0)
-	custom_minimum_size = Vector2(grid_w + _center_offset_x * 2, grid_h + canvas_margin.y * 2)
+	custom_minimum_size = Vector2(
+		grid_w + canvas_margin.x * 2,
+		grid_h + canvas_margin.y * 2
+	)
+
 
 # ============================================================================
 # UPDATE STATES
 # ============================================================================
 
-func update_all_states(rank_getter: Callable, points_spent: int):
+func update_all_states(rank_getter: Callable = Callable(), points_spent: int = -1):
 	"""Refresh button states and redraw lines."""
-	skill_rank_getter = rank_getter
-	tree_points_spent = points_spent
+	if rank_getter.is_valid():
+		skill_rank_getter = rank_getter
+	if points_spent >= 0:
+		tree_points_spent = points_spent
 
 	for skill_id in skill_buttons:
 		_update_button_state(skill_buttons[skill_id])
@@ -203,12 +225,12 @@ func _draw_grid_background():
 	"""Draw subtle grid lines for visual structure."""
 	for row in range(GRID_ROWS + 1):
 		var y = canvas_margin.y + row * (cell_size.y + cell_padding.y) - cell_padding.y * 0.5
-		var x_start = canvas_margin.x - cell_padding.x * 0.5
-		var x_end = canvas_margin.x + GRID_COLUMNS * (cell_size.x + cell_padding.x) - cell_padding.x * 0.5
+		var x_start = _center_offset_x - cell_padding.x * 0.5
+		var x_end = _center_offset_x + GRID_COLUMNS * (cell_size.x + cell_padding.x) - cell_padding.x * 0.5
 		draw_line(Vector2(x_start, y), Vector2(x_end, y), grid_line_color, 1.0)
 
 	for col in range(GRID_COLUMNS + 1):
-		var x = canvas_margin.x + col * (cell_size.x + cell_padding.x) - cell_padding.x * 0.5
+		var x = _center_offset_x + col * (cell_size.x + cell_padding.x) - cell_padding.x * 0.5
 		var y_start = canvas_margin.y - cell_padding.y * 0.5
 		var y_end = canvas_margin.y + GRID_ROWS * (cell_size.y + cell_padding.y) - cell_padding.y * 0.5
 		draw_line(Vector2(x, y_start), Vector2(x, y_end), grid_line_color, 1.0)

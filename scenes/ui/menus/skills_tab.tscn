@@ -86,6 +86,7 @@ icon_alignment = 1
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
 
 [node name="SkillTreeCanvas" type="Control" parent="VBoxContainer/ScrollContainer"]
 layout_mode = 2

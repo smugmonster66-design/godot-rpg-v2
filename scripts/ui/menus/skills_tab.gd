@@ -44,8 +44,10 @@ func _ready():
 		skill_canvas.skill_clicked.connect(_on_skill_clicked)
 	if skill_popup:
 		skill_popup.learn_pressed.connect(_on_popup_learn_pressed)
-	_show_tree(0)
+	# Don't call _show_tree(0) here — wait for set_player()
 	print("🌳 SkillsTab: Ready")
+
+
 
 func _connect_tab_buttons():
 	"""Connect tree tab buttons"""
@@ -209,6 +211,12 @@ func _update_tab_highlight():
 				tabs[i].modulate = Color(1.0, 1.0, 1.0, 1.0)
 			else:
 				tabs[i].modulate = Color(0.5, 0.5, 0.5, 1.0)
+	if tree_tab_container:
+		print("🔍 TabContainer pos: %s | size: %s | center: %s" % [
+			tree_tab_container.global_position,
+			tree_tab_container.size,
+			tree_tab_container.global_position.x + tree_tab_container.size.x / 2.0
+		])
 
 
 func _on_tree_tab_pressed(index: int):
