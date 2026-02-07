@@ -96,6 +96,7 @@ func _create_skill_button(skill: SkillResource):
 		return
 
 	button.skill = skill
+	button.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	button.position = _get_cell_position(skill.tier, skill.column)
 	button.size = cell_size
 

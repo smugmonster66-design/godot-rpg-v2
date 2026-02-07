@@ -37,7 +37,8 @@ var current_tree_index: int = 0
 
 func _ready():
 	_connect_tab_buttons()
-	skill_canvas.skill_clicked.connect(_on_skill_clicked)
+	if skill_canvas:
+		skill_canvas.skill_clicked.connect(_on_skill_clicked)
 	_show_tree(0)
 	print("🌳 SkillsTab: Ready")
 
@@ -217,6 +218,8 @@ func _show_tree(index: int):
 
 func _build_skill_grid():
 	"""Build the skill canvas for the current tree"""
+	if not skill_canvas:
+		return
 	var tree = _get_current_skill_tree()
 	if not tree:
 		return
@@ -229,6 +232,8 @@ func _build_skill_grid():
 
 func _update_all_skill_buttons():
 	"""Refresh all button states and prerequisite lines"""
+	if not skill_canvas:
+		return
 	var points_spent = _get_points_spent_in_current_tree()
 	skill_canvas.update_all_states(_get_skill_rank_callable(), points_spent)
 
@@ -274,9 +279,11 @@ func _on_skill_clicked(skill: SkillResource):
 
 func _log_missing_requirements(skill: SkillResource, tree_points: int):
 	"""Log detailed info about missing requirements"""
+	# Check tree points
 	if tree_points < skill.tree_points_required:
 		print("  ❌ Need %d tree points (have %d)" % [skill.tree_points_required, tree_points])
 	
+	# Check prerequisites
 	var missing = skill.get_missing_prerequisites(_get_skill_rank_callable())
 	for prereq_data in missing:
 		print("  ❌ Need %s Rank %d (have Rank %d)" % [
@@ -311,11 +318,7 @@ func _learn_skill(skill: SkillResource):
 	print("🌳 Learned %s rank %d!" % [skill.skill_name, new_rank])
 	
 	skill_learned.emit(skill, new_rank)
-	
-	# Animated update: tween lines, pulse newly available buttons
-	skill_canvas.tree_points_spent = _get_points_spent_in_current_tree()
-	skill_canvas.animate_skill_learned(skill_id)
-	_update_header()
+	refresh()
 
 # ============================================================================
 # RESET
