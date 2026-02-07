@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://b2w217jydc2gl"]
+[gd_scene load_steps=16 format=3 uid="uid://b2w217jydc2gl"]
 
 [ext_resource type="Script" uid="uid://c2ftibv05ag52" path="res://scripts/game/game_root.gd" id="1_pevc5"]
 [ext_resource type="PackedScene" uid="uid://dg4shmm2jhcnd" path="res://scenes/game/combat_scene.tscn" id="2_n6w2t"]
@@ -8,11 +8,22 @@
 [ext_resource type="Texture2D" uid="uid://bk7srh475afct" path="res://assets/ui/portrait frames/placeholder/placeholder_frame_front.png" id="6_0krdv"]
 [ext_resource type="Script" uid="uid://dfridktvwqyau" path="res://scripts/ui/portrait_controller.gd" id="6_elccf"]
 [ext_resource type="Texture2D" uid="uid://78pjnt2x1fn1" path="res://assets/characters/Bones/portraits/bones_placeholder_portrait.png" id="7_elccf"]
+[ext_resource type="Shader" uid="uid://bf1gnsw38npcm" path="res://shaders/portrait_mask.gdshader" id="8_cylga"]
+[ext_resource type="Shader" uid="uid://c81kry17cryo0" path="res://shaders/portrait_frame_glow.gdshader" id="10_ndy65"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_n6w2t"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_k63du"]
 texture = ExtResource("6_0krdv")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_c2lvh"]
+shader = ExtResource("8_cylga")
+shader_parameter/grayscale_amount = 0.0
+shader_parameter/ko_tint = Color(0.15, 0.1, 0.15, 1)
+shader_parameter/ko_tint_strength = 0.3
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_a6cr8"]
+shader = ExtResource("10_ndy65")
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_cylga"]
 texture = ExtResource("6_0krdv")
@@ -80,6 +91,7 @@ mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_k63du")
 
 [node name="PortraitTexture" type="TextureRect" parent="PersistentUILayer/PortraitVBox/PortraitContainer"]
+material = SubResource("ShaderMaterial_c2lvh")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -92,6 +104,7 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="FrontPanel" type="Panel" parent="PersistentUILayer/PortraitVBox/PortraitContainer"]
+material = SubResource("ShaderMaterial_a6cr8")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -100,3 +113,18 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_cylga")
+
+[node name="StatusIcons" type="HBoxContainer" parent="PersistentUILayer/PortraitVBox/PortraitContainer"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="LevelBadgeBG" type="Panel" parent="PersistentUILayer/PortraitVBox/PortraitContainer"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="LevelLabel" type="Label" parent="PersistentUILayer/PortraitVBox/PortraitContainer/LevelBadgeBG"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0

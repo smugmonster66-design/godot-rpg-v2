@@ -144,6 +144,9 @@ func start_combat(encounter: Resource = null):
 	
 	if bottom_ui and bottom_ui.has_method("on_combat_started"):
 		bottom_ui.on_combat_started()
+	
+	if portrait_controller:
+		portrait_controller.refresh()
 
 
 func end_combat(player_won: bool = true):
