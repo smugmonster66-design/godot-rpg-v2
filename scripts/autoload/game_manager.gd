@@ -163,9 +163,7 @@ func load_combat_scene():
 		if combat_scene_instance.has_method("initialize_combat"):
 			combat_scene_instance.initialize_combat(player)
 		
-		# Connect signals
-		if combat_scene_instance.has_signal("combat_ended"):
-			combat_scene_instance.combat_ended.connect(_on_combat_ended)
+		
 	
 	# Hide map
 	if map_scene_instance:
@@ -231,28 +229,39 @@ func has_completed_encounter(encounter_id: String) -> bool:
 	"""Check if an encounter has been completed"""
 	return encounter_id in completed_encounters
 
+
 func on_combat_ended(player_won: bool):
-	"""Called when combat ends"""
+	"""Called when combat ends (from GameRoot.end_combat)"""
 	if player_won and pending_encounter:
 		mark_encounter_completed(pending_encounter)
-		
+
 		# Calculate rewards
 		var exp = pending_encounter.get_total_experience()
 		var gold_range = pending_encounter.get_total_gold_range()
 		var gold = randi_range(gold_range.x, gold_range.y)
-		
+
 		print("🎮 Combat rewards: %d XP, %d gold" % [exp, gold])
-		
-		# Apply rewards to player
+
 		if player:
 			player.add_experience(exp)
 			player.add_gold(gold)
-	
+
+		# Show post-combat summary via GameRoot
+		if game_root and game_root.has_method("show_post_combat_summary"):
+			game_root.show_post_combat_summary({
+				"victory": true,
+				"xp_gained": exp,
+				"gold_gained": gold,
+				"loot": []  # TODO: populate from loot system
+			})
+
 	clear_pending_encounter()
-	
-	# Only load map scene if NOT using GameRoot (GameRoot handles layer visibility)
+
+	# Legacy fallback only
 	if not game_root:
 		load_map_scene()
+
+
 
 # ============================================================================
 # SIGNAL HANDLERS
@@ -262,23 +271,3 @@ func _on_start_combat():
 	"""Handle start combat from map"""
 	print("🎮 Starting combat...")
 	load_combat_scene()
-
-func _on_combat_ended(results: Dictionary):
-	"""Handle combat ended (legacy signal from combat scene)"""
-	print("🎮 Combat ended")
-	last_combat_results = results
-	
-	# Hide combat scene
-	if combat_scene_instance:
-		combat_scene_instance.hide()
-	
-	# Show map scene
-	if map_scene_instance:
-		map_scene_instance.show()
-		current_scene = map_scene_instance
-		
-		# Show post-combat summary if available
-		if map_scene_instance.has_method("show_post_combat_summary"):
-			map_scene_instance.show_post_combat_summary(results)
-	
-	scene_changed.emit(map_scene_instance)

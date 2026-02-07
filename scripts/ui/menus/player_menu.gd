@@ -1,5 +1,6 @@
 # player_menu.gd - Main player menu controller
-# Uses signal bubbling with button-based tab navigation
+# Uses button-based tab navigation with self-scoped discovery
+# All child discovery is scoped to this node's subtree (not tree-global)
 extends Control
 
 # ============================================================================
@@ -14,8 +15,9 @@ signal tab_changed(tab_name: String)
 var player: Player = null
 var active_tabs: Array[Control] = []
 var tab_buttons: Array[Button] = []
-var tab_content_panels: Dictionary = {}
+var tab_content_panels: Dictionary = {}  # tab_name -> Control
 var current_tab_name: String = ""
+var close_button: Button = null
 
 # ============================================================================
 # INITIALIZATION
@@ -23,62 +25,63 @@ var current_tab_name: String = ""
 
 func _ready():
 	hide()
-	
-	for button in get_tree().get_nodes_in_group("player_menu_tab_button"):
-		print_debug("Button: %s, global_rect: %s, mouse_filter: %s" % [button.name, button.get_global_rect(), button.mouse_filter])
-	
-	
 	await get_tree().process_frame  # Wait for children to be ready
 	_discover_and_connect_children()
 
 func _discover_and_connect_children():
-	"""Discover all menu tabs and connect their signals"""
+	"""Discover all menu components within our own subtree"""
 	print("📋 PlayerMenu: Discovering components...")
-	
-	# Find tab buttons by group
-	var buttons = get_tree().get_nodes_in_group("player_menu_tab_button")
-	for button in buttons:
-		if button is Button:
-			tab_buttons.append(button)
+
+	# --- Tab Buttons ---
+	# Find buttons with tab_name metadata inside our subtree
+	var all_buttons = find_children("*", "Button", true, true)
+	for button in all_buttons:
 		var tab_name = button.get_meta("tab_name", "")
 		if tab_name:
+			tab_buttons.append(button)
 			button.toggled.connect(_on_tab_button_toggled.bind(tab_name))
-			print("  ✓ Connected button: %s" % tab_name)
-	
-	# Find tab content panels by group
-	var content_nodes = get_tree().get_nodes_in_group("player_menu_tab_content")
-	for node in content_nodes:
-		var tab_name = node.get_meta("tab_name", "")
-		if tab_name:
-			tab_content_panels[tab_name] = node
-			_register_tab(node)
-			print("  ✓ Registered content: %s" % tab_name)
-	
-	# Find the close button
-	var close_buttons = find_children("*", "Button", true, false)
-	for button in close_buttons:
-		if "close" in button.name.to_lower():
-			button.pressed.connect(_on_close_pressed)
-			print("  ✓ Connected close button")
-			break
-			
-	print("📋 Found %d tab buttons, %d content panels" % [tab_buttons.size(), tab_content_panels.size()])
+			print("  ✓ Connected tab button: %s" % tab_name)
+
+	# --- Tab Content Panels ---
+	# Find controls with tab_name metadata that are in the content group
+	var all_controls = find_children("*", "Control", true, true)
+	for node in all_controls:
+		# Check if it has tab_name metadata AND is meant to be tab content
+		# (tab buttons also have tab_name, so filter by group membership)
+		if node.is_in_group("player_menu_tab_content"):
+			var tab_name = node.get_meta("tab_name", "")
+			if tab_name:
+				tab_content_panels[tab_name] = node
+				_register_tab(node)
+				print("  ✓ Registered content: %s" % tab_name)
+
+	# --- Close Button ---
+	# Find by name within our subtree (owned=true to include scene-defined nodes)
+	var close_btn = find_child("CloseButton", true, true)
+	if close_btn and close_btn is Button:
+		close_button = close_btn
+		close_button.pressed.connect(_on_close_pressed)
+		print("  ✓ Connected close button")
+	else:
+		push_warning("PlayerMenu: CloseButton not found in subtree!")
+
+	print("📋 Found %d tab buttons, %d content panels" % [
+		tab_buttons.size(), tab_content_panels.size()
+	])
 
 func _register_tab(tab: Control):
-	"""Register a menu tab"""
+	"""Register a menu tab and connect its signals"""
 	if tab in active_tabs:
 		return
-	
+
 	active_tabs.append(tab)
-	
-	# Connect tab signals if they exist
+
 	if tab.has_signal("refresh_requested"):
 		tab.refresh_requested.connect(_on_tab_refresh_requested.bind(tab))
-	
+
 	if tab.has_signal("data_changed"):
 		tab.data_changed.connect(_on_tab_data_changed.bind(tab))
-	
-	# Connect skill_learned signal from SkillsTab
+
 	if tab.has_signal("skill_learned"):
 		tab.skill_learned.connect(_on_skill_learned)
 
@@ -86,28 +89,33 @@ func _register_tab(tab: Control):
 # PUBLIC API
 # ============================================================================
 
+func toggle_menu(p_player: Player):
+	"""Toggle menu open/closed. Single entry point for callers."""
+	if visible:
+		close_menu()
+	else:
+		open_menu(p_player)
+
 func open_menu(p_player: Player):
 	"""Open menu with player data"""
 	player = p_player
 	_distribute_player_data()
-	
+
 	# Hide ALL tabs first
-	for name in tab_content_panels:
-		tab_content_panels[name].hide()
-	
+	for tab_name in tab_content_panels:
+		tab_content_panels[tab_name].hide()
+
 	# Always show Character tab by default
 	_show_tab("Character")
-	
+
 	# Set Character button as pressed
 	for button in tab_buttons:
 		var tab_name = button.get_meta("tab_name", "")
 		button.button_pressed = (tab_name == "Character")
-	
+
 	_update_button_visuals()
-	
 	show()
 	print("📋 PlayerMenu: Opened")
-
 
 func close_menu():
 	"""Close the menu"""
@@ -135,19 +143,24 @@ func _show_tab(tab_name: String):
 	"""Show the specified tab, hide all others"""
 	if current_tab_name == tab_name:
 		return
-	
+
 	current_tab_name = tab_name
-	
-	# Hide all content panels
+
 	for name in tab_content_panels:
-		var panel = tab_content_panels[name]
-		panel.hide()
-	
-	# Show selected panel
+		tab_content_panels[name].hide()
+
 	if tab_content_panels.has(tab_name):
 		tab_content_panels[tab_name].show()
 		tab_changed.emit(tab_name)
 		print("📋 Switched to tab: %s" % tab_name)
+
+func _update_button_visuals():
+	"""Update tab button active/inactive appearance"""
+	for btn in tab_buttons:
+		if btn.button_pressed:
+			btn.modulate = Color(1.0, 1.0, 1.0, 1.0)
+		else:
+			btn.modulate = Color(0.5, 0.5, 0.5, 1.0)
 
 # ============================================================================
 # SIGNAL HANDLERS
@@ -158,7 +171,6 @@ func _on_tab_button_toggled(button_pressed: bool, tab_name: String):
 	if button_pressed:
 		_show_tab(tab_name)
 	_update_button_visuals()
-		
 
 func _on_close_pressed():
 	"""Close button pressed"""
@@ -178,8 +190,6 @@ func _on_tab_data_changed(tab: Control):
 func _on_skill_learned(skill: SkillResource, new_rank: int):
 	"""A skill was learned - notify other tabs"""
 	print("📋 PlayerMenu: Skill learned - %s rank %d" % [skill.skill_name, new_rank])
-	
-	# Notify all other tabs that data changed
 	for tab in active_tabs:
 		if tab.has_method("on_external_data_change"):
 			tab.on_external_data_change()
@@ -187,14 +197,6 @@ func _on_skill_learned(skill: SkillResource, new_rank: int):
 # ============================================================================
 # INPUT HANDLING
 # ============================================================================
-
-
-func _update_button_visuals():
-	for btn in tab_buttons:
-		if btn.button_pressed:
-			btn.modulate = Color(1.0, 1.0, 1.0, 1.0)
-		else:
-			btn.modulate = Color(0.5, 0.5, 0.5, 1.0)
 
 func _input(event):
 	if visible and event.is_action_pressed("ui_cancel"):

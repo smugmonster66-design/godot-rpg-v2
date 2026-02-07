@@ -1,8 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://cx781vq4omutw"]
+[gd_scene load_steps=2 format=3 uid="uid://cx781vq4omutw"]
 
 [ext_resource type="Script" uid="uid://ex7lxpkjwyaa" path="res://scripts/game/map_manager.gd" id="1_yjpty"]
-[ext_resource type="PackedScene" uid="uid://b4cwd535525ap" path="res://scenes/ui/menus/player_menu.tscn" id="2_gvwpr"]
-[ext_resource type="Script" uid="uid://cmngrutsjny1t" path="res://scripts/ui/combat/post_combat_summary.gd" id="3_2b48g"]
 
 [node name="MapScene" type="Node2D"]
 script = ExtResource("1_yjpty")
@@ -36,73 +34,3 @@ script = ExtResource("1_yjpty")
 [node name="PathLines" type="Node2D" parent="."]
 
 [node name="PlayerIcon" type="Node2D" parent="."]
-
-[node name="UILayer" type="CanvasLayer" parent="."]
-
-[node name="PlayerMenu" parent="UILayer" instance=ExtResource("2_gvwpr")]
-visible = false
-custom_minimum_size = Vector2(300, 400)
-
-[node name="PostCombatSummary" type="Control" parent="UILayer"]
-visible = false
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-script = ExtResource("3_2b48g")
-
-[node name="ColorRect" type="ColorRect" parent="UILayer/PostCombatSummary"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-color = Color(0.019735243, 0.019479254, 0, 0.7647059)
-
-[node name="CenterContainer" type="CenterContainer" parent="UILayer/PostCombatSummary"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="PanelContainer" type="PanelContainer" parent="UILayer/PostCombatSummary/CenterContainer"]
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer"]
-layout_mode = 2
-
-[node name="TitleLabel" type="Label" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer"]
-layout_mode = 2
-text = "Combat Ended"
-
-[node name="HSeparator" type="HSeparator" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="ExpSection" type="VBoxContainer" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="ExpLabel" type="Label" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer/ExpSection"]
-layout_mode = 2
-text = "Exp. Gained"
-
-[node name="ExpValue" type="Label" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer/ExpSection"]
-layout_mode = 2
-text = "+100 XP"
-
-[node name="HSeparator2" type="HSeparator" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="LootSection" type="VBoxContainer" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="LootLabel" type="Label" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer/LootSection"]
-layout_mode = 2
-text = "Loot Earned"
-
-[node name="LootGrid" type="GridContainer" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer/LootSection"]
-layout_mode = 2
-columns = 3
-
-[node name="HSeparator3" type="HSeparator" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="CloseButton" type="Button" parent="UILayer/PostCombatSummary/CenterContainer/PanelContainer/VBoxContainer"]
-layout_mode = 2
-text = "Close"

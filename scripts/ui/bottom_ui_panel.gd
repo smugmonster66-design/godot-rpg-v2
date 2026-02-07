@@ -188,25 +188,9 @@ func _on_class_changed(_new_class):
 func _on_menu_button_pressed():
 	print("📱 Menu button pressed")
 	menu_button_pressed.emit()
-	
-	# Toggle player menu if reference exists
-	if player_menu:
-		if player_menu.visible:
-			# Close menu
-			if player_menu.has_method("close_menu"):
-				player_menu.close_menu()
-			else:
-				player_menu.hide()
-			print("  📋 Menu closed")
-		else:
-			# Open menu
-			if player_menu.has_method("open_menu") and player:
-				player_menu.open_menu(player)
-			else:
-				player_menu.show()
-			print("  📋 Menu opened")
-	else:
-		print("  ⚠️ No player_menu reference set!")
+	if player_menu and player_menu.has_method("toggle_menu") and player:
+		player_menu.toggle_menu(player)
+
 
 # ============================================================================
 # COMBAT STATE CALLBACKS
