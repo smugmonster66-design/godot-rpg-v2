@@ -125,19 +125,18 @@ func show_skill(skill: SkillResource, rank: int, skill_can_learn: bool, points_a
 func close():
 	"""Hide the popup."""
 	current_skill = null
-	hide()
 	closed.emit()
-	get_viewport().set_input_as_handled()
+	hide.call_deferred()
+
 
 # ============================================================================
 # INPUT
 # ============================================================================
 
 func _on_overlay_input(event: InputEvent):
-	"""Close when clicking the dark overlay."""
 	if event is InputEventMouseButton and event.pressed:
-		close()
 		accept_event()
+		close()
 
 func _on_learn_pressed():
 	"""Emit learn signal with current skill."""

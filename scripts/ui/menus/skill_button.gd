@@ -32,13 +32,16 @@ var rank_label: Label
 var lock_overlay: Control
 var highlight_panel: Panel
 
+
+
 # ============================================================================
 # STYLING
 # ============================================================================
-const COLOR_LOCKED = Color(0.3, 0.3, 0.3, 1.0)
-const COLOR_AVAILABLE = Color(0.8, 0.8, 0.8, 1.0)
-const COLOR_MAXED = Color(1.0, 0.85, 0.0, 1.0)
-const COLOR_HOVER = Color(1.0, 1.0, 1.0, 0.2)
+@export_group("State Colors")
+@export var color_locked: Color = Color(0.5, 0.5, 0.5, 1.0)
+@export var color_available: Color = Color(1.0, 1.0, 1.0, 1.0)
+@export var color_maxed: Color = Color(1.0, 0.85, 0.0, 1.0)
+
 
 # ============================================================================
 # INITIALIZATION
@@ -50,12 +53,9 @@ func _ready():
 	_update_display()
 
 func _find_nodes():
-	"""Find child nodes by name"""
-	icon_rect = find_child("Icon") as TextureRect
-	name_label = find_child("NameLabel") as Label
-	rank_label = find_child("RankLabel") as Label
-	lock_overlay = find_child("LockOverlay") as Control
-	highlight_panel = find_child("HighlightPanel") as Panel
+	icon_rect = $MarginContainer/VBoxContainer/IconRect
+	name_label = $MarginContainer/VBoxContainer/NameLabel
+	rank_label = $MarginContainer/VBoxContainer/RankLabel
 
 func _setup_input():
 	"""Setup mouse interaction"""
@@ -118,17 +118,11 @@ func _update_visual_state():
 	
 	match current_state:
 		State.LOCKED:
-			modulate = COLOR_LOCKED
-			if lock_overlay:
-				lock_overlay.show()
+			modulate = color_locked
 		State.AVAILABLE:
-			modulate = COLOR_AVAILABLE
-			if lock_overlay:
-				lock_overlay.hide()
+			modulate = color_available
 		State.MAXED:
-			modulate = COLOR_MAXED
-			if lock_overlay:
-				lock_overlay.hide()
+			modulate = color_maxed
 
 # ============================================================================
 # STATE MANAGEMENT

@@ -1,6 +1,15 @@
-[gd_scene load_steps=2 format=3 uid="uid://dmqxmg63alred"]
+[gd_scene load_steps=5 format=3 uid="uid://dmqxmg63alred"]
 
 [ext_resource type="Script" uid="uid://ck2sof202atyx" path="res://scripts/ui/menus/skill_popup.gd" id="1_xcuef"]
+[ext_resource type="Texture2D" uid="uid://cmk1c3mj40ywo" path="res://assets/ui/panels/9patch bones 250x.png" id="2_tjnfd"]
+[ext_resource type="StyleBox" uid="uid://bpgqthlvqbwrr" path="res://scenes/ui/menus/button_texture_stylebox.tres" id="3_jo354"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3hd5e"]
+texture = ExtResource("2_tjnfd")
+texture_margin_left = 45.0
+texture_margin_top = 45.0
+texture_margin_right = 45.0
+texture_margin_bottom = 45.0
 
 [node name="SkillPopup" type="Control" node_paths=PackedStringArray("skill_name_label", "description_label", "rank_label", "cost_label", "prerequisites_label", "icon_rect", "overlay", "learn_button", "close_button")]
 layout_mode = 3
@@ -41,6 +50,7 @@ offset_right = 200.0
 offset_bottom = 250.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_3hd5e")
 
 [node name="MarginContainer" type="MarginContainer" parent="Overlay/PopupPanel"]
 layout_mode = 2
@@ -92,16 +102,19 @@ autowrap_mode = 2
 
 [node name="ButtonsHBox" type="HBoxContainer" parent="Overlay/PopupPanel/MarginContainer/VBox"]
 layout_mode = 2
+size_flags_vertical = 10
 theme_override_constants/separation = 12
-
-[node name="CloseButton" type="Button" parent="Overlay/PopupPanel/MarginContainer/VBox/ButtonsHBox"]
-custom_minimum_size = Vector2(0, 48)
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Close"
 
 [node name="LearnButton" type="Button" parent="Overlay/PopupPanel/MarginContainer/VBox/ButtonsHBox"]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_styles/normal = ExtResource("3_jo354")
 text = "Learn"
+
+[node name="CloseButton" type="Button" parent="Overlay/PopupPanel/MarginContainer/VBox/ButtonsHBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = ExtResource("3_jo354")
+text = "Close"

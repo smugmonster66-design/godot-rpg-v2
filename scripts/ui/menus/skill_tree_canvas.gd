@@ -50,6 +50,29 @@ var skill_rank_getter: Callable
 ## Total tree points spent (for line coloring)
 var tree_points_spent: int = 0
 
+var _center_offset_x: float = 0.0
+
+# ============================================================================
+# INITIALIZATION
+# ============================================================================
+
+func _ready():
+	if get_parent():
+		get_parent().resized.connect(_on_parent_resized)
+	# Warm up the button scene
+	if skill_button_scene:
+		skill_button_scene.instantiate().queue_free()
+
+func _on_parent_resized():
+	_update_canvas_size()
+	for skill_id in skill_map:
+		var skill = skill_map[skill_id]
+		var button = skill_buttons[skill_id]
+		button.position = _get_cell_position(skill.tier, skill.column)
+	queue_redraw()
+
+
+
 # ============================================================================
 # BUILD
 # ============================================================================
@@ -63,19 +86,21 @@ func build(tree: SkillTree, rank_getter: Callable, points_spent: int = 0):
 	if not tree:
 		return
 
-	# Place buttons
+	_update_canvas_size()
+
+	# Place buttons across frames to avoid a hitch
 	for skill in tree.get_all_skills():
 		if not skill:
 			continue
 		_create_skill_button(skill)
 
-	# Size the canvas to fit all cells so ScrollContainer works
-	_update_canvas_size()
+	# Update states after all buttons exist
+	for skill_id in skill_buttons:
+		_update_button_state(skill_buttons[skill_id])
 
-	# Draw prerequisite lines
 	queue_redraw()
-
 	print("🌳 Canvas built for %s: %d buttons" % [tree.tree_name, skill_buttons.size()])
+
 
 func _clear():
 	"""Remove all skill buttons."""
@@ -115,21 +140,24 @@ func _on_button_clicked(skill: SkillResource):
 # ============================================================================
 
 func _get_cell_position(tier: int, column: int) -> Vector2:
-	"""Convert tier (1-9) and column (0-6) to pixel position."""
-	var row = tier - 1  # tier is 1-indexed
-	var x = canvas_margin.x + column * (cell_size.x + cell_padding.x)
+	var row = tier - 1
+	var x = _center_offset_x + column * (cell_size.x + cell_padding.x)
 	var y = canvas_margin.y + row * (cell_size.y + cell_padding.y)
 	return Vector2(x, y)
+
 
 func _get_cell_center(tier: int, column: int) -> Vector2:
 	"""Get the center point of a cell (for line drawing)."""
 	return _get_cell_position(tier, column) + cell_size * 0.5
 
+
 func _update_canvas_size():
 	"""Set custom_minimum_size so ScrollContainer knows our full extent."""
-	var w = canvas_margin.x * 2 + GRID_COLUMNS * cell_size.x + (GRID_COLUMNS - 1) * cell_padding.x
-	var h = canvas_margin.y * 2 + GRID_ROWS * cell_size.y + (GRID_ROWS - 1) * cell_padding.y
-	custom_minimum_size = Vector2(w, h)
+	var grid_w = GRID_COLUMNS * cell_size.x + (GRID_COLUMNS - 1) * cell_padding.x
+	var grid_h = GRID_ROWS * cell_size.y + (GRID_ROWS - 1) * cell_padding.y
+	var parent_width = get_parent().size.x if get_parent() else grid_w
+	_center_offset_x = max(canvas_margin.x, (parent_width - grid_w) / 2.0)
+	custom_minimum_size = Vector2(grid_w + _center_offset_x * 2, grid_h + canvas_margin.y * 2)
 
 # ============================================================================
 # UPDATE STATES

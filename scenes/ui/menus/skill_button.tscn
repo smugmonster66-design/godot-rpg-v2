@@ -1,6 +1,16 @@
-[gd_scene load_steps=2 format=3 uid="uid://oquaqbwome63"]
+[gd_scene load_steps=5 format=3 uid="uid://oquaqbwome63"]
 
+[ext_resource type="Texture2D" uid="uid://0wsimnnpbfag" path="res://assets/ui/menu_tabs/equipment tab assets/128x128.png" id="1_3kq64"]
 [ext_resource type="Script" uid="uid://bxgc88xa0lbgj" path="res://scripts/ui/menus/skill_button.gd" id="1_d5ye0"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_pc0cu"]
+texture = ExtResource("1_3kq64")
+texture_margin_left = 22.0
+texture_margin_top = 22.0
+texture_margin_right = 22.0
+texture_margin_bottom = 22.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3kq64"]
 
 [node name="SkillButton" type="PanelContainer"]
 custom_minimum_size = Vector2(80, 80)
@@ -9,7 +19,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_pc0cu")
 script = ExtResource("1_d5ye0")
+color_locked = Color(1, 1, 1, 1)
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
@@ -20,6 +32,7 @@ layout_mode = 2
 [node name="IconRect" type="TextureRect" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
+expand_mode = 1
 stretch_mode = 5
 
 [node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer"]
@@ -36,9 +49,10 @@ horizontal_alignment = 1
 visible = false
 layout_mode = 2
 mouse_filter = 2
-color = Color(0, 0, 0, 0.84705883)
+color = Color(0, 0, 0, 0)
 
 [node name="HighlightPanel" type="Panel" parent="."]
 visible = false
 layout_mode = 2
 mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_3kq64")

@@ -1,21 +1,27 @@
-[gd_scene load_steps=5 format=3 uid="uid://u4538t4heese"]
+[gd_scene load_steps=8 format=3 uid="uid://u4538t4heese"]
 
 [ext_resource type="Script" uid="uid://b6e5135cvd8vj" path="res://scripts/ui/menus/skills_tab.gd" id="1_l3cke"]
+[ext_resource type="Texture2D" uid="uid://cjqo62k1ffjh4" path="res://assets/ui/menu_tabs/skill_tab_button_base_stone.png" id="2_1cagx"]
 [ext_resource type="PackedScene" uid="uid://oquaqbwome63" path="res://scenes/ui/menus/skill_button.tscn" id="2_5ah0g"]
 [ext_resource type="Script" uid="uid://d3gigfro8412y" path="res://scripts/ui/menus/skill_tree_canvas.gd" id="3_3is3b"]
+[ext_resource type="Texture2D" uid="uid://b06aljyb0njso" path="res://assets/ui/icons/navigation/crowned-skull.png" id="3_4dnrj"]
 [ext_resource type="PackedScene" uid="uid://dmqxmg63alred" path="res://scenes/ui/menus/skill_popup.tscn" id="4_6r40r"]
 
-[node name="SkillsTab" type="Control" node_paths=PackedStringArray("skill_points_label", "class_name_label", "tree_points_label", "tree_tab_container", "tree_tab_1", "tree_tab_2", "tree_tab_3", "skill_canvas", "skill_popup") groups=["player_menu_tab_content"]]
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_lydpq"]
+texture = ExtResource("2_1cagx")
+texture_margin_left = 15.0
+texture_margin_top = 5.0
+texture_margin_right = 15.0
+texture_margin_bottom = 15.0
+
+[node name="SkillsTab" type="Control" node_paths=PackedStringArray("tree_tab_container", "tree_tab_1", "tree_tab_2", "tree_tab_3", "skill_canvas", "skill_popup") groups=["player_menu_tab_content"]]
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_l3cke")
-skill_points_label = NodePath("VBoxContainer/Header/SkillPointsLabel")
-class_name_label = NodePath("VBoxContainer/Header/ClassNameLabel")
-tree_points_label = NodePath("VBoxContainer/Header/TreePointsLabel")
-tree_tab_container = NodePath("VBoxContainer/TreeTabContainer")
-tree_tab_1 = NodePath("VBoxContainer/TreeTabContainer/TreeTab1")
-tree_tab_2 = NodePath("VBoxContainer/TreeTabContainer/TreeTab2")
-tree_tab_3 = NodePath("VBoxContainer/TreeTabContainer/TreeTab3")
+tree_tab_container = NodePath("VBoxContainer/MarginContainer/TreeTabContainer")
+tree_tab_1 = NodePath("VBoxContainer/MarginContainer/TreeTabContainer/TreeTab1")
+tree_tab_2 = NodePath("VBoxContainer/MarginContainer/TreeTabContainer/TreeTab2")
+tree_tab_3 = NodePath("VBoxContainer/MarginContainer/TreeTabContainer/TreeTab3")
 skill_canvas = NodePath("VBoxContainer/ScrollContainer/SkillTreeCanvas")
 skill_popup = NodePath("SkillPopup")
 metadata/_tab_index = 1
@@ -31,41 +37,50 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 10
 
-[node name="Header" type="HBoxContainer" parent="VBoxContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer"]
 layout_mode = 2
+theme_override_constants/margin_top = -40
 
-[node name="ClassNameLabel" type="Label" parent="VBoxContainer/Header"]
+[node name="TreeTabContainer" type="HBoxContainer" parent="VBoxContainer/MarginContainer"]
 layout_mode = 2
-text = "CLASS"
+size_flags_vertical = 0
+alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="VBoxContainer/Header"]
+[node name="TreeTab1" type="Button" parent="VBoxContainer/MarginContainer/TreeTabContainer"]
+custom_minimum_size = Vector2(310, 0)
 layout_mode = 2
-
-[node name="SkillPointsLabel" type="Label" parent="VBoxContainer/Header"]
-layout_mode = 2
-text = "Skill Points 0/0"
-
-[node name="TreePointsLabel" type="Label" parent="VBoxContainer/Header"]
-layout_mode = 2
-text = "Tree Points 0/0"
-
-[node name="TreeTabContainer" type="HBoxContainer" parent="VBoxContainer"]
-layout_mode = 2
-
-[node name="TreeTab1" type="Button" parent="VBoxContainer/TreeTabContainer"]
-layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_lydpq")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_lydpq")
+theme_override_styles/hover = SubResource("StyleBoxTexture_lydpq")
+theme_override_styles/disabled = SubResource("StyleBoxTexture_lydpq")
+theme_override_styles/focus = SubResource("StyleBoxTexture_lydpq")
 toggle_mode = true
-text = "Tree 1"
+icon = ExtResource("3_4dnrj")
+icon_alignment = 1
 
-[node name="TreeTab2" type="Button" parent="VBoxContainer/TreeTabContainer"]
+[node name="TreeTab2" type="Button" parent="VBoxContainer/MarginContainer/TreeTabContainer"]
+custom_minimum_size = Vector2(310, 0)
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_lydpq")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_lydpq")
+theme_override_styles/hover = SubResource("StyleBoxTexture_lydpq")
+theme_override_styles/disabled = SubResource("StyleBoxTexture_lydpq")
+theme_override_styles/focus = SubResource("StyleBoxTexture_lydpq")
 toggle_mode = true
-text = "Tree 2"
+icon = ExtResource("3_4dnrj")
+icon_alignment = 1
 
-[node name="TreeTab3" type="Button" parent="VBoxContainer/TreeTabContainer"]
+[node name="TreeTab3" type="Button" parent="VBoxContainer/MarginContainer/TreeTabContainer"]
+custom_minimum_size = Vector2(310, 0)
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_lydpq")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_lydpq")
+theme_override_styles/hover = SubResource("StyleBoxTexture_lydpq")
+theme_override_styles/disabled = SubResource("StyleBoxTexture_lydpq")
+theme_override_styles/focus = SubResource("StyleBoxTexture_lydpq")
 toggle_mode = true
-text = "Tree 3"
+icon = ExtResource("3_4dnrj")
+icon_alignment = 1
 
 [node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
 layout_mode = 2
@@ -80,4 +95,5 @@ skill_button_scene = ExtResource("2_5ah0g")
 metadata/_custom_type_script = "uid://d3gigfro8412y"
 
 [node name="SkillPopup" parent="." instance=ExtResource("4_6r40r")]
+visible = false
 layout_mode = 1

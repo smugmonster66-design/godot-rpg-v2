@@ -200,11 +200,16 @@ func _hide_all_tabs():
 	if tree_tab_3: tree_tab_3.hide()
 
 func _update_tab_highlight():
-	"""Highlight the active tab"""
+	"""Highlight the active tab, dim inactive ones"""
 	var tabs = [tree_tab_1, tree_tab_2, tree_tab_3]
 	for i in range(tabs.size()):
 		if tabs[i]:
 			tabs[i].button_pressed = (i == current_tree_index)
+			if i == current_tree_index:
+				tabs[i].modulate = Color(1.0, 1.0, 1.0, 1.0)
+			else:
+				tabs[i].modulate = Color(0.5, 0.5, 0.5, 1.0)
+
 
 func _on_tree_tab_pressed(index: int):
 	"""Switch to a different skill tree"""
