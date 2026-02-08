@@ -148,6 +148,10 @@ custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 size_flags_vertical = 3
 
+[node name="RollButton" type="Button" parent="MarginContainer/VBox/ButtonArea/VBoxContainer"]
+layout_mode = 2
+text = "ROLL THE BONES!"
+
 [node name="EndTurnButton" type="Button" parent="MarginContainer/VBox/ButtonArea/VBoxContainer"]
 layout_mode = 2
 text = "End Turn"

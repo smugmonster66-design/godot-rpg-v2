@@ -28,7 +28,18 @@ enum CombatState {
 	ENDED
 }
 
+enum TurnPhase {
+	NONE,       ## Not the player's turn
+	PREP,       ## Player can open menu / swap gear
+	ACTION,     ## Hand rolled, menu locked, placing dice
+}
+
 var combat_state: CombatState = CombatState.INITIALIZING
+var turn_phase: TurnPhase = TurnPhase.NONE
+
+# Per-combat charge tracker — prevents charge reset exploits from re-equipping
+# Key: action resource_path (String), Value: charges consumed (int)
+var combat_charge_tracker: Dictionary = {}
 
 # Turn order
 var turn_order: Array[Combatant] = []
@@ -41,12 +52,16 @@ var current_round: int = 0
 signal combat_ended(player_won: bool)
 signal turn_started(combatant: Combatant, is_player: bool)
 signal round_started(round_number: int)
+signal turn_phase_changed(phase: TurnPhase)
 
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
 
 func _ready():
+	
+	add_to_group("combat_manager")
+	
 	print("⚔️ CombatManager _ready")
 	
 	# Find nodes
@@ -220,6 +235,10 @@ func _finalize_combat_init(p_player: Player):
 	if not combat_ended.is_connected(_on_combat_ended):
 		combat_ended.connect(_on_combat_ended)
 	
+	
+	# Reset per-combat charge tracker
+	combat_charge_tracker.clear()
+	
 	print("⚔️ Combat initialization complete")
 	print("  Turn order: %s" % [turn_order.map(func(c): return c.combatant_name)])
 	
@@ -343,69 +362,78 @@ func _check_combat_end() -> bool:
 # ============================================================================
 
 func _start_player_turn():
-	"""Start player's turn"""
+	"""Start player's turn — enters PREP phase first"""
 	combat_state = CombatState.PLAYER_TURN
-	
+
 	# --- STATUS: Start-of-turn processing ---
 	if player:
 		var tick_results = player.process_turn_start_statuses()
 		await _apply_status_tick_results(player, player_combatant, tick_results)
-		
+
 		# Check if player died from DoT damage
 		if not player_combatant.is_alive():
 			_check_player_death()
 			return
 	# --- END STATUS ---
-	
-	print("🎲 _start_player_turn debug:")
-	print("  player: %s" % player)
-	print("  GameManager.player: %s" % GameManager.player)
-	print("  Same player? %s" % (player == GameManager.player))
-	
+
+	# Enter prep phase — menu is accessible, hand is NOT rolled yet
+	turn_phase = TurnPhase.PREP
+	turn_phase_changed.emit(TurnPhase.PREP)
+
+	if combat_ui:
+		combat_ui.enter_prep_phase()
+
+
+func _on_roll_pressed():
+	"""Player pressed Roll — transition from PREP to ACTION phase"""
+	if combat_state != CombatState.PLAYER_TURN or turn_phase != TurnPhase.PREP:
+		return
+
+	print("🎲 Player pressed Roll — entering ACTION phase")
+
+	# Lock the menu
+	turn_phase = TurnPhase.ACTION
+	turn_phase_changed.emit(TurnPhase.ACTION)
+
+	# Force-close menu if open
+	if GameManager.game_root and GameManager.game_root.player_menu:
+		var menu = GameManager.game_root.player_menu
+		if menu.visible and menu.has_method("close_menu"):
+			menu.close_menu()
+
+	# Now do everything the old _start_player_turn did after status processing
 	if player and player.dice_pool:
-		print("  player.dice_pool: %s" % player.dice_pool)
-		print("  GameManager.player.dice_pool: %s" % GameManager.player.dice_pool)
-		print("  Same dice_pool? %s" % (player.dice_pool == GameManager.player.dice_pool))
-		print("  POOL size: %d" % player.dice_pool.dice.size())
-		print("  GameManager POOL size: %d" % GameManager.player.dice_pool.dice.size())
-		
-		for die in player.dice_pool.dice:
-			print("    - %s from %s" % [die.display_name, die.source])
-		
 		# Clear stale action field dice BEFORE rolling new hand
 		if combat_ui:
 			for field in combat_ui.action_fields:
 				if is_instance_valid(field) and field.placed_dice.size() > 0:
 					field.clear_dice()
-		
+
 		# Tell DicePoolDisplay to skip its built-in entrance animation
 		if combat_ui and combat_ui.dice_pool_display:
 			combat_ui.dice_pool_display.hide_for_roll_animation = true
-		
-		# Roll the hand — triggers hand_rolled signal → DicePoolDisplay.refresh()
+
+		# Roll the hand
 		player.dice_pool.roll_hand()
-		
-		# Kick off the projectile roll animation (needs one frame for refresh to create visuals)
+
+		# Wait one frame for refresh to create visuals
 		await get_tree().process_frame
 		if combat_ui and combat_ui.roll_animator:
 			combat_ui.roll_animator.play_roll_sequence()
 	else:
-		print("  ⚠️ No player (%s) or dice_pool (%s)!" % [player != null, player.dice_pool if player else null])
-	
+		print("  ⚠️ No player or dice_pool!")
+
 	# Wait for the roll animation to finish before enabling UI
 	if combat_ui and combat_ui.roll_animator:
 		await combat_ui.roll_animator.roll_animation_complete
 	else:
-		# Fallback: estimate duration if no animator
 		var dice_count = player.dice_pool.hand.size() if player and player.dice_pool else 0
 		var animation_duration = dice_count * 0.08 + 0.25
 		await get_tree().create_timer(animation_duration).timeout
-	
+
 	if combat_ui:
-		if combat_ui.has_method("on_turn_start"):
-			combat_ui.on_turn_start()
-		if combat_ui.has_method("set_player_turn"):
-			combat_ui.set_player_turn(true)
+		combat_ui.enter_action_phase()
+
 
 
 
@@ -413,6 +441,11 @@ func _on_player_end_turn():
 	"""Player ended their turn"""
 	if combat_state != CombatState.PLAYER_TURN:
 		return
+	
+	
+	turn_phase = TurnPhase.NONE
+	turn_phase_changed.emit(TurnPhase.NONE)
+	
 	
 	print("🎮 Player ended turn")
 	
@@ -1138,6 +1171,41 @@ func _get_first_living_enemy() -> Combatant:
 			return enemy
 	return null
 
+
+
+# ============================================================================
+# PER-COMBAT CHARGE TRACKING
+# ============================================================================
+
+func track_charge_used(action: Action):
+	"""Record that a per-combat charge was consumed. Called when action is confirmed."""
+	if not action or action.charge_type != Action.ChargeType.LIMITED_PER_COMBAT:
+		return
+	var key = _get_action_charge_key(action)
+	combat_charge_tracker[key] = combat_charge_tracker.get(key, 0) + 1
+	print("🔋 Tracked charge: %s → %d used" % [action.action_name, combat_charge_tracker[key]])
+
+func get_charges_used(action: Action) -> int:
+	"""Get how many per-combat charges have been consumed for this action."""
+	if not action or action.charge_type != Action.ChargeType.LIMITED_PER_COMBAT:
+		return 0
+	return combat_charge_tracker.get(_get_action_charge_key(action), 0)
+
+func _get_action_charge_key(action: Action) -> String:
+	"""Generate a stable key for charge tracking.
+	Uses resource_path if saved, otherwise action_id, otherwise action_name."""
+	if action.resource_path and not action.resource_path.is_empty():
+		return action.resource_path
+	if action.action_id and not action.action_id.is_empty():
+		return action.action_id
+	return action.action_name
+
+func is_in_prep_phase() -> bool:
+	"""Public helper for UI gating."""
+	return combat_state == CombatState.PLAYER_TURN and turn_phase == TurnPhase.PREP
+
+
+
 # ============================================================================
 # COMBAT END
 # ============================================================================
@@ -1145,7 +1213,9 @@ func _get_first_living_enemy() -> Combatant:
 func end_combat(player_won: bool):
 	print("\n=== COMBAT ENDED ===")
 	combat_state = CombatState.ENDED
-	_combat_initialized = false  # Reset for next combat
+	turn_phase = TurnPhase.NONE
+	_combat_initialized = false
+	combat_charge_tracker.clear()
 	
 	if player_won:
 		print("🎉 Victory!")

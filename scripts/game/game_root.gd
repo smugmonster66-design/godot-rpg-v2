@@ -153,8 +153,26 @@ func _on_player_created(player: Resource):
 
 func _on_portrait_clicked():
 	"""Portrait clicked — toggle player menu"""
+	if not _can_open_menu():
+		print("📋 Menu blocked — combat action phase")
+		return
 	if player_menu and player_menu.has_method("toggle_menu") and GameManager.player:
 		player_menu.toggle_menu(GameManager.player)
+
+func _can_open_menu() -> bool:
+	"""Check if the menu is allowed to open right now."""
+	if not is_in_combat:
+		return true
+	# Allow menu during prep phase, block during action/enemy/animation
+	var combat_manager = combat_scene.find_child("CombatManager", true, false) if combat_scene else null
+	if not combat_manager:
+		combat_manager = combat_scene
+	if combat_manager and combat_manager.has_method("is_in_prep_phase"):
+		return combat_manager.is_in_prep_phase()
+	# If we can't find the combat manager, block by default during combat
+	return false
+
+
 
 # ============================================================================
 # LAYER MANAGEMENT

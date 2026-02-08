@@ -181,10 +181,23 @@ func _on_class_changed(_new_class):
 
 func _on_menu_button_pressed():
 	print("📱 Menu button pressed")
+	if not _can_open_menu():
+		print("📱 Menu blocked — combat action phase")
+		return
 	menu_button_pressed.emit()
 	if player_menu and player_menu.has_method("toggle_menu") and player:
 		player_menu.toggle_menu(player)
 
+func _can_open_menu() -> bool:
+	"""Check if the player menu is allowed to open."""
+	if not GameManager or not GameManager.game_root:
+		return true
+	if not GameManager.game_root.is_in_combat:
+		return true
+	var combat_manager = get_tree().get_first_node_in_group("combat_manager")
+	if combat_manager and combat_manager.has_method("is_in_prep_phase"):
+		return combat_manager.is_in_prep_phase()
+	return false
 
 # ============================================================================
 # COMBAT STATE CALLBACKS

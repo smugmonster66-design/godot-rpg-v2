@@ -56,7 +56,7 @@ var enemy_action_fields: Array[ActionField] = []
 
 var _pending_dice_returns: Array[Dictionary] = []
 
-
+var roll_button: Button = null
 # ============================================================================
 # SIGNALS
 # ============================================================================
@@ -106,6 +106,13 @@ func _discover_all_nodes():
 	# End turn button
 	end_turn_button = find_child("EndTurnButton", true, false) as Button
 	print("    EndTurnButton: %s" % ("✓" if end_turn_button else "✗"))
+	
+	# Find Roll button
+	roll_button = find_child("RollButton", true, false) as Button
+	if roll_button:
+		roll_button.pressed.connect(_on_roll_pressed)
+		roll_button.hide()
+		print("  ✅ Roll button found")
 	
 	# Enemy panel
 	enemy_panel = find_child("EnemyPanel", true, false) as EnemyPanel
@@ -392,50 +399,10 @@ func _on_target_selection_changed(slot_index: int):
 # ============================================================================
 
 func on_turn_start():
-	"""Called at start of player turn"""
-	print("🎮 CombatUI: Player turn started")
-	
-	is_enemy_turn = false
-	
-	# Do NOT call refresh_dice_pool() here — roll_hand()'s signals
-	# already trigger DicePoolDisplay.refresh() via hand_rolled/hand_changed.
-	# Calling it again would cancel the entrance animation.
-	
-	# Action fields already cleared by CombatManager._start_player_turn()
-	# before roll_hand(). Do NOT call cancel_action() here — it fires
-	# restore_to_hand() which emits hand_changed and restarts the animation.
-	
-	# Hide action buttons
-	if action_buttons_container:
-		action_buttons_container.hide()
-	
-	# Disable target selection until action is selected
-	disable_target_selection()
-	
-	# Enable end turn button
-	if end_turn_button:
-		end_turn_button.disabled = false
-	
-	# Show dice pool
-	if dice_pool_display:
-		dice_pool_display.show()
-	
-	# Hide enemy hand
-	hide_enemy_hand()
-	
-	# Clear selection
-	selected_action_field = null
-	
-	# Refresh player actions
-	refresh_action_fields()
-	
-	# Reset per-turn charges
-	reset_action_charges_for_turn()
-	
-	# Select first living enemy as default
-	if enemy_panel:
-		enemy_panel.select_first_living_enemy()
-
+	"""Called after roll animation completes — now handled by enter_action_phase()"""
+	# Phase management is now handled by enter_prep_phase() / enter_action_phase()
+	# This is kept for backwards compatibility but is effectively a no-op
+	pass
 
 func set_player_turn(is_player: bool):
 	"""Update UI for whose turn it is"""
@@ -461,6 +428,75 @@ func refresh_dice_pool():
 	if dice_pool_display and dice_pool_display.has_method("refresh"):
 		dice_pool_display.refresh()
 
+
+# ============================================================================
+# PHASE MANAGEMENT
+# ============================================================================
+
+func enter_prep_phase():
+	"""Called at start of player turn — show Roll button, hide dice/actions"""
+	print("🎮 CombatUI: Entering PREP phase")
+
+	is_enemy_turn = false
+
+	# Hide combat action elements (not rolled yet)
+	if dice_pool_display:
+		dice_pool_display.hide()
+	if action_buttons_container:
+		action_buttons_container.hide()
+	if end_turn_button:
+		end_turn_button.disabled = true
+		end_turn_button.hide()
+
+	# Clear action fields (will rebuild on action phase)
+	for child in action_fields_grid.get_children():
+		child.queue_free()
+	action_fields.clear()
+
+	# Hide enemy hand
+	hide_enemy_hand()
+
+	# Show roll button
+	if roll_button:
+		roll_button.show()
+		roll_button.disabled = false
+
+	# Disable target selection
+	disable_target_selection()
+	selected_action_field = null
+
+
+func enter_action_phase():
+	"""Called after hand is rolled — hide Roll button, show normal combat UI"""
+	print("🎮 CombatUI: Entering ACTION phase")
+
+	# Hide roll button
+	if roll_button:
+		roll_button.hide()
+
+	# Show end turn button
+	if end_turn_button:
+		end_turn_button.show()
+		end_turn_button.disabled = false
+
+	# Show dice pool (hand was just rolled)
+	if dice_pool_display:
+		dice_pool_display.show()
+
+	# Rebuild action fields with charge tracking applied
+	refresh_action_fields()
+
+	# Reset per-turn charges
+	reset_action_charges_for_turn()
+
+	# Apply per-combat charge state to newly created fields
+	_apply_combat_charge_state()
+
+	# Select first living enemy as default
+	if enemy_panel:
+		enemy_panel.select_first_living_enemy()
+
+
 # ============================================================================
 # CHARGE MANAGEMENT
 # ============================================================================
@@ -480,10 +516,16 @@ func reset_action_charges_for_turn():
 			field.refresh_charge_state()
 
 func on_action_used(field: ActionField):
-	"""Called when an action is confirmed - consume charge"""
+	"""Called when an action is confirmed - consume charge and track it"""
 	if field and field.action_resource:
 		field.consume_charge()
 		field.refresh_charge_state()
+
+		# Track per-combat charge usage
+		var combat_manager = get_tree().get_first_node_in_group("combat_manager")
+		if combat_manager and combat_manager.has_method("track_charge_used"):
+			combat_manager.track_charge_used(field.action_resource)
+
 
 # ============================================================================
 # ACTION FIELD MANAGEMENT - PLAYER
@@ -1101,6 +1143,37 @@ func show_enemy_hand(enemy_combatant: Combatant):
 				if visual:
 					dice_grid.add_child(visual)
 					enemy_dice_visuals.append(visual)
+
+
+
+func _on_roll_pressed():
+	"""Roll button pressed — relay to CombatManager"""
+	var combat_manager = get_tree().get_first_node_in_group("combat_manager")
+	if combat_manager and combat_manager.has_method("_on_roll_pressed"):
+		combat_manager._on_roll_pressed()
+
+
+func _apply_combat_charge_state():
+	"""Apply per-combat charge usage from the tracker to current action fields.
+	Prevents charge reset exploits from re-equipping items mid-combat."""
+	var combat_manager = get_tree().get_first_node_in_group("combat_manager")
+	if not combat_manager:
+		return
+
+	for field in action_fields:
+		if not is_instance_valid(field) or not field.action_resource:
+			continue
+		if field.action_resource.charge_type != Action.ChargeType.LIMITED_PER_COMBAT:
+			continue
+
+		var used = combat_manager.get_charges_used(field.action_resource)
+		if used > 0:
+			# Reset to max first (configure_from_dict already called reset_charges_for_combat)
+			# Then burn the tracked charges
+			for i in range(used):
+				field.action_resource.consume_charge()
+			field.refresh_charge_state()
+			print("🔋 Applied %d spent charges to %s" % [used, field.action_resource.action_name])
 
 func hide_enemy_hand():
 	"""Hide enemy hand display and restore player UI"""
