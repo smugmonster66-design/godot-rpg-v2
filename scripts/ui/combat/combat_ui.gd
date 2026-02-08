@@ -1038,11 +1038,13 @@ func _clear_action_field_with_animation(field: ActionField):
 			_animate_die_consumed(visual)
 	
 	# Clear the field data after a short delay
+	var field_ref = weakref(field)
 	var tween = create_tween()
 	tween.tween_interval(0.25)
 	tween.tween_callback(func():
-		if is_instance_valid(field):
-			field.clear_dice()
+		var f = field_ref.get_ref()
+		if f and is_instance_valid(f):
+			f.clear_dice()
 	)
 
 
@@ -1056,6 +1058,7 @@ func _animate_die_consumed(visual: Control):
 	
 	# Capture current scale and animate from there
 	var start_scale = visual.scale
+	var vis_ref = weakref(visual)
 	
 	var tween = create_tween()
 	tween.set_parallel(true)
@@ -1063,8 +1066,9 @@ func _animate_die_consumed(visual: Control):
 	tween.chain().tween_property(visual, "modulate:a", 0.0, 0.15)
 	tween.tween_property(visual, "scale", start_scale * 0.3, 0.25).set_ease(Tween.EASE_IN)
 	tween.chain().tween_callback(func():
-		if is_instance_valid(visual):
-			visual.queue_free()
+		var v = vis_ref.get_ref()
+		if v and is_instance_valid(v):
+			v.queue_free()
 	)
 
 

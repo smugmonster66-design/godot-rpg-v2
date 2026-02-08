@@ -363,14 +363,18 @@ func _do_animate_die(index: int, hand_visual: Control, target_center: Vector2):
 		projectile.stop_emitting()
 		if projectile.visual:
 			projectile.visual.visible = false
+
+		var proj_ref = weakref(projectile)
 		get_tree().create_timer(0.3).timeout.connect(
 			func():
-				if is_instance_valid(projectile):
-					projectile.queue_free(),
+				var p = proj_ref.get_ref()
+				if p and is_instance_valid(p):
+					p.queue_free(),
 			CONNECT_ONE_SHOT
 		)
-		_reveal_hand_die(hand_visual)
 
+		if is_instance_valid(hand_visual):
+			_reveal_hand_die(hand_visual)
 
 # ============================================================================
 # PHASE 1: POOL DIE FLASH
