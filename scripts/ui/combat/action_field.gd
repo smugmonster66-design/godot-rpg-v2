@@ -704,19 +704,10 @@ func consume_dice():
 	_clear_placed_dice()
 	update_icon_state()
 
-func clear_dice(emit_return: bool = true):
-	if emit_return:
-		for die in placed_dice:
-			dice_returned.emit(die, global_position)
-	
-	# Clean up visuals
-	for visual in dice_visuals:
-		if is_instance_valid(visual):
-			visual.queue_free()
-	dice_visuals.clear()
-	placed_dice.clear()
-
-
+func clear_dice():
+	"""Alias for consume_dice - clears placed dice from slots"""
+	_clear_placed_dice()
+	update_icon_state()
 
 func reset_charges():
 	if action_resource:

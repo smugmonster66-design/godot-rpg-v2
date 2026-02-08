@@ -342,14 +342,19 @@ func _clear_affix_effects():
 # ============================================================================
 
 func start_drag_visual():
-	"""Visual feedback when drag starts — hide original so only preview shows"""
+	"""Visual feedback when drag starts"""
 	_is_being_dragged = true
 	_original_position = position
 	_original_scale = scale
 	
-	# Hide the original die in the hand — the manual preview follows the cursor
-	modulate.a = 0.0
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if animation_player and animation_player.has_animation("pickup"):
+		animation_player.play("pickup")
+	else:
+		# Fallback tween animation
+		var tween = create_tween()
+		tween.set_parallel(true)
+		tween.tween_property(self, "scale", Vector2(1.1, 1.1), 0.1)
+		tween.tween_property(self, "modulate", Color(1.2, 1.2, 1.2), 0.1)
 
 func end_drag_visual(was_placed: bool):
 	"""Visual feedback when drag ends"""
@@ -357,20 +362,23 @@ func end_drag_visual(was_placed: bool):
 	_was_placed = was_placed
 	
 	if was_placed:
-		# Stay hidden — die is now in the action field
-		modulate.a = 0.0
+		if animation_player and animation_player.has_animation("place"):
+			animation_player.play("place")
+		else:
+			# Fallback - just reset
+			modulate = Color.WHITE
+			scale = Vector2.ONE
 	else:
-		# Snap back — restore visibility with a pop animation
-		modulate.a = 1.0
-		mouse_filter = Control.MOUSE_FILTER_STOP
-		scale = Vector2(0.8, 0.8)
-		var tween = create_tween()
-		tween.tween_property(self, "scale", _original_scale, 0.2) \
-			.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		if animation_player and animation_player.has_animation("snap_back"):
+			animation_player.play("snap_back")
+		else:
+			# Fallback tween snap back
+			var tween = create_tween()
+			tween.set_parallel(true)
+			tween.tween_property(self, "scale", _original_scale, 0.15).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+			tween.tween_property(self, "modulate", Color.WHITE, 0.15)
 	
 	drag_ended.emit(self, was_placed)
-
-
 
 func show_reject_feedback():
 	"""Visual feedback when action is rejected"""

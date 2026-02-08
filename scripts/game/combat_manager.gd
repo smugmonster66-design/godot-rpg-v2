@@ -581,17 +581,10 @@ func _get_enemy_portrait_position(enemy_index: int) -> Vector2:
 # ============================================================================
 
 func _start_enemy_turn(enemy: Combatant):
-	"""Start an enemy's turn"""
-	
 	# --- STATUS: Enemy start-of-turn processing ---
-	print("  🔍 StatusTracker check: has_node=%s" % enemy.has_node("StatusTracker"))
 	if enemy.has_node("StatusTracker"):
 		var tracker: StatusTracker = enemy.get_node("StatusTracker")
-		print("  🔍 Tracker active statuses: %d" % tracker.active_statuses.size())
-		for sid in tracker.active_statuses:
-			print("    - %s: %s stacks" % [sid, tracker.active_statuses[sid]["current_stacks"]])
 		var tick_results = tracker.process_turn_start()
-		print("  🔍 Tick results: %d" % tick_results.size())
 		await _apply_status_tick_results(null, enemy, tick_results)
 		
 		if not enemy.is_alive():
@@ -599,6 +592,9 @@ func _start_enemy_turn(enemy: Combatant):
 			return
 	# --- END STATUS ---
 	
+	# ... rest of existing _start_enemy_turn code unchanged ...
+	
+	"""Start an enemy's turn"""
 	combat_state = CombatState.ENEMY_TURN
 	
 	if combat_ui and combat_ui.has_method("set_player_turn"):
@@ -631,7 +627,6 @@ func _start_enemy_turn(enemy: Combatant):
 		)
 	
 	_process_enemy_turn(enemy)
-
 
 
 
