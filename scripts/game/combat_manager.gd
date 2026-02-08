@@ -334,9 +334,6 @@ func _check_combat_end() -> bool:
 	return false
 
 
-#DEBUG STATUS EFFECT BLOCK FOR DELETION AFTER TESTING
-
-
 
 
 

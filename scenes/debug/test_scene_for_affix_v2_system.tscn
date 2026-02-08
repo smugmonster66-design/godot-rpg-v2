@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://byf4eujtbubnd"]
+
+[ext_resource type="Script" uid="uid://d1dyuc35bde8o" path="res://scripts/debug/test_affix_v2.gd" id="1_s740d"]
+
+[node name="Node" type="Node"]
+script = ExtResource("1_s740d")

@@ -88,6 +88,8 @@ func refresh():
 	
 	for i in range(hand.size()):
 		var die = hand[i]
+		if die.is_consumed:
+			continue  # Fully hidden from hand
 		var visual = _create_die_visual(die, i)
 		if visual:
 			# Start invisible when roll animation is pending
@@ -221,6 +223,90 @@ func _do_deferred_refresh():
 # ============================================================================
 # UTILITY
 # ============================================================================
+
+
+
+
+func animate_dice_return(dice_info: Array[Dictionary]):
+	"""Animate dice snapping back from action fields to hand positions."""
+	# Restore all dice to hand first (un-consume them)
+	for info in dice_info:
+		var die = info["die"]
+		if dice_pool and dice_pool.has_method("restore_to_hand"):
+			dice_pool.restore_to_hand(die)
+	
+	# Wait for deferred refresh to create the visuals
+	await get_tree().process_frame
+	await get_tree().process_frame  # Extra frame for layout
+	
+	# For each returning die, find its new visual and animate a temp from source
+	for info in dice_info:
+		var die: DieResource = info["die"]
+		var from_pos: Vector2 = info["from_pos"]
+		
+		# Find the real visual that refresh just created
+		var target_visual: Control = null
+		for visual in die_visuals:
+			if not is_instance_valid(visual):
+				continue
+			if visual.has_method("get_die") and visual.get_die() == die:
+				target_visual = visual
+				break
+			elif "die_resource" in visual and visual.die_resource == die:
+				target_visual = visual
+				break
+		
+		if not target_visual:
+			continue
+		
+		var target_pos = target_visual.global_position
+		
+		# Hide the real visual while the temp flies in
+		target_visual.modulate.a = 0.0
+		if "draggable" in target_visual:
+			target_visual.draggable = false
+		
+		# Create a temp visual for the flight animation
+		var temp: Control = null
+		if die.has_method("instantiate_combat_visual"):
+			temp = die.instantiate_combat_visual()
+		
+		if not temp:
+			# No temp possible, just show the real one
+			target_visual.modulate.a = 1.0
+			if "draggable" in target_visual:
+				target_visual.draggable = true
+			continue
+		
+		# Add temp to an overlay layer so it draws on top of everything
+		var overlay = get_tree().current_scene.find_child("DragOverlayLayer", true, false)
+		if overlay:
+			overlay.add_child(temp)
+		else:
+			get_tree().current_scene.add_child(temp)
+		
+		temp.global_position = from_pos - temp.size / 2
+		if "draggable" in temp:
+			temp.draggable = false
+		temp.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		
+		# Tween from action field slot → hand position
+		var tween = create_tween()
+		tween.tween_property(temp, "global_position", target_pos, 0.25) \
+			.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		
+		# Don't await here — let all dice fly simultaneously
+		tween.finished.connect(func():
+			if is_instance_valid(target_visual):
+				target_visual.modulate.a = 1.0
+				if "draggable" in target_visual:
+					target_visual.draggable = true
+			if is_instance_valid(temp):
+				temp.queue_free()
+		)
+
+
+
 
 func get_die_at_position(pos: Vector2) -> Control:
 	for visual in die_visuals:

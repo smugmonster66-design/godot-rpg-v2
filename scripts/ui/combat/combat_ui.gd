@@ -54,6 +54,9 @@ var target_selection_active: bool = false
 var is_enemy_turn: bool = false
 var enemy_action_fields: Array[ActionField] = []
 
+var _pending_dice_returns: Array[Dictionary] = []
+
+
 # ============================================================================
 # SIGNALS
 # ============================================================================
@@ -601,8 +604,22 @@ func _create_action_field(action_data: Dictionary) -> ActionField:
 			node = node.get_parent()
 	, CONNECT_ONE_SHOT)
 	
+	field.action_selected.connect(_on_action_field_selected)
+	field.dice_returned.connect(_on_dice_returned)
+	field.dice_return_complete.connect(_on_dice_return_complete)
+	
+	
 	return field
 
+
+
+func _on_dice_returned(die: DieResource, from_pos: Vector2):
+	_pending_dice_returns.append({"die": die, "from_pos": from_pos})
+
+func _on_dice_return_complete():
+	if _pending_dice_returns.size() > 0 and dice_pool_display:
+		dice_pool_display.animate_dice_return(_pending_dice_returns)
+		_pending_dice_returns.clear()
 
 
 
@@ -634,10 +651,6 @@ func _on_action_field_confirmed(action_data: Dictionary):
 	"""Action was confirmed from field directly"""
 	action_confirmed.emit(action_data)
 
-func _on_dice_returned(die: DieResource, _target_position: Vector2 = Vector2.ZERO):
-	"""Die was returned from action field"""
-	print("🎲 Die returned: %s" % die.display_name)
-	# Dice pool will refresh automatically via signals
 
 # ============================================================================
 # ENEMY TURN DISPLAY - Action Fields

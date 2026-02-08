@@ -676,9 +676,11 @@ func _gui_input(event: InputEvent):
 func cancel_action():
 	for i in range(placed_dice.size()):
 		var die = placed_dice[i]
-		var info = dice_source_info[i] if i < dice_source_info.size() else {}
-		var target_pos = info.get("position", Vector2.ZERO)
-		dice_returned.emit(die, target_pos)
+		var from_pos = Vector2.ZERO
+		if i < die_slot_panels.size():
+			var slot = die_slot_panels[i]
+			from_pos = slot.global_position + slot.size / 2
+		dice_returned.emit(die, from_pos)
 	
 	_clear_placed_dice()
 	action_cancelled.emit(self)

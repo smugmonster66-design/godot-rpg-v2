@@ -1,5 +1,14 @@
 # res://resources/data/affix.gd
-# Standalone affix resource with category-based effects
+# Standalone affix resource with category-based effects.
+#
+# v2 CHANGELOG:
+#   - Added ValueSource enum for dynamic value resolution
+#   - Added AffixCondition support (gating + scaling)
+#   - Added AffixSubEffect support (compound affixes)
+#   - Added tags array for filtering and interaction queries
+#   - Added ProcTrigger enum and proc configuration
+#   - apply_effect() now accepts optional context for dynamic resolution
+#   - Full backwards compatibility: existing .tres files work unchanged
 extends Resource
 class_name Affix
 
@@ -55,6 +64,37 @@ enum Category {
 }
 
 # ============================================================================
+# VALUE SOURCE ENUM (v2)
+# ============================================================================
+enum ValueSource {
+	STATIC,                  ## Use effect_number as-is (default, backwards-compatible)
+	PLAYER_STAT,             ## Named stat × effect_number (stat_name in effect_data)
+	PLAYER_HEALTH_PERCENT,   ## (current_hp / max_hp) × effect_number
+	EQUIPPED_ITEM_COUNT,     ## Filled equipment slots × effect_number
+	ACTIVE_AFFIX_COUNT,      ## Affixes in a category × effect_number (count_category in effect_data)
+	EQUIPMENT_RARITY_SUM,    ## Sum of equipped rarity values × effect_number
+	DICE_POOL_SIZE,          ## Dice in pool × effect_number
+	COMBAT_TURN_NUMBER,      ## Current turn × effect_number
+}
+
+# ============================================================================
+# PROC TRIGGER ENUM (v2)
+# ============================================================================
+enum ProcTrigger {
+	NONE,               ## Not a proc — skip during proc processing
+	ON_DEAL_DAMAGE,     ## After player deals damage to any target
+	ON_TAKE_DAMAGE,     ## After player takes damage
+	ON_TURN_START,      ## Start of player's turn
+	ON_TURN_END,        ## End of player's turn
+	ON_COMBAT_START,    ## When combat begins
+	ON_COMBAT_END,      ## When combat ends
+	ON_DIE_USED,        ## When any die is consumed from hand
+	ON_ACTION_USED,     ## When any action is executed
+	ON_KILL,            ## When player kills an enemy
+	ON_DEFEND,          ## When player uses a defend action
+}
+
+# ============================================================================
 # BASIC DATA
 # ============================================================================
 @export var affix_name: String = "New Affix"
@@ -62,13 +102,12 @@ enum Category {
 @export var icon: Texture2D = null
 
 # ============================================================================
-# DISPLAY OPTIONS (NEW)
+# DISPLAY OPTIONS
 # ============================================================================
 @export_group("Display")
 ## Whether this affix appears in item summary tooltips
 @export var show_in_summary: bool = true
 @export var show_in_active_list: bool = true
-
 
 # ============================================================================
 # CATEGORIZATION
@@ -76,10 +115,29 @@ enum Category {
 @export var category: Category = Category.NONE
 
 # ============================================================================
+# TAGS (v2) — For filtering, interaction queries, and UI grouping
+# ============================================================================
+@export_group("Tags")
+## Tags for filtering and interaction. Examples: "weapon", "physical",
+## "mastery", "fire", "defensive", "set_bonus", "temporary"
+@export var tags: Array[String] = []
+
+# ============================================================================
 # SOURCE TRACKING
 # ============================================================================
+@export_group("Source")
+## Name of the item/skill/set that granted this affix
 var source: String = ""
+## Type of source: "item", "skill", "set", "proc", "proc_temp", "proc_stack"
 var source_type: String = ""
+
+# ============================================================================
+# CONDITION (v2) — Checked before effect application
+# ============================================================================
+@export_group("Condition")
+## Optional condition resource. If null or NONE, affix always applies.
+## Drag an AffixCondition resource here to gate or scale this affix.
+@export var condition: AffixCondition = null
 
 # ============================================================================
 # EFFECT DATA
@@ -87,8 +145,20 @@ var source_type: String = ""
 @export_group("Effect Values")
 ## For simple numeric bonuses/multipliers
 @export var effect_number: float = 0.0
+## Where does the effect magnitude come from? (v2)
+## STATIC uses effect_number literally. Others derive at runtime.
+@export var value_source: ValueSource = ValueSource.STATIC
 ## For complex effects that need multiple values
 @export var effect_data: Dictionary = {}
+
+# ============================================================================
+# PROC CONFIGURATION (v2)
+# ============================================================================
+@export_group("Proc Configuration")
+## When this proc triggers. Only checked for PROC, ON_HIT, PER_TURN categories.
+@export var proc_trigger: ProcTrigger = ProcTrigger.NONE
+## Probability the proc fires when triggered (0.0 to 1.0).
+@export_range(0.0, 1.0) var proc_chance: float = 1.0
 
 # ============================================================================
 # GRANTED ACTION (for NEW_ACTION category)
@@ -97,31 +167,44 @@ var source_type: String = ""
 ## Drag an Action resource here if this affix grants a combat action
 @export var granted_action: Action = null
 
-
 # ============================================================================
 # GRANTED DICE (for DICE category)
 # ============================================================================
 @export_group("Granted Dice")
 ## Dice added to the player's pool when this affix is active.
-## Use with category DICE. Drag DieResource files here.
 @export var granted_dice: Array[DieResource] = []
 
-
 # ============================================================================
-# DICE VISUAL EFFECTS (NEW)
+# DICE VISUAL EFFECTS
 # ============================================================================
 @export_group("Dice Visual Effects")
 ## Optional DiceAffix to apply visual effects to dice granted by this item
-## This allows an item affix to both grant an action AND make dice look special
 @export var dice_visual_affix: DiceAffix = null
+
+# ============================================================================
+# SUB-EFFECTS (v2) — Compound effects
+# ============================================================================
+@export_group("Sub-Effects (Compound)")
+## When non-empty, the evaluator iterates these INSTEAD of the top-level
+## effect. Each AffixSubEffect has its own category, value, value source,
+## and optional condition override.
+@export var sub_effects: Array[AffixSubEffect] = []
 
 # ============================================================================
 # EFFECT APPLICATION
 # ============================================================================
 
-func apply_effect() -> Variant:
-	"""Apply this affix's effect and return the result"""
+func apply_effect(context: Dictionary = {}) -> Variant:
+	"""Apply this affix's effect and return the result.
 	
+	v2: Now accepts optional context for dynamic value resolution and
+	condition checking. Fully backwards-compatible — calling with no
+	args behaves identically to the original.
+	
+	Args:
+		context: Runtime state dictionary (player, equipment, combat state).
+		         Empty dict = STATIC resolution only (original behavior).
+	"""
 	# If this grants an action, return it
 	if granted_action and category == Category.NEW_ACTION:
 		return granted_action
@@ -130,14 +213,138 @@ func apply_effect() -> Variant:
 	if granted_dice.size() > 0 and category == Category.DICE:
 		return granted_dice
 	
-	if effect_number != 0.0:
-		return effect_number
+	# Resolve value (v2: dynamic resolution)
+	var value = resolve_value(context)
+	
+	if value != 0.0:
+		return value
 	elif effect_data.size() > 0:
 		return effect_data
 	
 	return 0.0
 
+func resolve_value(context: Dictionary = {}) -> float:
+	"""Resolve the numeric value using the configured value source.
+	
+	If no context is provided, falls back to STATIC (effect_number).
+	If a condition is attached, applies its multiplier (for scaling conditions).
+	"""
+	var base_value: float = _resolve_raw_value(context)
+	
+	# Apply condition multiplier (for scaling conditions like PER_EQUIPPED_ITEM)
+	if condition and context.size() > 0:
+		var cond_result = condition.evaluate(context)
+		if cond_result.blocked:
+			return 0.0  # Condition not met — no effect
+		base_value *= cond_result.multiplier
+	
+	return base_value
 
+func _resolve_raw_value(context: Dictionary) -> float:
+	"""Internal: resolve value from value_source without condition."""
+	if value_source == ValueSource.STATIC or context.is_empty():
+		return effect_number
+	
+	var player = context.get("player", null)
+	
+	match value_source:
+		ValueSource.PLAYER_STAT:
+			var stat_name = effect_data.get("stat_name", "strength")
+			return _get_stat(player, stat_name) * effect_number
+		
+		ValueSource.PLAYER_HEALTH_PERCENT:
+			var hp_pct = _get_health_percent(player, context)
+			return hp_pct * effect_number
+		
+		ValueSource.EQUIPPED_ITEM_COUNT:
+			return float(_count_equipped(player)) * effect_number
+		
+		ValueSource.ACTIVE_AFFIX_COUNT:
+			var cat_name = effect_data.get("count_category", "NONE")
+			var mgr = context.get("affix_manager", null)
+			return float(_count_in_category(mgr, cat_name)) * effect_number
+		
+		ValueSource.EQUIPMENT_RARITY_SUM:
+			return float(_sum_rarity(player)) * effect_number
+		
+		ValueSource.DICE_POOL_SIZE:
+			var pool = context.get("dice_pool", null)
+			var count = pool.dice.size() if pool and "dice" in pool else 0
+			return float(count) * effect_number
+		
+		ValueSource.COMBAT_TURN_NUMBER:
+			return float(context.get("turn_number", 0)) * effect_number
+		
+		_:
+			return effect_number
+
+# ============================================================================
+# CONDITION HELPERS (v2)
+# ============================================================================
+
+func has_condition() -> bool:
+	"""Check if this affix has a non-trivial condition."""
+	return condition != null and condition.type != AffixCondition.Type.NONE
+
+func check_condition(context: Dictionary) -> bool:
+	"""Check if this affix's condition is met. Returns true if no condition."""
+	if not has_condition():
+		return true
+	var result = condition.evaluate(context)
+	return not result.blocked
+
+func get_condition_multiplier(context: Dictionary) -> float:
+	"""Get the scaling multiplier from condition. Returns 1.0 if none."""
+	if not has_condition():
+		return 1.0
+	var result = condition.evaluate(context)
+	return result.multiplier
+
+# ============================================================================
+# COMPOUND EFFECT HELPERS (v2)
+# ============================================================================
+
+func is_compound() -> bool:
+	"""Check if this affix uses sub-effects instead of a single effect."""
+	return sub_effects.size() > 0
+
+func get_sub_effect_count() -> int:
+	return sub_effects.size()
+
+# ============================================================================
+# TAG HELPERS (v2)
+# ============================================================================
+
+func has_tag(tag: String) -> bool:
+	"""Check if this affix has a specific tag."""
+	return tag in tags
+
+func has_any_tag(check_tags: Array[String]) -> bool:
+	"""Check if this affix has any of the given tags."""
+	for tag in check_tags:
+		if tag in tags:
+			return true
+	return false
+
+func has_all_tags(check_tags: Array[String]) -> bool:
+	"""Check if this affix has ALL of the given tags."""
+	for tag in check_tags:
+		if tag not in tags:
+			return false
+	return true
+
+func add_tag(tag: String):
+	"""Add a tag if not already present."""
+	if tag not in tags:
+		tags.append(tag)
+
+func remove_tag(tag: String):
+	"""Remove a tag if present."""
+	tags.erase(tag)
+
+# ============================================================================
+# STACKING
+# ============================================================================
 
 func can_stack_with(other_affix: Affix) -> bool:
 	"""Check if this affix can stack with another"""
@@ -146,7 +353,7 @@ func can_stack_with(other_affix: Affix) -> bool:
 	return source != other_affix.source
 
 # ============================================================================
-# DICE VISUAL HELPERS (NEW)
+# DICE VISUAL HELPERS
 # ============================================================================
 
 func has_visual_effects() -> bool:
@@ -162,12 +369,14 @@ func get_dice_visual_affix() -> DiceAffix:
 # ============================================================================
 
 func is_category(check_category: Category) -> bool:
-	"""Check if this affix has a specific category"""
 	return category == check_category
 
 func get_category_name() -> String:
-	"""Get category name for display"""
 	return Category.keys()[category].capitalize().replace("_", " ")
+
+func is_proc_category() -> bool:
+	"""Check if this affix is in a proc-capable category."""
+	return category in [Category.PROC, Category.ON_HIT, Category.PER_TURN]
 
 # ============================================================================
 # UTILITY
@@ -181,15 +390,80 @@ func duplicate_with_source(p_source: String, p_source_type: String) -> Affix:
 	return copy
 
 func matches_source(p_source: String) -> bool:
-	"""Check if this affix came from a specific source"""
 	return source == p_source
 
 func get_display_text() -> String:
-	"""Get formatted display text for UI"""
 	var text = affix_name
 	if source:
 		text += " (from %s)" % source
 	return text
 
+func get_value_description() -> String:
+	"""Get a description of how the value is resolved."""
+	if value_source == ValueSource.STATIC:
+		return str(effect_number)
+	var src_name = ValueSource.keys()[value_source].replace("_", " ").to_lower()
+	return "%s × %s" % [effect_number, src_name]
+
+func get_full_description() -> String:
+	"""Get complete description including condition and value source."""
+	var parts: Array[String] = []
+	if description != "":
+		parts.append(description)
+	if has_condition():
+		parts.append("[%s]" % condition.get_description())
+	if value_source != ValueSource.STATIC:
+		parts.append("(%s)" % get_value_description())
+	return " ".join(parts) if parts.size() > 0 else affix_name
+
 func _to_string() -> String:
 	return "Affix<%s: %s>" % [affix_name, get_category_name()]
+
+# ============================================================================
+# VALUE RESOLUTION HELPERS (private)
+# ============================================================================
+
+func _get_stat(player, stat_name: String) -> float:
+	if not player:
+		return 0.0
+	if not player is Dictionary and player.has_method("get_stat"):
+		return float(player.get_stat(stat_name))
+	if player is Dictionary:
+		return float(player.get(stat_name, 0))
+	if stat_name in player:
+		return float(player.get(stat_name))
+	return 0.0
+
+func _get_health_percent(player, context: Dictionary) -> float:
+	var source_combatant = context.get("source", null)
+	if source_combatant and source_combatant.has_method("get_health_percent"):
+		return source_combatant.get_health_percent()
+	if player and player.get("max_hp") and player.max_hp > 0:
+		return float(player.current_hp) / float(player.max_hp)
+	return 1.0
+
+func _count_equipped(player) -> int:
+	if not player:
+		return 0
+	var count = 0
+	for slot in player.equipment:
+		if player.equipment[slot] != null:
+			count += 1
+	return count
+
+func _sum_rarity(player) -> int:
+	if not player:
+		return 0
+	var total = 0
+	for slot in player.equipment:
+		var item = player.equipment[slot]
+		if item:
+			total += item.get("rarity", 0)
+	return total
+
+func _count_in_category(affix_manager, category_name: String) -> int:
+	if not affix_manager:
+		return 0
+	if category_name in Affix.Category:
+		return affix_manager.get_pool(Affix.Category.get(category_name)).size()
+	return 0

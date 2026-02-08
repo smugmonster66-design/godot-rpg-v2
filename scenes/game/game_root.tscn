@@ -26,6 +26,16 @@ shader_parameter/ko_tint_strength = 0.3
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_a6cr8"]
 shader = ExtResource("10_ndy65")
+shader_parameter/glow_color = Color(1, 1, 1, 1)
+shader_parameter/glow_intensity = 0.0
+shader_parameter/color_strength = 0.6
+shader_parameter/bloom_strength = 0.8
+shader_parameter/pulse_speed = 1.5
+shader_parameter/pulse_amount = 0.2
+shader_parameter/shimmer_speed = 0.4
+shader_parameter/shimmer_amount = 0.1
+shader_parameter/outer_glow_size = 3.0
+shader_parameter/outer_glow_strength = 0.5
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_cylga"]
 texture = ExtResource("6_0krdv")
