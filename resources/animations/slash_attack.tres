@@ -1,9 +1,0 @@
-[gd_resource type="Resource" script_class="CombatAnimationSet" load_steps=3 format=3 uid="uid://uhlgnrnt23tp"]
-
-[ext_resource type="PackedScene" uid="uid://bh807gq78qxgr" path="res://scenes/effects/impact/hit_slash.tscn" id="1_tr42c"]
-[ext_resource type="Script" uid="uid://luoa1f4jirnk" path="res://resources/data/combat_animation_set.gd" id="2_duntp"]
-
-[resource]
-script = ExtResource("2_duntp")
-impact_effect = ExtResource("1_tr42c")
-metadata/_custom_type_script = "uid://luoa1f4jirnk"

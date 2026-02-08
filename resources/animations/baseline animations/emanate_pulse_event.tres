@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CombatVisualEvent" load_steps=3 format=3 uid="uid://bsuewopeg0yt2"]
+
+[ext_resource type="Script" uid="uid://b3idov841dq17" path="res://resources/data/combat_visual_event.gd" id="1_i0hoj"]
+[ext_resource type="Resource" uid="uid://bapteeycjq5ai" path="res://resources/effects/emanate_base_preset.tres" id="1_lk03k"]
+
+[resource]
+script = ExtResource("1_i0hoj")
+effect_type = 1
+effect_preset = ExtResource("1_lk03k")
+metadata/_custom_type_script = "uid://b3idov841dq17"

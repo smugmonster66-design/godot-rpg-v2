@@ -1,11 +1,14 @@
-[gd_resource type="Resource" script_class="Action" load_steps=2 format=3 uid="uid://c8dyd1d4rmg7g"]
+[gd_resource type="Resource" script_class="Action" load_steps=4 format=3 uid="uid://c8dyd1d4rmg7g"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_dbl10"]
+[ext_resource type="Resource" uid="uid://bsuewopeg0yt2" path="res://resources/animations/baseline animations/emanate_pulse_event.tres" id="1_r4sco"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_uwitl"]
 
 [resource]
 script = ExtResource("1_dbl10")
 action_name = "Stab"
 action_description = "Deals 1D Piercing damage."
+confirm_event = ExtResource("1_r4sco")
 action_category = 1
 base_damage = 2
 metadata/_custom_type_script = "uid://b1kctq61bwysh"

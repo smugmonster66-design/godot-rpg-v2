@@ -104,7 +104,9 @@ func initialize_player():
 	
 	player = Player.new()
 	add_child(player.dice_pool)
+	add_child(player.status_tracker)
 	print("  ✅ Dice pool added to scene tree")
+	print("  ✅ Status tracker added to scene tree")
 	
 	# Load warrior class resource
 	player.add_class("Warrior", warrior)
@@ -122,6 +124,7 @@ func initialize_player():
 	
 	# Emit signal so other systems can initialize with player
 	player_created.emit(player)
+
 
 # ============================================================================
 # SCENE MANAGEMENT

@@ -53,6 +53,23 @@ var current_charges: int = 0
 @export_group("Animation")
 @export var animation_set: CombatAnimationSet
 
+
+# ============================================================================
+# VISUAL EVENTS — drag CombatVisualEvent .tres files here
+# ============================================================================
+@export_group("Visual Events")
+
+## Plays when the action is confirmed (particles from action field → target)
+@export var confirm_event: CombatVisualEvent = null
+
+## Plays when damage/heal is applied (impact at target)
+@export var impact_event: CombatVisualEvent = null
+
+## Plays when dice are placed into this action's field
+@export var placement_event: CombatVisualEvent = null
+
+
+
 # ============================================================================
 # LEGACY SUPPORT (for backwards compatibility)
 # ============================================================================
@@ -134,6 +151,9 @@ func to_dict() -> Dictionary:
 		"mana_cost": mana_cost,
 		"cooldown": cooldown_turns,
 		"effects": effects,
+		"confirm_event": confirm_event,
+		"impact_event": impact_event,
+		"placement_event": placement_event,
 		# Charge info
 		"charge_type": charge_type,
 		"max_charges": max_charges,

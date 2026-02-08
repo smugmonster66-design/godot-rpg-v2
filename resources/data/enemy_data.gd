@@ -60,6 +60,23 @@ enum TargetPriority {
 @export_range(0.3, 2.0, 0.1) var action_delay: float = 0.8
 @export_range(0.2, 1.0, 0.1) var dice_drag_duration: float = 0.4
 
+
+
+# ============================================================================
+# VISUAL EVENTS
+# ============================================================================
+@export_group("Visual Events")
+
+## Default attack effect (enemy → player). Used when action has no confirm_event.
+@export var attack_event: CombatVisualEvent = null
+
+## Effect when this enemy takes damage (flash/impact on self)
+@export var hit_event: CombatVisualEvent = null
+
+## Effect when this enemy dies
+@export var death_event: CombatVisualEvent = null
+
+
 # ============================================================================
 # REWARDS
 # ============================================================================

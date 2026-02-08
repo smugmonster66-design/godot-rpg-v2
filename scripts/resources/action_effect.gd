@@ -1,5 +1,6 @@
 # res://scripts/resources/action_effect.gd
-# Granular effect that an action performs
+# Granular effect that an action performs.
+# Now references StatusAffix (not the old Status resource) and supports CLEANSE.
 extends Resource
 class_name ActionEffect
 
@@ -18,7 +19,8 @@ enum EffectType {
 	DAMAGE,
 	HEAL,
 	ADD_STATUS,
-	REMOVE_STATUS
+	REMOVE_STATUS,
+	CLEANSE,         ## NEW: Remove statuses by cleanse tag
 }
 
 enum DamageType {
@@ -63,13 +65,24 @@ enum DamageType {
 @export var heal_uses_dice: bool = false
 
 # ============================================================================
-# STATUS CONFIGURATION
+# STATUS CONFIGURATION (ADD_STATUS / REMOVE_STATUS)
 # ============================================================================
 @export_group("Status Settings")
-## Status to add or remove
-@export var status: Status = null
+## StatusAffix resource to add or remove
+@export var status_affix: StatusAffix = null
 ## Number of stacks to add/remove (0 = remove all for REMOVE_STATUS)
 @export var stack_count: int = 1
+
+# ============================================================================
+# CLEANSE CONFIGURATION (NEW)
+# ============================================================================
+@export_group("Cleanse Settings")
+## Tags to match against status cleanse_tags.
+## Examples: ["debuff"] for all debuffs, ["dot", "fire"] for fire DoTs,
+##           ["poison"] for just poison.
+@export var cleanse_tags: Array[String] = []
+## Max statuses to remove. 0 = no limit.
+@export var cleanse_max_removals: int = 0
 
 # ============================================================================
 # EXECUTION
@@ -103,8 +116,14 @@ func _execute_on_target(source, target_entity, dice_values: Array) -> Dictionary
 			result.merge(_add_status_result())
 		EffectType.REMOVE_STATUS:
 			result.merge(_remove_status_result())
+		EffectType.CLEANSE:
+			result.merge(_cleanse_result())
 	
 	return result
+
+# ============================================================================
+# DAMAGE CALCULATION
+# ============================================================================
 
 func _calculate_damage(dice_values: Array) -> Dictionary:
 	"""Calculate damage from dice and base values"""
@@ -125,6 +144,10 @@ func _calculate_damage(dice_values: Array) -> Dictionary:
 		"multiplier": damage_multiplier
 	}
 
+# ============================================================================
+# HEAL CALCULATION
+# ============================================================================
+
 func _calculate_heal(dice_values: Array) -> Dictionary:
 	"""Calculate healing amount"""
 	var dice_total = 0
@@ -143,23 +166,34 @@ func _calculate_heal(dice_values: Array) -> Dictionary:
 		"multiplier": heal_multiplier
 	}
 
+# ============================================================================
+# STATUS RESULTS
+# ============================================================================
+
 func _add_status_result() -> Dictionary:
-	"""Build result for adding status"""
+	"""Build result for adding status via StatusAffix"""
 	return {
-		"status": status,
+		"status_affix": status_affix,
 		"stacks_to_add": stack_count
 	}
 
 func _remove_status_result() -> Dictionary:
-	"""Build result for removing status"""
+	"""Build result for removing status via StatusAffix"""
 	return {
-		"status": status,
+		"status_affix": status_affix,
 		"stacks_to_remove": stack_count,  # 0 means remove all
 		"remove_all": stack_count == 0
 	}
 
+func _cleanse_result() -> Dictionary:
+	"""Build result for cleansing statuses by tag"""
+	return {
+		"cleanse_tags": cleanse_tags,
+		"cleanse_max_removals": cleanse_max_removals,
+	}
+
 # ============================================================================
-# UTILITY
+# DISPLAY HELPERS
 # ============================================================================
 
 func get_target_type_name() -> String:
@@ -177,6 +211,7 @@ func get_effect_type_name() -> String:
 		EffectType.HEAL: return "Heal"
 		EffectType.ADD_STATUS: return "Add Status"
 		EffectType.REMOVE_STATUS: return "Remove Status"
+		EffectType.CLEANSE: return "Cleanse"
 		_: return "Unknown"
 
 func get_damage_type_name() -> String:
@@ -215,15 +250,22 @@ func get_summary() -> String:
 			parts.append("Heal %s" % heal_str)
 		
 		EffectType.ADD_STATUS:
-			var status_name = status.status_name if status else "None"
+			var status_name = status_affix.affix_name if status_affix else "None"
 			parts.append("Apply %d %s" % [stack_count, status_name])
 		
 		EffectType.REMOVE_STATUS:
-			var status_name = status.status_name if status else "None"
+			var status_name = status_affix.affix_name if status_affix else "None"
 			if stack_count == 0:
 				parts.append("Remove all %s" % status_name)
 			else:
 				parts.append("Remove %d %s" % [stack_count, status_name])
+		
+		EffectType.CLEANSE:
+			var tag_str = ", ".join(cleanse_tags) if cleanse_tags.size() > 0 else "none"
+			if cleanse_max_removals > 0:
+				parts.append("Cleanse %d [%s]" % [cleanse_max_removals, tag_str])
+			else:
+				parts.append("Cleanse all [%s]" % tag_str)
 	
 	return " ".join(parts)
 

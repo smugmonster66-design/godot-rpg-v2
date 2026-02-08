@@ -52,6 +52,34 @@ func _ready():
 	# TIMING FIX: Check if player already exists (GameManager autoload ran first)
 	call_deferred("_check_existing_player")
 
+	# Debug: center line
+	var debug_line = Control.new()
+	debug_line.name = "DebugCenterLine"
+	debug_line.z_index = 100
+	debug_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	debug_line.set_anchors_preset(Control.PRESET_FULL_RECT)
+	debug_line.draw.connect(func():
+		var cx = debug_line.size.x / 2.0
+		debug_line.draw_line(Vector2(cx, 0), Vector2(cx, debug_line.size.y), Color.RED, 2.0)
+	)
+	ui_layer.add_child(debug_line)
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+
+
 	print("🎮 GameRoot ready")
 
 func _check_existing_player():

@@ -308,30 +308,29 @@ func _update_status_icons():
 		status_container.add_child(icon_rect)
 
 func _get_active_effects() -> Array[Dictionary]:
-	"""Collect active status effects from player."""
+	"""Collect active status effects from player's StatusTracker."""
 	var effects: Array[Dictionary] = []
 
-	if not player or not player.status_effects:
+	if not player or not player.status_tracker:
 		return effects
 
-	for effect_name in player.status_effects:
-		var data = player.status_effects[effect_name]
-		var is_active: bool = false
+	var active_statuses = player.status_tracker.get_all_active()
+	for instance in active_statuses:
+		var status_affix: StatusAffix = instance.get("status_affix")
+		var stacks: int = instance.get("current_stacks", 0)
+		var remaining_turns: int = instance.get("remaining_turns", -1)
+		var status_id: String = status_affix.status_id if status_affix else "unknown"
 
-		if data is Dictionary:
-			is_active = data.get("amount", 0) > 0 or data.get("turns", 0) > 0
-		elif data is int:
-			is_active = data > 0
-		elif data is float:
-			is_active = data > 0.0
-
-		if is_active:
+		if stacks > 0:
 			effects.append({
-				"name": effect_name,
-				"data": data,
+				"name": status_id,
+				"stacks": stacks,
+				"turns": remaining_turns,
+				"status_affix": status_affix,
 			})
 
 	return effects
+
 
 func _create_status_icon(effect: Dictionary) -> TextureRect:
 	"""Create a single status effect icon."""
@@ -340,21 +339,38 @@ func _create_status_icon(effect: Dictionary) -> TextureRect:
 	icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon_rect.tooltip_text = effect.name.capitalize()
 
-	# Try to load icon from res://assets/icons/status/
-	var icon_path = "res://assets/icons/status/%s.png" % effect.name
-	if ResourceLoader.exists(icon_path):
-		icon_rect.texture = load(icon_path)
+	var status_name: String = effect.get("name", "")
+	var stacks: int = effect.get("stacks", 0)
+	var turns: int = effect.get("turns", -1)
+	var status_affix: StatusAffix = effect.get("status_affix")
+
+	# Build tooltip
+	var tooltip: String = status_name.capitalize()
+	if stacks > 1:
+		tooltip += " x%d" % stacks
+	if turns > 0:
+		tooltip += " (%d turns)" % turns
+	icon_rect.tooltip_text = tooltip
+
+	# Use icon from StatusAffix resource if available
+	if status_affix and status_affix.icon:
+		icon_rect.texture = status_affix.icon
 	else:
-		# Fallback: colored placeholder
-		icon_rect.modulate = _get_status_color(effect.name)
-		# Create a simple white square as placeholder
-		var img = Image.create(16, 16, false, Image.FORMAT_RGBA8)
-		img.fill(Color.WHITE)
-		icon_rect.texture = ImageTexture.create_from_image(img)
+		# Fallback: try file path
+		var icon_path = "res://assets/icons/status/%s.png" % status_name
+		if ResourceLoader.exists(icon_path):
+			icon_rect.texture = load(icon_path)
+		else:
+			# Fallback: colored placeholder
+			icon_rect.modulate = _get_status_color(status_name)
+			var img = Image.create(16, 16, false, Image.FORMAT_RGBA8)
+			img.fill(Color.WHITE)
+			icon_rect.texture = ImageTexture.create_from_image(img)
 
 	return icon_rect
+
+
 
 func _get_status_color(effect_name: String) -> Color:
 	"""Get a representative color for a status effect."""
@@ -427,9 +443,13 @@ func _connect_player_signals():
 		if not player.class_changed.is_connected(_on_class_changed):
 			player.class_changed.connect(_on_class_changed)
 
+	# Status updates via the parameterless status_changed signal
 	if player.has_signal("status_changed"):
 		if not player.status_changed.is_connected(_on_status_changed):
 			player.status_changed.connect(_on_status_changed)
+
+
+
 
 func _disconnect_player_signals():
 	"""Disconnect from previous player signals."""
@@ -441,6 +461,8 @@ func _disconnect_player_signals():
 		player.class_changed.disconnect(_on_class_changed)
 	if player.has_signal("status_changed") and player.status_changed.is_connected(_on_status_changed):
 		player.status_changed.disconnect(_on_status_changed)
+
+
 
 func _on_equipment_changed(_slot: String, _item):
 	_update_rarity_glow()

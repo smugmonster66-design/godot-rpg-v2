@@ -341,6 +341,17 @@ func _start_player_turn():
 	"""Start player's turn"""
 	combat_state = CombatState.PLAYER_TURN
 	
+	# --- STATUS: Start-of-turn processing ---
+	if player:
+		var tick_results = player.process_turn_start_statuses()
+		await _apply_status_tick_results(player, player_combatant, tick_results)
+		
+		# Check if player died from DoT damage
+		if not player_combatant.is_alive():
+			_check_player_death()
+			return
+	# --- END STATUS ---
+	
 	print("🎲 _start_player_turn debug:")
 	print("  player: %s" % player)
 	print("  GameManager.player: %s" % GameManager.player)
@@ -391,15 +402,26 @@ func _start_player_turn():
 		if combat_ui.has_method("set_player_turn"):
 			combat_ui.set_player_turn(true)
 
+
+
 func _on_player_end_turn():
 	"""Player ended their turn"""
 	if combat_state != CombatState.PLAYER_TURN:
 		return
 	
 	print("🎮 Player ended turn")
+	
+	# --- STATUS: End-of-turn processing ---
+	if player:
+		var tick_results = player.process_turn_end_statuses()
+		await _apply_status_tick_results(player, player_combatant, tick_results)
+		
+		if not player_combatant.is_alive():
+			_check_player_death()
+			return
+	# --- END STATUS ---
+	
 	_end_current_turn()
-
-
 
 func _on_action_confirmed(action_data: Dictionary):
 	"""Player confirmed an action - plays animation then applies effect"""
@@ -554,6 +576,19 @@ func _get_enemy_portrait_position(enemy_index: int) -> Vector2:
 # ============================================================================
 
 func _start_enemy_turn(enemy: Combatant):
+	# --- STATUS: Enemy start-of-turn processing ---
+	if enemy.has_node("StatusTracker"):
+		var tracker: StatusTracker = enemy.get_node("StatusTracker")
+		var tick_results = tracker.process_turn_start()
+		await _apply_status_tick_results(null, enemy, tick_results)
+		
+		if not enemy.is_alive():
+			_check_enemy_death(enemy)
+			return
+	# --- END STATUS ---
+	
+	# ... rest of existing _start_enemy_turn code unchanged ...
+	
 	"""Start an enemy's turn"""
 	combat_state = CombatState.ENEMY_TURN
 	
@@ -715,8 +750,21 @@ func _finish_enemy_turn(enemy: Combatant):
 	if combat_ui and combat_ui.has_method("hide_enemy_hand"):
 		combat_ui.hide_enemy_hand()
 	
+	# --- STATUS: Enemy end-of-turn processing ---
+	if enemy.has_node("StatusTracker"):
+		var tracker: StatusTracker = enemy.get_node("StatusTracker")
+		var tick_results = tracker.process_turn_end()
+		await _apply_status_tick_results(null, enemy, tick_results)
+		
+		if not enemy.is_alive():
+			_check_enemy_death(enemy)
+			return
+	# --- END STATUS ---
+	
 	enemy.end_turn()
 	_end_current_turn()
+
+
 
 func _on_combatant_turn_completed(_combatant: Combatant):
 	pass
@@ -748,7 +796,6 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 		
 		1:  # DEFEND
 			print("  🛡️ %s defends" % source.combatant_name)
-			# Add block/armor buff if you have that system
 		
 		2:  # HEAL
 			var heal_amount = _calculate_heal(action_data, source)
@@ -764,9 +811,146 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 		
 		3:  # SPECIAL
 			print("  ✨ %s uses special ability" % source.combatant_name)
-			# Handle special abilities - could check action_data for specifics
+	
+	# --- STATUS: Process ADD_STATUS / REMOVE_STATUS / CLEANSE effects ---
+	var action_resource = action_data.get("action_resource") as Action
+	if action_resource and action_resource.effects.size() > 0:
+		var has_status_effects = false
+		for effect in action_resource.effects:
+			if effect and effect.effect_type in [
+				ActionEffect.EffectType.ADD_STATUS,
+				ActionEffect.EffectType.REMOVE_STATUS,
+				ActionEffect.EffectType.CLEANSE
+			]:
+				has_status_effects = true
+				break
+		
+		if has_status_effects:
+			var all_enemies_alive: Array = []
+			for e in enemy_combatants:
+				if e.is_alive():
+					all_enemies_alive.append(e)
+			var all_allies: Array = [player_combatant] if player_combatant else []
+			
+			var placed_dice: Array = action_data.get("placed_dice", [])
+			var dice_values: Array = []
+			for die in placed_dice:
+				if die is DieResource:
+					dice_values.append(die.get_total_value())
+			
+			var primary_target = targets[0] if targets.size() > 0 else null
+			var results = action_resource.execute_simple(
+				source, primary_target, all_enemies_alive, all_allies, dice_values
+			)
+			
+			_process_action_effect_results(results, source.combatant_name)
+	# --- END STATUS ---
+
+func _apply_status_tick_results(player_ref, combatant: Combatant, 
+		tick_results: Array[Dictionary]) -> void:
+	"""Apply damage/heal from status tick results and update UI.
+	
+	Args:
+		player_ref: The Player resource (null for enemies).
+		combatant: The Combatant node to apply damage/heal to.
+		tick_results: Array from StatusTracker.process_turn_start/end().
+	"""
+	for result in tick_results:
+		var status_name: String = result.get("status_name", "")
+		var damage: int = result.get("damage", 0)
+		var is_magical: bool = result.get("damage_is_magical", false)
+		var heal: int = result.get("heal", 0)
+		
+		if damage > 0:
+			print("  🔥 %s takes %d %s damage from %s" % [
+				combatant.combatant_name,
+				damage,
+				"magical" if is_magical else "physical",
+				status_name
+			])
+			
+			if player_ref:
+				player_ref.take_damage(damage, is_magical)
+				_sync_player_health()
+			else:
+				combatant.take_damage(damage)
+		
+		if heal > 0:
+			print("  💚 %s heals %d from %s" % [
+				combatant.combatant_name, heal, status_name
+			])
+			
+			if player_ref:
+				player_ref.heal(heal)
+				_sync_player_health()
+			else:
+				combatant.heal(heal)
+	
+	# Update health displays after all ticks
+	if combatant == player_combatant:
+		_update_player_health()
+	else:
+		var enemy_index = enemy_combatants.find(combatant)
+		if enemy_index >= 0:
+			_update_enemy_health(enemy_index)
+	
+	# Brief pause so player can see tick damage
+	if tick_results.size() > 0:
+		await get_tree().create_timer(0.3).timeout
 
 
+func _sync_player_health():
+	"""Sync player HP to the player combatant node."""
+	if player and player_combatant:
+		player_combatant.current_health = player.current_hp
+		player_combatant.max_health = player.max_hp
+		player_combatant.update_display()
+
+func _process_action_effect_results(results: Array[Dictionary], source_name: String) -> void:
+	"""Process ActionEffect execution results for status/cleanse effects.
+	Called after Action.execute_simple() returns results."""
+	for result in results:
+		var effect_type = result.get("effect_type", -1)
+		var target = result.get("target", null)
+		
+		var tracker: StatusTracker = _get_status_tracker(target)
+		if not tracker:
+			continue
+		
+		match effect_type:
+			ActionEffect.EffectType.ADD_STATUS:
+				var status_affix: StatusAffix = result.get("status_affix")
+				var stacks: int = result.get("stacks_to_add", 1)
+				if status_affix:
+					tracker.apply_status(status_affix, stacks, source_name)
+			
+			ActionEffect.EffectType.REMOVE_STATUS:
+				var status_affix: StatusAffix = result.get("status_affix")
+				var stacks: int = result.get("stacks_to_remove", 0)
+				var remove_all: bool = result.get("remove_all", false)
+				if status_affix:
+					if remove_all:
+						tracker.remove_status(status_affix.status_id)
+					else:
+						tracker.remove_stacks(status_affix.status_id, stacks)
+			
+			ActionEffect.EffectType.CLEANSE:
+				var tags: Array[String] = []
+				var raw_tags = result.get("cleanse_tags", [])
+				for tag in raw_tags:
+					tags.append(tag)
+				var max_removals: int = result.get("cleanse_max_removals", 0)
+				if tags.size() > 0:
+					tracker.cleanse(tags, max_removals)
+
+
+func _get_status_tracker(target) -> StatusTracker:
+	"""Get the StatusTracker for a target (player or enemy combatant)."""
+	if target == player_combatant and player and player.status_tracker:
+		return player.status_tracker
+	elif target is Combatant and target.has_node("StatusTracker"):
+		return target.get_node("StatusTracker")
+	return null
 
 func _calculate_damage(action_data: Dictionary, attacker, defender) -> int:
 	"""Calculate damage using split elemental damage system"""
@@ -962,6 +1146,16 @@ func end_combat(player_won: bool):
 		print("🎉 Victory!")
 	else:
 		print("💀 Defeat!")
+	
+	# Clear player status effects
+	if player:
+		player.clear_combat_status_effects()
+	
+	# Clear enemy status effects
+	for enemy in enemy_combatants:
+		if enemy.has_node("StatusTracker"):
+			enemy.get_node("StatusTracker").clear_all()
+	
 	
 	combat_ended.emit(player_won)
 

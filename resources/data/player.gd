@@ -54,22 +54,9 @@ var available_classes: Dictionary = {}
 # ============================================================================
 # STATUS EFFECTS
 # ============================================================================
-var status_effects: Dictionary = {
-	"overhealth": {"amount": 0, "turns": 0},
-	"block": 0,
-	"dodge": 0,
-	"poison": 0,
-	"burn": {"amount": 0, "turns": 0},
-	"bleed": 0,
-	"slowed": {"amount": 0, "turns": 0},
-	"stunned": {"amount": 0, "turns": 0},
-	"corrode": {"amount": 0, "turns": 0},
-	"chill": 0,
-	"expose": 0,
-	"shadow": 0,
-	"ignition": 0,
-	"enfeeble": {"amount": 0, "turns": 0}
-}
+## StatusTracker node — manages all active statuses as StatusAffix instances.
+## GameManager adds this to the scene tree after creating the Player.
+var status_tracker: StatusTracker = null
 
 # ============================================================================
 # DICE POOL
@@ -96,7 +83,7 @@ signal mana_changed(current: int, maximum: int)
 signal class_changed(new_class: PlayerClass)
 signal player_died()
 signal inventory_changed()
-
+signal status_changed() 
 
 # ============================================================================
 # INITIALIZATION
@@ -112,9 +99,33 @@ func _init():
 	# NOTE: Do NOT call add_child() here - Resource can't have children
 	# GameManager.initialize_player() calls: add_child(player.dice_pool)
 	
+	# Create status tracker - GameManager will add it to scene tree
+	status_tracker = StatusTracker.new()
+	status_tracker.name = "StatusTracker"
+	_connect_status_tracker_signals()
+	
 	set_tracker.initialize(self)
 	
 	print("🎲 Player resource initialized")
+
+func _connect_status_tracker_signals():
+	"""Bridge StatusTracker signals to legacy signals for UI compatibility."""
+	status_tracker.status_applied.connect(
+		func(sid: String, _instance: Dictionary):
+			status_effect_changed.emit(sid, status_tracker.get_stacks(sid))
+			status_changed.emit()
+	)
+	status_tracker.status_stacks_changed.connect(
+		func(sid: String, _instance: Dictionary):
+			status_effect_changed.emit(sid, status_tracker.get_stacks(sid))
+			status_changed.emit()
+	)
+	status_tracker.status_removed.connect(
+		func(sid: String):
+			status_effect_changed.emit(sid, 0)
+			status_changed.emit()
+	)
+
 
 # ============================================================================
 # STAT MANAGEMENT
@@ -142,7 +153,12 @@ func get_total_stat(stat_name: String) -> int:
 		for affix in affix_manager.get_pool(mult_category):
 			subtotal = int(subtotal * affix.apply_effect())
 	
+	# Status effect modifiers (e.g. Enfeeble reducing damage_multiplier)
+	if status_tracker:
+		subtotal += int(status_tracker.get_total_stat_modifier(stat_name))
+	
 	return subtotal
+
 
 
 func get_equipment_stat_bonus(stat_name: String) -> int:
@@ -166,8 +182,12 @@ func get_armor() -> int:
 	for affix in affix_manager.get_pool(Affix.Category.ARMOR_BONUS):
 		total += int(affix.apply_effect())
 	
-	total = max(0, total - status_effects["corrode"]["amount"])
-	return total
+	# Corrode reduces armor via stat_modifier_per_stack {"armor": -2}
+	if status_tracker:
+		total += int(status_tracker.get_total_stat_modifier("armor"))
+	
+	return maxi(0, total)
+	
 
 
 func get_barrier() -> int:
@@ -179,7 +199,11 @@ func get_barrier() -> int:
 	for affix in affix_manager.get_pool(Affix.Category.BARRIER_BONUS):
 		total += int(affix.apply_effect())
 	
-	return total
+	# Future: status effects that reduce barrier
+	if status_tracker:
+		total += int(status_tracker.get_total_stat_modifier("barrier"))
+	
+	return maxi(0, total)
 
 
 func recalculate_stats():
@@ -214,24 +238,31 @@ func recalculate_stats():
 # ============================================================================
 
 func take_damage(amount: int, is_magical: bool = false) -> int:
-	var damage_reduction = get_barrier() if is_magical else get_armor()
-	damage_reduction += status_effects["block"]
+	var damage_reduction: int = get_barrier() if is_magical else get_armor()
 	
-	var actual_damage = max(0, amount - damage_reduction)
+	# Block from StatusTracker
+	if status_tracker:
+		damage_reduction += status_tracker.get_block_value()
 	
-	if status_effects["overhealth"]["amount"] > 0:
-		var overhealth_damage = min(actual_damage, status_effects["overhealth"]["amount"])
-		status_effects["overhealth"]["amount"] -= overhealth_damage
-		actual_damage -= overhealth_damage
-		status_effect_changed.emit("overhealth", status_effects["overhealth"])
+	var actual_damage: int = maxi(0, amount - damage_reduction)
 	
-	current_hp = max(0, current_hp - actual_damage)
+	# Overhealth absorbs remaining damage
+	if status_tracker:
+		actual_damage = status_tracker.consume_overhealth(actual_damage)
+	
+	current_hp = maxi(0, current_hp - actual_damage)
 	hp_changed.emit(current_hp, max_hp)
+	
+	# Trigger ON_DAMAGED status effects (e.g. thorns in the future)
+	if status_tracker and actual_damage > 0:
+		status_tracker.process_on_event(StatusAffix.TickTiming.ON_DAMAGED)
 	
 	if current_hp <= 0:
 		die()
 	
 	return actual_damage
+
+
 
 func heal(amount: int):
 	var old_hp = current_hp
@@ -459,67 +490,89 @@ func _reapply_class_skill_affixes():
 					affix_manager.add_affix(affix_copy)
 
 # ============================================================================
-# STATUS EFFECTS
+# STATUS EFFECTS (delegated to StatusTracker)
 # ============================================================================
 
-func add_status_effect(effect: String, amount: int, turns: int = -1):
-	if status_effects.has(effect):
-		if status_effects[effect] is Dictionary:
-			status_effects[effect]["amount"] += amount
-			if turns > 0:
-				status_effects[effect]["turns"] = max(status_effects[effect]["turns"], turns)
-		else:
-			status_effects[effect] += amount
-		status_effect_changed.emit(effect, status_effects[effect])
+func apply_status(status_affix: StatusAffix, stacks: int = 1, source_name: String = "") -> void:
+	"""Apply a status to the player. Stacks additively."""
+	if status_tracker:
+		status_tracker.apply_status(status_affix, stacks, source_name)
 
-func remove_status_effect(effect: String, amount: int = -1):
-	if status_effects.has(effect):
+func remove_status(status_id: String) -> void:
+	"""Fully remove a status."""
+	if status_tracker:
+		status_tracker.remove_status(status_id)
+
+func remove_status_stacks(status_id: String, amount: int) -> void:
+	"""Remove stacks from a status. 0 = remove all."""
+	if status_tracker:
+		status_tracker.remove_stacks(status_id, amount)
+
+func cleanse(tags: Array[String], max_removals: int = 0) -> Array[String]:
+	"""Cleanse statuses matching tags. Returns removed status_ids."""
+	if status_tracker:
+		return status_tracker.cleanse(tags, max_removals)
+	return []
+
+func process_turn_start_statuses() -> Array[Dictionary]:
+	"""Process start-of-turn status ticks. Returns tick results for combat log.
+	The combat manager should call this and handle the returned damage/heal."""
+	if status_tracker:
+		return status_tracker.process_turn_start()
+	return []
+
+func process_turn_end_statuses() -> Array[Dictionary]:
+	"""Process end-of-turn status ticks. Returns tick results for combat log."""
+	if status_tracker:
+		return status_tracker.process_turn_end()
+	return []
+
+func clear_combat_status_effects() -> void:
+	"""Reset all statuses between combats."""
+	if status_tracker:
+		status_tracker.clear_combat_only()
+
+func clear_all_status_effects() -> void:
+	"""Nuclear option: remove everything."""
+	if status_tracker:
+		status_tracker.clear_all()
+
+## Legacy compatibility shim — logs warnings so you can find and migrate callers.
+func add_status_effect(effect: String, amount: int, _turns: int = -1) -> void:
+	push_warning("DEPRECATED: add_status_effect('%s'). Use apply_status() with StatusAffix." % effect)
+	print("⚠️ Legacy add_status_effect: %s, %d" % [effect, amount])
+
+func remove_status_effect(effect: String, amount: int = -1) -> void:
+	push_warning("DEPRECATED: remove_status_effect('%s'). Use remove_status()/remove_status_stacks()." % effect)
+	if status_tracker:
 		if amount < 0:
-			if status_effects[effect] is Dictionary:
-				status_effects[effect] = {"amount": 0, "turns": 0}
-			else:
-				status_effects[effect] = 0
+			status_tracker.remove_status(effect)
 		else:
-			if status_effects[effect] is Dictionary:
-				status_effects[effect]["amount"] = max(0, status_effects[effect]["amount"] - amount)
-			else:
-				status_effects[effect] = max(0, status_effects[effect] - amount)
-		status_effect_changed.emit(effect, status_effects[effect])
-
-func clear_combat_status_effects():
-	for effect in status_effects:
-		if status_effects[effect] is Dictionary:
-			status_effects[effect] = {"amount": 0, "turns": 0}
-		else:
-			status_effects[effect] = 0
-		status_effect_changed.emit(effect, status_effects[effect])
-
-func process_turn_status_effects():
-	for effect in ["burn", "slowed", "stunned", "corrode", "enfeeble", "overhealth"]:
-		if status_effects[effect]["turns"] > 0:
-			status_effects[effect]["turns"] -= 1
-			if status_effects[effect]["turns"] <= 0:
-				status_effects[effect]["amount"] = 0
-			status_effect_changed.emit(effect, status_effects[effect])
-	
-	if status_effects["poison"] > 0:
-		take_damage(status_effects["poison"], false)
-	
-	if status_effects["burn"]["amount"] > 0:
-		take_damage(status_effects["burn"]["amount"], true)
-	
-	if status_effects["bleed"] > 0:
-		take_damage(status_effects["bleed"], false)
-		status_effects["bleed"] = max(0, status_effects["bleed"] - 1)
-		status_effect_changed.emit("bleed", status_effects["bleed"])
+			status_tracker.remove_stacks(effect, amount)
 
 # ============================================================================
 # COMBAT HELPERS
 # ============================================================================
 
+
 func get_damage_bonus() -> int:
-	var expose_bonus = status_effects["expose"] * 2
-	return expose_bonus
+	"""Bonus damage from status effects (Expose)."""
+	if status_tracker:
+		return status_tracker.get_stacks("expose") * 2
+	return 0
+
+func get_die_penalty() -> int:
+	"""Die value penalty from Slowed + Chill."""
+	if status_tracker:
+		return status_tracker.get_die_penalty()
+	return 0
+
+func check_dodge() -> bool:
+	"""Roll a dodge check. Each Dodge stack = 10% chance."""
+	if status_tracker:
+		return status_tracker.check_dodge()
+	return false
+
 
 func get_physical_damage_bonus() -> int:
 	return get_total_stat("strength")
@@ -527,17 +580,6 @@ func get_physical_damage_bonus() -> int:
 func get_magical_damage_bonus() -> int:
 	return get_total_stat("intellect")
 
-func get_die_penalty() -> int:
-	var penalty = 0
-	if status_effects.has("slowed"):
-		penalty += status_effects["slowed"]["amount"]
-	penalty += floor(status_effects["chill"] / 2.0)
-	return penalty
-
-func check_dodge() -> bool:
-	if status_effects["dodge"] <= 0:
-		return false
-	return randf() * 100 < status_effects["dodge"] * 10
 
 func get_available_combat_actions() -> Array:
 	var actions = []
