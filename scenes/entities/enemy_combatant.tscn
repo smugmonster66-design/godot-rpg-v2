@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://bik83fyvffly2"]
+[gd_scene load_steps=3 format=3 uid="uid://bik83fyvffly2"]
 
 [ext_resource type="Script" uid="uid://ceyed44ep0gxt" path="res://scripts/entities/combatant.gd" id="1_ulvoj"]
+[ext_resource type="Script" uid="uid://cusuky0ceuq5x" path="res://scripts/combat/status_tracker.gd" id="2_1oxb6"]
 
 [node name="EnemyCombatant" type="Node2D"]
 script = ExtResource("1_ulvoj")
@@ -14,3 +15,7 @@ offset_bottom = 23.0
 [node name="NameLabel" type="Label" parent="."]
 offset_right = 40.0
 offset_bottom = 23.0
+
+[node name="StatusTracker" type="Node" parent="."]
+script = ExtResource("2_1oxb6")
+metadata/_custom_type_script = "uid://cusuky0ceuq5x"

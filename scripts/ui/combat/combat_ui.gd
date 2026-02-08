@@ -576,38 +576,13 @@ func _create_action_field(action_data: Dictionary) -> ActionField:
 	field.configure_from_dict(action_data)
 	
 	# Connect signals
-	field.action_selected.connect(_on_action_field_selected)
-	field.dice_returned.connect(_on_dice_returned)
-	field.die_placed.connect(_on_die_placed)
+	if not field.action_selected.is_connected(_on_action_field_selected):
+		field.action_selected.connect(_on_action_field_selected)
+	if not field.dice_returned.is_connected(_on_dice_returned):
+		field.dice_returned.connect(_on_dice_returned)
+	if not field.dice_return_complete.is_connected(_on_dice_return_complete):
+		field.dice_return_complete.connect(_on_dice_return_complete)
 	
-	# =========================================================================
-	# DEBUG: After the field enters the tree and _ready() runs, verify it is
-	# properly configured to receive drops. Checks the full ancestor chain.
-	# =========================================================================
-	field.tree_entered.connect(func():
-		await get_tree().process_frame
-		print("🔍 ActionField '%s' post-ready check:" % field.action_name)
-		print("    mouse_filter: %s" % _mf_name(field.mouse_filter))
-		print("    die_slot_panels: %d" % field.die_slot_panels.size())
-		print("    die_slots_grid: %s" % ("found" if field.die_slots_grid else "NULL ⚠️"))
-		print("    is_disabled: %s" % field.is_disabled)
-		print("    size: %s" % field.size)
-		print("    global_position: %s" % field.global_position)
-		
-		# Walk ancestor chain and flag any IGNORE nodes that block drops
-		var node = field.get_parent()
-		while node:
-			if node is Control:
-				var mf = _mf_name(node.mouse_filter)
-				if node.mouse_filter == Control.MOUSE_FILTER_IGNORE:
-					push_warning("⚠️ Ancestor '%s' has MOUSE_FILTER_IGNORE — blocks drops to ActionField!" % node.name)
-				print("    ↑ %s [%s] mouse_filter=%s" % [node.name, node.get_class(), mf])
-			node = node.get_parent()
-	, CONNECT_ONE_SHOT)
-	
-	field.action_selected.connect(_on_action_field_selected)
-	field.dice_returned.connect(_on_dice_returned)
-	field.dice_return_complete.connect(_on_dice_return_complete)
 	
 	
 	return field
@@ -999,24 +974,22 @@ func _consume_placed_dice(dice: Array):
 	refresh_dice_pool()
 
 func _clear_action_field_with_animation(field: ActionField):
-	"""Clear action field slots with a consume animation"""
+	"""Clear action field slots with a consume animation (dice already used, don't return)"""
 	if not field:
 		return
 	
-	# Animate each die visual being consumed
 	for i in range(field.dice_visuals.size()):
 		var visual = field.dice_visuals[i]
 		if is_instance_valid(visual):
 			_animate_die_consumed(visual)
 	
-	# Clear the field data after a short delay
 	var tween = create_tween()
-	tween.tween_interval(0.25)
+	tween.tween_interval(0.3)
 	tween.tween_callback(func():
 		if is_instance_valid(field):
-			field.clear_dice()
+			# Clear without returning dice to hand
+			field.clear_dice(false)  # false = don't emit dice_returned
 	)
-
 
 
 
@@ -1034,10 +1007,6 @@ func _animate_die_consumed(visual: Control):
 	tween.tween_property(visual, "modulate", Color(1.5, 1.2, 0.5, 1.0), 0.1)
 	tween.chain().tween_property(visual, "modulate:a", 0.0, 0.15)
 	tween.tween_property(visual, "scale", start_scale * 0.3, 0.25).set_ease(Tween.EASE_IN)
-	tween.chain().tween_callback(func():
-		if is_instance_valid(visual):
-			visual.queue_free()
-	)
 
 
 func _on_cancel_pressed():
