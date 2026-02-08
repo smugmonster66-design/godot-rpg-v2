@@ -96,7 +96,7 @@ func refresh():
 	for i in range(hand.size()):
 		var die = hand[i]
 		if die.is_consumed:
-			continue  # Fully hidden from hand
+			continue # Fully hidden from hand
 		var visual = _create_die_visual(die, i)
 		if visual:
 			# Start invisible when roll animation is pending

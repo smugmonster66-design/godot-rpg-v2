@@ -59,6 +59,7 @@ enum EffectType {
 	MODIFY_VALUE_PERCENT,    # Multiply roll value
 	SET_MINIMUM_VALUE,       # Set minimum roll value
 	SET_MAXIMUM_VALUE,       # Set maximum roll value
+	SET_ROLL_VALUE,
 	
 	# Tag modifications
 	ADD_TAG,                 # Add a tag to die/target

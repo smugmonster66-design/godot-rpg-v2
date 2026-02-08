@@ -18,16 +18,48 @@ func set_source_appearance(texture: Texture2D = null, tint: Color = Color.WHITE)
 	_source_texture = texture
 	_source_tint = tint
 
+
+
 func _execute_node_track() -> void:
 	# Pre-shake on target node
 	if _shatter_preset.pre_shake_enabled and _target_node and is_instance_valid(_target_node):
 		await _play_pre_shake()
-
+	
+	# Swell + glow on target node before breaking
+	if _shatter_preset.swell_enabled and _target_node and is_instance_valid(_target_node):
+		await _play_swell()
+	
+	# Hide the original node — fragments replace it
+	if _target_node and is_instance_valid(_target_node):
+		_target_node.visible = false
+	
 	# Explode fragments
 	_spawn_fragments()
 	_emit_peak()
-
+	
 	await get_tree().create_timer(_shatter_preset.total_duration).timeout
+
+
+func _play_swell() -> void:
+	"""Scale up + glow flash right before the die breaks apart."""
+	var node = _target_node
+	var original_scale = node.scale
+	var original_modulate = node.modulate
+	var duration = _shatter_preset.swell_duration
+	
+	var tween = create_tween().set_parallel(true)
+	
+	# Scale up
+	tween.tween_property(node, "scale",
+		original_scale * _shatter_preset.swell_scale, duration * 0.7
+	).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	
+	# Glow flash
+	tween.tween_property(node, "modulate",
+		_shatter_preset.swell_glow_color, duration * 0.5
+	).set_ease(Tween.EASE_OUT)
+	
+	await tween.finished
 
 func _play_pre_shake() -> void:
 	"""Rapid shake oscillation on the target node before breaking apart."""

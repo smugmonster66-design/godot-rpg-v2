@@ -217,6 +217,7 @@ func _connect_all_signals():
 # INITIALIZATION WITH PLAYER/ENEMIES
 # ============================================================================
 
+
 func initialize_ui(p_player: Player, p_enemies):
 	"""Initialize the UI with player and enemies"""
 	print("🎮 CombatUI.initialize_ui called")
@@ -272,6 +273,13 @@ func initialize_ui(p_player: Player, p_enemies):
 	var bottom_ui_grid = _find_pool_dice_grid()
 	roll_animator.initialize(dice_pool_display, bottom_ui_grid)
 	
+	# --- Combat effect player (general purpose visual effects) ---
+	effect_player = CombatEffectPlayer.new()
+	effect_player.name = "CombatEffectPlayer"
+	add_child(effect_player)
+	effect_player.initialize(dice_pool_display, enemy_panel, player_health_display)
+	print("  ✅ CombatEffectPlayer initialized")
+	
 	# --- v2.2: Affix visual animator (roll effects, projectiles between dice) ---
 	affix_visual_animator = AffixVisualAnimator.new()
 	affix_visual_animator.name = "AffixVisualAnimator"
@@ -283,34 +291,8 @@ func initialize_ui(p_player: Player, p_enemies):
 		push_warning("CombatUI: Could not initialize AffixVisualAnimator — no affix_processor found")
 	
 	print("🎮 CombatUI initialization complete")
-	
-	
-	# --- Combat effect player (general purpose visual effects) ---
-	effect_player = CombatEffectPlayer.new()
-	effect_player.name = "CombatEffectPlayer"
-	add_child(effect_player)
-	effect_player.initialize(dice_pool_display, enemy_panel, player_health_display)
-	print("  ✅ CombatEffectPlayer initialized")	
 
 
-
-func _setup_affix_visual_animator():
-	affix_visual_animator = AffixVisualAnimator.new()
-	affix_visual_animator.name = "AffixVisualAnimator"
-	add_child(affix_visual_animator)
-	
-	# Get the processor from the player's dice collection
-	var processor = player.dice_pool.affix_processor
-	affix_visual_animator.initialize(dice_pool_display, processor)
-	
-	
-	
-	# Initialize with hand display + optional pool grid for source positions
-	var bottom_ui_grid = _find_pool_dice_grid()
-	roll_animator.initialize(dice_pool_display, bottom_ui_grid)
-		
-		
-	print("🎮 CombatUI initialization complete")
 
 func _setup_health_display():
 	"""Setup health display"""

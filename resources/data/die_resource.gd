@@ -97,6 +97,7 @@ var modifier: int = 0               # Flat modifier from external sources
 var source: String = ""             # Where this die came from
 var tags: Array[String] = []        # Tags on this die (fire, holy, etc.)
 var slot_index: int = -1            # Position in pool (for affix requirements)
+var forced_roll_value: int = -1
 
 # Locking
 var is_locked: bool = false         # Can't be removed
@@ -107,6 +108,8 @@ var can_reroll: bool = true         # Can use reroll abilities
 ## The die stays in the hand array to preserve positional relationships
 ## for neighbor-targeting affixes. UI reads this to hide/grey out the die.
 var is_consumed: bool = false
+var is_shattered: bool = false
+
 
 # ============================================================================
 # ELEMENT NAMES
@@ -215,7 +218,10 @@ func _get_default_pool_scene() -> PackedScene:
 
 func roll() -> int:
 	"""Roll the die and return the value"""
-	current_value = randi_range(1, die_type)
+	if forced_roll_value > 0:
+		current_value = clampi(forced_roll_value, 1, die_type)
+	else:
+		current_value = randi_range(1, die_type)
 	modified_value = current_value + modifier
 	return modified_value
 
@@ -244,6 +250,7 @@ func apply_flat_modifier(amount: float):
 	"""Apply a flat modifier to the modified value"""
 	var old = modified_value
 	modified_value += int(amount)
+	modified_value = max(0, modified_value)
 	if old != modified_value:
 		value_modified.emit(old, modified_value)
 
@@ -251,6 +258,7 @@ func apply_percent_modifier(percent: float):
 	"""Apply a percentage modifier to the modified value"""
 	var old = modified_value
 	modified_value = int(modified_value * percent)
+	modified_value = max(0, modified_value)
 	if old != modified_value:
 		value_modified.emit(old, modified_value)
 
@@ -446,7 +454,11 @@ func duplicate_die() -> DieResource:
 	copy.tags = tags.duplicate()
 	copy.is_locked = is_locked
 	copy.can_reroll = can_reroll
+	copy.forced_roll_value = forced_roll_value
 	copy.is_consumed = false  # Fresh copies are never consumed
+	
+	
+	
 	
 	# Deep copy inherent affixes
 	for affix in inherent_affixes:

@@ -27,7 +27,7 @@ class_name ShatterPreset
 ## Use source die texture for fragments (if available)
 @export var inherit_source_texture: bool = true
 
-@export_group("Pre-Shatter")
+@export_group("Pre-Shatter Shake")
 ## Brief shake/crack before fragments fly
 @export var pre_shake_enabled: bool = true
 @export_range(0.05, 0.3) var pre_shake_duration: float = 0.1
@@ -35,6 +35,16 @@ class_name ShatterPreset
 @export_range(1.0, 10.0) var shake_intensity: float = 4.0
 ## Number of shake oscillations
 @export_range(2, 8) var shake_count: int = 4
+
+@export_group("Pre-Shatter Swell")
+## Brief swell + glow before fragments fly (after shake)
+@export var swell_enabled: bool = true
+@export_range(0.05, 0.5) var swell_duration: float = 0.2
+## How much the die scales up before breaking
+@export_range(1.0, 2.0) var swell_scale: float = 1.3
+## Glow color during swell (modulate flash)
+@export var swell_glow_color: Color = Color(2.0, 1.5, 1.0, 1.0)
+
 
 @export_group("Timing")
 @export_range(0.3, 2.0) var total_duration: float = 0.7

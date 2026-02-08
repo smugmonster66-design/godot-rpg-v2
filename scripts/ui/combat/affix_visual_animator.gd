@@ -32,6 +32,9 @@ var _effects_container: Control = null
 
 var effect_player: CombatEffectPlayer = null
 
+## Preset used when a die's value is reduced to 0 (shatter animation)
+@export var die_shatter_preset: ShatterPreset = preload("res://resources/effects/die_shatter_preset.tres")
+
 # ============================================================================
 # QUEUE — track active animations and deferred playback
 # ============================================================================
@@ -66,6 +69,10 @@ func initialize(hand_display: DicePoolDisplay, processor: DiceAffixProcessor, ro
 	If roll_animator is provided, pending visuals auto-flush after the
 	roll animation completes (when die visuals are guaranteed to exist)."""
 	dice_pool_display = hand_display
+	if p_effect_player:
+		effect_player = p_effect_player
+	
+	
 	
 	if processor:
 		if not processor.affix_activated.is_connected(_on_affix_activated):
@@ -213,32 +220,71 @@ func _mark_value_applied(die_visual: Control):
 
 func _finalize_deferred_values():
 	"""Apply any remaining deferred value changes that weren't animated
-	during affix visuals (e.g. from combat modifiers or affixes without visuals)."""
+	during affix visuals, then process any pending shatters."""
 	if not dice_pool_display or not dice_pool_display.dice_pool:
 		return
 	var pool = dice_pool_display.dice_pool
-	if "pending_value_animations" not in pool:
-		return
-	if pool.pending_value_animations.is_empty():
-		return
 	
-	print("🎬 AffixVisualAnimator: Finalizing %d remaining value changes" % pool.pending_value_animations.size())
+	# --- Existing: finalize value animations ---
+	if "pending_value_animations" in pool and not pool.pending_value_animations.is_empty():
+		print("🎬 AffixVisualAnimator: Finalizing %d remaining value changes" % pool.pending_value_animations.size())
+		for die_index in pool.pending_value_animations.keys():
+			var change = pool.pending_value_animations[die_index]
+			if die_index < pool.hand.size():
+				pool.hand[die_index].modified_value = change.to
+			var visual = _get_die_visual(die_index)
+			if visual and visual is CombatDieObject and visual.has_method("animate_value_to"):
+				var flash_color = Color(0.5, 1.5, 0.5, 1.0) if change.to > change.from else Color(1.5, 0.5, 0.5, 1.0)
+				visual.animate_value_to(change.to, 0.25, flash_color)
+		pool.pending_value_animations.clear()
 	
-	for die_index in pool.pending_value_animations.keys():
-		var change = pool.pending_value_animations[die_index]
-		
-		# Apply to DieResource
-		if die_index < pool.hand.size():
-			pool.hand[die_index].modified_value = change.to
-		
-		# Animate on visual if it exists
-		var visual = _get_die_visual(die_index)
-		if visual and visual is CombatDieObject and visual.has_method("animate_value_to"):
-			var flash_color = Color(0.5, 1.5, 0.5, 1.0) if change.to > change.from else Color(1.5, 0.5, 0.5, 1.0)
-			visual.animate_value_to(change.to, 0.25, flash_color)
+	# --- New: process pending shatters ---
+	if "pending_shatters" in pool and not pool.pending_shatters.is_empty():
+		# Brief delay so the value-to-0 animation finishes first
+		await get_tree().create_timer(0.3).timeout
+		await _process_pending_shatters(pool)
 	
-	pool.pending_value_animations.clear()
+	all_visuals_complete.emit()
 
+
+func _process_pending_shatters(pool: PlayerDiceCollection):
+	print("💥 Shattering %d dice" % pool.pending_shatters.size())
+	
+	for die_index in pool.pending_shatters.keys():
+		var visual = _get_die_visual(die_index)
+		print("  💥 die_index=%d, visual=%s, valid=%s, effect_player=%s, preset=%s" % [
+			die_index,
+			visual != null,
+			is_instance_valid(visual) if visual else false,
+			effect_player != null,
+			die_shatter_preset != null
+		])
+		if visual and is_instance_valid(visual) and effect_player and die_shatter_preset:
+			var center = visual.global_position + visual.size / 2.0
+			
+			var shatter = ShatterEffect.new()
+			shatter.configure(die_shatter_preset, center)
+			
+			# Pass the die's texture so fragments look like mini copies
+			if visual is CombatDieObject and visual.die_resource:
+				shatter.set_source_appearance(
+					visual.die_resource.fill_texture,
+					visual.modulate
+				)
+			
+			# Play via CombatEffectPlayer (handles layer, signals, cleanup)
+			var target = CombatEffectTarget.new()
+			target.type = CombatEffectTarget.TargetType.NODE
+			target.node_ref = visual
+			
+			await effect_player.play_combat_effect(shatter, target, target)
+		elif visual:
+			# Fallback if no effect player
+			visual.visible = false
+		
+		pool.shatter_hand_die(die_index)
+	
+	pool.pending_shatters.clear()
 
 # ============================================================================
 # VISUAL PLAYBACK — DISPATCHER

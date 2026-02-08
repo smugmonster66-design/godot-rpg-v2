@@ -26,8 +26,9 @@ signal die_consumed(die: DieResource)                    # Die used from hand
 signal affix_triggered(die: DieResource, affix: DiceAffix)
 signal combat_modifier_added(modifier: CombatModifier)   # v2
 signal die_destroyed(die: DieResource)                   # v2 — permanent pool removal
-signal dice_shattered(shattered_indices: Array[int])
+signal die_shattered(die: DieResource) 
 
+var pending_shatters: Dictionary = {}
 
 # ============================================================================
 # POOL - Persistent dice collection (templates)
@@ -270,12 +271,6 @@ func _process_reorder_affixes():
 # ============================================================================
 
 func roll_hand():
-	"""Roll all pool dice into hand copies.
-	Creates rolled copies of each pool die. Resets all consumed state.
-	
-	v2.3: Deferred value display — affixes process normally but dice are
-	reverted to pre-affix values before hand_rolled is emitted. The visual
-	animator animates values to final during affix visual playback."""
 	_current_turn += 1
 	print("🎲 Rolling hand from pool (%d dice)... [Turn %d]" % [dice.size(), _current_turn])
 	
@@ -284,6 +279,10 @@ func roll_hand():
 	used_pool_indices.clear()
 	_pending_destructions.clear()
 	pending_value_animations.clear()
+	
+	# Process PASSIVE affixes on pool dice before copying/rolling
+	# This sets properties like forced_roll_value that affect roll()
+	process_passive_affixes()
 	
 	# Create rolled copies of each pool die
 	for i in range(dice.size()):
@@ -311,17 +310,7 @@ func roll_hand():
 	# Apply persistent combat modifiers (also modifies values)
 	_apply_combat_modifiers()
 	
-	# === Check for shattered dice (value <= 0) ===
-	var shattered_indices: Array[int] = []
-	for i in range(hand.size()):
-		if hand[i].get_total_value() <= 0 and not hand[i].is_consumed:
-			hand[i].is_consumed = true
-			hand[i].shattered.emit()
-			shattered_indices.append(i)
-			print("  💥 Die [%d] %s shattered (value %d)" % [i, hand[i].display_name, hand[i].get_total_value()])
 	
-	if shattered_indices.size() > 0:
-		dice_shattered.emit(shattered_indices)
 	
 	# === Build deferred value changes and revert to base ===
 	for i in range(hand.size()):
@@ -341,6 +330,15 @@ func roll_hand():
 	print("🎲 Hand ready (%d dice) — showing base values:" % hand.size())
 	for die in hand:
 		print("  %s = %d" % [die.display_name, die.get_total_value()])
+	
+	
+	# === Detect dice that will shatter (post-affix value <= 0) ===
+	for i in range(hand.size()):
+		var post_val = pending_value_animations[i].to if pending_value_animations.has(i) else hand[i].get_total_value()
+		if post_val <= 0:
+			pending_shatters[i] = true
+			print("  💥 Die [%d] %s will shatter (value %d)" % [i, hand[i].display_name, post_val])
+	
 	
 	# Emit hand_rolled — visuals will show base values.
 	# AffixVisualAnimator will animate to final values during playback.
@@ -626,11 +624,6 @@ func find_hand_index(die: DieResource) -> int:
 # AFFIX PROCESSING
 # ============================================================================
 
-func process_passive_affixes():
-	"""Process PASSIVE affixes on POOL"""
-	if affix_processor:
-		var result = affix_processor.process_trigger(dice, DiceAffix.Trigger.PASSIVE, _build_context())
-		_handle_affix_results(result)
 
 func process_combat_start_affixes():
 	"""Process ON_COMBAT_START affixes"""
@@ -643,6 +636,13 @@ func process_combat_end_affixes():
 	if affix_processor:
 		var result = affix_processor.process_trigger(dice, DiceAffix.Trigger.ON_COMBAT_END, _build_context())
 		_handle_affix_results(result)
+
+func process_passive_affixes():
+	"""Process PASSIVE affixes on POOL"""
+	if affix_processor:
+		var result = affix_processor.process_trigger(dice, DiceAffix.Trigger.PASSIVE, _build_context())
+		_handle_affix_results(result)
+
 
 func _handle_affix_results(result: Dictionary):
 	"""Handle special effects from affix processing"""
@@ -716,3 +716,18 @@ func from_dict(data: Dictionary):
 	
 	_update_slot_indices()
 	dice_changed.emit()
+
+
+func shatter_hand_die(die_index: int):
+	"""Mark a hand die as shattered after visual effect completes.
+	The die stays in the array (ghost hand) but is treated as consumed."""
+	if die_index < 0 or die_index >= hand.size():
+		return
+	var die = hand[die_index]
+	die.is_shattered = true
+	die.is_consumed = true
+	die.modified_value = 0
+	used_pool_indices.append(die.slot_index)
+	print("💥 %s shattered at hand index %d" % [die.display_name, die_index])
+	die_shattered.emit(die)
+	hand_changed.emit()

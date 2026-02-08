@@ -310,6 +310,9 @@ func _dispatch_effect(dice: Array[DieResource], source_die: DieResource,
 		DiceAffix.EffectType.CREATE_COMBAT_MODIFIER:
 			if affix_or_parent.combat_modifier:
 				_apply_create_combat_modifier(source_die, affix_or_parent.combat_modifier, result)
+		
+		DiceAffix.EffectType.SET_ROLL_VALUE:
+			_apply_set_roll_value(target_die, target_index, resolved_value, affix_or_parent, result)
 
 # ============================================================================
 # VALUE RESOLUTION (v2)
@@ -398,6 +401,22 @@ func _get_parent_target_die(parent_affix: DiceAffix, source_index: int,
 	if parent_targets.size() > 0 and parent_targets[0] >= 0 and parent_targets[0] < dice.size():
 		return dice[parent_targets[0]]
 	return null
+
+
+func _apply_set_roll_value(die: DieResource, index: int, value: float, affix: DiceAffix, result: Dictionary):
+	"""Force a die to always roll a specific value.
+	Sets forced_roll_value on the DieResource so roll() uses it."""
+	die.forced_roll_value = int(value)
+	result.special_effects.append({
+		"type": "set_roll_value",
+		"die_index": index,
+		"forced_value": int(value),
+		"affix": affix.affix_name
+	})
+	print("    🎲 %s: forced roll value = %d (from %s)" % [
+		die.display_name, int(value), affix.affix_name
+	])
+
 
 # ============================================================================
 # VALUE EFFECT IMPLEMENTATIONS

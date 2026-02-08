@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ShatterPreset" load_steps=3 format=3 uid="uid://dqu5eac86ji4n"]
+
+[ext_resource type="Script" uid="uid://bxft1vftskx0t" path="res://scripts/effects/foundation/shader_param_animation.gd" id="1_kyhti"]
+[ext_resource type="Script" uid="uid://dnj1uxh2flx5q" path="res://scripts/effects/shatter_preset.gd" id="2_hosyg"]
+
+[resource]
+script = ExtResource("2_hosyg")
+fragment_count = 10
+fragment_size_min = Vector2(24, 24)
+fragment_size_max = Vector2(46, 46)
+explosion_radius = 179.77
+pre_shake_duration = 0.15000000000000002
+shake_intensity = 4.5
+shake_count = 6
+swell_glow_color = Color(1.9999999, 1.5204786, 0.6889575, 1)
+metadata/_custom_type_script = "uid://dnj1uxh2flx5q"
