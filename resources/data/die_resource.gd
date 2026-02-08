@@ -85,6 +85,8 @@ var applied_affixes: Array[DiceAffix] = []
 # SIGNALS
 # ============================================================================
 signal value_modified(old_value: int, new_value: int)
+signal shattered()
+
 
 # ============================================================================
 # RUNTIME STATE
@@ -242,7 +244,6 @@ func apply_flat_modifier(amount: float):
 	"""Apply a flat modifier to the modified value"""
 	var old = modified_value
 	modified_value += int(amount)
-	modified_value = max(1, modified_value)  # Minimum 1
 	if old != modified_value:
 		value_modified.emit(old, modified_value)
 
@@ -250,7 +251,6 @@ func apply_percent_modifier(percent: float):
 	"""Apply a percentage modifier to the modified value"""
 	var old = modified_value
 	modified_value = int(modified_value * percent)
-	modified_value = max(1, modified_value)  # Minimum 1
 	if old != modified_value:
 		value_modified.emit(old, modified_value)
 

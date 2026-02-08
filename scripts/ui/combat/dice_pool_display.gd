@@ -61,7 +61,14 @@ func initialize(pool):
 			dice_pool.hand_changed.connect(_on_hand_changed)
 			print("  ✅ Connected hand_changed")
 	
+	if dice_pool.has_signal("dice_shattered"):
+		if not dice_pool.dice_shattered.is_connected(_on_dice_shattered):
+			dice_pool.dice_shattered.connect(_on_dice_shattered)
+			print("  ✅ Connected dice_shattered")
+	
 	refresh()
+
+
 
 # ============================================================================
 # DISPLAY
@@ -203,6 +210,75 @@ func _on_hand_rolled(_hand: Array):
 func _on_hand_changed():
 	print("🎲 DicePoolDisplay: hand_changed signal")
 	_request_refresh()
+
+
+func _on_dice_shattered(shattered_indices: Array[int]):
+	"""Play shatter animation on dice that reached 0 value, then hide them."""
+	for idx in shattered_indices:
+		# Find the visual for this die
+		var visual: Control = null
+		for v in die_visuals:
+			if not is_instance_valid(v):
+				continue
+			if "slot_index" in v and v.slot_index == idx:
+				visual = v
+				break
+			elif v.has_method("get_die") and v.get_die() == dice_pool.hand[idx]:
+				visual = v
+				break
+		
+		if not visual:
+			continue
+		
+		var center = visual.global_position + visual.size / 2
+		
+		# Get die texture/tint for fragments
+		var die = dice_pool.hand[idx]
+		var tex: Texture2D = die.fill_texture
+		var tint: Color = die.color
+		
+		# Load or create shatter preset
+		var preset: ShatterPreset = _get_shatter_preset()
+		
+		# Spawn shatter effect
+		var effect = ShatterEffect.new()
+		effect.configure(preset, center)
+		effect.set_source_appearance(tex, tint)
+		
+		var overlay = get_tree().current_scene.find_child("EffectsLayer", true, false)
+		if overlay:
+			overlay.add_child(effect)
+		else:
+			get_tree().current_scene.add_child(effect)
+		
+		effect.play()
+		
+		# Hide the visual immediately
+		visual.modulate.a = 0.0
+		visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if "draggable" in visual:
+			visual.draggable = false
+		
+		print("  💥 Shatter visual played for die [%d]" % idx)
+
+func _get_shatter_preset() -> ShatterPreset:
+	"""Load or create a default shatter preset for hand dice."""
+	var path = "res://resources/effects/die_shatter_preset.tres"
+	if ResourceLoader.exists(path):
+		return load(path)
+	
+	# Fallback: create one in code
+	var preset = ShatterPreset.new()
+	preset.fragment_count = 8
+	preset.explosion_radius = 80.0
+	preset.explosion_duration = 0.4
+	preset.upward_bias = 30.0
+	preset.gravity = 250.0
+	preset.pre_shake_enabled = true
+	preset.pre_shake_duration = 0.1
+	preset.total_duration = 0.6
+	return preset
+
 
 # ============================================================================
 # DEFERRED REFRESH (prevents triple-refresh in one frame)

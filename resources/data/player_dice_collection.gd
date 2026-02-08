@@ -26,6 +26,8 @@ signal die_consumed(die: DieResource)                    # Die used from hand
 signal affix_triggered(die: DieResource, affix: DiceAffix)
 signal combat_modifier_added(modifier: CombatModifier)   # v2
 signal die_destroyed(die: DieResource)                   # v2 — permanent pool removal
+signal dice_shattered(shattered_indices: Array[int])
+
 
 # ============================================================================
 # POOL - Persistent dice collection (templates)
@@ -268,7 +270,7 @@ func _process_reorder_affixes():
 # ============================================================================
 
 func roll_hand():
-	"""Roll dice from pool into hand for this combat turn.
+	"""Roll all pool dice into hand copies.
 	Creates rolled copies of each pool die. Resets all consumed state.
 	
 	v2.3: Deferred value display — affixes process normally but dice are
@@ -309,6 +311,18 @@ func roll_hand():
 	# Apply persistent combat modifiers (also modifies values)
 	_apply_combat_modifiers()
 	
+	# === Check for shattered dice (value <= 0) ===
+	var shattered_indices: Array[int] = []
+	for i in range(hand.size()):
+		if hand[i].get_total_value() <= 0 and not hand[i].is_consumed:
+			hand[i].is_consumed = true
+			hand[i].shattered.emit()
+			shattered_indices.append(i)
+			print("  💥 Die [%d] %s shattered (value %d)" % [i, hand[i].display_name, hand[i].get_total_value()])
+	
+	if shattered_indices.size() > 0:
+		dice_shattered.emit(shattered_indices)
+	
 	# === Build deferred value changes and revert to base ===
 	for i in range(hand.size()):
 		var post_val = hand[i].get_total_value()
@@ -331,6 +345,12 @@ func roll_hand():
 	# Emit hand_rolled — visuals will show base values.
 	# AffixVisualAnimator will animate to final values during playback.
 	hand_rolled.emit(hand.duplicate())
+
+
+
+
+
+
 func _create_hand_die(pool_die: DieResource, pool_index: int) -> DieResource:
 	"""Create a hand die as a copy of a pool die"""
 	var hand_die = pool_die.duplicate_die()

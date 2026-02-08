@@ -578,6 +578,7 @@ func _create_action_field(action_data: Dictionary) -> ActionField:
 	# Connect signals
 	field.action_selected.connect(_on_action_field_selected)
 	field.dice_returned.connect(_on_dice_returned)
+	field.die_placed.connect(_on_die_placed)
 	
 	# =========================================================================
 	# DEBUG: After the field enters the tree and _ready() runs, verify it is
@@ -611,10 +612,17 @@ func _create_action_field(action_data: Dictionary) -> ActionField:
 	
 	return field
 
+func _on_die_placed(_field: ActionField, die: DieResource):
+	"""When a die is dropped on an action field, consume it from the hand."""
+	if player and player.dice_pool:
+		player.dice_pool.consume_from_hand(die)
 
 
-func _on_dice_returned(die: DieResource, from_pos: Vector2):
-	_pending_dice_returns.append({"die": die, "from_pos": from_pos})
+func _on_dice_returned(die: DieResource, _from_pos: Vector2):
+	"""When cancel returns a die, restore it to the hand."""
+	if player and player.dice_pool:
+		player.dice_pool.restore_to_hand(die)
+
 
 func _on_dice_return_complete():
 	if _pending_dice_returns.size() > 0 and dice_pool_display:
@@ -988,17 +996,6 @@ func _on_confirm_pressed():
 	action_confirmed.emit(action_data)
 
 func _consume_placed_dice(dice: Array):
-	"""Consume dice from player's dice pool"""
-	if not player or not player.dice_pool:
-		return
-	
-	for die in dice:
-		if player.dice_pool.has_method("consume_die"):
-			player.dice_pool.consume_die(die)
-		elif player.dice_pool.has_method("remove_from_hand"):
-			player.dice_pool.remove_from_hand(die)
-	
-	# Refresh the dice pool display
 	refresh_dice_pool()
 
 func _clear_action_field_with_animation(field: ActionField):
