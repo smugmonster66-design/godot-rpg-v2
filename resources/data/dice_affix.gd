@@ -140,6 +140,14 @@ enum ValueEffectType {
 ## Whether this affix appears in die summary tooltips
 @export var show_in_summary: bool = true
 
+## When true, fill/stroke/value materials are pulled from GameManager.ELEMENT_VISUALS
+## instead of this affix's own material fields. Set the element_type below.
+@export var use_global_element_visuals: bool = false
+
+## Which element to look up in the global config (only used when use_global_element_visuals = true)
+@export var global_element_type: ActionEffect.DamageType = ActionEffect.DamageType.SLASHING
+
+
 # ============================================================================
 # TRIGGER CONFIGURATION
 # ============================================================================
@@ -523,6 +531,42 @@ func _get_position_text() -> String:
 		PositionRequirement.EVEN_SLOTS: return "Even slots"
 		PositionRequirement.ODD_SLOTS: return "Odd slots"
 	return ""
+
+
+
+# ============================================================================
+# GLOBAL ELEMENT VISUAL RESOLUTION
+# ============================================================================
+
+# ============================================================================
+# GLOBAL ELEMENT VISUAL RESOLUTION
+# ============================================================================
+
+func resolve_fill_material() -> ShaderMaterial:
+	"""Get fill material — from global config if flagged, otherwise own field"""
+	if use_global_element_visuals and GameManager.ELEMENT_VISUALS:
+		return GameManager.ELEMENT_VISUALS.get_fill_material(global_element_type)
+	if fill_shader_material:
+		return fill_shader_material.duplicate(true)
+	return null
+
+func resolve_stroke_material() -> ShaderMaterial:
+	"""Get stroke material — from global config if flagged, otherwise own field"""
+	if use_global_element_visuals and GameManager.ELEMENT_VISUALS:
+		return GameManager.ELEMENT_VISUALS.get_stroke_material(global_element_type)
+	if stroke_shader_material:
+		return stroke_shader_material.duplicate(true)
+	return null
+
+func resolve_value_material() -> ShaderMaterial:
+	"""Get value material — from global config if flagged, otherwise own field"""
+	if use_global_element_visuals and GameManager.ELEMENT_VISUALS:
+		return GameManager.ELEMENT_VISUALS.get_value_material(global_element_type)
+	if value_shader_material:
+		return value_shader_material.duplicate(true)
+	return null
+
+
 
 # ============================================================================
 # UTILITY

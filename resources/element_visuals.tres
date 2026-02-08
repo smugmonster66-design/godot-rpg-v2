@@ -1,0 +1,96 @@
+[gd_resource type="Resource" script_class="ElementVisualConfig" load_steps=35 format=3 uid="uid://b0pjswv78i4x7"]
+
+[ext_resource type="Material" uid="uid://bsbjo77cp5hgw" path="res://resources/materials/dice/blunt_fill.tres" id="1_af6f8"]
+[ext_resource type="Script" uid="uid://cyvs18hl7lurk" path="res://resources/data/element_visual_config.gd" id="1_k225e"]
+[ext_resource type="Material" path="res://resources/materials/dice/fire_fill.tres" id="2_d0fe7"]
+[ext_resource type="Script" uid="uid://c46p45byd27jq" path="res://resources/data/element_visuals.gd" id="2_kplqp"]
+[ext_resource type="Material" path="res://resources/materials/dice/ice_fill.tres" id="3_7orle"]
+[ext_resource type="Material" uid="uid://c5i0u7byiyvre" path="res://resources/materials/dice/blunt_stroke.tres" id="3_vwliu"]
+[ext_resource type="Material" uid="uid://cyylg08b8oxof" path="res://resources/materials/dice/blunt_value.tres" id="4_3rkf8"]
+[ext_resource type="Material" path="res://resources/materials/dice/piercing_fill.tres" id="4_ym58t"]
+[ext_resource type="Material" path="res://resources/materials/dice/poison_fill.tres" id="5_djvcn"]
+[ext_resource type="Material" path="res://resources/materials/dice/fire_stroke.tres" id="6_ten7j"]
+[ext_resource type="Material" path="res://resources/materials/dice/fire_value.tres" id="7_fm23p"]
+[ext_resource type="Material" path="res://resources/materials/dice/shadow_fill.tres" id="7_m2c7o"]
+[ext_resource type="Material" uid="uid://hdanq5v2g2ji" path="res://resources/materials/dice/shock_fill.tres" id="8_y8xvc"]
+[ext_resource type="Material" uid="uid://bk4x22t2r6aki" path="res://resources/materials/dice/slashing_fill.tres" id="9_71j4b"]
+[ext_resource type="Material" path="res://resources/materials/dice/ice_stroke.tres" id="9_jpctj"]
+[ext_resource type="Material" path="res://resources/materials/dice/ice_value.tres" id="10_mx62b"]
+[ext_resource type="Material" path="res://resources/materials/dice/piercing_stroke.tres" id="12_w7ja0"]
+[ext_resource type="Material" path="res://resources/materials/dice/piercing_value.tres" id="13_4rii0"]
+[ext_resource type="Material" path="res://resources/materials/dice/poison_stroke.tres" id="15_t48sy"]
+[ext_resource type="Material" path="res://resources/materials/dice/poison_value.tres" id="16_6pdhu"]
+[ext_resource type="Material" path="res://resources/materials/dice/shadow_stroke.tres" id="19_sbao4"]
+[ext_resource type="Material" path="res://resources/materials/dice/shadow_value.tres" id="20_20lmv"]
+[ext_resource type="Material" path="res://resources/materials/dice/shock_stroke.tres" id="22_gqtnh"]
+[ext_resource type="Material" path="res://resources/materials/dice/shock_value.tres" id="23_78a8g"]
+[ext_resource type="Material" path="res://resources/materials/dice/slashing_stroke.tres" id="25_d58k5"]
+[ext_resource type="Material" path="res://resources/materials/dice/slashing_value.tres" id="26_n3af5"]
+
+[sub_resource type="Resource" id="Resource_6jwq2"]
+script = ExtResource("2_kplqp")
+fill_material = ExtResource("1_af6f8")
+stroke_material = ExtResource("3_vwliu")
+value_material = ExtResource("4_3rkf8")
+metadata/_custom_type_script = "uid://c46p45byd27jq"
+
+[sub_resource type="Resource" id="Resource_lxg6h"]
+script = ExtResource("2_kplqp")
+fill_material = ExtResource("2_d0fe7")
+stroke_material = ExtResource("6_ten7j")
+value_material = ExtResource("7_fm23p")
+metadata/_custom_type_script = "uid://c46p45byd27jq"
+
+[sub_resource type="Resource" id="Resource_w85ak"]
+script = ExtResource("2_kplqp")
+fill_material = ExtResource("3_7orle")
+stroke_material = ExtResource("9_jpctj")
+value_material = ExtResource("10_mx62b")
+metadata/_custom_type_script = "uid://c46p45byd27jq"
+
+[sub_resource type="Resource" id="Resource_al0vb"]
+script = ExtResource("2_kplqp")
+fill_material = ExtResource("4_ym58t")
+stroke_material = ExtResource("12_w7ja0")
+value_material = ExtResource("13_4rii0")
+metadata/_custom_type_script = "uid://c46p45byd27jq"
+
+[sub_resource type="Resource" id="Resource_2hnji"]
+script = ExtResource("2_kplqp")
+fill_material = ExtResource("5_djvcn")
+stroke_material = ExtResource("15_t48sy")
+value_material = ExtResource("16_6pdhu")
+metadata/_custom_type_script = "uid://c46p45byd27jq"
+
+[sub_resource type="Resource" id="Resource_ggfad"]
+script = ExtResource("2_kplqp")
+fill_material = ExtResource("7_m2c7o")
+stroke_material = ExtResource("19_sbao4")
+value_material = ExtResource("20_20lmv")
+metadata/_custom_type_script = "uid://c46p45byd27jq"
+
+[sub_resource type="Resource" id="Resource_altep"]
+script = ExtResource("2_kplqp")
+fill_material = ExtResource("8_y8xvc")
+stroke_material = ExtResource("22_gqtnh")
+value_material = ExtResource("23_78a8g")
+metadata/_custom_type_script = "uid://c46p45byd27jq"
+
+[sub_resource type="Resource" id="Resource_335km"]
+script = ExtResource("2_kplqp")
+fill_material = ExtResource("9_71j4b")
+stroke_material = ExtResource("25_d58k5")
+value_material = ExtResource("26_n3af5")
+metadata/_custom_type_script = "uid://c46p45byd27jq"
+
+[resource]
+script = ExtResource("1_k225e")
+slashing = SubResource("Resource_335km")
+blunt = SubResource("Resource_6jwq2")
+piercing = SubResource("Resource_al0vb")
+fire = SubResource("Resource_lxg6h")
+ice = SubResource("Resource_w85ak")
+shock = SubResource("Resource_altep")
+poison = SubResource("Resource_2hnji")
+shadow = SubResource("Resource_ggfad")
+metadata/_custom_type_script = "uid://cyvs18hl7lurk"

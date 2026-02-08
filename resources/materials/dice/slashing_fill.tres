@@ -1,6 +1,6 @@
-[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://slashing_fill_mat"]
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://bk4x22t2r6aki"]
 
-[ext_resource type="Shader" path="res://shaders/dice/slashing/slashing_fill.gdshader" id="1_shader"]
+[ext_resource type="Shader" uid="uid://bgghcm274dcyt" path="res://shaders/dice/slashing/slashing_fill.gdshader" id="1_shader"]
 
 [resource]
 shader = ExtResource("1_shader")

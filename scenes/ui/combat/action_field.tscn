@@ -3,12 +3,10 @@
 [ext_resource type="Script" uid="uid://ckcnmmdmj10wo" path="res://scripts/ui/combat/action_field.gd" id="1_vm0q0"]
 
 [node name="ActionField" type="PanelContainer"]
-custom_minimum_size = Vector2(120, 100)
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+custom_minimum_size = Vector2(0, 100)
+offset_right = 120.0
+offset_bottom = 100.0
+size_flags_horizontal = 3
 script = ExtResource("1_vm0q0")
 metadata/_edit_vertical_guides_ = [-146.0]
 
@@ -31,24 +29,30 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 theme_override_constants/separation = 10
 
-[node name="HeaderRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+[node name="HeaderPlate" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="IconRect" type="TextureRect" parent="MarginContainer/VBoxContainer/HeaderRow"]
+[node name="HeaderRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HeaderPlate"]
 layout_mode = 2
 
-[node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/HeaderRow"]
+[node name="IconRect" type="TextureRect" parent="MarginContainer/VBoxContainer/HeaderPlate/HeaderRow"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/HeaderPlate/HeaderRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 18
 text = "Action"
 horizontal_alignment = 1
 
-[node name="ElementBadge" type="PanelContainer" parent="MarginContainer/VBoxContainer/HeaderRow"]
+[node name="SourceBadge" type="TextureRect" parent="MarginContainer/VBoxContainer/HeaderPlate/HeaderRow"]
+custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
-
-[node name="ElementIcon" type="TextureRect" parent="MarginContainer/VBoxContainer/HeaderRow/ElementBadge"]
-layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
 
 [node name="DieSlotRow" type="CenterContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -62,7 +66,6 @@ layout_mode = 2
 
 [node name="EmptyLabel" type="Label" parent="MarginContainer/VBoxContainer/DieSlotRow/DieSlotsGrid/SlotPanel"]
 layout_mode = 2
-text = "><"
 
 [node name="FooterRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2

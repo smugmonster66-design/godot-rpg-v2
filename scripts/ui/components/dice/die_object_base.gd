@@ -141,13 +141,14 @@ func _apply_single_affix(affix: DiceAffix):
 		_apply_unified_visual_effect(affix)
 
 func _apply_per_component_effects(affix: DiceAffix):
-	"""Apply per-component (fill/stroke/value) effects"""
+	"""Apply per-component (fill/stroke/value) effects — uses resolve methods for global config"""
 	# Fill effects
 	if fill_texture:
 		match affix.fill_effect_type:
 			DiceAffix.VisualEffectType.SHADER:
-				if affix.fill_shader_material:
-					fill_texture.material = affix.fill_shader_material.duplicate(true)
+				var mat = affix.resolve_fill_material()
+				if mat:
+					fill_texture.material = mat
 			DiceAffix.VisualEffectType.COLOR_TINT:
 				fill_texture.modulate = fill_texture.modulate * affix.fill_effect_color
 			DiceAffix.VisualEffectType.OVERLAY_TEXTURE:
@@ -159,8 +160,9 @@ func _apply_per_component_effects(affix: DiceAffix):
 	if stroke_texture:
 		match affix.stroke_effect_type:
 			DiceAffix.VisualEffectType.SHADER:
-				if affix.stroke_shader_material:
-					stroke_texture.material = affix.stroke_shader_material.duplicate(true)
+				var mat = affix.resolve_stroke_material()
+				if mat:
+					stroke_texture.material = mat
 			DiceAffix.VisualEffectType.COLOR_TINT:
 				stroke_texture.modulate = stroke_texture.modulate * affix.stroke_effect_color
 			DiceAffix.VisualEffectType.OVERLAY_TEXTURE:
@@ -179,8 +181,11 @@ func _apply_per_component_effects(affix: DiceAffix):
 				value_label.add_theme_color_override("font_color", affix.value_text_color)
 				value_label.add_theme_color_override("font_outline_color", affix.value_outline_color)
 			DiceAffix.ValueEffectType.SHADER:
-				if affix.value_shader_material:
-					value_label.material = affix.value_shader_material.duplicate(true)
+				var mat = affix.resolve_value_material()
+				if mat:
+					value_label.material = mat
+
+
 
 func _apply_unified_visual_effect(affix: DiceAffix):
 	"""Apply unified visual effect (legacy - affects entire die)"""

@@ -33,6 +33,7 @@ func rebuild_actions():
 	
 	actions_changed.emit()
 
+
 func _add_item_actions():
 	"""Add actions from equipped items"""
 	if not player:
@@ -59,10 +60,17 @@ func _add_item_actions():
 				print("      Action %d: %s" % [i, action_data.get("name", "?")])
 				var action = action_data.duplicate()
 				action["source"] = item.get("name", "Unknown Item")
+				# Source item visual data for ActionField badge
+				action["source_icon"] = item.get("icon", null)
+				action["source_rarity"] = item.get("rarity", "Common")
+				# Elemental identity from item affixes
+				if item.has("elemental_identity"):
+					action["source_element"] = item["elemental_identity"]
 				if not action.has("action_resource") and item.has("action_resource"):
 					action["action_resource"] = item["action_resource"]
 				actions.append(action)
 				print("  ✅ Added action: %s from %s" % [action.get("name", "?"), action.get("source")])
+
 
 
 func _add_affix_granted_actions():
@@ -75,8 +83,30 @@ func _add_affix_granted_actions():
 		if action_resource:
 			var action_dict = action_resource.to_dict()
 			action_dict["action_resource"] = action_resource
+			
+			# Try to find source item for icon/rarity/element
+			var source_name = action_dict.get("source", "")
+			if source_name and player:
+				var source_item = _find_equipped_item_by_name(source_name)
+				if source_item:
+					action_dict["source_icon"] = source_item.get("icon", null)
+					action_dict["source_rarity"] = source_item.get("rarity", "Common")
+					if source_item.has("elemental_identity"):
+						action_dict["source_element"] = source_item["elemental_identity"]
+			
 			actions.append(action_dict)
 			print("  ✅ Added affix action: %s" % action_dict.get("name", "?"))
+
+
+
+func _find_equipped_item_by_name(item_name: String) -> Dictionary:
+	"""Find an equipped item by name"""
+	for slot in player.equipment:
+		var item = player.equipment[slot]
+		if item and item.get("name", "") == item_name:
+			return item
+	return {}
+
 
 func _on_equipment_changed(_slot: String, _item):
 	"""Rebuild when equipment changes"""

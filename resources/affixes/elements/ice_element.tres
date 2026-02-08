@@ -1,18 +1,16 @@
-[gd_resource type="Resource" script_class="DiceAffix" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://6rsbaoccvjqc"]
 
-[ext_resource type="Script" path="res://resources/data/dice_affix.gd" id="1_script"]
-[ext_resource type="ShaderMaterial" path="res://resources/materials/dice/ice_fill.tres" id="2_fill"]
-[ext_resource type="ShaderMaterial" path="res://resources/materials/dice/ice_stroke.tres" id="3_stroke"]
-[ext_resource type="ShaderMaterial" path="res://resources/materials/dice/ice_value.tres" id="4_value"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_jmoj0"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_muu81"]
 
 [resource]
 script = ExtResource("1_script")
 affix_name = "Ice Element"
 description = "Frozen crystalline chill"
 show_in_summary = false
+use_global_element_visuals = true
+global_element_type = 4
 fill_effect_type = 4
-fill_shader_material = ExtResource("2_fill")
 stroke_effect_type = 4
-stroke_shader_material = ExtResource("3_stroke")
 value_effect_type = 3
-value_shader_material = ExtResource("4_value")

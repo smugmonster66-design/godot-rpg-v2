@@ -156,7 +156,7 @@ func _ensure_scrollable_grid():
 	print("    🔧 ActionFieldsScroll mouse_filter → PASS (drag-drop fix)")
 	
 	# Check for CenterContainer between ScrollContainer and Grid
-	var center = action_fields_scroll.find_child("CenterContainer", true, false)
+	var center = action_fields_scroll.find_child("FieldsMargin", true, false)
 	if center and center is Control:
 		center.mouse_filter = Control.MOUSE_FILTER_PASS
 		print("    🔧 CenterContainer mouse_filter → PASS (drag-drop fix)")

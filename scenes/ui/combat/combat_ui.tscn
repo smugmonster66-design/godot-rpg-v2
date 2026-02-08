@@ -92,15 +92,18 @@ layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="CenterContainer" type="CenterContainer" parent="MarginContainer/VBox/ActionFieldsArea/ActionFieldsScroll"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="ActionFieldsGrid" type="GridContainer" parent="MarginContainer/VBox/ActionFieldsArea/ActionFieldsScroll/CenterContainer"]
+[node name="FieldsMargin" type="MarginContainer" parent="MarginContainer/VBox/ActionFieldsArea/ActionFieldsScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/h_separation = 10
+theme_override_constants/margin_left = 120
+theme_override_constants/margin_right = 120
+
+[node name="ActionFieldsGrid" type="GridContainer" parent="MarginContainer/VBox/ActionFieldsArea/ActionFieldsScroll/FieldsMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 120
 theme_override_constants/v_separation = 10
 columns = 2
 

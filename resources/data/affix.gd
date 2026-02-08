@@ -109,6 +109,9 @@ enum ProcTrigger {
 @export var show_in_summary: bool = true
 @export var show_in_active_list: bool = true
 
+@export var has_elemental_identity: bool = false
+@export var elemental_identity: ActionEffect.DamageType = ActionEffect.DamageType.SLASHING
+
 # ============================================================================
 # CATEGORIZATION
 # ============================================================================
@@ -418,6 +421,19 @@ func get_full_description() -> String:
 
 func _to_string() -> String:
 	return "Affix<%s: %s>" % [affix_name, get_category_name()]
+
+
+# ============================================================================
+# ELEMENTAL IDENTITY
+# ============================================================================
+
+func get_elemental_identity() -> ActionEffect.DamageType:
+	"""Returns this affix's element, or -1 if none is set."""
+	if has_elemental_identity:
+		return elemental_identity
+	return -1
+
+
 
 # ============================================================================
 # VALUE RESOLUTION HELPERS (private)

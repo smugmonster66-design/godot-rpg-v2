@@ -305,7 +305,7 @@ func _apply_single_affix_effect(affix: DiceAffix):
 # ============================================================================
 
 func _apply_per_component_effects(affix: DiceAffix):
-	"""Apply separate effects to fill, stroke, and value label"""
+	"""Apply separate effects to fill, stroke, and value label — uses resolve methods"""
 	# Fill texture effects
 	if texture_rect and affix.fill_effect_type != DiceAffix.VisualEffectType.NONE:
 		match affix.fill_effect_type:
@@ -313,8 +313,9 @@ func _apply_per_component_effects(affix: DiceAffix):
 				if affix.fill_effect_color != Color.WHITE:
 					texture_rect.modulate = texture_rect.modulate * affix.fill_effect_color
 			DiceAffix.VisualEffectType.SHADER:
-				if affix.fill_shader_material:
-					texture_rect.material = affix.fill_shader_material.duplicate()
+				var mat = affix.resolve_fill_material()
+				if mat:
+					texture_rect.material = mat
 			DiceAffix.VisualEffectType.OVERLAY_TEXTURE:
 				if affix.fill_overlay_texture:
 					_create_overlay(affix.fill_overlay_texture, affix.fill_overlay_blend_mode, affix.fill_overlay_opacity)
@@ -328,13 +329,14 @@ func _apply_per_component_effects(affix: DiceAffix):
 				if affix.stroke_effect_color != Color.WHITE:
 					stroke_texture_rect.modulate = stroke_texture_rect.modulate * affix.stroke_effect_color
 			DiceAffix.VisualEffectType.SHADER:
-				if affix.stroke_shader_material:
-					stroke_texture_rect.material = affix.stroke_shader_material.duplicate()
+				var mat = affix.resolve_stroke_material()
+				if mat:
+					stroke_texture_rect.material = mat
 			DiceAffix.VisualEffectType.OVERLAY_TEXTURE:
 				if affix.stroke_overlay_texture:
 					_create_overlay(affix.stroke_overlay_texture, affix.stroke_overlay_blend_mode, affix.stroke_overlay_opacity)
 	
-	# Value label effects (NEW)
+	# Value label effects
 	if value_label and affix.value_effect_type != DiceAffix.ValueEffectType.NONE:
 		match affix.value_effect_type:
 			DiceAffix.ValueEffectType.COLOR:
@@ -345,8 +347,10 @@ func _apply_per_component_effects(affix: DiceAffix):
 				value_label.add_theme_color_override("font_color", affix.value_text_color)
 				value_label.add_theme_color_override("font_outline_color", affix.value_outline_color)
 			DiceAffix.ValueEffectType.SHADER:
-				if affix.value_shader_material:
-					value_label.material = affix.value_shader_material.duplicate()
+				var mat = affix.resolve_value_material()
+				if mat:
+					value_label.material = mat
+
 
 func _create_overlay(tex: Texture2D, blend_mode: int, opacity: float):
 	"""Helper to create overlay texture"""

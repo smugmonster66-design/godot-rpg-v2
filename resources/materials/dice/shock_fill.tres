@@ -1,11 +1,11 @@
-[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://hdanq5v2g2ji"]
 
-[ext_resource type="Shader" path="res://shaders/dice/shock/shock_fill.gdshader" id="1_shader"]
+[ext_resource type="Shader" uid="uid://oua43j40x4a7" path="res://shaders/dice/shock/shock_fill.gdshader" id="1_shader"]
 
 [resource]
 shader = ExtResource("1_shader")
 shader_parameter/electric_core = Color(1, 1, 0.9, 1)
 shader_parameter/electric_mid = Color(0.8, 0.95, 1, 1)
 shader_parameter/electric_edge = Color(0.3, 0.5, 0.9, 1)
-shader_parameter/crackle_speed = 3.0
-shader_parameter/energy_intensity = 0.8
+shader_parameter/crackle_speed = 5.0
+shader_parameter/energy_intensity = 1.0

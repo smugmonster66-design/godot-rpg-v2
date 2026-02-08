@@ -6,6 +6,7 @@ extends Node
 # ============================================================================
 const COMBAT_SCENE = preload("res://scenes/game/combat_scene.tscn")
 const MAP_SCENE = preload("res://scenes/game/map_scene.tscn")
+const ELEMENT_VISUALS = preload("res://resources/element_visuals.tres")
 
 # ============================================================================
 # STARTING ITEMS CONFIGURATION
@@ -15,6 +16,11 @@ const MAP_SCENE = preload("res://scenes/game/map_scene.tscn")
 
 @export_group("Player Base Classes")
 @export var warrior = load("res://resources/player_classes/warrior.tres") as PlayerClass
+
+
+@export_group("Element Visuals")
+## Central element visual configuration - fill/stroke shaders per element
+@export var element_visuals: ElementVisualConfig
 
 # ============================================================================
 # GAME STATE

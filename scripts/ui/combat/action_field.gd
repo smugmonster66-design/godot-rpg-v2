@@ -32,17 +32,6 @@ enum ActionType {
 ## Primary element/damage type of this action
 @export var element: ActionEffect.DamageType = ActionEffect.DamageType.SLASHING
 
-@export_group("Element Shaders")
-## Shader materials for each element type - assign in inspector
-@export var slashing_material: ShaderMaterial
-@export var blunt_material: ShaderMaterial
-@export var piercing_material: ShaderMaterial
-@export var fire_material: ShaderMaterial
-@export var ice_material: ShaderMaterial
-@export var shock_material: ShaderMaterial
-@export var poison_material: ShaderMaterial
-@export var shadow_material: ShaderMaterial
-
 @export_group("Animation")
 @export var snap_duration: float = 0.25
 @export var return_duration: float = 0.3
@@ -76,7 +65,7 @@ var dmg_preview_label: Label = null
 var fill_texture: NinePatchRect = null
 var stroke_texture: NinePatchRect = null
 var mult_label: Label = null
-var element_icon: TextureRect = null
+var source_badge: TextureRect = null
 
 # ============================================================================
 # STATE
@@ -86,6 +75,10 @@ var dice_visuals: Array[Control] = []
 var die_slot_panels: Array[Panel] = []
 var is_disabled: bool = false
 var dice_source_info: Array[Dictionary] = []
+# Source item visual data (for badge display)
+var source_icon: Texture2D = null
+var source_rarity: String = "Common"
+
 
 const SLOT_SIZE = Vector2(62, 62)
 const DIE_SCALE = 0.5
@@ -127,6 +120,7 @@ func _ready():
 	refresh_ui()
 	_apply_element_shader()
 	_update_damage_preview()
+	_setup_source_badge()
 
 func _discover_nodes():
 	name_label = find_child("NameLabel", true, false) as Label
@@ -139,7 +133,9 @@ func _discover_nodes():
 	fill_texture = find_child("FillTexture", true, false) as NinePatchRect
 	stroke_texture = find_child("StrokeTexture", true, false) as NinePatchRect
 	mult_label = find_child("MultLabel", true, false) as Label
-	element_icon = find_child("ElementIcon", true, false) as TextureRect
+	source_badge = find_child("SourceBadge", true, false) as TextureRect
+
+
 
 func _set_children_mouse_pass():
 	for child in get_children():
@@ -154,45 +150,40 @@ func setup_drop_target():
 # ============================================================================
 
 func _apply_element_shader():
-	"""Apply the appropriate shader material based on element type"""
-	var material = _get_element_material(element)
+	"""Apply fill + stroke shader materials from central element config"""
+	if not GameManager or not GameManager.ELEMENT_VISUALS:
+		# Fallback: tint only
+		if fill_texture:
+			fill_texture.modulate = ELEMENT_COLORS.get(element, Color.WHITE)
+		return
 	
-	if fill_texture and material:
-		fill_texture.material = material.duplicate()
+	var config = GameManager.ELEMENT_VISUALS
 	
-	# Optionally tint if no shader available
-	if fill_texture and not material:
-		fill_texture.modulate = ELEMENT_COLORS.get(element, Color.WHITE)
+	# Fill material
+	if fill_texture:
+		var fill_mat = config.get_fill_material(element)
+		if fill_mat:
+			fill_texture.material = fill_mat
+		else:
+			fill_texture.material = null
+			fill_texture.modulate = config.get_tint_color(element)
+	
+	# Stroke material
+	if stroke_texture:
+		var stroke_mat = config.get_stroke_material(element)
+		if stroke_mat:
+			stroke_texture.material = stroke_mat
+		else:
+			stroke_texture.material = null
 
-func _get_element_material(elem: ActionEffect.DamageType) -> ShaderMaterial:
-	"""Get the shader material for an element type"""
-	match elem:
-		ActionEffect.DamageType.SLASHING:
-			return slashing_material
-		ActionEffect.DamageType.BLUNT:
-			return blunt_material
-		ActionEffect.DamageType.PIERCING:
-			return piercing_material
-		ActionEffect.DamageType.FIRE:
-			return fire_material
-		ActionEffect.DamageType.ICE:
-			return ice_material
-		ActionEffect.DamageType.SHOCK:
-			return shock_material
-		ActionEffect.DamageType.POISON:
-			return poison_material
-		ActionEffect.DamageType.SHADOW:
-			return shadow_material
-		_:
-			return null
+
+
 
 func set_element(new_element: ActionEffect.DamageType):
 	"""Change the element and update visuals"""
 	element = new_element
-	if element_icon:
-		element_icon.modulate = ELEMENT_COLORS.get(element, Color.WHITE)
-		element_icon.tooltip_text = ELEMENT_NAMES.get(element, "")
 	_apply_element_shader()
+	_setup_source_badge()
 	_update_damage_preview()
 
 # ============================================================================
@@ -321,13 +312,22 @@ func configure_from_dict(action_data: Dictionary):
 	source = action_data.get("source", "")
 	action_resource = action_data.get("action_resource", null)
 	
-	# Get element from action_resource or action_data
-	if action_resource and action_resource.get("element") != null:
+	# Source item visual data
+	source_icon = action_data.get("source_icon", null)
+	source_rarity = action_data.get("source_rarity", "Common")
+	
+	# Element resolution — priority chain:
+	# 1. Source item's affix elemental identity
+	# 2. Action resource's explicit element
+	# 3. Dict "element" key
+	# 4. Inferred from first damage effect
+	if action_data.has("source_element"):
+		element = action_data["source_element"] as ActionEffect.DamageType
+	elif action_resource and action_resource.get("element") != null:
 		element = action_resource.element
 	elif action_data.has("element"):
 		element = action_data.get("element", ActionEffect.DamageType.SLASHING)
 	else:
-		# Try to infer from first damage effect
 		element = _infer_element_from_effects(action_data)
 	
 	if action_resource:
@@ -337,6 +337,9 @@ func configure_from_dict(action_data: Dictionary):
 		refresh_ui()
 		_apply_element_shader()
 		_update_damage_preview()
+		_setup_source_badge()
+
+
 
 func _infer_element_from_effects(action_data: Dictionary) -> ActionEffect.DamageType:
 	"""Try to infer element from action effects"""
@@ -350,14 +353,12 @@ func _infer_element_from_effects(action_data: Dictionary) -> ActionEffect.Damage
 	
 	return ActionEffect.DamageType.SLASHING
 
+
 func refresh_ui():
 	if name_label:
 		name_label.text = action_name
 	if icon_rect:
 		icon_rect.texture = action_icon
-	if element_icon:
-		element_icon.modulate = ELEMENT_COLORS.get(element, Color.WHITE)
-		element_icon.tooltip_text = ELEMENT_NAMES.get(element, "")
 	if mult_label:
 		if damage_multiplier != 1.0:
 			mult_label.text = "×%.1f" % damage_multiplier
@@ -369,6 +370,60 @@ func refresh_ui():
 	update_charge_display()
 	update_disabled_state()
 	_update_damage_preview()
+
+
+func _setup_source_badge():
+	"""Configure the source badge — item icon with rarity glow, or element icon fallback"""
+	if not source_badge:
+		return
+	
+	if source_icon:
+		source_badge.texture = source_icon
+		source_badge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		source_badge.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		source_badge.custom_minimum_size = Vector2(64, 64)
+		_apply_rarity_shader_to_badge(source_badge, source_rarity)
+		source_badge.show()
+	elif GameManager and GameManager.ELEMENT_VISUALS:
+		var elem_icon = GameManager.ELEMENT_VISUALS.get_icon(element)
+		if elem_icon:
+			source_badge.texture = elem_icon
+			source_badge.material = null
+			source_badge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			source_badge.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			source_badge.custom_minimum_size = Vector2(64, 64)
+			source_badge.show()
+		else:
+			source_badge.hide()
+	else:
+		source_badge.hide()
+
+func _apply_rarity_shader_to_badge(tex_rect: TextureRect, rarity_name: String):
+	"""Apply rarity border glow shader to the source badge"""
+	var shader = load("res://shaders/rarity_border.gdshader")
+	if not shader:
+		return
+	
+	var rarity_colors_res = load("res://resources/data/rarity_colors.tres")
+	if not rarity_colors_res:
+		return
+	
+	var color = rarity_colors_res.get_color_for_rarity(rarity_name)
+	
+	var mat = ShaderMaterial.new()
+	mat.shader = shader
+	mat.set_shader_parameter("border_color", color)
+	mat.set_shader_parameter("glow_radius", 3.0)
+	mat.set_shader_parameter("glow_softness", 2.0)
+	mat.set_shader_parameter("glow_width", 0.6)
+	mat.set_shader_parameter("glow_strength", 1.5)
+	mat.set_shader_parameter("glow_blend", 0.6)
+	mat.set_shader_parameter("glow_saturation", 1.0)
+	mat.set_shader_parameter("pulse_speed", 1.0)
+	mat.set_shader_parameter("pulse_amount", 0.15)
+	
+	tex_rect.material = mat
+
 
 # ============================================================================
 # DIE SLOTS

@@ -1,19 +1,16 @@
-[gd_resource type="Resource" script_class="DiceAffix" load_steps=6 format=3 uid="uid://2a7ntncvy5ij"]
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://2a7ntncvy5ij"]
 
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_script"]
 [ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_f2341"]
-[ext_resource type="Material" uid="uid://bsgujk6rjeutk" path="res://resources/materials/dice/blunt_fill.tres" id="2_fill"]
-[ext_resource type="Material" uid="uid://ciaes06k785td" path="res://resources/materials/dice/blunt_stroke.tres" id="3_stroke"]
-[ext_resource type="Material" uid="uid://bpcdjw7madlmu" path="res://resources/materials/dice/blunt_value.tres" id="4_value"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_23l30"]
 
 [resource]
 script = ExtResource("1_script")
 affix_name = "Blunt Element"
 description = "Heavy iron crushing force"
 show_in_summary = false
+use_global_element_visuals = true
+global_element_type = 1
 fill_effect_type = 4
-fill_shader_material = ExtResource("2_fill")
 stroke_effect_type = 4
-stroke_shader_material = ExtResource("3_stroke")
 value_effect_type = 3
-value_shader_material = ExtResource("4_value")

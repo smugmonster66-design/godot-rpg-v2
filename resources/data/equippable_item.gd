@@ -34,6 +34,10 @@ enum EquipSlot {
 @export var equip_slot: EquipSlot = EquipSlot.MAIN_HAND
 @export var set_definition: SetDefinition = null
 
+## Optional element for this item. Flows to action fields as their element.
+@export var has_elemental_identity: bool = false
+@export var elemental_identity: ActionEffect.DamageType = ActionEffect.DamageType.SLASHING
+
 # ============================================================================
 # AFFIX SYSTEM - TABLES
 # ============================================================================
@@ -78,6 +82,24 @@ var item_affixes: Array[Affix] = []
 @export_group("Combat Action")
 @export var grants_action: bool = false
 @export var action: Action = null
+
+
+# ============================================================================
+# ELEMENTAL IDENTITY
+# ============================================================================
+
+func get_elemental_identity() -> int:
+	"""Find the elemental identity — item-level first, then affixes.
+	Returns the DamageType int, or -1 if none is set."""
+	# Item-level override
+	if has_elemental_identity:
+		return elemental_identity
+	# Scan affixes
+	for affix in item_affixes:
+		if affix and affix.has_elemental_identity:
+			return affix.elemental_identity
+	return -1
+
 
 # ============================================================================
 # UTILITY
@@ -274,11 +296,16 @@ func to_dict() -> Dictionary:
 		action_dict["action_resource"] = action
 		dict["actions"] = [action_dict]
 	
-	# ── NEW: Equipment set ──
+	# Equipment set
 	if set_definition:
 		dict["set_definition"] = set_definition
 		dict["set_name"] = set_definition.set_name
 		dict["set_id"] = set_definition.set_id
 		dict["set_color"] = set_definition.set_color
+	
+	# Elemental identity from affixes
+	var elem_id = get_elemental_identity()
+	if elem_id >= 0:
+		dict["elemental_identity"] = elem_id
 	
 	return dict
