@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=3 format=3 uid="uid://bswjmnvk0ejlt"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_pd1ag"]
+[ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_afgu2"]
+
+[resource]
+script = ExtResource("2_afgu2")
+status_id = "overhealth"
+duration_type = 1
+max_stacks = 999
+is_debuff = false
+affix_name = "Overhealth"
+description = "Absorbs incoming damage. Decrements each turn."
+show_in_summary = false
+category = 36

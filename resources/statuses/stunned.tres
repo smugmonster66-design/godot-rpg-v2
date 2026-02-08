@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=3 format=3 uid="uid://b01lhtajfw4ud"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_bpv65"]
+[ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_ca0q2"]
+
+[resource]
+script = ExtResource("2_ca0q2")
+status_id = "stunned"
+duration_type = 1
+default_duration = 2
+max_stacks = 10
+affix_name = "Stunned"
+description = "Stuns a number of random dice equal to stacks for a set duration."
+show_in_summary = false
+category = 36

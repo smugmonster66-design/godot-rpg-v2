@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=3 format=3 uid="uid://cfgr6ee2uth1t"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_77fgs"]
+[ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_ebpro"]
+
+[resource]
+script = ExtResource("2_ebpro")
+status_id = "corrode"
+duration_type = 1
+affix_name = "Corrode"
+description = "Reduces armor for a set duration."
+show_in_summary = false
+category = 36

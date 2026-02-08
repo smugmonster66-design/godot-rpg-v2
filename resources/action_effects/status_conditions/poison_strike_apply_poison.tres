@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://1nx7pffs8mla"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_xqpy3"]
+[ext_resource type="Resource" uid="uid://bsdh11hev78ei" path="res://resources/statuses/poison.tres" id="2_qwwn0"]
+
+[resource]
+script = ExtResource("1_xqpy3")
+effect_name = "Poison Strike Apply Poison"
+effect_type = 2
+status_affix = ExtResource("2_qwwn0")
+stack_count = 3
+metadata/_custom_type_script = "uid://dqmfu54osidoc"

@@ -43,7 +43,7 @@ var enemy_data: EnemyData = null
 var is_selected: bool = false
 var is_empty: bool = true
 var style_box: StyleBoxFlat = null
-var dice_icons: Array[TextureRect] = []
+var dice_icons: Array[Control] = []
 var turn_indicator_material: ShaderMaterial = null
 
 # ============================================================================

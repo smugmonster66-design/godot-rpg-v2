@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=2 format=3 uid="uid://cld12xhom5ovd"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_ekt7c"]
+
+[resource]
+script = ExtResource("1_ekt7c")
+effect_name = "Poison Strike Damage"
+damage_type = 6
+base_damage = 2
+metadata/_custom_type_script = "uid://dqmfu54osidoc"

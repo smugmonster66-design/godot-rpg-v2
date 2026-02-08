@@ -59,6 +59,8 @@ func _add_item_actions():
 				print("      Action %d: %s" % [i, action_data.get("name", "?")])
 				var action = action_data.duplicate()
 				action["source"] = item.get("name", "Unknown Item")
+				if not action.has("action_resource") and item.has("action_resource"):
+					action["action_resource"] = item["action_resource"]
 				actions.append(action)
 				print("  ✅ Added action: %s from %s" % [action.get("name", "?"), action.get("source")])
 

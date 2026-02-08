@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=3 format=3 uid="uid://kilfjnbqkpbi"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_wfeu7"]
+[ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_lp4ev"]
+
+[resource]
+script = ExtResource("2_lp4ev")
+status_id = "bleed"
+decay_style = 1
+affix_name = "Bleed"
+description = "Deals physical damage at the start of each turn. Loses 1 stack per tick."
+show_in_summary = false
+category = 33

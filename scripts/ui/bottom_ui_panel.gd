@@ -12,12 +12,6 @@ signal menu_button_pressed
 # ============================================================================
 # NODE REFERENCES - Matching actual scene structure
 # ============================================================================
-# Portrait section
-@onready var portrait_section: VBoxContainer = $MainHBox/PortraitSection
-@onready var portrait_container: Control = $MainHBox/PortraitSection/PortraitVBox/PortraitContainer
-@onready var portrait_back_panel: Panel = $MainHBox/PortraitSection/PortraitVBox/PortraitContainer/BackPanel
-@onready var portrait_texture: TextureRect = $MainHBox/PortraitSection/PortraitVBox/PortraitContainer/PortraitTexture
-@onready var portrait_front_panel: Panel = $MainHBox/PortraitSection/PortraitVBox/PortraitContainer/FrontPanel
 
 # Left section - stats and dice
 @onready var left_section: VBoxContainer = $MainHBox/LeftSection

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=3 format=3 uid="uid://cvib7utqprgwq"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_umb4n"]
+[ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_syxx6"]
+
+[resource]
+script = ExtResource("2_syxx6")
+status_id = "block"
+max_stacks = 999
+falls_off_between_turns = true
+is_debuff = false
+affix_name = "Block"
+description = "Reduces incoming damage by stack amount. Falls off at the start of your next turn."
+show_in_summary = false
+category = 11

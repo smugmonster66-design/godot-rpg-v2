@@ -269,9 +269,10 @@ func to_dict() -> Dictionary:
 	if affixes_data.size() > 0:
 		dict["affixes"] = affixes_data
 	
-	# Add action if granted
 	if grants_action and action:
-		dict["actions"] = [action.to_dict()]
+		var action_dict = action.to_dict()
+		action_dict["action_resource"] = action
+		dict["actions"] = [action_dict]
 	
 	# ── NEW: Equipment set ──
 	if set_definition:

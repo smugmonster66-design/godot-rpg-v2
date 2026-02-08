@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=3 format=3 uid="uid://blqimigwcslxh"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_gekrj"]
+[ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_7u0ld"]
+
+[resource]
+script = ExtResource("2_7u0ld")
+status_id = "ignition"
+is_debuff = false
+can_be_cleansed = false
+affix_name = "Ignition"
+description = "A combustible resource consumed by fire abilities for bonus effects."
+show_in_summary = false
+category = 36

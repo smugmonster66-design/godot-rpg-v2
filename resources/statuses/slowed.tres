@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=3 format=3 uid="uid://i0gx0hubkmmx"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_ykvnj"]
+[ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_lrrxd"]
+
+[resource]
+script = ExtResource("2_lrrxd")
+status_id = "slowed"
+duration_type = 1
+affix_name = "Slowed"
+description = "Reduces die values by stack amount for a set duration."
+show_in_summary = false
+category = 36
