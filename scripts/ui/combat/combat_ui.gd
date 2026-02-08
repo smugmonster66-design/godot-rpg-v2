@@ -599,27 +599,35 @@ func _create_action_field(action_data: Dictionary) -> ActionField:
 	# Configure from data
 	field.configure_from_dict(action_data)
 	
-	# Connect signals
+	# Connect signals (ONCE only)
 	field.action_selected.connect(_on_action_field_selected)
 	field.dice_returned.connect(_on_dice_returned)
 	field.die_placed.connect(_on_die_placed)
+	field.dice_return_complete.connect(_on_dice_return_complete)
 	
 	# =========================================================================
 	# DEBUG: After the field enters the tree and _ready() runs, verify it is
-	# properly configured to receive drops. Checks the full ancestor chain.
+	# properly configured to receive drops. Uses a weak ref to avoid lambda
+	# capture errors if the field is freed before entering the tree.
 	# =========================================================================
+	var field_ref = weakref(field)
 	field.tree_entered.connect(func():
+		var f = field_ref.get_ref()
+		if not f or not is_instance_valid(f):
+			return
 		await get_tree().process_frame
-		print("🔍 ActionField '%s' post-ready check:" % field.action_name)
-		print("    mouse_filter: %s" % _mf_name(field.mouse_filter))
-		print("    die_slot_panels: %d" % field.die_slot_panels.size())
-		print("    die_slots_grid: %s" % ("found" if field.die_slots_grid else "NULL ⚠️"))
-		print("    is_disabled: %s" % field.is_disabled)
-		print("    size: %s" % field.size)
-		print("    global_position: %s" % field.global_position)
+		if not is_instance_valid(f):
+			return
+		print("🔍 ActionField '%s' post-ready check:" % f.action_name)
+		print("    mouse_filter: %s" % _mf_name(f.mouse_filter))
+		print("    die_slot_panels: %d" % f.die_slot_panels.size())
+		print("    die_slots_grid: %s" % ("found" if f.die_slots_grid else "NULL ⚠️"))
+		print("    is_disabled: %s" % f.is_disabled)
+		print("    size: %s" % f.size)
+		print("    global_position: %s" % f.global_position)
 		
 		# Walk ancestor chain and flag any IGNORE nodes that block drops
-		var node = field.get_parent()
+		var node = f.get_parent()
 		while node:
 			if node is Control:
 				var mf = _mf_name(node.mouse_filter)
@@ -629,12 +637,8 @@ func _create_action_field(action_data: Dictionary) -> ActionField:
 			node = node.get_parent()
 	, CONNECT_ONE_SHOT)
 	
-	field.action_selected.connect(_on_action_field_selected)
-	field.dice_returned.connect(_on_dice_returned)
-	field.dice_return_complete.connect(_on_dice_return_complete)
-	
-	
 	return field
+
 
 func _on_die_placed(_field: ActionField, die: DieResource):
 	"""When a die is dropped on an action field, consume it from the hand."""

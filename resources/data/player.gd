@@ -348,6 +348,7 @@ func apply_item_dice(item: Dictionary):
 	var item_name = item.get("name", "Unknown Item")
 	var tags = item.get("dice_tags", [])
 	var item_affixes = item.get("item_affixes", [])
+	var dice_are_modified = item.get("_dice_modified", false)
 	
 	var item_dice = item.get("dice_resources", [])
 	if item_dice.size() > 0:
@@ -359,10 +360,12 @@ func apply_item_dice(item: Dictionary):
 				for tag in tags:
 					die_copy.add_tag(tag)
 				
-				# Apply visual effects from item affixes
-				for affix in item_affixes:
-					if affix is Affix and affix.dice_visual_affix:
-						die_copy.add_affix(affix.dice_visual_affix)
+				# Only apply visual effects from item affixes on FRESH dice.
+				# Modified dice already have them baked into applied_affixes.
+				if not dice_are_modified:
+					for affix in item_affixes:
+						if affix is Affix and affix.dice_visual_affix:
+							die_copy.add_affix(affix.dice_visual_affix)
 				
 				dice_pool.add_die(die_copy)
 		return
@@ -375,14 +378,46 @@ func apply_item_dice(item: Dictionary):
 
 
 
-
-
 func remove_item_dice(item: Dictionary):
 	if not item or not dice_pool:
 		return
 	
 	var item_name = item.get("name", "Unknown Item")
+	
+	# ── Snapshot modified dice back onto the item ──
+	var pool_dice = dice_pool.get_dice_by_source(item_name)
+	if pool_dice.size() > 0:
+		var modified_dice: Array[DieResource] = []
+		for die in pool_dice:
+			modified_dice.append(die.duplicate_die())
+		item["dice_resources"] = modified_dice
+		item["_dice_modified"] = true
+		print("🎲 Saved %d modified dice back to %s" % [modified_dice.size(), item_name])
+	
 	dice_pool.remove_dice_by_source(item_name)
+
+
+func reset_item_dice_to_base(item: Dictionary):
+	"""Strip player modifications from an item's dice, restoring templates.
+	Call this from a UI 'Reset Dice' button or similar."""
+	var equippable: EquippableItem = item.get("equippable_item", null)
+	if not equippable:
+		print("⚠️ No EquippableItem reference — cannot reset to base")
+		return
+	
+	var fresh: Array[DieResource] = []
+	for die in equippable.grants_dice:
+		if die:
+			fresh.append(die.duplicate_die())
+	
+	item["dice_resources"] = fresh
+	item.erase("_dice_modified")
+	print("🎲 Reset dice to base templates for %s" % item.get("name", "Unknown"))
+	
+	# If currently equipped, re-apply
+	if is_item_equipped(item):
+		dice_pool.remove_dice_by_source(item.get("name", "Unknown Item"))
+		apply_item_dice(item)
 
 # ============================================================================
 # EQUIPMENT SETS

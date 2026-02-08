@@ -146,9 +146,22 @@ func _execute_action(action_data: Dictionary, source: Node2D, targets: Array[Com
 		target_positions.append(target.global_position)
 		target_nodes.append(target)
 	
-	# Connect to apply effect at right time
+	# Use weakrefs to avoid lambda capture errors if nodes are freed mid-animation
+	var source_ref = weakref(source)
+	var target_refs: Array = []
+	for t in targets:
+		target_refs.append(weakref(t))
+	
 	var apply_effect_callable = func():
-		_apply_action_effect(action_data, source, targets)
+		var s = source_ref.get_ref()
+		if not s or not is_instance_valid(s):
+			return
+		var live_targets: Array[Combatant] = []
+		for ref in target_refs:
+			var t = ref.get_ref()
+			if t and is_instance_valid(t):
+				live_targets.append(t)
+		_apply_action_effect(action_data, s, live_targets)
 	
 	animation_player.apply_effect_now.connect(apply_effect_callable, CONNECT_ONE_SHOT)
 	
@@ -159,6 +172,8 @@ func _execute_action(action_data: Dictionary, source: Node2D, targets: Array[Com
 		target_positions,
 		target_nodes
 	)
+
+
 
 # ============================================================================
 # ENCOUNTER SPAWNING
@@ -567,11 +582,26 @@ func _play_action_with_animation(action_data: Dictionary, targets: Array, target
 	# Track if effect has been applied
 	var effect_applied = false
 	
-	# Create callback for applying effect at the right moment
+	# Create callback — use weakrefs to avoid lambda capture errors
+	# if nodes are freed before the animation callback fires
+	var player_ref = weakref(player_combatant)
+	var target_refs: Array = []
+	for t in targets:
+		target_refs.append(weakref(t))
+	
 	var apply_effect_callback = func():
-		if not effect_applied:
-			effect_applied = true
-			_apply_action_effect(action_data, player_combatant, targets)
+		if effect_applied:
+			return
+		effect_applied = true
+		var p = player_ref.get_ref()
+		if not p or not is_instance_valid(p):
+			return
+		var live_targets: Array = []
+		for ref in target_refs:
+			var t = ref.get_ref()
+			if t and is_instance_valid(t):
+				live_targets.append(t)
+		_apply_action_effect(action_data, p, live_targets)
 	
 	# Connect to apply_effect_now signal if it exists
 	if anim_player.has_signal("apply_effect_now"):
@@ -585,9 +615,18 @@ func _play_action_with_animation(action_data: Dictionary, targets: Array, target
 		push_warning("CombatAnimationPlayer missing play_action_animation method")
 		await get_tree().create_timer(0.5).timeout
 	
+	
 	# If effect wasn't applied by signal, apply now
 	if not effect_applied:
-		_apply_action_effect(action_data, player_combatant, targets)
+		effect_applied = true
+		var p = player_ref.get_ref()
+		if p and is_instance_valid(p):
+			var live_targets: Array = []
+			for ref in target_refs:
+				var t = ref.get_ref()
+				if t and is_instance_valid(t):
+					live_targets.append(t)
+			_apply_action_effect(action_data, p, live_targets)
 	
 	combat_state = CombatState.PLAYER_TURN
 

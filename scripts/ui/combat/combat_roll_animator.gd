@@ -338,8 +338,12 @@ func _do_animate_die(index: int, hand_visual: Control, target_center: Vector2):
 		_projectile_container.add_child(effect)
 		effect.configure(roll_scatter_preset, source_center, target_center, die_info, scatter_base_texture)
 
-		# Connect impact signal for early reveal
-		effect.impact.connect(func(): _reveal_hand_die(hand_visual), CONNECT_ONE_SHOT)
+		var visual_ref = weakref(hand_visual)
+		effect.impact.connect(func():
+			var v = visual_ref.get_ref()
+			if v and is_instance_valid(v):
+				_reveal_hand_die(v)
+		, CONNECT_ONE_SHOT)
 
 		await effect.finished
 	else:
@@ -584,11 +588,13 @@ func _do_animate_generic_die(_index: int, hand_visual: Control, source_center: V
 	if projectile.visual:
 		projectile.visual.visible = false
 	
+	var proj_ref = weakref(projectile)
 	get_tree().create_timer(0.3).timeout.connect(
 		func():
-			if is_instance_valid(projectile):
-				projectile.queue_free(),
+			var p = proj_ref.get_ref()
+			if p and is_instance_valid(p):
+				p.queue_free(),
 		CONNECT_ONE_SHOT
 	)
-	
-	_reveal_hand_die(hand_visual)
+	if is_instance_valid(hand_visual):
+		_reveal_hand_die(hand_visual)
