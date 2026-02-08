@@ -428,16 +428,15 @@ func _get_node_center(node: Node) -> Vector2:
 
 
 func _resolve_die_position(slot_index: int) -> Vector2:
-	"""Resolve a hand die's center position from its slot index."""
+	"""Resolve a hand die's center position from its slot index.
+	Searches by slot_index rather than array position to handle gaps."""
 	if not dice_pool_display:
 		return Vector2.ZERO
 
-	# Try die_visuals array
+	# Search by slot_index property
 	if "die_visuals" in dice_pool_display:
-		var visuals = dice_pool_display.die_visuals
-		if slot_index >= 0 and slot_index < visuals.size():
-			var v = visuals[slot_index]
-			if is_instance_valid(v) and v is Control:
+		for v in dice_pool_display.die_visuals:
+			if is_instance_valid(v) and v is Control and "slot_index" in v and v.slot_index == slot_index:
 				return v.global_position + v.size / 2.0
 
 	# Fallback: search children
@@ -448,18 +447,25 @@ func _resolve_die_position(slot_index: int) -> Vector2:
 	return Vector2.ZERO
 
 
+
 func _resolve_die_visual(slot_index: int) -> CanvasItem:
-	"""Resolve a hand die's visual node from its slot index."""
+	"""Resolve a hand die's visual node from its slot index.
+	Searches by slot_index rather than array position to handle gaps."""
 	if not dice_pool_display:
 		return null
 
 	if "die_visuals" in dice_pool_display:
-		var visuals = dice_pool_display.die_visuals
-		if slot_index >= 0 and slot_index < visuals.size():
-			var v = visuals[slot_index]
-			if is_instance_valid(v):
+		for v in dice_pool_display.die_visuals:
+			if is_instance_valid(v) and "slot_index" in v and v.slot_index == slot_index:
 				return v
+
+	# Fallback: search children
+	for child in dice_pool_display.get_children():
+		if child is CombatDieObject and child.slot_index == slot_index:
+			return child
+
 	return null
+
 
 
 func _resolve_enemy_position(slot_index: int) -> Vector2:

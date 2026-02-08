@@ -134,6 +134,7 @@ func _create_die_visual(die: DieResource, index: int) -> Control:
 	
 	# Try new CombatDieObject system first
 	if die.has_method("instantiate_combat_visual"):
+		print("      Die %d: type=%d, has_method=%s" % [index, die.die_type, die.has_method("instantiate_combat_visual")])
 		var combat_obj = die.instantiate_combat_visual()
 		if combat_obj:
 			print("      Using CombatDieObject")

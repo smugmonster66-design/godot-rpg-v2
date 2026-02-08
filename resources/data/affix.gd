@@ -203,7 +203,7 @@ func apply_effect(context: Dictionary = {}) -> Variant:
 	
 	Args:
 		context: Runtime state dictionary (player, equipment, combat state).
-		         Empty dict = STATIC resolution only (original behavior).
+				 Empty dict = STATIC resolution only (original behavior).
 	"""
 	# If this grants an action, return it
 	if granted_action and category == Category.NEW_ACTION:

@@ -843,14 +843,14 @@ func _cleanup_projectile(projectile: Node):
 # ============================================================================
 
 func _get_die_visual(die_index: int) -> Control:
-	"""Resolve a hand die index to its CombatDieObject visual node."""
+	"""Resolve a hand die index to its CombatDieObject visual node.
+	Searches by slot_index rather than array position to handle gaps
+	when a die visual fails to create."""
 	if not dice_pool_display:
 		return null
 	if "die_visuals" in dice_pool_display:
-		var visuals = dice_pool_display.die_visuals
-		if die_index >= 0 and die_index < visuals.size():
-			var v = visuals[die_index]
-			if is_instance_valid(v):
+		for v in dice_pool_display.die_visuals:
+			if is_instance_valid(v) and "slot_index" in v and v.slot_index == die_index:
 				return v
 	# Fallback: search children by slot_index
 	for child in dice_pool_display.get_children():
