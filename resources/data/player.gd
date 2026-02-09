@@ -379,22 +379,19 @@ func _apply_item_dice(item: EquippableItem):
 			dice_pool.add_die(die_copy)
 
 func _remove_item_dice(item: EquippableItem):
-	"""Snapshot modified dice back to the item, then remove from pool."""
-	if not dice_pool or not item:
+	if not item or not dice_pool:
 		return
 	
-	var source_name = item.item_name
-	
-	# Snapshot modified dice back onto the item
-	var pool_dice = dice_pool.get_dice_by_source(source_name)
+	var pool_dice = dice_pool.get_dice_by_source(item.item_name)
 	if pool_dice.size() > 0:
-		var modified_dice: Array[DieResource] = []
+		var modified: Array[DieResource] = []
 		for die in pool_dice:
-			modified_dice.append(die.duplicate_die())
-		item.snapshot_dice(modified_dice)
-		print("🎲 Saved %d modified dice back to %s" % [modified_dice.size(), source_name])
+			modified.append(die.duplicate_die())
+		item.store_modified_dice(modified)
+		print("🎲 Saved %d modified dice back to %s" % [modified.size(), item.item_name])
 	
-	dice_pool.remove_dice_by_source(source_name)
+	dice_pool.remove_dice_by_source(item.item_name)
+
 
 func reset_item_dice_to_base(item: EquippableItem):
 	"""Reset an item's dice to templates. If equipped, re-applies to pool."""

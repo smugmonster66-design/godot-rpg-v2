@@ -43,6 +43,7 @@ enum EquipSlot {
 # ============================================================================
 @export var item_name: String = "New Item"
 @export_multiline var description: String = "An equippable item."
+@export_multiline var flavor_text: String = ""
 @export var icon: Texture2D = null
 @export var rarity: Rarity = Rarity.COMMON
 @export var equip_slot: EquipSlot = EquipSlot.MAIN_HAND:
@@ -669,3 +670,36 @@ func to_dict() -> Dictionary:
 		dict["elemental_identity"] = elem_id
 	
 	return dict
+
+# Add these to equippable_item.gd
+
+# ============================================================================
+# DICE PERSISTENCE
+# ============================================================================
+
+## Runtime dice — starts as grants_dice copies, gets overwritten with
+## modified versions when unequipped to preserve player-applied affixes.
+var _runtime_dice: Array[DieResource] = []
+var _dice_modified: bool = false
+
+func get_runtime_dice() -> Array[DieResource]:
+	"""Return modified dice if they exist, otherwise base templates."""
+	if _dice_modified and _runtime_dice.size() > 0:
+		return _runtime_dice
+	return grants_dice
+
+func are_dice_modified() -> bool:
+	return _dice_modified
+
+func store_modified_dice(dice: Array[DieResource]):
+	"""Snapshot modified dice back onto this item (called on unequip)."""
+	_runtime_dice.clear()
+	for die in dice:
+		if die:
+			_runtime_dice.append(die.duplicate_die())
+	_dice_modified = true
+
+func reset_dice_to_base():
+	"""Clear modifications, revert to grants_dice templates."""
+	_runtime_dice.clear()
+	_dice_modified = false

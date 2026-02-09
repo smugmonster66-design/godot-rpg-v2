@@ -131,7 +131,7 @@ func _update_item_details():
 	var affix_containers = item_details_panel.find_children("*Affix*", "VBoxContainer", true, false)
 	var unequip_buttons = item_details_panel.find_children("*Unequip*", "Button", true, false)
 	
-	if not selected_item:
+	if selected_item == null:
 		if name_labels.size() > 0:
 			name_labels[0].text = "No Item Selected"
 		if image_rects.size() > 0:
@@ -145,63 +145,43 @@ func _update_item_details():
 			unequip_buttons[0].hide()
 		return
 	
-	# Show item details from EquippableItem
+	# Item name + rarity
 	if name_labels.size() > 0:
 		name_labels[0].text = selected_item.item_name
 		name_labels[0].add_theme_color_override("font_color", selected_item.get_rarity_color())
 	
+	# Item image
 	if image_rects.size() > 0:
 		if selected_item.icon:
 			image_rects[0].texture = selected_item.icon
 		else:
 			var img = Image.create(100, 100, false, Image.FORMAT_RGBA8)
-			img.fill(_get_slot_color(selected_item.get_slot_name()))
+			img.fill(selected_item.get_rarity_color())
 			image_rects[0].texture = ImageTexture.create_from_image(img)
 	
+	# Description
 	if desc_labels.size() > 0:
 		desc_labels[0].text = selected_item.description
 	
-	# Affix list
+	# Affixes + set info
 	if affix_containers.size() > 0:
 		var affix_container = affix_containers[0]
 		for child in affix_container.get_children():
 			child.queue_free()
 		
-		# Inherent affixes
-		for affix in selected_item.inherent_affixes:
-			if affix:
-				_add_affix_label(affix_container, affix, Color(0.7, 0.8, 0.7))
-		
-		# Rolled affixes
-		for affix in selected_item.rolled_affixes:
-			_add_affix_label(affix_container, affix, Color(0.9, 0.7, 0.3))
+		# Item affixes
+		for affix in selected_item.item_affixes:
+			if affix is Affix:
+				_add_affix_label(affix_container, affix, Color(0.9, 0.7, 0.3))
 		
 		# Set info
 		if selected_item.set_definition:
-			var set_label = Label.new()
-			set_label.text = "Set: %s" % selected_item.set_definition.set_name
-			set_label.add_theme_color_override("font_color", selected_item.set_definition.set_color)
-			set_label.add_theme_font_size_override("font_size", 13)
-			affix_container.add_child(set_label)
-		
-		# Flavor text
-		if selected_item.flavor_text != "":
-			var flavor_label = Label.new()
-			flavor_label.text = selected_item.flavor_text
-			flavor_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.5))
-			flavor_label.add_theme_font_size_override("font_size", 11)
-			flavor_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			affix_container.add_child(flavor_label)
-		
-		# Sell value
-		var sell_label = Label.new()
-		sell_label.text = "Sell: %d gold" % selected_item.get_sell_value()
-		sell_label.add_theme_color_override("font_color", Color(0.8, 0.7, 0.3))
-		sell_label.add_theme_font_size_override("font_size", 11)
-		affix_container.add_child(sell_label)
+			_add_set_info(affix_container, selected_item.set_definition)
 	
+	# Unequip button
 	if unequip_buttons.size() > 0:
 		unequip_buttons[0].show()
+
 
 func _add_affix_label(container: VBoxContainer, affix: Affix, color: Color):
 	"""Add a single affix display to the container."""
@@ -233,6 +213,30 @@ func _add_affix_label(container: VBoxContainer, affix: Affix, color: Color):
 	
 	container.add_child(affix_panel)
 
+func _add_set_info(container: VBoxContainer, set_def: SetDefinition):
+	"""Add set bonus info below affixes."""
+	var equipped_count: int = 0
+	if player and player.set_tracker:
+		equipped_count = player.set_tracker.get_equipped_count(set_def.set_id)
+	
+	# Set header
+	var set_header = Label.new()
+	set_header.text = "%s (%d/%d)" % [set_def.set_name, equipped_count, set_def.get_total_pieces()]
+	set_header.add_theme_color_override("font_color", set_def.set_color)
+	set_header.add_theme_font_size_override("font_size", 14)
+	container.add_child(set_header)
+	
+	# Threshold bonuses
+	for threshold in set_def.thresholds:
+		var is_active = player and player.set_tracker and player.set_tracker.is_threshold_active(set_def.set_id, threshold.required_pieces)
+		var threshold_label = Label.new()
+		var prefix = "✓" if is_active else "✗"
+		threshold_label.text = "  %s (%d) %s" % [prefix, threshold.required_pieces, threshold.description]
+		threshold_label.add_theme_font_size_override("font_size", 12)
+		threshold_label.add_theme_color_override("font_color", Color.GREEN if is_active else Color(0.4, 0.4, 0.4))
+		threshold_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		container.add_child(threshold_label)
+
 func _get_slot_color(slot_name: String) -> Color:
 	match slot_name:
 		"Head": return Color(0.6, 0.4, 0.4)
@@ -250,15 +254,7 @@ func _get_slot_color(slot_name: String) -> Color:
 
 func _on_slot_clicked(slot_name: String):
 	selected_slot = slot_name
-	var item: EquippableItem = player.equipment.get(slot_name)
-	
-	if item != null:
-		selected_item = item
-		print("⚔️ Clicked slot: %s - Item: %s" % [slot_name, item.item_name])
-	else:
-		selected_item = null
-		print("⚔️ Clicked slot: %s - Empty" % slot_name)
-	
+	selected_item = player.equipment.get(slot_name)  # EquippableItem or null
 	_update_item_details()
 
 func _on_unequip_pressed():
