@@ -1,20 +1,19 @@
 # action_manager.gd - Manages player's available combat actions
+# v3 — Reads EquippableItem directly from player.equipment.
 extends Node
 class_name ActionManager
 
 var player: Player = null
 
-# All actions in one list (no more item/skill separation)
+# All actions in one list
 var actions: Array[Dictionary] = []
 
 signal actions_changed()
 
 func initialize(p_player: Player):
-	"""Initialize with player"""
 	player = p_player
 	
 	if player:
-		# Check before connecting to avoid duplicate connections
 		if not player.equipment_changed.is_connected(_on_equipment_changed):
 			player.equipment_changed.connect(_on_equipment_changed)
 	
@@ -33,48 +32,40 @@ func rebuild_actions():
 	
 	actions_changed.emit()
 
-
 func _add_item_actions():
-	"""Add actions from equipped items"""
+	"""Add actions from equipped items (now EquippableItem-based)."""
 	if not player:
 		return
 	
 	print("📋 Scanning equipped items for actions...")
 	
-	var processed_items: Array = []
+	var processed_items: Array[EquippableItem] = []
 	
 	for slot in player.equipment:
-		var item = player.equipment[slot]
-		
-		print("  Slot: %s, item: %s" % [slot, item.get("name", "null") if item else "empty"])
+		var item: EquippableItem = player.equipment[slot]
 		
 		if not item or item in processed_items:
 			continue
 		
 		processed_items.append(item)
+		print("  Slot: %s, item: %s" % [slot, item.item_name])
 		
-		if item.has("actions"):
-			print("    Item has %d actions" % item.actions.size())
-			for i in range(item.actions.size()):
-				var action_data = item.actions[i]
-				print("      Action %d: %s" % [i, action_data.get("name", "?")])
-				var action = action_data.duplicate()
-				action["source"] = item.get("name", "Unknown Item")
-				# Source item visual data for ActionField badge
-				action["source_icon"] = item.get("icon", null)
-				action["source_rarity"] = item.get("rarity", "Common")
-				# Elemental identity from item affixes
-				if item.has("elemental_identity"):
-					action["source_element"] = item["elemental_identity"]
-				if not action.has("action_resource") and item.has("action_resource"):
-					action["action_resource"] = item["action_resource"]
-				actions.append(action)
-				print("  ✅ Added action: %s from %s" % [action.get("name", "?"), action.get("source")])
-
-
+		if item.grants_action and item.action:
+			var action_dict = item.action.to_dict()
+			action_dict["action_resource"] = item.action
+			action_dict["source"] = item.item_name
+			action_dict["source_icon"] = item.icon
+			action_dict["source_rarity"] = item.get_rarity_name()
+			
+			var elem_id = item.get_elemental_identity()
+			if elem_id >= 0:
+				action_dict["source_element"] = elem_id
+			
+			actions.append(action_dict)
+			print("  ✅ Added action: %s from %s" % [action_dict.get("name", "?"), item.item_name])
 
 func _add_affix_granted_actions():
-	"""Add actions granted by NEW_ACTION affixes"""
+	"""Add actions granted by NEW_ACTION affixes."""
 	if not player or not player.affix_manager:
 		return
 	
@@ -87,31 +78,19 @@ func _add_affix_granted_actions():
 			# Try to find source item for icon/rarity/element
 			var source_name = action_dict.get("source", "")
 			if source_name and player:
-				var source_item = _find_equipped_item_by_name(source_name)
+				var source_item = player.get_equipped_item_by_name(source_name)
 				if source_item:
-					action_dict["source_icon"] = source_item.get("icon", null)
-					action_dict["source_rarity"] = source_item.get("rarity", "Common")
-					if source_item.has("elemental_identity"):
-						action_dict["source_element"] = source_item["elemental_identity"]
+					action_dict["source_icon"] = source_item.icon
+					action_dict["source_rarity"] = source_item.get_rarity_name()
+					var elem_id = source_item.get_elemental_identity()
+					if elem_id >= 0:
+						action_dict["source_element"] = elem_id
 			
 			actions.append(action_dict)
 			print("  ✅ Added affix action: %s" % action_dict.get("name", "?"))
 
-
-
-func _find_equipped_item_by_name(item_name: String) -> Dictionary:
-	"""Find an equipped item by name"""
-	for slot in player.equipment:
-		var item = player.equipment[slot]
-		if item and item.get("name", "") == item_name:
-			return item
-	return {}
-
-
 func _on_equipment_changed(_slot: String, _item):
-	"""Rebuild when equipment changes"""
 	rebuild_actions()
 
 func get_actions() -> Array[Dictionary]:
-	"""Get all available actions"""
 	return actions

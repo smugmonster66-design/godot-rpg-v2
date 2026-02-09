@@ -1,4 +1,5 @@
 # add_starting_gear_button.gd - Button to add configured starting items to player
+# v3 — Adds EquippableItem directly to inventory (no Dictionary conversion).
 extends Button
 
 # ============================================================================
@@ -12,22 +13,20 @@ extends Button
 # ============================================================================
 
 func _ready():
-	# Connect button press
 	pressed.connect(_on_pressed)
 	
-	# Update button text with item count
 	if starting_items.size() > 0:
 		text = "Add Gear (%d)" % starting_items.size()
 	else:
 		text = "Add Gear (None)"
-		disabled = true  # Disable if no items configured
+		disabled = true
 
 # ============================================================================
 # BUTTON LOGIC
 # ============================================================================
 
 func _on_pressed():
-	"""Add all configured items to player inventory"""
+	"""Add all configured items to player inventory as EquippableItem instances."""
 	if not GameManager or not GameManager.player:
 		print("❌ No player found!")
 		return
@@ -44,36 +43,19 @@ func _on_pressed():
 			print("  ⚠️  Null item in array - skipping")
 			continue
 		
-		# Create a fresh copy (important for affixes)
-		var item_copy = item_template.duplicate(true)
+		# Create a fresh copy (important for independent affix rolls)
+		var item_copy: EquippableItem = item_template.duplicate(true)
 		
-		# Initialize affixes (rolls or uses manual)
-		item_copy.initialize_affixes(AffixPool)
+		# Initialize affixes (rolls values, creates runtime dice)
+		item_copy.initialize_affixes()
 		
-		# Convert to dictionary
-		var item_dict = item_copy.to_dict()
-		
-		# DEBUG: Print what to_dict returns
-		print("  📋 to_dict() returned:")
-		print("    name: %s" % item_dict.get("name", "MISSING"))
-		print("    slot: %s" % item_dict.get("slot", "MISSING"))
-		print("    icon: %s" % item_dict.get("icon", "MISSING"))
-		print("    keys: " + str(item_dict.keys()))
-		
-		item_dict["item_affixes"] = item_copy.get_all_affixes()
-		
-		# Add to player inventory
-		GameManager.player.add_to_inventory(item_dict)
+		# Add directly to player inventory as EquippableItem
+		GameManager.player.add_to_inventory(item_copy)
 		
 		print("  ✅ Added %s (%s) to inventory" % [item_copy.item_name, item_copy.get_rarity_name()])
 		items_added += 1
 	
 	print("🎒 Finished adding %d items" % items_added)
 	
-	# Disable button after use
 	disabled = true
 	text = "Gear Added!"
-	
-	# Notify any open menus to refresh
-	if GameManager.player.has_signal("inventory_changed"):
-		GameManager.player.inventory_changed.emit()

@@ -296,23 +296,26 @@ func is_gating() -> bool:
 func _check_has_heavy_weapon(player) -> bool:
 	if not player or not player.equipment.has("Main Hand"):
 		return false
-	var item = player.equipment.get("Main Hand")
-	return item != null and item.get("is_heavy", false)
+	var item: EquippableItem = player.equipment.get("Main Hand")
+	return item != null and item.is_heavy_weapon()
 
 func _check_has_dual_wield(player) -> bool:
 	if not player:
 		return false
-	var main = player.equipment.get("Main Hand")
-	var off = player.equipment.get("Off Hand")
-	# Heavy weapons fill both slots with same item — that's NOT dual wield
+	var main: EquippableItem = player.equipment.get("Main Hand")
+	var off: EquippableItem = player.equipment.get("Off Hand")
+	# Heavy weapons fill both slots with same item — NOT dual wield
 	if main != null and off != null and main == off:
 		return false
 	return main != null and off != null
-
+	
+	
+	
 func _check_slot_filled(player, slot: String) -> bool:
 	if not player or slot == "":
 		return false
 	return player.equipment.get(slot) != null
+
 
 func _check_all_slots_filled(player) -> bool:
 	if not player:
@@ -331,14 +334,16 @@ func _count_filled_slots(player) -> int:
 			count += 1
 	return count
 
+
 func _check_slot_rarity(player, min_rarity: int) -> bool:
 	var slot = condition_data.get("slot", "")
 	if not player or slot == "":
 		return false
-	var item = player.equipment.get(slot)
+	var item: EquippableItem = player.equipment.get(slot)
 	if not item:
 		return false
-	return item.get("rarity", 0) >= min_rarity
+	return item.rarity >= min_rarity
+
 
 func _sum_equipment_rarity(player) -> int:
 	if not player:

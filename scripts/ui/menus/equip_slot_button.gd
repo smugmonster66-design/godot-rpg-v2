@@ -1,4 +1,5 @@
 # equip_slot_button.gd
+# v3 — Accepts EquippableItem directly via apply_equippable().
 class_name EquipSlotButton
 extends Control
 
@@ -47,16 +48,13 @@ func _ready():
 	_apply_empty_visual()
 
 func _apply_size():
-	# Set our own size so parent containers know how big we are
 	custom_minimum_size = slot_size
 	size = slot_size
 	
-	# Reset Panel to fill this control exactly
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	panel.position = Vector2.ZERO
 	panel.size = slot_size
 	
-	# Reset SlotButton to fill this control exactly (on top of Panel)
 	slot_button.set_anchors_preset(Control.PRESET_FULL_RECT)
 	slot_button.position = Vector2.ZERO
 	slot_button.size = slot_size
@@ -65,46 +63,56 @@ func _apply_size():
 # ============================================================================
 # PUBLIC API
 # ============================================================================
-func apply_item(item: Dictionary):
+
+func apply_equippable(item: EquippableItem):
+	"""Display an EquippableItem in this slot."""
 	slot_button.text = ""
 	slot_button.icon = null
 	_clear_style_overrides()
-
-	if item.has("icon") and item.icon:
+	
+	if item.icon:
 		slot_button.icon = item.icon
 		slot_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		slot_button.expand_icon = true
 	else:
-		var item_name = item.get("name", "?")
-		slot_button.text = item_name[0] if item_name.length() > 0 else "?"
-		slot_button.add_theme_font_size_override("font_size", 24)
+		var first_char = item.item_name[0] if item.item_name.length() > 0 else "?"
+		slot_button.text = first_char
+	
+	slot_button.tooltip_text = "%s (%s %s)" % [item.item_name, item.get_rarity_name(), item.get_slot_name()]
 
-	# Transparent button so Panel texture shows through
-	var bg = StyleBoxFlat.new()
-	bg.bg_color = Color(0, 0, 0, 0)
-	slot_button.add_theme_stylebox_override("normal", bg)
-	slot_button.add_theme_stylebox_override("hover", bg)
-	slot_button.add_theme_stylebox_override("pressed", bg)
+func apply_item(item):
+	"""Accept either EquippableItem or legacy Dictionary."""
+	if item is EquippableItem:
+		apply_equippable(item)
+	elif item is Dictionary:
+		# Legacy Dictionary path
+		slot_button.text = ""
+		slot_button.icon = null
+		_clear_style_overrides()
+		if item.has("icon") and item.icon:
+			slot_button.icon = item.icon
+			slot_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			slot_button.expand_icon = true
+		else:
+			var item_name = item.get("name", "?")
+			slot_button.text = item_name[0] if item_name.length() > 0 else "?"
+		slot_button.tooltip_text = item.get("name", "Unknown")
 
 func clear():
+	slot_button.text = ""
+	slot_button.icon = null
+	slot_button.tooltip_text = slot_name
 	_apply_empty_visual()
 
 # ============================================================================
 # PRIVATE
 # ============================================================================
-func _apply_empty_visual():
-	slot_button.icon = null
-	slot_button.text = ""
-	_clear_style_overrides()
 
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0, 0, 0, 0)
-	slot_button.add_theme_stylebox_override("normal", style)
-	slot_button.add_theme_stylebox_override("hover", style)
-	slot_button.add_theme_stylebox_override("pressed", style)
+func _apply_empty_visual():
+	slot_button.text = ""
+	slot_button.tooltip_text = slot_name
 
 func _clear_style_overrides():
 	slot_button.remove_theme_stylebox_override("normal")
 	slot_button.remove_theme_stylebox_override("hover")
 	slot_button.remove_theme_stylebox_override("pressed")
-	slot_button.remove_theme_font_size_override("font_size")

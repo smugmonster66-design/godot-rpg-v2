@@ -1,4 +1,5 @@
 # inventory_tab.gd - Inventory management tab with rarity shader support
+# v3 — Reads EquippableItem directly; Dictionary fallback for consumables/misc.
 # Self-registers with parent, emits signals upward
 # Uses button-based category filtering with vertical sidebar
 extends Control
@@ -53,18 +54,20 @@ extends Control
 
 # ============================================================================
 # SIGNALS (emitted upward)
+# Variant-typed: items can be EquippableItem (equipment) or Dictionary (consumables)
 # ============================================================================
 signal refresh_requested()
 signal data_changed()
-signal item_selected(item: Dictionary)
-signal item_used(item: Dictionary)
-signal item_equipped(item: Dictionary)
+signal item_selected(item)
+signal item_used(item)
+signal item_equipped(item)
 
 # ============================================================================
 # STATE
 # ============================================================================
 var player: Player = null
-var selected_item: Dictionary = {}
+## Currently selected item — EquippableItem, Dictionary, or null.
+var selected_item = null
 var item_buttons: Array[Control] = []
 var category_buttons: Array[Button] = []
 
@@ -165,6 +168,81 @@ func on_external_data_change():
 	refresh()
 
 # ============================================================================
+# ITEM TYPE HELPERS — Abstracts EquippableItem vs Dictionary access
+# ============================================================================
+
+func _item_name(item) -> String:
+	if item is EquippableItem:
+		return item.item_name
+	elif item is Dictionary:
+		return item.get("name", "Unknown")
+	return "Unknown"
+
+func _item_icon(item) -> Texture2D:
+	if item is EquippableItem:
+		return item.icon
+	elif item is Dictionary:
+		if item.has("icon") and item.icon:
+			return item.icon
+	return null
+
+func _item_rarity_name(item) -> String:
+	if item is EquippableItem:
+		return item.get_rarity_name()
+	elif item is Dictionary:
+		return item.get("rarity", "Common")
+	return "Common"
+
+func _item_slot(item) -> String:
+	if item is EquippableItem:
+		return item.get_slot_name()
+	elif item is Dictionary:
+		return item.get("slot", "")
+	return ""
+
+func _item_description(item) -> String:
+	if item is EquippableItem:
+		return item.description
+	elif item is Dictionary:
+		return item.get("description", "No description.")
+	return "No description."
+
+func _item_type(item) -> String:
+	"""Get non-equipment type (Consumable, Quest, Material). Empty for EquippableItem."""
+	if item is Dictionary:
+		return item.get("type", "")
+	return ""
+
+func _is_equipment(item) -> bool:
+	if item is EquippableItem:
+		return true
+	elif item is Dictionary:
+		return item.has("slot")
+	return false
+
+func _is_consumable(item) -> bool:
+	return _item_type(item) == "Consumable"
+
+func _is_item_equipped(item) -> bool:
+	if not player:
+		return false
+	if item is EquippableItem:
+		return player.is_item_equipped(item)
+	elif item is Dictionary:
+		# Legacy path — player.is_item_equipped may still accept Dictionary
+		if player.has_method("is_item_equipped"):
+			return player.is_item_equipped(item)
+	return false
+
+func _item_set_definition(item):
+	"""Returns SetDefinition or null."""
+	if item is EquippableItem:
+		return item.set_definition
+	elif item is Dictionary:
+		return item.get("set_definition")
+	return null
+
+# ============================================================================
 # PRIVATE DISPLAY METHODS
 # ============================================================================
 
@@ -222,21 +300,21 @@ func _get_filtered_items() -> Array:
 	
 	var filtered = []
 	for item in player.inventory:
-		var item_slot = item.get("slot", "")
+		var item_slot_name = _item_slot(item)
 		
 		# Normalize slot names for comparison (remove spaces, lowercase)
-		var normalized_item_slot = item_slot.replace(" ", "").to_lower()
+		var normalized_item_slot = item_slot_name.replace(" ", "").to_lower()
 		var normalized_category = current_category.replace(" ", "").to_lower()
 		
 		# Check if item matches category
 		if normalized_item_slot == normalized_category:
 			filtered.append(item)
-		elif current_category == "Consumable" and item.get("type", "") == "Consumable":
+		elif current_category == "Consumable" and _is_consumable(item):
 			filtered.append(item)
 	
 	return filtered
 
-func _create_item_button(item: Dictionary) -> Control:
+func _create_item_button(item) -> Control:
 	"""Create a button for an inventory item with rarity shader and equipped overlay"""
 	# Wrapper so we can layer the overlay
 	var glow_pad = grid_glow_config.padding if grid_glow_config else 0.0
@@ -252,8 +330,9 @@ func _create_item_button(item: Dictionary) -> Control:
 	btn.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 	
 	# Set item icon if available
-	if item.has("icon") and item.icon:
-		btn.texture_normal = item.icon
+	var icon = _item_icon(item)
+	if icon:
+		btn.texture_normal = icon
 	else:
 		# Create colored placeholder
 		var img = Image.create(64, 64, false, Image.FORMAT_RGBA8)
@@ -278,10 +357,10 @@ func _create_item_button(item: Dictionary) -> Control:
 	wrapper.add_child(click_area)
 	
 	# Rarity glow behind grid icon
-	RarityGlowHelper.apply_glow(btn, btn.texture_normal, item.get("rarity", "Common"), grid_glow_config)
+	RarityGlowHelper.apply_glow(btn, btn.texture_normal, _item_rarity_name(item), grid_glow_config)
 	
 	# Equipped overlay
-	if player and player.is_item_equipped(item):
+	if _is_item_equipped(item):
 		# Dim the icon slightly
 		btn.modulate = Color(0.6, 0.6, 0.6, 1.0)
 		
@@ -325,12 +404,12 @@ func _create_item_button(item: Dictionary) -> Control:
 	return wrapper
 
 
-func _apply_rarity_shader_to_button(button: TextureButton, item: Dictionary):
+func _apply_rarity_shader_to_button(button: TextureButton, item):
 	"""Apply rarity outline glow shader to a button"""
 	var shader_material = ShaderMaterial.new()
 	shader_material.shader = rarity_shader
 	
-	var rarity_name = item.get("rarity", "Common")
+	var rarity_name = _item_rarity_name(item)
 	var color = rarity_colors.get_color_for_rarity(rarity_name)
 	
 	shader_material.set_shader_parameter("border_color", color)
@@ -346,12 +425,12 @@ func _apply_rarity_shader_to_button(button: TextureButton, item: Dictionary):
 	button.material = shader_material
 
 
-func _get_item_type_color(item: Dictionary) -> Color:
+func _get_item_type_color(item) -> Color:
 	"""Get color for item type (fallback when no icon)"""
-	if item.has("slot"):
+	if _is_equipment(item):
 		return Color(0.4, 0.6, 0.4)  # Equipment - green
 	
-	match item.get("type", ""):
+	match _item_type(item):
 		"Consumable": return Color(0.6, 0.4, 0.6)  # Purple
 		"Quest": return Color(0.7, 0.6, 0.2)  # Gold
 		"Material": return Color(0.5, 0.5, 0.5)  # Gray
@@ -385,7 +464,7 @@ func _update_item_details():
 		equip_buttons = action_buttons_containers[0].find_children("*Equip*", "Button", false, false)
 		print("  Found %d Use buttons, %d Equip buttons" % [use_buttons.size(), equip_buttons.size()])
 	
-	if selected_item.is_empty():
+	if selected_item == null:
 		print("  No item selected - hiding buttons")
 		# Clear details
 		if name_labels.size() > 0:
@@ -405,12 +484,12 @@ func _update_item_details():
 			action_buttons_containers[0].hide()
 		return
 	
-	print("  Selected item: %s" % selected_item.get("name", "Unknown"))
+	print("  Selected item: %s" % _item_name(selected_item))
 	
 	# Show item name with rarity color
 	if name_labels.size() > 0:
-		var rarity_name = selected_item.get("rarity", "Common")
-		name_labels[0].text = selected_item.get("name", "Unknown")
+		var rarity_name = _item_rarity_name(selected_item)
+		name_labels[0].text = _item_name(selected_item)
 		if rarity_colors:
 			name_labels[0].add_theme_color_override("font_color", rarity_colors.get_color_for_rarity(rarity_name))
 	
@@ -424,8 +503,9 @@ func _update_item_details():
 			center.custom_minimum_size = Vector2(detail_container_size, detail_container_size)
 			#center.clip_contents = true
 		
-		if selected_item.has("icon") and selected_item.icon:
-			image_rects[0].texture = selected_item.icon
+		var icon = _item_icon(selected_item)
+		if icon:
+			image_rects[0].texture = icon
 		else:
 			# Create colored placeholder
 			var img = Image.create(100, 100, false, Image.FORMAT_RGBA8)
@@ -433,11 +513,11 @@ func _update_item_details():
 			var tex = ImageTexture.create_from_image(img)
 			image_rects[0].texture = tex
 		_apply_rarity_shader_to_texture_rect(image_rects[0], selected_item)
-		RarityGlowHelper.apply_glow(image_rects[0], image_rects[0].texture, selected_item.get("rarity", "Common"), detail_glow_config)
+		RarityGlowHelper.apply_glow(image_rects[0], image_rects[0].texture, _item_rarity_name(selected_item), detail_glow_config)
 	
 	# Show description
 	if desc_labels.size() > 0:
-		desc_labels[0].text = selected_item.get("description", "No description.")
+		desc_labels[0].text = _item_description(selected_item)
 	
 	# Show affixes
 	if affix_containers.size() > 0:
@@ -445,40 +525,78 @@ func _update_item_details():
 		for child in affix_container.get_children():
 			child.queue_free()
 		
-		if selected_item.has("affixes"):
+		# ── Affix display (EquippableItem path) ──
+		if selected_item is EquippableItem:
+			# Item level / region
+			if selected_item.item_level > 0:
+				var level_label = Label.new()
+				level_label.text = "Item Level %d (Region %d)" % [selected_item.item_level, selected_item.region]
+				level_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+				affix_container.add_child(level_label)
+			
+			# Inherent affixes (green-tinted)
+			for affix in selected_item.inherent_affixes:
+				if affix:
+					var display = _create_affix_display_from_affix(affix, Color(0.7, 0.9, 0.7))
+					affix_container.add_child(display)
+			
+			# Rolled affixes (gold-tinted)
+			for affix in selected_item.rolled_affixes:
+				var display = _create_affix_display_from_affix(affix, Color(0.9, 0.7, 0.3))
+				affix_container.add_child(display)
+			
+			# Equip requirements (red if unmet)
+			if selected_item.required_level > 0 or selected_item.required_strength > 0 \
+				or selected_item.required_agility > 0 or selected_item.required_intellect > 0:
+				var can_equip = selected_item.can_equip(player) if player else true
+				var req_color = Color(0.6, 0.6, 0.6) if can_equip else Color(0.9, 0.3, 0.3)
+				var unmet = selected_item.get_unmet_requirements(player) if player else []
+				for req_text in unmet:
+					var req_label = Label.new()
+					req_label.text = req_text
+					req_label.add_theme_color_override("font_color", req_color)
+					affix_container.add_child(req_label)
+			
+			# Sell value
+			var sell_label = Label.new()
+			sell_label.text = "Sell: %d gold" % selected_item.get_sell_value()
+			sell_label.add_theme_color_override("font_color", Color(0.8, 0.7, 0.3))
+			affix_container.add_child(sell_label)
+		
+		# ── Affix display (legacy Dictionary path) ──
+		elif selected_item is Dictionary and selected_item.has("affixes"):
 			for affix in selected_item.affixes:
 				var affix_display = _create_affix_display(affix)
 				affix_container.add_child(affix_display)
 		
-		# Show set info
-		if selected_item.has("set_definition"):
-			var set_def: SetDefinition = selected_item.get("set_definition")
-			if set_def:
-				# Set header
-				var set_header = Label.new()
-				var equipped_count: int = 0
-				if player and player.set_tracker:
-					equipped_count = player.set_tracker.get_equipped_count(set_def.set_id)
-				set_header.text = "%s (%d/%d)" % [set_def.set_name, equipped_count, set_def.get_total_pieces()]
-				set_header.add_theme_color_override("font_color", set_def.set_color)
-				affix_container.add_child(set_header)
-				
-				# Threshold bonuses
-				for threshold in set_def.thresholds:
-					var is_active = player and player.set_tracker and player.set_tracker.is_threshold_active(set_def.set_id, threshold.required_pieces)
-					var threshold_label = Label.new()
-					var prefix = "✓" if is_active else "✗"
-					threshold_label.text = "  %s (%d) %s" % [prefix, threshold.required_pieces, threshold.description]
-					threshold_label.add_theme_color_override("font_color", Color.GREEN if is_active else Color(0.4, 0.4, 0.4))
-					threshold_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-					affix_container.add_child(threshold_label)
+		# Show set info (works for both types)
+		var set_def: SetDefinition = _item_set_definition(selected_item)
+		if set_def:
+			# Set header
+			var set_header = Label.new()
+			var equipped_count: int = 0
+			if player and player.set_tracker:
+				equipped_count = player.set_tracker.get_equipped_count(set_def.set_id)
+			set_header.text = "%s (%d/%d)" % [set_def.set_name, equipped_count, set_def.get_total_pieces()]
+			set_header.add_theme_color_override("font_color", set_def.set_color)
+			affix_container.add_child(set_header)
+			
+			# Threshold bonuses
+			for threshold in set_def.thresholds:
+				var is_active = player and player.set_tracker and player.set_tracker.is_threshold_active(set_def.set_id, threshold.required_pieces)
+				var threshold_label = Label.new()
+				var prefix = "✓" if is_active else "✗"
+				threshold_label.text = "  %s (%d) %s" % [prefix, threshold.required_pieces, threshold.description]
+				threshold_label.add_theme_color_override("font_color", Color.GREEN if is_active else Color(0.4, 0.4, 0.4))
+				threshold_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				affix_container.add_child(threshold_label)
 	
 	# Determine which buttons to show
-	var is_equipment = selected_item.has("slot")
-	var is_consumable = selected_item.get("type", "") == "Consumable"
-	var show_any_button = is_equipment or is_consumable
+	var is_equip = _is_equipment(selected_item)
+	var is_consume = _is_consumable(selected_item)
+	var show_any_button = is_equip or is_consume
 	
-	print("  is_equipment: %s, is_consumable: %s, show_any: %s" % [is_equipment, is_consumable, show_any_button])
+	print("  is_equipment: %s, is_consumable: %s, show_any: %s" % [is_equip, is_consume, show_any_button])
 	
 	# Show/hide ActionButtons container
 	if action_buttons_containers.size() > 0:
@@ -492,7 +610,7 @@ func _update_item_details():
 	# Configure Use button for consumables
 	if use_buttons.size() > 0:
 		var use_btn = use_buttons[0]
-		if is_consumable:
+		if is_consume:
 			print("  ✅ Showing Use button")
 			use_btn.show()
 			use_btn.disabled = false
@@ -507,15 +625,19 @@ func _update_item_details():
 	# Configure Equip button for equipment
 	if equip_buttons.size() > 0:
 		var equip_btn = equip_buttons[0]
-		if is_equipment:
+		if is_equip:
 			print("  ✅ Showing Equip button")
 			equip_btn.show()
 			equip_btn.disabled = false
 			# Toggle label based on equipped state
-			if player and player.is_item_equipped(selected_item):
+			if _is_item_equipped(selected_item):
 				equip_btn.text = "Unequip"
 			else:
 				equip_btn.text = "Equip"
+				# Show requirement lock for EquippableItem
+				if selected_item is EquippableItem and player and not selected_item.can_equip(player):
+					equip_btn.text = "Equip (Locked)"
+					equip_btn.disabled = true
 			print("    Button disabled state: %s" % equip_btn.disabled)
 			# Disconnect old connections
 			for connection in equip_btn.pressed.get_connections():
@@ -529,13 +651,13 @@ func _update_item_details():
 			equip_btn.hide()
 
 
-func _apply_rarity_shader_to_texture_rect(tex_rect: TextureRect, item: Dictionary):
+func _apply_rarity_shader_to_texture_rect(tex_rect: TextureRect, item):
 	"""Apply rarity glow shader to any TextureRect"""
 	if not use_rarity_shaders or not rarity_shader or not rarity_colors:
 		tex_rect.material = null
 		return
 	
-	var rarity_name = item.get("rarity", "Common")
+	var rarity_name = _item_rarity_name(item)
 	var color = rarity_colors.get_color_for_rarity(rarity_name)
 	
 	var mat = ShaderMaterial.new()
@@ -552,7 +674,7 @@ func _apply_rarity_shader_to_texture_rect(tex_rect: TextureRect, item: Dictionar
 	tex_rect.material = mat
 
 func _create_affix_display(affix: Dictionary) -> PanelContainer:
-	"""Create a display panel for an affix"""
+	"""Create a display panel for a legacy Dictionary affix"""
 	var panel = PanelContainer.new()
 	
 	var vbox = VBoxContainer.new()
@@ -561,14 +683,34 @@ func _create_affix_display(affix: Dictionary) -> PanelContainer:
 	# Affix name
 	var name_label = Label.new()
 	name_label.text = affix.get("display_name", affix.get("name", "Unknown"))
-	#name_label.add_theme_font_size_override("font_size", 13)
 	name_label.add_theme_color_override("font_color", Color(0.9, 0.7, 0.3))
 	vbox.add_child(name_label)
 	
 	# Affix description
 	var desc_label = Label.new()
 	desc_label.text = affix.get("description", "")
-	#desc_label.add_theme_font_size_override("font_size", 11)
+	desc_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(desc_label)
+	
+	return panel
+
+func _create_affix_display_from_affix(affix: Affix, name_color: Color = Color(0.9, 0.7, 0.3)) -> PanelContainer:
+	"""Create a display panel for an Affix resource (EquippableItem path)"""
+	var panel = PanelContainer.new()
+	
+	var vbox = VBoxContainer.new()
+	panel.add_child(vbox)
+	
+	# Affix name
+	var name_label = Label.new()
+	name_label.text = affix.affix_name
+	name_label.add_theme_color_override("font_color", name_color)
+	vbox.add_child(name_label)
+	
+	# Affix description
+	var desc_label = Label.new()
+	desc_label.text = affix.description if affix.description else ""
 	desc_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(desc_label)
@@ -587,7 +729,7 @@ func _on_category_button_toggled(button_pressed: bool, category_name: String):
 		_update_category_button_visuals()
 		refresh()
 
-func _on_item_button_pressed(item: Dictionary, button: TextureButton):
+func _on_item_button_pressed(item, button: TextureButton):
 	"""Item button clicked"""
 	selected_item = item
 	_highlight_selected_button(button)
@@ -605,18 +747,22 @@ func _highlight_selected_button(button: TextureButton):
 
 func _on_use_item_pressed():
 	"""Use item button pressed"""
-	if selected_item.is_empty():
+	if selected_item == null:
 		return
 	
 	# Handle consumable items
-	if selected_item.get("type", "") == "Consumable":
+	if _is_consumable(selected_item):
 		_use_consumable(selected_item)
 		item_used.emit(selected_item)  # Bubble up
 		data_changed.emit()  # Bubble up
 
-func _use_consumable(item: Dictionary):
-	"""Use a consumable item"""
+func _use_consumable(item):
+	"""Use a consumable item (Dictionary-based consumables only)"""
 	if not player:
+		return
+	
+	# Consumables are still Dictionary-based
+	if not item is Dictionary:
 		return
 	
 	var effect = item.get("effect", "")
@@ -634,26 +780,37 @@ func _use_consumable(item: Dictionary):
 	
 	# Remove from inventory
 	player.inventory.erase(item)
-	selected_item = {}
+	selected_item = null
 	refresh()
 
 func _on_equip_item_pressed():
 	"""Equip/unequip item button pressed"""
 	print("🔘 Equip button pressed!")
-	print("  Selected item: %s" % selected_item.get("name", "Unknown"))
+	print("  Selected item: %s" % _item_name(selected_item))
 	print("  Player exists: %s" % (player != null))
 	
-	if selected_item.is_empty() or not player:
-		print("  ❌ Cannot equip - selected_item empty or no player")
+	if selected_item == null or not player:
+		print("  ❌ Cannot equip - no item selected or no player")
 		return
 	
-	if player.is_item_equipped(selected_item):
+	if _is_item_equipped(selected_item):
 		# Already equipped — unequip it
-		var slot = selected_item.get("slot", "")
-		if player.unequip_item(slot):
-			print("✅ Unequipped: %s" % selected_item.get("name", "Unknown"))
-			data_changed.emit()
-			refresh()
+		if selected_item is EquippableItem:
+			# Find which slot it's in
+			for slot in player.equipment:
+				if player.equipment[slot] == selected_item:
+					if player.unequip_item(slot):
+						print("✅ Unequipped: %s" % _item_name(selected_item))
+						data_changed.emit()
+						refresh()
+					break
+		elif selected_item is Dictionary:
+			# Legacy Dictionary path
+			var slot = selected_item.get("slot", "")
+			if player.unequip_item(slot):
+				print("✅ Unequipped: %s" % _item_name(selected_item))
+				data_changed.emit()
+				refresh()
 		return
 	
 	print("  Attempting to equip...")
@@ -661,8 +818,7 @@ func _on_equip_item_pressed():
 	print("  Equip result: %s" % success)
 	
 	if success:
-		var item_name = selected_item.get("name", "Unknown")
-		print("✅ Equipped: %s" % item_name)
+		print("✅ Equipped: %s" % _item_name(selected_item))
 		
 		item_equipped.emit(selected_item)
 		data_changed.emit()

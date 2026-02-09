@@ -1,14 +1,16 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=3 format=3 uid="uid://5bdppuga8sgx"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=6 format=3 uid="uid://5bdppuga8sgx"]
 
 [ext_resource type="Resource" uid="uid://cm70x2t3nt4kx" path="res://resources/actions/sword_slash.tres" id="1_s2a84"]
+[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="2_8phed"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="2_22r82"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="3_3gn7o"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="4_gh4n3"]
 
 [resource]
 script = ExtResource("2_22r82")
 item_name = "Iron Sword"
 description = "An iron sword for slashing people with."
 equip_slot = 6
-grants_dice = Array[int]([6])
 grants_action = true
 action = ExtResource("1_s2a84")
 metadata/_custom_type_script = "uid://gax4pbuq25uv"

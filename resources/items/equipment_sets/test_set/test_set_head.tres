@@ -1,9 +1,11 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=5 format=3 uid="uid://dima28tp43612"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=7 format=3 uid="uid://dima28tp43612"]
 
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_nyqfa"]
+[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="1_rpjhf"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="2_kuqf8"]
 [ext_resource type="Texture2D" uid="uid://cehygalcjcvxu" path="res://assets/items/weapons/epic/frost-hammer.png" id="2_lskbn"]
 [ext_resource type="Resource" uid="uid://bxkwoge7q1eqj" path="res://resources/sets/Test_Set/test_set_definition.tres" id="3_kuqf8"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="4_w3dg6"]
 
 [resource]
 script = ExtResource("2_kuqf8")

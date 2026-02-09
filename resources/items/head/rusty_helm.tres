@@ -1,7 +1,9 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=3 format=3 uid="uid://dewowlwg6ekcd"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=5 format=3 uid="uid://dewowlwg6ekcd"]
 
+[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="1_4xsnw"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="1_vbink"]
-[ext_resource type="Resource" uid="uid://c067fsdtsjlvo" path="res://resources/affix_tables/helms/first/helm_first_affixtable.tres" id="1_x7hjy"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_uc5mw"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_j5gpr"]
 
 [resource]
 script = ExtResource("1_vbink")
@@ -9,5 +11,4 @@ item_name = "Rusty Helm"
 description = "A very, VERY rusty helmet."
 rarity = 1
 equip_slot = 0
-first_affix_table = ExtResource("1_x7hjy")
 metadata/_custom_type_script = "uid://gax4pbuq25uv"

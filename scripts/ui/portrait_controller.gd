@@ -268,22 +268,19 @@ func _update_rarity_glow():
 	_frame_material.set_shader_parameter("pulse_speed", pulse_speed)
 
 func _get_item_rarity(item) -> int:
-	"""Extract rarity int from an item (Dictionary or EquippableItem)."""
+	"""Extract rarity int from an item (EquippableItem or legacy Dictionary)."""
 	if item is EquippableItem:
 		return item.rarity
 	elif item is Dictionary:
-		var rarity_val = item.get("rarity", 0)
-		if rarity_val is int:
-			return rarity_val
-		elif rarity_val is String:
-			match rarity_val.to_lower():
-				"common": return EquippableItem.Rarity.COMMON
-				"uncommon": return EquippableItem.Rarity.UNCOMMON
-				"rare": return EquippableItem.Rarity.RARE
-				"epic": return EquippableItem.Rarity.EPIC
-				"legendary": return EquippableItem.Rarity.LEGENDARY
+		# Legacy fallback
+		var rarity_str = item.get("rarity", "Common")
+		match rarity_str:
+			"Common": return EquippableItem.Rarity.COMMON
+			"Uncommon": return EquippableItem.Rarity.UNCOMMON
+			"Rare": return EquippableItem.Rarity.RARE
+			"Epic": return EquippableItem.Rarity.EPIC
+			"Legendary": return EquippableItem.Rarity.LEGENDARY
 	return EquippableItem.Rarity.COMMON
-
 # ============================================================================
 # STATUS ICONS
 # ============================================================================
