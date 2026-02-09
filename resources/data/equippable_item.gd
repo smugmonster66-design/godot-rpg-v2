@@ -103,8 +103,19 @@ enum EquipSlot {
 @export_subgroup("Legendary Unique Affix")
 @export var unique_affix: Affix = null
 
-## Affixes rolled or assigned to this item instance (populated at init time)
+## Affixes rolled or assigned to this item instance (populated at init time).
+## This is the COMBINED array used by combat, player stats, etc.
 var item_affixes: Array[Affix] = []
+
+## Inherent affixes — baked into the item template (from manual affix slots).
+## These define the item's identity (e.g. "Venom Dagger always has poison").
+## Displayed green-tinted in the inventory detail panel.
+var inherent_affixes: Array[Affix] = []
+
+## Rolled affixes — generated at item creation from affix tables.
+## These are the random bonuses that add variety between drops.
+## Displayed gold-tinted in the inventory detail panel.
+var rolled_affixes: Array[Affix] = []
 
 # ============================================================================
 # DICE
@@ -120,6 +131,31 @@ var item_affixes: Array[Affix] = []
 @export_group("Combat Action")
 @export var grants_action: bool = false
 @export var action: Action = null
+
+# ============================================================================
+# EQUIP REQUIREMENTS
+# ============================================================================
+@export_group("Requirements")
+
+## Minimum player level to equip this item. 0 = no requirement.
+@export_range(0, 100) var required_level: int = 0
+
+## Minimum Strength to equip. 0 = no requirement.
+@export_range(0, 999) var required_strength: int = 0
+
+## Minimum Agility to equip. 0 = no requirement.
+@export_range(0, 999) var required_agility: int = 0
+
+## Minimum Intellect to equip. 0 = no requirement.
+@export_range(0, 999) var required_intellect: int = 0
+
+# ============================================================================
+# ECONOMY
+# ============================================================================
+@export_group("Economy")
+
+## Base gold value before rarity/level multipliers.
+@export_range(0, 9999) var base_value: int = 10
 
 # ============================================================================
 # ELEMENTAL IDENTITY
@@ -143,28 +179,34 @@ func initialize_affixes(affix_pool = null):
 	"""Initialize affixes using the best available system.
 	
 	Priority order:
-	  1. Manual affixes (if any manual_*_affix is set)
-	  2. SlotDefinition + AffixTableRegistry (new system)
-	  3. Legacy table slots (fallback for unmigrated items)
+	  1. Manual affixes (if any manual_*_affix is set) → inherent_affixes
+	  2. SlotDefinition + AffixTableRegistry (new system) → rolled_affixes
+	  3. Legacy table slots (fallback for unmigrated items) → rolled_affixes
 	
 	Args:
 		affix_pool: Legacy parameter, ignored. Kept for API compatibility.
 	"""
 	item_affixes.clear()
+	inherent_affixes.clear()
+	rolled_affixes.clear()
 	
-	# Priority 1: Manual affixes
+	# Priority 1: Manual affixes → inherent
 	if manual_first_affix or manual_second_affix or manual_third_affix:
 		_use_manual_affixes()
-	# Priority 2: New SlotDefinition system
-	elif _has_slot_definition_system():
+	
+	# Priority 2: New SlotDefinition system → rolled
+	if _has_slot_definition_system():
 		_roll_from_slot_definition()
-	# Priority 3: Legacy table slots
+	# Priority 3: Legacy table slots → rolled
 	elif first_affix_table or second_affix_table or third_affix_table:
 		_roll_from_tables()
 	
 	# LEGENDARY: Always add unique affix if present
 	if rarity == Rarity.LEGENDARY and unique_affix:
 		_add_unique_affix()
+	
+	# Combine into item_affixes for backwards compatibility
+	_rebuild_combined_affixes()
 
 
 func _has_slot_definition_system() -> bool:
@@ -281,7 +323,7 @@ func _roll_from_slot_definition() -> void:
 		if rolled.has_scaling():
 			rolled.roll_value(power_pos, scaling_config)
 		
-		item_affixes.append(rolled)
+		rolled_affixes.append(rolled)
 		
 		if OS.is_debug_build():
 			var val_str := rolled.get_rolled_value_string() if rolled.has_scaling() else str(rolled.effect_number)
@@ -295,7 +337,7 @@ func _roll_from_slot_definition() -> void:
 	
 	if OS.is_debug_build():
 		print("✨ %s (Lv.%d, R%d, %s) rolled %d affixes via SlotDefinition" % [
-			item_name, item_level, region, get_rarity_name(), item_affixes.size()])
+			item_name, item_level, region, get_rarity_name(), rolled_affixes.size()])
 
 
 func _get_tiers_for_rarity() -> Array[int]:
@@ -331,7 +373,7 @@ func _get_registry():
 # ============================================================================
 
 func _use_manual_affixes():
-	"""Use manually assigned affixes from Inspector."""
+	"""Use manually assigned affixes from Inspector → inherent_affixes."""
 	var scaling_config: AffixScalingConfig = null
 	var power_pos: float = clampf(float(item_level - 1) / 99.0, 0.0, 1.0)
 	
@@ -344,21 +386,21 @@ func _use_manual_affixes():
 		var copy = manual_first_affix.duplicate_with_source(item_name, "item")
 		if copy.has_scaling():
 			copy.roll_value(power_pos, scaling_config)
-		item_affixes.append(copy)
+		inherent_affixes.append(copy)
 		print("  ✓ Using manual affix 1: %s" % manual_first_affix.affix_name)
 	
 	if manual_second_affix:
 		var copy = manual_second_affix.duplicate_with_source(item_name, "item")
 		if copy.has_scaling():
 			copy.roll_value(power_pos, scaling_config)
-		item_affixes.append(copy)
+		inherent_affixes.append(copy)
 		print("  ✓ Using manual affix 2: %s" % manual_second_affix.affix_name)
 	
 	if manual_third_affix:
 		var copy = manual_third_affix.duplicate_with_source(item_name, "item")
 		if copy.has_scaling():
 			copy.roll_value(power_pos, scaling_config)
-		item_affixes.append(copy)
+		inherent_affixes.append(copy)
 		print("  ✓ Using manual affix 3: %s" % manual_third_affix.affix_name)
 
 # ============================================================================
@@ -386,7 +428,7 @@ func _roll_from_tables():
 	if num_affixes >= 3:
 		_roll_from_table(third_affix_table, "Third")
 	
-	print("✨ Rolled %d affixes for %s (legacy tables)" % [item_affixes.size(), item_name])
+	print("✨ Rolled %d affixes for %s (legacy tables)" % [rolled_affixes.size(), item_name])
 
 func _roll_from_table(table: AffixTable, tier_name: String):
 	"""Roll one affix from a specific affix table (legacy)"""
@@ -401,7 +443,7 @@ func _roll_from_table(table: AffixTable, tier_name: String):
 	var affix = table.get_random_affix()
 	if affix:
 		var affix_copy = affix.duplicate_with_source(item_name, "item")
-		item_affixes.append(affix_copy)
+		rolled_affixes.append(affix_copy)
 		print("  🎲 Rolled %s affix: %s (from table: %s)" % [tier_name, affix.affix_name, table.table_name])
 	else:
 		print("  ❌ Failed to roll from %s table" % tier_name)
@@ -428,7 +470,7 @@ func _add_unique_affix():
 		else:
 			copy.roll_value(power_pos)
 	
-	item_affixes.append(copy)
+	rolled_affixes.append(copy)
 	print("  ⭐ Added UNIQUE affix: %s" % unique_affix.affix_name)
 
 # ============================================================================
@@ -448,6 +490,72 @@ func get_affix_count_for_rarity() -> int:
 func get_all_affixes() -> Array[Affix]:
 	"""Get all affixes this item grants"""
 	return item_affixes.duplicate()
+
+func _rebuild_combined_affixes() -> void:
+	"""Merge inherent + rolled into item_affixes for backwards compatibility."""
+	item_affixes.clear()
+	for a in inherent_affixes:
+		item_affixes.append(a)
+	for a in rolled_affixes:
+		item_affixes.append(a)
+
+# ============================================================================
+# EQUIP REQUIREMENT CHECKS
+# ============================================================================
+
+func has_requirements() -> bool:
+	"""Returns true if this item has any equip requirements."""
+	return required_level > 0 or required_strength > 0 \
+		or required_agility > 0 or required_intellect > 0
+
+func can_equip(player) -> bool:
+	"""Check if a player meets all equip requirements.
+	Accepts any object with level / get_total_stat() (Player resource)."""
+	if not player:
+		return true
+	if required_level > 0 and player.level < required_level:
+		return false
+	if required_strength > 0 and player.get_total_stat("strength") < required_strength:
+		return false
+	if required_agility > 0 and player.get_total_stat("agility") < required_agility:
+		return false
+	if required_intellect > 0 and player.get_total_stat("intellect") < required_intellect:
+		return false
+	return true
+
+func get_unmet_requirements(player) -> Array[String]:
+	"""Return human-readable strings for each unmet requirement."""
+	var unmet: Array[String] = []
+	if not player:
+		return unmet
+	if required_level > 0 and player.level < required_level:
+		unmet.append("Requires Level %d (you: %d)" % [required_level, player.level])
+	if required_strength > 0 and player.get_total_stat("strength") < required_strength:
+		unmet.append("Requires %d Strength (you: %d)" % [required_strength, player.get_total_stat("strength")])
+	if required_agility > 0 and player.get_total_stat("agility") < required_agility:
+		unmet.append("Requires %d Agility (you: %d)" % [required_agility, player.get_total_stat("agility")])
+	if required_intellect > 0 and player.get_total_stat("intellect") < required_intellect:
+		unmet.append("Requires %d Intellect (you: %d)" % [required_intellect, player.get_total_stat("intellect")])
+	return unmet
+
+# ============================================================================
+# ECONOMY
+# ============================================================================
+
+func get_sell_value() -> int:
+	"""Calculate sell value based on base_value, rarity, and item level."""
+	var rarity_mult := 1.0
+	match rarity:
+		Rarity.COMMON: rarity_mult = 1.0
+		Rarity.UNCOMMON: rarity_mult = 1.5
+		Rarity.RARE: rarity_mult = 2.5
+		Rarity.EPIC: rarity_mult = 4.0
+		Rarity.LEGENDARY: rarity_mult = 7.0
+	
+	# Level scaling: linear 1× at Lv.1 → 3× at Lv.100
+	var level_mult := 1.0 + (float(item_level - 1) / 99.0) * 2.0
+	
+	return maxi(1, roundi(base_value * rarity_mult * level_mult))
 
 # ============================================================================
 # BACKWARD COMPATIBILITY

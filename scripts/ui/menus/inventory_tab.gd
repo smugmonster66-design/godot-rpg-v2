@@ -525,45 +525,52 @@ func _update_item_details():
 		for child in affix_container.get_children():
 			child.queue_free()
 		
-		# ── Affix display (EquippableItem path) ──
+		# ── Resolve EquippableItem reference ──
+		# Inventory stores Dictionaries (via to_dict()), but the EquippableItem
+		# is available via the "equippable_item" key when present.
+		var equippable: EquippableItem = null
 		if selected_item is EquippableItem:
+			equippable = selected_item
+		elif selected_item is Dictionary and selected_item.has("equippable_item"):
+			equippable = selected_item.get("equippable_item")
+		
+		# ── Affix display (EquippableItem path) ──
+		if equippable:
 			# Item level / region
-			if selected_item.item_level > 0:
+			if equippable.item_level > 0:
 				var level_label = Label.new()
-				level_label.text = "Item Level %d (Region %d)" % [selected_item.item_level, selected_item.region]
+				level_label.text = "Item Level %d (Region %d)" % [equippable.item_level, equippable.region]
 				level_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 				affix_container.add_child(level_label)
 			
-			# Inherent affixes (green-tinted)
-			for affix in selected_item.inherent_affixes:
+			# Inherent affixes (green-tinted — manual/identity affixes)
+			for affix in equippable.inherent_affixes:
 				if affix:
 					var display = _create_affix_display_from_affix(affix, Color(0.7, 0.9, 0.7))
 					affix_container.add_child(display)
 			
-			# Rolled affixes (gold-tinted)
-			for affix in selected_item.rolled_affixes:
-				var display = _create_affix_display_from_affix(affix, Color(0.9, 0.7, 0.3))
-				affix_container.add_child(display)
+			# Rolled affixes (gold-tinted — random table rolls)
+			for affix in equippable.rolled_affixes:
+				if affix:
+					var display = _create_affix_display_from_affix(affix, Color(0.9, 0.7, 0.3))
+					affix_container.add_child(display)
 			
 			# Equip requirements (red if unmet)
-			if selected_item.required_level > 0 or selected_item.required_strength > 0 \
-				or selected_item.required_agility > 0 or selected_item.required_intellect > 0:
-				var can_equip = selected_item.can_equip(player) if player else true
-				var req_color = Color(0.6, 0.6, 0.6) if can_equip else Color(0.9, 0.3, 0.3)
-				var unmet = selected_item.get_unmet_requirements(player) if player else []
+			if equippable.has_requirements():
+				var unmet = equippable.get_unmet_requirements(player) if player else []
 				for req_text in unmet:
 					var req_label = Label.new()
 					req_label.text = req_text
-					req_label.add_theme_color_override("font_color", req_color)
+					req_label.add_theme_color_override("font_color", Color(0.9, 0.3, 0.3))
 					affix_container.add_child(req_label)
 			
 			# Sell value
 			var sell_label = Label.new()
-			sell_label.text = "Sell: %d gold" % selected_item.get_sell_value()
+			sell_label.text = "Sell: %d gold" % equippable.get_sell_value()
 			sell_label.add_theme_color_override("font_color", Color(0.8, 0.7, 0.3))
 			affix_container.add_child(sell_label)
 		
-		# ── Affix display (legacy Dictionary path) ──
+		# ── Affix display (legacy Dictionary path — no EquippableItem ref) ──
 		elif selected_item is Dictionary and selected_item.has("affixes"):
 			for affix in selected_item.affixes:
 				var affix_display = _create_affix_display(affix)
@@ -634,8 +641,13 @@ func _update_item_details():
 				equip_btn.text = "Unequip"
 			else:
 				equip_btn.text = "Equip"
-				# Show requirement lock for EquippableItem
-				if selected_item is EquippableItem and player and not selected_item.can_equip(player):
+				# Show requirement lock for EquippableItem (direct or dict-wrapped)
+				var eq_ref: EquippableItem = null
+				if selected_item is EquippableItem:
+					eq_ref = selected_item
+				elif selected_item is Dictionary and selected_item.has("equippable_item"):
+					eq_ref = selected_item.get("equippable_item")
+				if eq_ref and player and not eq_ref.can_equip(player):
 					equip_btn.text = "Equip (Locked)"
 					equip_btn.disabled = true
 			print("    Button disabled state: %s" % equip_btn.disabled)
