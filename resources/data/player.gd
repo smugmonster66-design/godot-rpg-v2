@@ -745,6 +745,6 @@ func _element_to_resist_category(element: String) -> int:
 func is_item_equipped(item: Dictionary) -> bool:
 	"""Check if a specific item is currently equipped in any slot"""
 	for slot in equipment:
-		if equipment[slot] == item:
+		if equipment[slot] is Dictionary and is_same(equipment[slot], item):
 			return true
 	return false

@@ -461,39 +461,78 @@ func _apply_border_glow(affix: DiceAffix):
 func refresh_visual_effects():
 	_apply_affix_visual_effects()
 
+
+
 # ============================================================================
-# INPUT
+# INPUT & DRAG (hold-to-drag for mobile compatibility)
 # ============================================================================
+
+const DRAG_HOLD_TIME: float = 0.15  # Seconds to hold before drag starts
+const DRAG_MOVE_THRESHOLD: float = 12.0  # Pixels of movement to cancel drag (allow scroll)
+
+var _press_position: Vector2 = Vector2.ZERO
+var _hold_timer: SceneTreeTimer = null
+var _is_pressing: bool = false
 
 func _gui_input(event: InputEvent):
-	if event is InputEventMouseButton and event.pressed:
-		if event.button_index == MOUSE_BUTTON_LEFT:
-			die_clicked.emit(die_data)
-
-# ============================================================================
-# DRAG AND DROP
-# ============================================================================
-
-func _get_drag_data(_at_position: Vector2):
 	if not can_drag or not die_data:
-		return null
+		# Still allow click signal even if not draggable
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			if not event.pressed:
+				die_clicked.emit(die_data)
+		return
 	
-	var preview = _create_drag_preview()
-	set_drag_preview(preview)
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			# Start hold-to-drag
+			_press_position = event.global_position
+			_is_pressing = true
+			_hold_timer = get_tree().create_timer(DRAG_HOLD_TIME)
+			_hold_timer.timeout.connect(_on_hold_complete)
+		else:
+			# Released — if still pressing (timer didn't fire), it's a tap
+			if _is_pressing:
+				_cancel_hold()
+				die_clicked.emit(die_data)
+	
+	elif event is InputEventMouseMotion and _is_pressing:
+		# If finger moved too far, cancel hold (user is scrolling)
+		var distance = event.global_position.distance_to(_press_position)
+		if distance > DRAG_MOVE_THRESHOLD:
+			_cancel_hold()
+
+func _cancel_hold():
+	_is_pressing = false
+	if _hold_timer and _hold_timer.timeout.is_connected(_on_hold_complete):
+		_hold_timer.timeout.disconnect(_on_hold_complete)
+	_hold_timer = null
+
+func _on_hold_complete():
+	if not _is_pressing:
+		return
+	_is_pressing = false
+	_hold_timer = null
+	_start_drag()
+
+func _start_drag():
+	if not die_data:
+		return
 	
 	_is_being_dragged = true
 	_was_placed = false
-	
-	# Hide immediately
 	visible = false
 	
-	return {
+	var preview = _create_drag_preview()
+	
+	var drag_data = {
 		"die": die_data,
 		"visual": self,
 		"source": "dice_pool",
 		"source_position": global_position,
 		"slot_index": get_index()
 	}
+	
+	force_drag(drag_data, preview)
 
 func _notification(what: int):
 	if what == NOTIFICATION_DRAG_END:
@@ -503,6 +542,8 @@ func _notification(what: int):
 		if not _was_placed:
 			visible = true
 			modulate = Color.WHITE
+
+
 
 func _create_drag_preview() -> Control:
 	var face_size = Vector2(124, 124)

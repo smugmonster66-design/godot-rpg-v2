@@ -45,6 +45,12 @@ extends Control
 @export var grid_columns: int = 5
 @export var grid_spacing: float = 10.0
 
+
+
+@export_group("Detail Panel Sizing")
+@export var detail_icon_size: float = 128.0
+@export var detail_container_size: float = 180.0
+
 # ============================================================================
 # SIGNALS (emitted upward)
 # ============================================================================
@@ -410,6 +416,14 @@ func _update_item_details():
 	
 	# Show item image with rarity shader + glow layer
 	if image_rects.size() > 0:
+		image_rects[0].custom_minimum_size = Vector2(detail_icon_size, detail_icon_size)
+		
+		# Constrain the container so glow doesn't bleed into neighbors
+		var center = image_rects[0].get_parent()
+		if center is CenterContainer:
+			center.custom_minimum_size = Vector2(detail_container_size, detail_container_size)
+			#center.clip_contents = true
+		
 		if selected_item.has("icon") and selected_item.icon:
 			image_rects[0].texture = selected_item.icon
 		else:
