@@ -22,6 +22,7 @@ ThemeManager="*res://scripts/ui/theme_manager.gd"
 GameManager="*res://scripts/autoload/game_manager.gd"
 AffixPool="*res://scripts/autoload/affix_pool.gd"
 LootManager="*res://scripts/autoload/loot_manager.gd"
+AffixTableRegistry="*res://scripts/autoload/affix_table_registry.gd"
 
 [display]
 

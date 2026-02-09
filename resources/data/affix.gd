@@ -9,6 +9,14 @@
 #   - Added ProcTrigger enum and proc configuration
 #   - apply_effect() now accepts optional context for dynamic resolution
 #   - Full backwards compatibility: existing .tres files work unchanged
+#
+# v3 CHANGELOG (Item Level Scaling):
+#   - roll_value() now accepts power_position + AffixScalingConfig
+#   - Added has_scaling(), get_rolled_value_string(), _is_multiplier_category()
+#   - Updated get_value_range_string() for multiplier formatting
+#   - Hybrid fuzz: percentage-based + absolute minimum floor
+#   - Multiplier categories auto-detected for 2-decimal rounding
+#
 extends Resource
 class_name Affix
 
@@ -148,21 +156,28 @@ var source_type: String = ""
 @export_group("Effect Values")
 ## For simple numeric bonuses/multipliers
 @export var effect_number: float = 0.0
+
+## Minimum possible value across the entire game (level 1 item).
+## Set to 0.0 to disable scaling (affix uses static effect_number).
+@export var effect_min: float = 0.0
+
+## Maximum possible value across the entire game (level 100 item).
+## Set to 0.0 to disable scaling (affix uses static effect_number).
+@export var effect_max: float = 0.0
+
+## Optional per-affix scaling curve. Overrides the global curve from
+## AffixScalingConfig when set. Leave null to use the global curve.
+@export var effect_curve: Curve = null
+
+## Per-affix fuzz override. Set to -1.0 to use the global default.
+## 0.0 = deterministic (same level = same value), 0.2 = ±20% spread.
+@export_range(-1.0, 1.0) var roll_fuzz: float = -1.0
+
 ## Where does the effect magnitude come from? (v2)
 ## STATIC uses effect_number literally. Others derive at runtime.
 @export var value_source: ValueSource = ValueSource.STATIC
 ## For complex effects that need multiple values
 @export var effect_data: Dictionary = {}
-
-
-## Minimum value when rolling this affix on an item
-@export var effect_min: float = 0.0
-## Maximum value when rolling this affix on an item
-@export var effect_max: float = 0.0
-## Curve that shapes the roll distribution between min and max.
-## Linear = even distribution. S-curve = clusters in middle. Spike = rare high rolls.
-@export var effect_curve: Curve = null
-
 
 # ============================================================================
 # PROC CONFIGURATION (v2)
@@ -291,46 +306,127 @@ func _resolve_raw_value(context: Dictionary) -> float:
 		_:
 			return effect_number
 
+# ============================================================================
+# ITEM LEVEL SCALING (v3)
+# ============================================================================
 
-func roll_value() -> float:
-	"""Roll a random value between effect_min and effect_max, shaped by the curve.
-    
-    Call this when an item is generated to determine the affix's final power.
-    Sets effect_number to the rolled result for runtime use.
-    
-    Returns:
-        The rolled value (also stored in effect_number).
-    """
+func roll_value(power_position: float = -1.0, scaling_config: AffixScalingConfig = null) -> float:
+	"""Roll a value for this affix based on a power position (0.0–1.0).
+	
+	The power position is typically derived from item_level via
+	AffixScalingConfig.get_power_position(). This method:
+	  1. Maps power_position to a center value within effect_min → effect_max
+	  2. Applies per-affix curve override if set
+	  3. Adds hybrid fuzz (percentage + absolute minimum) for randomness
+	  4. Rounds appropriately (integers for flat bonuses, 2 decimals for multipliers)
+	  5. Stamps the result into effect_number for runtime use
+	
+	Args:
+		power_position: 0.0 (weakest) to 1.0 (strongest). From scaling config.
+					    Pass -1.0 (or omit) for legacy random roll behavior.
+		scaling_config: Global scaling config for fuzz defaults. Can be null.
+	
+	Returns:
+		The rolled value (also stored in effect_number).
+	"""
+	# Skip scaling for static affixes (no min/max defined)
 	if effect_min == 0.0 and effect_max == 0.0:
-		return effect_number  # No range defined, use static value
+		return effect_number
 	
-	var t: float = randf()  # 0.0 to 1.0
+	# Legacy behavior: no power_position provided → pure random within range
+	if power_position < 0.0:
+		var t: float = randf()
+		if effect_curve:
+			t = effect_curve.sample(t)
+		effect_number = lerpf(effect_min, effect_max, t)
+		if _is_multiplier_category():
+			effect_number = snappedf(effect_number, 0.01)
+		else:
+			effect_number = roundf(effect_number)
+		return effect_number
+	
+	# Step 1: Apply per-affix curve override (if any)
+	var t_curved: float = power_position
 	if effect_curve:
-		t = effect_curve.sample(t)  # Reshape distribution via curve
+		t_curved = effect_curve.sample(power_position)
 	
-	effect_number = lerpf(effect_min, effect_max, t)
+	# Step 2: Map to center value
+	var center: float = lerpf(effect_min, effect_max, t_curved)
 	
-	# Round to reasonable precision
-	if effect_max >= 1.0 and effect_min >= 1.0:
-		# Integer-scale values (damage, health, armor): round to int
-		effect_number = roundf(effect_number)
+	# Step 3: Compute fuzz range (hybrid: percentage + absolute minimum)
+	var roll_min: float = center
+	var roll_max: float = center
+	
+	if scaling_config:
+		var fuzz_range = scaling_config.compute_fuzz_range(
+			center, effect_min, effect_max,
+			roll_fuzz  # -1.0 = use global default
+		)
+		roll_min = fuzz_range.min
+		roll_max = fuzz_range.max
+	elif roll_fuzz > 0.0:
+		# No config available — use per-affix fuzz directly
+		var total_range: float = effect_max - effect_min
+		var fuzz_amount: float = maxf(total_range * roll_fuzz, 1.0)
+		roll_min = maxf(effect_min, center - fuzz_amount)
+		roll_max = minf(effect_max, center + fuzz_amount)
+	
+	# Step 4: Roll within fuzz range
+	var rolled: float = randf_range(roll_min, roll_max)
+	
+	# Step 5: Round appropriately
+	# Multipliers (values near 1.x) get 2 decimal places
+	# Everything else rounds to integers
+	if _is_multiplier_category():
+		effect_number = snappedf(rolled, 0.01)
 	else:
-		# Fractional values (multipliers, percentages): 2 decimal places
-		effect_number = snappedf(effect_number, 0.01)
+		effect_number = roundf(rolled)
 	
 	return effect_number
 
 
-func get_value_range_string() -> String:
-	
-	if effect_min == 0.0 and effect_max == 0.0:
-		return str(effect_number)
-	
-	if effect_max >= 1.0 and effect_min >= 1.0:
-		return "%d-%d" % [int(effect_min), int(effect_max)]
-	else:
-		return "%.0f%%-%.0f%%" % [effect_min * 100, effect_max * 100]
+func has_scaling() -> bool:
+	"""Check if this affix uses level-based scaling (has min/max defined)."""
+	return not (effect_min == 0.0 and effect_max == 0.0)
 
+
+func get_value_range_string() -> String:
+	"""Get a human-readable string showing the value range.
+	
+	Returns:
+		"5" for static, "1–8" for scaled, "1.05×–1.40×" for multipliers.
+	"""
+	if not has_scaling():
+		if _is_multiplier_category():
+			return "%.2f×" % effect_number
+		return str(int(effect_number))
+	
+	if _is_multiplier_category():
+		return "%.2f×–%.2f×" % [effect_min, effect_max]
+	return "%d–%d" % [int(effect_min), int(effect_max)]
+
+
+func get_rolled_value_string() -> String:
+	"""Get the current rolled value as a display string.
+	
+	Returns:
+		"+5" for flat bonuses, "×1.25" for multipliers.
+	"""
+	if _is_multiplier_category():
+		return "×%.2f" % effect_number
+	return "+%d" % int(effect_number)
+
+
+func _is_multiplier_category() -> bool:
+	"""Check if this affix's category is a multiplier type."""
+	return category in [
+		Category.STRENGTH_MULTIPLIER,
+		Category.AGILITY_MULTIPLIER,
+		Category.INTELLECT_MULTIPLIER,
+		Category.LUCK_MULTIPLIER,
+		Category.DAMAGE_MULTIPLIER,
+		Category.DEFENSE_MULTIPLIER,
+	]
 
 # ============================================================================
 # CONDITION HELPERS (v2)
@@ -433,6 +529,16 @@ func is_proc_category() -> bool:
 	return category in [Category.PROC, Category.ON_HIT, Category.PER_TURN]
 
 # ============================================================================
+# ELEMENTAL IDENTITY
+# ============================================================================
+
+func get_elemental_identity() -> ActionEffect.DamageType:
+	"""Returns this affix's element, or -1 if none is set."""
+	if has_elemental_identity:
+		return elemental_identity
+	return -1
+
+# ============================================================================
 # UTILITY
 # ============================================================================
 
@@ -472,19 +578,6 @@ func get_full_description() -> String:
 
 func _to_string() -> String:
 	return "Affix<%s: %s>" % [affix_name, get_category_name()]
-
-
-# ============================================================================
-# ELEMENTAL IDENTITY
-# ============================================================================
-
-func get_elemental_identity() -> ActionEffect.DamageType:
-	"""Returns this affix's element, or -1 if none is set."""
-	if has_elemental_identity:
-		return elemental_identity
-	return -1
-
-
 
 # ============================================================================
 # VALUE RESOLUTION HELPERS (private)

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="SlotDefinition" load_steps=2 format=3 uid="uid://hnmjxghaf5mm"]
+
+[ext_resource type="Script" uid="uid://bqh4kjc6h72mt" path="res://resources/data/slot_definition.gd" id="1_8axvg"]
+
+[resource]
+script = ExtResource("1_8axvg")
+slot_name = "Main Hand"
+tier_1_offense = true
+tier_2_offense = true
+tier_3_offense = true

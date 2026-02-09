@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SlotDefinition" load_steps=2 format=3 uid="uid://btsq4gakq82l7"]
+
+[ext_resource type="Script" uid="uid://bqh4kjc6h72mt" path="res://resources/data/slot_definition.gd" id="1_m68ak"]
+
+[resource]
+script = ExtResource("1_m68ak")
+slot_name = "Off Hand"
+slot_type = 5
+tier_1_offense = true
+tier_2_offense = true
+tier_3_offense = true
+base_armor = 4

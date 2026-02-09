@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="SlotDefinition" load_steps=2 format=3 uid="uid://cbv0pogyu7y55"]
+
+[ext_resource type="Script" uid="uid://bqh4kjc6h72mt" path="res://resources/data/slot_definition.gd" id="1_diy8a"]
+
+[resource]
+script = ExtResource("1_diy8a")
+slot_name = "Torso"
+slot_type = 1
+base_armor = 15
+base_health = 15

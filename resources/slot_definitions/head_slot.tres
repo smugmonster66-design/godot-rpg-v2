@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="SlotDefinition" load_steps=2 format=3 uid="uid://l4haca2jhusf"]
+
+[ext_resource type="Script" uid="uid://bqh4kjc6h72mt" path="res://resources/data/slot_definition.gd" id="1_3frpc"]
+
+[resource]
+script = ExtResource("1_3frpc")
+slot_name = "Head"
+slot_type = 0
+base_armor = 8
+base_health = 10

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=5 format=3 uid="uid://hdsk4q56yvx3"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_x0ldi"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="2_jtlyy"]
+[ext_resource type="Script" uid="uid://bqh4kjc6h72mt" path="res://resources/data/slot_definition.gd" id="3_jtlyy"]
+
+[sub_resource type="Resource" id="Resource_7xvos"]
+script = ExtResource("3_jtlyy")
+metadata/_custom_type_script = "uid://bqh4kjc6h72mt"
+
+[resource]
+script = ExtResource("2_jtlyy")
+item_name = "Iron Helm"
+description = "It's a helm. Made of iron. Simple."
+rarity = 2
+equip_slot = 0
+slot_definition = SubResource("Resource_7xvos")
+metadata/_custom_type_script = "uid://gax4pbuq25uv"

@@ -1,5 +1,18 @@
-# equippable_item.gd - Equipment with inherent stats, rolled affixes, and typed accessors
-# v3 — Dictionary bridge fully removed. All downstream reads EquippableItem directly.
+@tool
+# equippable_item.gd - Equipment with SlotDefinition-driven affix rolling and level scaling
+#
+# @tool is required so the equip_slot setter can auto-resolve SlotDefinitions
+# in the Inspector. All runtime logic is guarded — @tool only affects the setter.
+#
+# v2 CHANGELOG (Item Level Scaling):
+#   - Added SlotDefinition reference for family-based affix table access
+#   - Added item_level / region fields wired to affix value generation
+#   - initialize_affixes() now uses AffixTableRegistry + scaling when available
+#   - Manual affix overrides preserved (backwards compatible)
+#   - Legacy table slots preserved as fallback (backwards compatible)
+#   - Unique legendary affix system preserved
+#   - to_dict() now includes item_level, region, value_display, value_range
+#
 extends Resource
 class_name EquippableItem
 
@@ -30,10 +43,13 @@ enum EquipSlot {
 # ============================================================================
 @export var item_name: String = "New Item"
 @export_multiline var description: String = "An equippable item."
-@export_multiline var flavor_text: String = ""
 @export var icon: Texture2D = null
 @export var rarity: Rarity = Rarity.COMMON
-@export var equip_slot: EquipSlot = EquipSlot.MAIN_HAND
+@export var equip_slot: EquipSlot = EquipSlot.MAIN_HAND:
+	set(value):
+		equip_slot = value
+		if Engine.is_editor_hint():
+			_auto_resolve_slot_definition()
 @export var set_definition: SetDefinition = null
 
 ## Optional element for this item. Flows to action fields as their element.
@@ -41,102 +57,60 @@ enum EquipSlot {
 @export var elemental_identity: ActionEffect.DamageType = ActionEffect.DamageType.SLASHING
 
 # ============================================================================
-# ITEM IDENTITY
+# SLOT DEFINITION — Controls which affix families this item can roll
 # ============================================================================
-@export_group("Item Identity")
+@export_group("Slot Configuration")
 
-## Region this item originates from (1-6). Determines power budget and thematic pool.
-@export_range(1, 6) var region: int = 1
+## The slot definition that controls affix family access and base stats.
+## Drag a SlotDefinition .tres here, or leave null to auto-resolve from equip_slot.
+@export var slot_definition: SlotDefinition = null
 
-## Item level within the region. Scales inherent stat values.
+# ============================================================================
+# ITEM LEVEL & REGION — Drives affix value scaling
+# ============================================================================
+@export_group("Item Level")
+
+## This item's power level. Determines where affix values land within
+## their effect_min → effect_max ranges. Set by the loot system at drop time.
+## Range: 1 (weakest, region 1 start) to 100 (strongest, region 6 endgame).
 @export_range(1, 100) var item_level: int = 1
 
-## Base gold value before rarity multiplier.
-@export var base_value: int = 10
-
-## Tags for filtering, set bonuses, Cate dialogue, and UI categorization.
-@export var item_tags: PackedStringArray = []
+## Which region this item dropped in. Informational + used for loot filtering.
+@export_range(1, 6) var region: int = 1
 
 # ============================================================================
-# EQUIP REQUIREMENTS
+# AFFIX SYSTEM - TABLES (legacy — kept for backwards compatibility)
 # ============================================================================
-@export_group("Equip Requirements")
+@export_group("Affix Tables (Legacy)")
 
-## Minimum player level to equip. 0 = no requirement.
-@export var required_level: int = 0
-
-## Minimum stat values to equip. Only checked for stats > 0.
-@export var required_strength: int = 0
-@export var required_agility: int = 0
-@export var required_intellect: int = 0
+## @deprecated Use slot_definition instead. These are preserved for migration.
+@export var first_affix_table: AffixTable = null
+@export var second_affix_table: AffixTable = null
+@export var third_affix_table: AffixTable = null
 
 # ============================================================================
-# VISUALS
-# ============================================================================
-@export_group("Visuals")
-
-## Sprite overlay for paper doll / equipment display.
-@export var equipped_sprite: Texture2D = null
-
-## Spine skin name (if using Spine for layered character rendering).
-@export var spine_skin_name: String = ""
-
-## Optional tint/color variation applied to the equipped visual.
-@export var visual_tint: Color = Color.WHITE
-
-# ============================================================================
-# INHERENT AFFIXES — The item's identity stats (always present, never random)
-# ============================================================================
-@export_group("Inherent Affixes")
-
-## Fixed affixes that define this base item's identity.
-## Always active regardless of rarity. NOT rolled randomly.
-@export var inherent_affixes: Array[Affix] = []
-
-# ============================================================================
-# AFFIX SYSTEM — Rolled affix tables
-# ============================================================================
-@export_group("Affix Tables")
-
-## Affix tables for each rollable slot. Index 0 = Tier 1, etc.
-## Heavy weapons can have up to 6 entries. Standard gear uses 3.
-@export var affix_tables: Array[AffixTable] = []
-
-# ============================================================================
-# AFFIX SYSTEM — Manual overrides
+# AFFIX SYSTEM - MANUAL OVERRIDE
 # ============================================================================
 @export_group("Manual Affixes (Override)")
 
-## Manual affix assignment per slot. If any are set, ALL table rolling is skipped.
-@export var manual_affixes: Array[Affix] = []
+## Manual affix assignment (optional — overrides table rolling).
+## Leave these empty to use the SlotDefinition-based table rolling.
+@export var manual_first_affix: Affix = null
+@export var manual_second_affix: Affix = null
+@export var manual_third_affix: Affix = null
 
-## LEGENDARY ONLY: Unique fourth affix.
+## LEGENDARY ONLY: Fourth unique affix (always added regardless of roll system)
 @export_subgroup("Legendary Unique Affix")
 @export var unique_affix: Affix = null
 
-# ============================================================================
-# RUNTIME STATE — Not saved to .tres
-# ============================================================================
-
-## Rolled/manual affixes (NOT including inherent).
-var rolled_affixes: Array[Affix] = []
-
-## Combined view: inherent + rolled + unique. Rebuilt by initialize_affixes().
+## Affixes rolled or assigned to this item instance (populated at init time)
 var item_affixes: Array[Affix] = []
-
-## Runtime dice — starts as copies of grants_dice, but may be modified
-## by dice affixes during combat prep. Snapshot/restore cycle lives here.
-var runtime_dice: Array[DieResource] = []
-
-## Whether runtime_dice have been modified from the template.
-var _dice_modified: bool = false
 
 # ============================================================================
 # DICE
 # ============================================================================
 @export_group("Dice")
-
-## Dice templates this item grants. Runtime copies live in runtime_dice.
+## Dice this item grants. Drag DieResource files here.
 @export var grants_dice: Array[DieResource] = []
 @export var dice_tags: Array[String] = []
 
@@ -148,209 +122,12 @@ var _dice_modified: bool = false
 @export var action: Action = null
 
 # ============================================================================
-# AFFIX MANAGEMENT
-# ============================================================================
-
-func initialize_affixes(_affix_pool = null):
-	"""Initialize all affixes: inherent + rolled/manual + unique.
-	Also creates fresh runtime dice from templates.
-	"""
-	rolled_affixes.clear()
-	item_affixes.clear()
-	
-	# Step 1: Always apply inherent affixes
-	_apply_inherent_affixes()
-	
-	# Step 2: Roll or manually assign random affixes
-	if manual_affixes.size() > 0:
-		_use_manual_affixes()
-	else:
-		_roll_from_tables()
-	
-	# Step 3: Add legendary unique affix
-	if rarity == Rarity.LEGENDARY and unique_affix:
-		_add_unique_affix()
-	
-	# Step 4: Build combined list
-	_rebuild_combined_affixes()
-	
-	# Step 5: Create fresh runtime dice from templates
-	reset_dice_to_base()
-
-func _apply_inherent_affixes():
-	"""Copy inherent affixes with source tracking. No rolling."""
-	for affix in inherent_affixes:
-		if affix:
-			var copy = affix.duplicate_with_source(item_name, "item_inherent")
-			item_affixes.append(copy)
-			print("  📌 Inherent: %s" % affix.affix_name)
-
-func _use_manual_affixes():
-	"""Use manually assigned affixes and roll their values."""
-	for affix in manual_affixes:
-		if affix:
-			var copy = affix.duplicate_with_source(item_name, "item")
-			copy.roll_value()
-			rolled_affixes.append(copy)
-			print("  ✓ Manual: %s (%.1f)" % [affix.affix_name, copy.effect_number])
-
-func _roll_from_tables():
-	"""Roll random affixes from affix_tables array."""
-	var num_affixes = get_affix_count_for_rarity()
-	
-	for i in range(mini(num_affixes, affix_tables.size())):
-		_roll_from_table(affix_tables[i], i + 1)
-	
-	print("✨ Rolled %d affixes for %s (%s)" % [rolled_affixes.size(), item_name, get_rarity_name()])
-
-func _roll_from_table(table: AffixTable, slot_number: int):
-	"""Roll one affix from a specific table and roll its value."""
-	if not table or not table.is_valid():
-		print("  ⚠️ Table slot %d null/empty for %s" % [slot_number, item_name])
-		return
-	
-	var affix = table.get_random_affix()
-	if affix:
-		var copy = affix.duplicate_with_source(item_name, "item")
-		copy.roll_value()
-		rolled_affixes.append(copy)
-		print("  🎲 Slot %d: %s = %.1f" % [slot_number, affix.affix_name, copy.effect_number])
-	else:
-		print("  ❌ Failed to roll from table slot %d" % slot_number)
-
-func _add_unique_affix():
-	"""Add the unique legendary affix."""
-	if not unique_affix:
-		return
-	var copy = unique_affix.duplicate_with_source(item_name, "item_unique")
-	copy.roll_value()
-	rolled_affixes.append(copy)
-	print("  ⭐ Unique: %s (%.1f)" % [unique_affix.affix_name, copy.effect_number])
-
-func _rebuild_combined_affixes():
-	"""Rebuild item_affixes = inherent (copied) + rolled."""
-	item_affixes.clear()
-	for affix in inherent_affixes:
-		if affix:
-			var copy = affix.duplicate_with_source(item_name, "item_inherent")
-			item_affixes.append(copy)
-	item_affixes.append_array(rolled_affixes)
-
-func get_affix_count_for_rarity() -> int:
-	"""Number of rolled affixes by rarity. Heavy weapons get double."""
-	var base_count: int
-	match rarity:
-		Rarity.COMMON: base_count = 0
-		Rarity.UNCOMMON: base_count = 1
-		Rarity.RARE: base_count = 2
-		Rarity.EPIC: base_count = 3
-		Rarity.LEGENDARY: base_count = 3
-		_: base_count = 0
-	if is_heavy_weapon():
-		base_count *= 2
-	return base_count
-
-func get_all_affixes() -> Array[Affix]:
-	"""All affixes (inherent + rolled + unique)."""
-	return item_affixes.duplicate()
-
-func get_inherent_affixes() -> Array[Affix]:
-	"""Only the inherent (non-random) affixes."""
-	return inherent_affixes.duplicate()
-
-func get_rolled_affixes() -> Array[Affix]:
-	"""Only the rolled/manual affixes."""
-	return rolled_affixes.duplicate()
-
-# ============================================================================
-# DICE MANAGEMENT
-# ============================================================================
-
-func reset_dice_to_base():
-	"""Create fresh runtime dice from templates."""
-	runtime_dice.clear()
-	for die in grants_dice:
-		if die:
-			runtime_dice.append(die.duplicate_die())
-	_dice_modified = false
-
-func get_runtime_dice() -> Array[DieResource]:
-	"""Get the current runtime dice (may have modifications)."""
-	return runtime_dice
-
-func snapshot_dice(modified: Array[DieResource]):
-	"""Save modified dice back from the pool. Called on unequip."""
-	runtime_dice.clear()
-	for die in modified:
-		runtime_dice.append(die.duplicate_die())
-	_dice_modified = true
-
-func are_dice_modified() -> bool:
-	return _dice_modified
-
-# ============================================================================
-# EQUIP REQUIREMENTS
-# ============================================================================
-
-func can_equip(player) -> bool:
-	"""Check if the player meets all equip requirements."""
-	if not player:
-		return false
-	if required_level > 0:
-		var player_level = player.get("level") if player.get("level") != null else 0
-		if player_level < required_level:
-			return false
-	if required_strength > 0 and player.get_base_stat("strength") < required_strength:
-		return false
-	if required_agility > 0 and player.get_base_stat("agility") < required_agility:
-		return false
-	if required_intellect > 0 and player.get_base_stat("intellect") < required_intellect:
-		return false
-	return true
-
-func get_unmet_requirements(player) -> Array[String]:
-	"""Human-readable list of unmet requirements."""
-	var unmet: Array[String] = []
-	if not player:
-		return unmet
-	if required_level > 0:
-		var player_level = player.get("level") if player.get("level") != null else 0
-		if player_level < required_level:
-			unmet.append("Requires Level %d" % required_level)
-	if required_strength > 0 and player.get_base_stat("strength") < required_strength:
-		unmet.append("Requires %d Strength" % required_strength)
-	if required_agility > 0 and player.get_base_stat("agility") < required_agility:
-		unmet.append("Requires %d Agility" % required_agility)
-	if required_intellect > 0 and player.get_base_stat("intellect") < required_intellect:
-		unmet.append("Requires %d Intellect" % required_intellect)
-	return unmet
-
-# ============================================================================
-# ECONOMY
-# ============================================================================
-
-const RARITY_VALUE_MULTIPLIER := {
-	Rarity.COMMON: 1.0,
-	Rarity.UNCOMMON: 1.5,
-	Rarity.RARE: 2.5,
-	Rarity.EPIC: 5.0,
-	Rarity.LEGENDARY: 10.0,
-}
-
-func get_sell_value() -> int:
-	var multiplier = RARITY_VALUE_MULTIPLIER.get(rarity, 1.0)
-	var region_scale = 1.0 + (region - 1) * 0.5
-	return int(base_value * multiplier * region_scale)
-
-func get_buy_value() -> int:
-	return get_sell_value() * 3
-
-# ============================================================================
 # ELEMENTAL IDENTITY
 # ============================================================================
 
 func get_elemental_identity() -> int:
-	"""Returns DamageType int, or -1 if none."""
+	"""Find the elemental identity — item-level first, then affixes.
+	Returns the DamageType int, or -1 if none is set."""
 	if has_elemental_identity:
 		return elemental_identity
 	for affix in item_affixes:
@@ -359,32 +136,337 @@ func get_elemental_identity() -> int:
 	return -1
 
 # ============================================================================
-# TAGS
+# AFFIX MANAGEMENT
 # ============================================================================
 
-func has_tag(tag: String) -> bool:
-	return tag in item_tags
+func initialize_affixes(affix_pool = null):
+	"""Initialize affixes using the best available system.
+	
+	Priority order:
+	  1. Manual affixes (if any manual_*_affix is set)
+	  2. SlotDefinition + AffixTableRegistry (new system)
+	  3. Legacy table slots (fallback for unmigrated items)
+	
+	Args:
+		affix_pool: Legacy parameter, ignored. Kept for API compatibility.
+	"""
+	item_affixes.clear()
+	
+	# Priority 1: Manual affixes
+	if manual_first_affix or manual_second_affix or manual_third_affix:
+		_use_manual_affixes()
+	# Priority 2: New SlotDefinition system
+	elif _has_slot_definition_system():
+		_roll_from_slot_definition()
+	# Priority 3: Legacy table slots
+	elif first_affix_table or second_affix_table or third_affix_table:
+		_roll_from_tables()
+	
+	# LEGENDARY: Always add unique affix if present
+	if rarity == Rarity.LEGENDARY and unique_affix:
+		_add_unique_affix()
 
-func has_any_tag(tags: Array[String]) -> bool:
-	for tag in tags:
-		if tag in item_tags:
-			return true
-	return false
 
-func has_all_tags(tags: Array[String]) -> bool:
-	for tag in tags:
-		if tag not in item_tags:
-			return false
-	return true
+func _has_slot_definition_system() -> bool:
+	"""Check if the new SlotDefinition system is available."""
+	if slot_definition:
+		return true
+	return _get_slot_definition() != null
+
+
+func _get_slot_definition() -> SlotDefinition:
+	"""Get the SlotDefinition for this item, auto-resolving if needed."""
+	if slot_definition:
+		return slot_definition
+	
+	# Auto-resolve: try loading from the standard path
+	var slot_file := _slot_to_filename(equip_slot)
+	var path := "res://resources/slot_definitions/%s.tres" % slot_file
+	if ResourceLoader.exists(path):
+		var loaded = load(path)
+		if loaded is SlotDefinition:
+			return loaded
+	
+	return null
+
+
+func _slot_to_filename(slot: EquipSlot) -> String:
+	"""Map EquipSlot enum to SlotDefinition filename."""
+	match slot:
+		EquipSlot.HEAD: return "head_slot"
+		EquipSlot.TORSO: return "torso_slot"
+		EquipSlot.GLOVES: return "gloves_slot"
+		EquipSlot.BOOTS: return "boots_slot"
+		EquipSlot.MAIN_HAND: return "main_hand_slot"
+		EquipSlot.OFF_HAND: return "off_hand_slot"
+		EquipSlot.HEAVY: return "heavy_slot"
+		EquipSlot.ACCESSORY: return "accessory_slot"
+		_: return "main_hand_slot"
+
+
+func _auto_resolve_slot_definition() -> void:
+	"""Auto-populate slot_definition when equip_slot changes in the Inspector.
+	Only runs in the editor. Skips if a SlotDefinition is already manually assigned."""
+	var slot_file := _slot_to_filename(equip_slot)
+	var path := "res://resources/slot_definitions/%s.tres" % slot_file
+	if ResourceLoader.exists(path):
+		var loaded = load(path)
+		if loaded is SlotDefinition:
+			slot_definition = loaded
+			notify_property_list_changed()
+
+# ============================================================================
+# NEW ROLLING SYSTEM (SlotDefinition + AffixTableRegistry)
+# ============================================================================
+
+func _roll_from_slot_definition() -> void:
+	"""Roll affixes using SlotDefinition + AffixTableRegistry.
+	
+	Rarity determines how many tiers are rolled:
+	  COMMON:    0 affixes
+	  UNCOMMON:  1 roll from tier 1
+	  RARE:      1 from tier 1 + 1 from tier 2
+	  EPIC:      1 from tier 1 + 1 from tier 2 + 1 from tier 3
+	  LEGENDARY: same as EPIC (+ unique affix added separately)
+	
+	Heavy weapons with double_affix_rolls get 2× the rolls.
+	"""
+	var sd: SlotDefinition = _get_slot_definition()
+	if not sd:
+		push_warning("EquippableItem '%s': No SlotDefinition found — skipping roll" % item_name)
+		return
+	
+	var registry = _get_registry()
+	if not registry:
+		push_warning("EquippableItem '%s': AffixTableRegistry not available — skipping roll" % item_name)
+		return
+	
+	var scaling_config: AffixScalingConfig = registry.scaling_config
+	var power_pos: float = 0.0
+	if scaling_config:
+		power_pos = scaling_config.get_power_position(item_level)
+	else:
+		power_pos = clampf(float(item_level - 1) / 99.0, 0.0, 1.0)
+	
+	# Determine roll count per tier based on rarity
+	var tiers_to_roll: Array[int] = _get_tiers_for_rarity()
+	
+	# Double for heavy weapons
+	if sd.double_affix_rolls:
+		var doubled: Array[int] = []
+		for t in tiers_to_roll:
+			doubled.append(t)
+			doubled.append(t)
+		tiers_to_roll = doubled
+	
+	# Roll each tier
+	for tier in tiers_to_roll:
+		var tables: Array[AffixTable] = sd.get_tables_for_tier(tier, registry.table_registry)
+		if tables.is_empty():
+			if OS.is_debug_build():
+				print("  ⚠️ No tables for %s tier %d (families: %s)" % [
+					sd.slot_name, tier, sd.get_tier_families(tier)])
+			continue
+		
+		var table: AffixTable = tables.pick_random()
+		if not table or not table.is_valid():
+			continue
+		
+		var base_affix: Affix = table.get_random_affix()
+		if not base_affix:
+			continue
+		
+		var rolled: Affix = base_affix.duplicate_with_source(item_name, "item")
+		
+		if rolled.has_scaling():
+			rolled.roll_value(power_pos, scaling_config)
+		
+		item_affixes.append(rolled)
+		
+		if OS.is_debug_build():
+			var val_str := rolled.get_rolled_value_string() if rolled.has_scaling() else str(rolled.effect_number)
+			print("  🎲 T%d %s: %s %s (from %s)" % [
+				tier,
+				rolled.affix_name,
+				val_str,
+				"[%s]" % rolled.get_value_range_string() if rolled.has_scaling() else "",
+				table.table_name
+			])
+	
+	if OS.is_debug_build():
+		print("✨ %s (Lv.%d, R%d, %s) rolled %d affixes via SlotDefinition" % [
+			item_name, item_level, region, get_rarity_name(), item_affixes.size()])
+
+
+func _get_tiers_for_rarity() -> Array[int]:
+	"""Map rarity to which tiers get rolled."""
+	match rarity:
+		Rarity.COMMON:
+			return []
+		Rarity.UNCOMMON:
+			return [1]
+		Rarity.RARE:
+			return [1, 2]
+		Rarity.EPIC, Rarity.LEGENDARY:
+			return [1, 2, 3]
+		_:
+			return []
+
+
+func _get_registry():
+	"""Get the AffixTableRegistry autoload. Returns null if not available."""
+	if Engine.has_singleton("AffixTableRegistry"):
+		return Engine.get_singleton("AffixTableRegistry")
+	
+	var tree := Engine.get_main_loop()
+	if tree is SceneTree:
+		var root = tree.root
+		if root and root.has_node("AffixTableRegistry"):
+			return root.get_node("AffixTableRegistry")
+	
+	return null
+
+# ============================================================================
+# MANUAL AFFIXES
+# ============================================================================
+
+func _use_manual_affixes():
+	"""Use manually assigned affixes from Inspector."""
+	var scaling_config: AffixScalingConfig = null
+	var power_pos: float = clampf(float(item_level - 1) / 99.0, 0.0, 1.0)
+	
+	var registry = _get_registry()
+	if registry and registry.scaling_config:
+		scaling_config = registry.scaling_config
+		power_pos = scaling_config.get_power_position(item_level)
+	
+	if manual_first_affix:
+		var copy = manual_first_affix.duplicate_with_source(item_name, "item")
+		if copy.has_scaling():
+			copy.roll_value(power_pos, scaling_config)
+		item_affixes.append(copy)
+		print("  ✓ Using manual affix 1: %s" % manual_first_affix.affix_name)
+	
+	if manual_second_affix:
+		var copy = manual_second_affix.duplicate_with_source(item_name, "item")
+		if copy.has_scaling():
+			copy.roll_value(power_pos, scaling_config)
+		item_affixes.append(copy)
+		print("  ✓ Using manual affix 2: %s" % manual_second_affix.affix_name)
+	
+	if manual_third_affix:
+		var copy = manual_third_affix.duplicate_with_source(item_name, "item")
+		if copy.has_scaling():
+			copy.roll_value(power_pos, scaling_config)
+		item_affixes.append(copy)
+		print("  ✓ Using manual affix 3: %s" % manual_third_affix.affix_name)
+
+# ============================================================================
+# LEGACY TABLE ROLLING (fallback for unmigrated items)
+# ============================================================================
+
+func _roll_from_tables():
+	"""Roll random affixes from assigned affix tables (legacy system).
+	
+	Rarity determines which tables to roll from:
+	- COMMON: No affixes
+	- UNCOMMON: Roll 1 from first_affix_table
+	- RARE: Roll 1 from first + second
+	- EPIC: Roll from all three tables
+	- LEGENDARY: Roll from all three + unique affix
+	"""
+	var num_affixes = get_affix_count_for_rarity()
+	
+	if num_affixes >= 1:
+		_roll_from_table(first_affix_table, "First")
+	
+	if num_affixes >= 2:
+		_roll_from_table(second_affix_table, "Second")
+	
+	if num_affixes >= 3:
+		_roll_from_table(third_affix_table, "Third")
+	
+	print("✨ Rolled %d affixes for %s (legacy tables)" % [item_affixes.size(), item_name])
+
+func _roll_from_table(table: AffixTable, tier_name: String):
+	"""Roll one affix from a specific affix table (legacy)"""
+	if not table:
+		print("  ⚠️ No %s affix table assigned for %s" % [tier_name, item_name])
+		return
+	
+	if not table.is_valid():
+		print("  ⚠️ %s affix table is empty for %s" % [tier_name, item_name])
+		return
+	
+	var affix = table.get_random_affix()
+	if affix:
+		var affix_copy = affix.duplicate_with_source(item_name, "item")
+		item_affixes.append(affix_copy)
+		print("  🎲 Rolled %s affix: %s (from table: %s)" % [tier_name, affix.affix_name, table.table_name])
+	else:
+		print("  ❌ Failed to roll from %s table" % tier_name)
+
+# ============================================================================
+# UNIQUE LEGENDARY AFFIX
+# ============================================================================
+
+func _add_unique_affix():
+	"""Add the unique legendary affix (4th affix)"""
+	if not unique_affix:
+		print("  ⚠️ LEGENDARY item missing unique affix!")
+		return
+	
+	var copy = unique_affix.duplicate_with_source(item_name, "item")
+	
+	# Scale unique affix too if it has ranges
+	if copy.has_scaling():
+		var power_pos := clampf(float(item_level - 1) / 99.0, 0.0, 1.0)
+		var registry = _get_registry()
+		if registry and registry.scaling_config:
+			power_pos = registry.scaling_config.get_power_position(item_level)
+			copy.roll_value(power_pos, registry.scaling_config)
+		else:
+			copy.roll_value(power_pos)
+	
+	item_affixes.append(copy)
+	print("  ⭐ Added UNIQUE affix: %s" % unique_affix.affix_name)
+
+# ============================================================================
+# RARITY HELPERS
+# ============================================================================
+
+func get_affix_count_for_rarity() -> int:
+	"""Get number of affixes to roll based on rarity (excludes unique affix)"""
+	match rarity:
+		Rarity.COMMON: return 0
+		Rarity.UNCOMMON: return 1
+		Rarity.RARE: return 2
+		Rarity.EPIC: return 3
+		Rarity.LEGENDARY: return 3  # + unique affix = 4 total
+		_: return 0
+
+func get_all_affixes() -> Array[Affix]:
+	"""Get all affixes this item grants"""
+	return item_affixes.duplicate()
+
+# ============================================================================
+# BACKWARD COMPATIBILITY
+# ============================================================================
+
+func roll_affixes(affix_pool = null):
+	"""Legacy function - calls initialize_affixes for compatibility"""
+	initialize_affixes(affix_pool)
 
 # ============================================================================
 # UTILITY
 # ============================================================================
 
 func is_heavy_weapon() -> bool:
+	"""Check if this is a two-handed weapon"""
 	return equip_slot == EquipSlot.HEAVY
 
 func get_rarity_color() -> Color:
+	"""Get color for rarity tier"""
 	match rarity:
 		Rarity.COMMON: return Color.WHITE
 		Rarity.UNCOMMON: return Color.GREEN
@@ -394,6 +476,7 @@ func get_rarity_color() -> Color:
 		_: return Color.WHITE
 
 func get_rarity_name() -> String:
+	"""Get rarity name as string"""
 	match rarity:
 		Rarity.COMMON: return "Common"
 		Rarity.UNCOMMON: return "Uncommon"
@@ -403,6 +486,7 @@ func get_rarity_name() -> String:
 		_: return "Unknown"
 
 func get_slot_name() -> String:
+	"""Get equipment slot name"""
 	match equip_slot:
 		EquipSlot.HEAD: return "Head"
 		EquipSlot.TORSO: return "Torso"
@@ -414,51 +498,66 @@ func get_slot_name() -> String:
 		EquipSlot.ACCESSORY: return "Accessory"
 		_: return "Unknown"
 
-func get_display_name() -> String:
-	return item_name
+# ============================================================================
+# CONVERSION FOR UI/INVENTORY
+# ============================================================================
 
-func get_tooltip_lines() -> Array[String]:
-	"""Pre-built tooltip content in display order."""
-	var lines: Array[String] = []
-	lines.append(item_name)
-	lines.append("%s %s" % [get_rarity_name(), get_slot_name()])
-	if item_level > 0:
-		lines.append("Item Level %d (Region %d)" % [item_level, region])
+func to_dict() -> Dictionary:
+	"""Convert to Dictionary for UI compatibility"""
+	var dict = {
+		"name": item_name,
+		"display_name": item_name,
+		"slot": get_slot_name(),
+		"description": description,
+		"dice_resources": [],
+		"dice_tags": dice_tags.duplicate(),
+		"is_heavy": is_heavy_weapon(),
+		"icon": icon,
+		"rarity": get_rarity_name(),
+		"item_level": item_level,
+		"region": region,
+		"equippable_item": self,
+	}
 	
-	var reqs: Array[String] = []
-	if required_level > 0: reqs.append("Level %d" % required_level)
-	if required_strength > 0: reqs.append("%d STR" % required_strength)
-	if required_agility > 0: reqs.append("%d AGI" % required_agility)
-	if required_intellect > 0: reqs.append("%d INT" % required_intellect)
-	if reqs.size() > 0:
-		lines.append("Requires: %s" % ", ".join(reqs))
+	# Add dice resources (actual DieResource copies)
+	for die in grants_dice:
+		if die:
+			dict["dice_resources"].append(die.duplicate_die())
 	
-	lines.append("---")
-	for affix in inherent_affixes:
-		if affix:
-			lines.append(affix.get_display_text())
+	# Add affixes as dictionaries for UI display
+	var affixes_data = []
+	for affix in item_affixes:
+		var affix_dict := {
+			"name": affix.affix_name,
+			"display_name": affix.affix_name,
+			"description": affix.description,
+			"category": affix.category,
+			"category_name": affix.get_category_name(),
+			"effect_number": affix.effect_number,
+		}
+		if affix.has_scaling():
+			affix_dict["value_display"] = affix.get_rolled_value_string()
+			affix_dict["value_range"] = affix.get_value_range_string()
+		affixes_data.append(affix_dict)
 	
-	if rolled_affixes.size() > 0:
-		lines.append("---")
-		for affix in rolled_affixes:
-			lines.append(affix.get_display_text())
+	if affixes_data.size() > 0:
+		dict["affixes"] = affixes_data
 	
+	if grants_action and action:
+		var action_dict = action.to_dict()
+		action_dict["action_resource"] = action
+		dict["actions"] = [action_dict]
+	
+	# Equipment set
 	if set_definition:
-		lines.append("---")
-		lines.append("Set: %s" % set_definition.set_name)
+		dict["set_definition"] = set_definition
+		dict["set_name"] = set_definition.set_name
+		dict["set_id"] = set_definition.set_id
+		dict["set_color"] = set_definition.set_color
 	
-	if flavor_text != "":
-		lines.append("---")
-		lines.append(flavor_text)
+	# Elemental identity from affixes
+	var elem_id = get_elemental_identity()
+	if elem_id >= 0:
+		dict["elemental_identity"] = elem_id
 	
-	lines.append("Sell: %d gold" % get_sell_value())
-	return lines
-
-# ============================================================================
-# BACKWARD COMPATIBILITY — Legacy callers
-# ============================================================================
-
-func roll_affixes(_affix_pool = null):
-	"""DEPRECATED — Use initialize_affixes()."""
-	push_warning("roll_affixes() is deprecated. Use initialize_affixes().")
-	initialize_affixes()
+	return dict

@@ -1,8 +1,41 @@
 # loot_manager.gd - Manages loot generation from loot tables
+#
+# v2 CHANGELOG (Item Level Scaling):
+#   - roll_loot() now accepts source_level and source_region
+#   - _process_item_drop() stamps item_level and region before affix rolling
+#   - Added generate_drop() for one-shot item creation outside loot tables
+#   - Added roll_loot_from_enemy() convenience wrapper
+#   - Added get_item_level_for_region() helper
+#   - All existing callers continue working (new params have defaults)
+#
 extends Node
 
 # All loaded loot tables indexed by name
 var loot_tables: Dictionary = {}
+
+# ============================================================================
+# ITEM LEVEL SCALING CONFIG
+# ============================================================================
+
+## How many levels above/below source the item can roll.
+## source_level=20, spread=3 → item_level ranges 17–23.
+@export var item_level_spread: int = 3
+
+## Cached reference to the scaling config (auto-loaded from registry).
+var _scaling_config: AffixScalingConfig = null
+
+func _get_scaling_config() -> AffixScalingConfig:
+	if _scaling_config:
+		return _scaling_config
+	if has_node("/root/AffixTableRegistry"):
+		var registry = get_node("/root/AffixTableRegistry")
+		if registry and registry.scaling_config:
+			_scaling_config = registry.scaling_config
+	return _scaling_config
+
+# ============================================================================
+# INITIALIZATION
+# ============================================================================
 
 func _ready():
 	print("💰 Loot Manager initializing...")
@@ -51,12 +84,15 @@ func _load_tables_from_directory(dir_path: String, category_name: String):
 # PUBLIC API - ROLL LOOT
 # ============================================================================
 
-func roll_loot(table_name: String, modifiers: Dictionary = {}) -> Array[Dictionary]:
+func roll_loot(table_name: String, modifiers: Dictionary = {},
+			   source_level: int = -1, source_region: int = -1) -> Array[Dictionary]:
 	"""Roll loot from a loot table
 	
 	Args:
 		table_name: Name of the loot table to roll
 		modifiers: Optional modifiers (luck, magic_find, etc.)
+		source_level: Level of the drop source (flows to item_level). -1 = don't stamp.
+		source_region: Region of the drop source (1–6). -1 = don't stamp.
 	
 	Returns:
 		Array of loot results: [{item: {}, quantity: 1, source: ""}]
@@ -70,18 +106,20 @@ func roll_loot(table_name: String, modifiers: Dictionary = {}) -> Array[Dictiona
 	var results: Array[Dictionary] = []
 	
 	# Roll guaranteed drops
-	results.append_array(_roll_guaranteed_pool(table))
+	results.append_array(_roll_guaranteed_pool(table, source_level, source_region))
 	
 	# Roll weighted drops
-	results.append_array(_roll_weighted_pool(table))
+	results.append_array(_roll_weighted_pool(table, source_level, source_region))
 	
 	# Roll bonus drops (with luck modifier)
-	results.append_array(_roll_bonus_pool(table, modifiers))
+	results.append_array(_roll_bonus_pool(table, modifiers, source_level, source_region))
 	
-	print("💰 Rolled '%s': %d items" % [table_name, results.size()])
+	print("💰 Rolled '%s': %d items (source Lv.%d, R%d)" % [
+		table_name, results.size(), source_level, source_region])
 	return results
 
-func roll_loot_multiple(table_name: String, count: int, modifiers: Dictionary = {}) -> Array[Dictionary]:
+func roll_loot_multiple(table_name: String, count: int, modifiers: Dictionary = {},
+						source_level: int = -1, source_region: int = -1) -> Array[Dictionary]:
 	"""Roll the same loot table multiple times
 	
 	Returns combined results from all rolls
@@ -89,26 +127,121 @@ func roll_loot_multiple(table_name: String, count: int, modifiers: Dictionary = 
 	var all_results: Array[Dictionary] = []
 	
 	for i in range(count):
-		all_results.append_array(roll_loot(table_name, modifiers))
+		all_results.append_array(roll_loot(table_name, modifiers,
+										   source_level, source_region))
 	
 	return all_results
+
+# ============================================================================
+# CONVENIENCE API (v2)
+# ============================================================================
+
+func roll_loot_from_enemy(table_name: String, enemy_level: int,
+						  enemy_region: int, luck_bonus: float = 0.0) -> Array[Dictionary]:
+	"""Convenience wrapper for enemy drops.
+	
+	Args:
+		table_name: The enemy's loot table name.
+		enemy_level: The enemy's level (becomes source_level).
+		enemy_region: The region the enemy is in.
+		luck_bonus: Player's luck stat bonus for drop chance.
+	
+	Returns:
+		Array of loot results.
+	"""
+	var modifiers := {}
+	if luck_bonus > 0.0:
+		modifiers["luck"] = luck_bonus
+	
+	return roll_loot(table_name, modifiers, enemy_level, enemy_region)
+
+
+func generate_drop(item_template: EquippableItem, source_level: int,
+				   source_region: int = 1,
+				   rarity_override: int = -1) -> Dictionary:
+	"""Generate a single item drop outside the loot table system.
+	
+	Useful for quest rewards, shop generation, debug testing, etc.
+	
+	Args:
+		item_template: The base EquippableItem to instantiate.
+		source_level: Level for scaling (typically enemy or zone level).
+		source_region: Region for metadata (1–6).
+		rarity_override: Force a rarity (-1 = use template's rarity).
+	
+	Returns:
+		Item dictionary ready for inventory, or empty dict on failure.
+	"""
+	if not item_template:
+		push_warning("LootManager.generate_drop(): null item_template")
+		return {}
+	
+	var item: EquippableItem = item_template.duplicate(true)
+	
+	if rarity_override >= 0:
+		item.rarity = rarity_override
+	
+	# Stamp level with jitter
+	item.item_level = clampi(
+		source_level + randi_range(-item_level_spread, item_level_spread),
+		1, 100
+	)
+	item.region = source_region
+	
+	# Roll affixes
+	item.initialize_affixes()
+	
+	var item_dict := item.to_dict()
+	item_dict["item_affixes"] = item.get_all_affixes()
+	
+	print("  🎁 Generated: %s Lv.%d (%s, R%d)" % [
+		item.item_name, item.item_level, item.get_rarity_name(), item.region])
+	
+	return {
+		"type": "item",
+		"item": item_dict,
+		"quantity": 1,
+		"source": "generated"
+	}
+
+
+func get_item_level_for_region(region_num: int, difficulty_bias: float = 0.5) -> int:
+	"""Get an appropriate item level for a region.
+	
+	Args:
+		region_num: Region number (1–6).
+		difficulty_bias: 0.0 = easiest, 1.0 = hardest, 0.5 = average.
+	
+	Returns:
+		Item level within the region's bounds.
+	"""
+	var config := _get_scaling_config()
+	if config:
+		return config.get_item_level_for_region(region_num, difficulty_bias)
+	
+	# Fallback: rough approximation
+	var base_levels := {1: 10, 2: 25, 3: 41, 4: 58, 5: 75, 6: 90}
+	return base_levels.get(region_num, 50)
 
 # ============================================================================
 # POOL ROLLING LOGIC
 # ============================================================================
 
-func _roll_guaranteed_pool(table: LootTable) -> Array[Dictionary]:
+func _roll_guaranteed_pool(table: LootTable,
+						   source_level: int = -1, source_region: int = -1) -> Array[Dictionary]:
 	"""Roll all guaranteed drops"""
 	var results: Array[Dictionary] = []
 	
 	for drop in table.get_valid_drops(table.guaranteed_drops):
-		var drop_result = _process_single_drop(drop, table.table_name)
+		var drop_result = _process_single_drop(drop, table.table_name,
+											   source_level, source_region)
 		if drop_result:
 			results.append(drop_result)
 	
 	return results
 
-func _roll_weighted_pool(table: LootTable) -> Array[Dictionary]:
+func _roll_weighted_pool(table: LootTable,
+						 source_level: int = -1, source_region: int = -1) -> Array[Dictionary]:
 	"""Roll weighted drops using weighted random selection"""
 	var results: Array[Dictionary] = []
 	var num_rolls = table.get_num_weighted_rolls()
@@ -119,13 +252,15 @@ func _roll_weighted_pool(table: LootTable) -> Array[Dictionary]:
 	for i in range(num_rolls):
 		var drop = _select_weighted_drop(table.weighted_drops)
 		if drop:
-			var drop_result = _process_single_drop(drop, table.table_name)
+			var drop_result = _process_single_drop(drop, table.table_name,
+												   source_level, source_region)
 			if drop_result:
 				results.append(drop_result)
 	
 	return results
 
-func _roll_bonus_pool(table: LootTable, modifiers: Dictionary) -> Array[Dictionary]:
+func _roll_bonus_pool(table: LootTable, modifiers: Dictionary,
+					  source_level: int = -1, source_region: int = -1) -> Array[Dictionary]:
 	"""Roll bonus drops with % chance (affected by luck)"""
 	var results: Array[Dictionary] = []
 	
@@ -148,7 +283,8 @@ func _roll_bonus_pool(table: LootTable, modifiers: Dictionary) -> Array[Dictiona
 	if randf() < bonus_chance:
 		var drop = _select_weighted_drop(table.bonus_drops)
 		if drop:
-			var drop_result = _process_single_drop(drop, table.table_name)
+			var drop_result = _process_single_drop(drop, table.table_name,
+												   source_level, source_region)
 			if drop_result:
 				results.append(drop_result)
 				print("  🌟 Bonus drop triggered! (%d%% chance)" % int(bonus_chance * 100))
@@ -184,17 +320,18 @@ func _select_weighted_drop(drops: Array[LootDrop]) -> LootDrop:
 	
 	return valid_drops[-1]  # Fallback
 
-func _process_single_drop(drop: LootDrop, source: String) -> Dictionary:
+func _process_single_drop(drop: LootDrop, source: String,
+						  source_level: int = -1, source_region: int = -1) -> Dictionary:
 	"""Process a single drop and return result"""
 	match drop.drop_type:
 		LootDrop.DropType.ITEM:
-			return _process_item_drop(drop, source)
+			return _process_item_drop(drop, source, source_level, source_region)
 		
 		LootDrop.DropType.CURRENCY:
 			return _process_currency_drop(drop, source)
 		
 		LootDrop.DropType.TABLE:
-			return _process_nested_table(drop, source)
+			return _process_nested_table(drop, source, source_level, source_region)
 		
 		LootDrop.DropType.NOTHING:
 			print("  💨 Dropped: Nothing")
@@ -202,8 +339,18 @@ func _process_single_drop(drop: LootDrop, source: String) -> Dictionary:
 	
 	return {}
 
-func _process_item_drop(drop: LootDrop, source: String) -> Dictionary:
-	"""Process an item drop - create item with affixes"""
+func _process_item_drop(drop: LootDrop, source: String,
+						source_level: int = -1, source_region: int = -1) -> Dictionary:
+	"""Process an item drop — create item with level-scaled affixes.
+	
+	Args:
+		drop: The LootDrop resource describing what to drop.
+		source: Display name of the drop source (enemy name, chest, etc).
+		source_level: Level of the source (enemy level, zone level).
+					  -1 = don't stamp (use item template's default).
+		source_region: Region the source is in (1–6).
+					  -1 = don't stamp.
+	"""
 	if not drop.item_template:
 		return {}
 	
@@ -214,8 +361,19 @@ func _process_item_drop(drop: LootDrop, source: String) -> Dictionary:
 	if drop.force_rarity >= 0:
 		item.rarity = drop.force_rarity
 	
-	# Initialize affixes (rolls or uses manual)
-	item.initialize_affixes(AffixPool)
+	# Stamp item_level from source (with jitter)
+	if source_level > 0:
+		item.item_level = clampi(
+			source_level + randi_range(-item_level_spread, item_level_spread),
+			1, 100
+		)
+	
+	# Stamp region
+	if source_region > 0:
+		item.region = source_region
+	
+	# Initialize affixes (now uses item_level for scaling)
+	item.initialize_affixes()
 	
 	# Convert to dictionary
 	var item_dict = item.to_dict()
@@ -224,7 +382,9 @@ func _process_item_drop(drop: LootDrop, source: String) -> Dictionary:
 	# Get quantity
 	var quantity = drop.get_quantity()
 	
-	print("  🎁 Dropped: %s x%d (%s)" % [item.item_name, quantity, item.get_rarity_name()])
+	print("  🎁 Dropped: %s Lv.%d x%d (%s, R%d)" % [
+		item.item_name, item.item_level, quantity,
+		item.get_rarity_name(), item.region])
 	
 	return {
 		"type": "item",
@@ -248,7 +408,8 @@ func _process_currency_drop(drop: LootDrop, source: String) -> Dictionary:
 		"source": source
 	}
 
-func _process_nested_table(drop: LootDrop, source: String) -> Dictionary:
+func _process_nested_table(drop: LootDrop, source: String,
+						   source_level: int = -1, source_region: int = -1) -> Dictionary:
 	"""Process a nested loot table drop"""
 	if not drop.nested_table:
 		return {}
@@ -256,8 +417,8 @@ func _process_nested_table(drop: LootDrop, source: String) -> Dictionary:
 	print("  📦 Rolling nested table: %s" % drop.nested_table.table_name)
 	
 	# Roll the nested table and return first result
-	# (Or you could return all results - design choice)
-	var nested_results = roll_loot(drop.nested_table.table_name)
+	var nested_results = roll_loot(drop.nested_table.table_name, {},
+								   source_level, source_region)
 	
 	if nested_results.size() > 0:
 		return nested_results[0]  # Return first drop from nested table

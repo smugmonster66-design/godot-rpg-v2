@@ -1,11 +1,9 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=7 format=3 uid="uid://bph6gp6nhb28h"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=5 format=3 uid="uid://bph6gp6nhb28h"]
 
 [ext_resource type="Resource" uid="uid://b62vosd0wti72" path="res://resources/actions/items/weapons/main hand/poison_dagger_poison_strike_action.tres" id="1_i2esi"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_xrgs5"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="2_d08na"]
 [ext_resource type="Texture2D" uid="uid://cehygalcjcvxu" path="res://assets/items/weapons/epic/frost-hammer.png" id="2_i2esi"]
-[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="2_jq0cd"]
-[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_pxplv"]
 
 [resource]
 script = ExtResource("2_d08na")

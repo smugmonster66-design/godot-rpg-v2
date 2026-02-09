@@ -1,8 +1,6 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=5 format=3 uid="uid://bb7im66tynxkr"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=3 format=3 uid="uid://bb7im66tynxkr"]
 
-[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="1_c6s3y"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_4e386"]
-[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_hd8mi"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="4_7105a"]
 
 [resource]
@@ -14,5 +12,4 @@ equip_slot = 0
 has_elemental_identity = true
 elemental_identity = 1
 item_level = 5
-inherent_affixes = Array[ExtResource("3_hd8mi")]([null, null])
 metadata/_custom_type_script = "uid://gax4pbuq25uv"

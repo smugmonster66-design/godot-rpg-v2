@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="SlotDefinition" load_steps=2 format=3 uid="uid://b650s5tyjtg6r"]
+
+[ext_resource type="Script" uid="uid://bqh4kjc6h72mt" path="res://resources/data/slot_definition.gd" id="1_78u61"]
+
+[resource]
+script = ExtResource("1_78u61")
+slot_name = "Boots"
+slot_type = 3
+base_armor = 6
