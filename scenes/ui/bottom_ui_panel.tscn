@@ -95,7 +95,7 @@ text = "MENU"
 layout_mode = 2
 text = "Add Starting Gear"
 script = ExtResource("5_5kghg")
-starting_items = Array[ExtResource("6_tu5g0")]([ExtResource("8_2my3p")])
+starting_items = Array[ExtResource("6_tu5g0")]([ExtResource("8_2my3p"), ExtResource("8_2my3p"), ExtResource("8_2my3p"), ExtResource("8_2my3p"), ExtResource("8_2my3p"), ExtResource("8_2my3p"), ExtResource("8_2my3p"), ExtResource("8_2my3p"), ExtResource("8_2my3p"), ExtResource("8_2my3p"), ExtResource("8_2my3p")])
 
 [node name="CombatButton" type="Button" parent="MainHBox/RightSection"]
 layout_mode = 2

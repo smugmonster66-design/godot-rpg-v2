@@ -1,20 +1,35 @@
-[gd_scene load_steps=2 format=3 uid="uid://4ahxkdbgy447"]
+[gd_scene load_steps=7 format=3 uid="uid://4ahxkdbgy447"]
 
 [ext_resource type="Script" uid="uid://ckcnmmdmj10wo" path="res://scripts/ui/combat/action_field.gd" id="1_vm0q0"]
+[ext_resource type="Texture2D" uid="uid://b5idgxy5pjm63" path="res://assets/ui/panels/9patch_bones.png" id="2_r6w7g"]
+[ext_resource type="Texture2D" uid="uid://b7t35b1xyhqhr" path="res://assets/ui/panels/9patch_bones_frame.png" id="3_qph8m"]
+[ext_resource type="Texture2D" uid="uid://0wsimnnpbfag" path="res://assets/ui/menu_tabs/equipment tab assets/128x128.png" id="4_0cgqb"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_sgqpl"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_joayw"]
+texture = ExtResource("4_0cgqb")
+texture_margin_left = 22.0
+texture_margin_top = 22.0
+texture_margin_right = 22.0
+texture_margin_bottom = 22.0
 
 [node name="ActionField" type="PanelContainer"]
 custom_minimum_size = Vector2(0, 100)
 offset_right = 120.0
 offset_bottom = 100.0
 size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxTexture_sgqpl")
 script = ExtResource("1_vm0q0")
 metadata/_edit_vertical_guides_ = [-146.0]
 
 [node name="FillTexture" type="NinePatchRect" parent="."]
 layout_mode = 2
+texture = ExtResource("2_r6w7g")
 
 [node name="StrokeTexture" type="NinePatchRect" parent="."]
 layout_mode = 2
+texture = ExtResource("3_qph8m")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
@@ -25,12 +40,12 @@ theme_override_constants/margin_bottom = 4
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-size_flags_horizontal = 4
 size_flags_vertical = 4
 theme_override_constants/separation = 10
 
 [node name="HeaderPlate" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_joayw")
 
 [node name="HeaderRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HeaderPlate"]
 layout_mode = 2

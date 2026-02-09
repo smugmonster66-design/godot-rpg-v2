@@ -40,6 +40,9 @@ enum ActionType {
 var source: String = ""
 var action_resource: Action = null
 
+@export_group("Rarity Glow")
+@export var badge_glow_config: RarityGlowConfig
+
 # ============================================================================
 # SIGNALS
 # ============================================================================
@@ -152,31 +155,29 @@ func setup_drop_target():
 func _apply_element_shader():
 	"""Apply fill + stroke shader materials from central element config"""
 	if not GameManager or not GameManager.ELEMENT_VISUALS:
-		# Fallback: tint only
 		if fill_texture:
-			fill_texture.modulate = ELEMENT_COLORS.get(element, Color.WHITE)
+			fill_texture.modulate = ELEMENT_COLORS.get(element, Color.WHITE) * Color(0.5, 0.5, 0.5)
 		return
 	
 	var config = GameManager.ELEMENT_VISUALS
 	
-	# Fill material
+	# Fill material — darkened 50%
 	if fill_texture:
 		var fill_mat = config.get_fill_material(element)
 		if fill_mat:
 			fill_texture.material = fill_mat
+			fill_texture.modulate = Color(0.5, 0.5, 0.5)
 		else:
 			fill_texture.material = null
-			fill_texture.modulate = config.get_tint_color(element)
+			fill_texture.modulate = config.get_tint_color(element) * Color(0.5, 0.5, 0.5)
 	
-	# Stroke material
+	# Stroke material — full brightness
 	if stroke_texture:
 		var stroke_mat = config.get_stroke_material(element)
 		if stroke_mat:
 			stroke_texture.material = stroke_mat
 		else:
 			stroke_texture.material = null
-
-
 
 
 func set_element(new_element: ActionEffect.DamageType):
@@ -377,6 +378,8 @@ func _setup_source_badge():
 	if not source_badge:
 		return
 	
+	RarityGlowHelper.clear_glow(source_badge)
+	
 	if source_icon:
 		source_badge.texture = source_icon
 		source_badge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -384,6 +387,7 @@ func _setup_source_badge():
 		source_badge.custom_minimum_size = Vector2(64, 64)
 		_apply_rarity_shader_to_badge(source_badge, source_rarity)
 		source_badge.show()
+		RarityGlowHelper.apply_glow(source_badge, source_icon, source_rarity, badge_glow_config)
 	elif GameManager and GameManager.ELEMENT_VISUALS:
 		var elem_icon = GameManager.ELEMENT_VISUALS.get_icon(element)
 		if elem_icon:
@@ -397,6 +401,7 @@ func _setup_source_badge():
 			source_badge.hide()
 	else:
 		source_badge.hide()
+
 
 func _apply_rarity_shader_to_badge(tex_rect: TextureRect, rarity_name: String):
 	"""Apply rarity border glow shader to the source badge"""

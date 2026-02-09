@@ -35,6 +35,16 @@ extends Control
 ## How much the brightness oscillates when pulsing
 @export_range(0.0, 1.0) var pulse_amount: float = 0.15
 
+@export_group("Rarity Glow")
+@export var detail_glow_config: RarityGlowConfig
+@export var grid_glow_config: RarityGlowConfig
+
+
+@export_group("Grid Item Size")
+@export var grid_item_size: float = 80.0
+@export var grid_columns: int = 5
+@export var grid_spacing: float = 10.0
+
 # ============================================================================
 # SIGNALS (emitted upward)
 # ============================================================================
@@ -157,6 +167,16 @@ func _rebuild_inventory_grid():
 	if not inventory_grid:
 		return
 	
+	if not inventory_grid:
+		return
+	
+	# Apply grid settings from exports
+	inventory_grid.columns = grid_columns
+	inventory_grid.add_theme_constant_override("h_separation", int(grid_spacing))
+	inventory_grid.add_theme_constant_override("v_separation", int(grid_spacing))
+	
+	
+	
 	# Clear existing buttons
 	for child in inventory_grid.get_children():
 		child.queue_free()
@@ -213,11 +233,15 @@ func _get_filtered_items() -> Array:
 func _create_item_button(item: Dictionary) -> Control:
 	"""Create a button for an inventory item with rarity shader and equipped overlay"""
 	# Wrapper so we can layer the overlay
+	var glow_pad = grid_glow_config.padding if grid_glow_config else 0.0
+	
 	var wrapper = Control.new()
-	wrapper.custom_minimum_size = Vector2(80, 80)
+	wrapper.custom_minimum_size = Vector2(grid_item_size + glow_pad * 2, grid_item_size + glow_pad * 2)
 	
 	var btn = TextureButton.new()
-	btn.custom_minimum_size = Vector2(80, 80)
+	btn.custom_minimum_size = Vector2(grid_item_size, grid_item_size)
+	btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	btn.position = Vector2(glow_pad, glow_pad)
 	btn.ignore_texture_size = true
 	btn.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 	
@@ -235,8 +259,20 @@ func _create_item_button(item: Dictionary) -> Control:
 	if use_rarity_shaders and rarity_shader and rarity_colors:
 		_apply_rarity_shader_to_button(btn, item)
 	
-	btn.pressed.connect(_on_item_button_pressed.bind(item, btn))
 	wrapper.add_child(btn)
+	
+	# Clickable area covers entire grid square
+	var click_area = Button.new()
+	click_area.flat = true
+	click_area.position = Vector2.ZERO
+	click_area.size = wrapper.custom_minimum_size
+	click_area.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	click_area.mouse_filter = Control.MOUSE_FILTER_STOP
+	click_area.pressed.connect(_on_item_button_pressed.bind(item, btn))
+	wrapper.add_child(click_area)
+	
+	# Rarity glow behind grid icon
+	RarityGlowHelper.apply_glow(btn, btn.texture_normal, item.get("rarity", "Common"), grid_glow_config)
 	
 	# Equipped overlay
 	if player and player.is_item_equipped(item):
@@ -251,7 +287,7 @@ func _create_item_button(item: Dictionary) -> Control:
 		badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		badge.custom_minimum_size = Vector2(20, 20)
-		badge.position = Vector2(58, 0)
+		badge.position = Vector2(glow_pad + 2, glow_pad + 2)
 		
 		# Badge background
 		var badge_bg = Panel.new()
@@ -260,12 +296,25 @@ func _create_item_button(item: Dictionary) -> Control:
 		style.set_corner_radius_all(4)
 		badge_bg.add_theme_stylebox_override("panel", style)
 		badge_bg.custom_minimum_size = Vector2(20, 20)
-		badge_bg.position = Vector2(58, 0)
+		badge_bg.position = Vector2(glow_pad + 2, glow_pad + 2)
 		badge_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		
 		wrapper.add_child(badge_bg)
 		wrapper.add_child(badge)
+	
+	
+	# DEBUG
+	print("🔆 Grid item: wrapper.clip=%s, btn.clip=%s, btn.size=%s" % [
+		wrapper.clip_contents, btn.clip_contents, btn.custom_minimum_size
+	])
+	var p = wrapper
+	while p:
+		if p is ScrollContainer or p is PanelContainer or p.clip_contents:
+			print("  📎 Clipper: %s (type=%s, clip=%s)" % [p.name, p.get_class(), p.clip_contents])
+		p = p.get_parent()
+	
+	
 	
 	return wrapper
 
@@ -302,6 +351,9 @@ func _get_item_type_color(item: Dictionary) -> Color:
 		"Material": return Color(0.5, 0.5, 0.5)  # Gray
 		_: return Color(0.4, 0.4, 0.4)
 
+
+
+
 func _update_item_details():
 	"""Update the item details panel"""
 	print("🔍 _update_item_details called")
@@ -332,8 +384,11 @@ func _update_item_details():
 		# Clear details
 		if name_labels.size() > 0:
 			name_labels[0].text = "No Item Selected"
+			name_labels[0].remove_theme_color_override("font_color")
 		if image_rects.size() > 0:
 			image_rects[0].texture = null
+			image_rects[0].material = null
+			RarityGlowHelper.clear_glow(image_rects[0])
 		if desc_labels.size() > 0:
 			desc_labels[0].text = ""
 		if affix_containers.size() > 0:
@@ -346,11 +401,14 @@ func _update_item_details():
 	
 	print("  Selected item: %s" % selected_item.get("name", "Unknown"))
 	
-	# Show item name
+	# Show item name with rarity color
 	if name_labels.size() > 0:
+		var rarity_name = selected_item.get("rarity", "Common")
 		name_labels[0].text = selected_item.get("name", "Unknown")
+		if rarity_colors:
+			name_labels[0].add_theme_color_override("font_color", rarity_colors.get_color_for_rarity(rarity_name))
 	
-	# Show item image
+	# Show item image with rarity shader + glow layer
 	if image_rects.size() > 0:
 		if selected_item.has("icon") and selected_item.icon:
 			image_rects[0].texture = selected_item.icon
@@ -360,6 +418,8 @@ func _update_item_details():
 			img.fill(_get_item_type_color(selected_item))
 			var tex = ImageTexture.create_from_image(img)
 			image_rects[0].texture = tex
+		_apply_rarity_shader_to_texture_rect(image_rects[0], selected_item)
+		RarityGlowHelper.apply_glow(image_rects[0], image_rects[0].texture, selected_item.get("rarity", "Common"), detail_glow_config)
 	
 	# Show description
 	if desc_labels.size() > 0:
@@ -386,7 +446,6 @@ func _update_item_details():
 				if player and player.set_tracker:
 					equipped_count = player.set_tracker.get_equipped_count(set_def.set_id)
 				set_header.text = "%s (%d/%d)" % [set_def.set_name, equipped_count, set_def.get_total_pieces()]
-				#set_header.add_theme_font_size_override("font_size", 14)
 				set_header.add_theme_color_override("font_color", set_def.set_color)
 				affix_container.add_child(set_header)
 				
@@ -396,7 +455,6 @@ func _update_item_details():
 					var threshold_label = Label.new()
 					var prefix = "✓" if is_active else "✗"
 					threshold_label.text = "  %s (%d) %s" % [prefix, threshold.required_pieces, threshold.description]
-					#threshold_label.add_theme_font_size_override("font_size", 12)
 					threshold_label.add_theme_color_override("font_color", Color.GREEN if is_active else Color(0.4, 0.4, 0.4))
 					threshold_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 					affix_container.add_child(threshold_label)
@@ -456,6 +514,28 @@ func _update_item_details():
 			print("  ❌ Hiding Equip button")
 			equip_btn.hide()
 
+
+func _apply_rarity_shader_to_texture_rect(tex_rect: TextureRect, item: Dictionary):
+	"""Apply rarity glow shader to any TextureRect"""
+	if not use_rarity_shaders or not rarity_shader or not rarity_colors:
+		tex_rect.material = null
+		return
+	
+	var rarity_name = item.get("rarity", "Common")
+	var color = rarity_colors.get_color_for_rarity(rarity_name)
+	
+	var mat = ShaderMaterial.new()
+	mat.shader = rarity_shader
+	mat.set_shader_parameter("border_color", color)
+	mat.set_shader_parameter("glow_radius", glow_radius)
+	mat.set_shader_parameter("glow_softness", glow_softness)
+	mat.set_shader_parameter("glow_width", glow_width)
+	mat.set_shader_parameter("glow_strength", glow_strength)
+	mat.set_shader_parameter("glow_blend", glow_blend)
+	mat.set_shader_parameter("glow_saturation", glow_saturation)
+	mat.set_shader_parameter("pulse_speed", pulse_speed)
+	mat.set_shader_parameter("pulse_amount", pulse_amount)
+	tex_rect.material = mat
 
 func _create_affix_display(affix: Dictionary) -> PanelContainer:
 	"""Create a display panel for an affix"""

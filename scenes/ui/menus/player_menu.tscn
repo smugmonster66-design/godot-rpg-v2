@@ -16,6 +16,7 @@
 [ext_resource type="Texture2D" uid="uid://cd3spd0a83jkp" path="res://assets/ui/icons/navigation/quest.png" id="8_k87m2"]
 [ext_resource type="Script" uid="uid://62txpm6utl1n" path="res://scripts/ui/menus/equip_slot_button.gd" id="13_ibuud"]
 [ext_resource type="Texture2D" uid="uid://0wsimnnpbfag" path="res://assets/ui/menu_tabs/equipment tab assets/128x128.png" id="14_5yqe8"]
+[ext_resource type="Resource" uid="uid://b621tt8uqbn3j" path="res://resources/ui/default_rarity_glow.tres" id="16_lhrnl"]
 [ext_resource type="Texture2D" uid="uid://b1rubriysiqha" path="res://assets/ui/menu_tabs/inv_button_base_stone.png" id="16_t1rrh"]
 [ext_resource type="Texture2D" uid="uid://boyw3sr0unuyb" path="res://assets/ui/icons/categories/all_icon.png" id="17_0ykkh"]
 [ext_resource type="Texture2D" uid="uid://gw5478j1cslu" path="res://assets/ui/icons/categories/helm_icon.png" id="18_vfsao"]
@@ -122,13 +123,6 @@ texture_margin_right = 22.0
 texture_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_lhrnl"]
-texture = ExtResource("14_5yqe8")
-texture_margin_left = 22.0
-texture_margin_top = 22.0
-texture_margin_right = 22.0
-texture_margin_bottom = 22.0
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_0dmwo"]
 texture = ExtResource("14_5yqe8")
 texture_margin_left = 22.0
 texture_margin_top = 22.0
@@ -659,9 +653,15 @@ layout_mode = 2
 [node name="Inventory" type="Control" parent="PanelContainer/VBoxContainer/ContentArea" groups=["player_menu_tab_content"]]
 layout_mode = 2
 script = ExtResource("5_ldd5v")
-glow_radius = 10.514
-glow_softness = 1.2
-glow_width = 0.814
+glow_radius = 7.753
+glow_strength = 1.857
+pulse_speed = 1.5
+pulse_amount = 0.5
+detail_glow_config = ExtResource("16_lhrnl")
+grid_glow_config = ExtResource("16_lhrnl")
+grid_item_size = 128.0
+grid_columns = 4
+grid_spacing = 0.0
 metadata/tab_name = "Inventory"
 
 [node name="MainVBox" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory"]
@@ -818,12 +818,11 @@ theme_override_font_sizes/font_size = 44
 text = "No Item Selected"
 horizontal_alignment = 1
 
-[node name="PanelContainer2" type="PanelContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/InventoryDetailsPanel/DetailsVBox"]
+[node name="CenterContainer" type="CenterContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/InventoryDetailsPanel/DetailsVBox"]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_styles/panel = SubResource("StyleBoxTexture_0dmwo")
 
-[node name="ItemImage" type="TextureRect" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/InventoryDetailsPanel/DetailsVBox/PanelContainer2"]
+[node name="ItemImage" type="TextureRect" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/InventoryDetailsPanel/DetailsVBox/CenterContainer"]
 layout_mode = 2
 stretch_mode = 5
 
@@ -864,10 +863,17 @@ layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="ItemGrid" type="GridContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/MainLayout/InventoryArea/ScrollContainer" groups=["inventory_grid"]]
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/MainLayout/InventoryArea/ScrollContainer"]
 layout_mode = 2
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="ItemGrid" type="GridContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/MainLayout/InventoryArea/ScrollContainer/MarginContainer" groups=["inventory_grid"]]
+layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 16
 columns = 5
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer"]

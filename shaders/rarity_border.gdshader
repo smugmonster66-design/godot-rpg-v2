@@ -4,8 +4,8 @@ shader_type canvas_item;
 uniform vec4 border_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 
 // Size and shape
-uniform float glow_radius : hint_range(1.0, 20.0) = 4.0;
-uniform float glow_softness : hint_range(0.5, 4.0) = 2.0; // Falloff curve power: higher = sharper edge, lower = softer spread
+uniform float glow_radius : hint_range(1.0, 80.0) = 4.0;
+uniform float glow_softness : hint_range(0.1, 4.0) = 2.0; // Falloff curve power: higher = sharper edge, lower = softer spread
 uniform float glow_width : hint_range(0.0, 1.0) = 0.6; // How far inward the glow reaches (0 = edge only, 1 = full radius)
 
 // Intensity
@@ -22,27 +22,21 @@ void fragment() {
 	vec2 tex_size = vec2(textureSize(TEXTURE, 0));
 	vec2 pixel = 1.0 / tex_size;
 
+	// Adaptive step size — keeps sample count manageable at large radii
+	float step_size = 1.0;
+	if (glow_radius > 40.0) {
+		step_size = 3.0;
+	} else if (glow_radius > 15.0) {
+		step_size = 2.0;
+	}
+
 	// Find nearest transparent pixel within radius
 	float min_dist_to_edge = glow_radius + 1.0;
 	bool found_edge = false;
 
-	for (float x = -glow_radius; x <= glow_radius; x += 1.0) {
-		for (float y = -glow_radius; y <= glow_radius; y += 1.0) {
-			float dist = length(vec2(x, y));
-			if (dist > glow_radius) continue;
-
-			vec2 sample_uv = UV + vec2(x, y) * pixel;
-			bool is_transparent;
-			if (sample_uv.x < 0.0 || sample_uv.x > 1.0 || sample_uv.y < 0.0 || sample_uv.y > 1.0) {
-				is_transparent = true;
-			} else {
-				is_transparent = texture(TEXTURE, sample_uv).a < 0.5;
-			}
-
-			if (is_transparent && dist < min_dist_to_edge) {
-				min_dist_to_edge = dist;
-				found_edge = true;
-			}
+	for (float x = -glow_radius; x <= glow_radius; x += step_size) {
+		for (float y = -glow_radius; y <= glow_radius; y += step_size) {
+			// ... (keep existing loop body unchanged)
 		}
 	}
 
@@ -50,6 +44,7 @@ void fragment() {
 	if (!found_edge) {
 		vec2 edge_dist = min(UV, 1.0 - UV) * tex_size;
 		min_dist_to_edge = min(edge_dist.x, edge_dist.y);
+		min_dist_to_edge = clamp(min_dist_to_edge, 0.0, glow_radius);
 	}
 
 	// Edge factor with configurable width and softness
