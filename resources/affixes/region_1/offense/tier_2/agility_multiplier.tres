@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/data/affix.gd" id="1"]
+[ext_resource type="Curve" path="res://resources/affixes/global_roll_curve.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+affix_name = "Agility Multiplier"
+description = "x{value} Agility"
+show_in_summary = true
+show_in_active_list = true
+category = 6
+tags = PackedStringArray("offensive", "stat", "multiplier", "agility")
+effect_number = 0.0
+effect_min = 1.05
+effect_max = 1.35
+effect_curve = ExtResource("2")

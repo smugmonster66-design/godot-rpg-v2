@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/data/affix.gd" id="1"]
+[ext_resource type="Curve" path="res://resources/affixes/global_roll_curve.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+affix_name = "XP Bonus"
+description = "+{value}% experience gained"
+show_in_summary = true
+show_in_active_list = true
+category = 36
+tags = PackedStringArray("utility", "exploration", "xp", "out_of_combat")
+effect_number = 0.0
+effect_min = 3.0
+effect_max = 15.0
+effect_curve = ExtResource("2")

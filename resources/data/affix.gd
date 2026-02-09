@@ -154,6 +154,16 @@ var source_type: String = ""
 ## For complex effects that need multiple values
 @export var effect_data: Dictionary = {}
 
+
+## Minimum value when rolling this affix on an item
+@export var effect_min: float = 0.0
+## Maximum value when rolling this affix on an item
+@export var effect_max: float = 0.0
+## Curve that shapes the roll distribution between min and max.
+## Linear = even distribution. S-curve = clusters in middle. Spike = rare high rolls.
+@export var effect_curve: Curve = null
+
+
 # ============================================================================
 # PROC CONFIGURATION (v2)
 # ============================================================================
@@ -280,6 +290,47 @@ func _resolve_raw_value(context: Dictionary) -> float:
 		
 		_:
 			return effect_number
+
+
+func roll_value() -> float:
+	"""Roll a random value between effect_min and effect_max, shaped by the curve.
+    
+    Call this when an item is generated to determine the affix's final power.
+    Sets effect_number to the rolled result for runtime use.
+    
+    Returns:
+        The rolled value (also stored in effect_number).
+    """
+	if effect_min == 0.0 and effect_max == 0.0:
+		return effect_number  # No range defined, use static value
+	
+	var t: float = randf()  # 0.0 to 1.0
+	if effect_curve:
+		t = effect_curve.sample(t)  # Reshape distribution via curve
+	
+	effect_number = lerpf(effect_min, effect_max, t)
+	
+	# Round to reasonable precision
+	if effect_max >= 1.0 and effect_min >= 1.0:
+		# Integer-scale values (damage, health, armor): round to int
+		effect_number = roundf(effect_number)
+	else:
+		# Fractional values (multipliers, percentages): 2 decimal places
+		effect_number = snappedf(effect_number, 0.01)
+	
+	return effect_number
+
+
+func get_value_range_string() -> String:
+	
+	if effect_min == 0.0 and effect_max == 0.0:
+		return str(effect_number)
+	
+	if effect_max >= 1.0 and effect_min >= 1.0:
+		return "%d-%d" % [int(effect_min), int(effect_max)]
+	else:
+		return "%.0f%%-%.0f%%" % [effect_min * 100, effect_max * 100]
+
 
 # ============================================================================
 # CONDITION HELPERS (v2)

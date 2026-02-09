@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/data/affix.gd" id="1"]
+[ext_resource type="Curve" path="res://resources/affixes/global_roll_curve.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+affix_name = "Temp Buff per Action"
+description = "Gain temporary damage buff after each action"
+show_in_summary = true
+show_in_active_list = true
+category = 35
+tags = PackedStringArray("offensive", "proc", "on_action", "buff", "temporary")
+effect_number = 0.0
+effect_min = 2.0
+effect_max = 8.0
+effect_curve = ExtResource("2")
+effect_data = {
+"proc_effect": "temp_affix",
+"duration": 2
+}
+proc_trigger = 8

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AffixTable" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://resources/data/affix.gd" id="1_affix_script"]
+[ext_resource type="Script" path="res://resources/data/affix_table.gd" id="2_table_script"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/utility/tier_1/mana_bonus.tres" id="affix_0"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/utility/tier_1/gold_find_bonus.tres" id="affix_1"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/utility/tier_1/xp_bonus.tres" id="affix_2"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/utility/tier_1/cate_mood_bonus.tres" id="affix_3"]
+
+[resource]
+script = ExtResource("2_table_script")
+table_name = "Utility Tier 1"
+description = "Mana, gold find, XP, Cate mood. Available on: ALL slots."
+available_affixes = Array[ExtResource("1_affix_script")]([ExtResource("affix_0"), ExtResource("affix_1"), ExtResource("affix_2"), ExtResource("affix_3")])

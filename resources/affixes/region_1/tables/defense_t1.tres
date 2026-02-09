@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="AffixTable" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://resources/data/affix.gd" id="1_affix_script"]
+[ext_resource type="Script" path="res://resources/data/affix_table.gd" id="2_table_script"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/defense/tier_1/armor_bonus.tres" id="affix_0"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/defense/tier_1/defense_bonus.tres" id="affix_1"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/defense/tier_1/health_bonus.tres" id="affix_2"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/defense/tier_1/fire_resist.tres" id="affix_3"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/defense/tier_1/ice_resist.tres" id="affix_4"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/defense/tier_1/shock_resist.tres" id="affix_5"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/defense/tier_1/poison_resist.tres" id="affix_6"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/defense/tier_1/shadow_resist.tres" id="affix_7"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/defense/tier_1/heal_after_combat_flat.tres" id="affix_8"]
+
+[resource]
+script = ExtResource("2_table_script")
+table_name = "Defense Tier 1"
+description = "Armor, defense, health, elemental resists, post-combat heal. Available on: ALL slots."
+available_affixes = Array[ExtResource("1_affix_script")]([ExtResource("affix_0"), ExtResource("affix_1"), ExtResource("affix_2"), ExtResource("affix_3"), ExtResource("affix_4"), ExtResource("affix_5"), ExtResource("affix_6"), ExtResource("affix_7"), ExtResource("affix_8")])

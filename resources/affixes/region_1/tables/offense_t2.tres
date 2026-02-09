@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="AffixTable" load_steps=19 format=3]
+
+[ext_resource type="Script" path="res://resources/data/affix.gd" id="1_affix_script"]
+[ext_resource type="Script" path="res://resources/data/affix_table.gd" id="2_table_script"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_2/strength_multiplier.tres" id="affix_0"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_2/agility_multiplier.tres" id="affix_1"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_2/intellect_multiplier.tres" id="affix_2"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_2/luck_multiplier.tres" id="affix_3"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_2/fire_damage_bonus.tres" id="affix_4"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_2/ice_damage_bonus.tres" id="affix_5"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_2/shock_damage_bonus.tres" id="affix_6"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_2/poison_damage_bonus.tres" id="affix_7"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_2/shadow_damage_bonus.tres" id="affix_8"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_2/bonus_flat_damage_on_hit.tres" id="affix_9"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_2/apply_poison_on_hit.tres" id="affix_10"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_2/apply_burn_on_hit.tres" id="affix_11"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_2/apply_bleed_on_hit.tres" id="affix_12"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_2/apply_chill_on_hit.tres" id="affix_13"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_2/bonus_damage_per_die_used.tres" id="affix_14"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_2/bonus_damage_per_action.tres" id="affix_15"]
+[ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_2/bonus_damage_on_kill.tres" id="affix_16"]
+
+[resource]
+script = ExtResource("2_table_script")
+table_name = "Offense Tier 2"
+description = "Stat multipliers, elemental damage, on-hit procs, status application. Available on: Gloves, Accessory, Main Hand, Off Hand, Heavy."
+available_affixes = Array[ExtResource("1_affix_script")]([ExtResource("affix_0"), ExtResource("affix_1"), ExtResource("affix_2"), ExtResource("affix_3"), ExtResource("affix_4"), ExtResource("affix_5"), ExtResource("affix_6"), ExtResource("affix_7"), ExtResource("affix_8"), ExtResource("affix_9"), ExtResource("affix_10"), ExtResource("affix_11"), ExtResource("affix_12"), ExtResource("affix_13"), ExtResource("affix_14"), ExtResource("affix_15"), ExtResource("affix_16")])
