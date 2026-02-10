@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AffixScalingConfig" load_steps=3 format=3 uid="uid://cool78gbrkv1"]
+
+[ext_resource type="Script" uid="uid://cluv2jx2qwawn" path="res://resources/data/affix_scaling_config.gd" id="1_r8pqg"]
+
+[sub_resource type="Curve" id="Curve_27yr3"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[resource]
+script = ExtResource("1_r8pqg")
+global_scaling_curve = SubResource("Curve_27yr3")

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://2hy66oivacld"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_m426y"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_by8r0"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_g6dtu"]
+
+[resource]
+script = ExtResource("2_by8r0")
+affix_name = "Starting Armor"
+description = "+N armor at combat start"
+category = 35
+tags = Array[String](["proc", "armor", "combat_start"])
+effect_min = 2.0
+effect_max = 40.0
+effect_data = {
+"effect": "gain_armor"
+}
+proc_trigger = 5

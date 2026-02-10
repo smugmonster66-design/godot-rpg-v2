@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dlx6tic2ymrto"]
+
+[ext_resource type="Script" uid="uid://103xu7pprhpj" path="res://scripts/debug/v3_pipeline_test.gd" id="1_juk05"]
+
+[node name="Node" type="Node"]
+script = ExtResource("1_juk05")

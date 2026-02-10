@@ -612,7 +612,11 @@ func get_slot_name() -> String:
 # ============================================================================
 
 func to_dict() -> Dictionary:
-	"""Convert to Dictionary for UI compatibility"""
+	"""DEPRECATED (v3): No longer needed. Equipment pipeline uses
+	EquippableItem Resources directly. This method will be removed
+	in a future version. If you see the warning below, update the
+	caller to use EquippableItem properties directly."""
+	push_warning("EquippableItem.to_dict() is deprecated — caller should use EquippableItem directly: %s" % item_name)
 	var dict = {
 		"name": item_name,
 		"display_name": item_name,

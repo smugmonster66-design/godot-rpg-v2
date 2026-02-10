@@ -81,22 +81,11 @@ func apply_equippable(item: EquippableItem):
 	slot_button.tooltip_text = "%s (%s %s)" % [item.item_name, item.get_rarity_name(), item.get_slot_name()]
 
 func apply_item(item):
-	"""Accept either EquippableItem or legacy Dictionary."""
+	"""Apply an EquippableItem to this slot's display."""
 	if item is EquippableItem:
 		apply_equippable(item)
-	elif item is Dictionary:
-		# Legacy Dictionary path
-		slot_button.text = ""
-		slot_button.icon = null
-		_clear_style_overrides()
-		if item.has("icon") and item.icon:
-			slot_button.icon = item.icon
-			slot_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			slot_button.expand_icon = true
-		else:
-			var item_name = item.get("name", "?")
-			slot_button.text = item_name[0] if item_name.length() > 0 else "?"
-		slot_button.tooltip_text = item.get("name", "Unknown")
+	else:
+		push_warning("EquipSlotButton.apply_item() received non-EquippableItem: %s" % str(item))
 
 func clear():
 	slot_button.text = ""

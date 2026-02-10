@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://csngh34e2ya2k"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_fg2ae"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_ygeo4"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_44b5r"]
+
+[resource]
+script = ExtResource("2_ygeo4")
+affix_name = "Grant D4 (Neutral)"
+description = "Add a neutral D4 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "neutral"])
+effect_number = 1.0

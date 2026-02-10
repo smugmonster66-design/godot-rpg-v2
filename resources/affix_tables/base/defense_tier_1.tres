@@ -1,0 +1,97 @@
+[gd_resource type="Resource" script_class="AffixTable" load_steps=14 format=3 uid="uid://b2msb2b65qm18"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_d5ud6"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_d1fui"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_c4dq1"]
+[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="4_l605t"]
+
+[sub_resource type="Resource" id="Resource_ne506"]
+script = ExtResource("1_d5ud6")
+affix_name = "Armor Bonus"
+description = "+N Armor"
+category = 13
+tags = Array[String](["defense", "armor", "physical"])
+effect_min = 2.0
+effect_max = 80.0
+
+[sub_resource type="Resource" id="Resource_a886c"]
+script = ExtResource("1_d5ud6")
+affix_name = "Defense Bonus"
+description = "+N Defense"
+category = 11
+tags = Array[String](["defense"])
+effect_min = 1.0
+effect_max = 60.0
+
+[sub_resource type="Resource" id="Resource_o0i68"]
+script = ExtResource("1_d5ud6")
+affix_name = "Fire Resist"
+description = "+N Fire resistance"
+category = 14
+tags = Array[String](["resist", "elemental", "fire"])
+effect_min = 2.0
+effect_max = 40.0
+
+[sub_resource type="Resource" id="Resource_gm7be"]
+script = ExtResource("1_d5ud6")
+affix_name = "Ice Resist"
+description = "+N Ice resistance"
+category = 15
+tags = Array[String](["resist", "elemental", "ice"])
+effect_min = 2.0
+effect_max = 40.0
+
+[sub_resource type="Resource" id="Resource_y1n70"]
+script = ExtResource("1_d5ud6")
+affix_name = "Shock Resist"
+description = "+N Shock resistance"
+category = 16
+tags = Array[String](["resist", "elemental", "shock"])
+effect_min = 2.0
+effect_max = 40.0
+
+[sub_resource type="Resource" id="Resource_ec1d0"]
+script = ExtResource("1_d5ud6")
+affix_name = "Poison Resist"
+description = "+N Poison resistance"
+category = 17
+tags = Array[String](["resist", "elemental", "poison"])
+effect_min = 2.0
+effect_max = 40.0
+
+[sub_resource type="Resource" id="Resource_gkuj1"]
+script = ExtResource("1_d5ud6")
+affix_name = "Shadow Resist"
+description = "+N Shadow resistance"
+category = 18
+tags = Array[String](["resist", "elemental", "shadow"])
+effect_min = 2.0
+effect_max = 40.0
+
+[sub_resource type="Resource" id="Resource_p1jml"]
+script = ExtResource("1_d5ud6")
+affix_name = "Health Bonus"
+description = "+N maximum health"
+category = 28
+tags = Array[String](["defense", "health"])
+effect_min = 5.0
+effect_max = 250.0
+
+[sub_resource type="Resource" id="Resource_qfsry"]
+script = ExtResource("1_d5ud6")
+affix_name = "Heal after Combat"
+description = "Heal N after combat"
+category = 35
+tags = Array[String](["proc", "heal", "out_of_combat"])
+effect_min = 3.0
+effect_max = 50.0
+effect_data = {
+"effect": "heal_flat"
+}
+proc_trigger = 6
+
+[resource]
+script = ExtResource("4_l605t")
+table_name = "Defense Tier 1"
+description = "Base defense affixes, tier 1. Auto-generated."
+available_affixes = Array[ExtResource("1_d5ud6")]([SubResource("Resource_ne506"), SubResource("Resource_a886c"), SubResource("Resource_o0i68"), SubResource("Resource_gm7be"), SubResource("Resource_y1n70"), SubResource("Resource_ec1d0"), SubResource("Resource_gkuj1"), SubResource("Resource_p1jml"), SubResource("Resource_qfsry")])

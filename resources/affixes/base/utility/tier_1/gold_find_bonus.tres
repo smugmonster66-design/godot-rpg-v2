@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://d0s5k4opj6q62"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_xfl5y"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_js1ml"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_f14y3"]
+
+[resource]
+script = ExtResource("2_js1ml")
+affix_name = "Gold Find Bonus"
+description = "+N% gold from encounters"
+category = 36
+tags = Array[String](["out_of_combat", "gold"])
+effect_min = 0.05
+effect_max = 0.5

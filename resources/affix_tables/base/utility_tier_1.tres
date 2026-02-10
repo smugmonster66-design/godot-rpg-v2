@@ -1,0 +1,137 @@
+[gd_resource type="Resource" script_class="AffixTable" load_steps=20 format=3 uid="uid://bepi7jvks8fx"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_lnsfg"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_20ugn"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_ftfra"]
+[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="4_g0mpf"]
+
+[sub_resource type="Resource" id="Resource_ux136"]
+script = ExtResource("1_lnsfg")
+affix_name = "Mana Bonus"
+description = "+N maximum mana"
+category = 29
+tags = Array[String](["mana"])
+effect_min = 3.0
+effect_max = 80.0
+
+[sub_resource type="Resource" id="Resource_d007c"]
+script = ExtResource("1_lnsfg")
+affix_name = "Grant D4 (Neutral)"
+description = "Add a neutral D4 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "neutral"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_yotm6"]
+script = ExtResource("1_lnsfg")
+affix_name = "Grant D6 (Neutral)"
+description = "Add a neutral D6 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "neutral"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_tjb6b"]
+script = ExtResource("1_lnsfg")
+affix_name = "Grant Fire D4"
+description = "Add a Fire D4 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "fire"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_7cqci"]
+script = ExtResource("1_lnsfg")
+affix_name = "Grant Ice D4"
+description = "Add a Ice D4 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "ice"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_fy234"]
+script = ExtResource("1_lnsfg")
+affix_name = "Grant Shock D4"
+description = "Add a Shock D4 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "shock"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_l7fka"]
+script = ExtResource("1_lnsfg")
+affix_name = "Grant Poison D4"
+description = "Add a Poison D4 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "poison"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_kbfon"]
+script = ExtResource("1_lnsfg")
+affix_name = "Grant Shadow D4"
+description = "Add a Shadow D4 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "shadow"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_8y0lv"]
+script = ExtResource("1_lnsfg")
+affix_name = "Grant Slashing D4"
+description = "Add a Slashing D4 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "slashing"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_1f7m7"]
+script = ExtResource("1_lnsfg")
+affix_name = "Grant Blunt D4"
+description = "Add a Blunt D4 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "blunt"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_qkd0h"]
+script = ExtResource("1_lnsfg")
+affix_name = "Grant Piercing D4"
+description = "Add a Piercing D4 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "piercing"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_5y3yx"]
+script = ExtResource("1_lnsfg")
+affix_name = "Gold Find Bonus"
+description = "+N% gold from encounters"
+category = 36
+tags = Array[String](["out_of_combat", "gold"])
+effect_min = 0.05
+effect_max = 0.5
+
+[sub_resource type="Resource" id="Resource_la24x"]
+script = ExtResource("1_lnsfg")
+affix_name = "XP Find Bonus"
+description = "+N% experience from encounters"
+category = 36
+tags = Array[String](["out_of_combat", "xp"])
+effect_min = 0.05
+effect_max = 0.4
+
+[sub_resource type="Resource" id="Resource_r2kar"]
+script = ExtResource("1_lnsfg")
+affix_name = "Loot Find Bonus"
+description = "+N% loot drop chance"
+category = 36
+tags = Array[String](["out_of_combat", "loot"])
+effect_min = 0.05
+effect_max = 0.35
+
+[sub_resource type="Resource" id="Resource_eeqhl"]
+script = ExtResource("1_lnsfg")
+affix_name = "Rarity Find Bonus"
+description = "+N% chance for higher rarity drops"
+category = 36
+tags = Array[String](["out_of_combat", "loot", "rarity"])
+effect_min = 0.03
+effect_max = 0.25
+
+[resource]
+script = ExtResource("4_g0mpf")
+table_name = "Utility Tier 1"
+description = "Base utility affixes, tier 1. Auto-generated."
+available_affixes = Array[ExtResource("1_lnsfg")]([SubResource("Resource_ux136"), SubResource("Resource_d007c"), SubResource("Resource_yotm6"), SubResource("Resource_tjb6b"), SubResource("Resource_7cqci"), SubResource("Resource_fy234"), SubResource("Resource_l7fka"), SubResource("Resource_kbfon"), SubResource("Resource_8y0lv"), SubResource("Resource_1f7m7"), SubResource("Resource_qkd0h"), SubResource("Resource_5y3yx"), SubResource("Resource_la24x"), SubResource("Resource_r2kar"), SubResource("Resource_eeqhl")])

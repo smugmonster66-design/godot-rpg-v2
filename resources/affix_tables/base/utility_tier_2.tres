@@ -1,0 +1,195 @@
+[gd_resource type="Resource" script_class="AffixTable" load_steps=24 format=3 uid="uid://chcat14ipehjk"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_6rmh3"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_pynx3"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_r46xp"]
+[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="4_uile2"]
+
+[sub_resource type="Resource" id="Resource_hjfjs"]
+script = ExtResource("1_6rmh3")
+affix_name = "Mana Regen per Turn"
+description = "+N mana at start of each turn"
+category = 33
+tags = Array[String](["mana", "regen"])
+effect_min = 1.0
+effect_max = 15.0
+
+[sub_resource type="Resource" id="Resource_pxu80"]
+script = ExtResource("1_6rmh3")
+affix_name = "Mana Cost Reduction"
+description = "Reduce action mana costs by N"
+category = 36
+tags = Array[String](["mana"])
+effect_min = 1.0
+effect_max = 10.0
+
+[sub_resource type="Resource" id="Resource_alg2j"]
+script = ExtResource("1_6rmh3")
+affix_name = "Mana on Kill"
+description = "+N mana on kill"
+category = 35
+tags = Array[String](["proc", "mana", "on_kill"])
+effect_min = 1.0
+effect_max = 15.0
+effect_data = {
+"effect": "mana_restore"
+}
+proc_trigger = 9
+
+[sub_resource type="Resource" id="Resource_4hli2"]
+script = ExtResource("1_6rmh3")
+affix_name = "Grant D8 (Neutral)"
+description = "Add a neutral D8 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "neutral"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_rr8ob"]
+script = ExtResource("1_6rmh3")
+affix_name = "Grant D10 (Neutral)"
+description = "Add a neutral D10 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "neutral"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_jxe7v"]
+script = ExtResource("1_6rmh3")
+affix_name = "Grant Fire D6"
+description = "Add a Fire D6 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "fire"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_4kibg"]
+script = ExtResource("1_6rmh3")
+affix_name = "Grant Ice D6"
+description = "Add a Ice D6 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "ice"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_a8lj2"]
+script = ExtResource("1_6rmh3")
+affix_name = "Grant Shock D6"
+description = "Add a Shock D6 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "shock"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_odgrh"]
+script = ExtResource("1_6rmh3")
+affix_name = "Grant Poison D6"
+description = "Add a Poison D6 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "poison"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_o3mnk"]
+script = ExtResource("1_6rmh3")
+affix_name = "Grant Shadow D6"
+description = "Add a Shadow D6 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "shadow"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_1ns0b"]
+script = ExtResource("1_6rmh3")
+affix_name = "Grant Slashing D6"
+description = "Add a Slashing D6 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "slashing"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_u8q7q"]
+script = ExtResource("1_6rmh3")
+affix_name = "Grant Blunt D6"
+description = "Add a Blunt D6 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "blunt"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_ys3b2"]
+script = ExtResource("1_6rmh3")
+affix_name = "Grant Piercing D6"
+description = "Add a Piercing D6 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "piercing"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_6gocy"]
+script = ExtResource("1_6rmh3")
+affix_name = "Reroll Lowest Die"
+description = "Reroll your lowest die once per turn"
+category = 35
+tags = Array[String](["dice_manipulation"])
+effect_number = 1.0
+effect_data = {
+"effect": "reroll_lowest"
+}
+proc_trigger = 3
+
+[sub_resource type="Resource" id="Resource_yxgr5"]
+script = ExtResource("1_6rmh3")
+affix_name = "Bonus Die Value"
+description = "+N to all rolled die values"
+category = 36
+tags = Array[String](["dice_manipulation"])
+effect_min = 1.0
+effect_max = 3.0
+
+[sub_resource type="Resource" id="Resource_a7yom"]
+script = ExtResource("1_6rmh3")
+affix_name = "Starting Mana"
+description = "+N mana at combat start"
+category = 35
+tags = Array[String](["proc", "mana", "combat_start"])
+effect_min = 2.0
+effect_max = 20.0
+effect_data = {
+"effect": "mana_restore"
+}
+proc_trigger = 5
+
+[sub_resource type="Resource" id="Resource_pwu5e"]
+script = ExtResource("1_6rmh3")
+affix_name = "Extra Die on Turn Start"
+description = "Roll one additional die at turn start"
+category = 35
+tags = Array[String](["dice_manipulation"])
+effect_number = 1.0
+effect_data = {
+"effect": "grant_extra_die"
+}
+proc_trigger = 3
+
+[sub_resource type="Resource" id="Resource_rlvei"]
+script = ExtResource("1_6rmh3")
+affix_name = "Mana after Combat"
+description = "+N mana after combat"
+category = 35
+tags = Array[String](["proc", "mana", "out_of_combat"])
+effect_min = 2.0
+effect_max = 20.0
+effect_data = {
+"effect": "mana_restore"
+}
+proc_trigger = 6
+
+[sub_resource type="Resource" id="Resource_xc8f4"]
+script = ExtResource("1_6rmh3")
+affix_name = "Mana on Die Used"
+description = "+N mana when a die is consumed"
+category = 35
+tags = Array[String](["proc", "mana", "dice"])
+effect_min = 1.0
+effect_max = 8.0
+effect_data = {
+"effect": "mana_restore"
+}
+proc_trigger = 7
+
+[resource]
+script = ExtResource("4_uile2")
+table_name = "Utility Tier 2"
+description = "Base utility affixes, tier 2. Auto-generated."
+available_affixes = Array[ExtResource("1_6rmh3")]([SubResource("Resource_hjfjs"), SubResource("Resource_pxu80"), SubResource("Resource_alg2j"), SubResource("Resource_4hli2"), SubResource("Resource_rr8ob"), SubResource("Resource_jxe7v"), SubResource("Resource_4kibg"), SubResource("Resource_a8lj2"), SubResource("Resource_odgrh"), SubResource("Resource_o3mnk"), SubResource("Resource_1ns0b"), SubResource("Resource_u8q7q"), SubResource("Resource_ys3b2"), SubResource("Resource_6gocy"), SubResource("Resource_yxgr5"), SubResource("Resource_a7yom"), SubResource("Resource_pwu5e"), SubResource("Resource_rlvei"), SubResource("Resource_xc8f4")])

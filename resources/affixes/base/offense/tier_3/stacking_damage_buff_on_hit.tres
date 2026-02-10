@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://dli60r854j88k"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_mancs"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_pbxk5"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_asj4x"]
+
+[resource]
+script = ExtResource("2_pbxk5")
+affix_name = "Stacking Damage Buff on Hit"
+description = "+N damage per hit, stacks"
+category = 35
+tags = Array[String](["proc", "damage", "stacking", "on_hit"])
+effect_min = 1.0
+effect_max = 10.0
+effect_data = {
+"buff_category": "DAMAGE_BONUS",
+"effect": "stacking_buff"
+}
+proc_trigger = 1

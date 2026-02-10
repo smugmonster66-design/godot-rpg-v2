@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://ywyjlku2v5qs"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_5ffqr"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_x1dhx"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_fho4j"]
+
+[resource]
+script = ExtResource("2_x1dhx")
+affix_name = "Bonus Flat Damage on Hit"
+description = "+N bonus damage on each hit"
+category = 35
+tags = Array[String](["proc", "damage", "on_hit"])
+effect_min = 1.0
+effect_max = 25.0
+effect_data = {
+"effect": "bonus_damage_flat"
+}
+proc_trigger = 1

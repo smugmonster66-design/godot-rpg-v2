@@ -417,6 +417,27 @@ func get_rolled_value_string() -> String:
 	return "+%d" % int(effect_number)
 
 
+
+func get_resolved_description() -> String:
+	"""Get description with 'N' replaced by the actual rolled value.
+	
+	Handles formatting by category:
+	  - Multipliers: "×1.25"
+	  - Proc chances (0.0–1.0 range): "25%"
+	  - Flat bonuses: "7"
+	"""
+	if description.is_empty():
+		return ""
+	
+	var value_str: String
+	if _is_multiplier_category():
+		value_str = "%.2f" % effect_number
+	elif effect_number > 0.0 and effect_number < 1.0:
+		value_str = "%d%%" % int(effect_number * 100)
+	else:
+		value_str = str(int(effect_number))
+	
+	return description.replace("N", value_str)
 func _is_multiplier_category() -> bool:
 	"""Check if this affix's category is a multiplier type."""
 	return category in [

@@ -526,13 +526,10 @@ func _update_item_details():
 			child.queue_free()
 		
 		# ── Resolve EquippableItem reference ──
-		# Inventory stores Dictionaries (via to_dict()), but the EquippableItem
-		# is available via the "equippable_item" key when present.
+		# Inventory stores EquippableItem Resources directly (v3).
 		var equippable: EquippableItem = null
 		if selected_item is EquippableItem:
 			equippable = selected_item
-		elif selected_item is Dictionary and selected_item.has("equippable_item"):
-			equippable = selected_item.get("equippable_item")
 		
 		# ── Affix display (EquippableItem path) ──
 		if equippable:
@@ -570,11 +567,6 @@ func _update_item_details():
 			sell_label.add_theme_color_override("font_color", Color(0.8, 0.7, 0.3))
 			affix_container.add_child(sell_label)
 		
-		# ── Affix display (legacy Dictionary path — no EquippableItem ref) ──
-		elif selected_item is Dictionary and selected_item.has("affixes"):
-			for affix in selected_item.affixes:
-				var affix_display = _create_affix_display(affix)
-				affix_container.add_child(affix_display)
 		
 		# Show set info (works for both types)
 		var set_def: SetDefinition = _item_set_definition(selected_item)
@@ -641,12 +633,8 @@ func _update_item_details():
 				equip_btn.text = "Unequip"
 			else:
 				equip_btn.text = "Equip"
-				# Show requirement lock for EquippableItem (direct or dict-wrapped)
-				var eq_ref: EquippableItem = null
-				if selected_item is EquippableItem:
-					eq_ref = selected_item
-				elif selected_item is Dictionary and selected_item.has("equippable_item"):
-					eq_ref = selected_item.get("equippable_item")
+				# Show requirement lock for EquippableItem
+				var eq_ref: EquippableItem = selected_item if selected_item is EquippableItem else null
 				if eq_ref and player and not eq_ref.can_equip(player):
 					equip_btn.text = "Equip (Locked)"
 					equip_btn.disabled = true
@@ -686,7 +674,9 @@ func _apply_rarity_shader_to_texture_rect(tex_rect: TextureRect, item):
 	tex_rect.material = mat
 
 func _create_affix_display(affix: Dictionary) -> PanelContainer:
-	"""Create a display panel for a legacy Dictionary affix"""
+	"""LEGACY: Display panel for Dictionary-based affixes.
+	Equipment now uses _create_affix_display_from_affix(). This remains
+	for potential future Dictionary-based item types (consumables, quest items)."""
 	var panel = PanelContainer.new()
 	
 	var vbox = VBoxContainer.new()
@@ -722,7 +712,7 @@ func _create_affix_display_from_affix(affix: Affix, name_color: Color = Color(0.
 	
 	# Affix description
 	var desc_label = Label.new()
-	desc_label.text = affix.description if affix.description else ""
+	desc_label.text = affix.get_resolved_description()
 	desc_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(desc_label)
@@ -808,7 +798,6 @@ func _on_equip_item_pressed():
 	if _is_item_equipped(selected_item):
 		# Already equipped — unequip it
 		if selected_item is EquippableItem:
-			# Find which slot it's in
 			for slot in player.equipment:
 				if player.equipment[slot] == selected_item:
 					if player.unequip_item(slot):
@@ -816,13 +805,6 @@ func _on_equip_item_pressed():
 						data_changed.emit()
 						refresh()
 					break
-		elif selected_item is Dictionary:
-			# Legacy Dictionary path
-			var slot = selected_item.get("slot", "")
-			if player.unequip_item(slot):
-				print("✅ Unequipped: %s" % _item_name(selected_item))
-				data_changed.emit()
-				refresh()
 		return
 	
 	print("  Attempting to equip...")

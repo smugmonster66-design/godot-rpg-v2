@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://dus8fc86kvcx3"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_g2o6n"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_pkh63"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_nu2eb"]
+
+[resource]
+script = ExtResource("2_pkh63")
+affix_name = "Armor Bonus"
+description = "+N Armor"
+category = 13
+tags = Array[String](["defense", "armor", "physical"])
+effect_min = 2.0
+effect_max = 80.0

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://jhsm16n06ud6"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_w57j5"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_x7x5k"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_1vw6n"]
+
+[resource]
+script = ExtResource("2_x7x5k")
+affix_name = "Poison Resist"
+description = "+N Poison resistance"
+category = 17
+tags = Array[String](["resist", "elemental", "poison"])
+effect_min = 2.0
+effect_max = 40.0

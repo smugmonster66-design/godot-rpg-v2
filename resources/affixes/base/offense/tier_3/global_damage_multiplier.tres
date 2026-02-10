@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://pgflqrdp3ayd"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_mk81j"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_2y7lk"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_i5dry"]
+
+[resource]
+script = ExtResource("2_2y7lk")
+affix_name = "Global Damage Multiplier"
+description = "×N all damage dealt"
+category = 10
+tags = Array[String](["damage", "multiplier"])
+effect_min = 1.05
+effect_max = 1.6

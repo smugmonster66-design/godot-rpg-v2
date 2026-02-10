@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://dq5sc08wxn0qb"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_j0x3f"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_d6uvy"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_ubdnl"]
+
+[resource]
+script = ExtResource("2_d6uvy")
+affix_name = "Granted Utility Action"
+description = "Grants a bonus utility action"
+category = 31
+tags = Array[String](["action_grant", "utility"])
+effect_number = 1.0

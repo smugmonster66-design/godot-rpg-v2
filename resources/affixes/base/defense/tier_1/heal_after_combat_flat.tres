@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://dhy55g4tugb3x"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_kw0cn"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_p2jhe"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_uetuh"]
+
+[resource]
+script = ExtResource("2_p2jhe")
+affix_name = "Heal after Combat"
+description = "Heal N after combat"
+category = 35
+tags = Array[String](["proc", "heal", "out_of_combat"])
+effect_min = 3.0
+effect_max = 50.0
+effect_data = {
+"effect": "heal_flat"
+}
+proc_trigger = 6

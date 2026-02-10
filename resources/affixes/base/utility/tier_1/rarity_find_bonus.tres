@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://bxtn27dcgtwoa"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_aexg2"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_mp0hs"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_s2nog"]
+
+[resource]
+script = ExtResource("2_mp0hs")
+affix_name = "Rarity Find Bonus"
+description = "+N% chance for higher rarity drops"
+category = 36
+tags = Array[String](["out_of_combat", "loot", "rarity"])
+effect_min = 0.03
+effect_max = 0.25

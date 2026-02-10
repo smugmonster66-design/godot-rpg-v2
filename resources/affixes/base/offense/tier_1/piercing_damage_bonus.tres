@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://onwd3d2dhnid"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_m1ey0"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_slhgh"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_raowh"]
+
+[resource]
+script = ExtResource("2_slhgh")
+affix_name = "Piercing Damage Bonus"
+description = "+N Piercing damage"
+category = 21
+tags = Array[String](["damage", "physical", "piercing"])
+effect_min = 1.0
+effect_max = 25.0

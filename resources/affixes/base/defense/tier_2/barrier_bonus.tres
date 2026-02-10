@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://dsyr3kfp5cy73"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_f6a4k"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_wsi86"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_pseqj"]
+
+[resource]
+script = ExtResource("2_wsi86")
+affix_name = "Barrier Bonus"
+description = "+N Barrier"
+category = 27
+tags = Array[String](["defense", "barrier"])
+effect_min = 3.0
+effect_max = 120.0

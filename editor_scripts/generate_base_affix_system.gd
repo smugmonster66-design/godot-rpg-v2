@@ -45,6 +45,7 @@ func _run() -> void:
 	var updated := 0
 	
 	for entry in catalog:
+		print("  Creating: %s" % entry.file_name)
 		var result = _create_or_update_affix(entry)
 		if result.resource:
 			var key := "%s_%d" % [entry.family, entry.tier]
@@ -101,6 +102,8 @@ func _ensure_dirs() -> void:
 # AFFIX CREATION
 # ============================================================================
 
+
+
 func _create_or_update_affix(entry: Dictionary) -> Dictionary:
 	var family: String = entry.family
 	var tier: int = entry.tier
@@ -118,40 +121,53 @@ func _create_or_update_affix(entry: Dictionary) -> Dictionary:
 		was_created = true
 	
 	# Set/update core properties
+	print("    → setting name")
 	affix.affix_name = entry.affix_name
+	print("    → setting description")
 	affix.description = entry.description
+	print("    → setting category")
 	affix.category = entry.category
 	
-	# Set scaling range (the key addition)
+	# Set scaling range
+	print("    → setting effect_min/max")
 	affix.effect_min = entry.get("effect_min", 0.0)
 	affix.effect_max = entry.get("effect_max", 0.0)
 	
 	# Static fallback for non-scaling affixes
 	if entry.has("effect_number"):
+		print("    → setting effect_number")
 		affix.effect_number = entry.effect_number
 	
 	# Proc configuration
 	if entry.has("proc_trigger"):
+		print("    → setting proc_trigger")
 		affix.proc_trigger = entry.proc_trigger
 	if entry.has("proc_chance_min"):
-		# For procs, we scale proc_chance via effect_min/max
-		# effect_number gets rolled between these at item creation
+		print("    → setting proc_chance via effect_min/max")
 		affix.effect_min = entry.proc_chance_min
 		affix.effect_max = entry.proc_chance_max
 	if entry.has("effect_data") and affix.effect_data.is_empty():
+		print("    → setting effect_data")
 		affix.effect_data = entry.effect_data
 	
-	# Tags
+	# Tags — convert untyped Array to Array[String]
 	if entry.has("tags"):
-		affix.tags = entry.tags
+		print("    → setting tags")
+		var typed_tags: Array[String] = []
+		typed_tags.assign(entry.tags)
+		affix.tags = typed_tags
 	
 	# Save
+	print("    → saving to %s" % path)
 	var err := ResourceSaver.save(affix, path)
 	if err != OK:
 		push_error("Failed to save affix: %s (error %d)" % [path, err])
 		return {"resource": null, "was_created": false}
 	
+	print("    ✓ %s" % entry.affix_name)
 	return {"resource": affix, "was_created": was_created}
+
+
 
 # ============================================================================
 # TABLE CREATION

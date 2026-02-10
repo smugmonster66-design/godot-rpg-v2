@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://ctyj0qsv2nqjq"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_f3tn4"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_nsqwt"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_is4yb"]
+
+[resource]
+script = ExtResource("2_nsqwt")
+affix_name = "Granted Offensive Action"
+description = "Grants a bonus attack action"
+category = 31
+tags = Array[String](["action_grant", "offensive"])
+effect_number = 1.0

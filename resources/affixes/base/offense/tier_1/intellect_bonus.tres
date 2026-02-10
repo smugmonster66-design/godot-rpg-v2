@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://cpebgbfs43oxc"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_tuy6r"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_cc1gs"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_01cff"]
+
+[resource]
+script = ExtResource("2_cc1gs")
+affix_name = "Intellect Bonus"
+description = "+N Intellect"
+category = 3
+tags = Array[String](["stat", "magical"])
+effect_min = 1.0
+effect_max = 50.0

@@ -1,0 +1,227 @@
+[gd_resource type="Resource" script_class="AffixTable" load_steps=22 format=3 uid="uid://cb4fagot2ha1m"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_n2lnf"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_mp1cq"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_5a6uv"]
+[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="4_c2uac"]
+
+[sub_resource type="Resource" id="Resource_wnn8b"]
+script = ExtResource("1_n2lnf")
+affix_name = "Global Damage Multiplier"
+description = "×N all damage dealt"
+category = 10
+tags = Array[String](["damage", "multiplier"])
+effect_min = 1.05
+effect_max = 1.6
+
+[sub_resource type="Resource" id="Resource_q1mtn"]
+script = ExtResource("1_n2lnf")
+affix_name = "Lifesteal"
+description = "Heal N% of damage dealt on hit"
+category = 35
+tags = Array[String](["proc", "heal", "on_hit"])
+effect_min = 0.03
+effect_max = 0.2
+effect_data = {
+"effect": "heal_percent_damage"
+}
+proc_trigger = 1
+
+[sub_resource type="Resource" id="Resource_rfc4x"]
+script = ExtResource("1_n2lnf")
+affix_name = "Bonus % Damage on Hit"
+description = "+N% bonus damage on each hit"
+category = 35
+tags = Array[String](["proc", "damage", "on_hit"])
+effect_min = 0.05
+effect_max = 0.25
+effect_data = {
+"effect": "bonus_damage_percent"
+}
+proc_trigger = 1
+
+[sub_resource type="Resource" id="Resource_7vg4j"]
+script = ExtResource("1_n2lnf")
+affix_name = "Stacking Damage Buff on Hit"
+description = "+N damage per hit, stacks"
+category = 35
+tags = Array[String](["proc", "damage", "stacking", "on_hit"])
+effect_min = 1.0
+effect_max = 10.0
+effect_data = {
+"buff_category": "DAMAGE_BONUS",
+"effect": "stacking_buff"
+}
+proc_trigger = 1
+
+[sub_resource type="Resource" id="Resource_mormx"]
+script = ExtResource("1_n2lnf")
+affix_name = "Temp Dice Affix on Hit"
+description = "Grant temp dice modifier on hit"
+category = 35
+tags = Array[String](["proc", "dice", "on_hit"])
+effect_number = 1.0
+effect_data = {
+"effect": "grant_temp_dice_affix"
+}
+proc_trigger = 1
+
+[sub_resource type="Resource" id="Resource_l5q5c"]
+script = ExtResource("1_n2lnf")
+affix_name = "Apply Shadow on Hit"
+description = "N% chance to Shadow on hit"
+category = 35
+tags = Array[String](["proc", "status", "shadow", "on_hit"])
+effect_min = 0.08
+effect_max = 0.4
+effect_data = {
+"effect": "apply_status",
+"status": "shadow"
+}
+proc_trigger = 1
+
+[sub_resource type="Resource" id="Resource_x8tdd"]
+script = ExtResource("1_n2lnf")
+affix_name = "Apply Slowed on Hit"
+description = "N% chance to Slow on hit"
+category = 35
+tags = Array[String](["proc", "status", "on_hit"])
+effect_min = 0.08
+effect_max = 0.4
+effect_data = {
+"effect": "apply_status",
+"status": "slowed"
+}
+proc_trigger = 1
+
+[sub_resource type="Resource" id="Resource_x0usp"]
+script = ExtResource("1_n2lnf")
+affix_name = "Apply Corrode on Hit"
+description = "N% chance to Corrode on hit"
+category = 35
+tags = Array[String](["proc", "status", "on_hit"])
+effect_min = 0.08
+effect_max = 0.4
+effect_data = {
+"effect": "apply_status",
+"status": "corrode"
+}
+proc_trigger = 1
+
+[sub_resource type="Resource" id="Resource_7jdf0"]
+script = ExtResource("1_n2lnf")
+affix_name = "Apply Enfeeble on Hit"
+description = "N% chance to Enfeeble on hit"
+category = 35
+tags = Array[String](["proc", "status", "on_hit"])
+effect_min = 0.08
+effect_max = 0.4
+effect_data = {
+"effect": "apply_status",
+"status": "enfeeble"
+}
+proc_trigger = 1
+
+[sub_resource type="Resource" id="Resource_cptgi"]
+script = ExtResource("1_n2lnf")
+affix_name = "Apply Expose on Hit"
+description = "N% chance to Expose on hit"
+category = 35
+tags = Array[String](["proc", "status", "on_hit"])
+effect_min = 0.08
+effect_max = 0.4
+effect_data = {
+"effect": "apply_status",
+"status": "expose"
+}
+proc_trigger = 1
+
+[sub_resource type="Resource" id="Resource_efiwt"]
+script = ExtResource("1_n2lnf")
+affix_name = "Stacking Buff per Die Used"
+description = "+N damage stack per die used"
+category = 35
+tags = Array[String](["proc", "stacking", "dice"])
+effect_min = 1.0
+effect_max = 8.0
+effect_data = {
+"effect": "stacking_buff"
+}
+proc_trigger = 7
+
+[sub_resource type="Resource" id="Resource_p4u3s"]
+script = ExtResource("1_n2lnf")
+affix_name = "Apply Status per Die Used"
+description = "Apply status when consuming dice"
+category = 35
+tags = Array[String](["proc", "status", "dice"])
+effect_min = 0.1
+effect_max = 0.4
+effect_data = {
+"effect": "apply_status"
+}
+proc_trigger = 7
+
+[sub_resource type="Resource" id="Resource_ey7cw"]
+script = ExtResource("1_n2lnf")
+affix_name = "Apply Status per Action"
+description = "Chance to apply status per action"
+category = 35
+tags = Array[String](["proc", "status"])
+effect_min = 0.1
+effect_max = 0.4
+effect_data = {
+"effect": "apply_status"
+}
+proc_trigger = 8
+
+[sub_resource type="Resource" id="Resource_uoh2c"]
+script = ExtResource("1_n2lnf")
+affix_name = "Temp Buff per Action"
+description = "Gain temp buff after each action"
+category = 35
+tags = Array[String](["proc", "buff"])
+effect_number = 1.0
+effect_data = {
+"effect": "temp_affix"
+}
+proc_trigger = 8
+
+[sub_resource type="Resource" id="Resource_4r8tp"]
+script = ExtResource("1_n2lnf")
+affix_name = "Stacking Buff on Kill"
+description = "Gain stacking damage buff on kill"
+category = 35
+tags = Array[String](["proc", "stacking", "on_kill"])
+effect_min = 1.0
+effect_max = 10.0
+effect_data = {
+"effect": "stacking_buff"
+}
+proc_trigger = 9
+
+[sub_resource type="Resource" id="Resource_05a3n"]
+script = ExtResource("1_n2lnf")
+affix_name = "Temp Buff on Kill"
+description = "Gain temporary combat buff on kill"
+category = 35
+tags = Array[String](["proc", "buff", "on_kill"])
+effect_number = 1.0
+effect_data = {
+"effect": "temp_affix"
+}
+proc_trigger = 9
+
+[sub_resource type="Resource" id="Resource_kfsi4"]
+script = ExtResource("1_n2lnf")
+affix_name = "Granted Offensive Action"
+description = "Grants a bonus attack action"
+category = 31
+tags = Array[String](["action_grant", "offensive"])
+effect_number = 1.0
+
+[resource]
+script = ExtResource("4_c2uac")
+table_name = "Offense Tier 3"
+description = "Base offense affixes, tier 3. Auto-generated."
+available_affixes = Array[ExtResource("1_n2lnf")]([SubResource("Resource_wnn8b"), SubResource("Resource_q1mtn"), SubResource("Resource_rfc4x"), SubResource("Resource_7vg4j"), SubResource("Resource_mormx"), SubResource("Resource_l5q5c"), SubResource("Resource_x8tdd"), SubResource("Resource_x0usp"), SubResource("Resource_7jdf0"), SubResource("Resource_cptgi"), SubResource("Resource_efiwt"), SubResource("Resource_p4u3s"), SubResource("Resource_ey7cw"), SubResource("Resource_uoh2c"), SubResource("Resource_4r8tp"), SubResource("Resource_05a3n"), SubResource("Resource_kfsi4")])

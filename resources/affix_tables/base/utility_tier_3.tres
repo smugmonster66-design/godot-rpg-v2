@@ -1,0 +1,267 @@
+[gd_resource type="Resource" script_class="AffixTable" load_steps=35 format=3 uid="uid://bpjwlymtq5ikl"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_w7k3p"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_73ilr"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_4vxal"]
+[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="4_nu6vt"]
+
+[sub_resource type="Resource" id="Resource_12hlg"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant D12 (Neutral)"
+description = "Add a neutral D12 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "neutral"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_13vce"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Fire D8"
+description = "Add a Fire D8 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "fire"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_na4i5"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Ice D8"
+description = "Add a Ice D8 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "ice"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_fy43u"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Shock D8"
+description = "Add a Shock D8 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "shock"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_k2yf1"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Poison D8"
+description = "Add a Poison D8 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "poison"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_fsran"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Shadow D8"
+description = "Add a Shadow D8 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "shadow"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_4fe4g"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Slashing D8"
+description = "Add a Slashing D8 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "slashing"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_j16bp"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Blunt D8"
+description = "Add a Blunt D8 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "blunt"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_j6rit"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Piercing D8"
+description = "Add a Piercing D8 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "piercing"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_brveq"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Fire D10"
+description = "Add a Fire D10 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "fire"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_fedu1"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Ice D10"
+description = "Add a Ice D10 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "ice"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_csatq"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Shock D10"
+description = "Add a Shock D10 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "shock"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_cneut"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Poison D10"
+description = "Add a Poison D10 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "poison"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_c5ru6"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Shadow D10"
+description = "Add a Shadow D10 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "shadow"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_6e3nv"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Slashing D10"
+description = "Add a Slashing D10 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "slashing"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_1i01y"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Blunt D10"
+description = "Add a Blunt D10 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "blunt"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_wxl7y"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Piercing D10"
+description = "Add a Piercing D10 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "piercing"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_28d7i"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Fire D12"
+description = "Add a Fire D12 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "fire"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_tliii"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Ice D12"
+description = "Add a Ice D12 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "ice"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_kuy7u"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Shock D12"
+description = "Add a Shock D12 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "shock"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_pr1b5"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Poison D12"
+description = "Add a Poison D12 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "poison"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_ehtyj"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Shadow D12"
+description = "Add a Shadow D12 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "shadow"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_6yh2l"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Slashing D12"
+description = "Add a Slashing D12 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "slashing"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_wo74t"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Blunt D12"
+description = "Add a Blunt D12 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "blunt"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_amn3h"]
+script = ExtResource("1_w7k3p")
+affix_name = "Grant Piercing D12"
+description = "Add a Piercing D12 to your dice pool"
+category = 32
+tags = Array[String](["dice_grant", "piercing"])
+effect_number = 1.0
+
+[sub_resource type="Resource" id="Resource_4cy1e"]
+script = ExtResource("1_w7k3p")
+affix_name = "Reroll Any Die"
+description = "Reroll one die of your choice per turn"
+category = 35
+tags = Array[String](["dice_manipulation"])
+effect_number = 1.0
+effect_data = {
+"effect": "reroll_any"
+}
+proc_trigger = 3
+
+[sub_resource type="Resource" id="Resource_22vsf"]
+script = ExtResource("1_w7k3p")
+affix_name = "Bonus Die Value %"
+description = "+N% to all rolled die values"
+category = 36
+tags = Array[String](["dice_manipulation"])
+effect_min = 0.05
+effect_max = 0.3
+
+[sub_resource type="Resource" id="Resource_4w1sm"]
+script = ExtResource("1_w7k3p")
+affix_name = "Duplicate Die on Max Roll"
+description = "N% chance to duplicate die on max value"
+category = 35
+tags = Array[String](["dice_manipulation"])
+effect_min = 0.1
+effect_max = 0.35
+effect_data = {
+"condition": "max_roll",
+"effect": "duplicate_die"
+}
+proc_trigger = 7
+
+[sub_resource type="Resource" id="Resource_7s45x"]
+script = ExtResource("1_w7k3p")
+affix_name = "Convert Die Element"
+description = "Convert one die per turn to equipped element"
+category = 35
+tags = Array[String](["dice_manipulation", "elemental"])
+effect_number = 1.0
+effect_data = {
+"effect": "convert_element"
+}
+proc_trigger = 3
+
+[sub_resource type="Resource" id="Resource_4bith"]
+script = ExtResource("1_w7k3p")
+affix_name = "Granted Utility Action"
+description = "Grants a bonus utility action"
+category = 31
+tags = Array[String](["action_grant", "utility"])
+effect_number = 1.0
+
+[resource]
+script = ExtResource("4_nu6vt")
+table_name = "Utility Tier 3"
+description = "Base utility affixes, tier 3. Auto-generated."
+available_affixes = Array[ExtResource("1_w7k3p")]([SubResource("Resource_12hlg"), SubResource("Resource_13vce"), SubResource("Resource_na4i5"), SubResource("Resource_fy43u"), SubResource("Resource_k2yf1"), SubResource("Resource_fsran"), SubResource("Resource_4fe4g"), SubResource("Resource_j16bp"), SubResource("Resource_j6rit"), SubResource("Resource_brveq"), SubResource("Resource_fedu1"), SubResource("Resource_csatq"), SubResource("Resource_cneut"), SubResource("Resource_c5ru6"), SubResource("Resource_6e3nv"), SubResource("Resource_1i01y"), SubResource("Resource_wxl7y"), SubResource("Resource_28d7i"), SubResource("Resource_tliii"), SubResource("Resource_kuy7u"), SubResource("Resource_pr1b5"), SubResource("Resource_ehtyj"), SubResource("Resource_6yh2l"), SubResource("Resource_wo74t"), SubResource("Resource_amn3h"), SubResource("Resource_4cy1e"), SubResource("Resource_22vsf"), SubResource("Resource_4w1sm"), SubResource("Resource_7s45x"), SubResource("Resource_4bith")])

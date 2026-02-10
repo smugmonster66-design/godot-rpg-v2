@@ -8,6 +8,13 @@
 #   - Added get_item_level_for_region() helper
 #   - All existing callers continue working (new params have defaults)
 #
+# v3 CHANGELOG (EquippableItem Direct):
+#   - _process_item_drop() now returns EquippableItem in result["item"]
+#     instead of a Dictionary from to_dict()
+#   - generate_drop() returns EquippableItem in result["item"]
+#   - Consumers should access result["item"].item_name instead of
+#     result["item"]["name"], etc.
+#   - preview_rolls() updated for EquippableItem access
 extends Node
 
 # All loaded loot tables indexed by name
@@ -191,15 +198,12 @@ func generate_drop(item_template: EquippableItem, source_level: int,
 	# Roll affixes
 	item.initialize_affixes()
 	
-	var item_dict := item.to_dict()
-	item_dict["item_affixes"] = item.get_all_affixes()
-	
 	print("  🎁 Generated: %s Lv.%d (%s, R%d)" % [
 		item.item_name, item.item_level, item.get_rarity_name(), item.region])
 	
 	return {
 		"type": "item",
-		"item": item_dict,
+		"item": item,
 		"quantity": 1,
 		"source": "generated"
 	}
@@ -375,10 +379,6 @@ func _process_item_drop(drop: LootDrop, source: String,
 	# Initialize affixes (now uses item_level for scaling)
 	item.initialize_affixes()
 	
-	# Convert to dictionary
-	var item_dict = item.to_dict()
-	item_dict["item_affixes"] = item.get_all_affixes()
-	
 	# Get quantity
 	var quantity = drop.get_quantity()
 	
@@ -388,7 +388,7 @@ func _process_item_drop(drop: LootDrop, source: String,
 	
 	return {
 		"type": "item",
-		"item": item_dict,
+		"item": item,
 		"quantity": quantity,
 		"source": source
 	}
@@ -464,8 +464,9 @@ func preview_rolls(table_name: String, num_simulations: int = 100) -> Dictionary
 				var amount = result.get("amount", 0)
 				stats["Gold"] = stats.get("Gold", 0) + amount
 			elif result.get("type") == "item":
-				var item_name = result.get("item", {}).get("name", "Unknown")
-				stats[item_name] = stats.get(item_name, 0) + 1
+				var drop_item = result.get("item")
+				var drop_name = drop_item.item_name if drop_item is EquippableItem else "Unknown"
+				stats[drop_name] = stats.get(drop_name, 0) + 1
 	
 	print("=== Preview: %s (%d rolls) ===" % [table_name, num_simulations])
 	for key in stats:

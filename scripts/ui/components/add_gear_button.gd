@@ -1,5 +1,5 @@
 # add_starting_gear_button.gd - Button to add configured starting items to player
-# v3 — Adds EquippableItem directly to inventory (no Dictionary conversion).
+# v3 — Routes items through LootManager.generate_drop() for full pipeline.
 extends Button
 
 # ============================================================================
@@ -8,10 +8,15 @@ extends Button
 @export_group("Starting Items")
 @export var starting_items: Array[EquippableItem] = []
 
+@export_group("Drop Settings")
+## Item level for generated drops. Higher = stronger affix rolls.
+@export_range(1, 100) var drop_item_level: int = 15
+## Region stamp (1-6). Affects regional affix distribution when implemented.
+@export_range(1, 6) var drop_region: int = 1
+
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
-
 func _ready():
 	pressed.connect(_on_pressed)
 	
@@ -24,9 +29,8 @@ func _ready():
 # ============================================================================
 # BUTTON LOGIC
 # ============================================================================
-
 func _on_pressed():
-	"""Add all configured items to player inventory as EquippableItem instances."""
+	"""Add all configured items to player inventory via LootManager pipeline."""
 	if not GameManager or not GameManager.player:
 		print("❌ No player found!")
 		return
@@ -35,7 +39,7 @@ func _on_pressed():
 		print("⚠️  No starting items configured on button")
 		return
 	
-	print("🎒 Adding starting gear from button...")
+	print("🎒 Adding starting gear (Lv.%d, R%d)..." % [drop_item_level, drop_region])
 	
 	var items_added = 0
 	for item_template in starting_items:
@@ -43,16 +47,23 @@ func _on_pressed():
 			print("  ⚠️  Null item in array - skipping")
 			continue
 		
-		# Create a fresh copy (important for independent affix rolls)
-		var item_copy: EquippableItem = item_template.duplicate(true)
+		# Route through full loot pipeline: duplicate + stamp + roll
+		var result = LootManager.generate_drop(item_template, drop_item_level, drop_region)
+		var item: EquippableItem = result.get("item")
 		
-		# Initialize affixes (rolls values, creates runtime dice)
-		item_copy.initialize_affixes()
+		if not item:
+			print("  ❌ generate_drop failed for %s" % item_template.item_name)
+			continue
 		
-		# Add directly to player inventory as EquippableItem
-		GameManager.player.add_to_inventory(item_copy)
+		GameManager.player.add_to_inventory(item)
 		
-		print("  ✅ Added %s (%s) to inventory" % [item_copy.item_name, item_copy.get_rarity_name()])
+		var affix_count = item.item_affixes.size()
+		print("  ✅ %s (Lv.%d, %s) — %d affixes" % [
+			item.item_name, item.item_level,
+			EquippableItem.Rarity.keys()[item.rarity], affix_count])
+		for affix in item.item_affixes:
+			if affix:
+				print("      → %s: %s" % [affix.affix_name, affix.get_rolled_value_string()])
 		items_added += 1
 	
 	print("🎒 Finished adding %d items" % items_added)

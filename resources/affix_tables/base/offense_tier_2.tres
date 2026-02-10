@@ -1,0 +1,201 @@
+[gd_resource type="Resource" script_class="AffixTable" load_steps=22 format=3 uid="uid://crb15k3pbxl6w"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_egrdb"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_1v24m"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_i6b7n"]
+[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="4_rj7fu"]
+
+[sub_resource type="Resource" id="Resource_pow82"]
+script = ExtResource("1_egrdb")
+affix_name = "Strength Multiplier"
+description = "×N Strength"
+category = 5
+tags = Array[String](["stat", "multiplier", "physical"])
+effect_min = 1.02
+effect_max = 1.5
+
+[sub_resource type="Resource" id="Resource_uo4su"]
+script = ExtResource("1_egrdb")
+affix_name = "Agility Multiplier"
+description = "×N Agility"
+category = 6
+tags = Array[String](["stat", "multiplier", "physical"])
+effect_min = 1.02
+effect_max = 1.5
+
+[sub_resource type="Resource" id="Resource_wlppy"]
+script = ExtResource("1_egrdb")
+affix_name = "Intellect Multiplier"
+description = "×N Intellect"
+category = 7
+tags = Array[String](["stat", "multiplier", "magical"])
+effect_min = 1.02
+effect_max = 1.5
+
+[sub_resource type="Resource" id="Resource_4egqh"]
+script = ExtResource("1_egrdb")
+affix_name = "Luck Multiplier"
+description = "×N Luck"
+category = 8
+tags = Array[String](["stat", "multiplier"])
+effect_min = 1.02
+effect_max = 1.5
+
+[sub_resource type="Resource" id="Resource_8wenr"]
+script = ExtResource("1_egrdb")
+affix_name = "Fire Damage Bonus"
+description = "+N Fire damage"
+category = 22
+tags = Array[String](["damage", "elemental", "fire"])
+effect_min = 1.0
+effect_max = 30.0
+
+[sub_resource type="Resource" id="Resource_agta1"]
+script = ExtResource("1_egrdb")
+affix_name = "Ice Damage Bonus"
+description = "+N Ice damage"
+category = 23
+tags = Array[String](["damage", "elemental", "ice"])
+effect_min = 1.0
+effect_max = 30.0
+
+[sub_resource type="Resource" id="Resource_1towg"]
+script = ExtResource("1_egrdb")
+affix_name = "Shock Damage Bonus"
+description = "+N Shock damage"
+category = 24
+tags = Array[String](["damage", "elemental", "shock"])
+effect_min = 1.0
+effect_max = 30.0
+
+[sub_resource type="Resource" id="Resource_eg3bn"]
+script = ExtResource("1_egrdb")
+affix_name = "Poison Damage Bonus"
+description = "+N Poison damage"
+category = 25
+tags = Array[String](["damage", "elemental", "poison"])
+effect_min = 1.0
+effect_max = 30.0
+
+[sub_resource type="Resource" id="Resource_pyit5"]
+script = ExtResource("1_egrdb")
+affix_name = "Shadow Damage Bonus"
+description = "+N Shadow damage"
+category = 26
+tags = Array[String](["damage", "elemental", "shadow"])
+effect_min = 1.0
+effect_max = 30.0
+
+[sub_resource type="Resource" id="Resource_8snm3"]
+script = ExtResource("1_egrdb")
+affix_name = "Bonus Flat Damage on Hit"
+description = "+N bonus damage on each hit"
+category = 35
+tags = Array[String](["proc", "damage", "on_hit"])
+effect_min = 1.0
+effect_max = 25.0
+effect_data = {
+"effect": "bonus_damage_flat"
+}
+proc_trigger = 1
+
+[sub_resource type="Resource" id="Resource_6e3ym"]
+script = ExtResource("1_egrdb")
+affix_name = "Apply Poison on Hit"
+description = "N% chance to Poison on hit"
+category = 35
+tags = Array[String](["proc", "status", "poison", "on_hit"])
+effect_min = 0.1
+effect_max = 0.5
+effect_data = {
+"effect": "apply_status",
+"status": "poison"
+}
+proc_trigger = 1
+
+[sub_resource type="Resource" id="Resource_yt1vn"]
+script = ExtResource("1_egrdb")
+affix_name = "Apply Burn on Hit"
+description = "N% chance to Burn on hit"
+category = 35
+tags = Array[String](["proc", "status", "fire", "on_hit"])
+effect_min = 0.1
+effect_max = 0.5
+effect_data = {
+"effect": "apply_status",
+"status": "burn"
+}
+proc_trigger = 1
+
+[sub_resource type="Resource" id="Resource_1bbsd"]
+script = ExtResource("1_egrdb")
+affix_name = "Apply Bleed on Hit"
+description = "N% chance to Bleed on hit"
+category = 35
+tags = Array[String](["proc", "status", "physical", "on_hit"])
+effect_min = 0.1
+effect_max = 0.5
+effect_data = {
+"effect": "apply_status",
+"status": "bleed"
+}
+proc_trigger = 1
+
+[sub_resource type="Resource" id="Resource_syi2e"]
+script = ExtResource("1_egrdb")
+affix_name = "Apply Chill on Hit"
+description = "N% chance to Chill on hit"
+category = 35
+tags = Array[String](["proc", "status", "ice", "on_hit"])
+effect_min = 0.1
+effect_max = 0.5
+effect_data = {
+"effect": "apply_status",
+"status": "chill"
+}
+proc_trigger = 1
+
+[sub_resource type="Resource" id="Resource_paso3"]
+script = ExtResource("1_egrdb")
+affix_name = "Bonus Damage per Die Used"
+description = "+N damage each time a die is consumed"
+category = 35
+tags = Array[String](["proc", "damage", "dice"])
+effect_min = 1.0
+effect_max = 15.0
+effect_data = {
+"effect": "bonus_damage_flat"
+}
+proc_trigger = 7
+
+[sub_resource type="Resource" id="Resource_owga5"]
+script = ExtResource("1_egrdb")
+affix_name = "Bonus Damage per Action"
+description = "+N damage per action executed"
+category = 35
+tags = Array[String](["proc", "damage"])
+effect_min = 1.0
+effect_max = 20.0
+effect_data = {
+"effect": "bonus_damage_flat"
+}
+proc_trigger = 8
+
+[sub_resource type="Resource" id="Resource_e3l6n"]
+script = ExtResource("1_egrdb")
+affix_name = "Bonus Damage on Kill"
+description = "+N damage on next attack after kill"
+category = 35
+tags = Array[String](["proc", "damage", "on_kill"])
+effect_min = 2.0
+effect_max = 30.0
+effect_data = {
+"effect": "bonus_damage_flat"
+}
+proc_trigger = 9
+
+[resource]
+script = ExtResource("4_rj7fu")
+table_name = "Offense Tier 2"
+description = "Base offense affixes, tier 2. Auto-generated."
+available_affixes = Array[ExtResource("1_egrdb")]([SubResource("Resource_pow82"), SubResource("Resource_uo4su"), SubResource("Resource_wlppy"), SubResource("Resource_4egqh"), SubResource("Resource_8wenr"), SubResource("Resource_agta1"), SubResource("Resource_1towg"), SubResource("Resource_eg3bn"), SubResource("Resource_pyit5"), SubResource("Resource_8snm3"), SubResource("Resource_6e3ym"), SubResource("Resource_yt1vn"), SubResource("Resource_1bbsd"), SubResource("Resource_syi2e"), SubResource("Resource_paso3"), SubResource("Resource_owga5"), SubResource("Resource_e3l6n")])

@@ -206,7 +206,7 @@ func _add_affix_label(container: VBoxContainer, affix: Affix, color: Color):
 	vbox.add_child(name_label)
 	
 	var desc_label = Label.new()
-	desc_label.text = affix.description
+	desc_label.text = affix.get_resolved_description()
 	desc_label.add_theme_font_size_override("font_size", 12)
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(desc_label)
