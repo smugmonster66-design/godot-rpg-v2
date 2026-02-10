@@ -17,7 +17,7 @@ skill_id = "flame_kindling"
 skill_name = "Kindling"
 description = "Fire mana die placed adjacent to another fire die gains [color=yellow]+1 value[/color]."
 tier = 2
-column = 3
+column = 4
 prerequisites = Array[ExtResource("1_3thcy")]([SubResource("Resource_i2fsu")])
 rank_1_affixes = Array[ExtResource("2_ktnb2")]([ExtResource("4_pqifq")])
 metadata/_custom_type_script = "uid://bd327xjbfmua2"

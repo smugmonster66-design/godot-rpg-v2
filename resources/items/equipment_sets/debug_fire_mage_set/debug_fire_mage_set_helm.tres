@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=5 format=3 uid="uid://26bsf03kbx26"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_md21h"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="2_65uld"]
+[ext_resource type="Resource" uid="uid://66uandf2ypqq" path="res://resources/sets/debug_phoenix_regalia.tres" id="3_41lqv"]
+[ext_resource type="Resource" uid="uid://l4haca2jhusf" path="res://resources/slot_definitions/head_slot.tres" id="4_dj0vo"]
+
+[resource]
+script = ExtResource("2_65uld")
+item_name = "Phoenix Crest"
+description = "A magnificent enchanted helm that glows with inner fire."
+flavor_text = "[color=red]I could chase the very sun...[/color]"
+rarity = 4
+equip_slot = 0
+set_definition = ExtResource("3_41lqv")
+slot_definition = ExtResource("4_dj0vo")
+metadata/_custom_type_script = "uid://gax4pbuq25uv"

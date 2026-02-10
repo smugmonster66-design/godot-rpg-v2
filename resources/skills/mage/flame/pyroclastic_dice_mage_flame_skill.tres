@@ -19,7 +19,7 @@ skill_id = "pyroclastic_dice"
 skill_name = "Pyroclastic Dice"
 description = "Unlocks [color=orange]D8[/color] mana die. Fire dice deal [color=red]50% splash damage[/color] to adjacent enemies."
 tier = 3
-column = 1
+column = 2
 prerequisites = Array[ExtResource("1_gjryn")]([SubResource("Resource_j28yw")])
 rank_1_affixes = Array[ExtResource("2_55oij")]([ExtResource("4_tcaum"), ExtResource("5_j6feb")])
 metadata/_custom_type_script = "uid://bd327xjbfmua2"

@@ -28,6 +28,17 @@ signal closed
 @export var close_button: Button
 
 # ============================================================================
+# POPUP SIZING
+# ============================================================================
+@export_group("Popup Layout")
+## The popup panel will be this fraction of the parent SkillsTab width.
+## 0.667 = two-thirds.
+@export_range(0.2, 1.0) var width_ratio: float = 0.667
+
+## Reference to the PopupPanel node (auto-found if null)
+@export var popup_panel: PanelContainer
+
+# ============================================================================
 # STATE
 # ============================================================================
 var current_skill: SkillResource = null
@@ -50,6 +61,10 @@ func _ready():
 
 	if close_button:
 		close_button.pressed.connect(close)
+
+	# Auto-find the popup panel if not exported
+	if not popup_panel:
+		popup_panel = _find_popup_panel()
 
 # ============================================================================
 # SHOW / CLOSE
@@ -75,9 +90,11 @@ func show_skill(skill: SkillResource, rank: int, skill_can_learn: bool, points_a
 	if icon_rect:
 		icon_rect.texture = skill.icon if skill.icon else null
 
-	# Description
+	# Description — BBCode enabled so [color=red]...[/color] tags render
 	if description_label:
-		description_label.text = skill.description
+		description_label.bbcode_enabled = true
+		description_label.clear()
+		description_label.append_text(skill.description)
 
 	# Rank
 	if rank_label:
@@ -120,6 +137,9 @@ func show_skill(skill: SkillResource, rank: int, skill_can_learn: bool, points_a
 			learn_button.text = "Learn (-%d SP)" % skill.skill_point_cost
 			learn_button.disabled = false
 
+	# Size the popup to width_ratio of parent before showing
+	_resize_popup_panel()
+
 	show()
 
 func close():
@@ -128,6 +148,44 @@ func close():
 	closed.emit()
 	hide.call_deferred()
 
+# ============================================================================
+# POPUP SIZING
+# ============================================================================
+
+func _resize_popup_panel():
+	"""Set the popup panel width to width_ratio of the parent control,
+	centered horizontally and vertically."""
+	if not popup_panel:
+		return
+
+	# Use our own size as the reference (we fill the SkillsTab via anchors)
+	var ref_width = size.x
+	var ref_height = size.y
+	if ref_width <= 0:
+		return
+
+	var panel_w = ref_width * width_ratio
+	var panel_half_w = panel_w * 0.5
+
+	# Keep the existing vertical extent or compute from content
+	var panel_half_h = popup_panel.size.y * 0.5 if popup_panel.size.y > 0 else 250.0
+
+	popup_panel.anchor_left = 0.5
+	popup_panel.anchor_right = 0.5
+	popup_panel.anchor_top = 0.5
+	popup_panel.anchor_bottom = 0.5
+	popup_panel.offset_left = -panel_half_w
+	popup_panel.offset_right = panel_half_w
+	popup_panel.offset_top = -panel_half_h
+	popup_panel.offset_bottom = panel_half_h
+
+func _find_popup_panel() -> PanelContainer:
+	"""Walk the tree to find the PopupPanel node."""
+	if overlay:
+		for child in overlay.get_children():
+			if child is PanelContainer:
+				return child
+	return null
 
 # ============================================================================
 # INPUT

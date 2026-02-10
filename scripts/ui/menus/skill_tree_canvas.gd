@@ -13,8 +13,8 @@ signal skill_clicked(skill: SkillResource)
 # CONFIGURATION
 # ============================================================================
 @export_group("Grid Layout")
-## Size of each cell in the virtual grid
-@export var cell_size: Vector2 = Vector2(100, 120)
+## Size of each skill button AND grid cell. All buttons are forced to this size.
+@export var cell_size: Vector2 = Vector2(128, 128)
 ## Padding between cells
 @export var cell_padding: Vector2 = Vector2(16, 16)
 ## Margin around the entire canvas
@@ -136,6 +136,9 @@ func _place_skill_button(skill: SkillResource):
 
 	button.skill = skill
 	button.position = _get_cell_position(skill.tier, skill.column)
+	# Force consistent size — both the layout size and the minimum so the
+	# PanelContainer doesn't shrink or stretch based on label content.
+	button.custom_minimum_size = cell_size
 	button.size = cell_size
 	button.show()
 

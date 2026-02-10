@@ -27,7 +27,7 @@ prerequisites_label = NodePath("Overlay/PopupPanel/MarginContainer/VBox/Prerequi
 icon_rect = NodePath("Overlay/PopupPanel/MarginContainer/VBox/IconRect")
 overlay = NodePath("Overlay")
 learn_button = NodePath("Overlay/PopupPanel/MarginContainer/VBox/ButtonsHBox/LearnButton")
-close_button = NodePath("Overlay/PopupPanel/MarginContainer/VBox/ButtonsHBox/CloseButton")
+close_button = NodePath("Overlay/PopupPanel/MarginContainer/VBox/ButtonsHBox/PopupCloseButton")
 
 [node name="Overlay" type="Panel" parent="."]
 layout_mode = 1
@@ -112,7 +112,7 @@ size_flags_horizontal = 3
 theme_override_styles/normal = ExtResource("3_jo354")
 text = "Learn"
 
-[node name="CloseButton" type="Button" parent="Overlay/PopupPanel/MarginContainer/VBox/ButtonsHBox"]
+[node name="PopupCloseButton" type="Button" parent="Overlay/PopupPanel/MarginContainer/VBox/ButtonsHBox"]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3

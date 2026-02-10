@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SetDefinition" load_steps=5 format=3 uid="uid://66uandf2ypqq"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_a6pgw"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="2_m8k01"]
+[ext_resource type="Script" uid="uid://b22o7ui6xfdwt" path="res://resources/data/set_definition.gd" id="3_8ggcw"]
+[ext_resource type="Script" uid="uid://cilhv0qd8ef4n" path="res://resources/data/set_bonus_threshold.gd" id="4_3alan"]
+
+[resource]
+script = ExtResource("3_8ggcw")
+set_name = "Phoenix Regalia"
+set_id = &"phoenix_regalia"
+metadata/_custom_type_script = "uid://b22o7ui6xfdwt"

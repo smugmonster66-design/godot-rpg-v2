@@ -1,88 +1,93 @@
 # res://scripts/ui/combat/mana_die_selector.gd
-# Combat UI panel for pulling mana dice mid-turn.
-# Shows element/size cycling, pull button, mana bar, and drag support.
+# Mana die selector widget for the bottom UI panel.
+# Scene-based — all layout is in mana_die_selector.tscn.
 #
-# Scene tree expectation (ManaDieSelector.tscn):
-#   ManaDieSelector (PanelContainer)
-#   ├── VBoxContainer
-#   │   ├── ManaBar (ProgressBar)
-#   │   ├── ElementRow (HBoxContainer)
-#   │   │   ├── PrevElementButton (Button)
-#   │   │   ├── ElementLabel (Label)
-#   │   │   └── NextElementButton (Button)
-#   │   ├── SizeRow (HBoxContainer)
-#   │   │   ├── PrevSizeButton (Button)
-#   │   │   ├── SizeLabel (Label)
-#   │   │   └── NextSizeButton (Button)
-#   │   ├── CostLabel (Label)
-#   │   └── PullButton (Button)
+# Contains a mana progress bar with a 3×3 die-type selector grid overlapping
+# its right end. The center cell shows a preview of the currently selected
+# mana die (element + size). Players drag from that preview into their hand
+# during the ACTION phase to pull a mana die.
 #
-# All nodes are discovered via find_child — no hard-coded NodePaths.
-extends PanelContainer
+# Arrow buttons only appear when >1 option is unlocked.
+# Drag-from-center only works when is_drag_enabled == true (ACTION phase).
+#
+# INTEGRATION:
+#   # Instance the scene, add to tree, then:
+#   selector.initialize(player)
+#   selector.set_drag_enabled(true)   # ACTION phase
+#   selector.set_drag_enabled(false)  # PREP / enemy turn
+extends Control
 class_name ManaDieSelector
 
 # ============================================================================
 # SIGNALS
 # ============================================================================
 
-## Emitted after a die is successfully pulled. CombatUI connects this to
-## insert the die into the hand and trigger the entrance animation.
-signal mana_die_pulled(die: DieResource)
+## Emitted when a mana die is successfully pulled and needs to be inserted
+## into the hand. The consumer (DicePoolDisplay) handles visual creation.
+signal mana_die_created(die: DieResource, insert_index: int)
 
-## Emitted when the mana bar value changes (for external pulse effects).
-signal mana_changed(current: int, maximum: int)
+## Emitted when drag starts (for UI feedback).
+signal drag_started()
+
+## Emitted when drag ends (placed or cancelled).
+signal drag_ended(was_placed: bool)
 
 # ============================================================================
-# NODE REFERENCES (discovered in _ready)
+# NODE REFERENCES — matching mana_die_selector.tscn
 # ============================================================================
-var mana_bar: ProgressBar = null
-var element_label: Label = null
-var size_label: Label = null
-var cost_label: Label = null
-var pull_button: Button = null
-var prev_element_button: Button = null
-var next_element_button: Button = null
-var prev_size_button: Button = null
-var next_size_button: Button = null
+
+@onready var mana_bar: ProgressBar = $ManaBar
+@onready var mana_label: Label = $ManaLabel
+@onready var cost_label: Label = $CostLabel
+@onready var selector_grid: GridContainer = $SelectorGrid
+@onready var die_preview_container: PanelContainer = $SelectorGrid/DiePreviewContainer
+@onready var preview_anchor: CenterContainer = $SelectorGrid/DiePreviewContainer/PreviewAnchor
+@onready var drag_source: ManaDragSource = $SelectorGrid/DiePreviewContainer/ManaDragSource
+@onready var elem_left_btn: Button = $SelectorGrid/ElemLeftBtn
+@onready var elem_right_btn: Button = $SelectorGrid/ElemRightBtn
+@onready var size_up_btn: Button = $SelectorGrid/SizeUpBtn
+@onready var size_down_btn: Button = $SelectorGrid/SizeDownBtn
+
+# ============================================================================
+# CONFIGURATION — tweak in Inspector
+# ============================================================================
+
+@export_group("Colors")
+## Cost label color when affordable.
+@export var cost_affordable_color: Color = Color(0.8, 0.9, 1.0)
+## Cost label color when too expensive.
+@export var cost_unaffordable_color: Color = Color(1.0, 0.3, 0.3)
 
 # ============================================================================
 # STATE
 # ============================================================================
-var mana_pool = null  # ManaPool resource (set via initialize())
+
+## Current die preview visual (child of preview_anchor).
+var _current_preview: Control = null
+
 var player: Player = null
+var mana_pool: ManaPool = null
 
-## Currently selected element index into available_elements
-var _element_index: int = 0
-## Currently selected size index into available_sizes
-var _size_index: int = 0
+## Whether dragging from the preview is currently allowed (ACTION phase only).
+var is_drag_enabled: bool = false
 
-## Cached arrays from ManaPool — refreshed each time the selector opens or
-## after a pull (in case skills unlocked new options mid-combat).
-var _available_elements: Array = []
-var _available_sizes: Array = []
+## Whether the widget is visible and functional (player is a caster).
+var is_caster: bool = false
 
 # ============================================================================
-# ELEMENT DISPLAY NAMES
+# ELEMENT COLORS (for fallback text-label tinting)
 # ============================================================================
-const ELEMENT_NAMES: Dictionary = {
-	0: "None",       # DieResource.Element.NONE
-	1: "Slashing",   # DieResource.Element.SLASHING
-	2: "Blunt",      # DieResource.Element.BLUNT
-	3: "Piercing",   # DieResource.Element.PIERCING
-	4: "Fire",       # DieResource.Element.FIRE
-	5: "Ice",        # DieResource.Element.ICE
-	6: "Shock",      # DieResource.Element.SHOCK
-	7: "Poison",     # DieResource.Element.POISON
-	8: "Shadow",     # DieResource.Element.SHADOW
-}
 
-const SIZE_NAMES: Dictionary = {
-	4: "D4",
-	6: "D6",
-	8: "D8",
-	10: "D10",
-	12: "D12",
-	20: "D20",
+const ELEMENT_COLORS: Dictionary = {
+	0: Color(0.6, 0.6, 0.6),     # NONE / Neutral
+	1: Color(1.0, 0.4, 0.2),     # FIRE
+	2: Color(0.3, 0.7, 1.0),     # ICE
+	3: Color(0.9, 0.9, 0.2),     # SHOCK
+	4: Color(0.3, 0.9, 0.3),     # POISON
+	5: Color(0.5, 0.2, 0.8),     # SHADOW
+	6: Color(0.8, 0.8, 0.8),     # SLASHING
+	7: Color(0.7, 0.5, 0.3),     # BLUNT
+	8: Color(0.9, 0.9, 0.9),     # PIERCING
 }
 
 # ============================================================================
@@ -90,313 +95,287 @@ const SIZE_NAMES: Dictionary = {
 # ============================================================================
 
 func _ready():
-	_discover_nodes()
-	_connect_signals()
-	visible = false  # Hidden until initialize() is called with a valid mana pool
-	print("🔮 ManaDieSelector ready")
-
-
-func _discover_nodes():
-	"""Find child nodes by name — no hard-coded NodePaths."""
-	mana_bar = find_child("ManaBar", true, false) as ProgressBar
-	element_label = find_child("ElementLabel", true, false) as Label
-	size_label = find_child("SizeLabel", true, false) as Label
-	cost_label = find_child("CostLabel", true, false) as Label
-	pull_button = find_child("PullButton", true, false) as Button
-	prev_element_button = find_child("PrevElementButton", true, false) as Button
-	next_element_button = find_child("NextElementButton", true, false) as Button
-	prev_size_button = find_child("PrevSizeButton", true, false) as Button
-	next_size_button = find_child("NextSizeButton", true, false) as Button
-
-	# Log discovery results
-	var nodes = {
-		"ManaBar": mana_bar, "ElementLabel": element_label,
-		"SizeLabel": size_label, "CostLabel": cost_label,
-		"PullButton": pull_button, "PrevElementButton": prev_element_button,
-		"NextElementButton": next_element_button,
-		"PrevSizeButton": prev_size_button, "NextSizeButton": next_size_button,
-	}
-	for node_name in nodes:
-		if nodes[node_name]:
-			print("  ✅ Found %s" % node_name)
-		else:
-			push_warning("ManaDieSelector: Missing child node '%s'" % node_name)
-
-
-func _connect_signals():
-	"""Connect button signals."""
-	if pull_button and not pull_button.pressed.is_connected(_on_pull_pressed):
-		pull_button.pressed.connect(_on_pull_pressed)
-	if prev_element_button and not prev_element_button.pressed.is_connected(_on_prev_element):
-		prev_element_button.pressed.connect(_on_prev_element)
-	if next_element_button and not next_element_button.pressed.is_connected(_on_next_element):
-		next_element_button.pressed.connect(_on_next_element)
-	if prev_size_button and not prev_size_button.pressed.is_connected(_on_prev_size):
-		prev_size_button.pressed.connect(_on_prev_size)
-	if next_size_button and not next_size_button.pressed.is_connected(_on_next_size):
-		next_size_button.pressed.connect(_on_next_size)
-
+	# Wire up the drag source back-reference
+	if drag_source:
+		drag_source.selector = self
+	# Start hidden — shown after initialize() if player is a caster
+	visible = false
 
 func initialize(p_player: Player):
-	"""Initialize with the player. Call from CombatUI.initialize_ui().
-	If the player has no mana pool, the selector stays hidden."""
+	"""Initialize with the player. Shows widget if player has a mana pool."""
 	player = p_player
 
-	if not player or not player.has_method("has_mana_pool") or not player.has_mana_pool():
-		visible = false
-		mana_pool = null
-		print("🔮 ManaDieSelector: Player has no mana pool — hidden")
-		return
-
-	mana_pool = player.mana_pool
-	visible = true
-
-	# Connect mana_changed from Player for live bar updates
-	if player.has_signal("mana_changed") and not player.mana_changed.is_connected(_on_player_mana_changed):
-		player.mana_changed.connect(_on_player_mana_changed)
-
-	_refresh_available_options()
-	_update_all_displays()
-	print("🔮 ManaDieSelector initialized (elements=%d, sizes=%d)" % [
-		_available_elements.size(), _available_sizes.size()
-	])
-
-
-# ============================================================================
-# CYCLING — ELEMENT
-# ============================================================================
-
-func _on_prev_element():
-	if _available_elements.is_empty():
-		return
-	_element_index = (_element_index - 1 + _available_elements.size()) % _available_elements.size()
-	_update_all_displays()
-
-
-func _on_next_element():
-	if _available_elements.is_empty():
-		return
-	_element_index = (_element_index + 1) % _available_elements.size()
-	_update_all_displays()
-
-
-func get_selected_element() -> int:
-	"""Return the currently selected DieResource.Element value."""
-	if _available_elements.is_empty():
-		return 0  # Element.NONE
-	return _available_elements[_element_index]
-
-
-# ============================================================================
-# CYCLING — SIZE
-# ============================================================================
-
-func _on_prev_size():
-	if _available_sizes.is_empty():
-		return
-	_size_index = (_size_index - 1 + _available_sizes.size()) % _available_sizes.size()
-	_update_all_displays()
-
-
-func _on_next_size():
-	if _available_sizes.is_empty():
-		return
-	_size_index = (_size_index + 1) % _available_sizes.size()
-	_update_all_displays()
-
-
-func get_selected_size() -> int:
-	"""Return the currently selected DieResource.DieType int value (4/6/8/…)."""
-	if _available_sizes.is_empty():
-		return 6  # D6 default
-	return _available_sizes[_size_index]
-
-
-# ============================================================================
-# PULL
-# ============================================================================
-
-func _on_pull_pressed():
-	"""Player pressed Pull — attempt to create a mana die and emit signal."""
-	if not mana_pool:
-		push_warning("ManaDieSelector: No mana pool!")
-		return
-
-	var element: int = get_selected_element()
-	var die_size: int = get_selected_size()
-
-	# Query cost from ManaPool
-	var cost: int = _get_pull_cost(element, die_size)
-
-	# Check if player can afford it
-	if not player or player.current_mana < cost:
-		print("🔮 ManaDieSelector: Not enough mana (have %d, need %d)" % [
-			player.current_mana if player else 0, cost
-		])
-		_flash_cost_label_red()
-		return
-
-	# Consume mana
-	player.consume_mana(cost)
-
-	# Ask ManaPool to create the die
-	var new_die: DieResource = null
-	if mana_pool.has_method("create_mana_die"):
-		new_die = mana_pool.create_mana_die(element, die_size)
+	if player and player.has_mana_pool():
+		mana_pool = player.mana_pool
+		is_caster = true
+		_connect_mana_signals()
+		_update_all()
+		visible = true
+		print("🔮 ManaDieSelector: Initialized (caster)")
 	else:
-		# Fallback: construct a basic die manually
-		new_die = DieResource.new(die_size, "mana_pull")
-		new_die.element = element
-		new_die.display_name = "%s Mana D%d" % [ELEMENT_NAMES.get(element, ""), die_size]
-		new_die.roll()
+		is_caster = false
+		visible = false
+		print("🔮 ManaDieSelector: Hidden (not a caster)")
 
-	if not new_die:
-		push_error("ManaDieSelector: create_mana_die returned null!")
-		# Refund mana
-		player.restore_mana(cost)
-		return
-
-	print("🔮 Pulled mana die: %s (cost %d mana)" % [new_die.display_name, cost])
-
-	# Refresh options (pull may have changed available elements/sizes)
-	_refresh_available_options()
-	_update_all_displays()
-
-	mana_die_pulled.emit(new_die)
-
+func set_drag_enabled(enabled: bool):
+	"""Enable or disable drag-from-preview. Call from CombatManager on phase change."""
+	is_drag_enabled = enabled
+	if drag_source:
+		drag_source.mouse_filter = Control.MOUSE_FILTER_STOP if enabled else Control.MOUSE_FILTER_IGNORE
+	_update_preview_appearance()
 
 # ============================================================================
-# DISPLAY UPDATES
+# SIGNAL CONNECTIONS
 # ============================================================================
 
-func _update_all_displays():
-	"""Refresh every label, bar, and button state."""
-	_update_mana_bar()
-	_update_element_display()
-	_update_size_display()
-	_update_cost_display()
-	_update_pull_button_state()
-
-
-func _update_mana_bar():
-	if not mana_bar or not player:
+func _connect_mana_signals():
+	"""Connect to ManaPool signals for live updates."""
+	if not mana_pool:
 		return
-	mana_bar.max_value = player.max_mana
-	mana_bar.value = player.current_mana
 
-
-func _update_element_display():
-	if not element_label:
-		return
-	var elem = get_selected_element()
-	element_label.text = ELEMENT_NAMES.get(elem, "Unknown")
-
-	# Disable cycling buttons if only one option
-	var single = _available_elements.size() <= 1
-	if prev_element_button:
-		prev_element_button.disabled = single
-	if next_element_button:
-		next_element_button.disabled = single
-
-
-func _update_size_display():
-	if not size_label:
-		return
-	var sz = get_selected_size()
-	size_label.text = SIZE_NAMES.get(sz, "D%d" % sz)
-
-	var single = _available_sizes.size() <= 1
-	if prev_size_button:
-		prev_size_button.disabled = single
-	if next_size_button:
-		next_size_button.disabled = single
-
-
-func _update_cost_display():
-	if not cost_label:
-		return
-	var cost = _get_pull_cost(get_selected_element(), get_selected_size())
-	cost_label.text = "Cost: %d Mana" % cost
-
-
-func _update_pull_button_state():
-	if not pull_button or not player:
-		return
-	var cost = _get_pull_cost(get_selected_element(), get_selected_size())
-	pull_button.disabled = player.current_mana < cost
-	pull_button.text = "Pull Die (%d)" % cost
-
+	if not mana_pool.mana_changed.is_connected(_on_mana_changed):
+		mana_pool.mana_changed.connect(_on_mana_changed)
+	if not mana_pool.element_changed.is_connected(_on_element_changed):
+		mana_pool.element_changed.connect(_on_element_changed)
+	if not mana_pool.die_size_changed.is_connected(_on_die_size_changed):
+		mana_pool.die_size_changed.connect(_on_die_size_changed)
+	if not mana_pool.pull_failed.is_connected(_on_pull_failed):
+		mana_pool.pull_failed.connect(_on_pull_failed)
 
 # ============================================================================
-# MANA BAR PULSE (called externally for mid-turn mana gains)
+# BUTTON HANDLERS — connected via .tscn signal connections
 # ============================================================================
 
-func pulse_mana_bar():
-	"""Quick scale-pulse the mana bar to indicate a mid-turn mana gain."""
-	if not mana_bar:
-		return
-	var tween = create_tween()
-	tween.tween_property(mana_bar, "scale", Vector2(1.08, 1.15), 0.1) \
-		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-	tween.tween_property(mana_bar, "scale", Vector2.ONE, 0.2) \
-		.set_ease(Tween.EASE_IN_OUT)
+func _on_elem_left():
+	if mana_pool:
+		mana_pool.cycle_element(-1)
 
+func _on_elem_right():
+	if mana_pool:
+		mana_pool.cycle_element(1)
+
+func _on_size_up():
+	if mana_pool:
+		mana_pool.cycle_die_size(1)
+
+func _on_size_down():
+	if mana_pool:
+		mana_pool.cycle_die_size(-1)
 
 # ============================================================================
 # SIGNAL HANDLERS
 # ============================================================================
 
-func _on_player_mana_changed(current: int, maximum: int):
-	"""Live update from Player.mana_changed signal."""
-	_update_mana_bar()
-	_update_pull_button_state()
-	_update_cost_display()
-	mana_changed.emit(current, maximum)
+func _on_mana_changed(current: int, max_mana: int):
+	_update_mana_bar(current, max_mana)
+	_update_cost_label()
+	_update_preview_appearance()
 
+func _on_element_changed(_element):
+	_update_die_preview()
+	_update_cost_label()
+
+func _on_die_size_changed(_die_size):
+	_update_die_preview()
+	_update_cost_label()
+
+func _on_pull_failed(reason: String):
+	print("🔮 ManaDieSelector: Pull failed — %s" % reason)
+	if die_preview_container:
+		var tween = create_tween()
+		tween.tween_property(die_preview_container, "modulate", Color(1.5, 0.5, 0.5), 0.1)
+		tween.tween_property(die_preview_container, "modulate", Color.WHITE, 0.2)
+
+# ============================================================================
+# DISPLAY UPDATES
+# ============================================================================
+
+func _update_all():
+	"""Refresh everything — called after initialize."""
+	if not mana_pool:
+		return
+	_update_mana_bar(mana_pool.current_mana, mana_pool.max_mana)
+	_update_die_preview()
+	_update_button_visibility()
+	_update_cost_label()
+	_update_preview_appearance()
+
+func _update_mana_bar(current: int, max_mana: int):
+	if mana_bar:
+		mana_bar.max_value = max_mana
+		mana_bar.value = current
+	if mana_label:
+		mana_label.text = "%d / %d" % [current, max_mana]
+
+func _update_die_preview():
+	"""Recreate the die visual in the center cell."""
+	if not mana_pool:
+		return
+
+	# Remove old preview
+	if _current_preview and is_instance_valid(_current_preview):
+		_current_preview.queue_free()
+		_current_preview = null
+
+	var preview_die = _create_preview_die_resource()
+	if not preview_die:
+		return
+
+	# Try to create a visual via the die's visual system
+	var visual: Control = null
+	if preview_die.has_method("instantiate_pool_visual"):
+		visual = preview_die.instantiate_pool_visual()
+	if not visual and preview_die.has_method("instantiate_combat_visual"):
+		visual = preview_die.instantiate_combat_visual()
+
+	if visual:
+		visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if visual is DieObjectBase:
+			visual.draggable = false
+		# Scale to fit inside the preview cell
+		var cell_size = die_preview_container.custom_minimum_size.x if die_preview_container else 48.0
+		var target_size = cell_size - 8
+		if "base_size" in visual and visual.base_size.x > 0:
+			var scale_factor = target_size / visual.base_size.x
+			visual.scale = Vector2(scale_factor, scale_factor)
+		else:
+			visual.custom_minimum_size = Vector2(target_size, target_size)
+		_current_preview = visual
+	else:
+		# Fallback: text label
+		var lbl = Label.new()
+		lbl.text = "%s\nD%d" % [mana_pool.get_element_name(), mana_pool.selected_die_size]
+		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		lbl.add_theme_font_size_override("font_size", 10)
+		var elem_color = ELEMENT_COLORS.get(int(mana_pool.selected_element), Color.WHITE)
+		lbl.add_theme_color_override("font_color", elem_color)
+		_current_preview = lbl
+
+	if preview_anchor:
+		preview_anchor.add_child(_current_preview)
+	else:
+		die_preview_container.add_child(_current_preview)
+
+func _update_button_visibility():
+	"""Show/hide arrow buttons based on available options."""
+	if not mana_pool:
+		return
+
+	var elements = mana_pool.get_available_elements()
+	var sizes = mana_pool.get_available_die_sizes()
+	var multi_elements = elements.size() > 1
+	var multi_sizes = sizes.size() > 1
+
+	if elem_left_btn:
+		elem_left_btn.visible = multi_elements
+	if elem_right_btn:
+		elem_right_btn.visible = multi_elements
+	if size_up_btn:
+		size_up_btn.visible = multi_sizes
+	if size_down_btn:
+		size_down_btn.visible = multi_sizes
+
+func _update_cost_label():
+	"""Update the pull cost display."""
+	if not cost_label or not mana_pool:
+		return
+
+	var cost = mana_pool.get_pull_cost()
+	cost_label.text = "Cost: %d" % cost
+
+	if mana_pool.can_pull():
+		cost_label.add_theme_color_override("font_color", cost_affordable_color)
+	else:
+		cost_label.add_theme_color_override("font_color", cost_unaffordable_color)
+
+func _update_preview_appearance():
+	"""Dim the preview when dragging is disabled or can't afford a pull."""
+	if not die_preview_container:
+		return
+
+	var can_interact = is_drag_enabled and mana_pool and mana_pool.can_pull()
+	die_preview_container.modulate = Color.WHITE if can_interact else Color(0.6, 0.6, 0.6, 0.8)
+
+# ============================================================================
+# DRAG DATA CREATION — Called by ManaDragSource
+# ============================================================================
+
+func _create_mana_drag_data() -> Variant:
+	"""Create drag data for a mana die pull. Returns null if can't pull."""
+	if not is_drag_enabled:
+		return null
+	if not mana_pool or not mana_pool.can_pull():
+		if mana_pool:
+			mana_pool.pull_failed.emit("Cannot pull — insufficient mana or no options")
+		return null
+
+	drag_started.emit()
+
+	# We don't spend mana yet — that happens on successful drop.
+	return {
+		"type": "mana_die",
+		"element": mana_pool.selected_element,
+		"die_size": mana_pool.selected_die_size,
+		"pull_cost": mana_pool.get_pull_cost(),
+		"mana_pool": mana_pool,
+		"selector": self,
+	}
+
+func _create_mana_drag_preview() -> Control:
+	"""Create the visual that follows the cursor during drag."""
+	var preview_die = _create_preview_die_resource()
+	if not preview_die:
+		return null
+
+	var visual: Control = null
+	if preview_die.has_method("instantiate_combat_visual"):
+		visual = preview_die.instantiate_combat_visual()
+	elif preview_die.has_method("instantiate_pool_visual"):
+		visual = preview_die.instantiate_pool_visual()
+
+	if visual:
+		visual.modulate = Color(1, 1, 1, 0.8)
+		if visual is DieObjectBase:
+			visual.draggable = false
+		return visual
+
+	# Fallback label
+	var lbl = Label.new()
+	lbl.text = "D%d" % mana_pool.selected_die_size
+	lbl.add_theme_font_size_override("font_size", 18)
+	return lbl
+
+func _on_drag_ended():
+	"""Called by ManaDragSource when drag ends."""
+	drag_ended.emit(false)
+
+# ============================================================================
+# MANA DIE PULL — Called by DicePoolDisplay on successful drop
+# ============================================================================
+
+func pull_and_create_die() -> DieResource:
+	"""Actually pull the mana die (spend mana, create DieResource).
+	Called by the drop target after confirming a valid drop.
+	Returns the new DieResource, or null if pull fails."""
+	if not mana_pool:
+		return null
+	return mana_pool.pull_mana_die()
 
 # ============================================================================
 # HELPERS
 # ============================================================================
 
-func _refresh_available_options():
-	"""Re-query the ManaPool for available elements and sizes."""
+func _create_preview_die_resource() -> DieResource:
+	"""Create a temporary DieResource matching the current selection for preview."""
 	if not mana_pool:
-		_available_elements = [0]  # NONE only
-		_available_sizes = [6]     # D6 only
-		return
+		return null
 
-	if mana_pool.has_method("get_available_elements"):
-		_available_elements = mana_pool.get_available_elements()
-	else:
-		_available_elements = [0]  # Fallback
-
-	if mana_pool.has_method("get_available_sizes"):
-		_available_sizes = mana_pool.get_available_sizes()
-	else:
-		_available_sizes = [4, 6]  # Fallback D4/D6
-
-	# Clamp indices
-	_element_index = clampi(_element_index, 0, maxi(0, _available_elements.size() - 1))
-	_size_index = clampi(_size_index, 0, maxi(0, _available_sizes.size() - 1))
-
-
-func _get_pull_cost(element: int, die_size: int) -> int:
-	"""Ask ManaPool for the pull cost, with fallback calculation."""
-	if mana_pool and mana_pool.has_method("get_pull_cost"):
-		return mana_pool.get_pull_cost(element, die_size)
-	# Fallback: base cost = die_size / 2, elemental dice cost 50% more
-	var base_cost: int = int(die_size / 2.0)
-	if element != 0:  # Not NONE
-		base_cost = int(base_cost * 1.5)
-	return maxi(1, base_cost)
-
-
-func _flash_cost_label_red():
-	"""Quick red flash on cost label when player can't afford the pull."""
-	if not cost_label:
-		return
-	var original_color = cost_label.modulate
-	cost_label.modulate = Color(1.5, 0.3, 0.3)
-	var tween = create_tween()
-	tween.tween_property(cost_label, "modulate", original_color, 0.4) \
-		.set_ease(Tween.EASE_OUT)
+	var die = DieResource.new()
+	die.die_type = mana_pool.selected_die_size as DieResource.DieType
+	die.element = mana_pool.selected_element
+	die.display_name = "%s D%d" % [mana_pool.get_element_name(), mana_pool.selected_die_size]
+	die.source = "mana_preview"
+	die.tags.append("mana_die")
+	return die

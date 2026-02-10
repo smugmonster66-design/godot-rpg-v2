@@ -9,6 +9,8 @@ class_name BottomUIPanel
 # ============================================================================
 signal menu_button_pressed
 
+const MANA_SELECTOR_SCENE = preload("res://scenes/ui/combat/mana_die_selector.tscn")
+
 # ============================================================================
 # NODE REFERENCES - Matching actual scene structure
 # ============================================================================
@@ -34,6 +36,8 @@ signal menu_button_pressed
 # ============================================================================
 var player: Resource = null
 var player_menu: Control = null
+var mana_die_selector: ManaDieSelector = null
+
 
 # ============================================================================
 # INITIALIZATION
@@ -67,6 +71,9 @@ func initialize(p_player: Resource):
 	if not player:
 		print("  ❌ Player is null!")
 		return
+	
+	# Initialize mana die selector (replaces simple mana bar for casters)
+	_setup_mana_die_selector()
 	
 	# Initialize dice grid
 	if dice_grid:
@@ -144,6 +151,45 @@ func _update_dice_count():
 		var current = player.dice_pool.get_pool_count()
 		var max_dice = player.dice_pool.max_dice if player.dice_pool.get("max_dice") else 10
 		dice_count_label.text = "%d/%d" % [current, max_dice]
+
+
+
+func _setup_mana_die_selector():
+	"""Instance and insert ManaDieSelector scene if player is a caster.
+	Hides the simple ManaBar for all classes — non-casters have no use for it."""
+	if not player:
+		return
+
+	# Remove old selector if reinitializing
+	if mana_die_selector and is_instance_valid(mana_die_selector):
+		mana_die_selector.queue_free()
+		mana_die_selector = null
+
+	# Hide the simple mana bar unconditionally — casters get the selector,
+	# non-casters don't need any mana UI
+	if mana_bar:
+		mana_bar.hide()
+
+	if player.has_method("has_mana_pool") and player.has_mana_pool():
+		mana_die_selector = MANA_SELECTOR_SCENE.instantiate()
+
+		# Insert right after the (now hidden) ManaBar in LeftSection
+		if left_section and mana_bar:
+			var mana_bar_idx = mana_bar.get_index()
+			left_section.add_child(mana_die_selector)
+			left_section.move_child(mana_die_selector, mana_bar_idx + 1)
+		elif left_section:
+			left_section.add_child(mana_die_selector)
+
+		mana_die_selector.initialize(player)
+		print("  ✅ ManaDieSelector instanced and initialized")
+	else:
+		print("  ℹ️ No mana pool — mana UI hidden")
+func set_mana_drag_enabled(enabled: bool):
+	"""Enable/disable mana die dragging. Called by CombatManager on phase change."""
+	if mana_die_selector:
+		mana_die_selector.set_drag_enabled(enabled)
+
 
 func _connect_player_signals():
 	"""Connect to player signals for live stat updates"""

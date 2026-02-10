@@ -77,6 +77,12 @@ func on_external_data_change():
 	"""Called when other tabs modify player data"""
 	refresh()
 
+
+func has_active_popup() -> bool:
+	"""Returns true if the skill detail popup is currently open."""
+	return skill_popup != null and skill_popup.visible
+
+
 # ============================================================================
 # SKILL RANK HELPERS
 # ============================================================================

@@ -1,0 +1,182 @@
+[gd_scene load_steps=10 format=3 uid="uid://cmdae6knaxo5a"]
+
+[ext_resource type="Script" uid="uid://ddxe7bo6ijien" path="res://scripts/ui/combat/mana_die_selector.gd" id="1_sel"]
+[ext_resource type="Script" uid="uid://3fjcgtmn22kw" path="res://scripts/ui/combat/mana_drag_source.gd" id="2_drag"]
+
+[sub_resource type="StyleBoxFlat" id="mana_bar_bg"]
+bg_color = Color(0.1, 0.1, 0.2, 0.6)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="mana_bar_fill"]
+bg_color = Color(0.2, 0.3, 0.85, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="arrow_normal"]
+bg_color = Color(0.3, 0.3, 0.4, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="arrow_pressed"]
+bg_color = Color(0.5, 0.5, 0.65, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="arrow_hover"]
+bg_color = Color(0.4, 0.4, 0.55, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxEmpty" id="arrow_focus"]
+
+[sub_resource type="StyleBoxFlat" id="preview_panel"]
+bg_color = Color(0.15, 0.15, 0.2, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.4, 0.5, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="ManaDieSelector" type="Control"]
+custom_minimum_size = Vector2(0, 152)
+layout_mode = 3
+anchors_preset = 0
+size_flags_horizontal = 3
+script = ExtResource("1_sel")
+
+[node name="ManaBar" type="ProgressBar" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+offset_top = 60.0
+offset_bottom = 92.0
+grow_horizontal = 2
+theme_override_styles/background = SubResource("mana_bar_bg")
+theme_override_styles/fill = SubResource("mana_bar_fill")
+show_percentage = false
+
+[node name="ManaLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+offset_left = 8.0
+offset_top = 60.0
+offset_right = -160.0
+offset_bottom = 92.0
+theme_override_font_sizes/font_size = 14
+text = "0 / 0"
+vertical_alignment = 1
+
+[node name="CostLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -240.0
+offset_top = 136.0
+offset_right = -156.0
+offset_bottom = 152.0
+theme_override_font_sizes/font_size = 11
+text = "Cost: 0"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="SelectorGrid" type="GridContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -152.0
+offset_bottom = 152.0
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+columns = 3
+
+[node name="Spacer1" type="Control" parent="SelectorGrid"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="SizeUpBtn" type="Button" parent="SelectorGrid"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+theme_override_styles/normal = SubResource("arrow_normal")
+theme_override_styles/pressed = SubResource("arrow_pressed")
+theme_override_styles/hover = SubResource("arrow_hover")
+theme_override_styles/focus = SubResource("arrow_focus")
+text = "▲"
+
+[node name="Spacer2" type="Control" parent="SelectorGrid"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ElemLeftBtn" type="Button" parent="SelectorGrid"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+theme_override_styles/normal = SubResource("arrow_normal")
+theme_override_styles/pressed = SubResource("arrow_pressed")
+theme_override_styles/hover = SubResource("arrow_hover")
+theme_override_styles/focus = SubResource("arrow_focus")
+text = "◄"
+
+[node name="DiePreviewContainer" type="PanelContainer" parent="SelectorGrid"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+theme_override_styles/panel = SubResource("preview_panel")
+
+[node name="PreviewAnchor" type="CenterContainer" parent="SelectorGrid/DiePreviewContainer"]
+layout_mode = 2
+
+[node name="ManaDragSource" type="Control" parent="SelectorGrid/DiePreviewContainer"]
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_drag")
+
+[node name="ElemRightBtn" type="Button" parent="SelectorGrid"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+theme_override_styles/normal = SubResource("arrow_normal")
+theme_override_styles/pressed = SubResource("arrow_pressed")
+theme_override_styles/hover = SubResource("arrow_hover")
+theme_override_styles/focus = SubResource("arrow_focus")
+text = "►"
+
+[node name="Spacer3" type="Control" parent="SelectorGrid"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="SizeDownBtn" type="Button" parent="SelectorGrid"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+theme_override_styles/normal = SubResource("arrow_normal")
+theme_override_styles/pressed = SubResource("arrow_pressed")
+theme_override_styles/hover = SubResource("arrow_hover")
+theme_override_styles/focus = SubResource("arrow_focus")
+text = "▼"
+
+[node name="Spacer4" type="Control" parent="SelectorGrid"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+mouse_filter = 2
+
+[connection signal="pressed" from="SelectorGrid/SizeUpBtn" to="." method="_on_size_up"]
+[connection signal="pressed" from="SelectorGrid/ElemLeftBtn" to="." method="_on_elem_left"]
+[connection signal="pressed" from="SelectorGrid/ElemRightBtn" to="." method="_on_elem_right"]
+[connection signal="pressed" from="SelectorGrid/SizeDownBtn" to="." method="_on_size_down"]

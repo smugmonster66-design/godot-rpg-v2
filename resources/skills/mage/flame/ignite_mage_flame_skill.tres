@@ -8,8 +8,8 @@
 [resource]
 script = ExtResource("3_ltafp")
 skill_id = "flame_ignite"
-skill_name = "Ignote"
+skill_name = "Ignite"
 description = "Unlocks [color=orange]fire element[/color] for your mana die. Fire dice deal fire damage."
-column = 2
+column = 3
 rank_1_affixes = Array[ExtResource("2_bttcx")]([ExtResource("3_bttcx")])
 metadata/_custom_type_script = "uid://bd327xjbfmua2"

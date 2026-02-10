@@ -440,6 +440,23 @@ func clear_hand():
 # HAND QUERIES (v2.1 — Ghost Hand)
 # ============================================================================
 
+func insert_into_hand(index: int, die: DieResource):
+	"""Insert a die into the hand at a specific position.
+	Used by the mana system to place a pulled die where the player dropped it.
+	Updates all slot indices and emits hand_changed."""
+	index = clampi(index, 0, hand.size())
+	hand.insert(index, die)
+	# Update slot indices for stable position tracking
+	for i in range(hand.size()):
+		hand[i].slot_index = i
+	_original_hand_size = hand.size()
+	print("🎲 Inserted %s into hand at index %d (hand size: %d)" % [
+		die.display_name, index, hand.size()])
+	hand_changed.emit()
+
+
+
+
 func get_unconsumed_hand() -> Array[DieResource]:
 	"""Get hand dice that have NOT been consumed this turn.
 	Use this for UI display of available dice and for gameplay logic

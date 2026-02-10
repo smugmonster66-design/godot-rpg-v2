@@ -140,6 +140,14 @@ func refresh_all_tabs():
 # PRIVATE METHODS
 # ============================================================================
 
+func _has_visible_popup() -> bool:
+	"""Check if any tab has an open sub-popup (blocks Escape from closing menu)."""
+	for tab in active_tabs:
+		if tab.has_method("has_active_popup") and tab.has_active_popup():
+			return true
+	return false
+
+
 func _distribute_player_data():
 	"""Send player data to all registered tabs"""
 	for tab in active_tabs:
@@ -210,6 +218,8 @@ func _input(event):
 		return
 
 	if event.is_action_pressed("ui_cancel"):
+		if _has_visible_popup():
+			return
 		close_menu()
 		get_viewport().set_input_as_handled()
 		return

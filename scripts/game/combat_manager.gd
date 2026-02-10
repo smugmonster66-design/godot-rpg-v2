@@ -123,9 +123,6 @@ func setup_ui_connections():
 		if combat_ui.has_signal("turn_ended") and not combat_ui.turn_ended.is_connected(_on_player_end_turn):
 			combat_ui.turn_ended.connect(_on_player_end_turn)
 	
-	# v4 — Mana System: Initialize ManaDieSelector with player
-	if combat_ui and combat_ui.mana_die_selector and player:
-		combat_ui.mana_die_selector.initialize(player)
 	
 	# v4 — Status Thresholds: Connect threshold signals
 	_connect_status_threshold_signals()
@@ -389,7 +386,7 @@ func _start_player_turn():
 
 	# --- STATUS: Start-of-turn processing ---
 	if player:
-		var tick_results = player.process_turn_start_statuses()
+		var tick_results = player.status_tracker.process_turn_start()
 		await _apply_status_tick_results(player, player_combatant, tick_results)
 
 		# Check if player died from DoT damage
@@ -443,7 +440,7 @@ func _on_roll_pressed():
 			player.mana_pool.refill()
 			print("  🔮 Mana refilled to %d/%d" % [
 				player.mana_pool.current_mana,
-				player.mana_pool.get_max_mana(player)])
+				player.mana_pool.max_mana])
 
 		# Wait one frame for refresh to create visuals
 		await get_tree().process_frame
@@ -462,6 +459,11 @@ func _on_roll_pressed():
 
 	if combat_ui:
 		combat_ui.enter_action_phase()
+		
+	# Enable mana die dragging during action phase
+	var bottom_ui = _get_bottom_ui()
+	if bottom_ui and bottom_ui.has_method("set_mana_drag_enabled"):
+		bottom_ui.set_mana_drag_enabled(true)
 
 
 
@@ -476,11 +478,15 @@ func _on_player_end_turn():
 	turn_phase_changed.emit(TurnPhase.NONE)
 	
 	
+	var bottom_ui = _get_bottom_ui()
+	if bottom_ui and bottom_ui.has_method("set_mana_drag_enabled"):
+		bottom_ui.set_mana_drag_enabled(false)
+	
 	print("🎮 Player ended turn")
 	
 	# --- STATUS: End-of-turn processing ---
-	if player:
-		var tick_results = player.process_turn_end_statuses()
+	if player and player.status_tracker:
+		var tick_results = player.status_tracker.process_turn_start()
 		await _apply_status_tick_results(player, player_combatant, tick_results)
 		
 		if not player_combatant.is_alive():
@@ -1085,7 +1091,7 @@ func _resolve_mana_events(events: Array[Dictionary]) -> void:
 				if refund > 0:
 					player.mana_pool.current_mana = mini(
 						player.mana_pool.current_mana + refund,
-						player.mana_pool.get_max_mana(player))
+						player.mana_pool.max_mana)
 					print("    🔮 Mana refund: +%d (%.0f%% of %d cost)" % [
 						refund, percent * 100, player.mana_pool.last_pull_cost])
 			"mana_gain":
@@ -1093,7 +1099,7 @@ func _resolve_mana_events(events: Array[Dictionary]) -> void:
 				if amount > 0:
 					player.mana_pool.current_mana = mini(
 						player.mana_pool.current_mana + amount,
-						player.mana_pool.get_max_mana(player))
+						player.mana_pool.max_mana)
 					print("    🔮 Mana gain: +%d" % amount)
 			_:
 				print("    ⚠️ Unknown mana event type: %s" % event.get("type", "?"))
@@ -1527,9 +1533,10 @@ func is_in_prep_phase() -> bool:
 func end_combat(player_won: bool):
 	print("\n=== COMBAT ENDED ===")
 	
-	# v4: Cleanup mana die selector
-	if combat_ui and combat_ui.mana_die_selector:
-		combat_ui.mana_die_selector.cleanup()
+	# v4: Disable mana die dragging
+	var bottom_ui = _get_bottom_ui()
+	if bottom_ui and bottom_ui.has_method("set_mana_drag_enabled"):
+		bottom_ui.set_mana_drag_enabled(false)
 	
 	
 	combat_state = CombatState.ENDED
@@ -1573,3 +1580,7 @@ func _on_combat_ended(player_won: bool):
 			player.gold += total_gold
 			if player.active_class:
 				player.active_class.add_experience(total_exp)
+
+
+func _get_bottom_ui() -> Control:
+	return get_tree().get_first_node_in_group("bottom_ui")

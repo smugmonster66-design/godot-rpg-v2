@@ -18,7 +18,7 @@ skill_id = "flame_flare_dice"
 skill_name = "Flare Dice"
 description = "[color=orange]Unlocks [color=orange]D6[/color] mana die. Fire dice that roll max value inflict [color=red]Burn[/color]."
 tier = 2
-column = 1
+column = 2
 prerequisites = Array[ExtResource("1_neepx")]([SubResource("Resource_hfs2g")])
 rank_1_affixes = Array[ExtResource("2_wgq50")]([ExtResource("4_hw7j3"), ExtResource("5_wwufr")])
 metadata/_custom_type_script = "uid://bd327xjbfmua2"
