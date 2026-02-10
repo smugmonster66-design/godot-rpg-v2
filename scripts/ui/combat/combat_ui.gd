@@ -57,6 +57,9 @@ var enemy_action_fields: Array[ActionField] = []
 var _pending_dice_returns: Array[Dictionary] = []
 
 var roll_button: Button = null
+
+## v4 — Mana System: Panel for pulling mana dice during ACTION phase
+var mana_die_selector: ManaDieSelector = null
 # ============================================================================
 # SIGNALS
 # ============================================================================
@@ -132,7 +135,26 @@ func _discover_all_nodes():
 	if enemy_hand_container:
 		enemy_action_label = enemy_hand_container.find_child("ActionLabel", true, false) as Label
 	print("    EnemyHandDisplay: %s" % ("✓" if enemy_hand_container else "✗"))
-
+	
+	# v4 — Mana System: ManaDieSelector panel
+	mana_die_selector = find_child("ManaDieSelector", true, false) as ManaDieSelector
+	if not mana_die_selector:
+		# Create programmatically if not in scene
+		mana_die_selector = ManaDieSelector.new()
+		mana_die_selector.name = "ManaDieSelector"
+		# Add to the action fields area or main layout
+		var parent_container = find_child("ActionFieldsArea", true, false)
+		if parent_container:
+			parent_container.add_child(mana_die_selector)
+		else:
+			add_child(mana_die_selector)
+		print("    ManaDieSelector: ✓ (created)")
+	else:
+		print("    ManaDieSelector: ✓ (from scene)")
+	
+	# Connect die_pulled signal
+	if mana_die_selector and not mana_die_selector.mana_die_pulled.is_connected(_on_mana_die_pulled):
+		mana_die_selector.mana_die_pulled.connect(_on_mana_die_pulled)
 
 func _ensure_scrollable_grid():
 	"""Find scrollable action grid from scene"""
@@ -421,6 +443,8 @@ func set_player_turn(is_player: bool):
 			action_buttons_container.hide()
 		if dice_pool_display:
 			dice_pool_display.hide()
+		if mana_die_selector:
+			mana_die_selector.hide()
 		disable_target_selection()
 
 func refresh_dice_pool():
@@ -455,6 +479,10 @@ func enter_prep_phase():
 
 	# Hide enemy hand
 	hide_enemy_hand()
+	
+	# v4: Hide mana selector during prep
+	if mana_die_selector:
+		mana_die_selector.hide()
 
 	# Show roll button
 	if roll_button:
@@ -491,6 +519,10 @@ func enter_action_phase():
 
 	# Apply per-combat charge state to newly created fields
 	_apply_combat_charge_state()
+	
+	# v4 — Mana System: Show mana selector if player has mana pool
+	if mana_die_selector and player and player.has_mana_pool():
+		mana_die_selector.show()
 
 	# Select first living enemy as default
 	if enemy_panel:
@@ -657,6 +689,20 @@ func _on_dice_return_complete():
 		dice_pool_display.animate_dice_return(_pending_dice_returns)
 		_pending_dice_returns.clear()
 
+func _on_mana_die_pulled(die: DieResource):
+	"""Handle a mana die being pulled — add to player's hand and refresh display."""
+	if not player or not player.dice_pool:
+		return
+	
+	# Insert die into the live hand via Chunk 1's add_die_to_hand()
+	player.dice_pool.add_die_to_hand(die)
+	
+	# Refresh the dice pool display to show the new die
+	if dice_pool_display:
+		dice_pool_display.refresh()
+	
+	print("🔮 Mana die added to hand: %s (D%d, value=%d)" % [
+		die.display_name, die.die_type, die.get_total_value()])
 
 
 func _on_action_field_selected(field: ActionField):

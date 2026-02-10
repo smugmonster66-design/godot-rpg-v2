@@ -44,7 +44,10 @@ var _is_being_dragged: bool = false
 var _was_placed: bool = false
 var _original_position: Vector2 = Vector2.ZERO
 var _original_scale: Vector2 = Vector2.ONE
-var _manual_preview: Control = null  # For drag preview
+
+var _manual_preview: Control = null
+var _active_touches: Dictionary = {}  # touch_index -> true, tracked during drag
+
 
 # ============================================================================
 # INITIALIZATION
@@ -556,7 +559,9 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	_manual_preview.z_index = 100  # Always on top
 	get_tree().root.add_child(_manual_preview)
 	_update_manual_preview_position()
+	_active_touches.clear()
 	set_process(true)
+	set_process_input(true)
 	
 	# Return drag data
 	return {
@@ -570,11 +575,45 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 
 func _process(_delta: float):
 	if _manual_preview and _is_being_dragged:
+		# Safety net: if all input is released but NOTIFICATION_DRAG_END
+		# never fired (lag spike, focus loss, touch desyncs, etc.),
+		# clean up the orphaned preview ourselves.
+		var mouse_held = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+		var touch_held = _active_touches.size() > 0
+		if not mouse_held and not touch_held:
+			_force_cleanup_drag()
+			return
 		_update_manual_preview_position()
+
+func _input(event: InputEvent):
+	# Only process touch events while actively dragging
+	if not _is_being_dragged:
+		return
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			_active_touches[event.index] = true
+		else:
+			_active_touches.erase(event.index)
 
 func _update_manual_preview_position():
 	if _manual_preview:
 		_manual_preview.global_position = get_global_mouse_position() - base_size / 2
+
+func _force_cleanup_drag():
+	"""Emergency cleanup when NOTIFICATION_DRAG_END is missed."""
+	print("🎲 Drag cleanup: input released but NOTIFICATION_DRAG_END missed — forcing cleanup")
+	if _is_being_dragged:
+		end_drag_visual(_was_placed)
+		_is_being_dragged = false
+	if _manual_preview:
+		_manual_preview.queue_free()
+		_manual_preview = null
+	_active_touches.clear()
+	set_process(false)
+	set_process_input(false)
+
+
+
 
 func _notification(what: int):
 	match what:
@@ -592,7 +631,9 @@ func _notification(what: int):
 			if _manual_preview:
 				_manual_preview.queue_free()
 				_manual_preview = null
+			_active_touches.clear()
 			set_process(false)
+			set_process_input(false)
 
 # ============================================================================
 # UTILITY

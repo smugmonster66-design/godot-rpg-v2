@@ -122,6 +122,13 @@ func setup_ui_connections():
 			combat_ui.action_confirmed.connect(_on_action_confirmed)
 		if combat_ui.has_signal("turn_ended") and not combat_ui.turn_ended.is_connected(_on_player_end_turn):
 			combat_ui.turn_ended.connect(_on_player_end_turn)
+	
+	# v4 — Mana System: Initialize ManaDieSelector with player
+	if combat_ui and combat_ui.mana_die_selector and player:
+		combat_ui.mana_die_selector.initialize(player)
+	
+	# v4 — Status Thresholds: Connect threshold signals
+	_connect_status_threshold_signals()
 
 func check_pending_encounter():
 	"""Check if GameManager has a pending encounter"""
@@ -430,6 +437,13 @@ func _on_roll_pressed():
 
 		# Roll the hand
 		player.dice_pool.roll_hand()
+		
+		# v4 — Mana System: Refill mana at start of action phase
+		if player.has_mana_pool():
+			player.mana_pool.refill()
+			print("  🔮 Mana refilled to %d/%d" % [
+				player.mana_pool.current_mana,
+				player.mana_pool.get_max_mana(player)])
 
 		# Wait one frame for refresh to create visuals
 		await get_tree().process_frame
@@ -922,6 +936,267 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 			
 			_process_action_effect_results(results, source.combatant_name)
 	# --- END STATUS ---
+	
+	# --- v4 MANA SYSTEM: Resolve queued combat and mana events ---
+	if player and player.dice_pool:
+		var primary = targets[0] if targets.size() > 0 else null
+		_resolve_combat_events(player.dice_pool.drain_combat_events(), primary)
+		_resolve_mana_events(player.dice_pool.drain_mana_events())
+	# --- END MANA SYSTEM ---
+
+
+# ============================================================================
+# COMBAT / MANA EVENT RESOLUTION (v4 — Mana System)
+# ============================================================================
+
+func _resolve_combat_events(events: Array[Dictionary], primary_target) -> void:
+	"""Resolve queued combat events from dice affix processing.
+	Called after _apply_action_effect() with the primary attack target."""
+	if events.is_empty():
+		return
+	
+	print("  ⚡ Resolving %d combat events..." % events.size())
+	
+	for event in events:
+		match event.get("type", ""):
+			"splash":
+				_resolve_splash(event, primary_target)
+			"chain":
+				_resolve_chain(event, primary_target)
+			"aoe":
+				_resolve_aoe(event)
+			"bonus_damage":
+				_resolve_bonus_damage(event, primary_target)
+			"ignore_resistance":
+				# Resistance bypass is consumed during damage calc (future).
+				# For now, log it — full integration requires CombatCalculator changes.
+				print("    🛡️ Resistance bypass: %s (noted for calc)" % event.get("element", ""))
+			_:
+				print("    ⚠️ Unknown combat event type: %s" % event.get("type", "?"))
+
+func _resolve_splash(event: Dictionary, primary_target) -> void:
+	"""Splash damage to enemies adjacent to the primary target in formation."""
+	var damage = int(event.get("damage", 0))
+	var percent = event.get("percent", 0.5)
+	var splash_damage = int(damage * percent)
+	
+	if splash_damage <= 0:
+		return
+	
+	var primary_index = enemy_combatants.find(primary_target) if primary_target else -1
+	var splash_targets: Array[Combatant] = []
+	
+	# Adjacent enemies in the formation
+	if primary_index > 0 and enemy_combatants[primary_index - 1].is_alive():
+		splash_targets.append(enemy_combatants[primary_index - 1])
+	if primary_index >= 0 and primary_index < enemy_combatants.size() - 1:
+		if enemy_combatants[primary_index + 1].is_alive():
+			splash_targets.append(enemy_combatants[primary_index + 1])
+	
+	for target in splash_targets:
+		target.take_damage(splash_damage)
+		var idx = enemy_combatants.find(target)
+		print("    💥 Splash: %d %s damage to %s" % [
+			splash_damage, event.get("element", ""), target.combatant_name])
+		if idx >= 0:
+			_update_enemy_health(idx)
+			_check_enemy_death(target)
+
+func _resolve_chain(event: Dictionary, primary_target) -> void:
+	"""Chain damage to N additional targets with decay multiplier."""
+	var base_damage = int(event.get("damage", 0))
+	var chains = event.get("chains", 2)
+	var decay = event.get("decay", 0.7)
+	
+	if base_damage <= 0:
+		return
+	
+	# Build target list: all living enemies except primary
+	var eligible: Array[Combatant] = []
+	for enemy in enemy_combatants:
+		if enemy.is_alive() and enemy != primary_target:
+			eligible.append(enemy)
+	
+	var current_damage = float(base_damage)
+	var chain_count = 0
+	
+	for target in eligible:
+		if chain_count >= chains:
+			break
+		
+		current_damage *= decay
+		var chain_dmg = int(current_damage)
+		if chain_dmg <= 0:
+			break
+		
+		target.take_damage(chain_dmg)
+		chain_count += 1
+		var idx = enemy_combatants.find(target)
+		print("    ⚡ Chain %d: %d %s damage to %s" % [
+			chain_count, chain_dmg, event.get("element", ""), target.combatant_name])
+		if idx >= 0:
+			_update_enemy_health(idx)
+			_check_enemy_death(target)
+
+func _resolve_aoe(event: Dictionary) -> void:
+	"""AoE damage to all living enemies."""
+	var damage = int(event.get("damage", 0))
+	if damage <= 0:
+		return
+	
+	for enemy in enemy_combatants:
+		if enemy.is_alive():
+			enemy.take_damage(damage)
+			var idx = enemy_combatants.find(enemy)
+			print("    🌊 AoE: %d %s damage to %s" % [
+				damage, event.get("element", ""), enemy.combatant_name])
+			if idx >= 0:
+				_update_enemy_health(idx)
+				_check_enemy_death(enemy)
+
+func _resolve_bonus_damage(event: Dictionary, primary_target) -> void:
+	"""Bonus flat damage added to the primary target."""
+	var damage = int(event.get("damage", 0))
+	if damage <= 0 or not primary_target or not primary_target.is_alive():
+		return
+	
+	primary_target.take_damage(damage)
+	var idx = enemy_combatants.find(primary_target)
+	print("    🔥 Bonus damage: %d %s to %s" % [
+		damage, event.get("element", ""), primary_target.combatant_name])
+	if idx >= 0:
+		_update_enemy_health(idx)
+		_check_enemy_death(primary_target)
+
+func _resolve_mana_events(events: Array[Dictionary]) -> void:
+	"""Resolve queued mana events from dice affix processing."""
+	if events.is_empty():
+		return
+	if not player or not player.has_mana_pool():
+		return
+	
+	print("  🔮 Resolving %d mana events..." % events.size())
+	
+	for event in events:
+		match event.get("type", ""):
+			"mana_refund":
+				var percent = event.get("percent", 0.0)
+				var refund = int(player.mana_pool.last_pull_cost * percent)
+				if refund > 0:
+					player.mana_pool.current_mana = mini(
+						player.mana_pool.current_mana + refund,
+						player.mana_pool.get_max_mana(player))
+					print("    🔮 Mana refund: +%d (%.0f%% of %d cost)" % [
+						refund, percent * 100, player.mana_pool.last_pull_cost])
+			"mana_gain":
+				var amount = int(event.get("amount", 0))
+				if amount > 0:
+					player.mana_pool.current_mana = mini(
+						player.mana_pool.current_mana + amount,
+						player.mana_pool.get_max_mana(player))
+					print("    🔮 Mana gain: +%d" % amount)
+			_:
+				print("    ⚠️ Unknown mana event type: %s" % event.get("type", "?"))
+
+
+
+
+
+
+
+# ============================================================================
+# v4 — STATUS THRESHOLD RESOLUTION
+# ============================================================================
+
+func _connect_status_threshold_signals():
+	"""Connect status_threshold_triggered from all combatant StatusTrackers."""
+	# Player
+	if player and "status_tracker" in player and player.status_tracker:
+		var tracker = player.status_tracker
+		if tracker.has_signal("status_threshold_triggered"):
+			if not tracker.status_threshold_triggered.is_connected(_on_status_threshold_player):
+				tracker.status_threshold_triggered.connect(_on_status_threshold_player)
+	
+	# Enemies
+	for i in range(enemy_combatants.size()):
+		var enemy_c = enemy_combatants[i]
+		var tracker = null
+		if "status_tracker" in enemy_c:
+			tracker = enemy_c.status_tracker
+		elif enemy_c.has_method("get_node_or_null"):
+			tracker = enemy_c.get_node_or_null("StatusTracker")
+		if tracker and tracker.has_signal("status_threshold_triggered"):
+			if not tracker.status_threshold_triggered.is_connected(_on_status_threshold_enemy):
+				tracker.status_threshold_triggered.connect(
+					_on_status_threshold_enemy.bind(i))
+
+func _on_status_threshold_player(status_id: String, event_data: Dictionary):
+	"""Handle threshold on the PLAYER (e.g., self-damage from Poison burst)."""
+	print("💥 Player threshold: %s → %s" % [status_id, event_data])
+	
+	if event_data.get("effect") == "burst_damage":
+		var damage: int = event_data.get("damage", 0)
+		if damage > 0 and player_combatant:
+			var is_magical: bool = event_data.get("damage_is_magical", false)
+			player_combatant.take_damage(damage)
+			print("  💥 Player takes %d %s burst from %s" % [
+				damage, "magical" if is_magical else "physical",
+				event_data.get("status_name", status_id)])
+			
+			if not player_combatant.is_alive():
+				_check_player_death()
+
+func _on_status_threshold_enemy(status_id: String, event_data: Dictionary,
+		enemy_index: int = 0):
+	"""Handle threshold on an ENEMY (e.g., Burn explosion deals burst damage)."""
+	print("💥 Enemy[%d] threshold: %s → %s" % [enemy_index, status_id, event_data])
+	
+	if event_data.get("effect") == "burst_damage":
+		var damage: int = event_data.get("damage", 0)
+		if damage > 0 and enemy_index < enemy_combatants.size():
+			var target = enemy_combatants[enemy_index]
+			if target and target.is_alive():
+				target.take_damage(damage)
+				var is_magical: bool = event_data.get("damage_is_magical", false)
+				print("  💥 Enemy[%d] takes %d %s burst from %s" % [
+					enemy_index, damage,
+					"magical" if is_magical else "physical",
+					event_data.get("status_name", status_id)])
+				
+				if not target.is_alive():
+					_check_enemy_death(target)
+
+
+func _get_status_duration_bonus(status_id: String) -> int:
+	if not player or not "affix_manager" in player:
+		return 0
+	var apm = player.affix_manager
+	if not apm:
+		return 0
+	
+	var bonus: int = 0
+	for affix in apm.get_pool(Affix.Category.MISC):
+		if not "status_duration" in affix.tags:
+			continue
+		var target_sid: String = affix.effect_data.get("status_id", "")
+		if target_sid == status_id or target_sid == "":
+			bonus += int(affix.effect_data.get("duration_bonus", 0))
+	return bonus
+
+func _get_status_damage_mult(status_id: String) -> float:
+	if not player or not "affix_manager" in player:
+		return 1.0
+	var apm = player.affix_manager
+	if not apm or not apm.has_method("get_pool"):
+		return 1.0
+	
+	var mult: float = 1.0
+	for affix in apm.get_pool(Affix.Category.STATUS_DAMAGE_MULTIPLIER):
+		var target_sid: String = affix.effect_data.get("status_id", "")
+		if target_sid == status_id or target_sid == "":
+			mult *= affix.get_value()
+	return mult
+
 
 func _apply_status_tick_results(player_ref, combatant: Combatant, 
 		tick_results: Array[Dictionary]) -> void:
@@ -1251,6 +1526,12 @@ func is_in_prep_phase() -> bool:
 
 func end_combat(player_won: bool):
 	print("\n=== COMBAT ENDED ===")
+	
+	# v4: Cleanup mana die selector
+	if combat_ui and combat_ui.mana_die_selector:
+		combat_ui.mana_die_selector.cleanup()
+	
+	
 	combat_state = CombatState.ENDED
 	turn_phase = TurnPhase.NONE
 	_combat_initialized = false

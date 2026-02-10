@@ -68,7 +68,16 @@ enum Category {
 	PER_TURN,
 	ON_HIT,
 	PROC,
-	MISC
+	MISC,
+	# ── Mana System (v4) ──
+	MANA_ELEMENT_UNLOCK,         ## Unlocks an element for mana die. effect_data: {"element": "FIRE"}
+	MANA_SIZE_UNLOCK,            ## Unlocks a die size for mana die. effect_data: {"die_size": 4}
+	MANA_DIE_AFFIX,              ## DiceAffix applied to every pulled mana die. effect_data: {"dice_affix": DiceAffix}
+	MANA_COST_MULTIPLIER,        ## Multiplies mana pull costs. 0.8 = 20% cheaper.
+	# ── Elemental Combat Modifiers (v4) ──
+	ELEMENTAL_DAMAGE_MULTIPLIER, ## Multiplies damage of a specific element. effect_data: {"element": "FIRE"}
+	STATUS_DAMAGE_MULTIPLIER,    ## Multiplies damage to targets with a status. effect_data: {"status_id": "burn"}
+	RESISTANCE_BYPASS,           ## Flat resistance bypass for an element. effect_data: {"element": "FIRE"}
 }
 
 # ============================================================================

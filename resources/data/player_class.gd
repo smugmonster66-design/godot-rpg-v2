@@ -83,9 +83,18 @@ var skill_ranks: Dictionary = {}
 @export var unlocked_at_level: int = 1
 
 # ============================================================================
+# MANA SYSTEM (v4)
+# ============================================================================
+@export_group("Mana System")
+## If non-null, this class has a mana pool. Drag a ManaPool resource here.
+## Non-caster classes (warrior, rogue) leave this null.
+## The template provides base_max_mana, mana_curve, int_mana_ratio.
+## Player.initialize_mana_pool() copies these values at class selection.
+@export var mana_pool_template: ManaPool = null
+
+# ============================================================================
 # STAT METHODS
 # ============================================================================
-
 func get_stat_at_level(stat_name: String, p_level: int) -> int:
 	"""Calculate a stat value at a given level"""
 	var base = 0

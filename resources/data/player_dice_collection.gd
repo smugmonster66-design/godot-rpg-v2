@@ -71,16 +71,26 @@ var _current_turn: int = 0
 var _pending_destructions: Array[int] = []  # pool slot indices
 
 
-## Deferred value changes from roll affixes + combat modifiers.
-## Populated by roll_hand(), consumed by AffixVisualAnimator during playback.
+## Element usage tracking for mage turn-context conditions.
+## Maps DieResource.Element → count of dice consumed with that element this turn.
+## Reset in roll_hand(), incremented in consume_from_hand().
+var _element_use_counts: Dictionary = {}
+
 ## Format: {die_index: {from: int, to: int}}
 var pending_value_animations: Dictionary = {}
 
+## v4 — Mana System: Accumulated combat events from dice affix processing.
+## Drained by CombatManager after each action via drain_combat_events().
+var _pending_combat_events: Array[Dictionary] = []
 
+## v4 — Mana System: Accumulated mana events from dice affix processing.
+## Drained by CombatManager after each action via drain_mana_events().
+var _pending_mana_events: Array[Dictionary] = []
 
 # ============================================================================
 # LEGACY COMPATIBILITY
 # ============================================================================
+
 ## For backwards compatibility with old code expecting available_dice.
 ## Returns only UNCONSUMED dice so existing gameplay logic still works.
 var available_dice: Array[DieResource]:
@@ -117,7 +127,9 @@ func _build_context() -> Dictionary:
 		"original_hand_size": _original_hand_size,
 		"turn_number": _current_turn,
 		"combat_modifiers": combat_modifiers,
+		"element_use_counts": get_element_use_counts(),  # v4: Mana system
 	}
+
 
 func _build_use_context(die: DieResource) -> Dictionary:
 	"""Build context specifically for ON_USE processing.
@@ -140,9 +152,7 @@ func start_combat():
 	_pending_destructions.clear()
 	used_pool_indices.clear()
 	hand.clear()
-	
-	print("⚔️ Combat started — processing ON_COMBAT_START affixes")
-	process_combat_start_affixes()
+	clear_pending_events()  # v4: Clear stale combat/mana events
 
 func end_combat():
 	"""Call when combat ends. Clears all combat state."""
@@ -279,6 +289,7 @@ func roll_hand():
 	used_pool_indices.clear()
 	_pending_destructions.clear()
 	pending_value_animations.clear()
+	_element_use_counts.clear()
 	
 	# Process PASSIVE affixes on pool dice before copying/rolling
 	# This sets properties like forced_roll_value that affect roll()
@@ -376,6 +387,10 @@ func consume_from_hand(die: DieResource):
 	
 	# Track which pool index was used (for visual feedback + context)
 	used_pool_indices.append(die.slot_index)
+	
+	# Track element usage for mage turn-context conditions
+	var _elem = die.get_effective_element()
+	_element_use_counts[_elem] = _element_use_counts.get(_elem, 0) + 1
 	
 	# Process ON_USE affixes against the FULL STABLE HAND
 	if affix_processor:
@@ -671,6 +686,17 @@ func _handle_affix_results(result: Dictionary):
 			"create_combat_modifier":
 				var modifier: CombatModifier = effect.modifier
 				add_combat_modifier(modifier)
+	
+	# v4 — Mana System: Accumulate combat and mana events for CombatManager
+	if result.has("combat_events"):
+		for event in result.combat_events:
+			_pending_combat_events.append(event)
+	if result.has("mana_events"):
+		for event in result.mana_events:
+			_pending_mana_events.append(event)
+
+
+
 
 func _on_affix_activated(die: DieResource, affix: DiceAffix, targets: Array[int]):
 	"""Handle affix activation"""
@@ -730,4 +756,75 @@ func shatter_hand_die(die_index: int):
 	used_pool_indices.append(die.slot_index)
 	print("💥 %s shattered at hand index %d" % [die.display_name, die_index])
 	die_shattered.emit(die)
+	hand_changed.emit()
+
+# ============================================================================
+# COMBAT / MANA EVENT QUEUES (v4 — Mana System)
+# ============================================================================
+
+func drain_combat_events() -> Array[Dictionary]:
+	"""Return and clear all pending combat events.
+	Called by CombatManager after each action is applied."""
+	var events = _pending_combat_events.duplicate()
+	_pending_combat_events.clear()
+	return events
+
+func drain_mana_events() -> Array[Dictionary]:
+	"""Return and clear all pending mana events.
+	Called by CombatManager after each action is applied."""
+	var events = _pending_mana_events.duplicate()
+	_pending_mana_events.clear()
+	return events
+
+func clear_pending_events():
+	"""Clear all pending events (e.g., on turn/combat start)."""
+	_pending_combat_events.clear()
+	_pending_mana_events.clear()
+
+# ============================================================================
+# ELEMENT TRACKING (v4 — Mana System)
+# ============================================================================
+
+func get_element_use_counts() -> Dictionary:
+	"""Get element usage counts for the current turn.
+	Returns a copy of the internal tracking dict: {DieResource.Element → int}.
+	Used by combat_manager for PER_ELEMENT_DIE_USED and MIN_ELEMENT_DICE_USED."""
+	return _element_use_counts.duplicate()
+
+# ============================================================================
+# MID-COMBAT DIE INSERTION (v4 — Mana System)
+# ============================================================================
+
+func add_die_to_hand(die: DieResource) -> void:
+	"""Add a die directly to the hand mid-combat.
+
+	Used by the mana system to insert pulled mana dice. The die is NOT
+	added to the permanent pool — it exists only for this combat turn.
+	ON_ROLL affixes are processed on the new die only, and combat
+	modifiers are applied.
+
+	The die should already be rolled before calling this (ManaPool.pull_mana_die()
+	handles rolling).
+
+	Args:
+		die: The DieResource to insert into the hand.
+	"""
+	die.slot_index = hand.size()
+	die.is_consumed = false
+	hand.append(die)
+
+	# Process ON_ROLL affixes for the new die only
+	if affix_processor:
+		var single: Array[DieResource] = [die]
+		var ctx = _build_context()
+		affix_processor.process_trigger(single, DiceAffix.Trigger.ON_ROLL, ctx)
+
+	# Apply persistent combat modifiers
+	for modifier in combat_modifiers:
+		if modifier.applies_to_die(die, die.slot_index):
+			modifier.apply_to_die(die)
+
+	print("🔮 Added %s to hand (slot %d, value %d)" % [
+		die.display_name, die.slot_index, die.get_total_value()])
+
 	hand_changed.emit()

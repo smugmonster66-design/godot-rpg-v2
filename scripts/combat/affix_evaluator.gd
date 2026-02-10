@@ -235,6 +235,79 @@ func resolve_mana_bonus(affix_manager: AffixPoolManager, context: Dictionary) ->
 	return resolve_category_sum(affix_manager, Affix.Category.MANA_BONUS, context)
 
 # ============================================================================
+# v4 — ELEMENTAL / STATUS / MANA CATEGORY RESOLUTION
+# ============================================================================
+
+func resolve_elemental_damage_multiplier(affix_manager: AffixPoolManager,
+		element: String, context: Dictionary) -> float:
+	"""Get the combined damage multiplier for a specific element.
+	
+	Iterates ELEMENTAL_DAMAGE_MULTIPLIER pool. Each affix has
+	effect_data.element — only affixes matching the given element (or ""
+	for universal) contribute. Returns product of matching values.
+	
+	Args:
+		element: Lowercase element name ("fire", "ice", "shock", etc.)
+	"""
+	var product: float = 1.0
+	
+	for affix in affix_manager.get_pool(Affix.Category.ELEMENTAL_DAMAGE_MULTIPLIER):
+		var affix_elem: String = affix.effect_data.get("element", "").to_lower()
+		if affix_elem == element.to_lower() or affix_elem == "":
+			var value = _evaluate_single_affix(affix, context)
+			if value != 0.0:
+				product *= value
+	
+	return product
+
+func resolve_status_damage_multiplier(affix_manager: AffixPoolManager,
+		target_status_ids: Array, context: Dictionary) -> float:
+	"""Get the combined damage multiplier against targets with specific statuses.
+	
+	Iterates STATUS_DAMAGE_MULTIPLIER pool. Each affix has
+	effect_data.status_id — contributes if the target has that status.
+	
+	Args:
+		target_status_ids: Array of status_id strings active on the target.
+	"""
+	var product: float = 1.0
+	
+	for affix in affix_manager.get_pool(Affix.Category.STATUS_DAMAGE_MULTIPLIER):
+		var required_sid: String = affix.effect_data.get("status_id", "")
+		if required_sid == "" or required_sid in target_status_ids:
+			var value = _evaluate_single_affix(affix, context)
+			if value != 0.0:
+				product *= value
+	
+	return product
+
+func resolve_resistance_bypass(affix_manager: AffixPoolManager,
+		element: String, context: Dictionary) -> float:
+	"""Get the flat resistance bypass amount for a specific element.
+	
+	Iterates RESISTANCE_BYPASS pool. Each affix has effect_data.element.
+	Returns additive sum of matching values (flat bypass, not multiplicative).
+	
+	Args:
+		element: Lowercase element name.
+	"""
+	var total: float = 0.0
+	
+	for affix in affix_manager.get_pool(Affix.Category.RESISTANCE_BYPASS):
+		var affix_elem: String = affix.effect_data.get("element", "").to_lower()
+		if affix_elem == element.to_lower() or affix_elem == "":
+			total += _evaluate_single_affix(affix, context)
+	
+	return total
+
+func resolve_mana_cost_multiplier(affix_manager: AffixPoolManager, context: Dictionary) -> float:
+	"""Get the combined mana cost multiplier from skills/equipment.
+	
+	Iterates MANA_COST_MULTIPLIER pool. Returns product of all values.
+	A value of 0.8 means 20% cost reduction. Multiple stack multiplicatively.
+	"""
+	return resolve_category_product(affix_manager, Affix.Category.MANA_COST_MULTIPLIER, context)
+# ============================================================================
 # STATUS-AWARE RESOLUTION — Affix + StatusTracker stat modifiers
 # ============================================================================
 # These layer StatusTracker stat modifiers ON TOP of affix resolution,
@@ -544,3 +617,18 @@ func _element_to_resist_category(element: String) -> int:
 		"poison": return Affix.Category.POISON_RESIST_BONUS
 		"shadow": return Affix.Category.SHADOW_RESIST_BONUS
 		_: return -1
+
+func damage_type_to_element_string(damage_type) -> String:
+	"""Convert a DamageType enum value to a lowercase element string.
+	Used by combat_manager to query element-specific affixes."""
+	# ActionEffect.DamageType mapping
+	match damage_type:
+		3: return "fire"      # FIRE
+		4: return "ice"       # ICE
+		5: return "shock"     # SHOCK
+		6: return "poison"    # POISON
+		7: return "shadow"    # SHADOW
+		0: return "slashing"  # SLASHING
+		1: return "piercing"  # PIERCING
+		2: return "blunt"     # BLUNT
+		_: return ""

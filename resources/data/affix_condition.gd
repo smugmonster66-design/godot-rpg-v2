@@ -63,6 +63,15 @@ enum Type {
 	PER_STATUS_STACKS,             ## multiplier = stack count of status (status_id in condition_data)
 	PER_ACTIVE_DEBUFF_COUNT,       ## multiplier = number of distinct active debuffs
 	PER_ACTIVE_BUFF_COUNT,         ## multiplier = number of distinct active buffs
+	
+	# ── v4 Mana Gates ──
+	MANA_ABOVE_PERCENT,            ## Current mana >= threshold% of max (threshold 0.0–1.0)
+	MANA_BELOW_PERCENT,            ## Current mana < threshold% of max
+	ELEMENT_DICE_IN_HAND,          ## Hand has >= threshold dice of element (condition_data.element)
+	
+	# ── v4 Mana/Element Scaling ──
+	PER_MANA_PERCENT,              ## multiplier = current mana / max mana (0.0–1.0)
+	PER_ELEMENT_DICE_IN_HAND,      ## multiplier = count of element dice in hand (condition_data.element)
 }
 
 # ============================================================================
@@ -225,6 +234,17 @@ func evaluate(context: Dictionary) -> Result:
 			var sid = condition_data.get("status_id", "")
 			raw_pass = _check_target_has_status(context, sid)
 		
+		# ── v4 Mana Gates ──
+		Type.MANA_ABOVE_PERCENT:
+			raw_pass = _get_mana_percent(context) >= threshold
+		
+		Type.MANA_BELOW_PERCENT:
+			raw_pass = _get_mana_percent(context) < threshold
+		
+		Type.ELEMENT_DICE_IN_HAND:
+			var elem_str = condition_data.get("element", "")
+			raw_pass = _count_element_dice_in_hand(context, elem_str) >= int(threshold)
+		
 		# ── Scaling (always pass, set multiplier) ──
 		Type.PER_EQUIPPED_ITEM:
 			multiplier = float(_count_filled_slots(player))
@@ -254,6 +274,14 @@ func evaluate(context: Dictionary) -> Result:
 		
 		Type.PER_ACTIVE_BUFF_COUNT:
 			multiplier = float(_count_active_statuses(context, false))
+		
+		# ── v4 Mana/Element Scaling ──
+		Type.PER_MANA_PERCENT:
+			multiplier = _get_mana_percent(context)
+		
+		Type.PER_ELEMENT_DICE_IN_HAND:
+			var elem_str = condition_data.get("element", "")
+			multiplier = float(_count_element_dice_in_hand(context, elem_str))
 	
 	# Scaling conditions always pass
 	if is_scaling:
@@ -279,6 +307,9 @@ func _is_scaling_type() -> bool:
 		Type.PER_STATUS_STACKS,
 		Type.PER_ACTIVE_DEBUFF_COUNT,
 		Type.PER_ACTIVE_BUFF_COUNT,
+		# v4
+		Type.PER_MANA_PERCENT,
+		Type.PER_ELEMENT_DICE_IN_HAND,
 	]
 
 func is_scaling() -> bool:
@@ -498,8 +529,39 @@ func _count_active_statuses(context: Dictionary, debuffs_only: bool) -> int:
 	return count
 
 # ============================================================================
+# v4 — MANA / ELEMENT HELPERS
+# ============================================================================
+
+func _get_mana_percent(context: Dictionary) -> float:
+	"""Get current mana as 0.0–1.0 from context. Checks player.mana_pool."""
+	var player = context.get("player", null)
+	if not player:
+		return 0.0
+	if player.has_method("has_mana_pool") and player.has_mana_pool():
+		return player.mana_pool.get_mana_percent()
+	return 0.0
+
+func _count_element_dice_in_hand(context: Dictionary, element_str: String) -> int:
+	"""Count dice in the player's current hand matching the given element string.
+	element_str should be uppercase: "FIRE", "ICE", "SHOCK", etc."""
+	var dice_pool = context.get("dice_pool", null)
+	if not dice_pool or not "hand" in dice_pool:
+		return 0
+	
+	var count: int = 0
+	for die in dice_pool.hand:
+		if die.is_consumed:
+			continue
+		# DieResource.Element enum name comparison
+		var die_elem_name: String = DieResource.Element.keys()[die.element] if die.element < DieResource.Element.size() else ""
+		if die_elem_name == element_str.to_upper():
+			count += 1
+	return count
+
+# ============================================================================
 # DESCRIPTION GENERATION
 # ============================================================================
+
 
 func get_description() -> String:
 	"""Generate a human-readable description of this condition."""
@@ -558,6 +620,17 @@ func get_description() -> String:
 			return "Per active debuff"
 		Type.PER_ACTIVE_BUFF_COUNT:
 			return "Per active buff"
+		# v4 Mana/Element
+		Type.MANA_ABOVE_PERCENT:
+			return "Requires mana above %d%%" % int(threshold * 100)
+		Type.MANA_BELOW_PERCENT:
+			return "Requires mana below %d%%" % int(threshold * 100)
+		Type.ELEMENT_DICE_IN_HAND:
+			return "Requires %d+ %s dice in hand" % [int(threshold), condition_data.get("element", "?")]
+		Type.PER_MANA_PERCENT:
+			return "Scales with mana percentage"
+		Type.PER_ELEMENT_DICE_IN_HAND:
+			return "Per %s die in hand" % condition_data.get("element", "?")
 		_:
 			return "Unknown condition"
 

@@ -90,6 +90,21 @@ enum EffectType {
 	DESTROY_SELF,            # Permanently remove this die from pool after use
 	SET_ELEMENT,             # Set die element to effect_data.element
 	CREATE_COMBAT_MODIFIER,  # Push a CombatModifier (set via combat_modifier export)
+	
+	# --- Combat Event Emitters (v4 — Mana System) ---
+	EMIT_SPLASH_DAMAGE,      # Splash dmg to adjacent enemies. effect_data: {element, percent}
+	EMIT_CHAIN_DAMAGE,       # Chain dmg to N targets. effect_data: {element, chains, decay}
+	EMIT_AOE_DAMAGE,         # AoE dmg to all enemies. effect_data: {element}
+	EMIT_BONUS_DAMAGE,       # Flat/percent bonus dmg. effect_data: {element}
+	
+	# --- Mana Event Emitters (v4) ---
+	MANA_REFUND,             # Refund % of last pull cost. effect_value = percent (0.0–1.0)
+	MANA_GAIN,               # Gain flat mana. effect_value = amount
+	
+	# --- Dice Manipulation (v4) ---
+	ROLL_KEEP_HIGHEST,       # Roll N times, keep highest. effect_value = extra_rolls
+	GRANT_EXTRA_ROLL,        # Grant reroll keeping best. effect_value = extra_rolls
+	IGNORE_RESISTANCE,       # Bypass target resistance. effect_data: {element}
 }
 
 ## Where does the effect magnitude come from? (v2)
@@ -106,6 +121,9 @@ enum ValueSource {
 	PARENT_TARGET_PERCENT, # (v2.1) First die from parent affix's neighbor_target — value * effect_value
 	SNAPSHOT_TARGET_VALUE,
 	SNAPSHOT_TARGET_PERCENT,
+	# --- Mana Context (v4) ---
+	CONTEXT_ELEMENT_DICE_USED,  # context.element_use_counts[element] * effect_value
+	CONTEXT_DICE_PLACED,        # context.used_count * effect_value (alias)
 }
 
 enum VisualEffectType {

@@ -35,6 +35,14 @@ enum StatusDamageType {
 	MAGICAL,
 }
 
+## v4 — What happens when stack_threshold is reached.
+enum ThresholdEffect {
+	NONE,                   ## No threshold behavior
+	BURST_DAMAGE,           ## Deal burst damage = damage_per_stack × threshold × threshold_value
+	APPLY_OTHER_STATUS,     ## Apply threshold_status to the same target
+	CUSTOM_SIGNAL,          ## Emit signal for combat manager to handle
+}
+
 # ============================================================================
 # IDENTITY
 # ============================================================================
@@ -108,24 +116,51 @@ enum StatusDamageType {
 @export var stat_modifier_per_stack: Dictionary = {}
 
 # ============================================================================
+# v4 — STACK THRESHOLD (Burn explosion, Chill→Frozen, etc.)
+# ============================================================================
+@export_group("Stack Threshold")
+## When stacks reach this value, the threshold effect fires.
+## 0 = disabled. The consumed stacks are subtracted after the effect.
+@export var stack_threshold: int = 0
+
+## What happens when the threshold is reached.
+@export var threshold_effect: ThresholdEffect = ThresholdEffect.NONE
+
+## For BURST_DAMAGE: multiplier on (damage_per_stack × threshold).
+## For CUSTOM_SIGNAL: arbitrary numeric payload.
+@export var threshold_value: float = 1.0
+
+## For APPLY_OTHER_STATUS: the StatusAffix to apply when threshold fires.
+@export var threshold_status: StatusAffix = null
+
+## For APPLY_OTHER_STATUS: how many stacks of the new status to apply.
+@export var threshold_stacks: int = 1
+
+# ============================================================================
 # INSTANCE FACTORY
 # ============================================================================
 
-func create_instance(initial_stacks: int = 1, p_source: String = "") -> Dictionary:
+func create_instance(initial_stacks: int = 1, p_source: String = "",
+		duration_bonus: int = 0, damage_mult: float = 1.0) -> Dictionary:
 	"""Create a runtime status instance dictionary.
 	
 	Args:
 		initial_stacks: Starting stack count.
 		p_source: Name of the combatant/item/ability that applied this.
+		duration_bonus: Extra turns added to default_duration (from skills/affixes).
+		damage_mult: Multiplier on tick damage (from skills/affixes). Stored per-instance.
 	
 	Returns:
 		Dictionary representing an active status on a combatant.
 	"""
+	var base_duration: int = default_duration + duration_bonus if duration_type == DurationType.TURN_BASED else -1
 	return {
 		"status_affix": self,
 		"current_stacks": mini(initial_stacks, max_stacks),
-		"remaining_turns": default_duration if duration_type == DurationType.TURN_BASED else -1,
+		"remaining_turns": base_duration,
 		"source_name": p_source,
+		"duration_bonus": duration_bonus,
+		"damage_mult": damage_mult,
 	}
 
 # ============================================================================
@@ -159,11 +194,13 @@ func apply_tick(instance: Dictionary) -> Dictionary:
 	Does NOT handle decay or expiry — that's StatusTracker's job.
 	"""
 	var stacks: int = instance["current_stacks"]
+	var dmg_mult: float = instance.get("damage_mult", 1.0)
+	var raw_damage: int = damage_per_stack * stacks
 	var result: Dictionary = {
 		"status_id": status_id,
 		"status_name": affix_name,
 		"stacks": stacks,
-		"damage": damage_per_stack * stacks,
+		"damage": roundi(raw_damage * dmg_mult),
 		"damage_is_magical": tick_damage_type == StatusDamageType.MAGICAL,
 		"heal": heal_per_stack * stacks,
 		"stat_changes": {},

@@ -68,6 +68,13 @@ var status_tracker: StatusTracker = null
 var dice_pool: PlayerDiceCollection = null
 
 # ============================================================================
+# MANA POOL (v4 — Mage System)
+# ============================================================================
+## Mana pool for caster classes. Null for non-caster classes (warrior, rogue).
+## Created in _init(), configured via initialize_mana_pool() after class is set.
+var mana_pool: ManaPool = null
+
+# ============================================================================
 # AFFIX MANAGER
 # ============================================================================
 var affix_manager: AffixPoolManager = AffixPoolManager.new()
@@ -102,9 +109,12 @@ func _init():
 	status_tracker.name = "StatusTracker"
 	_connect_status_tracker_signals()
 	
+	mana_pool = ManaPool.new()
+	
 	set_tracker.initialize(self)
 	
 	print("🎲 Player resource initialized")
+
 
 func _connect_status_tracker_signals():
 	"""Bridge StatusTracker signals to legacy signals for UI compatibility."""
@@ -218,8 +228,49 @@ func recalculate_stats():
 		mana_changed.emit(current_mana, max_mana)
 
 # ============================================================================
+# MANA POOL INTEGRATION (v4)
+# ============================================================================
+
+func initialize_mana_pool() -> void:
+	"""Configure the mana pool from the active class's template.
+
+	Call after active_class is set and equipment/skills are applied.
+	If the active class has no mana_pool_template, the mana pool is
+	left unconfigured (has_mana_pool() returns false).
+	"""
+	if not mana_pool:
+		mana_pool = ManaPool.new()
+
+	if not active_class or not active_class.get("mana_pool_template"):
+		return
+
+	var template: ManaPool = active_class.mana_pool_template
+	mana_pool.base_max_mana = template.base_max_mana
+	mana_pool.mana_curve = template.mana_curve
+	mana_pool.int_mana_ratio = template.int_mana_ratio
+	mana_pool.max_level = template.max_level
+	mana_pool.refill_on_combat_start = template.refill_on_combat_start
+
+	var int_stat = get_total_stat("intellect") if has_method("get_total_stat") else intellect
+	mana_pool.initialize(
+		active_class.level if active_class else level,
+		int_stat,
+		affix_manager
+	)
+
+func has_mana_pool() -> bool:
+	"""Check if the player has an active mana pool (is a caster class).
+	Returns false if no class is set or class has no mana_pool_template."""
+	if not active_class:
+		return false
+	if not active_class.get("mana_pool_template"):
+		return false
+	return mana_pool != null
+
+# ============================================================================
 # HEALTH & MANA
 # ============================================================================
+
 
 func take_damage(amount: int, is_magical: bool = false) -> int:
 	var damage_reduction: int = get_barrier() if is_magical else get_armor()
@@ -369,6 +420,18 @@ func _apply_item_dice(item: EquippableItem):
 			for tag in tags:
 				die_copy.add_tag(tag)
 			
+			# Snapshot dice may contain stale DiceAffixes from external
+			# systems (set bonuses, combat modifiers, etc.) that were on
+			# the die when the photo was taken. Strip anything that doesn't
+			# belong to this item — those systems will re-apply their own
+			# affixes if they're still active.
+			if dice_modified:
+				var to_keep: Array[DiceAffix] = []
+				for da in die_copy.applied_affixes:
+					if da.source.is_empty() or da.source == source_name:
+						to_keep.append(da)
+				die_copy.applied_affixes = to_keep
+			
 			# Only apply visual effects from item affixes on FRESH dice.
 			# Modified dice already have them baked in.
 			if not dice_modified:
@@ -416,9 +479,14 @@ func _add_item_affixes(item: EquippableItem):
 			affix_manager.add_affix(affix)
 			print("  ✅ Added affix: %s" % affix.affix_name)
 			
-			# Handle dice-granting affixes
+			# Handle dice-granting affixes — skip if item has modified dice,
+			# because those dice are already in the snapshot and will be
+			# restored by _apply_item_dice() via get_runtime_dice().
 			if affix.category == Affix.Category.DICE and affix.granted_dice.size() > 0:
-				_apply_affix_dice(affix, item.item_name)
+				if not item.are_dice_modified():
+					_apply_affix_dice(affix, item.item_name)
+
+
 
 func _apply_affix_dice(affix: Affix, source_name: String):
 	"""Add dice granted by an affix to the player's pool."""

@@ -59,7 +59,9 @@ func process_trigger(dice: Array[DieResource], trigger: DiceAffix.Trigger, conte
 		"value_changes": {},
 		"tags_added": {},
 		"tags_removed": {},
-		"special_effects": []
+		"special_effects": [],
+		"combat_events": [],   # v4: Mana system combat event queue
+		"mana_events": [],     # v4: Mana system mana event queue
 	}
 	
 	var total_dice = dice.size()
@@ -313,6 +315,36 @@ func _dispatch_effect(dice: Array[DieResource], source_die: DieResource,
 		
 		DiceAffix.EffectType.SET_ROLL_VALUE:
 			_apply_set_roll_value(target_die, target_index, resolved_value, affix_or_parent, result)
+		
+		# --- Combat Event Emitters (v4) ---
+		DiceAffix.EffectType.EMIT_SPLASH_DAMAGE:
+			_apply_emit_splash(source_die, target_index, resolved_value, edata, result)
+		
+		DiceAffix.EffectType.EMIT_CHAIN_DAMAGE:
+			_apply_emit_chain(source_die, target_index, resolved_value, edata, result)
+		
+		DiceAffix.EffectType.EMIT_AOE_DAMAGE:
+			_apply_emit_aoe(source_die, target_index, resolved_value, edata, result)
+		
+		DiceAffix.EffectType.EMIT_BONUS_DAMAGE:
+			_apply_emit_bonus_damage(source_die, target_index, resolved_value, edata, result)
+		
+		# --- Mana Event Emitters (v4) ---
+		DiceAffix.EffectType.MANA_REFUND:
+			_apply_mana_refund(source_die, target_index, resolved_value, result)
+		
+		DiceAffix.EffectType.MANA_GAIN:
+			_apply_mana_gain(source_die, target_index, resolved_value, result)
+		
+		# --- Dice Manipulation (v4) ---
+		DiceAffix.EffectType.ROLL_KEEP_HIGHEST:
+			_apply_roll_keep_highest(target_die, target_index, resolved_value, result)
+		
+		DiceAffix.EffectType.GRANT_EXTRA_ROLL:
+			_apply_grant_extra_roll(target_die, target_index, resolved_value, result)
+		
+		DiceAffix.EffectType.IGNORE_RESISTANCE:
+			_apply_ignore_resistance(source_die, target_index, edata, result)
 
 # ============================================================================
 # VALUE RESOLUTION (v2)
@@ -336,6 +368,14 @@ func _resolve_value(affix: DiceAffix, source_die: DieResource,
 			return float(context.get("used_count", 0)) * affix.effect_value
 		DiceAffix.ValueSource.SELF_TAGS:
 			return affix.effect_value  # Tags handled separately in dispatch
+		# --- Mana Context (v4) ---
+		DiceAffix.ValueSource.CONTEXT_ELEMENT_DICE_USED:
+			var elem_str = affix.effect_data.get("element", "")
+			var elem_enum = DieResource._string_to_element(elem_str)
+			var elem_counts: Dictionary = context.get("element_use_counts", {})
+			return float(elem_counts.get(elem_enum, 0)) * affix.effect_value
+		DiceAffix.ValueSource.CONTEXT_DICE_PLACED:
+			return float(context.get("used_count", 0)) * affix.effect_value
 	return affix.effect_value
 
 func _resolve_value_for_sub(sub: DiceAffixSubEffect, source_die: DieResource,
@@ -682,9 +722,177 @@ func _apply_create_combat_modifier(source_die: DieResource, modifier: CombatModi
 	print("    🛡️ Combat modifier created from %s: %s" % [source_die.display_name, mod_copy])
 
 # ============================================================================
-# RESULT TRACKING HELPERS
+# COMBAT EVENT EMITTERS (v4 — Mana System)
 # ============================================================================
 
+func _apply_emit_splash(source_die: DieResource, index: int,
+		resolved_value: float, edata: Dictionary, result: Dictionary):
+	"""Emit a splash damage event for CombatManager to resolve post-attack.
+	Splash hits enemies adjacent to the primary target."""
+	var event = {
+		"type": "splash",
+		"source_die": source_die.display_name,
+		"die_index": index,
+		"damage": resolved_value,
+		"element": edata.get("element", ""),
+		"percent": edata.get("percent", 0.0),
+	}
+	result.combat_events.append(event)
+	print("    💥 %s queued splash: %.0f %s" % [
+		source_die.display_name, resolved_value, edata.get("element", "?")])
+
+func _apply_emit_chain(source_die: DieResource, index: int,
+		resolved_value: float, edata: Dictionary, result: Dictionary):
+	"""Emit a chain damage event. Chains to N targets with decay."""
+	var event = {
+		"type": "chain",
+		"source_die": source_die.display_name,
+		"die_index": index,
+		"damage": resolved_value,
+		"element": edata.get("element", ""),
+		"chains": int(edata.get("chains", 2)),
+		"decay": edata.get("decay", 0.7),
+	}
+	result.combat_events.append(event)
+	print("    ⚡ %s queued chain: %.0f %s × %d (%.0f%% decay)" % [
+		source_die.display_name, resolved_value, edata.get("element", "?"),
+		event.chains, event.decay * 100])
+
+func _apply_emit_aoe(source_die: DieResource, index: int,
+		resolved_value: float, edata: Dictionary, result: Dictionary):
+	"""Emit an AoE damage event. Hits all enemies."""
+	var event = {
+		"type": "aoe",
+		"source_die": source_die.display_name,
+		"die_index": index,
+		"damage": resolved_value,
+		"element": edata.get("element", ""),
+	}
+	result.combat_events.append(event)
+	print("    🌊 %s queued AoE: %.0f %s" % [
+		source_die.display_name, resolved_value, edata.get("element", "?")])
+
+func _apply_emit_bonus_damage(source_die: DieResource, index: int,
+		resolved_value: float, edata: Dictionary, result: Dictionary):
+	"""Emit a bonus damage event. Added to primary attack damage."""
+	var event = {
+		"type": "bonus_damage",
+		"source_die": source_die.display_name,
+		"die_index": index,
+		"damage": resolved_value,
+		"element": edata.get("element", ""),
+	}
+	result.combat_events.append(event)
+	print("    🔥 %s queued bonus damage: %.0f %s" % [
+		source_die.display_name, resolved_value, edata.get("element", "?")])
+
+# ============================================================================
+# MANA EVENT EMITTERS (v4)
+# ============================================================================
+
+func _apply_mana_refund(source_die: DieResource, index: int,
+		resolved_value: float, result: Dictionary):
+	"""Emit a mana refund event. Refunds a percentage of the last pull cost."""
+	var event = {
+		"type": "mana_refund",
+		"source_die": source_die.display_name,
+		"die_index": index,
+		"percent": resolved_value,
+	}
+	result.mana_events.append(event)
+	print("    🔮 %s queued mana refund: %.0f%%" % [
+		source_die.display_name, resolved_value * 100])
+
+func _apply_mana_gain(source_die: DieResource, index: int,
+		resolved_value: float, result: Dictionary):
+	"""Emit a mana gain event. Adds flat mana to the pool."""
+	var event = {
+		"type": "mana_gain",
+		"source_die": source_die.display_name,
+		"die_index": index,
+		"amount": int(resolved_value),
+	}
+	result.mana_events.append(event)
+	print("    🔮 %s queued mana gain: %d" % [
+		source_die.display_name, int(resolved_value)])
+
+# ============================================================================
+# DICE MANIPULATION (v4)
+# ============================================================================
+
+func _apply_roll_keep_highest(die: DieResource, index: int,
+		resolved_value: float, result: Dictionary):
+	"""Roll the die N extra times and keep the highest result.
+	Modifies the die's value in place."""
+	var extra_rolls = int(resolved_value)
+	if extra_rolls <= 0:
+		return
+	
+	var best = die.get_total_value()
+	for _i in range(extra_rolls):
+		die.roll()
+		best = maxi(best, die.get_total_value())
+	
+	var old_val = die.get_total_value()
+	die.modified_value = best
+	
+	if old_val != best:
+		_record_value_change(result, index, old_val, best)
+	
+	result.special_effects.append({
+		"type": "roll_keep_highest",
+		"die_index": index,
+		"rolls": extra_rolls + 1,
+		"kept": best,
+	})
+	print("    🎲 %s rolled %d times, kept %d" % [
+		die.display_name, extra_rolls + 1, best])
+
+func _apply_grant_extra_roll(die: DieResource, index: int,
+		resolved_value: float, result: Dictionary):
+	"""Grant the die a reroll that keeps the better result.
+	Similar to ROLL_KEEP_HIGHEST but designed for UI display as 'extra roll'."""
+	var extra = int(resolved_value)
+	if extra <= 0:
+		return
+	
+	var original = die.get_total_value()
+	var best = original
+	for _i in range(extra):
+		die.roll()
+		best = maxi(best, die.get_total_value())
+	
+	die.modified_value = best
+	
+	if original != best:
+		_record_value_change(result, index, original, best)
+	
+	result.special_effects.append({
+		"type": "grant_extra_roll",
+		"die_index": index,
+		"original": original,
+		"final": best,
+	})
+	print("    🎲 %s got extra roll: %d → %d" % [
+		die.display_name, original, best])
+
+func _apply_ignore_resistance(source_die: DieResource, index: int,
+		edata: Dictionary, result: Dictionary):
+	"""Mark this attack as ignoring target resistance for an element.
+	CombatManager reads this from combat_events during damage calc."""
+	var event = {
+		"type": "ignore_resistance",
+		"source_die": source_die.display_name,
+		"die_index": index,
+		"element": edata.get("element", ""),
+	}
+	result.combat_events.append(event)
+	print("    🛡️ %s queued resistance bypass: %s" % [
+		source_die.display_name, edata.get("element", "all")])
+
+# ============================================================================
+# RESULT TRACKING HELPERS
+# ============================================================================
 func _record_value_change(result: Dictionary, index: int, old_val: int, new_val: int):
 	"""Record a value change in results"""
 	result.value_changes[index] = {"old": old_val, "new": new_val}
