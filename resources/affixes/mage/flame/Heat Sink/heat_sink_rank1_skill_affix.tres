@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://oy2gvxoe4k2g"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_gckrp"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_qotbc"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_p0vqc"]
+
+[resource]
+script = ExtResource("2_qotbc")
+affix_name = "Heat Sink"
+description = "refunds mana on low rolls"
+has_elemental_identity = true
+elemental_identity = 3
+category = 36
+tags = Array[String](["mage", "flame", "mana_die_affix"])
+effect_number = 1.0
+effect_data = {
+"condition_threshold": "3",
+"dice_condition": "SELF_VALUE_BELOW",
+"dice_effect": "MANA_GAIN"
+}
+metadata/_custom_type_script = "uid://c8ianog20smkw"

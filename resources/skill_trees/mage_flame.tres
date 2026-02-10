@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="SkillTree" load_steps=11 format=3 uid="uid://7skxlt53e4sf"]
+
+[ext_resource type="Script" uid="uid://cukfw0heumnic" path="res://scripts/data/skill_tree.gd" id="1_ftk5x"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="2_be7fa"]
+[ext_resource type="Resource" uid="uid://bx75le0dbu7r8" path="res://resources/skills/mage/flame/ignite_mage_flame_skill.tres" id="3_qevwv"]
+[ext_resource type="Resource" uid="uid://bujq2fb4yby43" path="res://resources/skills/mage/flame/flare_dice_flame_skill.tres" id="4_cnyut"]
+[ext_resource type="Resource" uid="uid://llaytuvp2y4w" path="res://resources/skills/mage/flame/kindling_mage_flame_skill.tres" id="5_44xkj"]
+[ext_resource type="Resource" uid="uid://b6uv2qsubv6ne" path="res://resources/skills/mage/flame/fuel_the_fire_mage_flame_skill.tres" id="6_dn5b5"]
+[ext_resource type="Resource" uid="uid://d2am5yu7l4tpy" path="res://resources/skills/mage/flame/pyroclastic_dice_mage_flame_skill.tres" id="7_qukky"]
+[ext_resource type="Resource" uid="uid://wukc61p7ggqg" path="res://resources/skills/mage/flame/inferno_mage_flame_skill.tres" id="8_10ldk"]
+[ext_resource type="Resource" uid="uid://c8ubh7l6fw56c" path="res://resources/skills/mage/flame/heat_sink_mage_flame_skill.tres" id="9_bnh2n"]
+[ext_resource type="Resource" uid="uid://bmhsvlm385jtj" path="res://resources/skills/mage/flame/conflagration_mage_flame_skill.tres" id="10_skkmn"]
+
+[resource]
+script = ExtResource("1_ftk5x")
+tree_id = "flame"
+tree_name = "Flame"
+description = "All about the flames, baby. "
+tier_1_skills = Array[ExtResource("2_be7fa")]([ExtResource("3_qevwv")])
+tier_2_skills = Array[ExtResource("2_be7fa")]([ExtResource("4_cnyut"), ExtResource("5_44xkj")])
+tier_3_skills = Array[ExtResource("2_be7fa")]([ExtResource("6_dn5b5"), ExtResource("7_qukky")])
+tier_4_skills = Array[ExtResource("2_be7fa")]([ExtResource("8_10ldk"), ExtResource("9_bnh2n")])
+tier_5_skills = Array[ExtResource("2_be7fa")]([ExtResource("10_skkmn")])
+tier_2_points_required = 1
+tier_3_points_required = 3
+tier_4_points_required = 5
+tier_5_points_required = 7
+metadata/_custom_type_script = "uid://cukfw0heumnic"

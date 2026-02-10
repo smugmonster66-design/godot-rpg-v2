@@ -16,7 +16,7 @@ const ELEMENT_VISUALS = preload("res://resources/element_visuals.tres")
 
 @export_group("Player Base Classes")
 @export var warrior = load("res://resources/player_classes/warrior.tres") as PlayerClass
-
+@export var mage = preload("res://resources/player_classes/mage.tres")
 
 @export_group("Element Visuals")
 ## Central element visual configuration - fill/stroke shaders per element
@@ -116,7 +116,10 @@ func initialize_player():
 	
 	# Load warrior class resource
 	player.add_class("Warrior", warrior)
-	player.switch_class("Warrior")
+	player.add_class("Mage", mage)
+	
+	
+	player.switch_class("Mage")
 	
 	# Level up for testing
 	for i in range(4):

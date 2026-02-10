@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="PlayerClass" load_steps=6 format=3 uid="uid://bbmtj5gxw0e46"]
+
+[ext_resource type="Script" uid="uid://cb1vpfg1uc223" path="res://resources/data/mana_pool.gd" id="1_3l5dt"]
+[ext_resource type="Script" uid="uid://n4huc4i0nhvn" path="res://resources/data/player_class.gd" id="1_wvk7n"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_3l5dt"]
+[ext_resource type="Resource" uid="uid://7skxlt53e4sf" path="res://resources/skill_trees/mage_flame.tres" id="3_ugu8v"]
+
+[sub_resource type="Resource" id="Resource_ugu8v"]
+script = ExtResource("1_3l5dt")
+metadata/_custom_type_script = "uid://cb1vpfg1uc223"
+
+[resource]
+script = ExtResource("1_wvk7n")
+class_id = "mage"
+player_class_name = "Mage"
+description = "Master of (most of) the elemental magics. Fire, frost and storm beckon at their call. Poison and Shadow not so much."
+main_stat = 2
+base_health = 80
+base_mana = 4
+base_strength = 6
+base_agility = 8
+base_intelligence = 14
+health_per_level = 6
+mana_per_level = 0
+strength_per_level = 0.5
+agility_per_level = 0.5
+intelligence_per_level = 2.5
+skill_tree_1 = ExtResource("3_ugu8v")
+mana_pool_template = SubResource("Resource_ugu8v")
+metadata/_custom_type_script = "uid://n4huc4i0nhvn"

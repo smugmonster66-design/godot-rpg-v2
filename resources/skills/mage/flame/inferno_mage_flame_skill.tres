@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=7 format=3 uid="uid://wukc61p7ggqg"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_ujta6"]
+[ext_resource type="Resource" uid="uid://d2am5yu7l4tpy" path="res://resources/skills/mage/flame/pyroclastic_dice_mage_flame_skill.tres" id="2_ach1d"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_xtlf6"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="3_ach1d"]
+[ext_resource type="Resource" uid="uid://cd20i72j3kfqt" path="res://resources/affixes/mage/flame/inferno/inferno_rank1_part1_skill_affix.tres" id="4_v102k"]
+
+[sub_resource type="Resource" id="Resource_o2jhc"]
+script = ExtResource("1_ujta6")
+required_skill = ExtResource("2_ach1d")
+required_rank = 5
+metadata/_custom_type_script = "uid://b1rglmix7t4d5"
+
+[resource]
+script = ExtResource("3_ach1d")
+skill_id = "flame_inferno"
+skill_name = "Inferno"
+description = "Unlocks [color=orange]D10[/color] mana die. Burn stacks now [color=red]explode at 5 stacks[/color], dealing burst damage."
+tier = 4
+column = 2
+prerequisites = Array[ExtResource("1_ujta6")]([SubResource("Resource_o2jhc")])
+rank_1_affixes = Array[ExtResource("2_xtlf6")]([ExtResource("4_v102k")])
+metadata/_custom_type_script = "uid://bd327xjbfmua2"

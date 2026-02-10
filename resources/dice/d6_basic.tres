@@ -1,10 +1,9 @@
-[gd_resource type="Resource" script_class="DieResource" load_steps=7 format=3 uid="uid://byir7m1xtkf74"]
+[gd_resource type="Resource" script_class="DieResource" load_steps=6 format=3 uid="uid://byir7m1xtkf74"]
 
 [ext_resource type="Resource" path="res://resources/affixes/elements/slashing_element.tres" id="1_4p3cu"]
 [ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/d6-basic-fill.png" id="1_8ubtd"]
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_ktxbk"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_xr6t0"]
-[ext_resource type="Resource" uid="uid://bvkv70xfrs6p8" path="res://resources/dice_affixes/testing/cursed_diceaffix.tres" id="4_3c4md"]
 [ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/d6-basic-stroke.png" id="4_4p3cu"]
 
 [resource]
@@ -14,4 +13,3 @@ element = 1
 element_affix = ExtResource("1_4p3cu")
 fill_texture = ExtResource("1_8ubtd")
 stroke_texture = ExtResource("4_4p3cu")
-inherent_affixes = Array[ExtResource("1_ktxbk")]([ExtResource("4_3c4md")])

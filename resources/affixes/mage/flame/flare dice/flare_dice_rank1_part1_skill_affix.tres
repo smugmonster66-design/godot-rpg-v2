@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://bw0641ywey58w"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_d8v8c"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_k67mq"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_80rlt"]
+
+[resource]
+script = ExtResource("2_k67mq")
+affix_name = "Flare Dice: D6 Unlock"
+description = "Unlocks D6 for your Mana Die. "
+show_in_summary = false
+show_in_active_list = false
+elemental_identity = 3
+category = 36
+tags = Array[String](["mage", "flame", "size_unlock"])
+metadata/_custom_type_script = "uid://c8ianog20smkw"

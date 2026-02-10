@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://cd20i72j3kfqt"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_p6rk4"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_7ixqs"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_fkhcr"]
+
+[resource]
+script = ExtResource("2_7ixqs")
+affix_name = "Inferno D10 Unlock"
+description = "Unlocks [color=orange]D10[/color] mana die. Grants/improves the [color=red]Inferno[/color] action. "
+show_in_summary = false
+show_in_active_list = false
+has_elemental_identity = true
+elemental_identity = 3
+category = 36
+tags = Array[String](["mage", "flame", "die_size_unlock"])
+metadata/_custom_type_script = "uid://c8ianog20smkw"

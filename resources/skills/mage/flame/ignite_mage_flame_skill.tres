@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=5 format=3 uid="uid://bx75le0dbu7r8"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_qycbf"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_bttcx"]
+[ext_resource type="Resource" uid="uid://o4pd030mf46r" path="res://resources/affixes/mage/flame/ignite/ignite_rank1_skill_affix.tres" id="3_bttcx"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="3_ltafp"]
+
+[resource]
+script = ExtResource("3_ltafp")
+skill_id = "flame_ignite"
+skill_name = "Ignote"
+description = "Unlocks [color=orange]fire element[/color] for your mana die. Fire dice deal fire damage."
+column = 2
+rank_1_affixes = Array[ExtResource("2_bttcx")]([ExtResource("3_bttcx")])
+metadata/_custom_type_script = "uid://bd327xjbfmua2"

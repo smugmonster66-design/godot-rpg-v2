@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://dqjpxqhftj4gx"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_fpehs"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_oa313"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_lcyrg"]
+
+[resource]
+script = ExtResource("2_oa313")
+affix_name = "Pyroclastic Dice part 2"
+description = "Adds 50% splash damage to fire mana dice. "
+show_in_summary = false
+show_in_active_list = false
+has_elemental_identity = true
+elemental_identity = 3
+category = 36
+tags = Array[String](["mage", "flame", "mana_die_affix"])
+effect_data = {
+"dice_effect": "EMIT_SPLASH_DAMAGE",
+"splash_percent": "0.5"
+}
+metadata/_custom_type_script = "uid://c8ianog20smkw"

@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=7 format=3 uid="uid://b6uv2qsubv6ne"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_xffqn"]
+[ext_resource type="Resource" uid="uid://llaytuvp2y4w" path="res://resources/skills/mage/flame/kindling_mage_flame_skill.tres" id="2_h50b7"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_snrvm"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="3_h50b7"]
+[ext_resource type="Resource" uid="uid://ddb46rs1f5p8x" path="res://resources/affixes/mage/flame/fuel the fire/fuel_the_fire_rank1_skill_affix.tres" id="4_25wfg"]
+
+[sub_resource type="Resource" id="Resource_hfnua"]
+script = ExtResource("1_xffqn")
+required_skill = ExtResource("2_h50b7")
+required_rank = 3
+metadata/_custom_type_script = "uid://b1rglmix7t4d5"
+
+[resource]
+script = ExtResource("3_h50b7")
+skill_id = "flame_fuel_the_fire"
+skill_name = "Fuel the Fire"
+tier = 3
+column = 3
+prerequisites = Array[ExtResource("1_xffqn")]([SubResource("Resource_hfnua")])
+rank_1_affixes = Array[ExtResource("2_snrvm")]([ExtResource("4_25wfg")])
+metadata/_custom_type_script = "uid://bd327xjbfmua2"
