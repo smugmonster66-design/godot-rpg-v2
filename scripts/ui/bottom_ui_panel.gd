@@ -1,6 +1,6 @@
 # res://scripts/ui/bottom_ui_panel.gd
 # Persistent bottom UI panel - always visible over map and combat
-# Contains portrait, player stats, dice grid, and menu button
+# Contains portrait, player stats, dice grid, menu button, and combat buttons
 extends PanelContainer
 class_name BottomUIPanel
 
@@ -8,6 +8,10 @@ class_name BottomUIPanel
 # SIGNALS
 # ============================================================================
 signal menu_button_pressed
+signal roll_pressed
+signal end_turn_pressed
+signal confirm_pressed
+signal cancel_pressed
 
 const MANA_SELECTOR_SCENE = preload("res://scenes/ui/combat/mana_die_selector.tscn")
 
@@ -27,9 +31,17 @@ const MANA_SELECTOR_SCENE = preload("res://scenes/ui/combat/mana_die_selector.ts
 @onready var dice_grid: Control = $MainHBox/LeftSection/DiceSection/DiceGrid
 @onready var dice_count_label: Label = $MainHBox/LeftSection/DiceSection/DiceHeader/DiceCountLabel
 
-# Right section - menu button
+# Right section - menu and combat buttons
 @onready var right_section: VBoxContainer = $MainHBox/RightSection
 @onready var menu_button: Button = $MainHBox/RightSection/MenuButton
+
+# Combat buttons (in RightSection/ButtonArea)
+@onready var button_area: CenterContainer = $MainHBox/RightSection/ButtonArea
+@onready var roll_button: Button = $MainHBox/RightSection/ButtonArea/VBoxContainer/RollButton
+@onready var end_turn_button: Button = $MainHBox/RightSection/ButtonArea/VBoxContainer/EndTurnButton
+@onready var action_buttons_container: HBoxContainer = $MainHBox/RightSection/ButtonArea/VBoxContainer/ActionButtonsContainer
+@onready var confirm_button: Button = $MainHBox/RightSection/ButtonArea/VBoxContainer/ActionButtonsContainer/ConfirmButton
+@onready var cancel_button: Button = $MainHBox/RightSection/ButtonArea/VBoxContainer/ActionButtonsContainer/CancelButton
 
 # ============================================================================
 # STATE
@@ -46,12 +58,23 @@ var mana_die_selector: ManaDieSelector = null
 func _ready():
 	print("📱 BottomUIPanel ready")
 	
-	# Connect button signals
+	# Connect menu button
 	if menu_button:
 		menu_button.pressed.connect(_on_menu_button_pressed)
 		print("  ✅ Menu button connected")
 	else:
 		print("  ❌ Menu button not found at $MainHBox/RightSection/MenuButton")
+	
+	# Connect combat buttons — hidden by default, shown during combat
+	if roll_button:
+		roll_button.pressed.connect(func(): roll_pressed.emit())
+	if end_turn_button:
+		end_turn_button.pressed.connect(func(): end_turn_pressed.emit())
+	if confirm_button:
+		confirm_button.pressed.connect(func(): confirm_pressed.emit())
+	if cancel_button:
+		cancel_button.pressed.connect(func(): cancel_pressed.emit())
+	_hide_combat_buttons()
 	
 	# Check dice grid exists
 	if dice_grid:
@@ -185,6 +208,7 @@ func _setup_mana_die_selector():
 		print("  ✅ ManaDieSelector instanced and initialized")
 	else:
 		print("  ℹ️ No mana pool — mana UI hidden")
+
 func set_mana_drag_enabled(enabled: bool):
 	"""Enable/disable mana die dragging. Called by CombatManager on phase change."""
 	if mana_die_selector:
@@ -246,20 +270,67 @@ func _can_open_menu() -> bool:
 	return false
 
 # ============================================================================
-# COMBAT STATE CALLBACKS
+# COMBAT BUTTON MANAGEMENT
 # ============================================================================
 
+func _hide_combat_buttons():
+	"""Hide all combat-only buttons. Called at startup and combat end."""
+	if button_area:
+		button_area.hide()
+
 func on_combat_started():
-	"""Called when combat begins"""
-	# Could hide/show certain elements during combat
-	pass
+	"""Called when combat begins — show button area, enter prep state."""
+	if button_area:
+		button_area.show()
+	enter_prep_phase()
 
 func on_combat_ended(_player_won: bool):
-	"""Called when combat ends"""
-	# Refresh displays after combat
+	"""Called when combat ends."""
+	_hide_combat_buttons()
 	_update_stats_display()
 	if dice_grid and dice_grid.has_method("refresh"):
 		dice_grid.refresh()
+
+func enter_prep_phase():
+	"""PREP phase — show Roll, hide everything else."""
+	if roll_button:
+		roll_button.show()
+		roll_button.disabled = false
+	if end_turn_button:
+		end_turn_button.hide()
+	if action_buttons_container:
+		action_buttons_container.hide()
+	# Hide mana selector during prep
+	if mana_die_selector:
+		mana_die_selector.hide()
+
+func enter_action_phase():
+	"""ACTION phase — show End Turn, hide Roll. Confirm/Cancel stay hidden
+	until show_action_buttons(true) is called."""
+	if roll_button:
+		roll_button.hide()
+	if end_turn_button:
+		end_turn_button.show()
+		end_turn_button.disabled = false
+	if action_buttons_container:
+		action_buttons_container.hide()
+	# Show mana selector for casters during action phase
+	if mana_die_selector and player and player.has_method("has_mana_pool") and player.has_mana_pool():
+		mana_die_selector.show()
+
+func show_action_buttons(show: bool):
+	"""Show or hide Confirm/Cancel (when action field has dice placed)."""
+	if action_buttons_container:
+		action_buttons_container.visible = show
+
+func enter_enemy_turn():
+	"""Enemy's turn — hide all player buttons."""
+	if roll_button:
+		roll_button.hide()
+	if end_turn_button:
+		end_turn_button.hide()
+	if action_buttons_container:
+		action_buttons_container.hide()
 
 # ============================================================================
 # PUBLIC API

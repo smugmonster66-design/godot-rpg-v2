@@ -121,43 +121,13 @@ size_flags_vertical = 3
 layout_mode = 2
 
 [node name="DicePoolDisplay" parent="MarginContainer/VBox/DicePoolArea" instance=ExtResource("2_bo0no")]
+custom_minimum_size = Vector2(180, 180)
 layout_mode = 2
+mouse_filter = 0
 die_visual_scene = ExtResource("4_l84v8")
 
 [node name="DicePoolLabel" type="Label" parent="MarginContainer/VBox/DicePoolArea"]
 layout_mode = 2
-
-[node name="ButtonArea" type="CenterContainer" parent="MarginContainer/VBox"]
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBox/ButtonArea"]
-layout_mode = 2
-
-[node name="ActionButtonsContainer" type="HBoxContainer" parent="MarginContainer/VBox/ButtonArea/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 20
-alignment = 1
-
-[node name="ConfirmButton" type="Button" parent="MarginContainer/VBox/ButtonArea/VBoxContainer/ActionButtonsContainer"]
-layout_mode = 2
-text = "Confirm"
-
-[node name="CancelButton" type="Button" parent="MarginContainer/VBox/ButtonArea/VBoxContainer/ActionButtonsContainer"]
-layout_mode = 2
-text = "Cancel"
-
-[node name="Spacer4" type="Control" parent="MarginContainer/VBox/ButtonArea/VBoxContainer"]
-custom_minimum_size = Vector2(0, 20)
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="RollButton" type="Button" parent="MarginContainer/VBox/ButtonArea/VBoxContainer"]
-layout_mode = 2
-text = "ROLL THE BONES!"
-
-[node name="EndTurnButton" type="Button" parent="MarginContainer/VBox/ButtonArea/VBoxContainer"]
-layout_mode = 2
-text = "End Turn"
 
 [node name="Spacer" type="Control" parent="MarginContainer/VBox"]
 layout_mode = 2

@@ -190,9 +190,10 @@ func _notification(what):
 			is_drag_target = false
 			_update_background()
 		NOTIFICATION_DRAG_END:
-			is_dragging = false
+			if is_dragging:
+				is_dragging = false
+				drag_ended.emit(self)
 			is_drag_target = false
-			drag_ended.emit(self)
 			update_display()
 
 # ============================================================================

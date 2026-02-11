@@ -9,7 +9,6 @@ var action_fields_scroll: ScrollContainer = null
 var action_fields_grid: GridContainer = null
 var player_health_display = null
 var dice_pool_display = null
-var end_turn_button: Button = null
 var enemy_panel: EnemyPanel = null
 
 # Action field scene for dynamic creation
@@ -18,10 +17,6 @@ var action_field_scene: PackedScene = null
 # Dynamically created action fields
 var action_fields: Array[ActionField] = []
 
-# Action buttons (existing in scene)
-var action_buttons_container: HBoxContainer = null
-var confirm_button: Button = null
-var cancel_button: Button = null
 
 # Enemy turn display nodes
 var enemy_hand_container: Control = null
@@ -56,7 +51,7 @@ var enemy_action_fields: Array[ActionField] = []
 
 var _pending_dice_returns: Array[Dictionary] = []
 
-var roll_button: Button = null
+var _bottom_ui: BottomUIPanel = null
 
 # ============================================================================
 # SIGNALS
@@ -89,23 +84,6 @@ func _discover_all_nodes():
 	"""Find all UI nodes from the scene tree"""
 	print("  🔍 Discovering UI nodes...")
 	
-	
-	
-	# Debug: End Combat button
-	var end_turn_btn = find_child("EndTurnButton", true, false)
-	if end_turn_btn and end_turn_btn.get_parent():
-		var debug_btn = Button.new()
-		debug_btn.name = "DebugEndCombatButton"
-		debug_btn.text = "⚔️ End Combat (Debug)"
-		debug_btn.pressed.connect(func():
-			var cm = get_tree().get_first_node_in_group("combat_manager")
-			if cm:
-				cm.end_combat(true)
-		)
-		end_turn_btn.get_parent().add_child(debug_btn)
-	
-	
-	
 	# Ensure scrollable grid exists
 	_ensure_scrollable_grid()
 	
@@ -120,30 +98,20 @@ func _discover_all_nodes():
 	if not dice_pool_display:
 		dice_pool_display = find_child("DiceGrid", true, false)
 	print("    DicePoolDisplay: %s" % ("✓" if dice_pool_display else "✗"))
+
+	# Fix DicePoolArea — CenterContainer wrapping DicePoolDisplay
+	var dice_pool_area = find_child("DicePoolArea", true, false)
+	if dice_pool_area and dice_pool_area is Control:
+		dice_pool_area.mouse_filter = Control.MOUSE_FILTER_PASS
+		print("    🔧 DicePoolArea mouse_filter → PASS (drag-drop fix)")
 	
-	# End turn button
-	end_turn_button = find_child("EndTurnButton", true, false) as Button
-	print("    EndTurnButton: %s" % ("✓" if end_turn_button else "✗"))
-	
-	# Find Roll button
-	roll_button = find_child("RollButton", true, false) as Button
-	if roll_button:
-		roll_button.pressed.connect(_on_roll_pressed)
-		roll_button.hide()
-		print("  ✅ Roll button found")
+	# Bottom UI panel — owns combat buttons
+	_bottom_ui = get_tree().get_first_node_in_group("bottom_ui") as BottomUIPanel
+	print("    BottomUI: %s" % ("✓" if _bottom_ui else "✗"))
 	
 	# Enemy panel
 	enemy_panel = find_child("EnemyPanel", true, false) as EnemyPanel
 	print("    EnemyPanel: %s" % ("✓" if enemy_panel else "✗"))
-	
-	# Action buttons container
-	action_buttons_container = find_child("ActionButtonsContainer", true, false) as HBoxContainer
-	if action_buttons_container:
-		confirm_button = action_buttons_container.find_child("ConfirmButton", true, false) as Button
-		cancel_button = action_buttons_container.find_child("CancelButton", true, false) as Button
-	print("    ActionButtonsContainer: %s" % ("✓" if action_buttons_container else "✗"))
-	print("      ConfirmButton: %s" % ("✓" if confirm_button else "✗"))
-	print("      CancelButton: %s" % ("✓" if cancel_button else "✗"))
 	
 	# Enemy hand display (for enemy turns)
 	enemy_hand_container = find_child("EnemyHandDisplay", true, false)
@@ -215,16 +183,6 @@ func _connect_all_signals():
 	"""Connect signals from discovered nodes"""
 	print("  🔗 Connecting signals...")
 	
-	# Confirm/Cancel buttons
-	if confirm_button and not confirm_button.pressed.is_connected(_on_confirm_pressed):
-		confirm_button.pressed.connect(_on_confirm_pressed)
-	if cancel_button and not cancel_button.pressed.is_connected(_on_cancel_pressed):
-		cancel_button.pressed.connect(_on_cancel_pressed)
-	
-	# End turn button
-	if end_turn_button and not end_turn_button.pressed.is_connected(_on_end_turn_pressed):
-		end_turn_button.pressed.connect(_on_end_turn_pressed)
-	
 	# Enemy panel
 	if enemy_panel:
 		if not enemy_panel.enemy_selected.is_connected(_on_enemy_panel_selection):
@@ -232,9 +190,16 @@ func _connect_all_signals():
 		if not enemy_panel.selection_changed.is_connected(_on_target_selection_changed):
 			enemy_panel.selection_changed.connect(_on_target_selection_changed)
 	
-	# Hide action buttons initially
-	if action_buttons_container:
-		action_buttons_container.hide()
+	# Combat buttons via BottomUIPanel
+	if _bottom_ui:
+		if not _bottom_ui.roll_pressed.is_connected(_on_roll_pressed):
+			_bottom_ui.roll_pressed.connect(_on_roll_pressed)
+		if not _bottom_ui.end_turn_pressed.is_connected(_on_end_turn_pressed):
+			_bottom_ui.end_turn_pressed.connect(_on_end_turn_pressed)
+		if not _bottom_ui.confirm_pressed.is_connected(_on_confirm_pressed):
+			_bottom_ui.confirm_pressed.connect(_on_confirm_pressed)
+		if not _bottom_ui.cancel_pressed.is_connected(_on_cancel_pressed):
+			_bottom_ui.cancel_pressed.connect(_on_cancel_pressed)
 	
 	print("  ✅ Signals connected")
 
@@ -418,8 +383,6 @@ func _on_target_selection_changed(slot_index: int):
 
 func on_turn_start():
 	"""Called after roll animation completes — now handled by enter_action_phase()"""
-	# Phase management is now handled by enter_prep_phase() / enter_action_phase()
-	# This is kept for backwards compatibility but is effectively a no-op
 	pass
 
 func set_player_turn(is_player: bool):
@@ -427,18 +390,14 @@ func set_player_turn(is_player: bool):
 	is_enemy_turn = not is_player
 	
 	if is_player:
-		if end_turn_button:
-			end_turn_button.disabled = false
 		if dice_pool_display:
 			dice_pool_display.show()
 		hide_enemy_hand()
 	else:
-		if end_turn_button:
-			end_turn_button.disabled = true
-		if action_buttons_container:
-			action_buttons_container.hide()
 		if dice_pool_display:
 			dice_pool_display.hide()
+		if _bottom_ui:
+			_bottom_ui.enter_enemy_turn()
 		disable_target_selection()
 
 func refresh_dice_pool():
@@ -452,71 +411,44 @@ func refresh_dice_pool():
 # ============================================================================
 
 func enter_prep_phase():
-	"""Called at start of player turn — show Roll button, hide dice/actions"""
 	print("🎮 CombatUI: Entering PREP phase")
-
 	is_enemy_turn = false
 
-	# Hide combat action elements (not rolled yet)
 	if dice_pool_display:
 		dice_pool_display.hide()
-	if action_buttons_container:
-		action_buttons_container.hide()
-	if end_turn_button:
-		end_turn_button.disabled = true
-		end_turn_button.hide()
 
-	# Clear action fields (will rebuild on action phase)
+	# Clear action fields
 	for child in action_fields_grid.get_children():
 		child.queue_free()
 	action_fields.clear()
 
-	# Hide enemy hand
 	hide_enemy_hand()
-	
-	
 
-	# Show roll button
-	if roll_button:
-		roll_button.show()
-		roll_button.disabled = false
+	# Delegate button visibility to BottomUIPanel
+	if _bottom_ui:
+		_bottom_ui.enter_prep_phase()
 
-	# Disable target selection
 	disable_target_selection()
 	selected_action_field = null
 
 
 func enter_action_phase():
-	"""Called after hand is rolled — hide Roll button, show normal combat UI"""
 	print("🎮 CombatUI: Entering ACTION phase")
 
-	# Hide roll button
-	if roll_button:
-		roll_button.hide()
-
-	# Show end turn button
-	if end_turn_button:
-		end_turn_button.show()
-		end_turn_button.disabled = false
-
-	# Show dice pool (hand was just rolled)
 	if dice_pool_display:
 		dice_pool_display.show()
 
-	# Rebuild action fields with charge tracking applied
 	refresh_action_fields()
-
-	# Reset per-turn charges
 	reset_action_charges_for_turn()
-
-	# Apply per-combat charge state to newly created fields
 	_apply_combat_charge_state()
-	
 
-
-	# Select first living enemy as default
 	if enemy_panel:
 		enemy_panel.select_first_living_enemy()
+
+	# Delegate button visibility to BottomUIPanel
+	if _bottom_ui:
+		_bottom_ui.enter_action_phase()
+
 
 
 # ============================================================================
@@ -684,26 +616,21 @@ func _on_dice_return_complete():
 func _on_action_field_selected(field: ActionField):
 	"""Action field was clicked or had die dropped"""
 	if is_enemy_turn:
-		return  # Ignore during enemy turn
-	
+		return
+
 	print("🎯 Action field selected: %s" % field.action_name)
-	
+
 	selected_action_field = field
-	
-	# Enable target selection for attack actions
+
 	var action_type = field.action_type
 	if action_type == ActionField.ActionType.ATTACK:
 		enable_target_selection()
 	else:
 		disable_target_selection()
-	
-	# Show action buttons
-	if action_buttons_container:
-		action_buttons_container.show()
-	
-	# Disable end turn while action pending
-	if end_turn_button:
-		end_turn_button.disabled = true
+
+	# Show confirm/cancel via BottomUIPanel
+	if _bottom_ui:
+		_bottom_ui.show_action_buttons(true)
 
 func _on_action_field_confirmed(action_data: Dictionary):
 	"""Action was confirmed from field directly"""
@@ -997,17 +924,15 @@ func _on_confirm_pressed():
 	"""Confirm button pressed"""
 	if not selected_action_field:
 		return
-	
+
 	if not selected_action_field.is_ready_to_confirm():
 		print("⚠️ Action not ready - need more dice")
 		return
-	
-	# Consume charge
+
 	on_action_used(selected_action_field)
-	
-	# Build action data (copy dice before clearing)
+
 	var placed_dice_copy = selected_action_field.placed_dice.duplicate()
-	
+
 	var action_data = {
 		"name": selected_action_field.action_name,
 		"action_type": selected_action_field.action_type,
@@ -1019,30 +944,18 @@ func _on_confirm_pressed():
 		"target": get_selected_target(),
 		"target_index": get_selected_target_index()
 	}
-	
+
 	print("✅ Confirming action: %s with %d dice" % [action_data.name, placed_dice_copy.size()])
-	
-	# Consume dice from player's pool
+
 	_consume_placed_dice(placed_dice_copy)
-	
-	# Clear the action field visually (with animation)
 	_clear_action_field_with_animation(selected_action_field)
-	
-	# Hide buttons
-	if action_buttons_container:
-		action_buttons_container.hide()
-	
-	# Re-enable end turn
-	if end_turn_button:
-		end_turn_button.disabled = false
-	
-	# Disable target selection
+
+	# Hide confirm/cancel
+	if _bottom_ui:
+		_bottom_ui.show_action_buttons(false)
+
 	disable_target_selection()
-	
-	# Clear selection
 	selected_action_field = null
-	
-	# Emit signal
 	action_confirmed.emit(action_data)
 
 func _consume_placed_dice(dice: Array):
@@ -1098,29 +1011,25 @@ func _on_cancel_pressed():
 	"""Cancel button pressed"""
 	if selected_action_field:
 		selected_action_field.cancel_action()
-	
+
 	selected_action_field = null
-	
-	if action_buttons_container:
-		action_buttons_container.hide()
-	
-	if end_turn_button:
-		end_turn_button.disabled = false
-	
+
+	if _bottom_ui:
+		_bottom_ui.show_action_buttons(false)
+
 	disable_target_selection()
 
 func _on_end_turn_pressed():
 	"""End turn button pressed"""
 	print("🎮 End turn pressed")
-	
-	# Return any placed dice
+
 	for field in action_fields:
 		if is_instance_valid(field) and field.has_method("cancel_action") and field.placed_dice.size() > 0:
 			field.cancel_action()
-	
-	if action_buttons_container:
-		action_buttons_container.hide()
-	
+
+	if _bottom_ui:
+		_bottom_ui.show_action_buttons(false)
+
 	turn_ended.emit()
 
 # ============================================================================

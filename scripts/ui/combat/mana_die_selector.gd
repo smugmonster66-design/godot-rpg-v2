@@ -303,6 +303,7 @@ func _update_mana_bar(current: int, max_mana: int):
 		mana_label.text = "%d / %d" % [current, max_mana]
 
 func _update_die_preview():
+	print("🔮 _update_die_preview() called — stack: ", get_stack())
 	"""Recreate the die visual in the center cell."""
 	if not mana_pool:
 		return

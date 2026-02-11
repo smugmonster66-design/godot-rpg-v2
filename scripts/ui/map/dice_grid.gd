@@ -40,6 +40,8 @@ var _last_click_slot: DieSlot = null
 var _last_click_time: float = 0.0
 const DOUBLE_CLICK_THRESHOLD: float = 0.3
 
+var _refreshing: bool = false
+
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
@@ -109,6 +111,10 @@ func _on_hand_rolled(_hand: Array[DieResource]):
 
 
 func refresh():
+	if _refreshing:
+		return
+	_refreshing = true
+	print("🎲 DiceGrid.refresh() called — stack: ", get_stack())
 	"""Refresh slots from the dice collection"""
 	if not dice_collection:
 		_clear_all_slots()

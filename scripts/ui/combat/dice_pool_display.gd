@@ -66,6 +66,9 @@ func initialize(pool):
 			dice_pool.dice_shattered.connect(_on_dice_shattered)
 			print("  ✅ Connected dice_shattered")
 	
+	custom_minimum_size = Vector2(300, 80)
+	
+	
 	refresh()
 
 
