@@ -405,9 +405,9 @@ func can_pull(die_size: int = -1) -> bool:
 func pull_mana_die() -> DieResource:
 	"""Create a mana die with the selected element and size.
 
-	Deducts mana cost, creates DieResource, applies element visuals,
-	applies all MANA_DIE_AFFIX DiceAffixes from skills, and emits
-	mana_die_pulled.
+	Deducts mana cost, creates DieResource, applies base textures,
+	element visuals, all MANA_DIE_AFFIX DiceAffixes from skills,
+	and emits mana_die_pulled.
 
 	Returns:
 		The new DieResource, or null if pull failed.
@@ -430,18 +430,18 @@ func pull_mana_die() -> DieResource:
 	die.element = selected_element
 	die.display_name = "%s D%d" % [get_element_name(), selected_die_size]
 	die.source = "mana"
+	die.is_mana_die = true
 	die.tags.append("mana_die")
 	die.tags.append(_element_tag(selected_element))
 
-	# Apply base textures from global registry
-	print("🔮 DieBaseTextures.instance: %s" % DieBaseTextures.instance)
+	# Apply base shape textures from DieBaseTextures registry
 	if DieBaseTextures.instance:
 		DieBaseTextures.instance.apply_to(die)
 
 	# Roll the die immediately (it enters the hand already rolled)
 	die.roll()
 
-	# Apply element visual affix if the die has one configured globally
+	# Apply element visual affix for shader effects
 	_apply_element_visuals(die)
 
 	# Apply all skill-granted MANA_DIE_AFFIX DiceAffixes
@@ -452,8 +452,8 @@ func pull_mana_die() -> DieResource:
 
 	mana_die_pulled.emit(die)
 	return die
-
-
+	
+	
 const DIE_TEXTURE_PATHS := {
 	DieResource.DieType.D4: "res://assets/dice/D6s/d6-basic",
 	DieResource.DieType.D6: "res://assets/dice/D6s/d6-basic",
@@ -481,15 +481,23 @@ func _apply_die_textures(die: DieResource):
 # INTERNAL — Affix Application
 # ============================================================================
 
+
 func _apply_element_visuals(die: DieResource) -> void:
-	"""Load and assign the element's DiceAffix from resources."""
+	"""Apply element-specific visual affix to the die.
+
+	Loads the element's DiceAffix resource (e.g., fire_element.tres)
+	so the visual pipeline applies fill/stroke/value shader materials
+	automatically when the die is instantiated as a CombatDieObject.
+	"""
 	if die.element == DieResource.Element.NONE:
 		return
-	
+
 	var tag = _element_tag(die.element)
-	var path = "res://resources/affixes/elements/%s_element.tres" % tag
-	if ResourceLoader.exists(path):
-		die.element_affix = load(path)
+	var affix_path = "res://resources/affixes/elements/%s_element.tres" % tag
+	if ResourceLoader.exists(affix_path):
+		die.element_affix = load(affix_path) as DiceAffix
+		
+		
 
 
 func _apply_mana_die_affixes(die: DieResource) -> void:

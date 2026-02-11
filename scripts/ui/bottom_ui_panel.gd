@@ -344,35 +344,3 @@ func refresh_dice():
 func refresh_stats():
 	"""Refresh the stats display"""
 	_update_stats_display()
-
-
-
-# ============================================================================
-# MANA DIE DROP HANDLING
-# ============================================================================
-
-func _can_drop_data(_pos: Vector2, data: Variant) -> bool:
-	if not data is Dictionary:
-		return false
-	if data.get("type") != "mana_die":
-		return false
-	if not player or not player.dice_pool:
-		return false
-	print("📱 BottomUI._can_drop_data: ACCEPTED mana die")
-	return true
-
-func _drop_data(_pos: Vector2, data: Variant):
-	if not data is Dictionary or data.get("type") != "mana_die":
-		return
-
-	var selector = data.get("selector") as ManaDieSelector
-	if not selector:
-		return
-
-	var new_die: DieResource = selector.pull_and_create_die()
-	if not new_die:
-		print("📱 BottomUI._drop_data: Mana pull failed")
-		return
-
-	player.dice_pool.add_die_to_hand(new_die)
-	print("📱 BottomUI._drop_data: %s added to hand" % new_die.display_name)

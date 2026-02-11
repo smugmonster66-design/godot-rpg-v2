@@ -40,6 +40,7 @@ func _ready():
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	custom_minimum_size = Vector2(300, 80)
 	queue_redraw()
+	add_to_group("dice_pool_display")
 	print("🎲 DicePoolDisplay ready, size=%s, min=%s" % [size, custom_minimum_size])
 
 func _draw():
@@ -106,7 +107,7 @@ func refresh():
 	
 	for i in range(hand.size()):
 		var die = hand[i]
-		if die.is_consumed:
+		if die.is_mana_die:
 			continue # Fully hidden from hand
 		var visual = _create_die_visual(die, i)
 		if visual:
@@ -397,39 +398,6 @@ func animate_dice_return(dice_info: Array[Dictionary]):
 			if is_instance_valid(temp):
 				temp.queue_free()
 		)
-
-# ============================================================================
-# MANA DIE DROP HANDLING
-# ============================================================================
-
-func _can_drop_data(_pos: Vector2, data: Variant) -> bool:
-	if not data is Dictionary:
-		return false
-	if data.get("type") != "mana_die":
-		return false
-	if not dice_pool:
-		return false
-	print("🎲 DPD._can_drop_data: ACCEPTED mana die")
-	return true
-
-func _drop_data(_pos: Vector2, data: Variant):
-	if not data is Dictionary or data.get("type") != "mana_die":
-		return
-
-	var selector = data.get("selector") as ManaDieSelector
-	if not selector:
-		print("🎲 DPD._drop_data: No selector in data")
-		return
-
-	var new_die: DieResource = selector.pull_and_create_die()
-	if not new_die:
-		print("🎲 DPD._drop_data: Mana pull failed")
-		return
-
-	if dice_pool:
-		dice_pool.add_die_to_hand(new_die)
-
-	print("🎲 DPD._drop_data: Mana die %s added to hand" % new_die.display_name)
 
 
 func get_die_at_position(pos: Vector2) -> Control:

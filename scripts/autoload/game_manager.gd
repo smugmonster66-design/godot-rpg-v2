@@ -9,6 +9,8 @@ const MAP_SCENE = preload("res://scenes/game/map_scene.tscn")
 const ELEMENT_VISUALS = preload("res://resources/element_visuals.tres")
 const DIE_BASE_TEXTURES = preload("res://resources/die_base_textures.tres")
 
+
+
 # ============================================================================
 # STARTING ITEMS CONFIGURATION
 # ============================================================================

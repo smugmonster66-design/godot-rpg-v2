@@ -39,6 +39,8 @@ enum Element {
 @export var display_name: String = "Die"
 @export var die_type: DieType = DieType.D6
 @export var color: Color = Color.WHITE
+@export var is_mana_die: bool = false
+
 
 @export_group("Element")
 ## The element of this die - applies default visual effects
