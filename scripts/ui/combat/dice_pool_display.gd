@@ -30,6 +30,14 @@ var _refresh_pending: bool = false
 ## CombatRollAnimator sets this before refresh and clears it after animation.
 var hide_for_roll_animation: bool = false
 
+
+# ── Insertion gap indicator (mana die drag) ──
+var _gap_spacer: Control = null
+var _gap_index: int = -1
+var _gap_tween: Tween = null
+const GAP_WIDTH: float = 72.0  # Width of the gap (roughly one die)
+const GAP_ANIM_DURATION: float = 0.12  # Snappy but smooth
+
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
@@ -105,6 +113,13 @@ func refresh():
 	
 	clear_display()
 	
+	# DEBUG: check for orphaned children after clear
+	var remaining_children = get_child_count()
+	if remaining_children > 0:
+		print("  ⚠️ DEBUG: %d children remain after clear_display():" % remaining_children)
+		for child in get_children():
+			print("    → %s (%s) valid=%s" % [child.name, child.get_class(), is_instance_valid(child)])
+	
 	var hand = dice_pool.hand
 	print("  📊 Creating visuals for %d dice in hand" % hand.size())
 	
@@ -133,17 +148,23 @@ func refresh():
 
 
 func clear_display():
-	"""Remove all die visuals immediately so they don't corrupt layout"""
-	for visual in die_visuals:
-		if is_instance_valid(visual):
-			remove_child(visual)
-			visual.queue_free()
-	die_visuals.clear()
-	
-	# Clear any stragglers not tracked in die_visuals
+	"""Remove all children — die visuals, gap spacer, and any orphans."""
+	# Clean up gap spacer state
+	if _gap_spacer and is_instance_valid(_gap_spacer):
+		if _gap_tween and _gap_tween.is_valid():
+			_gap_tween.kill()
+		_gap_spacer = null
+		_gap_index = -1
+
+	# Remove ALL children — not just tracked die_visuals.
+	# The HBoxContainer should only contain die visuals and the gap spacer.
+	# Removing everything prevents orphans from roll animations or other systems.
 	for child in get_children():
 		remove_child(child)
 		child.queue_free()
+
+	die_visuals.clear()
+
 
 
 func _create_die_visual(die: DieResource, index: int) -> Control:
@@ -416,23 +437,131 @@ func get_insertion_index_at_position(global_pos: Vector2) -> int:
 	"""Calculate where a die should be inserted based on drop position.
 	Returns the hand index where the new die should go.
 	
-	Walks visible die visuals left-to-right. If the drop is to the left
-	of a die's center, the new die goes before it. If past all dice,
-	it appends at the end. For an empty hand, returns 0.
+	Walks visible die visuals left-to-right (skipping the gap spacer).
+	If the drop is to the left of a die's center, the new die goes
+	before it. If past all dice, it appends at the end.
+	For an empty hand, returns 0.
 	"""
-	if die_visuals.is_empty():
-		return 0
-	
-	for visual in die_visuals:
-		if not is_instance_valid(visual):
+	# Walk actual children in visual order (HBoxContainer left-to-right)
+	var die_idx := 0
+	for child in get_children():
+		if child == _gap_spacer:
 			continue
-		var center_x = visual.global_position.x + visual.size.x / 2.0
+		if not is_instance_valid(child) or child not in die_visuals:
+			continue
+		var center_x = child.global_position.x + child.size.x / 2.0
 		if global_pos.x < center_x:
-			# Insert before this die
-			if "slot_index" in visual:
-				return visual.slot_index
-			else:
-				return die_visuals.find(visual)
+			return die_idx
+		die_idx += 1
 	
 	# Past all dice — append at end
 	return dice_pool.hand.size() if dice_pool else 0
+
+
+func show_insertion_gap(index: int) -> void:
+	"""Show or move the insertion gap indicator at the given child index.
+	Inserts a spacer Control into the HBoxContainer that animates its width,
+	causing the layout engine to push dice apart naturally.
+	
+	Called by ManaDieSelector on every mouse move during drag.
+	"""
+	# Clamp to valid range (0 = before first die, child_count = after last)
+	var max_index = _count_die_children()
+	index = clampi(index, 0, max_index)
+
+	if index == _gap_index and _gap_spacer and is_instance_valid(_gap_spacer):
+		return  # Already showing gap at this index
+
+	# Kill any running animation
+	if _gap_tween and _gap_tween.is_valid():
+		_gap_tween.kill()
+
+	# Create spacer if it doesn't exist
+	if not _gap_spacer or not is_instance_valid(_gap_spacer):
+		_gap_spacer = Control.new()
+		_gap_spacer.name = "InsertionGapSpacer"
+		_gap_spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_gap_spacer.custom_minimum_size = Vector2(0, 0)
+
+	# Remove from tree if already parented (we'll re-insert at new index)
+	if _gap_spacer.get_parent() == self:
+		remove_child(_gap_spacer)
+
+	# Convert die-array index to child index (account for existing spacer absence)
+	var child_idx = _die_index_to_child_index(index)
+	add_child(_gap_spacer)
+	move_child(_gap_spacer, child_idx)
+	_gap_index = index
+
+	# Animate width open
+	_gap_tween = create_tween()
+	_gap_tween.tween_property(
+		_gap_spacer, "custom_minimum_size",
+		Vector2(GAP_WIDTH, 0), GAP_ANIM_DURATION
+	).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+
+
+func hide_insertion_gap(immediate: bool = false) -> void:
+	"""Collapse and remove the insertion gap spacer.
+	
+	Args:
+		immediate: If true, remove instantly with no animation.
+		           Use true when the hand is about to refresh (drop/cancel).
+		           Use false (default) for cursor-driven hide during drag.
+	"""
+	if not _gap_spacer or not is_instance_valid(_gap_spacer):
+		_gap_index = -1
+		return
+
+	# Kill any running animation
+	if _gap_tween and _gap_tween.is_valid():
+		_gap_tween.kill()
+		_gap_tween = null
+
+	if immediate:
+		# Remove right now — no tween, no deferred callbacks
+		if _gap_spacer.get_parent() == self:
+			remove_child(_gap_spacer)
+		_gap_spacer.queue_free()
+		_gap_spacer = null
+		_gap_index = -1
+	else:
+		# Animate closed, then remove
+		_gap_tween = create_tween()
+		_gap_tween.tween_property(
+			_gap_spacer, "custom_minimum_size",
+			Vector2(0, 0), GAP_ANIM_DURATION
+		).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+		_gap_tween.tween_callback(func():
+			if _gap_spacer and is_instance_valid(_gap_spacer):
+				if _gap_spacer.get_parent() == self:
+					remove_child(_gap_spacer)
+				_gap_spacer.queue_free()
+				_gap_spacer = null
+			_gap_index = -1
+		)
+
+
+func _count_die_children() -> int:
+	"""Count how many die visual children exist (excluding the gap spacer)."""
+	var count := 0
+	for child in get_children():
+		if child != _gap_spacer and is_instance_valid(child):
+			count += 1
+	return count
+
+
+func _die_index_to_child_index(die_index: int) -> int:
+	"""Convert a die-array index to an HBoxContainer child index,
+	skipping the gap spacer if it's present in the children list."""
+	var child_idx := 0
+	var die_count := 0
+	for child in get_children():
+		if child == _gap_spacer:
+			child_idx += 1
+			continue
+		if die_count == die_index:
+			return child_idx
+		die_count += 1
+		child_idx += 1
+	return child_idx  # After all dice = append position

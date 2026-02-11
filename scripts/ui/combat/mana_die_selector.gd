@@ -179,7 +179,37 @@ func _input(event: InputEvent):
 		if "base_size" in _drag_visual and _drag_visual.base_size.length() > 0:
 			half = _drag_visual.base_size / 2.0
 		_drag_visual.global_position = get_global_mouse_position() - half
+
+		# Update insertion gap indicator in the hand display
+		_update_insertion_gap(get_global_mouse_position())
+
 		get_viewport().set_input_as_handled()
+
+
+func _update_insertion_gap(mouse_pos: Vector2) -> void:
+	"""Tell DicePoolDisplay to show/move/hide the insertion gap based on cursor position."""
+	var displays = get_tree().get_nodes_in_group("dice_pool_display")
+	for node in displays:
+		if node is DicePoolDisplay and node.visible:
+			# Show gap if cursor is above the bottom panel (same logic as _is_over_hand_area)
+			if mouse_pos.y < global_position.y:
+				var idx = node.get_insertion_index_at_position(mouse_pos)
+				node.show_insertion_gap(idx)
+			else:
+				node.hide_insertion_gap()
+			return
+
+
+
+func _clear_insertion_gap() -> void:
+	"""Remove the insertion gap from all displays instantly.
+	Used during drop/cancel — the hand is about to refresh so no animation needed."""
+	var displays = get_tree().get_nodes_in_group("dice_pool_display")
+	for node in displays:
+		if node is DicePoolDisplay:
+			node.hide_insertion_gap(true)
+
+
 
 func _begin_drag():
 	"""Start dragging — hide preview, create full-size floating visual."""
@@ -276,6 +306,10 @@ func _complete_drop():
 	"""Mana die dropped on hand — spend mana, insert die at drop position, grow new preview."""
 	print("🎲 ManaDieSelector: Drop on hand — spending mana")
 
+	_clear_insertion_gap()
+
+
+
 	var die = mana_pool.pull_mana_die()
 	if not die:
 		_cancel_drag()
@@ -326,6 +360,8 @@ func _cancel_drag():
 	animation or preview state mid-tween.
 	"""
 	print("🎲 ManaDieSelector: Drag cancelled — snapping back")
+
+	_clear_insertion_gap()
 
 	# Immediately restore the real preview underneath — the drag visual
 	# animates on top of it in the overlay layer, so this is invisible
