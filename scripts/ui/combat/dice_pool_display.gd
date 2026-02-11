@@ -93,6 +93,9 @@ func refresh():
 	The CombatRollAnimator reveals each die with the projectile animation.
 	For mid-turn refreshes (e.g. die consumed), hide_for_roll_animation will
 	be false, so dice appear immediately.
+	
+	Mana dice that have been pulled into the hand are displayed normally —
+	they are full combat dice at that point (rolled, affixed, element-visual'd).
 	"""
 	print("🎲 DicePoolDisplay.refresh()")
 	
@@ -107,8 +110,9 @@ func refresh():
 	
 	for i in range(hand.size()):
 		var die = hand[i]
-		if die.is_mana_die:
-			continue # Fully hidden from hand
+		# Consumed dice are kept in the array for stable indexing but not shown
+		if die.is_consumed:
+			continue
 		var visual = _create_die_visual(die, i)
 		if visual:
 			# Start invisible when roll animation is pending
@@ -116,10 +120,11 @@ func refresh():
 				visual.modulate.a = 0.0
 			add_child(visual)
 			die_visuals.append(visual)
-			print("    ✅ Created visual for %s (value=%d)%s" % [
+			print("    ✅ Created visual for %s (value=%d)%s%s" % [
 				die.display_name,
 				die.get_total_value(),
-				" [HIDDEN]" if hide_for_roll_animation else ""
+				" [HIDDEN]" if hide_for_roll_animation else "",
+				" [MANA]" if die.is_mana_die else ""
 			])
 		else:
 			print("    ❌ Failed to create visual for %s" % die.display_name)
@@ -405,3 +410,29 @@ func get_die_at_position(pos: Vector2) -> Control:
 		if visual.get_global_rect().has_point(pos):
 			return visual
 	return null
+
+
+func get_insertion_index_at_position(global_pos: Vector2) -> int:
+	"""Calculate where a die should be inserted based on drop position.
+	Returns the hand index where the new die should go.
+	
+	Walks visible die visuals left-to-right. If the drop is to the left
+	of a die's center, the new die goes before it. If past all dice,
+	it appends at the end. For an empty hand, returns 0.
+	"""
+	if die_visuals.is_empty():
+		return 0
+	
+	for visual in die_visuals:
+		if not is_instance_valid(visual):
+			continue
+		var center_x = visual.global_position.x + visual.size.x / 2.0
+		if global_pos.x < center_x:
+			# Insert before this die
+			if "slot_index" in visual:
+				return visual.slot_index
+			else:
+				return die_visuals.find(visual)
+	
+	# Past all dice — append at end
+	return dice_pool.hand.size() if dice_pool else 0

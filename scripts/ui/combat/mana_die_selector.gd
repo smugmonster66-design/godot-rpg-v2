@@ -174,10 +174,11 @@ func _input(event: InputEvent):
 
 	# --- MOVE DRAG ---
 	elif event is InputEventMouseMotion and _is_dragging and _drag_visual:
-		var preview_size = _drag_visual.size * _drag_visual.scale
-		if preview_size.length() < 1:
-			preview_size = Vector2(62, 62)
-		_drag_visual.global_position = get_global_mouse_position() - preview_size / 2
+		# Use base_size (unscaled) for centering — scale may be mid-tween
+		var half = Vector2(62, 62)
+		if "base_size" in _drag_visual and _drag_visual.base_size.length() > 0:
+			half = _drag_visual.base_size / 2.0
+		_drag_visual.global_position = get_global_mouse_position() - half
 		get_viewport().set_input_as_handled()
 
 func _begin_drag():
@@ -272,7 +273,7 @@ func _is_over_hand_area(mouse: Vector2) -> bool:
 
 
 func _complete_drop():
-	"""Mana die dropped on hand — spend mana, add die, grow new preview."""
+	"""Mana die dropped on hand — spend mana, insert die at drop position, grow new preview."""
 	print("🎲 ManaDieSelector: Drop on hand — spending mana")
 
 	var die = mana_pool.pull_mana_die()
@@ -280,18 +281,33 @@ func _complete_drop():
 		_cancel_drag()
 		return
 
-	# Add to player's hand
+	# Calculate insertion index from mouse position relative to hand visuals
+	var insert_index: int = -1
+	var mouse_pos = get_global_mouse_position()
+	var displays = get_tree().get_nodes_in_group("dice_pool_display")
+	for node in displays:
+		if node is DicePoolDisplay and node.visible:
+			insert_index = node.get_insertion_index_at_position(mouse_pos)
+			break
+
+	# Insert into player's hand at the calculated position
 	if player and player.dice_pool:
-		player.dice_pool.add_die_to_hand(die)
-		print("🔮 Mana die added to hand: %s (D%d, value=%d)" % [
-			die.display_name, die.die_type, die.get_total_value()])
+		if insert_index >= 0:
+			player.dice_pool.insert_into_hand(insert_index, die)
+			print("🔮 Mana die inserted at index %d: %s (D%d, value=%d)" % [
+				insert_index, die.display_name, die.die_type, die.get_total_value()])
+		else:
+			# Fallback: append at end
+			player.dice_pool.add_die_to_hand(die)
+			print("🔮 Mana die appended to hand: %s (D%d, value=%d)" % [
+				die.display_name, die.die_type, die.get_total_value()])
 
 	# Remove drag visual
 	if _drag_visual and is_instance_valid(_drag_visual):
 		_drag_visual.queue_free()
 		_drag_visual = null
 
-	# Update all displays first (mana bar, cost, etc.)
+	# Update all displays (mana bar, cost, etc.)
 	_update_mana_bar(mana_pool.current_mana, mana_pool.max_mana)
 	_update_cost_label()
 	_update_preview_appearance()
@@ -302,11 +318,21 @@ func _complete_drop():
 
 	drag_ended.emit(true)
 
-
-
 func _cancel_drag():
-	"""Drag cancelled — animate die back to selector center at full size, then shrink to fit."""
+	"""Drag cancelled — animate die back to selector center at full size, then shrink to fit.
+	
+	IMPORTANT: drag_ended is emitted AFTER the tween completes (in the Phase 3
+	callback) to prevent external signal handlers from interfering with the
+	animation or preview state mid-tween.
+	"""
 	print("🎲 ManaDieSelector: Drag cancelled — snapping back")
+
+	# Immediately restore the real preview underneath — the drag visual
+	# animates on top of it in the overlay layer, so this is invisible
+	# until the drag visual is freed. This guarantees the preview is
+	# always restored even if the tween breaks.
+	if _current_preview and is_instance_valid(_current_preview):
+		_current_preview.visible = true
 
 	if _drag_visual and is_instance_valid(_drag_visual):
 		var target_pos = die_preview_container.global_position
@@ -326,35 +352,42 @@ func _cancel_drag():
 			var s = target_size / _drag_visual.base_size.x
 			preview_scale = Vector2(s, s)
 
+		# Capture a weak reference so lambdas don't prevent cleanup
+		var drag_ref = weakref(_drag_visual)
+
 		# Phase 1: fly back at full size
 		var tween = create_tween()
 		tween.tween_property(_drag_visual, "global_position", snap_target, 0.15) \
 			.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
 
 		# Phase 2: shrink into the selector
-		# Set pivot to center so it shrinks toward center
 		tween.tween_callback(func():
-			if _drag_visual and is_instance_valid(_drag_visual):
-				_drag_visual.pivot_offset = half
+			var dv = drag_ref.get_ref()
+			if dv and is_instance_valid(dv):
+				dv.pivot_offset = half
 		)
 		tween.tween_property(_drag_visual, "scale", preview_scale, 0.15) \
 			.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
 
-		# Phase 3: swap to real preview
+		# Phase 3: cleanup and emit signal AFTER animation completes
 		tween.tween_callback(func():
-			if _drag_visual and is_instance_valid(_drag_visual):
-				_drag_visual.queue_free()
-				_drag_visual = null
-			if _current_preview and is_instance_valid(_current_preview):
-				_current_preview.visible = true
+			var dv = drag_ref.get_ref()
+			if dv and is_instance_valid(dv):
+				dv.queue_free()
+			_drag_visual = null
+			drag_ended.emit(false)
 		)
+
+		# Safety: if the tween is killed (e.g. node exits tree), clean up
+		tween.finished.connect(func():
+			var dv = drag_ref.get_ref()
+			if dv and is_instance_valid(dv):
+				dv.queue_free()
+			_drag_visual = null
+		, CONNECT_ONE_SHOT)
 	else:
-		if _current_preview and is_instance_valid(_current_preview):
-			_current_preview.visible = true
-
-	drag_ended.emit(false)
-
-
+		# No drag visual to animate — emit immediately
+		drag_ended.emit(false)
 
 func _animate_preview_grow_back():
 	"""After a successful drop, rebuild die preview and animate it growing from zero."""
