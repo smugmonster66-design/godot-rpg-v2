@@ -43,9 +43,3 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 script = ExtResource("8_6masm")
-
-[node name="HoverBG" type="ColorRect" parent="DragOverlayLayer/ManaDropZone"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-color = Color(1, 1, 1, 0.43137255)

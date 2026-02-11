@@ -132,11 +132,13 @@ offset_right = 40.0
 offset_bottom = 40.0
 
 [node name="LevelBadgeBG" type="Panel" parent="PersistentUILayer/PortraitVBox/PortraitContainer"]
+visible = false
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
 [node name="LevelLabel" type="Label" parent="PersistentUILayer/PortraitVBox/PortraitContainer/LevelBadgeBG"]
+visible = false
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0

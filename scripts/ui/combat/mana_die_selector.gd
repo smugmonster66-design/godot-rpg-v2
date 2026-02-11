@@ -44,7 +44,6 @@ signal drag_ended(was_placed: bool)
 @onready var cost_label: Label = $CostLabel
 @onready var selector_grid: GridContainer = $SelectorGrid
 @onready var die_preview_container: PanelContainer = $SelectorGrid/DiePreviewContainer
-@onready var preview_anchor: CenterContainer = $SelectorGrid/DiePreviewContainer/PreviewAnchor
 @onready var elem_left_btn: Button = $SelectorGrid/ElemLeftBtn
 @onready var elem_right_btn: Button = $SelectorGrid/ElemRightBtn
 @onready var size_up_btn: Button = $SelectorGrid/SizeUpBtn
@@ -110,8 +109,6 @@ func _ready():
 	set_process(false)
 
 	# Make container nodes pass-through so _get_drag_data on THIS node fires
-	if preview_anchor:
-		preview_anchor.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if die_preview_container:
 		die_preview_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if selector_grid:
@@ -307,36 +304,32 @@ func _update_die_preview():
 	"""Recreate the die visual in the center cell."""
 	if not mana_pool:
 		return
-
 	# Remove old preview
 	if _current_preview and is_instance_valid(_current_preview):
 		_current_preview.queue_free()
 		_current_preview = null
-
 	var preview_die = _create_preview_die_resource()
 	if not preview_die:
 		return
-
 	# Try to create a visual via the die's visual system
 	var visual: Control = null
 	if preview_die.has_method("instantiate_pool_visual"):
 		visual = preview_die.instantiate_pool_visual()
 	if not visual and preview_die.has_method("instantiate_combat_visual"):
 		visual = preview_die.instantiate_combat_visual()
-
 	if visual:
 		if visual is DieObjectBase:
 			visual.draggable = false
-		# Scale to fit inside the preview cell
-		var cell_size = die_preview_container.custom_minimum_size.x if die_preview_container else 48.0
+		# Pull out of layout entirely
+		visual.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		visual.custom_minimum_size = Vector2.ZERO
+		# Scale to fit
+		var cell_size = die_preview_container.custom_minimum_size.x
 		var target_size = cell_size - 8
 		if "base_size" in visual and visual.base_size.x > 0:
 			var scale_factor = target_size / visual.base_size.x
 			visual.scale = Vector2(scale_factor, scale_factor)
-		else:
-			visual.custom_minimum_size = Vector2(target_size, target_size)
 		_current_preview = visual
-		# Hide value label — preview shows die shape/element only
 		var lbl = visual.find_child("ValueLabel", true, false)
 		if lbl:
 			lbl.visible = false
@@ -351,15 +344,24 @@ func _update_die_preview():
 		var elem_color = ELEMENT_COLORS.get(int(mana_pool.selected_element), Color.WHITE)
 		lbl.add_theme_color_override("font_color", elem_color)
 		_current_preview = lbl
-
-	if preview_anchor:
-		preview_anchor.add_child(_current_preview)
-	else:
-		die_preview_container.add_child(_current_preview)
-
-	# Re-apply IGNORE after add_child — DieObjectBase._ready() resets to STOP
+	die_preview_container.add_child(_current_preview)
+	
+	# Wait one frame so the visual's _ready() has run and layout has settled
+	await get_tree().process_frame
+	if is_instance_valid(_current_preview) and is_instance_valid(die_preview_container):
+		var container_size = die_preview_container.size
+		var visual_size = _current_preview.size * _current_preview.scale
+		_current_preview.position = (container_size - visual_size) / 2.0
+	
+	# Re-apply IGNORE after the visual's _ready() has reset mouse_filter to STOP
 	if _current_preview:
 		_set_mouse_ignore_recursive(_current_preview)
+	
+	# ManaDragSource must be last child to receive input first
+	var drag_source = die_preview_container.find_child("ManaDragSource", false, false)
+	if drag_source:
+		die_preview_container.move_child(drag_source, -1)
+
 
 func _update_button_visibility():
 	"""Show/hide arrow buttons based on available options."""

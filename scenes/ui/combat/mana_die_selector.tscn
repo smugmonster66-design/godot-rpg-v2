@@ -71,6 +71,7 @@ theme_override_styles/fill = SubResource("mana_bar_fill")
 show_percentage = false
 
 [node name="ManaLabel" type="Label" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_right = 1.0
@@ -83,6 +84,7 @@ text = "0 / 0"
 vertical_alignment = 1
 
 [node name="CostLabel" type="Label" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 1.0
@@ -136,12 +138,10 @@ theme_override_styles/focus = SubResource("arrow_focus")
 text = "◄"
 
 [node name="DiePreviewContainer" type="PanelContainer" parent="SelectorGrid"]
+clip_contents = true
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 theme_override_styles/panel = SubResource("preview_panel")
-
-[node name="PreviewAnchor" type="CenterContainer" parent="SelectorGrid/DiePreviewContainer"]
-layout_mode = 2
 
 [node name="ManaDragSource" type="Control" parent="SelectorGrid/DiePreviewContainer"]
 layout_mode = 2

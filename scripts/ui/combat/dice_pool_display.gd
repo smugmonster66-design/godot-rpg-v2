@@ -37,8 +37,14 @@ var hide_for_roll_animation: bool = false
 func _ready():
 	add_theme_constant_override("separation", die_spacing)
 	alignment = BoxContainer.ALIGNMENT_CENTER
-	print("🎲 DicePoolDisplay ready")
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	custom_minimum_size = Vector2(300, 80)
+	queue_redraw()
+	print("🎲 DicePoolDisplay ready, size=%s, min=%s" % [size, custom_minimum_size])
 
+func _draw():
+	# DEBUG: draw background to confirm actual size
+	draw_rect(Rect2(Vector2.ZERO, size), Color(1, 0, 0, 0.3))
 func initialize(pool):
 	"""Initialize with player's dice collection"""
 	print("🎲 DicePoolDisplay.initialize()")
@@ -66,10 +72,12 @@ func initialize(pool):
 			dice_pool.dice_shattered.connect(_on_dice_shattered)
 			print("  ✅ Connected dice_shattered")
 	
-	custom_minimum_size = Vector2(300, 80)
+	
 	
 	
 	refresh()
+	
+	print("🎲 DPD after init: size=%s, global_pos=%s, visible=%s" % [size, global_position, visible])
 
 
 
@@ -390,7 +398,38 @@ func animate_dice_return(dice_info: Array[Dictionary]):
 				temp.queue_free()
 		)
 
+# ============================================================================
+# MANA DIE DROP HANDLING
+# ============================================================================
 
+func _can_drop_data(_pos: Vector2, data: Variant) -> bool:
+	if not data is Dictionary:
+		return false
+	if data.get("type") != "mana_die":
+		return false
+	if not dice_pool:
+		return false
+	print("🎲 DPD._can_drop_data: ACCEPTED mana die")
+	return true
+
+func _drop_data(_pos: Vector2, data: Variant):
+	if not data is Dictionary or data.get("type") != "mana_die":
+		return
+
+	var selector = data.get("selector") as ManaDieSelector
+	if not selector:
+		print("🎲 DPD._drop_data: No selector in data")
+		return
+
+	var new_die: DieResource = selector.pull_and_create_die()
+	if not new_die:
+		print("🎲 DPD._drop_data: Mana pull failed")
+		return
+
+	if dice_pool:
+		dice_pool.add_die_to_hand(new_die)
+
+	print("🎲 DPD._drop_data: Mana die %s added to hand" % new_die.display_name)
 
 
 func get_die_at_position(pos: Vector2) -> Control:

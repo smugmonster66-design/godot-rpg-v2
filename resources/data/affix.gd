@@ -332,7 +332,7 @@ func roll_value(power_position: float = -1.0, scaling_config: AffixScalingConfig
 	
 	Args:
 		power_position: 0.0 (weakest) to 1.0 (strongest). From scaling config.
-					    Pass -1.0 (or omit) for legacy random roll behavior.
+						Pass -1.0 (or omit) for legacy random roll behavior.
 		scaling_config: Global scaling config for fuzz defaults. Can be null.
 	
 	Returns:

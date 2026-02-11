@@ -111,9 +111,7 @@ func _on_hand_rolled(_hand: Array[DieResource]):
 
 
 func refresh():
-	if _refreshing:
-		return
-	_refreshing = true
+	
 	print("🎲 DiceGrid.refresh() called — stack: ", get_stack())
 	"""Refresh slots from the dice collection"""
 	if not dice_collection:

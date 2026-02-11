@@ -13,7 +13,6 @@ signal end_turn_pressed
 signal confirm_pressed
 signal cancel_pressed
 
-const MANA_SELECTOR_SCENE = preload("res://scenes/ui/combat/mana_die_selector.tscn")
 
 # ============================================================================
 # NODE REFERENCES - Matching actual scene structure
@@ -25,6 +24,7 @@ const MANA_SELECTOR_SCENE = preload("res://scenes/ui/combat/mana_die_selector.ts
 @onready var health_bar: TextureProgressBar = $MainHBox/LeftSection/HealthBar
 @onready var mana_bar: TextureProgressBar = $MainHBox/LeftSection/ManaBar
 @onready var exp_bar: TextureProgressBar = $MainHBox/LeftSection/ExpBar
+@onready var mana_die_selector: ManaDieSelector = $MainHBox/LeftSection/ManaDieSelector
 
 # Dice section
 @onready var dice_section: VBoxContainer = $MainHBox/LeftSection/DiceSection
@@ -48,7 +48,7 @@ const MANA_SELECTOR_SCENE = preload("res://scenes/ui/combat/mana_die_selector.ts
 # ============================================================================
 var player: Resource = null
 var player_menu: Control = null
-var mana_die_selector: ManaDieSelector = null
+
 
 
 # ============================================================================
@@ -57,6 +57,8 @@ var mana_die_selector: ManaDieSelector = null
 
 func _ready():
 	print("📱 BottomUIPanel ready")
+	
+	add_to_group("bottom_ui")
 	
 	# Connect menu button
 	if menu_button:
@@ -75,6 +77,9 @@ func _ready():
 	if cancel_button:
 		cancel_button.pressed.connect(func(): cancel_pressed.emit())
 	_hide_combat_buttons()
+	
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	
 	
 	# Check dice grid exists
 	if dice_grid:
@@ -176,38 +181,27 @@ func _update_dice_count():
 		dice_count_label.text = "%d/%d" % [current, max_dice]
 
 
-
 func _setup_mana_die_selector():
-	"""Instance and insert ManaDieSelector scene if player is a caster.
-	Hides the simple ManaBar for all classes — non-casters have no use for it."""
+	"""Initialize the scene-embedded ManaDieSelector for casters, hide for non-casters."""
 	if not player:
 		return
 
-	# Remove old selector if reinitializing
-	if mana_die_selector and is_instance_valid(mana_die_selector):
-		mana_die_selector.queue_free()
-		mana_die_selector = null
-
-	# Hide the simple mana bar unconditionally — casters get the selector,
-	# non-casters don't need any mana UI
+	# Hide the simple mana bar — casters get the selector, non-casters don't need it
 	if mana_bar:
 		mana_bar.hide()
 
+	if not mana_die_selector:
+		print("  ⚠️ ManaDieSelector node not found in scene")
+		return
+
 	if player.has_method("has_mana_pool") and player.has_mana_pool():
-		mana_die_selector = MANA_SELECTOR_SCENE.instantiate()
-
-		# Insert right after the (now hidden) ManaBar in LeftSection
-		if left_section and mana_bar:
-			var mana_bar_idx = mana_bar.get_index()
-			left_section.add_child(mana_die_selector)
-			left_section.move_child(mana_die_selector, mana_bar_idx + 1)
-		elif left_section:
-			left_section.add_child(mana_die_selector)
-
+		mana_die_selector.show()
 		mana_die_selector.initialize(player)
-		print("  ✅ ManaDieSelector instanced and initialized")
+		print("  ✅ ManaDieSelector initialized (scene instance)")
 	else:
-		print("  ℹ️ No mana pool — mana UI hidden")
+		mana_die_selector.hide()
+		print("  ℹ️ No mana pool — mana selector hidden")
+
 
 func set_mana_drag_enabled(enabled: bool):
 	"""Enable/disable mana die dragging. Called by CombatManager on phase change."""
@@ -288,6 +282,7 @@ func on_combat_ended(_player_won: bool):
 	"""Called when combat ends."""
 	_hide_combat_buttons()
 	_update_stats_display()
+	set_mana_drag_enabled(false)
 	if dice_grid and dice_grid.has_method("refresh"):
 		dice_grid.refresh()
 
@@ -300,9 +295,8 @@ func enter_prep_phase():
 		end_turn_button.hide()
 	if action_buttons_container:
 		action_buttons_container.hide()
-	# Hide mana selector during prep
-	if mana_die_selector:
-		mana_die_selector.hide()
+	# Disable mana drag during prep (selector stays visible)
+	set_mana_drag_enabled(false)
 
 func enter_action_phase():
 	"""ACTION phase — show End Turn, hide Roll. Confirm/Cancel stay hidden
@@ -315,8 +309,8 @@ func enter_action_phase():
 	if action_buttons_container:
 		action_buttons_container.hide()
 	# Show mana selector for casters during action phase
-	if mana_die_selector and player and player.has_method("has_mana_pool") and player.has_mana_pool():
-		mana_die_selector.show()
+	# Disable mana drag during prep (selector stays visible)
+	set_mana_drag_enabled(false)
 
 func show_action_buttons(show: bool):
 	"""Show or hide Confirm/Cancel (when action field has dice placed)."""
@@ -331,6 +325,7 @@ func enter_enemy_turn():
 		end_turn_button.hide()
 	if action_buttons_container:
 		action_buttons_container.hide()
+	set_mana_drag_enabled(false)
 
 # ============================================================================
 # PUBLIC API
@@ -349,3 +344,35 @@ func refresh_dice():
 func refresh_stats():
 	"""Refresh the stats display"""
 	_update_stats_display()
+
+
+
+# ============================================================================
+# MANA DIE DROP HANDLING
+# ============================================================================
+
+func _can_drop_data(_pos: Vector2, data: Variant) -> bool:
+	if not data is Dictionary:
+		return false
+	if data.get("type") != "mana_die":
+		return false
+	if not player or not player.dice_pool:
+		return false
+	print("📱 BottomUI._can_drop_data: ACCEPTED mana die")
+	return true
+
+func _drop_data(_pos: Vector2, data: Variant):
+	if not data is Dictionary or data.get("type") != "mana_die":
+		return
+
+	var selector = data.get("selector") as ManaDieSelector
+	if not selector:
+		return
+
+	var new_die: DieResource = selector.pull_and_create_die()
+	if not new_die:
+		print("📱 BottomUI._drop_data: Mana pull failed")
+		return
+
+	player.dice_pool.add_die_to_hand(new_die)
+	print("📱 BottomUI._drop_data: %s added to hand" % new_die.display_name)

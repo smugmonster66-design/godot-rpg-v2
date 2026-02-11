@@ -467,8 +467,7 @@ func _on_roll_pressed():
 	var bottom_ui = _get_bottom_ui()
 	if bottom_ui and bottom_ui.has_method("set_mana_drag_enabled"):
 		bottom_ui.set_mana_drag_enabled(true)
-	if _mana_drop_zone:
-		_mana_drop_zone.visible = true
+
 
 
 
