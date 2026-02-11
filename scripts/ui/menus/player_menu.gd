@@ -29,8 +29,14 @@ var _tab_buttons: Control = null
 
 func _ready():
 	hide()
+	_set_panel_container_visible(false)
 	await get_tree().process_frame
 	_discover_and_connect_children()
+
+func _set_panel_container_visible(vis: bool):
+	for child in get_children():
+		if child is PanelContainer:
+			child.visible = vis
 
 
 func _discover_and_connect_children():
@@ -121,12 +127,14 @@ func open_menu(p_player: Player):
 		button.button_pressed = (tab_name == "Character")
 
 	_update_button_visuals()
+	_set_panel_container_visible(true)
 	show()
 	print("📋 PlayerMenu: Opened")
 
 func close_menu():
 	"""Close the menu"""
 	hide()
+	_set_panel_container_visible(false)
 	menu_closed.emit()
 	print("📋 PlayerMenu: Closed")
 

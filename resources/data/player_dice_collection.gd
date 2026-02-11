@@ -388,9 +388,6 @@ func consume_from_hand(die: DieResource):
 	# Track which pool index was used (for visual feedback + context)
 	used_pool_indices.append(die.slot_index)
 	
-	# Track element usage for mage turn-context conditions
-	var _elem = die.get_effective_element()
-	_element_use_counts[_elem] = _element_use_counts.get(_elem, 0) + 1
 	
 	# Process ON_USE affixes against the FULL STABLE HAND
 	if affix_processor:
@@ -406,6 +403,20 @@ func consume_from_hand(die: DieResource):
 		die.display_name, hand_index, get_unconsumed_count()])
 	die_consumed.emit(die)
 	hand_changed.emit()
+
+func finalize_dice_consumption(consumed_dice: Array) -> void:
+	"""Commit element/tag usage for dice that were actually spent by an action.
+	Called by CombatManager after the action executes — not on placement.
+	This is the only place _element_use_counts is incremented."""
+	for die in consumed_dice:
+		if die is DieResource:
+			var elem = die.get_effective_element()
+			_element_use_counts[elem] = _element_use_counts.get(elem, 0) + 1
+	
+	if consumed_dice.size() > 0:
+		print("🎲 Finalized consumption: %d dice → element counts: %s" % [
+			consumed_dice.size(), _element_use_counts])
+
 
 func restore_to_hand(die: DieResource):
 	"""Restore a consumed die back to usable state (e.g., action cancelled).

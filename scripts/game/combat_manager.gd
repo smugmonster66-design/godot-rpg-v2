@@ -12,6 +12,7 @@ extends Node2D
 var player_combatant: Combatant = null
 var enemy_combatants: Array[Combatant] = []
 var combat_ui = null
+var _mana_drop_zone: ManaDropZone = null
 
 # ============================================================================
 # STATE
@@ -261,6 +262,8 @@ func _finalize_combat_init(p_player: Player):
 	print("⚔️ Combat initialization complete")
 	print("  Turn order: %s" % [turn_order.map(func(c): return c.combatant_name)])
 	
+	_setup_mana_drop_zone()
+	
 	# Start first round
 	_start_round()
 
@@ -464,6 +467,8 @@ func _on_roll_pressed():
 	var bottom_ui = _get_bottom_ui()
 	if bottom_ui and bottom_ui.has_method("set_mana_drag_enabled"):
 		bottom_ui.set_mana_drag_enabled(true)
+	if _mana_drop_zone:
+		_mana_drop_zone.visible = true
 
 
 
@@ -481,6 +486,8 @@ func _on_player_end_turn():
 	var bottom_ui = _get_bottom_ui()
 	if bottom_ui and bottom_ui.has_method("set_mana_drag_enabled"):
 		bottom_ui.set_mana_drag_enabled(false)
+	if _mana_drop_zone:
+		_mana_drop_zone.visible = false
 	
 	print("🎮 Player ended turn")
 	
@@ -949,6 +956,16 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 		_resolve_combat_events(player.dice_pool.drain_combat_events(), primary)
 		_resolve_mana_events(player.dice_pool.drain_mana_events())
 	# --- END MANA SYSTEM ---
+	
+	# --- FINALIZE DICE CONSUMPTION (v5) ---
+	# Commit element/tag usage now that the action has irrevocably fired.
+	# This must happen AFTER _apply_action_effect so ON_USE affixes see
+	# the pre-action counts, and BEFORE the next action's affixes resolve.
+	if player and player.dice_pool:
+		var placed_dice: Array = action_data.get("placed_dice", [])
+		player.dice_pool.finalize_dice_consumption(placed_dice)
+	# --- END FINALIZE ---
+	
 
 
 # ============================================================================
@@ -1537,6 +1554,8 @@ func end_combat(player_won: bool):
 	var bottom_ui = _get_bottom_ui()
 	if bottom_ui and bottom_ui.has_method("set_mana_drag_enabled"):
 		bottom_ui.set_mana_drag_enabled(false)
+	if _mana_drop_zone:
+		_mana_drop_zone.visible = false
 	
 	
 	combat_state = CombatState.ENDED
@@ -1581,6 +1600,24 @@ func _on_combat_ended(player_won: bool):
 			if player.active_class:
 				player.active_class.add_experience(total_exp)
 
+func _setup_mana_drop_zone():
+	if not _mana_drop_zone:
+		_mana_drop_zone = find_child("ManaDropZone", true, false)
+	if not _mana_drop_zone:
+		return
+
+	var display: DicePoolDisplay = null
+	if combat_ui:
+		display = combat_ui.find_child("DicePoolDisplay", true, false)
+	var pool: PlayerDiceCollection = null
+	if player and player.dice_pool:
+		pool = player.dice_pool
+
+	if not display or not pool:
+		print("  ⚠️ Cannot init ManaDropZone — missing display or pool")
+		return
+
+	_mana_drop_zone.initialize(display, pool)
 
 func _get_bottom_ui() -> Control:
 	return get_tree().get_first_node_in_group("bottom_ui")

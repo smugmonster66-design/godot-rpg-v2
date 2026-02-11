@@ -1,11 +1,11 @@
 [gd_resource type="Resource" script_class="DieResource" load_steps=7 format=3 uid="uid://rtmmv2m3yyt1"]
 
-[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/d6-basic-fill.png" id="1_8tmxb"]
+[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="1_8tmxb"]
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_iqnyg"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_qeita"]
 [ext_resource type="Resource" uid="uid://bgdacj1mitxxo" path="res://resources/dice_affixes/water_enchant_dieaffix.tres" id="3_lntug"]
 [ext_resource type="Resource" uid="uid://bjjh553nkxst3" path="res://resources/dice_affixes/sparkly_affix/sparkle_dieaffix.tres" id="4_lntug"]
-[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/d6-basic-stroke.png" id="6_rwn6i"]
+[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="6_rwn6i"]
 
 [resource]
 script = ExtResource("2_qeita")

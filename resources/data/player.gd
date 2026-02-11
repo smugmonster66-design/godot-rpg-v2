@@ -652,6 +652,9 @@ func switch_class(p_class_name: String) -> bool:
 	if active_class:
 		_reapply_class_skill_affixes()
 	
+	# v4: Initialize mana pool now that class + skill affixes are in place
+	initialize_mana_pool()
+	
 	class_changed.emit(active_class)
 	print("Switched to class: %s" % p_class_name)
 	return true

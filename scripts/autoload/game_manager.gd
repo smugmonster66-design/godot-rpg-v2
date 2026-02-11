@@ -7,6 +7,7 @@ extends Node
 const COMBAT_SCENE = preload("res://scenes/game/combat_scene.tscn")
 const MAP_SCENE = preload("res://scenes/game/map_scene.tscn")
 const ELEMENT_VISUALS = preload("res://resources/element_visuals.tres")
+const DIE_BASE_TEXTURES = preload("res://resources/die_base_textures.tres")
 
 # ============================================================================
 # STARTING ITEMS CONFIGURATION
@@ -21,6 +22,7 @@ const ELEMENT_VISUALS = preload("res://resources/element_visuals.tres")
 @export_group("Element Visuals")
 ## Central element visual configuration - fill/stroke shaders per element
 @export var element_visuals: ElementVisualConfig
+
 
 # ============================================================================
 # GAME STATE
@@ -73,12 +75,16 @@ func _ready():
 	print("🎮 Current scene: %s" % current.name)
 	
 	# Check if running under GameRoot (new layer system)
+	if DIE_BASE_TEXTURES:
+		DIE_BASE_TEXTURES.register()
+	
 	if current.name == "GameRoot":
 		print("🎮 Running under GameRoot - using layer system")
 		# GameRoot will set game_root reference and handle scene management
 		# Just initialize player - GameRoot will receive player_created signal
 		initialize_player()
 		return
+	
 	
 	# Legacy: Direct MapScene as main scene
 	if current.name == "MapScene":

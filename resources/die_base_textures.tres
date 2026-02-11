@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="DieBaseTextures" load_steps=6 format=3 uid="uid://tcqs3fudhgrb"]
+
+[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="1_8niv1"]
+[ext_resource type="Script" uid="uid://4k3bo2spqtlc" path="res://scripts/dice/die_base_textures.gd" id="1_81rsk"]
+[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="2_2fqfs"]
+[ext_resource type="Texture2D" uid="uid://r7bikgya1ua8" path="res://assets/dice/d12s/d12-basic-fill.png" id="3_yw7pj"]
+[ext_resource type="Texture2D" uid="uid://d3cgge7kyfsqd" path="res://assets/dice/d12s/d12-basic-stroke.png" id="4_am4mc"]
+
+[resource]
+script = ExtResource("1_81rsk")
+d4_fill = ExtResource("1_8niv1")
+d4_stroke = ExtResource("2_2fqfs")
+d6_fill = ExtResource("1_8niv1")
+d6_stroke = ExtResource("2_2fqfs")
+d8_fill = ExtResource("1_8niv1")
+d8_stroke = ExtResource("2_2fqfs")
+d10_fill = ExtResource("1_8niv1")
+d10_stroke = ExtResource("2_2fqfs")
+d12_fill = ExtResource("3_yw7pj")
+d12_stroke = ExtResource("4_am4mc")
+d20_fill = ExtResource("1_8niv1")
+d20_stroke = ExtResource("2_2fqfs")
+metadata/_custom_type_script = "uid://4k3bo2spqtlc"

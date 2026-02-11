@@ -4,7 +4,7 @@
 [ext_resource type="Resource" uid="uid://c8dyd1d4rmg7g" path="res://resources/actions/enemy/goblins/goblin_stab.tres" id="2_3kmag"]
 [ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="2_eoums"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="3_3kmag"]
-[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/d6-basic-fill.png" id="3_qxlb2"]
+[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="3_qxlb2"]
 [ext_resource type="Resource" uid="uid://byir7m1xtkf74" path="res://resources/dice/d6_basic.tres" id="5_qxlb2"]
 [ext_resource type="Resource" uid="uid://ctsfrcjdr4fmn" path="res://resources/dice/item/weapon/epic/d12_frost_hammer_die.tres" id="7_8263n"]
 

@@ -93,11 +93,13 @@ alignment = 1
 
 [node name="MenuButton" type="Button" parent="MainHBox/RightSection"]
 layout_mode = 2
+size_flags_horizontal = 4
 size_flags_vertical = 4
 text = "MENU"
 
 [node name="AddStartingGearButton" type="Button" parent="MainHBox/RightSection"]
 layout_mode = 2
+size_flags_horizontal = 4
 text = "Add Starting Gear"
 script = ExtResource("5_5kghg")
 starting_items = Array[ExtResource("6_tu5g0")]([ExtResource("8_25ydp"), ExtResource("8_2my3p")])
@@ -105,6 +107,7 @@ drop_item_level = 2
 
 [node name="CombatButton" type="Button" parent="MainHBox/RightSection"]
 layout_mode = 2
+size_flags_horizontal = 4
 text = "Begin Test Combat"
 script = ExtResource("9_2my3p")
 encounter = ExtResource("10_25ydp")

@@ -1,10 +1,10 @@
 [gd_resource type="Resource" script_class="DieResource" load_steps=6 format=3 uid="uid://byir7m1xtkf74"]
 
 [ext_resource type="Resource" path="res://resources/affixes/elements/slashing_element.tres" id="1_4p3cu"]
-[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/d6-basic-fill.png" id="1_8ubtd"]
+[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="1_8ubtd"]
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_ktxbk"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_xr6t0"]
-[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/d6-basic-stroke.png" id="4_4p3cu"]
+[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="4_4p3cu"]
 
 [resource]
 script = ExtResource("2_xr6t0")

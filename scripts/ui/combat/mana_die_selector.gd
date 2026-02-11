@@ -4,11 +4,14 @@
 #
 # Contains a mana progress bar with a 3×3 die-type selector grid overlapping
 # its right end. The center cell shows a preview of the currently selected
-# mana die (element + size). Players drag from that preview into their hand
-# during the ACTION phase to pull a mana die.
+# mana die (element + size). Players drag from anywhere on this widget into
+# their hand during the ACTION phase to pull a mana die.
 #
 # Arrow buttons only appear when >1 option is unlocked.
-# Drag-from-center only works when is_drag_enabled == true (ACTION phase).
+# Drag only works when is_drag_enabled == true (ACTION phase).
+#
+# Drag is handled directly on this Control — no separate ManaDragSource needed.
+# Since ManaDieSelector is the root parent, no child can block its _get_drag_data.
 #
 # INTEGRATION:
 #   # Instance the scene, add to tree, then:
@@ -42,7 +45,6 @@ signal drag_ended(was_placed: bool)
 @onready var selector_grid: GridContainer = $SelectorGrid
 @onready var die_preview_container: PanelContainer = $SelectorGrid/DiePreviewContainer
 @onready var preview_anchor: CenterContainer = $SelectorGrid/DiePreviewContainer/PreviewAnchor
-@onready var drag_source: ManaDragSource = $SelectorGrid/DiePreviewContainer/ManaDragSource
 @onready var elem_left_btn: Button = $SelectorGrid/ElemLeftBtn
 @onready var elem_right_btn: Button = $SelectorGrid/ElemRightBtn
 @onready var size_up_btn: Button = $SelectorGrid/SizeUpBtn
@@ -75,6 +77,13 @@ var is_drag_enabled: bool = false
 var is_caster: bool = false
 
 # ============================================================================
+# DRAG STATE
+# ============================================================================
+
+var _manual_preview: Control = null
+var _is_dragging: bool = false
+
+# ============================================================================
 # ELEMENT COLORS (for fallback text-label tinting)
 # ============================================================================
 
@@ -95,11 +104,23 @@ const ELEMENT_COLORS: Dictionary = {
 # ============================================================================
 
 func _ready():
-	# Wire up the drag source back-reference
-	if drag_source:
-		drag_source.selector = self
 	# Start hidden — shown after initialize() if player is a caster
 	visible = false
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	set_process(false)
+
+	# Make container nodes pass-through so _get_drag_data on THIS node fires
+	if preview_anchor:
+		preview_anchor.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if die_preview_container:
+		die_preview_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if selector_grid:
+		selector_grid.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	# Remove the legacy ManaDragSource node if present in the scene tree
+	var legacy_drag = find_child("ManaDragSource", true, false)
+	if legacy_drag:
+		legacy_drag.queue_free()
 
 func initialize(p_player: Player):
 	"""Initialize with the player. Shows widget if player has a mana pool."""
@@ -118,11 +139,85 @@ func initialize(p_player: Player):
 		print("🔮 ManaDieSelector: Hidden (not a caster)")
 
 func set_drag_enabled(enabled: bool):
-	"""Enable or disable drag-from-preview. Call from CombatManager on phase change."""
+	"""Enable or disable drag. Call from CombatManager on phase change."""
 	is_drag_enabled = enabled
-	if drag_source:
-		drag_source.mouse_filter = Control.MOUSE_FILTER_STOP if enabled else Control.MOUSE_FILTER_IGNORE
 	_update_preview_appearance()
+
+
+
+
+
+
+
+func _input(event: InputEvent):
+	if not is_drag_enabled or not visible:
+		return
+	if not (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
+		return
+	
+	if not die_preview_container or not die_preview_container.get_global_rect().has_point(get_global_mouse_position()):
+		return
+	
+	# Check we can actually pull
+	if not mana_pool or not mana_pool.can_pull():
+		if mana_pool:
+			mana_pool.pull_failed.emit("Cannot pull — insufficient mana or no options")
+		return
+	
+	drag_started.emit()
+	_is_dragging = true
+	
+	# Create manual preview
+	_manual_preview = _create_mana_drag_preview()
+	if _manual_preview:
+		_set_mouse_ignore_recursive(_manual_preview)
+		_manual_preview.z_index = 100
+		var overlay = get_tree().current_scene.find_child("DragOverlayLayer", true, false)
+		if overlay:
+			overlay.add_child(_manual_preview)
+		else:
+			get_tree().root.add_child(_manual_preview)
+		_update_preview_position()
+	set_process(true)
+	
+	# Start Godot's drag system programmatically — bypasses GUI routing entirely
+	var data = {
+		"type": "mana_die",
+		"element": mana_pool.selected_element,
+		"die_size": mana_pool.selected_die_size,
+		"pull_cost": mana_pool.get_pull_cost(),
+		"mana_pool": mana_pool,
+		"selector": self,
+	}
+	# Invisible dummy preview — our manual preview handles visuals
+	var dummy = Control.new()
+	dummy.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	dummy.modulate = Color(1, 1, 1, 0)
+	dummy.custom_minimum_size = Vector2(1, 1)
+	force_drag(data, dummy)
+	get_viewport().set_input_as_handled()
+
+
+
+func _find_topmost_stop_control(node: Node, global_pos: Vector2) -> Control:
+	"""Find the topmost Control with MOUSE_FILTER_STOP that contains the point."""
+	var result: Control = null
+	for child in node.get_children():
+		var found = _find_topmost_stop_control(child, global_pos)
+		if found:
+			result = found
+	if node is Control:
+		var c: Control = node as Control
+		if c.visible and c.mouse_filter == Control.MOUSE_FILTER_STOP:
+			var rect = Rect2(c.global_position, c.size)
+			if rect.has_point(global_pos):
+				result = c
+	return result
+
+
+
+
+
 
 # ============================================================================
 # SIGNAL CONNECTIONS
@@ -229,7 +324,6 @@ func _update_die_preview():
 		visual = preview_die.instantiate_combat_visual()
 
 	if visual:
-		visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		if visual is DieObjectBase:
 			visual.draggable = false
 		# Scale to fit inside the preview cell
@@ -241,6 +335,10 @@ func _update_die_preview():
 		else:
 			visual.custom_minimum_size = Vector2(target_size, target_size)
 		_current_preview = visual
+		# Hide value label — preview shows die shape/element only
+		var lbl = visual.find_child("ValueLabel", true, false)
+		if lbl:
+			lbl.visible = false
 	else:
 		# Fallback: text label
 		var lbl = Label.new()
@@ -257,6 +355,10 @@ func _update_die_preview():
 		preview_anchor.add_child(_current_preview)
 	else:
 		die_preview_container.add_child(_current_preview)
+
+	# Re-apply IGNORE after add_child — DieObjectBase._ready() resets to STOP
+	if _current_preview:
+		_set_mouse_ignore_recursive(_current_preview)
 
 func _update_button_visibility():
 	"""Show/hide arrow buttons based on available options."""
@@ -299,29 +401,33 @@ func _update_preview_appearance():
 	die_preview_container.modulate = Color.WHITE if can_interact else Color(0.6, 0.6, 0.6, 0.8)
 
 # ============================================================================
-# DRAG DATA CREATION — Called by ManaDragSource
+# DIRECT DRAG HANDLING
 # ============================================================================
 
-func _create_mana_drag_data() -> Variant:
-	"""Create drag data for a mana die pull. Returns null if can't pull."""
-	if not is_drag_enabled:
-		return null
-	if not mana_pool or not mana_pool.can_pull():
-		if mana_pool:
-			mana_pool.pull_failed.emit("Cannot pull — insufficient mana or no options")
-		return null
 
-	drag_started.emit()
 
-	# We don't spend mana yet — that happens on successful drop.
-	return {
-		"type": "mana_die",
-		"element": mana_pool.selected_element,
-		"die_size": mana_pool.selected_die_size,
-		"pull_cost": mana_pool.get_pull_cost(),
-		"mana_pool": mana_pool,
-		"selector": self,
-	}
+
+func _process(_delta: float):
+	if _manual_preview and _is_dragging:
+		_update_preview_position()
+
+func _update_preview_position():
+	if _manual_preview:
+		var preview_size = _manual_preview.size if _manual_preview.size.length() > 0 else Vector2(62, 62)
+		_manual_preview.global_position = get_global_mouse_position() - preview_size / 2
+
+func _notification(what: int):
+	if what == NOTIFICATION_DRAG_END:
+		_is_dragging = false
+		if _manual_preview:
+			_manual_preview.queue_free()
+			_manual_preview = null
+		set_process(false)
+		drag_ended.emit(false)
+
+# ============================================================================
+# DRAG PREVIEW CREATION
+# ============================================================================
 
 func _create_mana_drag_preview() -> Control:
 	"""Create the visual that follows the cursor during drag."""
@@ -337,6 +443,9 @@ func _create_mana_drag_preview() -> Control:
 
 	if visual:
 		visual.modulate = Color(1, 1, 1, 0.8)
+		var lbl = visual.find_child("ValueLabel", true, false)
+		if lbl:
+			lbl.visible = false
 		if visual is DieObjectBase:
 			visual.draggable = false
 		return visual
@@ -347,12 +456,8 @@ func _create_mana_drag_preview() -> Control:
 	lbl.add_theme_font_size_override("font_size", 18)
 	return lbl
 
-func _on_drag_ended():
-	"""Called by ManaDragSource when drag ends."""
-	drag_ended.emit(false)
-
 # ============================================================================
-# MANA DIE PULL — Called by DicePoolDisplay on successful drop
+# MANA DIE PULL — Called by ManaDropZone on successful drop
 # ============================================================================
 
 func pull_and_create_die() -> DieResource:
@@ -378,4 +483,17 @@ func _create_preview_die_resource() -> DieResource:
 	die.display_name = "%s D%d" % [mana_pool.get_element_name(), mana_pool.selected_die_size]
 	die.source = "mana_preview"
 	die.tags.append("mana_die")
+
+	if DieBaseTextures.instance:
+		DieBaseTextures.instance.apply_to(die)
+	if mana_pool:
+		mana_pool._apply_element_visuals(die)
+
 	return die
+
+func _set_mouse_ignore_recursive(node: Node):
+	"""Recursively set MOUSE_FILTER_IGNORE on all Control children."""
+	if node is Control:
+		node.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for child in node.get_children():
+		_set_mouse_ignore_recursive(child)

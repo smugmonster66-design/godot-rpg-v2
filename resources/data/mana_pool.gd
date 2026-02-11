@@ -161,6 +161,8 @@ func initialize(level: int, intellect: int, affix_manager: AffixPoolManager,
 	if sizes.size() > 0 and selected_die_size not in sizes:
 		selected_die_size = sizes[0]
 
+	_validate_selection()
+
 	print("🔮 ManaPool initialized: %d/%d mana, element=%s, size=D%d" % [
 		current_mana, max_mana,
 		ELEMENT_NAMES.get(selected_element, "?"),
@@ -217,6 +219,8 @@ func recalculate_max_mana(level: int, intellect: int) -> void:
 func refill() -> void:
 	"""Restore mana to max. Typically called at combat start."""
 	current_mana = max_mana
+	# Auto-select first available element/size if current selection is invalid
+	_validate_selection()
 	mana_changed.emit(current_mana, max_mana)
 
 func add_mana(amount: int) -> void:
@@ -248,21 +252,42 @@ func get_mana_percent() -> float:
 # ============================================================================
 
 func get_available_elements() -> Array:
-	"""Get elements the player has unlocked via skills.
-	Returns Array of DieResource.Element values, sorted by enum order."""
 	if not _affix_manager:
 		return []
 
 	var elements: Array = []
 	for affix in _affix_manager.get_pool(Affix.Category.MANA_ELEMENT_UNLOCK):
-		var elem_str: String = affix.effect_data.get("element", "")
-		var elem = _string_to_element(elem_str)
+		var elem = DieResource.Element.NONE
+
+		# Primary: effect_data["element"] string
+		var elem_str: String = affix.effect_data.get("element", "") if affix.effect_data else ""
+		if not elem_str.is_empty():
+			elem = _string_to_element(elem_str)
+
+		# Fallback: elemental_identity (already set on your skill affixes)
+		# Fallback: elemental_identity is a DamageType int — convert to Element
+		if elem == DieResource.Element.NONE and affix.has_elemental_identity:
+			elem = _damage_type_to_element(affix.elemental_identity)
+
 		if elem != DieResource.Element.NONE and elem not in elements:
 			elements.append(elem)
 
-	# Sort by enum value for consistent cycling order
 	elements.sort()
 	return elements
+
+
+static func _damage_type_to_element(damage_type: int) -> DieResource.Element:
+	"""Convert ActionEffect.DamageType int to DieResource.Element."""
+	match damage_type:
+		ActionEffect.DamageType.SLASHING: return DieResource.Element.SLASHING
+		ActionEffect.DamageType.BLUNT: return DieResource.Element.BLUNT
+		ActionEffect.DamageType.PIERCING: return DieResource.Element.PIERCING
+		ActionEffect.DamageType.FIRE: return DieResource.Element.FIRE
+		ActionEffect.DamageType.ICE: return DieResource.Element.ICE
+		ActionEffect.DamageType.SHOCK: return DieResource.Element.SHOCK
+		ActionEffect.DamageType.POISON: return DieResource.Element.POISON
+		ActionEffect.DamageType.SHADOW: return DieResource.Element.SHADOW
+		_: return DieResource.Element.NONE
 
 func cycle_element(direction: int) -> void:
 	"""Cycle the selected element forward (+1) or backward (-1).
@@ -291,19 +316,17 @@ func get_element_name() -> String:
 # ============================================================================
 
 func get_available_die_sizes() -> Array:
-	"""Get die sizes the player has unlocked via skills.
-	Returns Array of ints (4, 6, 8, 10, 12, 20), sorted ascending."""
-	if not _affix_manager:
-		return []
+	var sizes: Array = [4]  # D4 always available for casters
 
-	var sizes: Array = []
-	for affix in _affix_manager.get_pool(Affix.Category.MANA_SIZE_UNLOCK):
-		var size_val: int = int(affix.effect_data.get("die_size", 0))
-		if size_val in VALID_SIZES and size_val not in sizes:
-			sizes.append(size_val)
+	if _affix_manager:
+		for affix in _affix_manager.get_pool(Affix.Category.MANA_SIZE_UNLOCK):
+			var size_val: int = int(affix.effect_data.get("die_size", 0))
+			if size_val in VALID_SIZES and size_val not in sizes:
+				sizes.append(size_val)
 
 	sizes.sort()
 	return sizes
+
 
 func cycle_die_size(direction: int) -> void:
 	"""Cycle the selected die size up (+1) or down (-1).
@@ -410,6 +433,11 @@ func pull_mana_die() -> DieResource:
 	die.tags.append("mana_die")
 	die.tags.append(_element_tag(selected_element))
 
+	# Apply base textures from global registry
+	print("🔮 DieBaseTextures.instance: %s" % DieBaseTextures.instance)
+	if DieBaseTextures.instance:
+		DieBaseTextures.instance.apply_to(die)
+
 	# Roll the die immediately (it enters the hand already rolled)
 	die.roll()
 
@@ -425,30 +453,44 @@ func pull_mana_die() -> DieResource:
 	mana_die_pulled.emit(die)
 	return die
 
+
+const DIE_TEXTURE_PATHS := {
+	DieResource.DieType.D4: "res://assets/dice/D6s/d6-basic",
+	DieResource.DieType.D6: "res://assets/dice/D6s/d6-basic",
+	DieResource.DieType.D8: "res://assets/dice/D6s/d6-basic",
+	DieResource.DieType.D10: "res://assets/dice/D6s/d6-basic",
+	DieResource.DieType.D12: "res://assets/dice/d12s/d12-basic",
+	DieResource.DieType.D20: "res://assets/dice/D6s/d6-basic",
+}
+
+func _apply_die_textures(die: DieResource):
+	"""Load fill/stroke textures for the die based on its type."""
+	var base_path = DIE_TEXTURE_PATHS.get(die.die_type, "")
+	if base_path.is_empty():
+		return
+	
+	var fill_path = base_path + "-fill.png"
+	var stroke_path = base_path + "-stroke.png"
+	
+	if ResourceLoader.exists(fill_path):
+		die.fill_texture = load(fill_path)
+	if ResourceLoader.exists(stroke_path):
+		die.stroke_texture = load(stroke_path)
+
 # ============================================================================
 # INTERNAL — Affix Application
 # ============================================================================
 
 func _apply_element_visuals(die: DieResource) -> void:
-	"""Apply element-specific visual materials to the die.
-
-	The CombatDieObject applies element visuals from die.element
-	at instantiation time, so setting element is sufficient for the
-	standard visual pipeline. This method handles any additional
-	element_affix configuration if a global template exists.
-	"""
-	# Try to load element visuals from the global registry
-	var visuals_path = "res://resources/element_visuals/%s.tres" % _element_tag(die.element)
-	if ResourceLoader.exists(visuals_path):
-		var _visuals = load(visuals_path)
-		# CombatDieObject reads die.element and applies visuals from there.
-		# If there's a dedicated element visual resource, it's handled at
-		# instantiation time by the visual system.
+	"""Load and assign the element's DiceAffix from resources."""
+	if die.element == DieResource.Element.NONE:
 		return
+	
+	var tag = _element_tag(die.element)
+	var path = "res://resources/affixes/elements/%s_element.tres" % tag
+	if ResourceLoader.exists(path):
+		die.element_affix = load(path)
 
-	# Fallback: element is already set on the die, CombatDieObject will
-	# apply element-based visuals from its own element lookup.
-	pass
 
 func _apply_mana_die_affixes(die: DieResource) -> void:
 	"""Apply all MANA_DIE_AFFIX DiceAffixes from the player's affix pool.
@@ -465,6 +507,11 @@ func _apply_mana_die_affixes(die: DieResource) -> void:
 			var copy = dice_affix.duplicate(true)
 			die.add_affix(copy)
 			print("  🔮 Applied mana die affix: %s" % copy.affix_name)
+
+
+func notify_options_changed():
+	"""Call after skills/affixes change to revalidate element/size selection."""
+	_validate_selection()
 
 # ============================================================================
 # INTERNAL — Helpers
@@ -547,6 +594,20 @@ func from_dict(data: Dictionary) -> void:
 	selected_element = data.get("selected_element", DieResource.Element.NONE)
 	selected_die_size = data.get("selected_die_size", 4)
 	last_pull_cost = data.get("last_pull_cost", 0)
+
+
+func _validate_selection():
+	"""Ensure selected_element and selected_die_size are valid choices."""
+	var elements = get_available_elements()
+	if elements.size() > 0 and selected_element not in elements:
+		selected_element = elements[0]
+		element_changed.emit(selected_element)
+	
+	var sizes = get_available_die_sizes()
+	if sizes.size() > 0 and selected_die_size not in sizes:
+		selected_die_size = sizes[0]
+		die_size_changed.emit(selected_die_size)
+
 
 # ============================================================================
 # DEBUG

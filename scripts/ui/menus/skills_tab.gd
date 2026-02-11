@@ -353,6 +353,10 @@ func _learn_skill(skill: SkillResource):
 			player.affix_manager.add_affix(affix_copy)
 			print("  ✨ Applied affix: %s" % affix.affix_name)
 	
+	# Notify mana pool that available elements/sizes may have changed
+	if player.mana_pool:
+		player.mana_pool.notify_options_changed()
+	
 	print("🌳 Learned %s rank %d!" % [skill.skill_name, new_rank])
 	
 	skill_learned.emit(skill, new_rank)

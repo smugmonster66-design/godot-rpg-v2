@@ -201,67 +201,6 @@ func _on_new_die_clicked(die_obj):
 	die_clicked.emit(die_obj, die_obj.die_resource if die_obj.die_resource else null)
 
 
-# ============================================================================
-# MANA DIE DROP TARGET
-# ============================================================================
-
-func _can_drop_data(_pos: Vector2, data: Variant) -> bool:
-	"""Accept mana die drops from ManaDieSelector."""
-	if not data is Dictionary:
-		return false
-	if data.get("type") != "mana_die":
-		return false
-	# Verify the mana pool can still afford the pull
-	var pool = data.get("mana_pool") as ManaPool
-	if pool and not pool.can_pull(data.get("die_size", -1)):
-		return false
-	return true
-
-func _drop_data(pos: Vector2, data: Variant):
-	"""Handle a mana die being dropped into the hand."""
-	if not data is Dictionary or data.get("type") != "mana_die":
-		return
-
-	var selector = data.get("selector") as ManaDieSelector
-	if not selector:
-		return
-
-	# Pull the die (spends mana, creates DieResource)
-	var new_die: DieResource = selector.pull_and_create_die()
-	if not new_die:
-		print("🎲 DicePoolDisplay: Mana pull failed on drop")
-		return
-
-	# Calculate insertion index from drop X position
-	var insert_idx = _calculate_insert_index(pos)
-
-	# Insert into the hand data
-	if dice_pool:
-		dice_pool.insert_into_hand(insert_idx, new_die)
-		# hand_changed signal triggers refresh via _on_hand_changed
-
-	print("🎲 DicePoolDisplay: Mana die %s inserted at index %d" % [
-		new_die.display_name, insert_idx])
-
-	# Emit signal for combat manager / animation
-	selector.mana_die_created.emit(new_die, insert_idx)
-
-func _calculate_insert_index(local_pos: Vector2) -> int:
-	"""Determine which hand slot the drop position maps to.
-	Compares the drop X against the midpoints of existing die visuals."""
-	if die_visuals.is_empty():
-		return 0
-
-	for i in range(die_visuals.size()):
-		var visual = die_visuals[i]
-		if not is_instance_valid(visual):
-			continue
-		var mid_x = visual.position.x + visual.size.x / 2.0
-		if local_pos.x < mid_x:
-			return i
-
-	# Past all visuals → append at end
-	return die_visuals.size()
 
 
 
@@ -275,6 +214,7 @@ func _on_hand_rolled(_hand: Array):
 
 func _on_hand_changed():
 	print("🎲 DicePoolDisplay: hand_changed signal")
+	hide_for_roll_animation = false  # Mid-turn changes appear immediately
 	_request_refresh()
 
 
