@@ -53,7 +53,7 @@ corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
 [node name="ManaDieSelector" type="Control"]
-custom_minimum_size = Vector2(0, 152)
+custom_minimum_size = Vector2(0, 212)
 layout_mode = 3
 anchors_preset = 0
 size_flags_horizontal = 3
@@ -64,6 +64,7 @@ layout_mode = 1
 anchors_preset = -1
 anchor_right = 1.0
 offset_top = 60.0
+offset_right = -160.0
 offset_bottom = 92.0
 grow_horizontal = 2
 theme_override_styles/background = SubResource("mana_bar_bg")
@@ -104,7 +105,8 @@ anchors_preset = -1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -152.0
-offset_bottom = 152.0
+offset_top = 60.0
+offset_bottom = 212.0
 theme_override_constants/h_separation = 4
 theme_override_constants/v_separation = 4
 columns = 3
