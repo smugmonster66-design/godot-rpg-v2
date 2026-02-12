@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="SkillTree" load_steps=191 format=3 uid="uid://7skxlt53e4sf"]
+[gd_resource type="Resource" script_class="SkillTree" load_steps=193 format=3 uid="uid://7skxlt53e4sf"]
 
+[ext_resource type="Shader" uid="uid://bnitqsn8ayk0j" path="res://shaders/dice/fire/fire_fill.gdshader" id="1_bnh2n"]
 [ext_resource type="Script" uid="uid://cukfw0heumnic" path="res://scripts/data/skill_tree.gd" id="1_ftk5x"]
 [ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="2_be7fa"]
 [ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="3_44xkj"]
@@ -15,6 +16,14 @@
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="12_10ldk"]
 [ext_resource type="Resource" uid="uid://behojsm6qvxjl" path="res://resources/statuses/burn.tres" id="13_bnh2n"]
 [ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="15_skkmn"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_skkmn"]
+shader = ExtResource("1_bnh2n")
+shader_parameter/fire_core = Color(1, 0.9, 0.3, 1)
+shader_parameter/fire_mid = Color(1, 0.5, 0.1, 1)
+shader_parameter/fire_edge = Color(0.8, 0.2, 0.05, 1)
+shader_parameter/flame_speed = 1.5
+shader_parameter/flame_intensity = 0.8
 
 [sub_resource type="Resource" id="Resource_lcoba"]
 script = ExtResource("4_dn5b5")
@@ -1640,3 +1649,4 @@ tier_7_skills = Array[ExtResource("2_be7fa")]([SubResource("Resource_oxj4g"), Su
 tier_8_skills = Array[ExtResource("2_be7fa")]([SubResource("Resource_a23yy"), SubResource("Resource_x4vx5"), SubResource("Resource_isymo")])
 tier_9_skills = Array[ExtResource("2_be7fa")]([SubResource("Resource_hivrg"), SubResource("Resource_ow4nn")])
 tier_10_skills = Array[ExtResource("2_be7fa")]([SubResource("Resource_10ldk")])
+prereq_line_shader = SubResource("ShaderMaterial_skkmn")

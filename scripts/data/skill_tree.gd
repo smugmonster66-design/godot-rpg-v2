@@ -63,6 +63,22 @@ const GRID_ROWS: int = 10
 const GRID_COLUMNS: int = 7
 
 # ============================================================================
+# LINE VISUALS (per-tree customization)
+# ============================================================================
+@export_group("Line Visuals")
+## Shader applied to met (filled) prerequisite lines. Receives uniform float fill_progress.
+@export var prereq_line_shader: ShaderMaterial
+## Color of locked/unmet prerequisite lines
+@export var prereq_line_color_locked: Color = Color(0.4, 0.4, 0.4, 0.6)
+## Base color of met prerequisite lines (drawn under the shader)
+@export var prereq_line_color_met: Color = Color.WHITE
+## Line thickness in pixels
+@export var prereq_line_width: float = 3.0
+## How long the fill animation takes in seconds
+@export var prereq_line_fill_duration: float = 0.4
+
+
+# ============================================================================
 # SKILL ACCESS
 # ============================================================================
 

@@ -54,6 +54,14 @@ var _center_offset_x: float = 0.0
 ## Pool of inactive SkillButton nodes ready for reuse
 var _button_pool: Array[SkillButton] = []
 
+
+## Line2D nodes for prerequisite connections. Key = "fromId->toId"
+var _prereq_lines: Dictionary = {}
+## Tracks whether each connection was met last frame. Key = same as above.
+var _prereq_met_state: Dictionary = {}
+## Reference to current tree (for line visual config)
+var _current_tree: SkillTree = null
+
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
@@ -77,13 +85,14 @@ func _ready():
 func build(tree: SkillTree, rank_getter: Callable, points_spent: int = 0):
 	skill_rank_getter = rank_getter
 	tree_points_spent = points_spent
+	_current_tree = tree
 	_recycle_all_buttons()
+	_clear_prereq_lines()
 
 	if not tree:
 		queue_redraw()
 		return
 
-	# Wait one frame for ScrollContainer to finalize our size
 	if size.x <= 0:
 		await get_tree().process_frame
 
@@ -94,12 +103,14 @@ func build(tree: SkillTree, rank_getter: Callable, points_spent: int = 0):
 			continue
 		_place_skill_button(skill)
 
+	_create_prereq_lines()
+
 	for skill_id in skill_buttons:
 		_update_button_state(skill_buttons[skill_id])
 
+	_update_prereq_line_states(false)  # false = no animation on first build
 	_update_canvas_size()
 	queue_redraw()
-
 
 
 func _recycle_all_buttons():
@@ -187,7 +198,6 @@ func _update_canvas_size():
 # ============================================================================
 
 func update_all_states(rank_getter: Callable = Callable(), points_spent: int = -1):
-	"""Refresh button states and redraw lines."""
 	if rank_getter.is_valid():
 		skill_rank_getter = rank_getter
 	if points_spent >= 0:
@@ -196,6 +206,7 @@ func update_all_states(rank_getter: Callable = Callable(), points_spent: int = -
 	for skill_id in skill_buttons:
 		_update_button_state(skill_buttons[skill_id])
 
+	_update_prereq_line_states(true)  # true = animate newly met lines
 	queue_redraw()
 
 func _update_button_state(button: SkillButton):
@@ -239,7 +250,26 @@ func _draw_grid_background():
 		draw_line(Vector2(x, y_start), Vector2(x, y_end), grid_line_color, 1.0)
 
 func _draw_prerequisite_lines():
-	"""Draw lines from each skill to its prerequisites."""
+	# Lines are now managed as Line2D child nodes — nothing to draw here.
+	pass
+	
+
+
+# ============================================================================
+# PREREQUISITE LINE MANAGEMENT (Line2D nodes)
+# ============================================================================
+
+func _clear_prereq_lines():
+	"""Remove all Line2D nodes and reset tracking."""
+	for key in _prereq_lines:
+		var line: Line2D = _prereq_lines[key]
+		if is_instance_valid(line):
+			line.queue_free()
+	_prereq_lines.clear()
+	_prereq_met_state.clear()
+
+func _create_prereq_lines():
+	"""Create a Line2D node for each prerequisite connection."""
 	for skill_id in skill_map:
 		var skill: SkillResource = skill_map[skill_id]
 		if skill.prerequisites.is_empty():
@@ -250,19 +280,140 @@ func _draw_prerequisite_lines():
 		for prereq in skill.prerequisites:
 			if not prereq or not prereq.required_skill:
 				continue
-
 			var prereq_skill: SkillResource = prereq.required_skill
 			if not prereq_skill.skill_id in skill_map:
 				continue
 
 			var from_center = _get_cell_center(prereq_skill.tier, prereq_skill.column)
+			var key = "%s->%s" % [prereq_skill.skill_id, skill_id]
 
-			# Color based on whether prerequisite is met
-			var prereq_rank = skill_rank_getter.call(prereq_skill.skill_id) if skill_rank_getter.is_valid() else 0
-			var is_met = prereq_rank >= prereq.required_rank
-			var color = line_color_met if is_met else line_color_locked
+			var line := Line2D.new()
+			line.points = PackedVector2Array([from_center, from_center])  # starts collapsed
+			line.width = _get_line_width()
+			line.default_color = _get_locked_color()
+			line.antialiased = true
+			line.set_meta("from_pos", from_center)
+			line.set_meta("to_pos", to_center)
+			line.set_meta("prereq_ref", prereq)
+			add_child(line)
+			move_child(line, 0)  # keep behind buttons
 
-			draw_line(from_center, to_center, color, line_width, true)
+			_prereq_lines[key] = line
+			_prereq_met_state[key] = false
+			print("📏 Created %d prereq lines" % _prereq_lines.size())
+
+func _update_prereq_line_states(animate: bool):
+	"""Check each connection's met status. Animate fill on newly met lines."""
+	for key in _prereq_lines:
+		var line: Line2D = _prereq_lines[key]
+		if not is_instance_valid(line):
+			continue
+
+		var prereq: SkillPrerequisite = line.get_meta("prereq_ref")
+		var from_pos: Vector2 = line.get_meta("from_pos")
+		var to_pos: Vector2 = line.get_meta("to_pos")
+
+		var prereq_rank = skill_rank_getter.call(prereq.required_skill.skill_id) if skill_rank_getter.is_valid() else 0
+		var is_met = prereq_rank >= prereq.required_rank
+		var was_met = _prereq_met_state[key]
+
+		if is_met and not was_met:
+			# Newly met — animate fill
+			_prereq_met_state[key] = true
+			if animate:
+				_animate_line_fill(line, from_pos, to_pos)
+			else:
+				_set_line_filled(line, from_pos, to_pos)
+		elif is_met and was_met:
+			# Already met — ensure filled (covers rebuild)
+			_set_line_filled(line, from_pos, to_pos)
+		else:
+			# Locked — show full line in locked color
+			_prereq_met_state[key] = false
+			_set_line_locked(line, from_pos, to_pos)
+	
+	print("📏 Line states updated — met: %d, locked: %d" % [
+	_prereq_met_state.values().count(true),
+	_prereq_met_state.values().count(false)
+])
+	
+	
+	
+	
+	
+
+func _set_line_locked(line: Line2D, from_pos: Vector2, to_pos: Vector2):
+	"""Show full-length line in locked style."""
+	line.points = PackedVector2Array([from_pos, to_pos])
+	line.default_color = _get_locked_color()
+	line.width = _get_line_width()
+	line.material = null
+
+func _set_line_filled(line: Line2D, from_pos: Vector2, to_pos: Vector2):
+	"""Show full-length line in met style with shader."""
+	line.points = PackedVector2Array([from_pos, to_pos])
+	line.default_color = _get_met_color()
+	line.width = _get_line_width()
+	_apply_line_shader(line, 1.0)
+
+func _animate_line_fill(line: Line2D, from_pos: Vector2, to_pos: Vector2):
+	"""Tween the line from source to destination with shader."""
+	line.default_color = _get_met_color()
+	line.width = _get_line_width()
+	_apply_line_shader(line, 0.0)
+
+	var duration = _get_fill_duration()
+	var tw = create_tween()
+	tw.tween_method(
+		func(progress: float):
+			if is_instance_valid(line):
+				var current_end = from_pos.lerp(to_pos, progress)
+				line.points = PackedVector2Array([from_pos, current_end])
+				_update_line_shader_progress(line, progress),
+		0.0, 1.0, duration
+	).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+
+func _apply_line_shader(line: Line2D, progress: float):
+	"""Apply the tree's shader material to the line (as a unique copy)."""
+	if _current_tree and _current_tree.prereq_line_shader:
+		var mat = _current_tree.prereq_line_shader.duplicate() as ShaderMaterial
+		mat.set_shader_parameter("fill_progress", progress)
+		line.material = mat
+	else:
+		line.material = null
+
+func _update_line_shader_progress(line: Line2D, progress: float):
+	"""Update the fill_progress uniform on the line's shader."""
+	if line.material and line.material is ShaderMaterial:
+		(line.material as ShaderMaterial).set_shader_parameter("fill_progress", progress)
+
+# ── Tree-aware getters (fall back to canvas defaults) ──
+
+func _get_locked_color() -> Color:
+	if _current_tree:
+		return _current_tree.prereq_line_color_locked
+	return line_color_locked
+
+func _get_met_color() -> Color:
+	if _current_tree:
+		return _current_tree.prereq_line_color_met
+	return line_color_met
+
+func _get_line_width() -> float:
+	if _current_tree:
+		return _current_tree.prereq_line_width
+	return line_width
+
+func _get_fill_duration() -> float:
+	if _current_tree:
+		return _current_tree.prereq_line_fill_duration
+	return 0.4
+
+
+
+
+
+
 
 # ============================================================================
 # UTILITY
