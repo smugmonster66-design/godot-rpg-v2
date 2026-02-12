@@ -16,6 +16,8 @@ signal skill_rank_changed(skill: SkillResource, new_rank: int)
 		skill = value
 		_update_display()
 
+@export var default_icon: Texture2D
+
 # ============================================================================
 # STATE
 # ============================================================================
@@ -55,7 +57,6 @@ func _ready():
 func _find_nodes():
 	icon_rect = $MarginContainer/VBoxContainer/IconRect
 	name_label = $MarginContainer/VBoxContainer/NameLabel
-	rank_label = $MarginContainer/VBoxContainer/RankLabel
 
 func _setup_input():
 	"""Setup mouse interaction"""
@@ -77,7 +78,7 @@ func _update_display():
 	
 	# Update icon
 	if icon_rect:
-		icon_rect.texture = skill.icon
+		icon_rect.texture = skill.icon if skill.icon else default_icon
 	
 	# Update name
 	if name_label:
