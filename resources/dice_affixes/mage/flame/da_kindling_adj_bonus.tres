@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=6 format=3 uid="uid://bepsg0ksuuf5a"]
+
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="1_jl002"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_5ow7t"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_sl5tk"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_lf0xk"]
+
+[sub_resource type="Resource" id="Resource_jl002"]
+script = ExtResource("1_jl002")
+type = 15
+condition_element = "FIRE"
+
+[resource]
+script = ExtResource("3_sl5tk")
+affix_name = "Kindling: Fire Neighbor Bonus"
+description = "Adjacent fire dice gain +1."
+use_global_element_visuals = true
+global_element_type = 3
+condition = SubResource("Resource_jl002")
+effect_value = 1.0

@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=11 format=3 uid="uid://bcc1676wnqc5d"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_30dy6"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_6txqw"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_8biau"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="3_6txqw"]
+[ext_resource type="Resource" uid="uid://behojsm6qvxjl" path="res://resources/statuses/burn.tres" id="3_unujb"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="4_unujb"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="5_hekcd"]
+
+[sub_resource type="Resource" id="Resource_mxmwy"]
+script = ExtResource("1_30dy6")
+effect_name = "Burning Vengeance: Damage"
+damage_type = 3
+damage_multiplier = 0.5
+
+[sub_resource type="Resource" id="Resource_bgl23"]
+script = ExtResource("1_30dy6")
+effect_name = "Burning Vengeance: Apply Burn"
+effect_type = 2
+damage_type = 3
+status_affix = ExtResource("3_unujb")
+
+[sub_resource type="Resource" id="Resource_6txqw"]
+script = ExtResource("2_8biau")
+action_id = "flame_burning_vengeance"
+action_name = "Burning Vengeance"
+action_description = "Strike an enemy for 50% fire damage and inflict Burn stacks equal to die value."
+min_dice_required = 1
+charge_type = 1
+max_charges = 2
+effects = Array[ExtResource("1_30dy6")]([SubResource("Resource_mxmwy"), SubResource("Resource_bgl23")])
+
+[resource]
+script = ExtResource("4_unujb")
+affix_name = "Burning Vengeance: Grant Action"
+granted_action = SubResource("Resource_6txqw")

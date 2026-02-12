@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://b00vc4vtpntrv"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_8lg7s"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_e7y2s"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_0aktj"]
+
+[resource]
+script = ExtResource("2_e7y2s")
+affix_name = "Ember Link I: Copy Neighbor"
+description = "Copy 15% of neighbor's value."
+use_global_element_visuals = true
+global_element_type = 3
+neighbor_target = 3
+effect_type = 14
+effect_value = 0.15
+effect_data = {
+"percent": 0.15
+}

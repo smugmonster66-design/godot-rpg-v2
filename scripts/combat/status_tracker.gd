@@ -32,6 +32,13 @@ signal status_threshold_triggered(status_id: String, event_data: Dictionary)
 ## Active status instances keyed by status_id
 var active_statuses: Dictionary = {}
 
+## v5: Reference to the source combatant's AffixPoolManager.
+## Used for threshold reduction queries. Set by combat_manager at combat start.
+var _source_affix_manager: AffixPoolManager = null
+
+func set_source_affix_manager(manager: AffixPoolManager) -> void:
+	_source_affix_manager = manager
+
 # ============================================================================
 # APPLY / REMOVE
 # ============================================================================
@@ -77,11 +84,12 @@ func apply_status(status_affix: StatusAffix, stacks: int = 1,
 			damage_mult, source_name
 		])
 	
-	# v4 — Check stack threshold
+	# v4 — Check stack threshold (v5: supports threshold reduction from skills)
 	if status_affix.stack_threshold > 0 and active_statuses.has(sid):
 		var instance: Dictionary = active_statuses[sid]
-		if instance["current_stacks"] >= status_affix.stack_threshold:
-			_trigger_threshold(sid, instance, status_affix)
+		var effective_threshold: int = _get_effective_threshold(status_affix)
+		if instance["current_stacks"] >= effective_threshold:
+			_trigger_threshold_v5(sid, instance, status_affix, effective_threshold)
 
 func remove_status(status_id: String) -> void:
 	"""Fully remove a status by ID."""
@@ -219,8 +227,11 @@ func _process_timing(timing: StatusAffix.TickTiming) -> Array[Dictionary]:
 		results.append(tick_result)
 		status_ticked.emit(sid, tick_result)
 		
-		# Apply decay after tick
-		affix.apply_decay(instance)
+		# Apply decay after tick (v5: skip decay if eternal_flame_mark is active)
+		if sid == "burn" and active_statuses.has("eternal_flame_mark"):
+			pass  # Burn cannot decay while Eternal Flame is active
+		else:
+			affix.apply_decay(instance)
 		
 		# Check if expired from decay
 		if affix.is_expired(instance):
@@ -274,60 +285,38 @@ func _remove_falling_off_statuses() -> void:
 # v4 — STACK THRESHOLD
 # ============================================================================
 
+
+func _get_effective_threshold(affix: StatusAffix) -> int:
+	"""Get the effective stack threshold after skill-based reductions.
+	
+	Queries _source_affix_manager for affixes tagged with
+	'{status_id}_threshold_reduction' (e.g. 'burn_threshold_reduction').
+	"""
+	var base: int = affix.stack_threshold
+	if not _source_affix_manager:
+		return base
+	
+	var reduction_tag: String = affix.status_id + "_threshold_reduction"
+	var reduction: int = 0
+	for a in _source_affix_manager.get_affixes_by_tag(reduction_tag):
+		reduction += int(a.effect_number)
+	
+	return maxi(1, base - reduction)  # Never reduce below 1
+
+func _trigger_threshold_v5(sid: String, instance: Dictionary,
+		affix: StatusAffix, effective_threshold: int) -> void:
+	"""v5 wrapper for _trigger_threshold that uses the effective threshold
+	for stack consumption instead of the base threshold."""
+	# Temporarily override for consumption calculation
+	var original_threshold: int = affix.stack_threshold
+	affix.stack_threshold = effective_threshold
+	_trigger_threshold(sid, instance, affix)
+	affix.stack_threshold = original_threshold
+
 func _trigger_threshold(sid: String, instance: Dictionary, affix: StatusAffix):
 	"""Handle stack threshold being reached. Fires the threshold effect,
 	consumes threshold stacks, and removes the status if depleted."""
-	print("  💥 %s threshold reached (%d/%d stacks)" % [
-		affix.affix_name, instance["current_stacks"], affix.stack_threshold])
-	
-	match affix.threshold_effect:
-		StatusAffix.ThresholdEffect.BURST_DAMAGE:
-			var burst: int = roundi(
-				affix.damage_per_stack * affix.stack_threshold * affix.threshold_value
-				* instance.get("damage_mult", 1.0))
-			status_threshold_triggered.emit(sid, {
-				"effect": "burst_damage",
-				"damage": burst,
-				"damage_is_magical": affix.tick_damage_type == StatusAffix.StatusDamageType.MAGICAL,
-				"status_name": affix.affix_name,
-			})
-			print("    → Burst damage: %d" % burst)
-		
-		StatusAffix.ThresholdEffect.APPLY_OTHER_STATUS:
-			if affix.threshold_status:
-				# Apply the chained status (e.g., Chill → Frozen)
-				apply_status(affix.threshold_status, affix.threshold_stacks, affix.affix_name)
-				status_threshold_triggered.emit(sid, {
-					"effect": "apply_status",
-					"applied_status_id": affix.threshold_status.status_id,
-					"applied_status_name": affix.threshold_status.affix_name,
-					"stacks": affix.threshold_stacks,
-				})
-				print("    → Applied %s (%d stacks)" % [
-					affix.threshold_status.affix_name, affix.threshold_stacks])
-			else:
-				push_warning("StatusTracker: %s has APPLY_OTHER_STATUS but no threshold_status set" % affix.affix_name)
-		
-		StatusAffix.ThresholdEffect.CUSTOM_SIGNAL:
-			status_threshold_triggered.emit(sid, {
-				"effect": "custom",
-				"value": affix.threshold_value,
-				"status_name": affix.affix_name,
-			})
-			print("    → Custom signal (value=%.1f)" % affix.threshold_value)
-		
-		StatusAffix.ThresholdEffect.NONE:
-			pass
-	
-	# Consume threshold stacks
-	instance["current_stacks"] -= affix.stack_threshold
-	if instance["current_stacks"] <= 0:
-		remove_status(sid)
-	else:
-		status_stacks_changed.emit(sid, instance)
-		# Check if threshold can fire AGAIN (e.g. applied 6 stacks with threshold 3)
-		if instance["current_stacks"] >= affix.stack_threshold:
-			_trigger_threshold(sid, instance, affix)
+
 
 # ============================================================================
 # QUERY — STAT MODIFIERS (for AffixPoolManager integration)

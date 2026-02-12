@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=10 format=3 uid="uid://up1p1njhkq4w"]
+
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="1_wm8d3"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_j3rhw"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_u2kqq"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_wh86n"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="5_8xp45"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="6_v2orr"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="7_52jw3"]
+
+[sub_resource type="Resource" id="Resource_jl002"]
+script = ExtResource("1_wm8d3")
+type = 15
+condition_element = "FIRE"
+
+[sub_resource type="Resource" id="Resource_wm8d3"]
+script = ExtResource("3_u2kqq")
+affix_name = "Kindling: Fire Neighbor Bonus"
+description = "Adjacent fire dice gain +1."
+use_global_element_visuals = true
+global_element_type = 3
+condition = SubResource("Resource_jl002")
+effect_value = 1.0
+
+[resource]
+script = ExtResource("6_v2orr")
+affix_name = "Kindling: Fire Adjacency"
+effect_data = {
+"dice_affix": SubResource("Resource_wm8d3")
+}

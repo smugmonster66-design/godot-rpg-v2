@@ -1,0 +1,113 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=23 format=3 uid="uid://xgcp72jim6h2"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_0kd7h"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_x0x7q"]
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="3_l4e43"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="4_dhq13"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="5_r8lee"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="6_ve33j"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="7_6mtjt"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="8_7ft46"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="9_e75gm"]
+
+[sub_resource type="Resource" id="Resource_lcoba"]
+script = ExtResource("2_x0x7q")
+affix_name = "Ignite: Fire Unlock"
+
+[sub_resource type="Resource" id="Resource_uubkb"]
+script = ExtResource("9_e75gm")
+skill_id = "flame_ignite"
+skill_name = "Ignite"
+description = "Unlocks [color=orange]Fire[/color] element for your mana die."
+column = 3
+rank_1_affixes = Array[ExtResource("2_x0x7q")]([SubResource("Resource_lcoba")])
+
+[sub_resource type="Resource" id="Resource_vffo1"]
+script = ExtResource("1_0kd7h")
+required_skill = SubResource("Resource_uubkb")
+
+[sub_resource type="Resource" id="Resource_jl002"]
+script = ExtResource("3_l4e43")
+type = 15
+condition_element = "FIRE"
+
+[sub_resource type="Resource" id="Resource_wm8d3"]
+script = ExtResource("5_r8lee")
+affix_name = "Kindling: Fire Neighbor Bonus"
+description = "Adjacent fire dice gain +1."
+use_global_element_visuals = true
+global_element_type = 3
+condition = SubResource("Resource_jl002")
+effect_value = 1.0
+
+[sub_resource type="Resource" id="Resource_6fsqn"]
+script = ExtResource("2_x0x7q")
+affix_name = "Kindling: Fire Adjacency"
+effect_data = {
+"dice_affix": SubResource("Resource_wm8d3")
+}
+
+[sub_resource type="Resource" id="Resource_ecafp"]
+script = ExtResource("9_e75gm")
+skill_id = "flame_kindling"
+skill_name = "Kindling"
+description = "Adjacent [color=orange]fire[/color] dice both gain +1."
+tier = 2
+column = 5
+prerequisites = Array[ExtResource("1_0kd7h")]([SubResource("Resource_vffo1")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_x0x7q")]([SubResource("Resource_6fsqn")])
+
+[sub_resource type="Resource" id="Resource_l4e43"]
+script = ExtResource("1_0kd7h")
+required_skill = SubResource("Resource_ecafp")
+
+[sub_resource type="Resource" id="Resource_5g6vy"]
+script = ExtResource("3_l4e43")
+type = 15
+invert = true
+condition_element = "FIRE"
+
+[sub_resource type="Resource" id="Resource_rs2hr"]
+script = ExtResource("5_r8lee")
+affix_name = "Hearthfire I: Non-Fire Neighbor Bonus"
+description = "Fire die next to a non-fire die gains +1."
+use_global_element_visuals = true
+global_element_type = 3
+condition = SubResource("Resource_5g6vy")
+effect_value = 1.0
+
+[sub_resource type="Resource" id="Resource_0kd7h"]
+script = ExtResource("2_x0x7q")
+affix_name = "Hearthfire I"
+effect_data = {
+"dice_affix": SubResource("Resource_rs2hr")
+}
+
+[sub_resource type="Resource" id="Resource_apkre"]
+script = ExtResource("5_r8lee")
+affix_name = "Hearthfire II: Non-Fire Neighbor Bonus"
+description = "Fire die next to a non-fire die gains +2."
+use_global_element_visuals = true
+global_element_type = 3
+condition = SubResource("Resource_5g6vy")
+effect_value = 2.0
+
+[sub_resource type="Resource" id="Resource_x0x7q"]
+script = ExtResource("2_x0x7q")
+affix_name = "Hearthfire II"
+effect_data = {
+"dice_affix": SubResource("Resource_apkre")
+}
+
+[resource]
+script = ExtResource("9_e75gm")
+skill_id = "flame_hearthfire"
+skill_name = "Hearthfire"
+description = "+1/+2 to fire dice adjacent to a non-fire die."
+tier = 4
+column = 6
+prerequisites = Array[ExtResource("1_0kd7h")]([SubResource("Resource_l4e43")])
+tree_points_required = 5
+rank_1_affixes = Array[ExtResource("2_x0x7q")]([SubResource("Resource_0kd7h")])
+rank_2_affixes = Array[ExtResource("2_x0x7q")]([SubResource("Resource_x0x7q")])

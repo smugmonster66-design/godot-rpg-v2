@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=7 format=3 uid="uid://cddjqtg0cs843"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_lcoba"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_qp7e3"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="3_18wg7"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_c11bj"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="5_p7wq8"]
+
+[sub_resource type="Resource" id="Resource_lcoba"]
+script = ExtResource("2_qp7e3")
+affix_name = "Ignite: Fire Unlock"
+
+[resource]
+script = ExtResource("5_p7wq8")
+skill_id = "flame_ignite"
+skill_name = "Ignite"
+description = "Unlocks [color=orange]Fire[/color] element for your mana die."
+column = 3
+rank_1_affixes = Array[ExtResource("2_qp7e3")]([SubResource("Resource_lcoba")])

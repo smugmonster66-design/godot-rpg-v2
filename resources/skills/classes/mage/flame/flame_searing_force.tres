@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=12 format=3 uid="uid://ccg10bxjmd5aw"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_ly520"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_ta31r"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="3_ngawt"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_x16kn"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="5_enrv5"]
+
+[sub_resource type="Resource" id="Resource_lcoba"]
+script = ExtResource("2_ta31r")
+affix_name = "Ignite: Fire Unlock"
+
+[sub_resource type="Resource" id="Resource_uubkb"]
+script = ExtResource("5_enrv5")
+skill_id = "flame_ignite"
+skill_name = "Ignite"
+description = "Unlocks [color=orange]Fire[/color] element for your mana die."
+column = 3
+rank_1_affixes = Array[ExtResource("2_ta31r")]([SubResource("Resource_lcoba")])
+
+[sub_resource type="Resource" id="Resource_x16kn"]
+script = ExtResource("1_ly520")
+required_skill = SubResource("Resource_uubkb")
+
+[sub_resource type="Resource" id="Resource_ly520"]
+script = ExtResource("2_ta31r")
+affix_name = "Searing Force I"
+
+[sub_resource type="Resource" id="Resource_ta31r"]
+script = ExtResource("2_ta31r")
+affix_name = "Searing Force II"
+
+[sub_resource type="Resource" id="Resource_ngawt"]
+script = ExtResource("2_ta31r")
+affix_name = "Searing Force III"
+
+[resource]
+script = ExtResource("5_enrv5")
+skill_id = "flame_searing_force"
+skill_name = "Searing Force"
+description = "+3/+6/+9 [color=orange]fire damage[/color]."
+tier = 2
+column = 3
+prerequisites = Array[ExtResource("1_ly520")]([SubResource("Resource_x16kn")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_ta31r")]([SubResource("Resource_ly520")])
+rank_2_affixes = Array[ExtResource("2_ta31r")]([SubResource("Resource_ta31r")])
+rank_3_affixes = Array[ExtResource("2_ta31r")]([SubResource("Resource_ngawt")])

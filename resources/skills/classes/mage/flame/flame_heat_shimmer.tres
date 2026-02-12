@@ -1,0 +1,125 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=23 format=3 uid="uid://coa124wpupj7j"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_4g3xc"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_mrnxp"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="3_unoe6"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="4_mlp1l"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="5_gvtjc"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="6_xl5xe"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="7_8aitj"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="8_t3myq"]
+
+[sub_resource type="Resource" id="Resource_lcoba"]
+script = ExtResource("2_mrnxp")
+affix_name = "Ignite: Fire Unlock"
+
+[sub_resource type="Resource" id="Resource_uubkb"]
+script = ExtResource("8_t3myq")
+skill_id = "flame_ignite"
+skill_name = "Ignite"
+description = "Unlocks [color=orange]Fire[/color] element for your mana die."
+column = 3
+rank_1_affixes = Array[ExtResource("2_mrnxp")]([SubResource("Resource_lcoba")])
+
+[sub_resource type="Resource" id="Resource_x16kn"]
+script = ExtResource("1_4g3xc")
+required_skill = SubResource("Resource_uubkb")
+
+[sub_resource type="Resource" id="Resource_ly520"]
+script = ExtResource("2_mrnxp")
+affix_name = "Searing Force I"
+
+[sub_resource type="Resource" id="Resource_ta31r"]
+script = ExtResource("2_mrnxp")
+affix_name = "Searing Force II"
+
+[sub_resource type="Resource" id="Resource_ngawt"]
+script = ExtResource("2_mrnxp")
+affix_name = "Searing Force III"
+
+[sub_resource type="Resource" id="Resource_ykmvv"]
+script = ExtResource("8_t3myq")
+skill_id = "flame_searing_force"
+skill_name = "Searing Force"
+description = "+3/+6/+9 [color=orange]fire damage[/color]."
+tier = 2
+column = 3
+prerequisites = Array[ExtResource("1_4g3xc")]([SubResource("Resource_x16kn")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_mrnxp")]([SubResource("Resource_ly520")])
+rank_2_affixes = Array[ExtResource("2_mrnxp")]([SubResource("Resource_ta31r")])
+rank_3_affixes = Array[ExtResource("2_mrnxp")]([SubResource("Resource_ngawt")])
+
+[sub_resource type="Resource" id="Resource_mlp1l"]
+script = ExtResource("1_4g3xc")
+required_skill = SubResource("Resource_ykmvv")
+
+[sub_resource type="Resource" id="Resource_ux2by"]
+script = ExtResource("4_mlp1l")
+affix_name = "Heat Shimmer I: Reroll"
+description = "Auto-reroll fire die below 2."
+use_global_element_visuals = true
+global_element_type = 3
+effect_type = 10
+effect_value = 1.0
+effect_data = {
+"threshold": 1
+}
+
+[sub_resource type="Resource" id="Resource_4g3xc"]
+script = ExtResource("2_mrnxp")
+affix_name = "Heat Shimmer I"
+effect_data = {
+"dice_affix": SubResource("Resource_ux2by")
+}
+
+[sub_resource type="Resource" id="Resource_5dw75"]
+script = ExtResource("4_mlp1l")
+affix_name = "Heat Shimmer II: Reroll"
+description = "Auto-reroll fire die below 3."
+use_global_element_visuals = true
+global_element_type = 3
+effect_type = 10
+effect_value = 1.0
+effect_data = {
+"threshold": 2
+}
+
+[sub_resource type="Resource" id="Resource_mrnxp"]
+script = ExtResource("2_mrnxp")
+affix_name = "Heat Shimmer II"
+effect_data = {
+"dice_affix": SubResource("Resource_5dw75")
+}
+
+[sub_resource type="Resource" id="Resource_nk2uw"]
+script = ExtResource("4_mlp1l")
+affix_name = "Heat Shimmer III: Reroll"
+description = "Auto-reroll fire die below 4."
+use_global_element_visuals = true
+global_element_type = 3
+effect_type = 10
+effect_value = 1.0
+effect_data = {
+"threshold": 3
+}
+
+[sub_resource type="Resource" id="Resource_unoe6"]
+script = ExtResource("2_mrnxp")
+affix_name = "Heat Shimmer III"
+effect_data = {
+"dice_affix": SubResource("Resource_nk2uw")
+}
+
+[resource]
+script = ExtResource("8_t3myq")
+skill_id = "flame_heat_shimmer"
+skill_name = "Heat Shimmer"
+description = "Auto-reroll fire dice below [color=yellow]2/3/4[/color]."
+tier = 3
+column = 4
+prerequisites = Array[ExtResource("1_4g3xc")]([SubResource("Resource_mlp1l")])
+tree_points_required = 3
+rank_1_affixes = Array[ExtResource("2_mrnxp")]([SubResource("Resource_4g3xc")])
+rank_2_affixes = Array[ExtResource("2_mrnxp")]([SubResource("Resource_mrnxp")])
+rank_3_affixes = Array[ExtResource("2_mrnxp")]([SubResource("Resource_unoe6")])

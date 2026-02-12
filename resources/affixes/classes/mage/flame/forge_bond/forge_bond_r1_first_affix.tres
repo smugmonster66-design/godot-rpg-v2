@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=8 format=3 uid="uid://30kg55k0mobw"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_b7eiv"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_3phiw"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_k6n20"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_ndpqk"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_tnqfc"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="6_328k1"]
+
+[sub_resource type="Resource" id="Resource_b7eiv"]
+script = ExtResource("2_3phiw")
+affix_name = "Forge Bond: Position Bonus"
+description = "Fire die in first or last position deals +25% damage."
+use_global_element_visuals = true
+global_element_type = 3
+trigger = 1
+position_requirement = 1
+effect_type = 26
+effect_value = 0.25
+effect_data = {
+"element": "FIRE",
+"percent": 0.25
+}
+
+[resource]
+script = ExtResource("5_tnqfc")
+affix_name = "Forge Bond: First"
+effect_data = {
+"dice_affix": SubResource("Resource_b7eiv")
+}

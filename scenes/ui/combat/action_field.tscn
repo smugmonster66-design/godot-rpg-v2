@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://ckcnmmdmj10wo" path="res://scripts/ui/combat/action_field.gd" id="1_vm0q0"]
 [ext_resource type="Texture2D" uid="uid://b5idgxy5pjm63" path="res://assets/ui/panels/9patch_bones.png" id="2_r6w7g"]
 [ext_resource type="Texture2D" uid="uid://b7t35b1xyhqhr" path="res://assets/ui/panels/9patch_bones_frame.png" id="3_qph8m"]
-[ext_resource type="Texture2D" uid="uid://0wsimnnpbfag" path="res://assets/ui/menu_tabs/equipment tab assets/128x128.png" id="4_0cgqb"]
+[ext_resource type="Texture2D" uid="uid://c6sqtdxnbp2ab" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_bg.png" id="4_0cgqb"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_sgqpl"]
 
@@ -51,7 +51,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_joayw")
 layout_mode = 2
 
 [node name="IconRect" type="TextureRect" parent="MarginContainer/VBoxContainer/HeaderPlate/HeaderRow"]
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
@@ -64,7 +64,7 @@ text = "Action"
 horizontal_alignment = 1
 
 [node name="SourceBadge" type="TextureRect" parent="MarginContainer/VBoxContainer/HeaderPlate/HeaderRow"]
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5

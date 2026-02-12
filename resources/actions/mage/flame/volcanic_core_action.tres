@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="Action" load_steps=5 format=3 uid="uid://s1dickp4tq80"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_o3dho"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_por07"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="3_sstrt"]
+
+[sub_resource type="Resource" id="Resource_o3dho"]
+script = ExtResource("1_o3dho")
+effect_name = "Volcanic Core: Damage"
+effect_data = {
+"execute_multiplier": 2.0,
+"execute_threshold": 0.3
+}
+damage_type = 3
+dice_count = 3
+
+[resource]
+script = ExtResource("3_sstrt")
+action_id = "flame_volcanic_core"
+action_name = "Volcanic Core"
+action_description = "Massive fire strike. Deals double damage if target is below 30% HP."
+die_slots = 3
+min_dice_required = 3
+charge_type = 2
+effects = Array[ExtResource("1_o3dho")]([SubResource("Resource_o3dho")])

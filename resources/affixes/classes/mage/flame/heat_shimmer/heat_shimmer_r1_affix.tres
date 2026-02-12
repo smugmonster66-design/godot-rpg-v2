@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=8 format=3 uid="uid://decsqnltuqjsh"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_ux2by"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_n8lvc"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_rrfjg"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_0ajx3"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_k5qr8"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="6_efld2"]
+
+[sub_resource type="Resource" id="Resource_ux2by"]
+script = ExtResource("2_n8lvc")
+affix_name = "Heat Shimmer I: Reroll"
+description = "Auto-reroll fire die below 2."
+use_global_element_visuals = true
+global_element_type = 3
+effect_type = 10
+effect_value = 1.0
+effect_data = {
+"threshold": 1
+}
+
+[resource]
+script = ExtResource("5_k5qr8")
+affix_name = "Heat Shimmer I"
+effect_data = {
+"dice_affix": SubResource("Resource_ux2by")
+}

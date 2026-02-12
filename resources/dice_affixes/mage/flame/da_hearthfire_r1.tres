@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=6 format=3 uid="uid://dn3fqtnwrri0s"]
+
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="1_5g6vy"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_4banm"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_jbsmo"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_uy6nc"]
+
+[sub_resource type="Resource" id="Resource_5g6vy"]
+script = ExtResource("1_5g6vy")
+type = 15
+invert = true
+condition_element = "FIRE"
+
+[resource]
+script = ExtResource("3_jbsmo")
+affix_name = "Hearthfire I: Non-Fire Neighbor Bonus"
+description = "Fire die next to a non-fire die gains +1."
+use_global_element_visuals = true
+global_element_type = 3
+condition = SubResource("Resource_5g6vy")
+effect_value = 1.0

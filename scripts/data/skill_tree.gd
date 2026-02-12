@@ -47,15 +47,15 @@ class_name SkillTree
 # TIER UNLOCK REQUIREMENTS
 # ============================================================================
 @export_group("Tier Unlock Requirements")
-@export var tier_2_points_required: int = 3
-@export var tier_3_points_required: int = 6
-@export var tier_4_points_required: int = 10
-@export var tier_5_points_required: int = 15
-@export var tier_6_points_required: int = 21
-@export var tier_7_points_required: int = 28
-@export var tier_8_points_required: int = 36
-@export var tier_9_points_required: int = 45
-@export var tier_10_points_required: int = 55
+@export var tier_2_points_required: int = 1
+@export var tier_3_points_required: int = 3
+@export var tier_4_points_required: int = 5
+@export var tier_5_points_required: int = 8
+@export var tier_6_points_required: int = 11
+@export var tier_7_points_required: int = 15
+@export var tier_8_points_required: int = 20
+@export var tier_9_points_required: int = 25
+@export var tier_10_points_required: int = 28
 # ============================================================================
 # GRID CONSTANTS
 # ============================================================================
@@ -93,7 +93,7 @@ func get_skills_for_tier(tier: int) -> Array[SkillResource]:
 		7: return tier_7_skills
 		8: return tier_8_skills
 		9: return tier_9_skills
-		9: return tier_10_skills
+		10: return tier_10_skills
 		_: return []
 
 func get_skill_by_id(id: String) -> SkillResource:

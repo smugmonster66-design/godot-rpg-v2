@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://bvjf0fnajlay5"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_q3gxo"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_poyx6"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_g7mtc"]
+
+[resource]
+script = ExtResource("2_poyx6")
+affix_name = "Pyroclasm: Splash 50%"
+description = "Fire dice splash 50% damage to adjacent enemy."
+use_global_element_visuals = true
+global_element_type = 3
+trigger = 1
+effect_type = 23
+effect_value = 0.5
+effect_data = {
+"element": "FIRE",
+"percent": 0.5
+}

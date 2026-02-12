@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=9 format=3 uid="uid://bkrdsuu2fottw"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_5opea"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_6e1ej"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_eiufm"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="3_eiufm"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="4_1gbd5"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="5_xh2tv"]
+
+[sub_resource type="Resource" id="Resource_ll78o"]
+script = ExtResource("1_5opea")
+effect_name = "Eruption Blast"
+target = 2
+damage_type = 3
+damage_multiplier = 0.6
+dice_count = 2
+
+[sub_resource type="Resource" id="Resource_6e1ej"]
+script = ExtResource("2_6e1ej")
+action_id = "flame_eruption"
+action_name = "Eruption"
+action_description = "Hurl fire at all enemies for 60% dice damage."
+die_slots = 2
+min_dice_required = 2
+effects = Array[ExtResource("1_5opea")]([SubResource("Resource_ll78o")])
+
+[resource]
+script = ExtResource("4_1gbd5")
+affix_name = "Eruption: Grant Action"
+granted_action = SubResource("Resource_6e1ej")

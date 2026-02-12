@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="Action" load_steps=5 format=3 uid="uid://dmudwkkljgalg"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_2l2u7"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_1t84s"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="3_4jn81"]
+
+[sub_resource type="Resource" id="Resource_2l2u7"]
+script = ExtResource("1_2l2u7")
+effect_name = "Radiance: Armor Buff"
+target = 0
+effect_type = 1
+effect_data = {
+"duration_turns": 2,
+"grant_armor_mult": 2.0,
+"grant_barrier_mult": 1.0,
+"grant_fire_damage_mult": 1.0,
+"value_source": "DICE_TOTAL"
+}
+damage_type = 3
+
+[resource]
+script = ExtResource("3_4jn81")
+action_id = "flame_radiance"
+action_name = "Radiance"
+action_description = "Self-buff: armor = die×2, barrier = die, +fire damage = die for 2 turns."
+min_dice_required = 1
+charge_type = 2
+effects = Array[ExtResource("1_2l2u7")]([SubResource("Resource_2l2u7")])

@@ -34,6 +34,9 @@ enum ValueSource {
 	TARGET_STATUS_STACKS, TURN_NUMBER, ACTIVE_STATUS_COUNT, MANA_PERCENT,
 }
 
+
+
+
 # ============================================================================
 # CORE
 # ============================================================================
@@ -47,6 +50,8 @@ enum ValueSource {
 @export_group("Value Source")
 @export var value_source: ValueSource = ValueSource.STATIC
 @export var value_source_data: Dictionary = {}
+
+@export var effect_data: Dictionary = {}
 
 # ============================================================================
 # DAMAGE / HEAL / STATUS / CLEANSE

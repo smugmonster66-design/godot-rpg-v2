@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=6 format=3 uid="uid://bvgqhivcw0e2h"]
+
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="1_1l2xv"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_gc63v"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_2y6b6"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_2rsue"]
+
+[sub_resource type="Resource" id="Resource_1l2xv"]
+script = ExtResource("1_1l2xv")
+type = 2
+threshold = 3.0
+
+[resource]
+script = ExtResource("3_2y6b6")
+affix_name = "Mana Flare: Low Roll Refund"
+description = "Refund 1 mana on roll ≤2."
+use_global_element_visuals = true
+global_element_type = 3
+condition = SubResource("Resource_1l2xv")
+effect_type = 28
+effect_value = 1.0

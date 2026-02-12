@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=9 format=3 uid="uid://idulmlbxgafd"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_yulah"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_3fkt1"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_hxa2k"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="3_hxa2k"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="4_dsop7"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="5_ip5i8"]
+
+[sub_resource type="Resource" id="Resource_moxu6"]
+script = ExtResource("1_yulah")
+effect_name = "Cauterize: Heal"
+target = 0
+effect_type = 1
+damage_type = 3
+damage_multiplier = 1.5
+heal_multiplier = 1.5
+heal_uses_dice = true
+
+[sub_resource type="Resource" id="Resource_3fkt1"]
+script = ExtResource("2_3fkt1")
+action_id = "flame_cauterize"
+action_name = "Cauterize"
+action_description = "Heal for die×1.5 and gain barrier equal to die value."
+min_dice_required = 1
+charge_type = 1
+effects = Array[ExtResource("1_yulah")]([SubResource("Resource_moxu6")])
+
+[resource]
+script = ExtResource("4_dsop7")
+affix_name = "Cauterize: Grant Action"
+granted_action = SubResource("Resource_3fkt1")

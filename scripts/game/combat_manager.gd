@@ -43,6 +43,13 @@ var turn_phase: TurnPhase = TurnPhase.NONE
 # Key: action resource_path (String), Value: charges consumed (int)
 var combat_charge_tracker: Dictionary = {}
 
+
+
+## v5: Track how many unique enemies the player hit this turn (for Crucible's Gift)
+var _enemies_hit_this_turn: Array = []
+var _enemies_hit_last_turn: int = 0
+
+
 # Turn order
 var turn_order: Array[Combatant] = []
 var current_turn_index: int = 0
@@ -285,6 +292,20 @@ func _finalize_combat_init(p_player: Player):
 	print("  Turn order: %s" % [turn_order.map(func(c): return c.combatant_name)])
 	
 	
+	# v5: Connect threshold triggers for Flashpoint / Pyroclastic Flow
+	if player.status_tracker:
+		player.status_tracker.set_source_affix_manager(player.affix_manager)
+	# For ENEMY status trackers — connect to their threshold signals:
+	for i in range(enemy_combatants.size()):
+		var enemy = enemy_combatants[i]
+		var tracker = _get_status_tracker(enemy)
+		if tracker:
+			tracker.set_source_affix_manager(player.affix_manager)
+			if not tracker.status_threshold_triggered.is_connected(_on_enemy_threshold_triggered):
+				tracker.status_threshold_triggered.connect(
+					_on_enemy_threshold_triggered.bind(enemy))
+	
+	
 	# Start first round
 	_start_round()
 
@@ -413,6 +434,10 @@ func _start_player_turn():
 	"""Start player's turn — enters PREP phase first"""
 	combat_state = CombatState.PLAYER_TURN
 
+	# v5: Update multi-target tracking for Crucible's Gift
+	_enemies_hit_last_turn = _enemies_hit_this_turn.size()
+	_enemies_hit_this_turn.clear()
+
 	# --- STATUS: Start-of-turn processing ---
 	if player:
 		var tick_results = player.status_tracker.process_turn_start()
@@ -457,7 +482,6 @@ func _start_player_turn():
 
 	if combat_ui:
 		combat_ui.enter_prep_phase()
-
 
 func _on_roll_pressed():
 	"""Player pressed Roll — transition from PREP to ACTION phase"""
@@ -974,6 +998,10 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 				print("  💥 %s deals %d damage to %s" % [source.combatant_name, damage, target.combatant_name])
 				target.take_damage(damage)
 				
+				# v5: Track unique enemies hit for Crucible's Gift
+				if source == player_combatant and target not in _enemies_hit_this_turn:
+					_enemies_hit_this_turn.append(target)
+				
 				# --- PROC: On-hit procs (player attacks only) ---
 				if source == player_combatant and player and player.affix_manager and proc_processor:
 					var hit_results = proc_processor.process_on_hit(
@@ -1080,6 +1108,7 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 		var placed_dice: Array = action_data.get("placed_dice", [])
 		player.dice_pool.finalize_dice_consumption(placed_dice)
 	# --- END FINALIZE ---
+
 
 
 # ============================================================================
@@ -2192,6 +2221,59 @@ func _apply_proc_results(results: Dictionary) -> void:
 			
 			"proc_bonus_damage":
 				pass  # Already handled above via results.bonus_damage
+
+
+
+
+
+# ============================================================================
+# v5 — FLAME TREE: Threshold Triggered Procs (Flashpoint, Pyroclastic Flow)
+# ============================================================================
+
+func _on_enemy_threshold_triggered(status_id: String, data: Dictionary, source_enemy) -> void:
+	"""Handle status threshold events on enemies for player skill procs.
+	
+	- Flashpoint: When Burn explodes, splash 50% burst to other enemies.
+	- Pyroclastic Flow: When Burn explodes, apply 3 Burn stacks to other enemies.
+	"""
+	if status_id != "burn":
+		return
+	if not player or not player.affix_manager:
+		return
+	
+	var other_enemies: Array = []
+	for enemy in enemy_combatants:
+		if enemy != source_enemy and enemy.current_health > 0:
+			other_enemies.append(enemy)
+	
+	if other_enemies.is_empty():
+		return
+	
+	# Flashpoint: Splash 50% of burst damage to other enemies
+	var has_flashpoint: bool = player.affix_manager.get_affixes_by_tag("flashpoint").size() > 0
+	if has_flashpoint and data.get("effect", "") == "burst_damage":
+		var burst: int = data.get("damage", 0)
+		var splash: int = roundi(burst * 0.5)
+		var is_magical: bool = data.get("damage_is_magical", true)
+		if splash > 0:
+			for enemy in other_enemies:
+				print("  ★ Flashpoint splash: %d fire damage to %s" % [splash, enemy.combatant_name])
+				enemy.take_damage(splash)
+				_update_enemy_health(enemy_combatants.find(enemy))
+	
+	# Pyroclastic Flow: Apply 3 Burn stacks to other enemies
+	var has_pyro_flow: bool = player.affix_manager.get_affixes_by_tag("pyroclastic_flow").size() > 0
+	if has_pyro_flow and data.get("effect", "") == "burst_damage":
+		var burn_res = load("res://resources/statuses/burn.tres") as StatusAffix
+		if burn_res:
+			for enemy in other_enemies:
+				var tracker = _get_status_tracker(enemy)
+				if tracker:
+					print("  ★ Pyroclastic Flow: +3 Burn to %s" % enemy.combatant_name)
+					tracker.apply_status(burn_res, 3, "Pyroclastic Flow")
+
+
+
 
 
 func _get_bottom_ui() -> Control:

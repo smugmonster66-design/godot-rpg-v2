@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=6 format=3 uid="uid://c8y3vjtutll7q"]
+
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="1_cljrv"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_acju3"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_l4jv4"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_ho1ow"]
+
+[sub_resource type="Resource" id="Resource_cljrv"]
+script = ExtResource("1_cljrv")
+type = 21
+condition_status_id = "burn"
+
+[resource]
+script = ExtResource("3_l4jv4")
+affix_name = "Fuel the Fire: Bonus vs Burn"
+description = "Bonus damage to burning targets."
+use_global_element_visuals = true
+global_element_type = 3
+trigger = 1
+condition = SubResource("Resource_cljrv")
+effect_type = 26
+effect_value = 2.0
+effect_data = {
+"element": "FIRE"
+}

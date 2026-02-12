@@ -1,0 +1,462 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=75 format=3 uid="uid://bgo0mdjttpu1"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_uth28"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_05dtw"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="3_osu8g"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_hnbvq"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="5_5byjt"]
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="6_oagn4"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="7_0pdke"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="8_jg3fi"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="9_e8tn2"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="10_gwbsk"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="11_0pdke"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="11_f3rd5"]
+
+[sub_resource type="Resource" id="Resource_lcoba"]
+script = ExtResource("2_05dtw")
+affix_name = "Ignite: Fire Unlock"
+
+[sub_resource type="Resource" id="Resource_uubkb"]
+script = ExtResource("5_5byjt")
+skill_id = "flame_ignite"
+skill_name = "Ignite"
+description = "Unlocks [color=orange]Fire[/color] element for your mana die."
+column = 3
+rank_1_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_lcoba")])
+
+[sub_resource type="Resource" id="Resource_6d5d1"]
+script = ExtResource("1_uth28")
+required_skill = SubResource("Resource_uubkb")
+
+[sub_resource type="Resource" id="Resource_thegp"]
+script = ExtResource("2_05dtw")
+affix_name = "Ember Dice: D6 Unlock"
+
+[sub_resource type="Resource" id="Resource_fpif5"]
+script = ExtResource("6_oagn4")
+type = 4
+
+[sub_resource type="Resource" id="Resource_ukxre"]
+script = ExtResource("8_jg3fi")
+affix_name = "Ember Dice: Max Roll Burn"
+description = "Max roll inflicts 1 Burn."
+use_global_element_visuals = true
+global_element_type = 3
+trigger = 1
+condition = SubResource("Resource_fpif5")
+effect_type = 16
+effect_value = 1.0
+effect_data = {
+"stacks": 1,
+"status_id": "burn"
+}
+
+[sub_resource type="Resource" id="Resource_vsui1"]
+script = ExtResource("2_05dtw")
+affix_name = "Ember Dice: Max Roll Burn"
+effect_data = {
+"dice_affix": SubResource("Resource_ukxre")
+}
+
+[sub_resource type="Resource" id="Resource_rv3od"]
+script = ExtResource("5_5byjt")
+skill_id = "flame_ember_dice"
+skill_name = "Ember Dice"
+description = "Unlocks [color=orange]D6[/color] mana die. Max roll inflicts [color=red]Burn[/color]."
+tier = 2
+column = 1
+prerequisites = Array[ExtResource("1_uth28")]([SubResource("Resource_6d5d1")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_thegp"), SubResource("Resource_vsui1")])
+
+[sub_resource type="Resource" id="Resource_jl3iu"]
+script = ExtResource("1_uth28")
+required_skill = SubResource("Resource_rv3od")
+
+[sub_resource type="Resource" id="Resource_cljrv"]
+script = ExtResource("6_oagn4")
+type = 21
+condition_status_id = "burn"
+
+[sub_resource type="Resource" id="Resource_l6ie2"]
+script = ExtResource("8_jg3fi")
+affix_name = "Fuel the Fire: Bonus vs Burn"
+description = "Bonus damage to burning targets."
+use_global_element_visuals = true
+global_element_type = 3
+trigger = 1
+condition = SubResource("Resource_cljrv")
+effect_type = 26
+effect_value = 2.0
+effect_data = {
+"element": "FIRE"
+}
+
+[sub_resource type="Resource" id="Resource_ikusc"]
+script = ExtResource("2_05dtw")
+affix_name = "Fuel the Fire I"
+effect_data = {
+"dice_affix": SubResource("Resource_l6ie2")
+}
+
+[sub_resource type="Resource" id="Resource_gnwnk"]
+script = ExtResource("8_jg3fi")
+affix_name = "Fuel the Fire II: Bonus vs Burn"
+description = "+4 bonus damage to burning targets."
+use_global_element_visuals = true
+global_element_type = 3
+trigger = 1
+condition = SubResource("Resource_cljrv")
+effect_type = 26
+effect_value = 2.0
+effect_data = {
+"element": "FIRE"
+}
+
+[sub_resource type="Resource" id="Resource_cyekc"]
+script = ExtResource("2_05dtw")
+affix_name = "Fuel the Fire II"
+effect_data = {
+"dice_affix": SubResource("Resource_gnwnk")
+}
+
+[sub_resource type="Resource" id="Resource_m68yr"]
+script = ExtResource("8_jg3fi")
+affix_name = "Fuel the Fire III: Bonus vs Burn"
+description = "+6 bonus damage to burning targets."
+use_global_element_visuals = true
+global_element_type = 3
+trigger = 1
+condition = SubResource("Resource_cljrv")
+effect_type = 26
+effect_value = 2.0
+effect_data = {
+"element": "FIRE"
+}
+
+[sub_resource type="Resource" id="Resource_ibxxd"]
+script = ExtResource("2_05dtw")
+affix_name = "Fuel the Fire III"
+effect_data = {
+"dice_affix": SubResource("Resource_m68yr")
+}
+
+[sub_resource type="Resource" id="Resource_uf68y"]
+script = ExtResource("5_5byjt")
+skill_id = "flame_fuel_the_fire"
+skill_name = "Fuel the Fire"
+description = "+2/+4/+6 bonus damage to [color=red]Burning[/color] targets."
+tier = 3
+prerequisites = Array[ExtResource("1_uth28")]([SubResource("Resource_jl3iu")])
+tree_points_required = 3
+rank_1_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_ikusc")])
+rank_2_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_cyekc")])
+rank_3_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_ibxxd")])
+
+[sub_resource type="Resource" id="Resource_8mp5g"]
+script = ExtResource("1_uth28")
+required_skill = SubResource("Resource_uf68y")
+
+[sub_resource type="Resource" id="Resource_snv6m"]
+script = ExtResource("2_05dtw")
+affix_name = "Accelerant I"
+
+[sub_resource type="Resource" id="Resource_0dd4d"]
+script = ExtResource("2_05dtw")
+affix_name = "Accelerant II"
+
+[sub_resource type="Resource" id="Resource_6bt88"]
+script = ExtResource("5_5byjt")
+skill_id = "flame_accelerant"
+skill_name = "Accelerant"
+description = "Burn applications add +1/+2 bonus stacks."
+tier = 4
+prerequisites = Array[ExtResource("1_uth28")]([SubResource("Resource_8mp5g")])
+tree_points_required = 5
+rank_1_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_snv6m")])
+rank_2_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_0dd4d")])
+
+[sub_resource type="Resource" id="Resource_t5su3"]
+script = ExtResource("1_uth28")
+required_skill = SubResource("Resource_6bt88")
+
+[sub_resource type="Resource" id="Resource_1a7j6"]
+script = ExtResource("1_uth28")
+required_skill = SubResource("Resource_rv3od")
+
+[sub_resource type="Resource" id="Resource_dqpuj"]
+script = ExtResource("2_05dtw")
+affix_name = "Immolate I"
+
+[sub_resource type="Resource" id="Resource_xab5h"]
+script = ExtResource("2_05dtw")
+affix_name = "Immolate II"
+
+[sub_resource type="Resource" id="Resource_xoe62"]
+script = ExtResource("2_05dtw")
+affix_name = "Immolate III"
+
+[sub_resource type="Resource" id="Resource_tvg7v"]
+script = ExtResource("5_5byjt")
+skill_id = "flame_immolate"
+skill_name = "Immolate"
+description = "15%/30%/45% chance to inflict [color=red]Burn[/color] on fire damage."
+tier = 4
+column = 1
+prerequisites = Array[ExtResource("1_uth28")]([SubResource("Resource_1a7j6")])
+tree_points_required = 5
+rank_1_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_dqpuj")])
+rank_2_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_xab5h")])
+rank_3_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_xoe62")])
+
+[sub_resource type="Resource" id="Resource_k7p4x"]
+script = ExtResource("1_uth28")
+required_skill = SubResource("Resource_tvg7v")
+
+[sub_resource type="Resource" id="Resource_m1fgv"]
+script = ExtResource("2_05dtw")
+affix_name = "Inferno: D10 Unlock"
+
+[sub_resource type="Resource" id="Resource_plg7l"]
+script = ExtResource("2_05dtw")
+affix_name = "Inferno I: Threshold -1"
+
+[sub_resource type="Resource" id="Resource_dvsy7"]
+script = ExtResource("2_05dtw")
+affix_name = "Inferno II: Threshold -2"
+
+[sub_resource type="Resource" id="Resource_85b5u"]
+script = ExtResource("2_05dtw")
+affix_name = "Inferno III: Threshold -3"
+
+[sub_resource type="Resource" id="Resource_y8ws6"]
+script = ExtResource("5_5byjt")
+skill_id = "flame_inferno"
+skill_name = "Inferno"
+description = "Unlocks [color=orange]D10[/color]. Burn threshold reduced to [color=red]4/3/2[/color]."
+tier = 5
+column = 1
+prerequisites = Array[ExtResource("1_uth28")]([SubResource("Resource_t5su3"), SubResource("Resource_k7p4x")])
+tree_points_required = 8
+rank_1_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_m1fgv"), SubResource("Resource_plg7l")])
+rank_2_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_dvsy7")])
+rank_3_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_85b5u")])
+
+[sub_resource type="Resource" id="Resource_0pdke"]
+script = ExtResource("1_uth28")
+required_skill = SubResource("Resource_y8ws6")
+
+[sub_resource type="Resource" id="Resource_x16kn"]
+script = ExtResource("1_uth28")
+required_skill = SubResource("Resource_uubkb")
+
+[sub_resource type="Resource" id="Resource_ly520"]
+script = ExtResource("2_05dtw")
+affix_name = "Searing Force I"
+
+[sub_resource type="Resource" id="Resource_ta31r"]
+script = ExtResource("2_05dtw")
+affix_name = "Searing Force II"
+
+[sub_resource type="Resource" id="Resource_ngawt"]
+script = ExtResource("2_05dtw")
+affix_name = "Searing Force III"
+
+[sub_resource type="Resource" id="Resource_ykmvv"]
+script = ExtResource("5_5byjt")
+skill_id = "flame_searing_force"
+skill_name = "Searing Force"
+description = "+3/+6/+9 [color=orange]fire damage[/color]."
+tier = 2
+column = 3
+prerequisites = Array[ExtResource("1_uth28")]([SubResource("Resource_x16kn")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_ly520")])
+rank_2_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_ta31r")])
+rank_3_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_ngawt")])
+
+[sub_resource type="Resource" id="Resource_pu8ti"]
+script = ExtResource("1_uth28")
+required_skill = SubResource("Resource_ykmvv")
+
+[sub_resource type="Resource" id="Resource_vn450"]
+script = ExtResource("2_05dtw")
+affix_name = "Pyroclasm: D8 Unlock"
+
+[sub_resource type="Resource" id="Resource_6jx5e"]
+script = ExtResource("8_jg3fi")
+affix_name = "Pyroclasm: Splash 50%"
+description = "Fire dice splash 50% damage to adjacent enemy."
+use_global_element_visuals = true
+global_element_type = 3
+trigger = 1
+effect_type = 23
+effect_value = 0.5
+effect_data = {
+"element": "FIRE",
+"percent": 0.5
+}
+
+[sub_resource type="Resource" id="Resource_xfda7"]
+script = ExtResource("2_05dtw")
+affix_name = "Pyroclasm: Splash"
+effect_data = {
+"dice_affix": SubResource("Resource_6jx5e")
+}
+
+[sub_resource type="Resource" id="Resource_4wo2v"]
+script = ExtResource("5_5byjt")
+skill_id = "flame_pyroclasm"
+skill_name = "Pyroclasm"
+description = "Unlocks [color=orange]D8[/color]. Fire dice splash 50% damage."
+tier = 3
+column = 2
+prerequisites = Array[ExtResource("1_uth28")]([SubResource("Resource_pu8ti")])
+tree_points_required = 3
+rank_1_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_vn450"), SubResource("Resource_xfda7")])
+
+[sub_resource type="Resource" id="Resource_s35pm"]
+script = ExtResource("1_uth28")
+required_skill = SubResource("Resource_4wo2v")
+
+[sub_resource type="Resource" id="Resource_x6kcp"]
+script = ExtResource("2_05dtw")
+affix_name = "Conflagrant Surge I"
+
+[sub_resource type="Resource" id="Resource_c28m5"]
+script = ExtResource("2_05dtw")
+affix_name = "Conflagrant Surge II"
+
+[sub_resource type="Resource" id="Resource_o0vy4"]
+script = ExtResource("2_05dtw")
+affix_name = "Conflagrant Surge III"
+
+[sub_resource type="Resource" id="Resource_gsfcd"]
+script = ExtResource("5_5byjt")
+skill_id = "flame_conflagrant_surge"
+skill_name = "Conflagrant Surge"
+description = "Fire damage ×1.05/×1.10/×1.15."
+tier = 4
+column = 3
+prerequisites = Array[ExtResource("1_uth28")]([SubResource("Resource_s35pm")])
+tree_points_required = 5
+rank_1_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_x6kcp")])
+rank_2_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_c28m5")])
+rank_3_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_o0vy4")])
+
+[sub_resource type="Resource" id="Resource_twk37"]
+script = ExtResource("1_uth28")
+required_skill = SubResource("Resource_gsfcd")
+
+[sub_resource type="Resource" id="Resource_ll78o"]
+script = ExtResource("10_gwbsk")
+effect_name = "Eruption Blast"
+target = 2
+damage_type = 3
+damage_multiplier = 0.6
+dice_count = 2
+
+[sub_resource type="Resource" id="Resource_6e1ej"]
+script = ExtResource("11_f3rd5")
+action_id = "flame_eruption"
+action_name = "Eruption"
+action_description = "Hurl fire at all enemies for 60% dice damage."
+die_slots = 2
+min_dice_required = 2
+effects = Array[ExtResource("10_gwbsk")]([SubResource("Resource_ll78o")])
+
+[sub_resource type="Resource" id="Resource_3kgxm"]
+script = ExtResource("2_05dtw")
+affix_name = "Eruption: Grant Action"
+granted_action = SubResource("Resource_6e1ej")
+
+[sub_resource type="Resource" id="Resource_qrtki"]
+script = ExtResource("5_5byjt")
+skill_id = "flame_eruption"
+skill_name = "Eruption"
+description = "[color=yellow]ACTION:[/color] 2 dice → [color=orange]fire[/color] damage to ALL enemies (×0.6)."
+tier = 5
+column = 3
+prerequisites = Array[ExtResource("1_uth28")]([SubResource("Resource_twk37")])
+tree_points_required = 8
+rank_1_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_3kgxm")])
+
+[sub_resource type="Resource" id="Resource_v67bf"]
+script = ExtResource("1_uth28")
+required_skill = SubResource("Resource_qrtki")
+
+[sub_resource type="Resource" id="Resource_3fmle"]
+script = ExtResource("8_jg3fi")
+affix_name = "Firestorm I: Chain"
+description = "Fire dice chain 20% to 2 enemies."
+use_global_element_visuals = true
+global_element_type = 3
+trigger = 1
+effect_type = 24
+effect_value = 0.2
+effect_data = {
+"chains": 2,
+"decay": 1.0,
+"element": "FIRE"
+}
+
+[sub_resource type="Resource" id="Resource_bjc6u"]
+script = ExtResource("2_05dtw")
+affix_name = "Firestorm I"
+effect_data = {
+"dice_affix": SubResource("Resource_3fmle")
+}
+
+[sub_resource type="Resource" id="Resource_emfma"]
+script = ExtResource("8_jg3fi")
+affix_name = "Firestorm II: Chain"
+description = "Fire dice chain 35% to 2 enemies."
+use_global_element_visuals = true
+global_element_type = 3
+trigger = 1
+effect_type = 24
+effect_value = 0.35
+effect_data = {
+"chains": 2,
+"decay": 1.0,
+"element": "FIRE"
+}
+
+[sub_resource type="Resource" id="Resource_mfgk7"]
+script = ExtResource("2_05dtw")
+affix_name = "Firestorm II"
+effect_data = {
+"dice_affix": SubResource("Resource_emfma")
+}
+
+[sub_resource type="Resource" id="Resource_3emjs"]
+script = ExtResource("5_5byjt")
+skill_id = "flame_firestorm"
+skill_name = "Firestorm"
+description = "Fire dice chain [color=yellow]20%/35%[/color] damage to 2 enemies."
+tier = 6
+column = 3
+prerequisites = Array[ExtResource("1_uth28")]([SubResource("Resource_v67bf")])
+tree_points_required = 11
+rank_1_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_bjc6u")])
+rank_2_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_mfgk7")])
+
+[sub_resource type="Resource" id="Resource_jg3fi"]
+script = ExtResource("1_uth28")
+required_skill = SubResource("Resource_3emjs")
+
+[sub_resource type="Resource" id="Resource_uth28"]
+script = ExtResource("2_05dtw")
+affix_name = "Pyroclastic Flow"
+
+[resource]
+script = ExtResource("5_5byjt")
+skill_id = "flame_pyroclastic_flow"
+skill_name = "★ Pyroclastic Flow"
+description = "Burn explosions apply [color=red]3 Burn[/color] to ALL other enemies."
+tier = 8
+column = 2
+prerequisites = Array[ExtResource("1_uth28")]([SubResource("Resource_0pdke"), SubResource("Resource_jg3fi")])
+tree_points_required = 20
+rank_1_affixes = Array[ExtResource("2_05dtw")]([SubResource("Resource_uth28")])

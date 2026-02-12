@@ -1,0 +1,181 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=32 format=3 uid="uid://b4ixc4ifh8oij"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_scabf"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_h2548"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="3_7s6cr"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="4_vfx27"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="5_2q2n6"]
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="6_h2548"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="6_rr4ds"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="7_p06wb"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="8_dxn2t"]
+
+[sub_resource type="Resource" id="Resource_lcoba"]
+script = ExtResource("2_h2548")
+affix_name = "Ignite: Fire Unlock"
+
+[sub_resource type="Resource" id="Resource_uubkb"]
+script = ExtResource("8_dxn2t")
+skill_id = "flame_ignite"
+skill_name = "Ignite"
+description = "Unlocks [color=orange]Fire[/color] element for your mana die."
+column = 3
+rank_1_affixes = Array[ExtResource("2_h2548")]([SubResource("Resource_lcoba")])
+
+[sub_resource type="Resource" id="Resource_vffo1"]
+script = ExtResource("1_scabf")
+required_skill = SubResource("Resource_uubkb")
+
+[sub_resource type="Resource" id="Resource_jl002"]
+script = ExtResource("6_h2548")
+type = 15
+condition_element = "FIRE"
+
+[sub_resource type="Resource" id="Resource_wm8d3"]
+script = ExtResource("4_vfx27")
+affix_name = "Kindling: Fire Neighbor Bonus"
+description = "Adjacent fire dice gain +1."
+use_global_element_visuals = true
+global_element_type = 3
+condition = SubResource("Resource_jl002")
+effect_value = 1.0
+
+[sub_resource type="Resource" id="Resource_6fsqn"]
+script = ExtResource("2_h2548")
+affix_name = "Kindling: Fire Adjacency"
+effect_data = {
+"dice_affix": SubResource("Resource_wm8d3")
+}
+
+[sub_resource type="Resource" id="Resource_ecafp"]
+script = ExtResource("8_dxn2t")
+skill_id = "flame_kindling"
+skill_name = "Kindling"
+description = "Adjacent [color=orange]fire[/color] dice both gain +1."
+tier = 2
+column = 5
+prerequisites = Array[ExtResource("1_scabf")]([SubResource("Resource_vffo1")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_h2548")]([SubResource("Resource_6fsqn")])
+
+[sub_resource type="Resource" id="Resource_srsuu"]
+script = ExtResource("1_scabf")
+required_skill = SubResource("Resource_ecafp")
+
+[sub_resource type="Resource" id="Resource_1l2xv"]
+script = ExtResource("6_h2548")
+type = 2
+threshold = 3.0
+
+[sub_resource type="Resource" id="Resource_ntenv"]
+script = ExtResource("4_vfx27")
+affix_name = "Mana Flare: Low Roll Refund"
+description = "Refund 1 mana on roll ≤2."
+use_global_element_visuals = true
+global_element_type = 3
+condition = SubResource("Resource_1l2xv")
+effect_type = 28
+effect_value = 1.0
+
+[sub_resource type="Resource" id="Resource_g8xok"]
+script = ExtResource("2_h2548")
+affix_name = "Mana Flare"
+effect_data = {
+"dice_affix": SubResource("Resource_ntenv")
+}
+
+[sub_resource type="Resource" id="Resource_yfm2f"]
+script = ExtResource("8_dxn2t")
+skill_id = "flame_mana_flare"
+skill_name = "Mana Flare"
+description = "Refund [color=cyan]1 mana[/color] when a fire die rolls ≤2."
+tier = 4
+column = 5
+prerequisites = Array[ExtResource("1_scabf")]([SubResource("Resource_srsuu")])
+tree_points_required = 5
+rank_1_affixes = Array[ExtResource("2_h2548")]([SubResource("Resource_g8xok")])
+
+[sub_resource type="Resource" id="Resource_423lx"]
+script = ExtResource("1_scabf")
+required_skill = SubResource("Resource_yfm2f")
+
+[sub_resource type="Resource" id="Resource_hcgrm"]
+script = ExtResource("2_h2548")
+affix_name = "Tempered Steel I"
+
+[sub_resource type="Resource" id="Resource_1ndx3"]
+script = ExtResource("2_h2548")
+affix_name = "Tempered Steel II"
+
+[sub_resource type="Resource" id="Resource_bd47b"]
+script = ExtResource("2_h2548")
+affix_name = "Tempered Steel III"
+
+[sub_resource type="Resource" id="Resource_4nutu"]
+script = ExtResource("8_dxn2t")
+skill_id = "flame_tempered_steel"
+skill_name = "Tempered Steel"
+description = "+2/+4/+6 [color=gray]armor[/color] per fire die used."
+tier = 5
+column = 5
+prerequisites = Array[ExtResource("1_scabf")]([SubResource("Resource_423lx")])
+tree_points_required = 8
+rank_1_affixes = Array[ExtResource("2_h2548")]([SubResource("Resource_hcgrm")])
+rank_2_affixes = Array[ExtResource("2_h2548")]([SubResource("Resource_1ndx3")])
+rank_3_affixes = Array[ExtResource("2_h2548")]([SubResource("Resource_bd47b")])
+
+[sub_resource type="Resource" id="Resource_7s6cr"]
+script = ExtResource("1_scabf")
+required_skill = SubResource("Resource_4nutu")
+
+[sub_resource type="Resource" id="Resource_pk5vx"]
+script = ExtResource("4_vfx27")
+affix_name = "Ember Link I: Copy Neighbor"
+description = "Copy 15% of neighbor's value."
+use_global_element_visuals = true
+global_element_type = 3
+neighbor_target = 3
+effect_type = 14
+effect_value = 0.15
+effect_data = {
+"percent": 0.15
+}
+
+[sub_resource type="Resource" id="Resource_scabf"]
+script = ExtResource("2_h2548")
+affix_name = "Ember Link I"
+effect_data = {
+"dice_affix": SubResource("Resource_pk5vx")
+}
+
+[sub_resource type="Resource" id="Resource_75k8m"]
+script = ExtResource("4_vfx27")
+affix_name = "Ember Link II: Copy Neighbor"
+description = "Copy 25% of neighbor's value."
+use_global_element_visuals = true
+global_element_type = 3
+neighbor_target = 3
+effect_type = 14
+effect_value = 0.25
+effect_data = {
+"percent": 0.25
+}
+
+[sub_resource type="Resource" id="Resource_h2548"]
+script = ExtResource("2_h2548")
+affix_name = "Ember Link II"
+effect_data = {
+"dice_affix": SubResource("Resource_75k8m")
+}
+
+[resource]
+script = ExtResource("8_dxn2t")
+skill_id = "flame_ember_link"
+skill_name = "Ember Link"
+description = "Fire dice copy [color=yellow]15%/25%[/color] of neighbors' values."
+tier = 7
+column = 5
+prerequisites = Array[ExtResource("1_scabf")]([SubResource("Resource_7s6cr")])
+tree_points_required = 15
+rank_1_affixes = Array[ExtResource("2_h2548")]([SubResource("Resource_scabf")])
+rank_2_affixes = Array[ExtResource("2_h2548")]([SubResource("Resource_h2548")])

@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=8 format=3 uid="uid://b5dr2fexu84hx"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_pk5vx"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_toq37"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_8f3rr"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_im8nb"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_6m5nv"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="6_whwa0"]
+
+[sub_resource type="Resource" id="Resource_pk5vx"]
+script = ExtResource("2_toq37")
+affix_name = "Ember Link I: Copy Neighbor"
+description = "Copy 15% of neighbor's value."
+use_global_element_visuals = true
+global_element_type = 3
+neighbor_target = 3
+effect_type = 14
+effect_value = 0.15
+effect_data = {
+"percent": 0.15
+}
+
+[resource]
+script = ExtResource("5_6m5nv")
+affix_name = "Ember Link I"
+effect_data = {
+"dice_affix": SubResource("Resource_pk5vx")
+}

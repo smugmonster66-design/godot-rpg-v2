@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://caa5s4s7tk4dq"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_rrmff"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_2ubdn"]
+[ext_resource type="Resource" uid="uid://behojsm6qvxjl" path="res://resources/statuses/burn.tres" id="3_haco3"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_x7cjf"]
+
+[sub_resource type="Resource" id="Resource_rrmff"]
+script = ExtResource("1_rrmff")
+effect_name = "Cinder Storm: AoE Damage"
+target = 2
+damage_type = 3
+damage_multiplier = 0.5
+dice_count = 3
+
+[sub_resource type="Resource" id="Resource_2ubdn"]
+script = ExtResource("1_rrmff")
+effect_name = "Cinder Storm: Apply Burn"
+target = 2
+effect_type = 2
+damage_type = 3
+status_affix = ExtResource("3_haco3")
+stack_count = 2
+
+[resource]
+script = ExtResource("4_x7cjf")
+action_id = "flame_cinder_storm"
+action_name = "Cinder Storm"
+action_description = "Barrage all enemies with fire for 50% damage and apply 2 Burn."
+die_slots = 3
+min_dice_required = 3
+charge_type = 2
+effects = Array[ExtResource("1_rrmff")]([SubResource("Resource_rrmff"), SubResource("Resource_2ubdn")])

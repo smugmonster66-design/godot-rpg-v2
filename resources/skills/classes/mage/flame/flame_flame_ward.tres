@@ -1,0 +1,88 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=21 format=3 uid="uid://fw4jjfi5wnco"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_q484m"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_a5afi"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="3_oi116"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_hbera"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="5_ecafp"]
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="6_ecafp"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="7_37jfw"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="8_nd8os"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="9_wgwr4"]
+
+[sub_resource type="Resource" id="Resource_lcoba"]
+script = ExtResource("2_a5afi")
+affix_name = "Ignite: Fire Unlock"
+
+[sub_resource type="Resource" id="Resource_uubkb"]
+script = ExtResource("5_ecafp")
+skill_id = "flame_ignite"
+skill_name = "Ignite"
+description = "Unlocks [color=orange]Fire[/color] element for your mana die."
+column = 3
+rank_1_affixes = Array[ExtResource("2_a5afi")]([SubResource("Resource_lcoba")])
+
+[sub_resource type="Resource" id="Resource_vffo1"]
+script = ExtResource("1_q484m")
+required_skill = SubResource("Resource_uubkb")
+
+[sub_resource type="Resource" id="Resource_jl002"]
+script = ExtResource("6_ecafp")
+type = 15
+condition_element = "FIRE"
+
+[sub_resource type="Resource" id="Resource_wm8d3"]
+script = ExtResource("8_nd8os")
+affix_name = "Kindling: Fire Neighbor Bonus"
+description = "Adjacent fire dice gain +1."
+use_global_element_visuals = true
+global_element_type = 3
+condition = SubResource("Resource_jl002")
+effect_value = 1.0
+
+[sub_resource type="Resource" id="Resource_6fsqn"]
+script = ExtResource("2_a5afi")
+affix_name = "Kindling: Fire Adjacency"
+effect_data = {
+"dice_affix": SubResource("Resource_wm8d3")
+}
+
+[sub_resource type="Resource" id="Resource_ecafp"]
+script = ExtResource("5_ecafp")
+skill_id = "flame_kindling"
+skill_name = "Kindling"
+description = "Adjacent [color=orange]fire[/color] dice both gain +1."
+tier = 2
+column = 5
+prerequisites = Array[ExtResource("1_q484m")]([SubResource("Resource_vffo1")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_a5afi")]([SubResource("Resource_6fsqn")])
+
+[sub_resource type="Resource" id="Resource_37jfw"]
+script = ExtResource("1_q484m")
+required_skill = SubResource("Resource_ecafp")
+
+[sub_resource type="Resource" id="Resource_q484m"]
+script = ExtResource("2_a5afi")
+affix_name = "Flame Ward I"
+
+[sub_resource type="Resource" id="Resource_a5afi"]
+script = ExtResource("2_a5afi")
+affix_name = "Flame Ward II"
+
+[sub_resource type="Resource" id="Resource_oi116"]
+script = ExtResource("2_a5afi")
+affix_name = "Flame Ward III"
+
+[resource]
+script = ExtResource("5_ecafp")
+skill_id = "flame_flame_ward"
+skill_name = "Flame Ward"
+description = "+3/+6/+9 [color=cyan]barrier[/color] at the start of each turn."
+tier = 3
+column = 6
+prerequisites = Array[ExtResource("1_q484m")]([SubResource("Resource_37jfw")])
+tree_points_required = 3
+rank_1_affixes = Array[ExtResource("2_a5afi")]([SubResource("Resource_q484m")])
+rank_2_affixes = Array[ExtResource("2_a5afi")]([SubResource("Resource_a5afi")])
+rank_3_affixes = Array[ExtResource("2_a5afi")]([SubResource("Resource_oi116")])

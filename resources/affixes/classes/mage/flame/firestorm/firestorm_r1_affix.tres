@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=8 format=3 uid="uid://blxxv4k8gpc3s"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_3fmle"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_nukdd"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_afqqd"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_3hfhk"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_bl01o"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="6_17114"]
+
+[sub_resource type="Resource" id="Resource_3fmle"]
+script = ExtResource("2_nukdd")
+affix_name = "Firestorm I: Chain"
+description = "Fire dice chain 20% to 2 enemies."
+use_global_element_visuals = true
+global_element_type = 3
+trigger = 1
+effect_type = 24
+effect_value = 0.2
+effect_data = {
+"chains": 2,
+"decay": 1.0,
+"element": "FIRE"
+}
+
+[resource]
+script = ExtResource("5_bl01o")
+affix_name = "Firestorm I"
+effect_data = {
+"dice_affix": SubResource("Resource_3fmle")
+}

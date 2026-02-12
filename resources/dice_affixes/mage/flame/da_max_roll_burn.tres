@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=6 format=3 uid="uid://b76v8dxa0mbr0"]
+
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="1_fpif5"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_0ae75"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_cq0ly"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_scfr4"]
+
+[sub_resource type="Resource" id="Resource_fpif5"]
+script = ExtResource("1_fpif5")
+type = 4
+
+[resource]
+script = ExtResource("3_cq0ly")
+affix_name = "Ember Dice: Max Roll Burn"
+description = "Max roll inflicts 1 Burn."
+use_global_element_visuals = true
+global_element_type = 3
+trigger = 1
+condition = SubResource("Resource_fpif5")
+effect_type = 16
+effect_value = 1.0
+effect_data = {
+"stacks": 1,
+"status_id": "burn"
+}

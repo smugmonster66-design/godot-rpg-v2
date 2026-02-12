@@ -1,0 +1,59 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=14 format=3 uid="uid://c0q71ayghb6vc"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_mup1h"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_kfucj"]
+[ext_resource type="Resource" uid="uid://behojsm6qvxjl" path="res://resources/statuses/burn.tres" id="3_04ipg"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_mmi7a"]
+[ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="5_ab2gr"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="6_f0k1y"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_lhihr"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="8_45igj"]
+
+[sub_resource type="Resource" id="Resource_lhnqv"]
+script = ExtResource("1_mup1h")
+effect_name = "Eternal Flame: Damage"
+damage_type = 3
+dice_count = 2
+
+[sub_resource type="Resource" id="Resource_qlpqe"]
+script = ExtResource("1_mup1h")
+effect_name = "Eternal Flame: Apply Burn"
+effect_type = 2
+effect_data = {
+"value_source": "DICE_TOTAL"
+}
+damage_type = 3
+status_affix = ExtResource("3_04ipg")
+
+[sub_resource type="Resource" id="Resource_bvnkf"]
+script = ExtResource("5_ab2gr")
+status_id = "eternal_flame_mark"
+duration_type = 1
+tick_timing = 1
+cleanse_tags = Array[String](["buff", "fire"])
+affix_name = "Eternal Flame"
+description = "Burn cannot expire while this mark is active."
+category = 36
+tags = Array[String](["mage", "flame", "eternal_flame", "mark"])
+
+[sub_resource type="Resource" id="Resource_3ksg5"]
+script = ExtResource("1_mup1h")
+effect_name = "Eternal Flame: Apply Mark"
+effect_type = 2
+damage_type = 3
+status_affix = SubResource("Resource_bvnkf")
+
+[sub_resource type="Resource" id="Resource_mup1h"]
+script = ExtResource("7_lhihr")
+action_id = "flame_eternal_flame"
+action_name = "Eternal Flame"
+action_description = "Deal fire damage and inflict massive Burn that cannot expire for 3 turns."
+die_slots = 2
+min_dice_required = 2
+charge_type = 2
+effects = Array[ExtResource("1_mup1h")]([SubResource("Resource_lhnqv"), SubResource("Resource_qlpqe"), SubResource("Resource_3ksg5")])
+
+[resource]
+script = ExtResource("8_45igj")
+affix_name = "Eternal Flame: Grant Action"
+granted_action = SubResource("Resource_mup1h")

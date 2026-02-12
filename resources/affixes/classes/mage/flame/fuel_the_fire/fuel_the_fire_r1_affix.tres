@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=10 format=3 uid="uid://bb37ai7chg264"]
+
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="1_l6ie2"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_sao0f"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_u4nxt"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_oh63x"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="5_stmiu"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="6_decqb"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="7_wpxt7"]
+
+[sub_resource type="Resource" id="Resource_cljrv"]
+script = ExtResource("1_l6ie2")
+type = 21
+condition_status_id = "burn"
+
+[sub_resource type="Resource" id="Resource_l6ie2"]
+script = ExtResource("3_u4nxt")
+affix_name = "Fuel the Fire: Bonus vs Burn"
+description = "Bonus damage to burning targets."
+use_global_element_visuals = true
+global_element_type = 3
+trigger = 1
+condition = SubResource("Resource_cljrv")
+effect_type = 26
+effect_value = 2.0
+effect_data = {
+"element": "FIRE"
+}
+
+[resource]
+script = ExtResource("6_decqb")
+affix_name = "Fuel the Fire I"
+effect_data = {
+"dice_affix": SubResource("Resource_l6ie2")
+}

@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="Action" load_steps=5 format=3 uid="uid://1mkp6gjlbqce"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_n3ctb"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_btsi4"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="3_yymdm"]
+
+[sub_resource type="Resource" id="Resource_n3ctb"]
+script = ExtResource("1_n3ctb")
+effect_name = "Ironfire Stance: Buff"
+target = 0
+effect_type = 1
+effect_data = {
+"damage_reduction_percent": 0.25,
+"duration_turns": 2,
+"fire_reflect_percent": 0.3,
+"value_source": "DICE_TOTAL"
+}
+damage_type = 3
+dice_count = 2
+heal_uses_dice = true
+
+[resource]
+script = ExtResource("3_yymdm")
+action_id = "flame_ironfire_stance"
+action_name = "Ironfire Stance"
+action_description = "25% damage reduction, 30% fire reflect, heal = dice total. Lasts 2 turns."
+die_slots = 2
+min_dice_required = 2
+charge_type = 2
+effects = Array[ExtResource("1_n3ctb")]([SubResource("Resource_n3ctb")])

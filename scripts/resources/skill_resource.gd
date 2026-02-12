@@ -210,8 +210,8 @@ func validate() -> Array[String]:
 	if column < 0 or column > 6:
 		warnings.append("Column out of range (0-6)")
 	
-	if tier < 1 or tier > 9:
-		warnings.append("Tier out of range (1-9)")
+	if tier < 1 or tier > 10:
+		warnings.append("Tier out of range (1-10)")
 	
 	# Validate prerequisites
 	for i in range(prerequisites.size()):

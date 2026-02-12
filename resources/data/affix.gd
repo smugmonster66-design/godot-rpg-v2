@@ -77,7 +77,11 @@ enum Category {
 	# ── Elemental Combat Modifiers (v4) ──
 	ELEMENTAL_DAMAGE_MULTIPLIER, ## Multiplies damage of a specific element. effect_data: {"element": "FIRE"}
 	STATUS_DAMAGE_MULTIPLIER,    ## Multiplies damage to targets with a status. effect_data: {"status_id": "burn"}
-	RESISTANCE_BYPASS,           ## Flat resistance bypass for an element. effect_data: {"element": "FIRE"}
+	RESISTANCE_BYPASS,           ## Flat resistance bypass for an element.
+	# ── Skill Rank Bonuses (v5) ──
+	SKILL_RANK_BONUS,            ## +N to a specific skill. effect_data: {"skill_id": "flame_inferno"}
+	TREE_SKILL_RANK_BONUS,       ## +N to all skills in a tree. effect_data: {"tree_id": "mage_flame"}
+	CLASS_SKILL_RANK_BONUS,      ## +N to all class skills. effect_data: {"class_id": "mage"}
 }
 
 # ============================================================================

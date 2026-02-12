@@ -226,6 +226,75 @@ func get_all_learned_skill_ids() -> Array[String]:
 			ids.append(skill_id)
 	return ids
 
+# ============================================================================
+# EFFECTIVE SKILL RANK (v5 — Bonus Ranks from Equipment)
+# ============================================================================
+
+func get_effective_skill_rank(skill_id: String, tree_id: String = "",
+		class_id: String = "", max_rank: int = 5) -> int:
+	"""Get the effective rank of a skill including bonus ranks from gear.
+	
+	Bonus ranks do NOT unlock unlearned skills — base rank must be >= 1.
+	Effective rank is capped at max_rank (from the SkillResource).
+	
+	Args:
+		skill_id: The skill's unique ID.
+		tree_id: The skill's tree ID (for TREE_SKILL_RANK_BONUS lookups).
+		class_id: The class ID (for CLASS_SKILL_RANK_BONUS lookups).
+		max_rank: Maximum rank this skill supports.
+	"""
+	var base_rank: int = skill_ranks.get(skill_id, 0)
+	if base_rank == 0:
+		return 0  # Unlearned — bonus ranks don't unlock skills
+	
+	var bonus: int = _get_skill_rank_bonus(skill_id, tree_id, class_id)
+	return mini(base_rank + bonus, max_rank)
+
+func _get_skill_rank_bonus(skill_id: String, tree_id: String, class_id: String) -> int:
+	"""Sum all skill rank bonuses from equipment/affixes.
+	
+	Queries the player's AffixPoolManager for:
+	  - SKILL_RANK_BONUS matching this skill_id
+	  - TREE_SKILL_RANK_BONUS matching this tree_id
+	  - CLASS_SKILL_RANK_BONUS matching this class_id
+	
+	Requires affix_manager to be set on the parent Player.
+	"""
+	var bonus: int = 0
+	
+	# Access affix_manager via the Player (parent sets this at init)
+	# This method is called from skills_tab which has a Player reference
+	# We store a reference when the player is initialized
+	if not _affix_manager_ref:
+		return 0
+	
+	# +N to specific skill
+	for affix in _affix_manager_ref.get_pool(Affix.Category.SKILL_RANK_BONUS):
+		if affix.effect_data.get("skill_id", "") == skill_id:
+			bonus += int(affix.effect_number)
+	
+	# +N to all skills in tree
+	if tree_id != "":
+		for affix in _affix_manager_ref.get_pool(Affix.Category.TREE_SKILL_RANK_BONUS):
+			if affix.effect_data.get("tree_id", "") == tree_id:
+				bonus += int(affix.effect_number)
+	
+	# +N to all class skills
+	if class_id != "":
+		for affix in _affix_manager_ref.get_pool(Affix.Category.CLASS_SKILL_RANK_BONUS):
+			if affix.effect_data.get("class_id", "") == class_id:
+				bonus += int(affix.effect_number)
+	
+	return bonus
+
+## Reference to AffixPoolManager — set by Player during initialization.
+## Used for bonus rank calculations.
+var _affix_manager_ref: AffixPoolManager = null
+
+func set_affix_manager_ref(manager: AffixPoolManager) -> void:
+	"""Store reference to the player's AffixPoolManager for bonus rank queries."""
+	_affix_manager_ref = manager
+
 func reset_all_skills():
 	"""Reset all skills and refund points"""
 	var spent = get_spent_skill_points()

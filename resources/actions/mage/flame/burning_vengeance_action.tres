@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://qxjm57w0dqlw"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_gaxy7"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_cqlkb"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_mxmwy"]
+[ext_resource type="Resource" uid="uid://behojsm6qvxjl" path="res://resources/statuses/burn.tres" id="3_bgl23"]
+
+[sub_resource type="Resource" id="Resource_mxmwy"]
+script = ExtResource("1_gaxy7")
+effect_name = "Burning Vengeance: Damage"
+damage_type = 3
+damage_multiplier = 0.5
+
+[sub_resource type="Resource" id="Resource_bgl23"]
+script = ExtResource("1_gaxy7")
+effect_name = "Burning Vengeance: Apply Burn"
+effect_type = 2
+damage_type = 3
+status_affix = ExtResource("3_bgl23")
+
+[resource]
+script = ExtResource("2_cqlkb")
+action_id = "flame_burning_vengeance"
+action_name = "Burning Vengeance"
+action_description = "Strike an enemy for 50% fire damage and inflict Burn stacks equal to die value."
+min_dice_required = 1
+charge_type = 1
+max_charges = 2
+effects = Array[ExtResource("1_gaxy7")]([SubResource("Resource_mxmwy"), SubResource("Resource_bgl23")])

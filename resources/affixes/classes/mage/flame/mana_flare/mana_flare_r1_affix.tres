@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=10 format=3 uid="uid://dlefdcdvtdone"]
+
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="1_ntenv"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_724pp"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_g3b4o"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_px7mn"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="5_nlr6w"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="6_gylxf"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="7_7k1a8"]
+
+[sub_resource type="Resource" id="Resource_1l2xv"]
+script = ExtResource("1_ntenv")
+type = 2
+threshold = 3.0
+
+[sub_resource type="Resource" id="Resource_ntenv"]
+script = ExtResource("3_g3b4o")
+affix_name = "Mana Flare: Low Roll Refund"
+description = "Refund 1 mana on roll ≤2."
+use_global_element_visuals = true
+global_element_type = 3
+condition = SubResource("Resource_1l2xv")
+effect_type = 28
+effect_value = 1.0
+
+[resource]
+script = ExtResource("6_gylxf")
+affix_name = "Mana Flare"
+effect_data = {
+"dice_affix": SubResource("Resource_ntenv")
+}
