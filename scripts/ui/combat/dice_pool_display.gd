@@ -47,13 +47,10 @@ func _ready():
 	alignment = BoxContainer.ALIGNMENT_CENTER
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	custom_minimum_size = Vector2(300, 80)
-	queue_redraw()
 	add_to_group("dice_pool_display")
 	print("🎲 DicePoolDisplay ready, size=%s, min=%s" % [size, custom_minimum_size])
 
-func _draw():
-	# DEBUG: draw background to confirm actual size
-	draw_rect(Rect2(Vector2.ZERO, size), Color(1, 0, 0, 0.3))
+
 func initialize(pool):
 	"""Initialize with player's dice collection"""
 	print("🎲 DicePoolDisplay.initialize()")

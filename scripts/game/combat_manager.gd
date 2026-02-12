@@ -2083,7 +2083,7 @@ func _build_proc_context(extra: Dictionary = {}) -> Dictionary:
 	# Wire element_use_counts from the dice pool
 	if player and player.dice_pool:
 		ctx["element_use_counts"] = player.dice_pool.get_element_use_counts()
-		ctx["dice_pool"] = player.dice_pool.pool  # for Infinite Curriculum
+		ctx["dice_pool"] = player.dice_pool.dice  # for Infinite Curriculum
 	
 	# Merge caller-specific keys (damage_dealt, target, etc.)
 	ctx.merge(extra, true)

@@ -55,8 +55,10 @@ texture_progress = ExtResource("7_ye8ax")
 
 [node name="ManaDieSelector" parent="MainHBox/LeftSection" instance=ExtResource("5_ob1iw")]
 layout_mode = 2
+mana_bar_height = 48.0
 
 [node name="ManaBar" type="TextureProgressBar" parent="MainHBox/LeftSection"]
+visible = false
 custom_minimum_size = Vector2(300, 40)
 layout_mode = 2
 

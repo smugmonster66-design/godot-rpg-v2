@@ -27,15 +27,20 @@ signal drag_ended(was_placed: bool)
 # NODE REFERENCES — matching mana_die_selector.tscn
 # ============================================================================
 
-@onready var mana_bar: ProgressBar = $ManaBar
+
+@onready var mana_bar: TextureProgressBar = $HBoxContainer/ManaBar
 @onready var mana_label: Label = $ManaLabel
 @onready var cost_label: Label = $CostLabel
-@onready var selector_grid: GridContainer = $SelectorGrid
-@onready var die_preview_container: PanelContainer = $SelectorGrid/DiePreviewContainer
-@onready var elem_left_btn: Button = $SelectorGrid/ElemLeftBtn
-@onready var elem_right_btn: Button = $SelectorGrid/ElemRightBtn
-@onready var size_up_btn: Button = $SelectorGrid/SizeUpBtn
-@onready var size_down_btn: Button = $SelectorGrid/SizeDownBtn
+@onready var selector_grid: GridContainer = $HBoxContainer/SelectorGrid
+@onready var die_preview_container: PanelContainer = $HBoxContainer/SelectorGrid/DiePreviewContainer
+@onready var elem_left_btn: Button = $HBoxContainer/SelectorGrid/ElemLeftBtn
+@onready var elem_right_btn: Button = $HBoxContainer/SelectorGrid/ElemRightBtn
+@onready var size_up_btn: Button = $HBoxContainer/SelectorGrid/SizeUpBtn
+@onready var size_down_btn: Button = $HBoxContainer/SelectorGrid/SizeDownBtn
+@onready var preview_anchor: Control = $HBoxContainer/SelectorGrid/DiePreviewContainer/PreviewCenter
+
+
+
 
 # ============================================================================
 # CONFIGURATION
@@ -44,6 +49,10 @@ signal drag_ended(was_placed: bool)
 @export_group("Colors")
 @export var cost_affordable_color: Color = Color(0.8, 0.9, 1.0)
 @export var cost_unaffordable_color: Color = Color(1.0, 0.3, 0.3)
+
+@export_group("Layout")
+@export var preview_cell_size: Vector2 = Vector2(64, 64)
+
 
 # ============================================================================
 # STATE
@@ -97,21 +106,43 @@ const DRAG_THRESHOLD: float = 5.0
 # INITIALIZATION
 # ============================================================================
 
+
 func _ready():
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	set_process(false)
 
-	# Make child containers pass-through
 	if die_preview_container:
 		die_preview_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		die_preview_container.custom_minimum_size = preview_cell_size
 	if selector_grid:
 		selector_grid.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	# Remove legacy ManaDragSource if present
 	var legacy = find_child("ManaDragSource", true, false)
 	if legacy:
 		legacy.queue_free()
+
+	call_deferred("_debug_layout")
+
+func _debug_layout():
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var hbox = $HBoxContainer
+	print("🔮 LAYOUT DEBUG 2:")
+	print("  root: size=%s, pos=%s" % [size, position])
+	print("  hbox: size=%s, pos=%s" % [hbox.size, hbox.position])
+	print("  mana_bar: size=%s, pos=%s, gpos=%s" % [mana_bar.size, mana_bar.position, mana_bar.global_position])
+	print("  grid: size=%s, pos=%s, gpos=%s" % [selector_grid.size, selector_grid.position, selector_grid.global_position])
+	print("  die_container: size=%s, pos=%s, gpos=%s" % [die_preview_container.size, die_preview_container.position, die_preview_container.global_position])
+	print("  preview_anchor: size=%s, pos=%s" % [preview_anchor.size, preview_anchor.position])
+	if _current_preview and is_instance_valid(_current_preview):
+		print("  preview: size=%s, pos=%s, scale=%s, min=%s" % [_current_preview.size, _current_preview.position, _current_preview.scale, _current_preview.custom_minimum_size])
+	if _current_preview and is_instance_valid(_current_preview):
+		print("  preview: size=%s, pos=%s, scale=%s, min=%s, pivot=%s" % [_current_preview.size, _current_preview.position, _current_preview.scale, _current_preview.custom_minimum_size, _current_preview.pivot_offset])
+		if "base_size" in _current_preview:
+			print("  preview base_size=%s" % _current_preview.base_size)
+
+
 
 func initialize(p) -> void:
 	player = p
@@ -427,7 +458,6 @@ func _cancel_drag():
 
 func _animate_preview_grow_back():
 	"""After a successful drop, rebuild die preview and animate it growing from zero."""
-	# Kill old preview
 	if _current_preview and is_instance_valid(_current_preview):
 		_current_preview.queue_free()
 		_current_preview = null
@@ -436,10 +466,9 @@ func _animate_preview_grow_back():
 	if not preview_die:
 		return
 
-	# Calculate target scale for the preview cell
 	var cell_size = die_preview_container.custom_minimum_size.x if die_preview_container else 48.0
 	var target_size = cell_size - 8
-	var final_scale = Vector2.ONE
+	var final_scale := Vector2.ONE
 
 	var visual: Control = null
 	if preview_die.has_method("instantiate_combat_visual"):
@@ -450,12 +479,6 @@ func _animate_preview_grow_back():
 	if visual:
 		if visual is DieObjectBase:
 			visual.draggable = false
-		visual.set_anchors_preset(Control.PRESET_TOP_LEFT)
-		visual.custom_minimum_size = Vector2.ZERO
-		if "base_size" in visual and visual.base_size.x > 0:
-			var s = target_size / visual.base_size.x
-			final_scale = Vector2(s, s)
-		visual.scale = Vector2.ZERO  # Start invisible
 		var lbl = visual.find_child("ValueLabel", true, false)
 		if lbl:
 			lbl.visible = false
@@ -469,33 +492,28 @@ func _animate_preview_grow_back():
 		lbl.add_theme_font_size_override("font_size", 10)
 		var elem_color = ELEMENT_COLORS.get(int(mana_pool.selected_element), Color.WHITE)
 		lbl.add_theme_color_override("font_color", elem_color)
-		lbl.scale = Vector2.ZERO
 		_current_preview = lbl
 
-	die_preview_container.add_child(_current_preview)
+	preview_anchor.add_child(_current_preview)
+	_current_preview.custom_minimum_size = Vector2.ZERO
+
+	# Position at center, start at near-zero scale
+	if _current_preview is DieObjectBase and "base_size" in _current_preview and _current_preview.base_size.x > 0:
+		var s = target_size / _current_preview.base_size.x
+		final_scale = Vector2(s, s)
+		_current_preview.pivot_offset = _current_preview.base_size / 2.0
+		_current_preview.position = Vector2(cell_size, cell_size) / 2.0 - _current_preview.pivot_offset
+		_current_preview.scale = Vector2(0.001, 0.001)
+	else:
+		_current_preview.size = Vector2(target_size, target_size)
+		_current_preview.position = Vector2(4, 4)
+		_current_preview.scale = Vector2(0.001, 0.001)
+
 	_set_mouse_ignore_recursive(_current_preview)
 
-	# Wait one frame for layout
-	await get_tree().process_frame
-	if not is_instance_valid(_current_preview) or not is_instance_valid(die_preview_container):
-		return
-
-	# Set pivot to center for scale-from-center
-	if "base_size" in _current_preview:
-		_current_preview.pivot_offset = _current_preview.base_size / 2.0
-	else:
-		_current_preview.pivot_offset = _current_preview.size / 2.0
-
-	# Center in container based on final scaled size
-	var container_size = die_preview_container.size
-	var final_visual_size = _current_preview.size * final_scale
-	_current_preview.position = (container_size - final_visual_size) / 2.0
-
-	# Grow from zero
 	var tween = create_tween()
 	tween.tween_property(_current_preview, "scale", final_scale, 0.3) \
 		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_ELASTIC)
-
 
 
 func _find_hand_display() -> Control:
@@ -571,6 +589,8 @@ func _update_mana_bar(current: int, max_mana: int):
 	if mana_label:
 		mana_label.text = "%d / %d" % [current, max_mana]
 
+
+
 func _update_die_preview():
 	"""Recreate the die visual in the center cell."""
 	if not mana_pool:
@@ -584,6 +604,9 @@ func _update_die_preview():
 	if not preview_die:
 		return
 
+	var cell_size = die_preview_container.custom_minimum_size.x if die_preview_container else 48.0
+	var target_size = cell_size - 8
+
 	var visual: Control = null
 	if preview_die.has_method("instantiate_combat_visual"):
 		visual = preview_die.instantiate_combat_visual()
@@ -593,17 +616,10 @@ func _update_die_preview():
 	if visual:
 		if visual is DieObjectBase:
 			visual.draggable = false
-		visual.set_anchors_preset(Control.PRESET_TOP_LEFT)
-		visual.custom_minimum_size = Vector2.ZERO
-		var cell_size = die_preview_container.custom_minimum_size.x if die_preview_container else 48.0
-		var target_size = cell_size - 8
-		if "base_size" in visual and visual.base_size.x > 0:
-			var scale_factor = target_size / visual.base_size.x
-			visual.scale = Vector2(scale_factor, scale_factor)
-		_current_preview = visual
 		var lbl = visual.find_child("ValueLabel", true, false)
 		if lbl:
 			lbl.visible = false
+		_current_preview = visual
 	else:
 		var lbl = Label.new()
 		lbl.text = "%s\nD%d" % [mana_pool.get_element_name(), mana_pool.selected_die_size]
@@ -615,30 +631,44 @@ func _update_die_preview():
 		lbl.add_theme_color_override("font_color", elem_color)
 		_current_preview = lbl
 
-	die_preview_container.add_child(_current_preview)
+	preview_anchor.add_child(_current_preview)
+	# Prevent inflation — Control won't propagate this upward anyway,
+	# but zero it so the child doesn't occupy excess space internally.
+	_current_preview.custom_minimum_size = Vector2.ZERO
 
-	await get_tree().process_frame
-	if is_instance_valid(_current_preview) and is_instance_valid(die_preview_container):
-		var container_size = die_preview_container.size
-		var visual_size = _current_preview.size * _current_preview.scale
-		_current_preview.position = (container_size - visual_size) / 2.0
+	# Center manually: use base_size for die objects, target_size for labels
+	if _current_preview is DieObjectBase and "base_size" in _current_preview and _current_preview.base_size.x > 0:
+		var s = target_size / _current_preview.base_size.x
+		_current_preview.scale = Vector2(s, s)
+		_current_preview.pivot_offset = _current_preview.base_size / 2.0
+		_current_preview.position = Vector2(cell_size, cell_size) / 2.0 - _current_preview.pivot_offset
+	else:
+		_current_preview.size = Vector2(target_size, target_size)
+		_current_preview.position = Vector2(4, 4)
 
-	if _current_preview:
-		_set_mouse_ignore_recursive(_current_preview)
+	_set_mouse_ignore_recursive(_current_preview)
+
 
 func _update_button_visibility():
 	if not mana_pool:
 		return
 	var elements = mana_pool.get_available_elements()
 	var sizes = mana_pool.get_available_die_sizes()
+	var show_elem = elements.size() > 1
+	var show_size = sizes.size() > 1
 	if elem_left_btn:
-		elem_left_btn.visible = elements.size() > 1
+		elem_left_btn.modulate.a = 1.0 if show_elem else 0.0
+		elem_left_btn.disabled = not show_elem
 	if elem_right_btn:
-		elem_right_btn.visible = elements.size() > 1
+		elem_right_btn.modulate.a = 1.0 if show_elem else 0.0
+		elem_right_btn.disabled = not show_elem
 	if size_up_btn:
-		size_up_btn.visible = sizes.size() > 1
+		size_up_btn.modulate.a = 1.0 if show_size else 0.0
+		size_up_btn.disabled = not show_size
 	if size_down_btn:
-		size_down_btn.visible = sizes.size() > 1
+		size_down_btn.modulate.a = 1.0 if show_size else 0.0
+		size_down_btn.disabled = not show_size
+
 
 func _update_cost_label():
 	if not cost_label or not mana_pool:
