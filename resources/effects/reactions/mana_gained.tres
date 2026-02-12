@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AnimationReaction" load_steps=5 format=3 uid="uid://csiu2oq42v0sl"]
+
+[ext_resource type="Resource" uid="uid://coou3g1rxaw6l" path="res://resources/effects/micro_presets/mana_gained.tres" id="1_vkonc"]
+[ext_resource type="Script" uid="uid://ccjdw1pfc320o" path="res://resources/data/reaction_condition.gd" id="2_1bcfw"]
+[ext_resource type="Resource" uid="uid://8a1ilvelhsip" path="res://resources/effects/conditions/delta_positive.tres" id="3_ab2fs"]
+[ext_resource type="Script" uid="uid://d31vp50po1w5e" path="res://resources/data/animation_reaction.gd" id="4_u34a6"]
+
+[resource]
+script = ExtResource("4_u34a6")
+event_type = 20
+conditions = Array[ExtResource("2_1bcfw")]([ExtResource("3_ab2fs")])
+animation_preset = ExtResource("1_vkonc")
+priority = 5

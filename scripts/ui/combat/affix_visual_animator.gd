@@ -32,6 +32,8 @@ var _effects_container: Control = null
 
 var effect_player: CombatEffectPlayer = null
 
+
+
 ## Preset used when a die's value is reduced to 0 (shatter animation)
 @export var die_shatter_preset: ShatterPreset = preload("res://resources/effects/die_shatter_preset.tres")
 
@@ -43,6 +45,9 @@ var _active_animations: int = 0
 ## Pending activations queued when affix_activated fires during a roll.
 ## Flushed after CombatRollAnimator completes or when flush_pending() is called.
 var _pending_activations: Array[Dictionary] = []
+
+## Name of the affix currently being played back (for event bus tagging)
+var _current_affix_name: String = ""
 
 # ============================================================================
 # SETUP
@@ -100,10 +105,11 @@ func _on_affix_activated(source_die: DieResource, affix: DiceAffix, targets: Arr
 	# and playing immediately would target nodes about to be destroyed by refresh.
 	# flush_pending() plays them once fresh visuals are guaranteed to exist.
 	_pending_activations.append({
-		"source_slot": source_die.slot_index,
-		"roll_visual": affix.roll_visual,
-		"targets": targets.duplicate(),
-	})
+	"source_slot": source_die.slot_index,
+	"roll_visual": affix.roll_visual,
+	"targets": targets.duplicate(),
+	"affix_name": affix.affix_name,
+})
 	print("  🎬 AffixVisualAnimator: Queued %s" % affix.affix_name)
 
 
@@ -125,11 +131,13 @@ func flush_pending():
 	_pending_activations.clear()
 	
 	for activation in to_play:
+		_current_affix_name = activation.get("affix_name", "")
 		await _play_activation(
 			activation.roll_visual,
 			activation.source_slot,
 			activation.targets
 		)
+		_current_affix_name = ""
 	
 	# After all affix visuals, finalize any remaining deferred value changes
 	_finalize_deferred_values()
@@ -203,7 +211,7 @@ func _animate_die_value(die_visual: Control, change: Dictionary, duration: float
 	# Fire reactive animation event
 	var bus = _find_event_bus()
 	if bus:
-		bus.emit_die_value_changed(die_visual, from_val, to_val)
+		bus.emit_die_value_changed(die_visual, from_val, to_val, _current_affix_name)
 
 
 func _mark_value_applied(die_visual: Control):

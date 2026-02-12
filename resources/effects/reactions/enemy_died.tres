@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AnimationReaction" load_steps=4 format=3 uid="uid://b6sdsqvtqs8uh"]
+
+[ext_resource type="Resource" uid="uid://frrre0116rc" path="res://resources/effects/micro_presets/enemy_died.tres" id="1_xdlyh"]
+[ext_resource type="Script" uid="uid://ccjdw1pfc320o" path="res://resources/data/reaction_condition.gd" id="2_fbd3y"]
+[ext_resource type="Script" uid="uid://d31vp50po1w5e" path="res://resources/data/animation_reaction.gd" id="3_ioncp"]
+
+[resource]
+script = ExtResource("3_ioncp")
+event_type = 24
+animation_preset = ExtResource("1_xdlyh")
+priority = 20

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AnimationReaction" load_steps=4 format=3 uid="uid://bmujwybhv7exo"]
+
+[ext_resource type="Resource" uid="uid://dp10q41xkxemm" path="res://resources/effects/micro_presets/shield_broken.tres" id="1_nswso"]
+[ext_resource type="Script" uid="uid://ccjdw1pfc320o" path="res://resources/data/reaction_condition.gd" id="2_dfqwe"]
+[ext_resource type="Script" uid="uid://d31vp50po1w5e" path="res://resources/data/animation_reaction.gd" id="3_qqt3y"]
+
+[resource]
+script = ExtResource("3_qqt3y")
+event_type = 18
+animation_preset = ExtResource("1_nswso")
+priority = 15

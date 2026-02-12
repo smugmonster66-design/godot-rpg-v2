@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AnimationReaction" load_steps=4 format=3 uid="uid://3pyy273vgf4c"]
+
+[ext_resource type="Resource" uid="uid://cm8ydw6a363nf" path="res://resources/effects/micro_presets/heal_applied.tres" id="1_x2w74"]
+[ext_resource type="Script" uid="uid://ccjdw1pfc320o" path="res://resources/data/reaction_condition.gd" id="2_7nhu2"]
+[ext_resource type="Script" uid="uid://d31vp50po1w5e" path="res://resources/data/animation_reaction.gd" id="3_v5cmy"]
+
+[resource]
+script = ExtResource("3_v5cmy")
+event_type = 8
+animation_preset = ExtResource("1_x2w74")
+priority = 10

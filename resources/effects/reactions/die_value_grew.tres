@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="AnimationReaction" load_steps=5 format=3 uid="uid://c0nu51cwde12p"]
+
+[ext_resource type="Resource" uid="uid://b33kos7fth8th" path="res://resources/effects/micro_presets/die_value_grew.tres" id="1_6r43y"]
+[ext_resource type="Script" uid="uid://ccjdw1pfc320o" path="res://resources/data/reaction_condition.gd" id="2_a1ass"]
+[ext_resource type="Resource" uid="uid://8a1ilvelhsip" path="res://resources/effects/conditions/delta_positive.tres" id="3_v0sa8"]
+[ext_resource type="Script" uid="uid://d31vp50po1w5e" path="res://resources/data/animation_reaction.gd" id="4_prfr6"]
+
+[resource]
+script = ExtResource("4_prfr6")
+conditions = Array[ExtResource("2_a1ass")]([ExtResource("3_v0sa8")])
+animation_preset = ExtResource("1_6r43y")
+priority = 10

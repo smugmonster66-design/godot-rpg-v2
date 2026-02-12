@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="AnimationReaction" load_steps=3 format=3 uid="uid://rbx48oem5dsi"]
+
+[ext_resource type="Script" uid="uid://ccjdw1pfc320o" path="res://resources/data/reaction_condition.gd" id="1_y6dao"]
+[ext_resource type="Script" uid="uid://d31vp50po1w5e" path="res://resources/data/animation_reaction.gd" id="2_coab8"]
+
+[resource]
+script = ExtResource("2_coab8")
+event_type = 14
+priority = 5
