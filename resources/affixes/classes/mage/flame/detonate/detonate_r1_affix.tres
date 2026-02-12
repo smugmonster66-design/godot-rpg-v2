@@ -39,4 +39,10 @@ effects = Array[ExtResource("1_cusc5")]([SubResource("Resource_23fp3"), SubResou
 [resource]
 script = ExtResource("6_vemm2")
 affix_name = "Detonate: Grant Action"
+description = "Grants Detonate action."
+category = 31
+tags = Array[String](["mage", "flame", "granted_action", "pyre"])
+effect_data = {
+"action_id": "flame_detonate"
+}
 granted_action = SubResource("Resource_cusc5")

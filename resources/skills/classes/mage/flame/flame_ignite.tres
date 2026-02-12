@@ -9,6 +9,12 @@
 [sub_resource type="Resource" id="Resource_lcoba"]
 script = ExtResource("2_qp7e3")
 affix_name = "Ignite: Fire Unlock"
+description = "Unlocks the Fire element for your mana die."
+category = 37
+tags = Array[String](["mage", "flame", "element_unlock"])
+effect_data = {
+"element": "FIRE"
+}
 
 [resource]
 script = ExtResource("5_p7wq8")

@@ -7,3 +7,9 @@
 [resource]
 script = ExtResource("2_65121")
 affix_name = "Ignite: Fire Unlock"
+description = "Unlocks the Fire element for your mana die."
+category = 37
+tags = Array[String](["mage", "flame", "element_unlock"])
+effect_data = {
+"element": "FIRE"
+}

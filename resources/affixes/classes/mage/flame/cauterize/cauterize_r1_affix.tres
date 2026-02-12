@@ -29,4 +29,10 @@ effects = Array[ExtResource("1_yulah")]([SubResource("Resource_moxu6")])
 [resource]
 script = ExtResource("4_dsop7")
 affix_name = "Cauterize: Grant Action"
+description = "Grants Cauterize action."
+category = 31
+tags = Array[String](["mage", "flame", "granted_action", "forge"])
+effect_data = {
+"action_id": "flame_cauterize"
+}
 granted_action = SubResource("Resource_3fkt1")

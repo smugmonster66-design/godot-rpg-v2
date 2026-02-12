@@ -7,3 +7,11 @@
 [resource]
 script = ExtResource("2_2nbel")
 affix_name = "Flame Ward III"
+description = "+9 barrier at start of turn."
+category = 35
+tags = Array[String](["mage", "flame", "barrier", "on_turn_start"])
+effect_number = 3.0
+effect_data = {
+"proc_effect": "gain_barrier",
+"proc_trigger": "ON_TURN_START"
+}

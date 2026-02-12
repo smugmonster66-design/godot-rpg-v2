@@ -148,12 +148,18 @@ func _save(resource: Resource, path: String) -> void:
 func _make_affix(p_name: String, p_desc: String, p_category: int,
 		p_tags: Array, p_effect_num: float = 0.0,
 		p_effect_data: Dictionary = {}) -> Affix:
-	print("    → _make_affix: %s" % p_name)
 	var a := Affix.new()
 	a.affix_name = p_name
-	# ... rest stays the same ...
+	a.description = p_desc
+	a.category = p_category
+	a.effect_number = p_effect_num
+	if not p_effect_data.is_empty():
+		a.effect_data = p_effect_data
+	# Convert untyped Array to Array[String] for tags
+	var typed_tags: Array[String] = []
+	typed_tags.assign(p_tags)
+	a.tags = typed_tags
 	_created_affixes += 1
-	print("    ← _make_affix done: %s" % p_name)
 	return a
 
 func _save_affix(affix: Affix, skill_folder: String, filename: String) -> Affix:
@@ -399,6 +405,25 @@ func _create_tier_1():
 		["mage", "flame", "element_unlock"],
 		0.0,
 		{"element": "FIRE"})
+		
+	
+	# --- DEBUG: Verify properties before save ---
+	print("=== PRE-SAVE DIAGNOSTIC ===")
+	print("  affix_name:    '%s'" % ignite_affix.affix_name)
+	print("  description:   '%s'" % ignite_affix.description)
+	print("  category:      %d (expected %d)" % [ignite_affix.category, Affix.Category.MANA_ELEMENT_UNLOCK])
+	print("  effect_data:   %s" % str(ignite_affix.effect_data))
+	print("  tags:          %s" % str(ignite_affix.tags))
+
+	# Check what ResourceSaver actually sees
+	print("  --- Property list (serializable) ---")
+	for prop in ignite_affix.get_property_list():
+		if prop.usage & PROPERTY_USAGE_STORAGE:
+			var val = ignite_affix.get(prop.name)
+			if val != null and str(val) != "" and str(val) != "0" and str(val) != "[]" and str(val) != "{}":
+				print("    %s = %s" % [prop.name, str(val)])
+	
+	
 	_save_affix(ignite_affix, "ignite", "ignite_r1_affix")
 
 	var ignite := _make_skill(

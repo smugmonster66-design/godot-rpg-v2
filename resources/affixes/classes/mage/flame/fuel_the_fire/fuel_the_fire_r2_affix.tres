@@ -30,6 +30,9 @@ effect_data = {
 [resource]
 script = ExtResource("6_1rp43")
 affix_name = "Fuel the Fire II"
+description = "+4 damage to burning targets."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "vs_burn"])
 effect_data = {
 "dice_affix": SubResource("Resource_gnwnk")
 }

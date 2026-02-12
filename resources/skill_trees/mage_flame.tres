@@ -19,6 +19,12 @@
 [sub_resource type="Resource" id="Resource_lcoba"]
 script = ExtResource("4_dn5b5")
 affix_name = "Ignite: Fire Unlock"
+description = "Unlocks the Fire element for your mana die."
+category = 37
+tags = Array[String](["mage", "flame", "element_unlock"])
+effect_data = {
+"element": "FIRE"
+}
 
 [sub_resource type="Resource" id="Resource_uubkb"]
 script = ExtResource("2_be7fa")
@@ -35,6 +41,12 @@ required_skill = SubResource("Resource_uubkb")
 [sub_resource type="Resource" id="Resource_thegp"]
 script = ExtResource("4_dn5b5")
 affix_name = "Ember Dice: D6 Unlock"
+description = "Unlocks D6 for your mana die."
+category = 38
+tags = Array[String](["mage", "flame", "size_unlock"])
+effect_data = {
+"die_size": 6
+}
 
 [sub_resource type="Resource" id="Resource_fpif5"]
 script = ExtResource("10_6vjad")
@@ -58,6 +70,9 @@ effect_data = {
 [sub_resource type="Resource" id="Resource_vsui1"]
 script = ExtResource("4_dn5b5")
 affix_name = "Ember Dice: Max Roll Burn"
+description = "Fire dice that roll max value inflict Burn."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix"])
 effect_data = {
 "dice_affix": SubResource("Resource_ukxre")
 }
@@ -99,6 +114,9 @@ effect_data = {
 [sub_resource type="Resource" id="Resource_ikusc"]
 script = ExtResource("4_dn5b5")
 affix_name = "Fuel the Fire I"
+description = "+2 damage to burning targets."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "vs_burn"])
 effect_data = {
 "dice_affix": SubResource("Resource_l6ie2")
 }
@@ -120,6 +138,9 @@ effect_data = {
 [sub_resource type="Resource" id="Resource_cyekc"]
 script = ExtResource("4_dn5b5")
 affix_name = "Fuel the Fire II"
+description = "+4 damage to burning targets."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "vs_burn"])
 effect_data = {
 "dice_affix": SubResource("Resource_gnwnk")
 }
@@ -141,6 +162,9 @@ effect_data = {
 [sub_resource type="Resource" id="Resource_ibxxd"]
 script = ExtResource("4_dn5b5")
 affix_name = "Fuel the Fire III"
+description = "+6 damage to burning targets."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "vs_burn"])
 effect_data = {
 "dice_affix": SubResource("Resource_m68yr")
 }
@@ -164,10 +188,18 @@ required_skill = SubResource("Resource_uf68y")
 [sub_resource type="Resource" id="Resource_snv6m"]
 script = ExtResource("4_dn5b5")
 affix_name = "Accelerant I"
+description = "Burn applications add +1 bonus stack."
+category = 36
+tags = Array[String](["mage", "flame", "burn_stack_bonus"])
+effect_number = 1.0
 
 [sub_resource type="Resource" id="Resource_0dd4d"]
 script = ExtResource("4_dn5b5")
 affix_name = "Accelerant II"
+description = "Burn applications add +2 bonus stacks."
+category = 36
+tags = Array[String](["mage", "flame", "burn_stack_bonus"])
+effect_number = 1.0
 
 [sub_resource type="Resource" id="Resource_6bt88"]
 script = ExtResource("2_be7fa")
@@ -191,14 +223,47 @@ required_skill = SubResource("Resource_rv3od")
 [sub_resource type="Resource" id="Resource_dqpuj"]
 script = ExtResource("4_dn5b5")
 affix_name = "Immolate I"
+description = "15% chance to inflict Burn on fire damage."
+category = 35
+tags = Array[String](["mage", "flame", "immolate", "on_deal_damage"])
+effect_number = 0.15
+effect_data = {
+"element_filter": "fire",
+"proc_effect": "apply_status",
+"proc_trigger": "ON_DEAL_DAMAGE",
+"stacks": 1,
+"status_id": "burn"
+}
 
 [sub_resource type="Resource" id="Resource_xab5h"]
 script = ExtResource("4_dn5b5")
 affix_name = "Immolate II"
+description = "30% chance to inflict Burn on fire damage."
+category = 35
+tags = Array[String](["mage", "flame", "immolate", "on_deal_damage"])
+effect_number = 0.15
+effect_data = {
+"element_filter": "fire",
+"proc_effect": "apply_status",
+"proc_trigger": "ON_DEAL_DAMAGE",
+"stacks": 1,
+"status_id": "burn"
+}
 
 [sub_resource type="Resource" id="Resource_xoe62"]
 script = ExtResource("4_dn5b5")
 affix_name = "Immolate III"
+description = "45% chance to inflict Burn on fire damage."
+category = 35
+tags = Array[String](["mage", "flame", "immolate", "on_deal_damage"])
+effect_number = 0.15
+effect_data = {
+"element_filter": "fire",
+"proc_effect": "apply_status",
+"proc_trigger": "ON_DEAL_DAMAGE",
+"stacks": 1,
+"status_id": "burn"
+}
 
 [sub_resource type="Resource" id="Resource_tvg7v"]
 script = ExtResource("2_be7fa")
@@ -220,18 +285,36 @@ required_skill = SubResource("Resource_tvg7v")
 [sub_resource type="Resource" id="Resource_m1fgv"]
 script = ExtResource("4_dn5b5")
 affix_name = "Inferno: D10 Unlock"
+description = "Unlocks D10 for your mana die."
+category = 38
+tags = Array[String](["mage", "flame", "size_unlock"])
+effect_data = {
+"die_size": 10
+}
 
 [sub_resource type="Resource" id="Resource_plg7l"]
 script = ExtResource("4_dn5b5")
 affix_name = "Inferno I: Threshold -1"
+description = "Burn explodes at 4 stacks instead of 5."
+category = 36
+tags = Array[String](["mage", "flame", "burn_threshold_reduction"])
+effect_number = 1.0
 
 [sub_resource type="Resource" id="Resource_dvsy7"]
 script = ExtResource("4_dn5b5")
 affix_name = "Inferno II: Threshold -2"
+description = "Burn explodes at 3 stacks instead of 5."
+category = 36
+tags = Array[String](["mage", "flame", "burn_threshold_reduction"])
+effect_number = 1.0
 
 [sub_resource type="Resource" id="Resource_85b5u"]
 script = ExtResource("4_dn5b5")
 affix_name = "Inferno III: Threshold -3"
+description = "Burn explodes at 2 stacks instead of 5."
+category = 36
+tags = Array[String](["mage", "flame", "burn_threshold_reduction"])
+effect_number = 1.0
 
 [sub_resource type="Resource" id="Resource_y8ws6"]
 script = ExtResource("2_be7fa")
@@ -276,6 +359,12 @@ effects = Array[ExtResource("11_6o4qc")]([SubResource("Resource_mxmwy"), SubReso
 [sub_resource type="Resource" id="Resource_kf2m2"]
 script = ExtResource("4_dn5b5")
 affix_name = "Burning Vengeance: Grant Action"
+description = "Grants Burning Vengeance action."
+category = 31
+tags = Array[String](["mage", "flame", "granted_action", "pyre"])
+effect_data = {
+"action_id": "flame_burning_vengeance"
+}
 granted_action = SubResource("Resource_6txqw")
 
 [sub_resource type="Resource" id="Resource_wbqj3"]
@@ -323,6 +412,12 @@ effects = Array[ExtResource("11_6o4qc")]([SubResource("Resource_23fp3"), SubReso
 [sub_resource type="Resource" id="Resource_7ewjh"]
 script = ExtResource("4_dn5b5")
 affix_name = "Detonate: Grant Action"
+description = "Grants Detonate action."
+category = 31
+tags = Array[String](["mage", "flame", "granted_action", "pyre"])
+effect_data = {
+"action_id": "flame_detonate"
+}
 granted_action = SubResource("Resource_cusc5")
 
 [sub_resource type="Resource" id="Resource_oxj4g"]
@@ -351,14 +446,26 @@ required_skill = SubResource("Resource_uubkb")
 [sub_resource type="Resource" id="Resource_ly520"]
 script = ExtResource("4_dn5b5")
 affix_name = "Searing Force I"
+description = "+3 fire damage."
+category = 22
+tags = Array[String](["mage", "flame", "fire_damage"])
+effect_number = 3.0
 
 [sub_resource type="Resource" id="Resource_ta31r"]
 script = ExtResource("4_dn5b5")
 affix_name = "Searing Force II"
+description = "+6 fire damage."
+category = 22
+tags = Array[String](["mage", "flame", "fire_damage"])
+effect_number = 3.0
 
 [sub_resource type="Resource" id="Resource_ngawt"]
 script = ExtResource("4_dn5b5")
 affix_name = "Searing Force III"
+description = "+9 fire damage."
+category = 22
+tags = Array[String](["mage", "flame", "fire_damage"])
+effect_number = 3.0
 
 [sub_resource type="Resource" id="Resource_ykmvv"]
 script = ExtResource("2_be7fa")
@@ -380,6 +487,12 @@ required_skill = SubResource("Resource_ykmvv")
 [sub_resource type="Resource" id="Resource_vn450"]
 script = ExtResource("4_dn5b5")
 affix_name = "Pyroclasm: D8 Unlock"
+description = "Unlocks D8 for your mana die."
+category = 38
+tags = Array[String](["mage", "flame", "size_unlock"])
+effect_data = {
+"die_size": 8
+}
 
 [sub_resource type="Resource" id="Resource_6jx5e"]
 script = ExtResource("8_skkmn")
@@ -398,6 +511,9 @@ effect_data = {
 [sub_resource type="Resource" id="Resource_xfda7"]
 script = ExtResource("4_dn5b5")
 affix_name = "Pyroclasm: Splash"
+description = "Fire dice splash 50% damage."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "splash"])
 effect_data = {
 "dice_affix": SubResource("Resource_6jx5e")
 }
@@ -420,14 +536,35 @@ required_skill = SubResource("Resource_4wo2v")
 [sub_resource type="Resource" id="Resource_x6kcp"]
 script = ExtResource("4_dn5b5")
 affix_name = "Conflagrant Surge I"
+description = "Fire damage ×1.05."
+category = 41
+tags = Array[String](["mage", "flame", "fire_mult"])
+effect_number = 1.05
+effect_data = {
+"element": "FIRE"
+}
 
 [sub_resource type="Resource" id="Resource_c28m5"]
 script = ExtResource("4_dn5b5")
 affix_name = "Conflagrant Surge II"
+description = "Fire damage ×1.10."
+category = 41
+tags = Array[String](["mage", "flame", "fire_mult"])
+effect_number = 1.05
+effect_data = {
+"element": "FIRE"
+}
 
 [sub_resource type="Resource" id="Resource_o0vy4"]
 script = ExtResource("4_dn5b5")
 affix_name = "Conflagrant Surge III"
+description = "Fire damage ×1.15."
+category = 41
+tags = Array[String](["mage", "flame", "fire_mult"])
+effect_number = 1.05
+effect_data = {
+"element": "FIRE"
+}
 
 [sub_resource type="Resource" id="Resource_gsfcd"]
 script = ExtResource("2_be7fa")
@@ -466,6 +603,12 @@ effects = Array[ExtResource("11_6o4qc")]([SubResource("Resource_ll78o")])
 [sub_resource type="Resource" id="Resource_3kgxm"]
 script = ExtResource("4_dn5b5")
 affix_name = "Eruption: Grant Action"
+description = "Grants the Eruption action."
+category = 31
+tags = Array[String](["mage", "flame", "granted_action"])
+effect_data = {
+"action_id": "flame_eruption"
+}
 granted_action = SubResource("Resource_6e1ej")
 
 [sub_resource type="Resource" id="Resource_qrtki"]
@@ -501,6 +644,9 @@ effect_data = {
 [sub_resource type="Resource" id="Resource_bjc6u"]
 script = ExtResource("4_dn5b5")
 affix_name = "Firestorm I"
+description = "Fire dice chain 20% damage to 2 enemies."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "chain"])
 effect_data = {
 "dice_affix": SubResource("Resource_3fmle")
 }
@@ -523,6 +669,9 @@ effect_data = {
 [sub_resource type="Resource" id="Resource_mfgk7"]
 script = ExtResource("4_dn5b5")
 affix_name = "Firestorm II"
+description = "Fire dice chain 35% damage to 2 enemies."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "chain"])
 effect_data = {
 "dice_affix": SubResource("Resource_emfma")
 }
@@ -546,6 +695,10 @@ required_skill = SubResource("Resource_3emjs")
 [sub_resource type="Resource" id="Resource_uth28"]
 script = ExtResource("4_dn5b5")
 affix_name = "Pyroclastic Flow"
+description = "When Burn explodes, apply 3 Burn stacks to all other enemies."
+category = 35
+tags = Array[String](["mage", "flame", "pyroclastic_flow", "burn_explosion_spread"])
+effect_number = 3.0
 
 [sub_resource type="Resource" id="Resource_a23yy"]
 script = ExtResource("2_be7fa")
@@ -609,6 +762,12 @@ effects = Array[ExtResource("11_6o4qc")]([SubResource("Resource_lhnqv"), SubReso
 [sub_resource type="Resource" id="Resource_xglrl"]
 script = ExtResource("4_dn5b5")
 affix_name = "Eternal Flame: Grant Action"
+description = "Grants Eternal Flame action."
+category = 31
+tags = Array[String](["mage", "flame", "granted_action", "pyre"])
+effect_data = {
+"action_id": "flame_eternal_flame"
+}
 granted_action = SubResource("Resource_mup1h")
 
 [sub_resource type="Resource" id="Resource_hivrg"]
@@ -652,6 +811,9 @@ effect_value = 1.0
 [sub_resource type="Resource" id="Resource_6fsqn"]
 script = ExtResource("4_dn5b5")
 affix_name = "Kindling: Fire Adjacency"
+description = "Fire dice adjacent to another fire die gain +1."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix"])
 effect_data = {
 "dice_affix": SubResource("Resource_wm8d3")
 }
@@ -689,6 +851,9 @@ effect_data = {
 [sub_resource type="Resource" id="Resource_yomej"]
 script = ExtResource("4_dn5b5")
 affix_name = "Forge Bond: First"
+description = "+25% damage in first slot."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "forge_bond"])
 effect_data = {
 "dice_affix": SubResource("Resource_b7eiv")
 }
@@ -711,6 +876,9 @@ effect_data = {
 [sub_resource type="Resource" id="Resource_am7m6"]
 script = ExtResource("4_dn5b5")
 affix_name = "Forge Bond: Last"
+description = "+25% damage in last slot."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "forge_bond"])
 effect_data = {
 "dice_affix": SubResource("Resource_8jdtl")
 }
@@ -756,6 +924,12 @@ effects = Array[ExtResource("11_6o4qc")]([SubResource("Resource_2l2u7")])
 [sub_resource type="Resource" id="Resource_gp2wl"]
 script = ExtResource("4_dn5b5")
 affix_name = "Radiance: Grant Action"
+description = "Grants Radiance action."
+category = 31
+tags = Array[String](["mage", "flame", "granted_action", "forge"])
+effect_data = {
+"action_id": "flame_radiance"
+}
 granted_action = SubResource("Resource_xnhd8")
 
 [sub_resource type="Resource" id="Resource_ehlh5"]
@@ -799,6 +973,9 @@ effect_value = 1.0
 [sub_resource type="Resource" id="Resource_g8xok"]
 script = ExtResource("4_dn5b5")
 affix_name = "Mana Flare"
+description = "Refund 1 mana when a fire die rolls ≤2."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "mana_refund"])
 effect_data = {
 "dice_affix": SubResource("Resource_ntenv")
 }
@@ -821,14 +998,41 @@ required_skill = SubResource("Resource_yfm2f")
 [sub_resource type="Resource" id="Resource_hcgrm"]
 script = ExtResource("4_dn5b5")
 affix_name = "Tempered Steel I"
+description = "+2 armor per fire die used."
+category = 35
+tags = Array[String](["mage", "flame", "armor", "on_die_used"])
+effect_number = 2.0
+effect_data = {
+"element_filter": "fire",
+"proc_effect": "gain_armor",
+"proc_trigger": "ON_DIE_USED"
+}
 
 [sub_resource type="Resource" id="Resource_1ndx3"]
 script = ExtResource("4_dn5b5")
 affix_name = "Tempered Steel II"
+description = "+4 armor per fire die used."
+category = 35
+tags = Array[String](["mage", "flame", "armor", "on_die_used"])
+effect_number = 2.0
+effect_data = {
+"element_filter": "fire",
+"proc_effect": "gain_armor",
+"proc_trigger": "ON_DIE_USED"
+}
 
 [sub_resource type="Resource" id="Resource_bd47b"]
 script = ExtResource("4_dn5b5")
 affix_name = "Tempered Steel III"
+description = "+6 armor per fire die used."
+category = 35
+tags = Array[String](["mage", "flame", "armor", "on_die_used"])
+effect_number = 2.0
+effect_data = {
+"element_filter": "fire",
+"proc_effect": "gain_armor",
+"proc_trigger": "ON_DIE_USED"
+}
 
 [sub_resource type="Resource" id="Resource_4nutu"]
 script = ExtResource("2_be7fa")
@@ -850,6 +1054,16 @@ required_skill = SubResource("Resource_4nutu")
 [sub_resource type="Resource" id="Resource_5d1t5"]
 script = ExtResource("4_dn5b5")
 affix_name = "Crucible's Gift"
+description = "After hitting 2+ enemies, next mana pull costs 2 less."
+category = 35
+tags = Array[String](["mage", "flame", "crucibles_gift", "mana_discount"])
+effect_number = 2.0
+effect_data = {
+"cost_reduction": 2,
+"min_targets": 2,
+"proc_effect": "reduce_next_pull_cost",
+"proc_trigger": "ON_MULTI_TARGET_HIT"
+}
 
 [sub_resource type="Resource" id="Resource_isymo"]
 script = ExtResource("2_be7fa")
@@ -894,6 +1108,12 @@ effects = Array[ExtResource("11_6o4qc")]([SubResource("Resource_n3ctb")])
 [sub_resource type="Resource" id="Resource_g8mw1"]
 script = ExtResource("4_dn5b5")
 affix_name = "Ironfire Stance: Grant Action"
+description = "Grants Ironfire Stance action."
+category = 31
+tags = Array[String](["mage", "flame", "granted_action", "forge"])
+effect_data = {
+"action_id": "flame_ironfire_stance"
+}
 granted_action = SubResource("Resource_534v3")
 
 [sub_resource type="Resource" id="Resource_ow4nn"]
@@ -914,6 +1134,12 @@ required_skill = SubResource("Resource_ow4nn")
 [sub_resource type="Resource" id="Resource_gulfj"]
 script = ExtResource("4_dn5b5")
 affix_name = "Conflagration: D12 Unlock"
+description = "Unlocks D12 for your mana die."
+category = 38
+tags = Array[String](["mage", "flame", "size_unlock"])
+effect_data = {
+"die_size": 12
+}
 
 [sub_resource type="Resource" id="Resource_s2nue"]
 script = ExtResource("8_skkmn")
@@ -931,6 +1157,9 @@ effect_data = {
 [sub_resource type="Resource" id="Resource_8oejv"]
 script = ExtResource("4_dn5b5")
 affix_name = "Conflagration: Ignore Resist"
+description = "Fire dice ignore fire resistance."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "capstone"])
 effect_data = {
 "dice_affix": SubResource("Resource_s2nue")
 }
@@ -949,6 +1178,9 @@ effect_value = 2.0
 [sub_resource type="Resource" id="Resource_j5a75"]
 script = ExtResource("4_dn5b5")
 affix_name = "Conflagration: Double vs Burn"
+description = "Double die value against burning targets."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "capstone"])
 effect_data = {
 "dice_affix": SubResource("Resource_bsy6x")
 }
@@ -983,6 +1215,9 @@ effect_data = {
 [sub_resource type="Resource" id="Resource_4g3xc"]
 script = ExtResource("4_dn5b5")
 affix_name = "Heat Shimmer I"
+description = "Auto-reroll fire dice that roll 1."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "reroll"])
 effect_data = {
 "dice_affix": SubResource("Resource_ux2by")
 }
@@ -1002,6 +1237,9 @@ effect_data = {
 [sub_resource type="Resource" id="Resource_mrnxp"]
 script = ExtResource("4_dn5b5")
 affix_name = "Heat Shimmer II"
+description = "Auto-reroll fire dice that roll ≤2."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "reroll"])
 effect_data = {
 "dice_affix": SubResource("Resource_5dw75")
 }
@@ -1021,6 +1259,9 @@ effect_data = {
 [sub_resource type="Resource" id="Resource_unoe6"]
 script = ExtResource("4_dn5b5")
 affix_name = "Heat Shimmer III"
+description = "Auto-reroll fire dice that roll ≤3."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "reroll"])
 effect_data = {
 "dice_affix": SubResource("Resource_nk2uw")
 }
@@ -1045,14 +1286,38 @@ required_skill = SubResource("Resource_ecafp")
 [sub_resource type="Resource" id="Resource_q484m"]
 script = ExtResource("4_dn5b5")
 affix_name = "Flame Ward I"
+description = "+3 barrier at start of turn."
+category = 35
+tags = Array[String](["mage", "flame", "barrier", "on_turn_start"])
+effect_number = 3.0
+effect_data = {
+"proc_effect": "gain_barrier",
+"proc_trigger": "ON_TURN_START"
+}
 
 [sub_resource type="Resource" id="Resource_a5afi"]
 script = ExtResource("4_dn5b5")
 affix_name = "Flame Ward II"
+description = "+6 barrier at start of turn."
+category = 35
+tags = Array[String](["mage", "flame", "barrier", "on_turn_start"])
+effect_number = 3.0
+effect_data = {
+"proc_effect": "gain_barrier",
+"proc_trigger": "ON_TURN_START"
+}
 
 [sub_resource type="Resource" id="Resource_oi116"]
 script = ExtResource("4_dn5b5")
 affix_name = "Flame Ward III"
+description = "+9 barrier at start of turn."
+category = 35
+tags = Array[String](["mage", "flame", "barrier", "on_turn_start"])
+effect_number = 3.0
+effect_data = {
+"proc_effect": "gain_barrier",
+"proc_trigger": "ON_TURN_START"
+}
 
 [sub_resource type="Resource" id="Resource_skkmn"]
 script = ExtResource("2_be7fa")
@@ -1089,6 +1354,9 @@ effect_value = 1.0
 [sub_resource type="Resource" id="Resource_0kd7h"]
 script = ExtResource("4_dn5b5")
 affix_name = "Hearthfire I"
+description = "+1 when adjacent to a non-fire die."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix"])
 effect_data = {
 "dice_affix": SubResource("Resource_rs2hr")
 }
@@ -1105,6 +1373,9 @@ effect_value = 2.0
 [sub_resource type="Resource" id="Resource_x0x7q"]
 script = ExtResource("4_dn5b5")
 affix_name = "Hearthfire II"
+description = "+2 when adjacent to a non-fire die."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix"])
 effect_data = {
 "dice_affix": SubResource("Resource_apkre")
 }
@@ -1132,6 +1403,10 @@ required_skill = SubResource("Resource_4wo2v")
 [sub_resource type="Resource" id="Resource_o1enc"]
 script = ExtResource("4_dn5b5")
 affix_name = "Flashpoint"
+description = "When Burn explodes, splash 50% burst damage to other enemies."
+category = 35
+tags = Array[String](["mage", "flame", "flashpoint", "burn_explosion_splash"])
+effect_number = 0.5
 
 [sub_resource type="Resource" id="Resource_6vjad"]
 script = ExtResource("2_be7fa")
@@ -1170,6 +1445,12 @@ effects = Array[ExtResource("11_6o4qc")]([SubResource("Resource_moxu6")])
 [sub_resource type="Resource" id="Resource_k71pv"]
 script = ExtResource("4_dn5b5")
 affix_name = "Cauterize: Grant Action"
+description = "Grants Cauterize action."
+category = 31
+tags = Array[String](["mage", "flame", "granted_action", "forge"])
+effect_data = {
+"action_id": "flame_cauterize"
+}
 granted_action = SubResource("Resource_3fkt1")
 
 [sub_resource type="Resource" id="Resource_6o4qc"]
@@ -1217,6 +1498,12 @@ effects = Array[ExtResource("11_6o4qc")]([SubResource("Resource_rrmff"), SubReso
 [sub_resource type="Resource" id="Resource_ygi36"]
 script = ExtResource("4_dn5b5")
 affix_name = "Cinder Storm: Grant Action"
+description = "Grants Cinder Storm action."
+category = 31
+tags = Array[String](["mage", "flame", "granted_action", "crucible"])
+effect_data = {
+"action_id": "flame_cinder_storm"
+}
 granted_action = SubResource("Resource_ihutu")
 
 [sub_resource type="Resource" id="Resource_416e1"]
@@ -1250,6 +1537,9 @@ effect_data = {
 [sub_resource type="Resource" id="Resource_scabf"]
 script = ExtResource("4_dn5b5")
 affix_name = "Ember Link I"
+description = "Fire dice copy 15% from neighbors."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "copy_value"])
 effect_data = {
 "dice_affix": SubResource("Resource_pk5vx")
 }
@@ -1270,6 +1560,9 @@ effect_data = {
 [sub_resource type="Resource" id="Resource_h2548"]
 script = ExtResource("4_dn5b5")
 affix_name = "Ember Link II"
+description = "Fire dice copy 25% from neighbors."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "copy_value"])
 effect_data = {
 "dice_affix": SubResource("Resource_75k8m")
 }
@@ -1313,6 +1606,12 @@ effects = Array[ExtResource("11_6o4qc")]([SubResource("Resource_o3dho")])
 [sub_resource type="Resource" id="Resource_1e7fe"]
 script = ExtResource("4_dn5b5")
 affix_name = "Volcanic Core: Grant Action"
+description = "Grants Volcanic Core action."
+category = 31
+tags = Array[String](["mage", "flame", "granted_action", "crucible"])
+effect_data = {
+"action_id": "flame_volcanic_core"
+}
 granted_action = SubResource("Resource_ab2si")
 
 [sub_resource type="Resource" id="Resource_x4vx5"]
@@ -1341,12 +1640,3 @@ tier_7_skills = Array[ExtResource("2_be7fa")]([SubResource("Resource_oxj4g"), Su
 tier_8_skills = Array[ExtResource("2_be7fa")]([SubResource("Resource_a23yy"), SubResource("Resource_x4vx5"), SubResource("Resource_isymo")])
 tier_9_skills = Array[ExtResource("2_be7fa")]([SubResource("Resource_hivrg"), SubResource("Resource_ow4nn")])
 tier_10_skills = Array[ExtResource("2_be7fa")]([SubResource("Resource_10ldk")])
-tier_2_points_required = 1
-tier_3_points_required = 3
-tier_4_points_required = 5
-tier_5_points_required = 8
-tier_6_points_required = 11
-tier_7_points_required = 15
-tier_8_points_required = 20
-tier_9_points_required = 25
-tier_10_points_required = 28

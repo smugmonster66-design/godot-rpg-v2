@@ -7,3 +7,9 @@
 [resource]
 script = ExtResource("2_hmqox")
 affix_name = "Cauterize: Barrier"
+description = "Grants barrier equal to die value."
+category = 27
+tags = Array[String](["mage", "flame", "cauterize", "barrier"])
+effect_data = {
+"value_source": "DICE_TOTAL"
+}

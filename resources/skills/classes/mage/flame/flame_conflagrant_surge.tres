@@ -12,6 +12,12 @@
 [sub_resource type="Resource" id="Resource_lcoba"]
 script = ExtResource("2_c28m5")
 affix_name = "Ignite: Fire Unlock"
+description = "Unlocks the Fire element for your mana die."
+category = 37
+tags = Array[String](["mage", "flame", "element_unlock"])
+effect_data = {
+"element": "FIRE"
+}
 
 [sub_resource type="Resource" id="Resource_uubkb"]
 script = ExtResource("5_s35pm")
@@ -28,14 +34,26 @@ required_skill = SubResource("Resource_uubkb")
 [sub_resource type="Resource" id="Resource_ly520"]
 script = ExtResource("2_c28m5")
 affix_name = "Searing Force I"
+description = "+3 fire damage."
+category = 22
+tags = Array[String](["mage", "flame", "fire_damage"])
+effect_number = 3.0
 
 [sub_resource type="Resource" id="Resource_ta31r"]
 script = ExtResource("2_c28m5")
 affix_name = "Searing Force II"
+description = "+6 fire damage."
+category = 22
+tags = Array[String](["mage", "flame", "fire_damage"])
+effect_number = 3.0
 
 [sub_resource type="Resource" id="Resource_ngawt"]
 script = ExtResource("2_c28m5")
 affix_name = "Searing Force III"
+description = "+9 fire damage."
+category = 22
+tags = Array[String](["mage", "flame", "fire_damage"])
+effect_number = 3.0
 
 [sub_resource type="Resource" id="Resource_ykmvv"]
 script = ExtResource("5_s35pm")
@@ -57,6 +75,12 @@ required_skill = SubResource("Resource_ykmvv")
 [sub_resource type="Resource" id="Resource_vn450"]
 script = ExtResource("2_c28m5")
 affix_name = "Pyroclasm: D8 Unlock"
+description = "Unlocks D8 for your mana die."
+category = 38
+tags = Array[String](["mage", "flame", "size_unlock"])
+effect_data = {
+"die_size": 8
+}
 
 [sub_resource type="Resource" id="Resource_6jx5e"]
 script = ExtResource("7_s35pm")
@@ -75,6 +99,9 @@ effect_data = {
 [sub_resource type="Resource" id="Resource_xfda7"]
 script = ExtResource("2_c28m5")
 affix_name = "Pyroclasm: Splash"
+description = "Fire dice splash 50% damage."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "splash"])
 effect_data = {
 "dice_affix": SubResource("Resource_6jx5e")
 }
@@ -97,14 +124,35 @@ required_skill = SubResource("Resource_4wo2v")
 [sub_resource type="Resource" id="Resource_x6kcp"]
 script = ExtResource("2_c28m5")
 affix_name = "Conflagrant Surge I"
+description = "Fire damage ×1.05."
+category = 41
+tags = Array[String](["mage", "flame", "fire_mult"])
+effect_number = 1.05
+effect_data = {
+"element": "FIRE"
+}
 
 [sub_resource type="Resource" id="Resource_c28m5"]
 script = ExtResource("2_c28m5")
 affix_name = "Conflagrant Surge II"
+description = "Fire damage ×1.10."
+category = 41
+tags = Array[String](["mage", "flame", "fire_mult"])
+effect_number = 1.05
+effect_data = {
+"element": "FIRE"
+}
 
 [sub_resource type="Resource" id="Resource_o0vy4"]
 script = ExtResource("2_c28m5")
 affix_name = "Conflagrant Surge III"
+description = "Fire damage ×1.15."
+category = 41
+tags = Array[String](["mage", "flame", "fire_mult"])
+effect_number = 1.05
+effect_data = {
+"element": "FIRE"
+}
 
 [resource]
 script = ExtResource("5_s35pm")

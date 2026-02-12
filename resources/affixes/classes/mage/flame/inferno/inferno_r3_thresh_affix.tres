@@ -7,3 +7,7 @@
 [resource]
 script = ExtResource("2_qef2r")
 affix_name = "Inferno III: Threshold -3"
+description = "Burn explodes at 2 stacks instead of 5."
+category = 36
+tags = Array[String](["mage", "flame", "burn_threshold_reduction"])
+effect_number = 1.0

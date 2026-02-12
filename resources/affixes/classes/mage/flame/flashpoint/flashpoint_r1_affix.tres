@@ -7,3 +7,7 @@
 [resource]
 script = ExtResource("2_4qm4x")
 affix_name = "Flashpoint"
+description = "When Burn explodes, splash 50% burst damage to other enemies."
+category = 35
+tags = Array[String](["mage", "flame", "flashpoint", "burn_explosion_splash"])
+effect_number = 0.5

@@ -25,6 +25,9 @@ effect_data = {
 [resource]
 script = ExtResource("5_tnqfc")
 affix_name = "Forge Bond: First"
+description = "+25% damage in first slot."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "forge_bond"])
 effect_data = {
 "dice_affix": SubResource("Resource_b7eiv")
 }

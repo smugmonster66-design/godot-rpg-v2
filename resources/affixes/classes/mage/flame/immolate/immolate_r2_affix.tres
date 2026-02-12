@@ -7,3 +7,14 @@
 [resource]
 script = ExtResource("2_x08ak")
 affix_name = "Immolate II"
+description = "30% chance to inflict Burn on fire damage."
+category = 35
+tags = Array[String](["mage", "flame", "immolate", "on_deal_damage"])
+effect_number = 0.15
+effect_data = {
+"element_filter": "fire",
+"proc_effect": "apply_status",
+"proc_trigger": "ON_DEAL_DAMAGE",
+"stacks": 1,
+"status_id": "burn"
+}

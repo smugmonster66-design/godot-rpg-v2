@@ -26,6 +26,9 @@ effect_value = 2.0
 [resource]
 script = ExtResource("6_wmto2")
 affix_name = "Hearthfire II"
+description = "+2 when adjacent to a non-fire die."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix"])
 effect_data = {
 "dice_affix": SubResource("Resource_apkre")
 }

@@ -35,4 +35,10 @@ effects = Array[ExtResource("1_534v3")]([SubResource("Resource_n3ctb")])
 [resource]
 script = ExtResource("5_j103q")
 affix_name = "Ironfire Stance: Grant Action"
+description = "Grants Ironfire Stance action."
+category = 31
+tags = Array[String](["mage", "flame", "granted_action", "forge"])
+effect_data = {
+"action_id": "flame_ironfire_stance"
+}
 granted_action = SubResource("Resource_534v3")

@@ -7,3 +7,9 @@
 [resource]
 script = ExtResource("2_ai7ya")
 affix_name = "Pyroclasm: D8 Unlock"
+description = "Unlocks D8 for your mana die."
+category = 38
+tags = Array[String](["mage", "flame", "size_unlock"])
+effect_data = {
+"die_size": 8
+}

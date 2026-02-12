@@ -9,6 +9,12 @@
 [sub_resource type="Resource" id="Resource_lcoba"]
 script = ExtResource("2_ta31r")
 affix_name = "Ignite: Fire Unlock"
+description = "Unlocks the Fire element for your mana die."
+category = 37
+tags = Array[String](["mage", "flame", "element_unlock"])
+effect_data = {
+"element": "FIRE"
+}
 
 [sub_resource type="Resource" id="Resource_uubkb"]
 script = ExtResource("5_enrv5")
@@ -25,14 +31,26 @@ required_skill = SubResource("Resource_uubkb")
 [sub_resource type="Resource" id="Resource_ly520"]
 script = ExtResource("2_ta31r")
 affix_name = "Searing Force I"
+description = "+3 fire damage."
+category = 22
+tags = Array[String](["mage", "flame", "fire_damage"])
+effect_number = 3.0
 
 [sub_resource type="Resource" id="Resource_ta31r"]
 script = ExtResource("2_ta31r")
 affix_name = "Searing Force II"
+description = "+6 fire damage."
+category = 22
+tags = Array[String](["mage", "flame", "fire_damage"])
+effect_number = 3.0
 
 [sub_resource type="Resource" id="Resource_ngawt"]
 script = ExtResource("2_ta31r")
 affix_name = "Searing Force III"
+description = "+9 fire damage."
+category = 22
+tags = Array[String](["mage", "flame", "fire_damage"])
+effect_number = 3.0
 
 [resource]
 script = ExtResource("5_enrv5")

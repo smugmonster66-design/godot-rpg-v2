@@ -13,6 +13,12 @@
 [sub_resource type="Resource" id="Resource_lcoba"]
 script = ExtResource("2_vsui1")
 affix_name = "Ignite: Fire Unlock"
+description = "Unlocks the Fire element for your mana die."
+category = 37
+tags = Array[String](["mage", "flame", "element_unlock"])
+effect_data = {
+"element": "FIRE"
+}
 
 [sub_resource type="Resource" id="Resource_uubkb"]
 script = ExtResource("9_7yd8q")
@@ -29,6 +35,12 @@ required_skill = SubResource("Resource_uubkb")
 [sub_resource type="Resource" id="Resource_thegp"]
 script = ExtResource("2_vsui1")
 affix_name = "Ember Dice: D6 Unlock"
+description = "Unlocks D6 for your mana die."
+category = 38
+tags = Array[String](["mage", "flame", "size_unlock"])
+effect_data = {
+"die_size": 6
+}
 
 [sub_resource type="Resource" id="Resource_fpif5"]
 script = ExtResource("5_qwacx")
@@ -52,6 +64,9 @@ effect_data = {
 [sub_resource type="Resource" id="Resource_vsui1"]
 script = ExtResource("2_vsui1")
 affix_name = "Ember Dice: Max Roll Burn"
+description = "Fire dice that roll max value inflict Burn."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix"])
 effect_data = {
 "dice_affix": SubResource("Resource_ukxre")
 }

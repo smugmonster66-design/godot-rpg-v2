@@ -38,4 +38,10 @@ effects = Array[ExtResource("1_ihutu")]([SubResource("Resource_rrmff"), SubResou
 [resource]
 script = ExtResource("6_vwjiu")
 affix_name = "Cinder Storm: Grant Action"
+description = "Grants Cinder Storm action."
+category = 31
+tags = Array[String](["mage", "flame", "granted_action", "crucible"])
+effect_data = {
+"action_id": "flame_cinder_storm"
+}
 granted_action = SubResource("Resource_ihutu")

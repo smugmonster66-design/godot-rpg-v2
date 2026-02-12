@@ -13,6 +13,12 @@
 [sub_resource type="Resource" id="Resource_lcoba"]
 script = ExtResource("2_srsuu")
 affix_name = "Ignite: Fire Unlock"
+description = "Unlocks the Fire element for your mana die."
+category = 37
+tags = Array[String](["mage", "flame", "element_unlock"])
+effect_data = {
+"element": "FIRE"
+}
 
 [sub_resource type="Resource" id="Resource_uubkb"]
 script = ExtResource("9_sg35q")
@@ -43,6 +49,9 @@ effect_value = 1.0
 [sub_resource type="Resource" id="Resource_6fsqn"]
 script = ExtResource("2_srsuu")
 affix_name = "Kindling: Fire Adjacency"
+description = "Fire dice adjacent to another fire die gain +1."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix"])
 effect_data = {
 "dice_affix": SubResource("Resource_wm8d3")
 }
@@ -80,6 +89,9 @@ effect_value = 1.0
 [sub_resource type="Resource" id="Resource_g8xok"]
 script = ExtResource("2_srsuu")
 affix_name = "Mana Flare"
+description = "Refund 1 mana when a fire die rolls ≤2."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "mana_refund"])
 effect_data = {
 "dice_affix": SubResource("Resource_ntenv")
 }

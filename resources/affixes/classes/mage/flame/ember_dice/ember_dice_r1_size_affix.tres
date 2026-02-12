@@ -7,3 +7,9 @@
 [resource]
 script = ExtResource("2_8ff3g")
 affix_name = "Ember Dice: D6 Unlock"
+description = "Unlocks D6 for your mana die."
+category = 38
+tags = Array[String](["mage", "flame", "size_unlock"])
+effect_data = {
+"die_size": 6
+}

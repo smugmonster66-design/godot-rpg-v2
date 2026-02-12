@@ -13,6 +13,12 @@
 [sub_resource type="Resource" id="Resource_lcoba"]
 script = ExtResource("2_xab5h")
 affix_name = "Ignite: Fire Unlock"
+description = "Unlocks the Fire element for your mana die."
+category = 37
+tags = Array[String](["mage", "flame", "element_unlock"])
+effect_data = {
+"element": "FIRE"
+}
 
 [sub_resource type="Resource" id="Resource_uubkb"]
 script = ExtResource("5_1a7j6")
@@ -29,6 +35,12 @@ required_skill = SubResource("Resource_uubkb")
 [sub_resource type="Resource" id="Resource_thegp"]
 script = ExtResource("2_xab5h")
 affix_name = "Ember Dice: D6 Unlock"
+description = "Unlocks D6 for your mana die."
+category = 38
+tags = Array[String](["mage", "flame", "size_unlock"])
+effect_data = {
+"die_size": 6
+}
 
 [sub_resource type="Resource" id="Resource_fpif5"]
 script = ExtResource("6_1a7j6")
@@ -52,6 +64,9 @@ effect_data = {
 [sub_resource type="Resource" id="Resource_vsui1"]
 script = ExtResource("2_xab5h")
 affix_name = "Ember Dice: Max Roll Burn"
+description = "Fire dice that roll max value inflict Burn."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix"])
 effect_data = {
 "dice_affix": SubResource("Resource_ukxre")
 }
@@ -74,14 +89,47 @@ required_skill = SubResource("Resource_rv3od")
 [sub_resource type="Resource" id="Resource_dqpuj"]
 script = ExtResource("2_xab5h")
 affix_name = "Immolate I"
+description = "15% chance to inflict Burn on fire damage."
+category = 35
+tags = Array[String](["mage", "flame", "immolate", "on_deal_damage"])
+effect_number = 0.15
+effect_data = {
+"element_filter": "fire",
+"proc_effect": "apply_status",
+"proc_trigger": "ON_DEAL_DAMAGE",
+"stacks": 1,
+"status_id": "burn"
+}
 
 [sub_resource type="Resource" id="Resource_xab5h"]
 script = ExtResource("2_xab5h")
 affix_name = "Immolate II"
+description = "30% chance to inflict Burn on fire damage."
+category = 35
+tags = Array[String](["mage", "flame", "immolate", "on_deal_damage"])
+effect_number = 0.15
+effect_data = {
+"element_filter": "fire",
+"proc_effect": "apply_status",
+"proc_trigger": "ON_DEAL_DAMAGE",
+"stacks": 1,
+"status_id": "burn"
+}
 
 [sub_resource type="Resource" id="Resource_xoe62"]
 script = ExtResource("2_xab5h")
 affix_name = "Immolate III"
+description = "45% chance to inflict Burn on fire damage."
+category = 35
+tags = Array[String](["mage", "flame", "immolate", "on_deal_damage"])
+effect_number = 0.15
+effect_data = {
+"element_filter": "fire",
+"proc_effect": "apply_status",
+"proc_trigger": "ON_DEAL_DAMAGE",
+"stacks": 1,
+"status_id": "burn"
+}
 
 [resource]
 script = ExtResource("5_1a7j6")

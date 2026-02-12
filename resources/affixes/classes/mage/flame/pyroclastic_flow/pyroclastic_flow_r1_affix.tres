@@ -7,3 +7,7 @@
 [resource]
 script = ExtResource("2_41qra")
 affix_name = "Pyroclastic Flow"
+description = "When Burn explodes, apply 3 Burn stacks to all other enemies."
+category = 35
+tags = Array[String](["mage", "flame", "pyroclastic_flow", "burn_explosion_spread"])
+effect_number = 3.0

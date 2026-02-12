@@ -7,3 +7,7 @@
 [resource]
 script = ExtResource("2_u22ek")
 affix_name = "Accelerant I"
+description = "Burn applications add +1 bonus stack."
+category = 36
+tags = Array[String](["mage", "flame", "burn_stack_bonus"])
+effect_number = 1.0

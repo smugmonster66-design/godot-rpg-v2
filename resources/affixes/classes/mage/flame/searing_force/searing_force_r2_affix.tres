@@ -7,3 +7,7 @@
 [resource]
 script = ExtResource("2_wl78i")
 affix_name = "Searing Force II"
+description = "+6 fire damage."
+category = 22
+tags = Array[String](["mage", "flame", "fire_damage"])
+effect_number = 3.0

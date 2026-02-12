@@ -26,6 +26,9 @@ effect_value = 1.0
 [resource]
 script = ExtResource("6_gylxf")
 affix_name = "Mana Flare"
+description = "Refund 1 mana when a fire die rolls ≤2."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "mana_refund"])
 effect_data = {
 "dice_affix": SubResource("Resource_ntenv")
 }

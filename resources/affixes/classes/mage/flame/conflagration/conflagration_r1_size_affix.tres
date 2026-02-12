@@ -7,3 +7,9 @@
 [resource]
 script = ExtResource("2_iueow")
 affix_name = "Conflagration: D12 Unlock"
+description = "Unlocks D12 for your mana die."
+category = 38
+tags = Array[String](["mage", "flame", "size_unlock"])
+effect_data = {
+"die_size": 12
+}

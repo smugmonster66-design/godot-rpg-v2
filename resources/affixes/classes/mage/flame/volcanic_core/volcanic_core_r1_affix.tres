@@ -30,4 +30,10 @@ effects = Array[ExtResource("1_ab2si")]([SubResource("Resource_o3dho")])
 [resource]
 script = ExtResource("5_47rjt")
 affix_name = "Volcanic Core: Grant Action"
+description = "Grants Volcanic Core action."
+category = 31
+tags = Array[String](["mage", "flame", "granted_action", "crucible"])
+effect_data = {
+"action_id": "flame_volcanic_core"
+}
 granted_action = SubResource("Resource_ab2si")

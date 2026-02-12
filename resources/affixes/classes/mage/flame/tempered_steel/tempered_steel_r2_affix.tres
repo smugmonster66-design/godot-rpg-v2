@@ -7,3 +7,12 @@
 [resource]
 script = ExtResource("2_23mv5")
 affix_name = "Tempered Steel II"
+description = "+4 armor per fire die used."
+category = 35
+tags = Array[String](["mage", "flame", "armor", "on_die_used"])
+effect_number = 2.0
+effect_data = {
+"element_filter": "fire",
+"proc_effect": "gain_armor",
+"proc_trigger": "ON_DIE_USED"
+}

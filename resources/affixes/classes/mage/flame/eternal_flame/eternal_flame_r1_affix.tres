@@ -56,4 +56,10 @@ effects = Array[ExtResource("1_mup1h")]([SubResource("Resource_lhnqv"), SubResou
 [resource]
 script = ExtResource("8_45igj")
 affix_name = "Eternal Flame: Grant Action"
+description = "Grants Eternal Flame action."
+category = 31
+tags = Array[String](["mage", "flame", "granted_action", "pyre"])
+effect_data = {
+"action_id": "flame_eternal_flame"
+}
 granted_action = SubResource("Resource_mup1h")

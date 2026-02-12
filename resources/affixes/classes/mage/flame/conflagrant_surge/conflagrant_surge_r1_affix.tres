@@ -7,3 +7,10 @@
 [resource]
 script = ExtResource("2_xkecy")
 affix_name = "Conflagrant Surge I"
+description = "Fire damage ×1.05."
+category = 41
+tags = Array[String](["mage", "flame", "fire_mult"])
+effect_number = 1.05
+effect_data = {
+"element": "FIRE"
+}

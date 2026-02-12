@@ -7,3 +7,7 @@
 [resource]
 script = ExtResource("2_rml1f")
 affix_name = "Searing Force III"
+description = "+9 fire damage."
+category = 22
+tags = Array[String](["mage", "flame", "fire_damage"])
+effect_number = 3.0

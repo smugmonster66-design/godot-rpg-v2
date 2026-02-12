@@ -7,3 +7,13 @@
 [resource]
 script = ExtResource("2_umtg2")
 affix_name = "Crucible's Gift"
+description = "After hitting 2+ enemies, next mana pull costs 2 less."
+category = 35
+tags = Array[String](["mage", "flame", "crucibles_gift", "mana_discount"])
+effect_number = 2.0
+effect_data = {
+"cost_reduction": 2,
+"min_targets": 2,
+"proc_effect": "reduce_next_pull_cost",
+"proc_trigger": "ON_MULTI_TARGET_HIT"
+}
