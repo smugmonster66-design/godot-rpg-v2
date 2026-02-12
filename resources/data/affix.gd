@@ -92,6 +92,7 @@ enum ValueSource {
 	EQUIPMENT_RARITY_SUM,    ## Sum of equipped rarity values × effect_number
 	DICE_POOL_SIZE,          ## Dice in pool × effect_number
 	COMBAT_TURN_NUMBER,      ## Current turn × effect_number
+	UNIQUE_ELEMENTS_USED,    ## Unique elements consumed this turn × effect_number
 }
 
 # ============================================================================

@@ -12,7 +12,8 @@ extends Node2D
 var player_combatant: Combatant = null
 var enemy_combatants: Array[Combatant] = []
 var combat_ui = null
-
+var battlefield_tracker: BattlefieldTracker = null
+var proc_processor: AffixProcProcessor = null
 
 # ============================================================================
 # STATE
@@ -221,6 +222,12 @@ func initialize_combat(p_player: Player):
 	if current_encounter and encounter_spawner:
 		encounter_spawner.spawn_encounter(current_encounter)
 	
+	if not battlefield_tracker:
+		battlefield_tracker = BattlefieldTracker.new()
+		battlefield_tracker.name = "BattlefieldTracker"
+		add_child(battlefield_tracker)
+	
+	
 	# Continue initialization after spawning
 	await get_tree().process_frame
 	_finalize_combat_init(p_player)
@@ -255,9 +262,24 @@ func _finalize_combat_init(p_player: Player):
 	if not combat_ended.is_connected(_on_combat_ended):
 		combat_ended.connect(_on_combat_ended)
 	
+	# Connect battlefield tracker signals
+	if battlefield_tracker:
+		if not battlefield_tracker.channel_released.is_connected(_on_channel_released):
+			battlefield_tracker.channel_released.connect(_on_channel_released)
+		if not battlefield_tracker.counter_triggered.is_connected(_on_counter_triggered):
+			battlefield_tracker.counter_triggered.connect(_on_counter_triggered)
 	
 	# Reset per-combat charge tracker
 	combat_charge_tracker.clear()
+	
+	# Initialize proc processor and fire combat-start procs
+	if not proc_processor:
+		proc_processor = AffixProcProcessor.new()
+	if player and player.affix_manager:
+		proc_processor.on_combat_start(player.affix_manager)
+		var combat_start_results = proc_processor.process_combat_start(
+			player.affix_manager, _build_proc_context())
+		_apply_proc_results(combat_start_results)
 	
 	print("⚔️ Combat initialization complete")
 	print("  Turn order: %s" % [turn_order.map(func(c): return c.combatant_name)])
@@ -343,6 +365,11 @@ func _start_current_turn():
 
 func _end_current_turn():
 	"""Move to next turn"""
+	# --- BATTLEFIELD: Clean up expired counters at turn end ---
+	if battlefield_tracker:
+		battlefield_tracker.process_turn_end()
+	# --- END BATTLEFIELD ---
+	
 	current_turn_index += 1
 	_start_current_turn()
 
@@ -395,7 +422,34 @@ func _start_player_turn():
 		if not player_combatant.is_alive():
 			_check_player_death()
 			return
+	
 	# --- END STATUS ---
+
+	# --- PROC: Turn-start procs ---
+	if player and player.affix_manager and proc_processor:
+		var turn_start_results = proc_processor.process_turn_start(
+			player.affix_manager, _build_proc_context())
+		_apply_proc_results(turn_start_results)
+	# --- END PROC ---
+
+
+
+	
+	# --- BATTLEFIELD: Process channels at player turn start ---
+	if battlefield_tracker and battlefield_tracker.has_any_effects():
+		var alive_enemies: Array = []
+		for e in enemy_combatants:
+			if e.is_alive():
+				alive_enemies.append(e)
+		var bf_results = battlefield_tracker.process_turn_start(
+			alive_enemies, [player_combatant])
+		for r in bf_results:
+			_process_single_battlefield_result(r)
+		
+		# Check if any enemies died from channel releases
+		if _check_combat_end():
+			return
+	# --- END BATTLEFIELD ---
 
 	# Enter prep phase — menu is accessible, hand is NOT rolled yet
 	turn_phase = TurnPhase.PREP
@@ -497,7 +551,20 @@ func _on_player_end_turn():
 			return
 	# --- END STATUS ---
 	
+	# --- PROC: Turn-end procs ---
+	if player and player.affix_manager and proc_processor:
+		var turn_end_results = proc_processor.process_turn_end(
+			player.affix_manager, _build_proc_context())
+		_apply_proc_results(turn_end_results)
+	# --- END PROC ---
+	
+	# Tick temp action field durations
+	if combat_ui and combat_ui.has_method("tick_temp_action_fields"):
+		combat_ui.tick_temp_action_fields()
+	
 	_end_current_turn()
+
+
 
 func _on_action_confirmed(action_data: Dictionary):
 	"""Player confirmed an action - plays animation then applies effect"""
@@ -820,6 +887,28 @@ func _animate_enemy_action(enemy: Combatant, decision: EnemyAI.Decision):
 			if player_combatant:
 				player_combatant.take_damage(damage)
 				_update_player_health()
+				
+				# --- PROC: On-take-damage procs ---
+				if player and player.affix_manager and proc_processor:
+					var take_dmg_results = proc_processor.process_on_take_damage(
+						player.affix_manager, _build_proc_context({
+							"damage_taken": damage,
+						}))
+					_apply_proc_results(take_dmg_results)
+				# --- END PROC ---
+				
+				# --- BATTLEFIELD: Check counter-attacks when player takes damage ---
+				if battlefield_tracker and battlefield_tracker.has_pending_counters():
+					var alive_enemies: Array = []
+					for e in enemy_combatants:
+						if e.is_alive():
+							alive_enemies.append(e)
+					var counter_results = battlefield_tracker.on_damage_taken(
+						player_combatant, enemy, damage,
+						alive_enemies, [player_combatant])
+					for r in counter_results:
+						_process_single_battlefield_result(r)
+				# --- END BATTLEFIELD ---
 		1:  # DEFEND
 			print("  🛡️ %s defends" % enemy.combatant_name)
 			# Apply armor/barrier buff
@@ -873,6 +962,7 @@ func _on_combatant_turn_completed(_combatant: Combatant):
 # DAMAGE CALCULATION
 # ============================================================================
 
+
 func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: Array):
 	"""Apply the actual game effect (damage, heal, etc.) from an action"""
 	var action_type = action_data.get("action_type", 0)
@@ -883,6 +973,18 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 				var damage = _calculate_damage(action_data, source, target)
 				print("  💥 %s deals %d damage to %s" % [source.combatant_name, damage, target.combatant_name])
 				target.take_damage(damage)
+				
+				# --- PROC: On-hit procs (player attacks only) ---
+				if source == player_combatant and player and player.affix_manager and proc_processor:
+					var hit_results = proc_processor.process_on_hit(
+						player.affix_manager, _build_proc_context({
+							"damage_dealt": damage,
+							"target": target,
+							"action_resource": action_data.get("action_resource"),
+							"placed_dice": action_data.get("placed_dice", []),
+						}))
+					_apply_proc_results(hit_results)
+				# --- END PROC ---
 				
 				# Update appropriate health display
 				if target == player_combatant:
@@ -912,20 +1014,37 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 		3:  # SPECIAL
 			print("  ✨ %s uses special ability" % source.combatant_name)
 	
-	# --- STATUS: Process ADD_STATUS / REMOVE_STATUS / CLEANSE effects ---
+	# --- STATUS: Process all ActionEffect types beyond legacy action_type ---
 	var action_resource = action_data.get("action_resource") as Action
 	if action_resource and action_resource.effects.size() > 0:
-		var has_status_effects = false
+		var has_processable_effects = false
 		for effect in action_resource.effects:
 			if effect and effect.effect_type in [
 				ActionEffect.EffectType.ADD_STATUS,
 				ActionEffect.EffectType.REMOVE_STATUS,
-				ActionEffect.EffectType.CLEANSE
+				ActionEffect.EffectType.CLEANSE,
+				ActionEffect.EffectType.SHIELD,
+				ActionEffect.EffectType.ARMOR_BUFF,
+				ActionEffect.EffectType.DAMAGE_REDUCTION,
+				ActionEffect.EffectType.REFLECT,
+				ActionEffect.EffectType.LIFESTEAL,
+				ActionEffect.EffectType.EXECUTE,
+				ActionEffect.EffectType.COMBO_MARK,
+				ActionEffect.EffectType.ECHO,
+				ActionEffect.EffectType.SPLASH,
+				ActionEffect.EffectType.CHAIN,
+				ActionEffect.EffectType.RANDOM_STRIKES,
+				ActionEffect.EffectType.MANA_MANIPULATE,
+				ActionEffect.EffectType.MODIFY_COOLDOWN,
+				ActionEffect.EffectType.REFUND_CHARGES,
+				ActionEffect.EffectType.GRANT_TEMP_ACTION,
+				ActionEffect.EffectType.CHANNEL,
+				ActionEffect.EffectType.COUNTER_SETUP,
 			]:
-				has_status_effects = true
+				has_processable_effects = true
 				break
 		
-		if has_status_effects:
+		if has_processable_effects:
 			var all_enemies_alive: Array = []
 			for e in enemy_combatants:
 				if e.is_alive():
@@ -943,7 +1062,7 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 				source, primary_target, all_enemies_alive, all_allies, dice_values
 			)
 			
-			_process_action_effect_results(results, source.combatant_name)
+			_process_action_effect_results(results, source)
 	# --- END STATUS ---
 	
 	# --- v4 MANA SYSTEM: Resolve queued combat and mana events ---
@@ -961,7 +1080,6 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 		var placed_dice: Array = action_data.get("placed_dice", [])
 		player.dice_pool.finalize_dice_consumption(placed_dice)
 	# --- END FINALIZE ---
-	
 
 
 # ============================================================================
@@ -1277,25 +1395,40 @@ func _sync_player_health():
 		player_combatant.max_health = player.max_hp
 		player_combatant.update_display()
 
-func _process_action_effect_results(results: Array[Dictionary], source_name: String) -> void:
-	"""Process ActionEffect execution results for status/cleanse effects.
-	Called after Action.execute_simple() returns results."""
+
+# ============================================================================
+# ACTION EFFECT RESULT PROCESSING (v3.1 — 21 EffectTypes)
+# ============================================================================
+
+func _process_action_effect_results(results: Array[Dictionary], source: Combatant) -> void:
+	"""Process ActionEffect execution results for all 21 effect types.
+	Called after Action.execute_simple() returns results.
+	
+	Args:
+		results: Array of result dicts from ActionEffect.execute().
+		source: The Combatant that used the action (needed for self-targeting effects).
+	"""
+	var source_name: String = source.combatant_name if source else "Unknown"
+	
 	for result in results:
 		var effect_type = result.get("effect_type", -1)
 		var target = result.get("target", null)
 		
-		var tracker: StatusTracker = _get_status_tracker(target)
-		if not tracker:
-			continue
-		
 		match effect_type:
+			# ── Core ──
 			ActionEffect.EffectType.ADD_STATUS:
+				var tracker: StatusTracker = _get_status_tracker(target)
+				if not tracker:
+					continue
 				var status_affix: StatusAffix = result.get("status_affix")
 				var stacks: int = result.get("stacks_to_add", 1)
 				if status_affix:
 					tracker.apply_status(status_affix, stacks, source_name)
 			
 			ActionEffect.EffectType.REMOVE_STATUS:
+				var tracker: StatusTracker = _get_status_tracker(target)
+				if not tracker:
+					continue
 				var status_affix: StatusAffix = result.get("status_affix")
 				var stacks: int = result.get("stacks_to_remove", 0)
 				var remove_all: bool = result.get("remove_all", false)
@@ -1306,6 +1439,9 @@ func _process_action_effect_results(results: Array[Dictionary], source_name: Str
 						tracker.remove_stacks(status_affix.status_id, stacks)
 			
 			ActionEffect.EffectType.CLEANSE:
+				var tracker: StatusTracker = _get_status_tracker(target)
+				if not tracker:
+					continue
 				var tags: Array[String] = []
 				var raw_tags = result.get("cleanse_tags", [])
 				for tag in raw_tags:
@@ -1313,6 +1449,295 @@ func _process_action_effect_results(results: Array[Dictionary], source_name: Str
 				var max_removals: int = result.get("cleanse_max_removals", 0)
 				if tags.size() > 0:
 					tracker.cleanse(tags, max_removals)
+					
+			# ── Defensive ──
+			ActionEffect.EffectType.SHIELD:
+				var amount: int = result.get("shield_amount", 0)
+				var duration: int = result.get("shield_duration", -1)
+				if amount > 0 and source and source.has_method("add_shield"):
+					source.add_shield(amount, duration)
+				print("  🛡️ Shield: +%d" % amount)
+
+			ActionEffect.EffectType.ARMOR_BUFF:
+				var amount: int = result.get("armor_amount", 0)
+				var duration: int = result.get("armor_duration", 2)
+				if amount > 0 and source and source.has_method("add_armor_buff"):
+					source.add_armor_buff(amount, duration)
+				print("  🛡️ Armor: +%d for %dt" % [amount, duration])
+
+			ActionEffect.EffectType.DAMAGE_REDUCTION:
+				var amount = result.get("reduction_amount", 0)
+				var is_pct: bool = result.get("reduction_is_percent", false)
+				var duration: int = result.get("reduction_duration", 1)
+				if source and source.has_method("add_damage_reduction"):
+					source.add_damage_reduction(amount, is_pct, duration,
+						result.get("reduction_single_use", false))
+				print("  🛡️ DR: %s for %dt" % [
+					"%d%%" % int(amount * 100) if is_pct else str(int(amount)), duration])
+
+			ActionEffect.EffectType.REFLECT:
+				var pct: float = result.get("reflect_percent", 0.3)
+				var duration: int = result.get("reflect_duration", 2)
+				if source and source.has_method("add_reflect"):
+					source.add_reflect(pct, duration, result.get("reflect_element"))
+				print("  🪞 Reflect: %d%% for %dt" % [int(pct * 100), duration])
+
+			# ── Combat Modifiers ──
+			ActionEffect.EffectType.LIFESTEAL:
+				var dmg: int = result.get("damage", 0)
+				var pct: float = result.get("lifesteal_percent", 0.3)
+				if result.get("lifesteal_deals_damage", true) and dmg > 0:
+					var target_node = result.get("target")
+					if target_node and target_node.has_method("take_damage"):
+						target_node.take_damage(dmg)
+						_update_and_check_target(target_node)
+				var heal_amt = int(dmg * pct)
+				if heal_amt > 0 and source:
+					source.heal(heal_amt)
+					if source == player_combatant:
+						_update_player_health()
+				print("  🧛 Lifesteal: %d dmg, %d healed" % [dmg, heal_amt])
+
+			ActionEffect.EffectType.EXECUTE:
+				var dmg: int = result.get("damage", 0)
+				var target_node = result.get("target")
+				if result.get("execute_instant_kill", false) and target_node:
+					if target_node.has_method("take_damage"):
+						target_node.take_damage(target_node.current_health)
+					print("  💀 Execute: instant kill!")
+				elif dmg > 0 and target_node and target_node.has_method("take_damage"):
+					target_node.take_damage(dmg)
+					print("  💀 Execute: %d damage%s" % [dmg,
+						" (bonus!)" if result.get("execute_triggered") else ""])
+				if target_node:
+					_update_and_check_target(target_node)
+
+			ActionEffect.EffectType.COMBO_MARK:
+				var target_node = result.get("target")
+				var ms: StatusAffix = result.get("mark_status")
+				if target_node and ms:
+					var mark_tracker: StatusTracker = null
+					if target_node.has_node("StatusTracker"):
+						mark_tracker = target_node.get_node("StatusTracker")
+					elif target_node == player_combatant and player and player.status_tracker:
+						mark_tracker = player.status_tracker
+					if mark_tracker:
+						var existing = mark_tracker.get_stacks(ms.affix_id)
+						if existing > 0:
+							var bonus = result.get("mark_consume_bonus", 5)
+							var combo_dmg = existing * bonus
+							mark_tracker.remove_stacks(ms.affix_id, existing)
+							if target_node.has_method("take_damage"):
+								target_node.take_damage(combo_dmg)
+							print("  🔥 Combo: %d marks × %d = %d" % [existing, bonus, combo_dmg])
+							_update_and_check_target(target_node)
+						else:
+							mark_tracker.apply_status(ms, result.get("mark_stacks", 1), "combo_mark")
+							print("  🎯 Marked: %d stacks" % result.get("mark_stacks", 1))
+				if result.get("mark_deals_damage", false):
+					var dmg = result.get("damage", 0)
+					if dmg > 0 and target_node and target_node.has_method("take_damage"):
+						target_node.take_damage(dmg)
+						_update_and_check_target(target_node)
+
+			ActionEffect.EffectType.ECHO:
+				if result.get("echo_triggered", false):
+					var echo_damages: Array = result.get("echo_damages", [])
+					var target_node = result.get("target")
+					for i in range(echo_damages.size()):
+						if target_node and target_node.is_alive() and target_node.has_method("take_damage"):
+							target_node.take_damage(echo_damages[i])
+							print("  🔁 Echo %d: %d" % [i + 1, echo_damages[i]])
+					if target_node:
+						_update_and_check_target(target_node)
+
+			# ── Multi-Target ──
+			ActionEffect.EffectType.SPLASH:
+				var primary_dmg: int = result.get("primary_damage", result.get("damage", 0))
+				var splash_dmg: int = result.get("splash_damage", 0)
+				var target_node = result.get("target")
+				if primary_dmg > 0 and target_node and target_node.has_method("take_damage"):
+					target_node.take_damage(primary_dmg)
+					_update_and_check_target(target_node)
+				if splash_dmg > 0:
+					for st in _get_splash_targets(target_node, result.get("splash_all", false)):
+						if st.has_method("take_damage"):
+							st.take_damage(splash_dmg)
+							print("  💥 Splash: %d → %s" % [splash_dmg, st.combatant_name])
+							_update_and_check_target(st)
+
+			ActionEffect.EffectType.CHAIN:
+				var primary_dmg: int = result.get("primary_damage", result.get("damage", 0))
+				var chain_damages: Array = result.get("chain_damages", [])
+				var target_node = result.get("target")
+				if primary_dmg > 0 and target_node and target_node.has_method("take_damage"):
+					target_node.take_damage(primary_dmg)
+					_update_and_check_target(target_node)
+				var chain_tgts = _get_chain_targets(
+					target_node, result.get("chain_can_repeat", false))
+				for i in range(mini(chain_damages.size(), chain_tgts.size())):
+					var ct = chain_tgts[i]
+					if ct.is_alive() and ct.has_method("take_damage"):
+						ct.take_damage(chain_damages[i])
+						print("  ⚡ Chain %d: %d → %s" % [i + 1, chain_damages[i], ct.combatant_name])
+						_update_and_check_target(ct)
+
+			ActionEffect.EffectType.RANDOM_STRIKES:
+				var strike_damages: Array = result.get("strike_damages", [])
+				for i in range(strike_damages.size()):
+					var alive: Array = []
+					for e in enemy_combatants:
+						if e.is_alive():
+							alive.append(e)
+					if alive.is_empty():
+						break
+					var hit = alive[randi() % alive.size()]
+					if hit.has_method("take_damage"):
+						hit.take_damage(strike_damages[i])
+						print("  🎲 Strike %d: %d → %s" % [i + 1, strike_damages[i], hit.combatant_name])
+						_update_and_check_target(hit)
+
+			# ── Economy ──
+			ActionEffect.EffectType.MANA_MANIPULATE:
+				var mana_amt: int = result.get("mana_amount", 0)
+				if mana_amt != 0 and player and player.has_mana_pool():
+					if mana_amt > 0:
+						player.mana_pool.add_mana(mana_amt)
+						print("  🔮 Mana: +%d" % mana_amt)
+					else:
+						var drain = absi(mana_amt)
+						var old = player.mana_pool.current_mana
+						player.mana_pool.current_mana = maxi(0, old - drain)
+						player.mana_pool.mana_changed.emit(
+							player.mana_pool.current_mana, player.mana_pool.max_mana)
+						print("  🔮 Mana: -%d" % drain)
+
+			ActionEffect.EffectType.MODIFY_COOLDOWN:
+				var reduction: int = result.get("cooldown_reduction", 1)
+				var target_id: String = result.get("cooldown_target_action_id", "")
+				var count := 0
+				if combat_ui:
+					for field in combat_ui.action_fields:
+						if not is_instance_valid(field) or not field.action_resource:
+							continue
+						var action: Action = field.action_resource
+						if target_id != "" and action.action_id != target_id:
+							continue
+						if "current_cooldown" in action and action.current_cooldown > 0:
+							action.current_cooldown = maxi(0, action.current_cooldown - reduction)
+							count += 1
+				print("  ⏱️ CD -%d on %d action(s)" % [reduction, count])
+
+			ActionEffect.EffectType.REFUND_CHARGES:
+				var refund: int = result.get("charges_to_refund", 1)
+				var target_id: String = result.get("refund_target_action_id", "")
+				var total := 0
+				if combat_ui:
+					for field in combat_ui.action_fields:
+						if not is_instance_valid(field) or not field.action_resource:
+							continue
+						var action: Action = field.action_resource
+						if action.charge_type == Action.ChargeType.UNLIMITED:
+							continue
+						if target_id != "" and action.action_id != target_id:
+							continue
+						var old = action.current_charges
+						action.current_charges = mini(old + refund, action.max_charges)
+						var gained = action.current_charges - old
+						if gained > 0:
+							total += gained
+							if field.has_method("refresh_charge_state"):
+								field.refresh_charge_state()
+				print("  🔋 Refunded %d charge(s)" % total)
+
+			ActionEffect.EffectType.GRANT_TEMP_ACTION:
+				var granted: Action = result.get("granted_action")
+				var duration: int = result.get("grant_duration", 1)
+				if granted and combat_ui and combat_ui.has_method("add_temp_action_field"):
+					combat_ui.add_temp_action_field(granted, duration)
+					print("  🎁 Granted '%s' for %dt" % [granted.action_name, duration])
+				elif granted:
+					print("  🎁 Grant '%s' queued (UI pending)" % granted.action_name)
+
+			# ── Battlefield ──
+			ActionEffect.EffectType.CHANNEL:
+				if battlefield_tracker:
+					var release_eff: ActionEffect = result.get("channel_release_effect")
+					if release_eff:
+						var channel = ChannelEffect.create(
+							result.get("effect_name", "Channel"), release_eff,
+							result.get("channel_max_turns", 3),
+							result.get("channel_growth_per_turn", 0.5), source)
+						battlefield_tracker.add_channel(channel)
+
+			ActionEffect.EffectType.COUNTER_SETUP:
+				if battlefield_tracker:
+					var counter_eff: ActionEffect = result.get("counter_effect")
+					if counter_eff:
+						var counter = CounterEffect.create(
+							result.get("effect_name", "Counter"), counter_eff,
+							result.get("counter_charges", 1),
+							result.get("counter_damage_threshold", 0), source)
+						battlefield_tracker.add_counter(counter)
+
+
+# ============================================================================
+# BATTLEFIELD RESULT PROCESSING
+# ============================================================================
+
+func _process_single_battlefield_result(result: Dictionary) -> void:
+	"""Process a single result dict from BattlefieldTracker (channel release or
+	counter-attack). These results are standard ActionEffect output dicts, so we
+	handle DAMAGE, HEAL, and ADD_STATUS — the most common payloads for channels
+	and counters. Extend this match as needed."""
+	var etype = result.get("effect_type", -1)
+	match etype:
+		ActionEffect.EffectType.DAMAGE:
+			var target_node = result.get("target")
+			var dmg: int = result.get("damage", 0)
+			if target_node and target_node.has_method("take_damage") and dmg > 0:
+				target_node.take_damage(dmg)
+				print("  📡 BF damage: %d → %s" % [dmg,
+					target_node.combatant_name if target_node else "?"])
+				_update_and_check_target(target_node)
+		
+		ActionEffect.EffectType.HEAL:
+			var target_node = result.get("target")
+			var heal: int = result.get("heal", 0)
+			if target_node and heal > 0:
+				if target_node == player_combatant and player:
+					player.heal(heal)
+					_update_player_health()
+				elif target_node.has_method("heal"):
+					target_node.heal(heal)
+					var idx = enemy_combatants.find(target_node)
+					if idx >= 0:
+						_update_enemy_health(idx)
+				print("  📡 BF heal: %d → %s" % [heal,
+					target_node.combatant_name if target_node else "?"])
+		
+		ActionEffect.EffectType.ADD_STATUS:
+			var target_node = result.get("target")
+			var sa: StatusAffix = result.get("status_affix")
+			if target_node and sa:
+				var bf_tracker: StatusTracker = _get_status_tracker(target_node)
+				if bf_tracker:
+					bf_tracker.apply_status(sa, result.get("stacks_to_add", 1),
+						result.get("_battlefield_source", "battlefield"))
+					print("  📡 BF status: %s → %s" % [sa.affix_name,
+						target_node.combatant_name if target_node else "?"])
+
+func _on_channel_released(channel: ChannelEffect, results: Array[Dictionary],
+		was_broken: bool) -> void:
+	"""Signal handler for battlefield_tracker.channel_released."""
+	print("  📡 Channel '%s' %s (x%.1f)" % [
+		channel.channel_name,
+		"broken" if was_broken else "released",
+		channel.get_current_multiplier()])
+
+func _on_counter_triggered(counter: CounterEffect, results: Array[Dictionary]) -> void:
+	"""Signal handler for battlefield_tracker.counter_triggered."""
+	print("  ⚔️ Counter '%s' fired!" % counter.counter_name)
 
 
 func _get_status_tracker(target) -> StatusTracker:
@@ -1571,8 +1996,18 @@ func end_combat(player_won: bool):
 		if enemy.has_node("StatusTracker"):
 			enemy.get_node("StatusTracker").clear_all()
 	
+	# --- BATTLEFIELD: Clear all persistent effects ---
+	if battlefield_tracker:
+		battlefield_tracker.clear_all()
+	# --- END BATTLEFIELD ---
+	
+	# --- PROC: Reset per-combat proc state ---
+	if proc_processor and player and player.affix_manager:
+		proc_processor.on_combat_end(player.affix_manager)
+	# --- END PROC ---
 	
 	combat_ended.emit(player_won)
+
 
 func _on_combat_ended(player_won: bool):
 	"""Handle combat end cleanup"""
@@ -1595,6 +2030,168 @@ func _on_combat_ended(player_won: bool):
 				player.active_class.add_experience(total_exp)
 
 
+# ============================================================================
+# HELPERS — Multi-Target & Health
+# ============================================================================
+
+func _get_splash_targets(primary_target, splash_all: bool) -> Array:
+	if splash_all:
+		var targets: Array = []
+		for e in enemy_combatants:
+			if e.is_alive() and e != primary_target:
+				targets.append(e)
+		return targets
+	var idx = enemy_combatants.find(primary_target)
+	var targets: Array = []
+	if idx > 0 and enemy_combatants[idx - 1].is_alive():
+		targets.append(enemy_combatants[idx - 1])
+	if idx >= 0 and idx < enemy_combatants.size() - 1:
+		if enemy_combatants[idx + 1].is_alive():
+			targets.append(enemy_combatants[idx + 1])
+	return targets
+
+func _get_chain_targets(primary_target, can_repeat: bool) -> Array:
+	var targets: Array = []
+	for e in enemy_combatants:
+		if e.is_alive() and e != primary_target:
+			targets.append(e)
+	if can_repeat and targets.size() > 0:
+		var base = targets.duplicate()
+		while targets.size() < 10:
+			targets.append_array(base)
+	return targets
+
+func _update_and_check_target(target) -> void:
+	if target == player_combatant:
+		_update_player_health()
+		_check_player_death()
+	else:
+		var idx = enemy_combatants.find(target)
+		if idx >= 0:
+			_update_enemy_health(idx)
+			_check_enemy_death(target)
+
+func _build_proc_context(extra: Dictionary = {}) -> Dictionary:
+	"""Build a standard context dict for AffixProcProcessor calls.
+	Centralizes all runtime state that proc effects may need."""
+	var ctx: Dictionary = {
+		"source": player_combatant,
+		"turn_number": current_round,  # or a per-player turn counter
+		"round_number": current_round,
+	}
+	
+	# Wire element_use_counts from the dice pool
+	if player and player.dice_pool:
+		ctx["element_use_counts"] = player.dice_pool.get_element_use_counts()
+		ctx["dice_pool"] = player.dice_pool.pool  # for Infinite Curriculum
+	
+	# Merge caller-specific keys (damage_dealt, target, etc.)
+	ctx.merge(extra, true)
+	return ctx
+
+
+func _apply_proc_results(results: Dictionary) -> void:
+	"""Apply aggregated proc results to game state.
+	Handles all result types from AffixProcProcessor.process_procs()."""
+	if results.activated.is_empty():
+		return
+	
+	print("  ⚙️ %d procs activated" % results.activated.size())
+	
+	# --- Healing ---
+	if results.healing > 0 and player_combatant:
+		player_combatant.heal(int(results.healing))
+		if player:
+			player.current_hp = player_combatant.current_health
+		_update_player_health()
+		print("  💚 Proc heal: %d" % int(results.healing))
+	
+	# --- Bonus Damage ---
+	# NOTE: Bonus damage from procs is logged for now. To integrate fully,
+	# pass results.bonus_damage into CombatCalculator during the damage step.
+	if results.bonus_damage > 0:
+		print("  ⚡ Proc bonus damage: %d (logged — wire into damage calc)" % int(results.bonus_damage))
+	
+	# --- Temp Affixes ---
+	if player and player.affix_manager:
+		for temp_affix in results.temp_affixes:
+			player.affix_manager.register_affix(temp_affix)
+			print("  📎 Temp affix registered: %s" % temp_affix.affix_name)
+	
+	# --- Temp Dice Affixes ---
+	if player and player.dice_pool:
+		for dice_affix in results.temp_dice_affixes:
+			# Apply to all dice in hand
+			for die in player.dice_pool.hand:
+				die.add_temp_affix(dice_affix)
+			print("  🎲 Temp dice affix applied: %s" % dice_affix.affix_name)
+	
+	# --- Granted Actions ---
+	for action in results.granted_actions:
+		if combat_ui and combat_ui.has_method("add_temp_action_field"):
+			combat_ui.add_temp_action_field(action, 1)
+			print("  🎁 Granted action: %s" % action.action_name)
+	
+	# --- Status Effects ---
+	for status_data in results.status_effects:
+		# Status effects from procs target enemies by default
+		var status_target = status_data.get("target", "enemy")
+		if status_target == "self" and player and player.status_tracker:
+			var sa = status_data.get("status_affix")
+			if sa:
+				player.status_tracker.apply_status(sa, 1, "proc")
+		# Enemy targeting requires knowing which enemy — log for now
+		else:
+			print("  🎯 Status effect queued for %s (wire target selection)" % status_target)
+	
+	# --- Special Effects (armor, barrier, stacking buffs, retriggering, custom) ---
+	for se in results.special_effects:
+		var se_type = se.get("type", "")
+		match se_type:
+			"proc_gain_armor":
+				var amount = int(se.get("amount", 0))
+				if amount > 0 and player_combatant and player_combatant.has_method("add_armor_buff"):
+					player_combatant.add_armor_buff(amount, 1)
+					print("  🛡️ Proc armor: +%d" % amount)
+			
+			"proc_gain_barrier":
+				var amount = int(se.get("amount", 0))
+				if amount > 0 and player_combatant and player_combatant.has_method("add_shield"):
+					player_combatant.add_shield(amount, 1)
+					print("  🛡️ Proc barrier: +%d" % amount)
+			
+			"stacking_buff":
+				print("  📈 Stacking buff: %s x%d = %.1f (%s)" % [
+					se.get("source", "?"),
+					se.get("stacks", 0),
+					se.get("total_value", 0.0),
+					se.get("buff_category", "?")])
+			
+			"retrigger_dice_affixes":
+				# Re-process dice affixes with the specified trigger
+				var trigger_str = se.get("trigger_to_replay", "ON_USE")
+				print("  🔁 Retrigger dice affixes: %s (from %s)" % [
+					trigger_str, se.get("source", "?")])
+				# Full implementation: map trigger_str to DiceAffix.Trigger enum
+				# and call player.dice_pool.process_trigger(trigger_enum)
+			
+			"proc_combat_modifier":
+				print("  ⚔️ Combat modifier: %s +%.1f (%s)" % [
+					se.get("modifier_type", "?"),
+					se.get("amount", 0.0),
+					se.get("source", "?")])
+			
+			"proc_custom":
+				var custom_id = se.get("custom_id", "")
+				print("  🔧 Custom proc: %s from %s" % [
+					custom_id, se.get("source", "?")])
+				# Route custom effects here as they're implemented
+			
+			"proc_heal":
+				pass  # Already handled above via results.healing
+			
+			"proc_bonus_damage":
+				pass  # Already handled above via results.bonus_damage
 
 
 func _get_bottom_ui() -> Control:

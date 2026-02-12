@@ -37,6 +37,11 @@ enum ChargeType {
 # Runtime charge tracking (not saved)
 var current_charges: int = 0
 
+var current_cooldown: int = 0
+
+
+
+
 # ============================================================================
 # COSTS
 # ============================================================================
@@ -134,6 +139,19 @@ func get_charge_type_label() -> String:
 			return "Per Combat"
 		_:
 			return ""
+
+
+func start_cooldown() -> void:
+	current_cooldown = cooldown_turns
+
+func tick_cooldown() -> void:
+	if current_cooldown > 0:
+		current_cooldown -= 1
+
+func is_on_cooldown() -> bool:
+	return current_cooldown > 0
+
+
 
 # ============================================================================
 # CONVERSION

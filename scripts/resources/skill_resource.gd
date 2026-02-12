@@ -15,7 +15,7 @@ class_name SkillResource
 # SKILL TREE PLACEMENT
 # ============================================================================
 @export_group("Skill Tree Position")
-@export_range(1, 9) var tier: int = 1  ## Row in skill tree (1-9)
+@export_range(1, 10) var tier: int = 1  ## Row in skill tree (1-9)
 @export_range(0, 6) var column: int = 0  ## Column in skill tree (0-6)
 @export var skill_point_cost: int = 1
 

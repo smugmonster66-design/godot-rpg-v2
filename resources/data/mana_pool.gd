@@ -115,6 +115,7 @@ const ELEMENT_NAMES: Dictionary = {
 	DieResource.Element.SLASHING: "Slashing",
 	DieResource.Element.BLUNT: "Blunt",
 	DieResource.Element.PIERCING: "Piercing",
+	DieResource.Element.FAITH: "Faith",
 }
 
 ## Die size display names.
@@ -578,6 +579,7 @@ static func _string_to_element(s: String) -> DieResource.Element:
 		"SLASHING": return DieResource.Element.SLASHING
 		"BLUNT": return DieResource.Element.BLUNT
 		"PIERCING": return DieResource.Element.PIERCING
+		"FAITH": return DieResource.Element.FAITH
 		_: return DieResource.Element.NONE
 
 # ============================================================================

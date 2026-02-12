@@ -30,7 +30,8 @@ enum Element {
 	ICE,
 	SHOCK,
 	POISON,
-	SHADOW
+	SHADOW,
+	FAITH
 }
 
 # ============================================================================
@@ -112,6 +113,7 @@ var can_reroll: bool = true         # Can use reroll abilities
 var is_consumed: bool = false
 var is_shattered: bool = false
 
+var is_duplicate: bool = false
 
 # ============================================================================
 # ELEMENT NAMES
@@ -459,7 +461,8 @@ func duplicate_die() -> DieResource:
 	copy.forced_roll_value = forced_roll_value
 	copy.is_consumed = false  # Fresh copies are never consumed
 	
-	
+	# NOTE: is_duplicate is set by the caller (DiceAffixProcessor),
+	# not copied from source. Default false.
 	
 	
 	# Deep copy inherent affixes

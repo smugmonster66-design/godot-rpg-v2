@@ -247,18 +247,15 @@ func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 	match proc_effect:
 		# ── Healing ──
 		"heal_flat":
-			# Heal a flat amount
 			effect.type = "healing"
 			effect["amount"] = affix.effect_number
 		
 		"heal_percent_damage":
-			# Heal a percentage of damage dealt (leech)
 			var damage_dealt = context.get("damage_dealt", 0)
 			effect.type = "healing"
 			effect["amount"] = damage_dealt * affix.effect_number
 		
 		"heal_percent_max_hp":
-			# Heal a percentage of max HP
 			var source = context.get("source", null)
 			var max_hp = 100
 			if source and source.has_method("get") and source.get("max_health"):
@@ -268,21 +265,76 @@ func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 		
 		# ── Bonus Damage ──
 		"bonus_damage_flat":
-			# Add flat bonus damage
+			var amount = affix.effect_number
+			if affix.value_source != Affix.ValueSource.STATIC:
+				amount = _resolve_value_source(affix, context)
 			effect.type = "bonus_damage"
-			effect["amount"] = affix.effect_number
+			effect["amount"] = amount
 		
 		"bonus_damage_percent":
-			# Add percentage of damage dealt as bonus damage
 			var damage_dealt = context.get("damage_dealt", 0)
 			effect.type = "bonus_damage"
 			effect["amount"] = damage_dealt * affix.effect_number
 		
+		# ── Armor / Barrier ──
+		"gain_armor":
+			var amount = affix.effect_number
+			if affix.value_source != Affix.ValueSource.STATIC:
+				amount = _resolve_value_source(affix, context)
+			effect.type = "armor_gain"
+			effect["amount"] = amount
+		
+		"gain_barrier":
+			var amount = affix.effect_number
+			if affix.value_source != Affix.ValueSource.STATIC:
+				amount = _resolve_value_source(affix, context)
+			effect.type = "barrier_gain"
+			effect["amount"] = amount
+		
+		# ── Compound (e.g. Eternal Vigil: heal + barrier in one proc) ──
+		"compound":
+			var sub_effects = affix.effect_data.get("sub_effects", [])
+			for sub in sub_effects:
+				match sub.get("type", ""):
+					"heal_percent_max_hp":
+						var source_combatant = context.get("source", null)
+						var max_hp = source_combatant.max_health if source_combatant else 100
+						effect.type = "healing"
+						effect["amount"] = effect.get("amount", 0.0) + max_hp * affix.effect_number
+					"gain_barrier":
+						effect["barrier_amount"] = effect.get("barrier_amount", 0.0) + sub.get("amount", 0)
+		
+		# ── Custom Effects ──
+		"custom":
+			var custom_id = affix.effect_data.get("custom_id", "")
+			match custom_id:
+				"nayrus_ascension":
+					var source = context.get("source", null)
+					if source:
+						var missing = source.max_health - source.current_health
+						effect.type = "barrier_gain"
+						effect["amount"] = missing
+					effect["grant_random_dice"] = affix.effect_data.get("grant_random_dice_count", 2)
+					effect["min_die_value_bonus"] = affix.effect_data.get("min_die_value_bonus", 2)
+				
+				"unique_element_combat_modifier":
+					var pool = context.get("dice_pool", [])
+					var unique_elements: Dictionary = {}
+					for die in pool:
+						if die is DieResource and die.element != DieResource.Element.NONE:
+							unique_elements[die.element] = true
+					var bonus = unique_elements.size() * affix.effect_number
+					effect.type = "combat_modifier"
+					effect["modifier_type"] = "all_dice_value_flat"
+					effect["amount"] = bonus
+				
+				_:
+					effect.type = "custom"
+					effect["custom_id"] = custom_id
+					effect["custom_data"] = affix.effect_data.get("custom_data", {})
+		
 		# ── Temporary Stat Buffs ──
 		"temp_affix":
-			# Register a temporary affix for N turns
-			# The affix to apply is stored in effect_data["temp_affix"]
-			# Duration in turns stored in effect_data["duration"]
 			var temp = affix.effect_data.get("temp_affix", null)
 			if temp is Affix:
 				effect.type = "temp_affix"
@@ -291,50 +343,32 @@ func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 		
 		# ── Status Effects ──
 		"apply_status":
-			# Apply a status effect to the target
-			# Status data stored in effect_data["status"]
 			effect.type = "status_effect"
 			effect["status"] = affix.effect_data.get("status", {})
-			effect["target"] = affix.effect_data.get("status_target", "enemy")  # "enemy" or "self"
+			effect["target"] = affix.effect_data.get("status_target", "enemy")
 		
 		# ── Dice Manipulation ──
 		"grant_temp_dice_affix":
-			# Apply a temporary DiceAffix to all dice for N turns
 			var dice_affix = affix.effect_data.get("dice_affix", null)
 			if dice_affix is DiceAffix:
 				effect.type = "temp_dice_affix"
 				effect["dice_affix"] = dice_affix
 				effect["duration"] = affix.effect_data.get("duration", 1)
 		
-		# ── Armor / Barrier ──
-		"gain_armor":
-			effect.type = "gain_armor"
-			effect["amount"] = affix.effect_number
-		
-		"gain_barrier":
-			effect.type = "gain_barrier"
-			effect["amount"] = affix.effect_number
-		
 		# ── Action Grant ──
 		"grant_action":
-			# Temporarily grant a combat action
 			if affix.granted_action:
 				effect.type = "granted_action"
 				effect["action"] = affix.granted_action
 				effect["duration"] = affix.effect_data.get("duration", 1)
 		
-		# ── Retrigger (for Overforge-style effects) ──
+		# ── Retrigger (Overforge-style) ──
 		"retrigger_dice_affixes":
-			# Signals that dice affixes should be re-processed
-			# The combat manager handles the actual re-processing
 			effect.type = "retrigger_dice_affixes"
 			effect["trigger_to_replay"] = affix.effect_data.get("trigger_to_replay", "ON_USE")
 		
-		# ── Stacking Buff (for Whetstone-style effects) ──
+		# ── Stacking Buff (Whetstone-style) ──
 		"stacking_buff":
-			# Accumulates stacks each time it fires. The actual bonus
-			# is effect_number * current_stacks. Stack count is tracked
-			# in the affix's effect_data at runtime.
 			var stacks = affix.effect_data.get("_current_stacks", 0) + 1
 			var max_stacks = affix.effect_data.get("max_stacks", 99)
 			stacks = mini(stacks, max_stacks)
@@ -346,20 +380,36 @@ func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 			effect["total_value"] = affix.effect_number * stacks
 			effect["buff_category"] = affix.effect_data.get("buff_category", "DAMAGE_BONUS")
 		
-		# ── Generic / Custom ──
-		"custom":
-			# Pass-through for effects that need custom handling
-			# The combat manager checks effect_data["custom_id"] to decide what to do
-			effect.type = "custom"
-			effect["custom_id"] = affix.effect_data.get("custom_id", "")
-			effect["custom_data"] = affix.effect_data.get("custom_data", {})
-		
 		_:
 			print("⚠️ AffixProcProcessor: Unknown proc_effect '%s' on '%s'" % [proc_effect, affix.affix_name])
 			effect.type = "unknown"
 	
 	proc_effect_applied.emit(affix, effect)
 	return effect
+
+
+
+func _resolve_value_source(affix: Affix, context: Dictionary) -> float:
+	"""Resolve dynamic value from ValueSource enum."""
+	match affix.value_source:
+		Affix.ValueSource.COMBAT_TURN_NUMBER:
+			return context.get("turn_number", 1) * affix.effect_number
+		Affix.ValueSource.UNIQUE_ELEMENTS_USED:
+			var counts: Dictionary = context.get("element_use_counts", {})
+			var unique = 0
+			for key in counts:
+				if counts[key] > 0:
+					unique += 1
+			return unique * affix.effect_number
+		Affix.ValueSource.PLAYER_HEALTH_PERCENT:
+			var source = context.get("source", null)
+			if source:
+				var pct = float(source.current_health) / float(source.max_health)
+				return pct * affix.effect_number
+			return affix.effect_number
+		_:
+			return affix.effect_number
+
 
 # ============================================================================
 # CATEGORY INFERENCE — Backwards compat for affixes without explicit proc_effect
@@ -406,6 +456,13 @@ func _merge_effect_result(result: Dictionary, effect: Dictionary):
 				"amount": effect.get("amount", 0.0),
 				"source": effect.get("affix_name", ""),
 			})
+			# Compound barrier (Eternal Vigil packages heal + barrier together)
+			if effect.has("barrier_amount"):
+				result.special_effects.append({
+					"type": "proc_gain_barrier",
+					"amount": effect.get("barrier_amount", 0.0),
+					"source": effect.get("affix_name", ""),
+				})
 		
 		"bonus_damage":
 			result.bonus_damage += effect.get("amount", 0.0)
@@ -449,19 +506,37 @@ func _merge_effect_result(result: Dictionary, effect: Dictionary):
 				"source": effect.get("affix_name", ""),
 			})
 		
-		"gain_armor":
+		"armor_gain":
 			result.special_effects.append({
 				"type": "proc_gain_armor",
 				"amount": effect.get("amount", 0.0),
 				"source": effect.get("affix_name", ""),
 			})
 		
-		"gain_barrier":
+		"barrier_gain":
 			result.special_effects.append({
 				"type": "proc_gain_barrier",
 				"amount": effect.get("amount", 0.0),
 				"source": effect.get("affix_name", ""),
 			})
+		
+		"combat_modifier":
+			result.special_effects.append({
+				"type": "proc_combat_modifier",
+				"modifier_type": effect.get("modifier_type", ""),
+				"amount": effect.get("amount", 0.0),
+				"source": effect.get("affix_name", ""),
+			})
+		
+		"custom":
+			result.special_effects.append({
+				"type": "proc_custom",
+				"custom_id": effect.get("custom_id", ""),
+				"custom_data": effect.get("custom_data", {}),
+				"source": effect.get("affix_name", ""),
+			})
+
+
 
 # ============================================================================
 # COMBAT LIFECYCLE — Call these to reset state between combats

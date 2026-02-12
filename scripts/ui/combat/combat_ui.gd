@@ -45,6 +45,9 @@ var selected_action_field: ActionField = null
 var selected_target_index: int = 0
 var target_selection_active: bool = false
 
+var temp_action_fields: Array[Dictionary] = []
+
+
 # Enemy turn state
 var is_enemy_turn: bool = false
 var enemy_action_fields: Array[ActionField] = []
@@ -1236,6 +1239,31 @@ func play_roll_animation() -> void:
 						visual.draggable = true
 			if "hide_for_roll_animation" in dice_pool_display:
 				dice_pool_display.hide_for_roll_animation = false
+
+
+
+func add_temp_action_field(action: Action, duration: int) -> void:
+	var field = action_field_scene.instantiate() as ActionField
+	field.configure_from_action(action)
+	action_fields_grid.add_child(field)
+	action_fields.append(field)
+	temp_action_fields.append({"field": field, "turns_remaining": duration})
+	field.action_selected.connect(_on_action_field_selected)
+	field.dice_returned.connect(_on_dice_returned)
+	field.die_placed.connect(_on_die_placed)
+	field.dice_return_complete.connect(_on_dice_return_complete)
+
+func tick_temp_action_fields() -> void:
+	var expired: Array[Dictionary] = []
+	for entry in temp_action_fields:
+		entry.turns_remaining -= 1
+		if entry.turns_remaining <= 0:
+			expired.append(entry)
+	for entry in expired:
+		temp_action_fields.erase(entry)
+		action_fields.erase(entry.field)
+		if is_instance_valid(entry.field):
+			entry.field.queue_free()
 
 
 func _mf_name(mf: int) -> String:

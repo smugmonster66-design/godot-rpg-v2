@@ -307,7 +307,7 @@ func _dispatch_effect(dice: Array[DieResource], source_die: DieResource,
 		
 		DiceAffix.EffectType.SET_ELEMENT:
 			var element_str = edata.get("element", "NONE")
-			_apply_set_element(target_die, target_index, element_str, result)
+			_apply_set_element(target_die, target_index, element_str, context, result)
 		
 		DiceAffix.EffectType.CREATE_COMBAT_MODIFIER:
 			if affix_or_parent.combat_modifier:
@@ -444,17 +444,21 @@ func _get_parent_target_die(parent_affix: DiceAffix, source_index: int,
 
 
 func _apply_set_roll_value(die: DieResource, index: int, value: float, affix: DiceAffix, result: Dictionary):
-	"""Force a die to always roll a specific value.
-	Sets forced_roll_value on the DieResource so roll() uses it."""
-	die.forced_roll_value = int(value)
+	"""Force a die to a specific value. Supports use_die_max in effect_data."""
+	var final_value: int
+	if affix.effect_data.get("use_die_max", false):
+		final_value = die.die_type  # DieType enum value IS the max face
+	else:
+		final_value = int(value)
+	die.forced_roll_value = final_value
 	result.special_effects.append({
 		"type": "set_roll_value",
 		"die_index": index,
-		"forced_value": int(value),
+		"forced_value": final_value,
 		"affix": affix.affix_name
 	})
 	print("    🎲 %s: forced roll value = %d (from %s)" % [
-		die.display_name, int(value), affix.affix_name
+		die.display_name, final_value, affix.affix_name
 	])
 
 
@@ -570,7 +574,9 @@ func _apply_auto_reroll(die: DieResource, index: int, threshold: int, affix: Dic
 # ============================================================================
 
 func _apply_duplicate_on_max(die: DieResource, index: int, result: Dictionary):
-	"""Duplicate die if max value rolled"""
+	"""Duplicate die if max value rolled. Skips duplicate dice to prevent infinite loops."""
+	if die.is_duplicate:
+		return
 	if die.is_max_roll():
 		result.special_effects.append({
 			"type": "duplicate",
@@ -578,6 +584,8 @@ func _apply_duplicate_on_max(die: DieResource, index: int, result: Dictionary):
 			"source_die": die
 		})
 		print("    ✨ %s rolled max! Duplicate triggered" % die.display_name)
+
+
 
 func _apply_lock_die(die: DieResource, index: int, result: Dictionary):
 	"""Lock die from being consumed"""
@@ -694,17 +702,37 @@ func _apply_destroy_self(die: DieResource, index: int, result: Dictionary):
 	})
 	print("    💀 %s marked for permanent destruction" % die.display_name)
 
-func _apply_set_element(die: DieResource, index: int, element_str: String, result: Dictionary):
+func _apply_set_element(die: DieResource, index: int, element_str: String, context, result: Dictionary):
 	"""Set die element to a specific element."""
-	var mapped = DieResource._string_to_element(element_str)
 	var old_element = die.element
-	die.element = mapped
-	
+
+	# ── LEAST_USED: resolve from combat context ──
+	if element_str == "LEAST_USED":
+		var use_counts: Dictionary = context.get("element_use_counts", {})
+		var candidates = [
+			DieResource.Element.SLASHING, DieResource.Element.BLUNT,
+			DieResource.Element.PIERCING, DieResource.Element.FIRE,
+			DieResource.Element.ICE, DieResource.Element.SHOCK,
+			DieResource.Element.POISON, DieResource.Element.SHADOW,
+			DieResource.Element.FAITH,
+		]
+		var min_count: int = 999999
+		var least: int = candidates[0]
+		for elem in candidates:
+			var count: int = use_counts.get(elem, 0)
+			if count < min_count:
+				min_count = count
+				least = elem
+		die.element = least
+	else:
+		var mapped = DieResource._string_to_element(element_str)
+		die.element = mapped
+
 	result.special_effects.append({
 		"type": "set_element",
 		"die_index": index,
 		"old_element": old_element,
-		"new_element": mapped
+		"new_element": die.element
 	})
 
 func _apply_create_combat_modifier(source_die: DieResource, modifier: CombatModifier, result: Dictionary):
