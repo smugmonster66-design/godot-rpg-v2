@@ -3,6 +3,21 @@
 # PlayerMenu and PostCombatSummary live directly in PersistentUILayer (no reparenting)
 extends Node
 
+
+
+# ============================================================================
+# DEV MODE
+# ============================================================================
+@export_group("Dev Mode")
+@export var dev_mode: bool = false
+@export var dev_level: int = 10
+@export var dev_skill_points: int = 30
+@export var dev_dice: Array[DieResource] = []
+@export var dev_items: Array[EquippableItem] = []
+@export_range(1, 100) var dev_item_level: int = 15
+@export_range(1, 6) var dev_item_region: int = 1
+
+
 # ============================================================================
 # NODE REFERENCES
 # ============================================================================
@@ -58,7 +73,9 @@ func _ready():
 	
 	
 	
-	
+	for child in get_tree().root.get_children():
+		if child is CanvasLayer:
+			print("🔍 CanvasLayer: %s, layer=%d" % [child.name, child.layer])
 	
 	
 	
@@ -139,6 +156,37 @@ func _on_player_created(player: Resource):
 	if portrait_controller and portrait_controller.has_method("set_player"):
 		portrait_controller.set_player(player)
 		print("  ✅ PortraitController initialized with player")
+		
+		
+		
+	
+	
+	# Apply dev mode overrides
+	if dev_mode and player:
+		var pc = player.active_class
+		if pc:
+			pc.level = dev_level
+			pc.skill_points = dev_skill_points
+			pc.total_skill_points = dev_skill_points
+		
+		for die in dev_dice:
+			if die:
+				var copy = die.duplicate_die()
+				copy.source = "dev"
+				player.dice_pool.add_die(copy)
+		
+		for item_template in dev_items:
+			if item_template:
+				var result = LootManager.generate_drop(item_template, dev_item_level, dev_item_region)
+				var item: EquippableItem = result.get("item")
+				if item:
+					player.add_to_inventory(item)
+					print("  🧪 Dev item: %s (Lv.%d)" % [item.item_name, item.item_level])
+		
+		print("🧪 Dev mode — Lv.%d, %d SP, +%d dice, +%d items" % [
+			dev_level, dev_skill_points, dev_dice.size(), dev_items.size()])
+	
+	
 
 
 func _on_portrait_clicked():

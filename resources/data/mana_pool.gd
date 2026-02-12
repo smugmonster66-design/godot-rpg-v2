@@ -48,6 +48,10 @@ signal die_size_changed(die_size: int)
 ## Emitted when a pull fails (insufficient mana, no elements, etc.).
 signal pull_failed(reason: String)
 
+
+## Emitted when available elements or die sizes change (skill learned/unlearned).
+signal options_changed()
+
 # ============================================================================
 # CONFIGURATION — Set from PlayerClass.mana_pool_template via @export
 # ============================================================================
@@ -521,6 +525,7 @@ func _apply_mana_die_affixes(die: DieResource) -> void:
 func notify_options_changed():
 	"""Call after skills/affixes change to revalidate element/size selection."""
 	_validate_selection()
+	options_changed.emit()
 
 # ============================================================================
 # INTERNAL — Helpers

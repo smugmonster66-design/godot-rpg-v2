@@ -557,11 +557,19 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	# =========================================================================
 	_set_mouse_ignore_recursive(_manual_preview)
 	_manual_preview.z_index = 100  # Always on top
-	get_tree().root.add_child(_manual_preview)
+	# Add to highest CanvasLayer so preview renders above all UI
+	var overlay = _find_top_canvas_layer()
+	overlay.add_child(_manual_preview)
+	print("🎲 Preview parented to: %s (class: %s, layer: %s)" % [
+	overlay.name, overlay.get_class(),
+	overlay.layer if overlay is CanvasLayer else "N/A"])
 	_update_manual_preview_position()
 	_active_touches.clear()
 	set_process(true)
 	set_process_input(true)
+	
+	
+	self.modulate = Color(1, 1, 1, 0)
 	
 	# Return drag data
 	return {
@@ -600,6 +608,7 @@ func _update_manual_preview_position():
 		_manual_preview.global_position = get_global_mouse_position() - base_size / 2
 
 func _force_cleanup_drag():
+	self.modulate = Color.WHITE
 	"""Emergency cleanup when NOTIFICATION_DRAG_END is missed."""
 	print("🎲 Drag cleanup: input released but NOTIFICATION_DRAG_END missed — forcing cleanup")
 	if _is_being_dragged:
@@ -612,7 +621,16 @@ func _force_cleanup_drag():
 	set_process(false)
 	set_process_input(false)
 
-
+func _find_top_canvas_layer() -> Node:
+	"""Find the highest CanvasLayer to parent the drag preview on,
+	so it renders above all other UI layers."""
+	var best: CanvasLayer = null
+	for child in get_tree().root.get_children():
+		if child is CanvasLayer:
+			if not best or child.layer > best.layer:
+				best = child
+	# Fallback to root if no CanvasLayer found
+	return best if best else get_tree().root
 
 
 func _notification(what: int):
@@ -624,6 +642,7 @@ func _notification(what: int):
 			if not _is_being_dragged:
 				hide_hover()
 		NOTIFICATION_DRAG_END:
+			self.modulate = Color.WHITE
 			if _is_being_dragged:
 				end_drag_visual(_was_placed)
 				_is_being_dragged = false

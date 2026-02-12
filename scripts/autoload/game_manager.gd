@@ -11,6 +11,9 @@ const DIE_BASE_TEXTURES = preload("res://resources/die_base_textures.tres")
 
 
 
+
+
+
 # ============================================================================
 # STARTING ITEMS CONFIGURATION
 # ============================================================================
@@ -129,10 +132,7 @@ func initialize_player():
 	
 	player.switch_class("Mage")
 	
-	# Level up for testing
-	for i in range(4):
-		if player.active_class:
-			player.active_class.gain_experience(100)
+	
 	
 	if player.active_class:
 		print("Player created: %s Level %d" % [player.active_class.player_class_name, player.active_class.level])

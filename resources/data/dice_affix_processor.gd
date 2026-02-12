@@ -941,6 +941,17 @@ func _record_tag_removed(result: Dictionary, index: int, tag: String):
 # UTILITY
 # ============================================================================
 
+func _make_affix_result() -> Dictionary:
+	return {
+		"value_changes": {},
+		"tags_added": {},
+		"tags_removed": {},
+		"special_effects": [],
+		"combat_events": [],
+		"mana_events": [],
+	}
+
+
 func get_affix_description_at_position(die: DieResource, slot_index: int, total_dice: int) -> String:
 	"""Get description of what affixes will do at a specific position"""
 	var lines: Array[String] = []

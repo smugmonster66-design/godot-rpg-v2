@@ -173,6 +173,11 @@ func initialize(p) -> void:
 		mana_pool.pull_failed.disconnect(_on_pull_failed)
 	mana_pool.pull_failed.connect(_on_pull_failed)
 
+	if mana_pool.options_changed.is_connected(_on_options_changed):
+		mana_pool.options_changed.disconnect(_on_options_changed)
+	mana_pool.options_changed.connect(_on_options_changed)
+
+
 	_update_all()
 	print("🔮 ManaDieSelector: Initialized (caster)")
 
@@ -714,6 +719,13 @@ func _create_preview_die_resource() -> DieResource:
 				die.element_affix = load(affix_path) as DiceAffix
 
 	return die
+
+
+func _on_options_changed():
+	_update_button_visibility()
+	_update_die_preview()
+	_update_cost_label()
+
 
 func _set_mouse_ignore_recursive(node: Node):
 	if node is Control:

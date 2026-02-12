@@ -1650,3 +1650,5 @@ tier_8_skills = Array[ExtResource("2_be7fa")]([SubResource("Resource_a23yy"), Su
 tier_9_skills = Array[ExtResource("2_be7fa")]([SubResource("Resource_hivrg"), SubResource("Resource_ow4nn")])
 tier_10_skills = Array[ExtResource("2_be7fa")]([SubResource("Resource_10ldk")])
 prereq_line_shader = SubResource("ShaderMaterial_skkmn")
+prereq_line_width = 5.0
+prereq_line_fill_duration = 0.1

@@ -42,6 +42,7 @@ texture = ExtResource("6_0krdv")
 
 [node name="GameRoot" type="Node"]
 script = ExtResource("1_pevc5")
+dev_mode = true
 
 [node name="MapLayer" type="CanvasLayer" parent="."]
 

@@ -34,7 +34,7 @@ texture = ExtResource("3_qph8m")
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
 theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
+theme_override_constants/margin_top = 0
 theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
 
@@ -45,6 +45,7 @@ theme_override_constants/separation = 10
 
 [node name="HeaderPlate" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
+size_flags_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxTexture_joayw")
 
 [node name="HeaderRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HeaderPlate"]

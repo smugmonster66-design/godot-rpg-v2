@@ -141,9 +141,15 @@ func _discover_nodes():
 
 
 func _set_children_mouse_pass():
-	for child in get_children():
+	_set_mouse_pass_recursive(self)
+
+func _set_mouse_pass_recursive(node: Node):
+	for child in node.get_children():
 		if child is Control:
 			child.mouse_filter = Control.MOUSE_FILTER_PASS
+		_set_mouse_pass_recursive(child)
+
+
 
 func setup_drop_target():
 	mouse_filter = Control.MOUSE_FILTER_STOP

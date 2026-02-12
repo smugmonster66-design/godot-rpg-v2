@@ -454,7 +454,7 @@ func clear_hand():
 func insert_into_hand(index: int, die: DieResource):
 	"""Insert a die into the hand at a specific position.
 	Used by the mana system to place a pulled die where the player dropped it.
-	Updates all slot indices and emits hand_changed."""
+	Updates all slot indices, processes neighbor-aware affixes, and emits hand_changed."""
 	index = clampi(index, 0, hand.size())
 	hand.insert(index, die)
 	# Update slot indices for stable position tracking
@@ -463,9 +463,112 @@ func insert_into_hand(index: int, die: DieResource):
 	_original_hand_size = hand.size()
 	print("🎲 Inserted %s into hand at index %d (hand size: %d)" % [
 		die.display_name, index, hand.size()])
+
+	# Process ON_ROLL affixes for the new die AND adjacent dice
+	# against the full hand so neighbor conditions can resolve
+	if affix_processor:
+		_process_insertion_affixes(index)
+
+	# Apply persistent combat modifiers to the new die
+	for modifier in combat_modifiers:
+		if modifier.applies_to_die(die, index):
+			modifier.apply_to_die(die)
+
 	hand_changed.emit()
 
 
+func _process_insertion_affixes(inserted_index: int):
+	"""Process ON_ROLL affixes that depend on neighbors after a mid-combat insertion.
+	
+	Only processes:
+	  1. The newly inserted die (all its ON_ROLL affixes)
+	  2. Adjacent dice (only their neighbor-dependent ON_ROLL affixes)
+	
+	This avoids double-applying flat bonuses to dice that were already processed
+	during the initial roll_hand() call."""
+	var ctx = _build_context()
+	var total = hand.size()
+	
+	# 1. Process ALL ON_ROLL affixes on the new die (it hasn't been processed yet)
+	var new_die = hand[inserted_index]
+	for affix in new_die.get_all_affixes():
+		if affix.trigger != DiceAffix.Trigger.ON_ROLL:
+			continue
+		if not affix.check_position(inserted_index, total):
+			continue
+		
+		var condition_multiplier := 1.0
+		if affix.has_condition():
+			var cond_result = affix.evaluate_condition(new_die, hand, inserted_index, ctx)
+			if cond_result.blocked:
+				continue
+			condition_multiplier = cond_result.multiplier
+		
+		var targets = affix.get_target_indices(inserted_index, total)
+		var result = _make_affix_result()
+		if affix.is_compound():
+			affix_processor._apply_compound_effect(hand, new_die, affix, inserted_index, condition_multiplier, ctx, result)
+		else:
+			affix_processor._apply_affix_effect(hand, new_die, affix, targets, condition_multiplier, ctx, result)
+		_handle_affix_results(result)
+		
+		affix_processor.affix_activated.emit(new_die, affix, targets)
+		print("  🔮 New die affix fired: %s → targets %s" % [affix.affix_name, targets])
+	
+	# 2. Reprocess neighbor-dependent affixes on adjacent dice
+	#    These dice were already processed during roll_hand(), but their
+	#    neighbor relationships changed when we inserted a new die.
+	var adjacent_indices: Array[int] = []
+	if inserted_index > 0:
+		adjacent_indices.append(inserted_index - 1)
+	if inserted_index < total - 1:
+		adjacent_indices.append(inserted_index + 1)
+	
+	for adj_idx in adjacent_indices:
+		var adj_die = hand[adj_idx]
+		for affix in adj_die.get_all_affixes():
+			if affix.trigger != DiceAffix.Trigger.ON_ROLL:
+				continue
+			# Only reprocess affixes that have a neighbor-aware condition
+			if not affix.has_condition():
+				continue
+			if not _is_neighbor_condition(affix.condition):
+				continue
+			if not affix.check_position(adj_idx, total):
+				continue
+			
+			var cond_result = affix.evaluate_condition(adj_die, hand, adj_idx, ctx)
+			if cond_result.blocked:
+				continue
+			
+			var targets = affix.get_target_indices(adj_idx, total)
+			var result = _make_affix_result()
+			if affix.is_compound():
+				affix_processor._apply_compound_effect(hand, adj_die, affix, adj_idx, cond_result.multiplier, ctx, result)
+			else:
+				affix_processor._apply_affix_effect(hand, adj_die, affix, targets, cond_result.multiplier, ctx, result)
+			_handle_affix_results(result)
+			
+			affix_processor.affix_activated.emit(adj_die, affix, targets)
+			print("  🔮 Adjacent die affix fired: %s on %s → targets %s" % [
+				affix.affix_name, adj_die.display_name, targets])
+
+
+func _is_neighbor_condition(condition: DiceAffixCondition) -> bool:
+	"""Check if a condition depends on neighbor state (and thus needs
+	reprocessing when neighbors change)."""
+	if not condition:
+		return false
+	match condition.type:
+		DiceAffixCondition.Type.NEIGHBOR_HAS_ELEMENT, \
+		DiceAffixCondition.Type.ALL_NEIGHBORS_HAVE_ELEMENT, \
+		DiceAffixCondition.Type.NEIGHBOR_ELEMENT_DIFFERS, \
+		DiceAffixCondition.Type.NEIGHBOR_VALUE_ABOVE, \
+		DiceAffixCondition.Type.ALL_NEIGHBORS_VALUE_ABOVE, \
+		DiceAffixCondition.Type.PER_QUALIFYING_NEIGHBOR, \
+		DiceAffixCondition.Type.NEIGHBORS_USED:
+			return true
+	return false
 
 
 func get_unconsumed_hand() -> Array[DieResource]:
@@ -822,6 +925,17 @@ func get_element_use_counts() -> Dictionary:
 # ============================================================================
 # MID-COMBAT DIE INSERTION (v4 — Mana System)
 # ============================================================================
+
+func _make_affix_result() -> Dictionary:
+	return {
+		"value_changes": {},
+		"tags_added": {},
+		"tags_removed": {},
+		"special_effects": [],
+		"combat_events": [],
+		"mana_events": [],
+	}
+
 
 func add_die_to_hand(die: DieResource) -> void:
 	"""Add a die directly to the hand mid-combat.
