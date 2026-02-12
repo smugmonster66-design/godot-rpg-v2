@@ -187,6 +187,13 @@ func _create_die_visual(die: DieResource, index: int) -> Control:
 				combat_obj.modulate = Color(1, 1, 1, 0)
 				combat_obj.draggable = false
 			
+			# Fire reactive event for mid-combat die creation
+			if die.is_mana_die:
+				var cm_node = get_tree().get_first_node_in_group("combat_manager")
+				if cm_node and "event_bus" in cm_node and cm_node.event_bus:
+					cm_node.event_bus.emit_die_created(combat_obj, "mana_pull")
+			
+			
 			return combat_obj
 		else:
 			print("      ⚠️ instantiate_combat_visual returned null")

@@ -198,6 +198,12 @@ func _animate_die_value(die_visual: Control, change: Dictionary, duration: float
 	
 	# Mark this change as applied so _finalize doesn't double-animate
 	_mark_value_applied(die_visual)
+	
+	
+	# Fire reactive animation event
+	var bus = _find_event_bus()
+	if bus:
+		bus.emit_die_value_changed(die_visual, from_val, to_val)
 
 
 func _mark_value_applied(die_visual: Control):
@@ -216,6 +222,16 @@ func _mark_value_applied(die_visual: Control):
 		if die_index < pool.hand.size():
 			pool.hand[die_index].modified_value = change.to
 		pool.pending_value_animations.erase(die_index)
+
+
+func _find_event_bus() -> CombatEventBus:
+	"""Look up the CombatEventBus via the combat_manager group."""
+	var cm = get_tree().get_first_node_in_group("combat_manager")
+	if cm and "event_bus" in cm:
+		return cm.event_bus
+	return null
+
+
 
 
 func _finalize_deferred_values():

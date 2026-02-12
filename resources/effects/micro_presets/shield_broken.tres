@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="MicroAnimationPreset" load_steps=2 format=3 uid="uid://dp10q41xkxemm"]
+
+[ext_resource type="Script" uid="uid://bucj7x6x47uy5" path="res://resources/data/micro_animation_preset.gd" id="1_8o382"]
+
+[resource]
+script = ExtResource("1_8o382")
+flash_enabled = true
+flash_color = Color(0.8, 1.2, 1.8, 1)
+flash_in_duration = 0.04
+flash_out_duration = 0.3
+shake_enabled = true
+shake_intensity = 5.0
+label_enabled = true
+label_text = "BROKEN!"
+label_color = Color(0.6, 0.9, 1, 1)
+label_font_size = 22
+label_bold = true
+label_duration = 0.8

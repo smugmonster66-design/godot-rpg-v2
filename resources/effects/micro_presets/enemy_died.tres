@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MicroAnimationPreset" load_steps=2 format=3 uid="uid://frrre0116rc"]
+
+[ext_resource type="Script" uid="uid://bucj7x6x47uy5" path="res://resources/data/micro_animation_preset.gd" id="1_on84b"]
+
+[resource]
+script = ExtResource("1_on84b")
+flash_enabled = true
+flash_color = Color(2, 2, 2, 1)
+flash_in_duration = 0.04
+flash_out_duration = 0.4
+shake_enabled = true
+shake_intensity = 6.0
+shake_duration = 0.25
+shake_count = 8
+screen_shake_enabled = true
+screen_shake_intensity = 5.0

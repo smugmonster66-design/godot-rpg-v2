@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="ReactionCondition" load_steps=2 format=3 uid="uid://bsbus37sju2a7"]
+
+[ext_resource type="Script" uid="uid://ccjdw1pfc320o" path="res://resources/data/reaction_condition.gd" id="1_33b54"]
+
+[resource]
+script = ExtResource("1_33b54")
+key = "amount"
+operator = 3
+compare_number = 10.0

@@ -14,7 +14,7 @@ var enemy_combatants: Array[Combatant] = []
 var combat_ui = null
 var battlefield_tracker: BattlefieldTracker = null
 var proc_processor: AffixProcProcessor = null
-
+var event_bus: CombatEventBus = null
 # ============================================================================
 # STATE
 # ============================================================================
@@ -225,6 +225,13 @@ func initialize_combat(p_player: Player):
 	player = p_player
 	combat_state = CombatState.INITIALIZING
 	
+	event_bus = CombatEventBus.new()
+	event_bus.name = "CombatEventBus"
+	event_bus.debug_logging = OS.is_debug_build()  # optional
+	add_child(event_bus)
+	print("  ✅ CombatEventBus initialized")
+	
+	
 	# Spawn enemies from encounter if we have one
 	if current_encounter and encounter_spawner:
 		encounter_spawner.spawn_encounter(current_encounter)
@@ -247,6 +254,17 @@ func _finalize_combat_init(p_player: Player):
 	_combat_initialized = true
 	
 	player = p_player
+	
+	
+	
+	# --- Reactive Animation Event Bus ---
+	event_bus = CombatEventBus.new()
+	event_bus.name = "CombatEventBus"
+	event_bus.debug_logging = OS.is_debug_build()
+	add_child(event_bus)
+	event_bus.emit_combat_started()
+	print("  ✅ CombatEventBus initialized")
+	
 	
 	# Sync player to combatant
 	_sync_player_to_combatant()
@@ -306,8 +324,55 @@ func _finalize_combat_init(p_player: Player):
 					_on_enemy_threshold_triggered.bind(enemy))
 	
 	
+	# --- Reactive Animation: Bridge status signals to event bus ---
+	if event_bus:
+		_connect_status_event_bridges()
+	
+	
+	
 	# Start first round
 	_start_round()
+
+
+func _connect_status_event_bridges():
+	"""Bridge StatusTracker signals to CombatEventBus for reactive animations.
+	Keeps StatusTracker decoupled — it doesn't know about the event bus."""
+	if player and player.status_tracker:
+		player.status_tracker.status_applied.connect(
+			func(sid, inst):
+				if event_bus:
+					var visual = _get_combatant_visual(player_combatant)
+					var affix: StatusAffix = inst.get("status_affix")
+					if visual and affix:
+						event_bus.emit_status_applied(visual, affix.status_name, inst.get("stacks", 1), affix.cleanse_tags)
+		)
+		player.status_tracker.status_removed.connect(
+			func(sid):
+				if event_bus:
+					var visual = _get_combatant_visual(player_combatant)
+					if visual:
+						event_bus.emit_status_removed(visual, sid)
+		)
+	
+	for enemy in enemy_combatants:
+		if enemy.has_node("StatusTracker"):
+			var tracker: StatusTracker = enemy.get_node("StatusTracker")
+			tracker.status_applied.connect(
+				func(sid, inst):
+					if event_bus:
+						var visual = _get_combatant_visual(enemy)
+						var affix: StatusAffix = inst.get("status_affix")
+						if visual and affix:
+							event_bus.emit_status_applied(visual, affix.status_name, inst.get("stacks", 1), affix.cleanse_tags)
+			)
+			tracker.status_removed.connect(
+				func(sid):
+					if event_bus:
+						var visual = _get_combatant_visual(enemy)
+						if visual:
+							event_bus.emit_status_removed(visual, sid)
+			)
+
 
 func _sync_player_to_combatant():
 	"""Sync player stats to combatant"""
@@ -449,6 +514,13 @@ func _start_player_turn():
 			return
 	
 	# --- END STATUS ---
+
+
+
+	if event_bus:
+			event_bus.emit_round_started(current_round)
+
+
 
 	# --- PROC: Turn-start procs ---
 	if player and player.affix_manager and proc_processor:
@@ -1254,6 +1326,7 @@ func _resolve_mana_events(events: Array[Dictionary]) -> void:
 						player.mana_pool.max_mana)
 					print("    🔮 Mana refund: +%d (%.0f%% of %d cost)" % [
 						refund, percent * 100, player.mana_pool.last_pull_cost])
+				
 			"mana_gain":
 				var amount = int(event.get("amount", 0))
 				if amount > 0:
@@ -1404,6 +1477,18 @@ func _apply_status_tick_results(player_ref, combatant: Combatant,
 			else:
 				combatant.heal(heal)
 	
+	
+		# Fire reactive animation events
+		if event_bus:
+			var visual = _get_combatant_visual(combatant)
+			if visual:
+				if damage > 0:
+					event_bus.emit_status_ticked(visual, status_name, damage, result.get("element", ""))
+				if heal > 0:
+					event_bus.emit_heal_applied(visual, heal)
+		
+		
+		
 	# Update health displays after all ticks
 	if combatant == player_combatant:
 		_update_player_health()
@@ -1935,6 +2020,11 @@ func _check_enemy_death(enemy: Combatant):
 		var index = enemy_combatants.find(enemy)
 		if combat_ui:
 			combat_ui.on_enemy_died(index)
+			
+	if event_bus:
+			var visual = _get_combatant_visual(enemy)
+			if visual:
+				event_bus.emit_enemy_died(visual, enemy.combatant_name)
 
 func _on_enemy_died(enemy: Combatant):
 	"""Handle enemy death"""
@@ -2057,6 +2147,13 @@ func _on_combat_ended(player_won: bool):
 			player.gold += total_gold
 			if player.active_class:
 				player.active_class.add_experience(total_exp)
+				
+	# --- Reactive Animation Cleanup ---
+	if combat_ui and "reactive_animator" in combat_ui and combat_ui.reactive_animator:
+		combat_ui.reactive_animator.cleanup()
+	if event_bus:
+		event_bus.emit_combat_ended(player_won)
+		event_bus.clear_history()
 
 
 # ============================================================================
@@ -2273,7 +2370,16 @@ func _on_enemy_threshold_triggered(status_id: String, data: Dictionary, source_e
 					tracker.apply_status(burn_res, 3, "Pyroclastic Flow")
 
 
-
+func _get_combatant_visual(combatant: Combatant) -> Node:
+	"""Get the visual node for a combatant (for reactive animation events)."""
+	if combatant == player_combatant:
+		if combat_ui and combat_ui.player_health_display:
+			return combat_ui.player_health_display
+		return null
+	var idx = enemy_combatants.find(combatant)
+	if idx >= 0 and combat_ui and combat_ui.enemy_panel:
+		return combat_ui.enemy_panel.get_enemy_visual(idx)
+	return null
 
 
 func _get_bottom_ui() -> Control:

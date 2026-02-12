@@ -111,6 +111,29 @@ class_name MicroAnimationPreset
 @export var particle_scale: Vector2 = Vector2.ONE
 
 # ============================================================================
+# COMBAT EFFECT (leverages existing CombatEffectPlayer pipeline)
+# ============================================================================
+@export_group("Combat Effect")
+
+## A CombatEffectPreset (ScatterConvergePreset, ShatterPreset, etc.)
+## Played via CombatEffectPlayer — supports projectiles, scatter-converge,
+## shader tracks, screen effects.
+@export var combat_effect_preset: CombatEffectPreset = null
+
+## Direction for the effect when both source and target nodes exist.
+enum EffectDirection { SOURCE_TO_TARGET, TARGET_TO_SOURCE }
+@export var combat_effect_direction: EffectDirection = EffectDirection.SOURCE_TO_TARGET
+
+## Appearance overrides passed to CombatEffectPlayer (keys: "tint", "element", "texture")
+@export var combat_effect_appearance: Dictionary = {}
+
+## A full CombatAnimationSet (cast → travel → impact) to play.
+## Use for reactions that should trigger a complete action-style sequence.
+## If both this and combat_effect_preset are set, preset wins.
+@export var combat_animation_set: CombatAnimationSet = null
+
+
+# ============================================================================
 # SOUND
 # ============================================================================
 @export_group("Sound")
@@ -203,6 +226,12 @@ func get_total_duration() -> float:
 	if label_enabled:
 		track_max = maxf(track_max, label_duration)
 
+	if combat_effect_preset and combat_effect_preset.has_method("get_total_duration"):
+		track_max = maxf(track_max, combat_effect_preset.get_total_duration())
+	if combat_animation_set:
+		var anim_dur = combat_animation_set.cast_duration + combat_animation_set.travel_duration + combat_animation_set.impact_duration
+		track_max = maxf(track_max, anim_dur)
+
 	return d + track_max
 
 
@@ -210,4 +239,5 @@ func has_any_track() -> bool:
 	"""Returns true if at least one animation track is enabled."""
 	return (scale_enabled or flash_enabled or shake_enabled or
 			screen_shake_enabled or label_enabled or
-			particle_scene != null or sound != null)
+			particle_scene != null or sound != null or
+			combat_effect_preset != null or combat_animation_set != null)

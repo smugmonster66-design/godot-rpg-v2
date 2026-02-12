@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="MicroAnimationPreset" load_steps=2 format=3 uid="uid://bvfqy15alf5u5"]
+
+[ext_resource type="Script" uid="uid://bucj7x6x47uy5" path="res://resources/data/micro_animation_preset.gd" id="1_i1wuj"]
+
+[resource]
+script = ExtResource("1_i1wuj")
+flash_enabled = true
+flash_color = Color(0.5, 0.5, 0.8, 1)
+flash_out_duration = 0.15

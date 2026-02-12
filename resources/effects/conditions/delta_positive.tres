@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="ReactionCondition" load_steps=2 format=3 uid="uid://8a1ilvelhsip"]
+
+[ext_resource type="Script" uid="uid://ccjdw1pfc320o" path="res://resources/data/reaction_condition.gd" id="1_kf5hb"]
+
+[resource]
+script = ExtResource("1_kf5hb")
+key = "delta"

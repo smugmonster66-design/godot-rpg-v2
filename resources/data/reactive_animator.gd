@@ -61,6 +61,12 @@ var _queue_groups: Dictionary = {}
 ## Track active animations for "all done" detection
 var _active_count: int = 0
 
+## Reference to CombatEffectPlayer for playing combat effect presets
+var _effect_player: CombatEffectPlayer = null
+
+## Reference to CombatAnimationPlayer for playing full animation sets
+var _animation_player: CombatAnimationPlayer = null
+
 # ============================================================================
 # SETUP
 # ============================================================================
@@ -82,12 +88,13 @@ func _ready():
 	_sort_reactions()
 
 
-func initialize(event_bus: CombatEventBus) -> void:
+func initialize(event_bus: CombatEventBus, effect_player: CombatEffectPlayer = null, animation_player: CombatAnimationPlayer = null) -> void:
 	"""Connect to the event bus. Call during CombatUI setup."""
 	_event_bus = event_bus
+	_effect_player = effect_player
+	_animation_player = animation_player
 	event_bus.game_event.connect(_on_game_event)
 	print("  ✅ ReactiveAnimator initialized with %d reactions" % reactions.size())
-
 
 func cleanup() -> void:
 	"""Disconnect and clean up. Call on combat end."""
@@ -99,6 +106,10 @@ func cleanup() -> void:
 	# Clean up effects container children
 	for child in _effects_container.get_children():
 		child.queue_free()
+		
+	
+	_effect_player = null
+	_animation_player = null
 
 # ============================================================================
 # EVENT HANDLING
@@ -170,6 +181,12 @@ func _play_reaction(reaction: AnimationReaction, event: CombatEvent) -> void:
 		_play_sound(target, preset)
 	if preset.label_enabled:
 		_spawn_floating_label(target, preset, event)
+
+	if preset.combat_effect_preset:
+		_play_combat_effect(target, preset, event)
+	if preset.combat_animation_set and not preset.combat_effect_preset:
+		_play_combat_animation_set(target, preset, event)
+
 
 	_active_count -= 1
 	reaction_finished.emit(reaction)
@@ -442,6 +459,74 @@ func _spawn_floating_label(target: Node, preset: MicroAnimationPreset, event: Co
 			preset.label_duration)
 
 	tween.finished.connect(label.queue_free)
+
+
+
+func _play_combat_effect(target: Node, preset: MicroAnimationPreset, event: CombatEvent) -> void:
+	"""Play a CombatEffectPreset via CombatEffectPlayer."""
+	if not preset.combat_effect_preset or not _effect_player:
+		return
+	
+	var target_pos = _get_global_center(target)
+	var source_pos = target_pos
+	
+	if event.source_node and is_instance_valid(event.source_node):
+		source_pos = _get_global_center(event.source_node)
+	
+	var from_pos: Vector2
+	var to_pos: Vector2
+	match preset.combat_effect_direction:
+		MicroAnimationPreset.EffectDirection.SOURCE_TO_TARGET:
+			from_pos = source_pos
+			to_pos = target_pos
+		MicroAnimationPreset.EffectDirection.TARGET_TO_SOURCE:
+			from_pos = target_pos
+			to_pos = source_pos
+	
+	var appearance = preset.combat_effect_appearance.duplicate()
+	if event.values.has("element_color"):
+		appearance["tint"] = event.values["element_color"]
+		appearance["element"] = event.values["element_color"]
+	
+	# Use Variant to bypass static type check for subclass detection
+	var effect_res: Variant = preset.combat_effect_preset
+	if effect_res is ScatterConvergePreset:
+		_effect_player.play_scatter_converge(
+			effect_res as ScatterConvergePreset,
+			CombatEffectTarget.position(from_pos),
+			CombatEffectTarget.position(to_pos),
+			appearance
+		)
+	elif _effect_player.has_method("play_effect"):
+		_effect_player.play_effect(
+			preset.combat_effect_preset,
+			from_pos, to_pos,
+			target if target is CanvasItem else null,
+			event.source_node if event.source_node is CanvasItem else null
+		)
+
+func _play_combat_animation_set(target: Node, preset: MicroAnimationPreset, event: CombatEvent) -> void:
+	"""Play a full CombatAnimationSet via CombatAnimationPlayer."""
+	if not preset.combat_animation_set or not _animation_player:
+		return
+	
+	var target_pos = _get_global_center(target)
+	var source_pos = target_pos
+	
+	if event.source_node and is_instance_valid(event.source_node):
+		source_pos = _get_global_center(event.source_node)
+	
+	var target_positions: Array[Vector2] = [target_pos]
+	var target_nodes: Array[Node2D] = []
+	if target is Node2D:
+		target_nodes.append(target)
+	
+	_animation_player.play_sequence(
+		preset.combat_animation_set,
+		source_pos,
+		target_positions,
+		target_nodes
+	)
 
 
 func _resolve_label_text(preset: MicroAnimationPreset, event: CombatEvent) -> String:

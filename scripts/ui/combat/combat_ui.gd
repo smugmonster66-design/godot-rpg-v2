@@ -31,6 +31,8 @@ var roll_animator: CombatRollAnimator = null
 
 var affix_visual_animator: AffixVisualAnimator = null
 
+var reactive_animator: ReactiveAnimator = null
+
 var effect_player: CombatEffectPlayer = null
 # ============================================================================
 # STATE
@@ -282,6 +284,39 @@ func initialize_ui(p_player: Player, p_enemies):
 		print("  ✅ AffixVisualAnimator initialized")
 	else:
 		push_warning("CombatUI: Could not initialize AffixVisualAnimator — no affix_processor found")
+	
+	
+	
+	# --- Reactive animation system ---
+	reactive_animator = ReactiveAnimator.new()
+	reactive_animator.name = "ReactiveAnimator"
+	add_child(reactive_animator)
+	
+	# Load all reaction .tres files from the reactions directory
+	var reaction_dir = "res://resources/effects/reactions/"
+	var dir = DirAccess.open(reaction_dir)
+	if dir:
+		dir.list_dir_begin()
+		var filename = dir.get_next()
+		while filename != "":
+			if filename.ends_with(".tres"):
+				var reaction = load(reaction_dir + filename) as AnimationReaction
+				if reaction:
+					reactive_animator.reactions.append(reaction)
+			filename = dir.get_next()
+		dir.list_dir_end()
+	
+	# Connect to the event bus on CombatManager
+	var cm = get_tree().get_first_node_in_group("combat_manager")
+	if cm and "event_bus" in cm and cm.event_bus:
+		var cm_anim_player = cm.find_child("CombatAnimationPlayer", true, false) as CombatAnimationPlayer
+		reactive_animator.initialize(cm.event_bus, effect_player, cm_anim_player)
+		print("  ✅ ReactiveAnimator initialized with %d reactions" % reactive_animator.reactions.size())
+	else:
+		push_warning("CombatUI: Could not find CombatEventBus for ReactiveAnimator")
+	
+	
+	
 	
 	print("🎮 CombatUI initialization complete")
 

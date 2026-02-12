@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="MicroAnimationPreset" load_steps=2 format=3 uid="uid://cgi76n8oaangl"]
+
+[ext_resource type="Script" uid="uid://bucj7x6x47uy5" path="res://resources/data/micro_animation_preset.gd" id="1_7aix6"]
+
+[resource]
+script = ExtResource("1_7aix6")
+flash_enabled = true
+flash_color = Color(1.6, 0.3, 0.3, 1)
+flash_in_duration = 0.04
+flash_out_duration = 0.25
+shake_enabled = true
+shake_intensity = 3.0
+shake_duration = 0.15
+shake_count = 4
+label_enabled = true
+label_color = Color(1, 0.2, 0.2, 1)
+label_font_size = 26
+label_bold = true
+label_rise_distance = 45.0
+label_duration = 0.8
+label_scatter_x = 10.0
