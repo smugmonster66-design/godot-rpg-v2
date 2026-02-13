@@ -237,6 +237,11 @@ func _update_button_state(button: SkillButton):
 		button.set_state(SkillButton.State.AVAILABLE)
 	else:
 		button.set_state(SkillButton.State.LOCKED)
+	
+	
+	# Apply tree's line shader to icon (stepped by rank)
+	if _current_tree and _current_tree.prereq_line_shader:
+		button.set_icon_shader(_current_tree.prereq_line_shader)
 
 # ============================================================================
 # DRAWING - prerequisite lines + optional grid background

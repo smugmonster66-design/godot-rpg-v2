@@ -373,7 +373,7 @@ func _connect_status_event_bridges():
 						var visual = _get_combatant_visual(enemy)
 						var affix: StatusAffix = inst.get("status_affix")
 						if visual and affix:
-							event_bus.emit_status_applied(visual, affix.status_name, inst.get("stacks", 1), affix.cleanse_tags)
+							event_bus.emit_status_applied(visual, affix.affix_name, inst.get("stacks", 1), affix.cleanse_tags)
 			)
 			tracker.status_removed.connect(
 				func(sid):

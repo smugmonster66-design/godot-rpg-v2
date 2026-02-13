@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/combat/damage_preview_floater.gd" id="1_floater"]
+[ext_resource type="PackedScene" uid="uid://element_damage_chip" path="res://scenes/ui/combat/element_damage_chip.tscn" id="2_chip"]
+
+[node name="DamagePreviewFloater" type="HBoxContainer"]
+script = ExtResource("1_floater")
+mouse_filter = 2
+alignment = 1
+add_theme_constant_override/separation = 6
+
+[node name="SlashingChip" parent="." instance=ExtResource("2_chip")]
+[node name="BluntChip" parent="." instance=ExtResource("2_chip")]
+[node name="PiercingChip" parent="." instance=ExtResource("2_chip")]
+[node name="FireChip" parent="." instance=ExtResource("2_chip")]
+[node name="IceChip" parent="." instance=ExtResource("2_chip")]
+[node name="ShockChip" parent="." instance=ExtResource("2_chip")]
+[node name="PoisonChip" parent="." instance=ExtResource("2_chip")]
+[node name="ShadowChip" parent="." instance=ExtResource("2_chip")]

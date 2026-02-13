@@ -174,6 +174,7 @@ func _apply_per_component_effects(affix: DiceAffix):
 						affix.stroke_overlay_blend_mode, affix.stroke_overlay_opacity)
 	
 	# Value label effects
+	# Value label effects
 	if value_label:
 		match affix.value_effect_type:
 			DiceAffix.ValueEffectType.COLOR:
@@ -183,10 +184,7 @@ func _apply_per_component_effects(affix: DiceAffix):
 			DiceAffix.ValueEffectType.COLOR_AND_OUTLINE:
 				value_label.add_theme_color_override("font_color", affix.value_text_color)
 				value_label.add_theme_color_override("font_outline_color", affix.value_outline_color)
-			DiceAffix.ValueEffectType.SHADER:
-				var mat = affix.resolve_value_material()
-				if mat:
-					value_label.material = mat
+			# Value shaders disabled — keep values readable with black outline
 
 
 

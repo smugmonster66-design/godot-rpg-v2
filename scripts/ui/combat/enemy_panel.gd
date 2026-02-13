@@ -302,6 +302,12 @@ func get_enemy_index(enemy: Combatant) -> int:
 			return i
 	return -1
 
+func get_enemy_visual(index: int) -> Control:
+	"""Get the EnemySlot visual node for a given enemy index.
+	Used by ReactiveAnimator for shake, flash, scale effects on enemies."""
+	if index >= 0 and index < enemy_slots.size():
+		return enemy_slots[index]
+	return null
 
 func _create_die_visual(die: DieResource) -> Control:
 	"""Create a die visual for the hand using new CombatDieObject system"""

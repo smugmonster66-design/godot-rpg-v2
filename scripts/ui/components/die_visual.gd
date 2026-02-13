@@ -346,10 +346,7 @@ func _apply_per_component_effects(affix: DiceAffix):
 			DiceAffix.ValueEffectType.COLOR_AND_OUTLINE:
 				value_label.add_theme_color_override("font_color", affix.value_text_color)
 				value_label.add_theme_color_override("font_outline_color", affix.value_outline_color)
-			DiceAffix.ValueEffectType.SHADER:
-				var mat = affix.resolve_value_material()
-				if mat:
-					value_label.material = mat
+			
 
 
 func _create_overlay(tex: Texture2D, blend_mode: int, opacity: float):

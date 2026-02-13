@@ -34,7 +34,7 @@ var name_label: Label
 var rank_label: Label
 var lock_overlay: Control
 var highlight_panel: Panel
-
+var _icon_shader_template: ShaderMaterial = null
 
 
 # ============================================================================
@@ -61,6 +61,34 @@ func _find_nodes():
 	rank_label = $VBoxContainer/HBoxContainer/RankLabel
 	lock_overlay = $LockOverlay
 	highlight_panel = $HighlightPanel
+
+
+func set_icon_shader(shader: ShaderMaterial):
+	"""Store the tree's line shader for rank-stepped application to the icon."""
+	_icon_shader_template = shader
+	_update_icon_shader()
+
+
+func _update_icon_shader():
+	"""Apply the line shader to the icon with fill_progress stepped by rank."""
+	if not icon_rect:
+		return
+	
+	if not _icon_shader_template or not skill:
+		icon_rect.material = null
+		return
+	
+	var max_rank = skill.get_max_rank()
+	if max_rank <= 0 or current_rank <= 0:
+		# No ranks invested — no shader
+		icon_rect.material = null
+		return
+	
+	var progress = clampf(float(current_rank) / float(max_rank), 0.0, 1.0)
+	
+	var mat = _icon_shader_template.duplicate() as ShaderMaterial
+	mat.set_shader_parameter("fill_progress", progress)
+	icon_rect.material = mat
 
 func _setup_input():
 	"""Setup mouse interaction"""
@@ -143,6 +171,9 @@ func _update_visual_state():
 			target.modulate = color_available
 		State.MAXED:
 			target.modulate = color_maxed
+	
+	_update_icon_shader() 
+	
 
 # ============================================================================
 # STATE MANAGEMENT

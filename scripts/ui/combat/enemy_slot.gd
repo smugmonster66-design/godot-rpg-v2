@@ -32,7 +32,7 @@ signal slot_unhovered(slot: EnemySlot)
 @onready var name_label: Label = $MarginContainer/VBox/NameLabel
 @onready var health_bar: TextureProgressBar = $MarginContainer/VBox/HealthBar
 @onready var health_label: Label = $MarginContainer/VBox/HealthLabel
-@onready var turn_indicator: ColorRect = $MarginContainer/VBox/TurnIndicatorRect
+#@onready var turn_indicator: ColorRect = $MarginContainer/VBox/TurnIndicatorRect
 
 
 # ============================================================================
@@ -45,13 +45,14 @@ var is_empty: bool = true
 var style_box: StyleBoxFlat = null
 var dice_icons: Array[Control] = []
 var turn_indicator_material: ShaderMaterial = null
-
+var turn_indicator: Control = null
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
 
 func _ready():
 	_setup_style()
+	turn_indicator = find_child("TurnIndicatorRect", true, false)
 	_setup_turn_indicator()
 	_connect_signals()
 	set_empty()
@@ -198,6 +199,9 @@ func refresh_dice_display():
 func get_enemy() -> Combatant:
 	"""Get the enemy in this slot"""
 	return enemy
+
+
+
 
 func is_alive() -> bool:
 	"""Check if enemy is alive"""

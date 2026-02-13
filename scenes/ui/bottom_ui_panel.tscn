@@ -1,13 +1,14 @@
-[gd_scene load_steps=14 format=3 uid="uid://c0w3t10mfnowo"]
+[gd_scene load_steps=15 format=3 uid="uid://c0w3t10mfnowo"]
 
 [ext_resource type="Script" uid="uid://cs3ncaepru3rn" path="res://scripts/ui/bottom_ui_panel.gd" id="1_1ip7k"]
 [ext_resource type="PackedScene" uid="uid://ds3fslulucbxd" path="res://scenes/ui/map/dice_grid.tscn" id="1_5ue3t"]
-[ext_resource type="Texture2D" uid="uid://dexfmanaos7u1" path="res://assets/ui/panels/9patch_bones_BG.png" id="5_3kms2"]
+[ext_resource type="Texture2D" uid="uid://c6sqtdxnbp2ab" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_bg.png" id="2_ob1iw"]
+[ext_resource type="Texture2D" uid="uid://bgqcm8i82101" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_hp.png" id="3_smlgd"]
+[ext_resource type="Texture2D" uid="uid://bhdufq5sfxngf" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_stroke_basic.png" id="4_0x4yc"]
 [ext_resource type="Script" uid="uid://fxekowigxepb" path="res://scripts/ui/components/add_gear_button.gd" id="5_5kghg"]
 [ext_resource type="PackedScene" uid="uid://cmdae6knaxo5a" path="res://scenes/ui/combat/mana_die_selector.tscn" id="5_ob1iw"]
-[ext_resource type="Texture2D" uid="uid://b7t35b1xyhqhr" path="res://assets/ui/panels/9patch_bones_frame.png" id="6_q6t8w"]
+[ext_resource type="Texture2D" uid="uid://dsvp7sgpdimti" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_xp.png" id="6_smlgd"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="6_tu5g0"]
-[ext_resource type="Texture2D" uid="uid://bvsk25hynfa1h" path="res://assets/ui/panels/9patch_bones_healthfill.png" id="7_ye8ax"]
 [ext_resource type="Resource" uid="uid://bph6gp6nhb28h" path="res://resources/items/main hand/venom_dagger.tres" id="8_2my3p"]
 [ext_resource type="Resource" uid="uid://bb7im66tynxkr" path="res://resources/items/head/iron_helm.tres" id="8_25ydp"]
 [ext_resource type="Script" uid="uid://bmitbn1xm1k41" path="res://scripts/ui/components/combat_button.gd" id="9_2my3p"]
@@ -28,78 +29,98 @@ size_flags_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxEmpty_smlgd")
 script = ExtResource("1_1ip7k")
 
-[node name="MainHBox" type="HBoxContainer" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Control" type="Control" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MainHBox" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 alignment = 2
 
-[node name="Control" type="Control" parent="MainHBox"]
+[node name="Control" type="Control" parent="VBoxContainer/MainHBox"]
 custom_minimum_size = Vector2(400, 0)
 layout_mode = 2
 
-[node name="LeftSection" type="VBoxContainer" parent="MainHBox"]
+[node name="LeftSection" type="VBoxContainer" parent="VBoxContainer/MainHBox"]
 layout_mode = 2
+theme_override_constants/separation = 0
 alignment = 1
 
-[node name="Label" type="Label" parent="MainHBox/LeftSection"]
+[node name="Label" type="Label" parent="VBoxContainer/MainHBox/LeftSection"]
 layout_mode = 2
 text = "Classname Lvl X"
 horizontal_alignment = 1
 
-[node name="HealthBar" type="TextureProgressBar" parent="MainHBox/LeftSection"]
-visible = false
+[node name="HealthBar" type="TextureProgressBar" parent="VBoxContainer/MainHBox/LeftSection"]
 custom_minimum_size = Vector2(300, 40)
 layout_mode = 2
-texture_under = ExtResource("5_3kms2")
-texture_over = ExtResource("6_q6t8w")
-texture_progress = ExtResource("7_ye8ax")
+nine_patch_stretch = true
+stretch_margin_left = 15
+stretch_margin_top = 10
+stretch_margin_right = 15
+stretch_margin_bottom = 10
+texture_under = ExtResource("2_ob1iw")
+texture_over = ExtResource("3_smlgd")
+texture_progress = ExtResource("4_0x4yc")
 
-[node name="ManaDieSelector" parent="MainHBox/LeftSection" instance=ExtResource("5_ob1iw")]
+[node name="ManaDieSelector" parent="VBoxContainer/MainHBox/LeftSection" instance=ExtResource("5_ob1iw")]
 layout_mode = 2
-mana_bar_height = 48.0
 
-[node name="ManaBar" type="TextureProgressBar" parent="MainHBox/LeftSection"]
-visible = false
+[node name="ExpBar" type="TextureProgressBar" parent="VBoxContainer/MainHBox/LeftSection"]
 custom_minimum_size = Vector2(300, 40)
 layout_mode = 2
+nine_patch_stretch = true
+stretch_margin_left = 15
+stretch_margin_top = 10
+stretch_margin_right = 15
+stretch_margin_bottom = 10
+texture_under = ExtResource("2_ob1iw")
+texture_over = ExtResource("6_smlgd")
+texture_progress = ExtResource("4_0x4yc")
 
-[node name="ExpBar" type="TextureProgressBar" parent="MainHBox/LeftSection"]
-custom_minimum_size = Vector2(300, 40)
+[node name="DiceSection" type="VBoxContainer" parent="VBoxContainer/MainHBox/LeftSection"]
 layout_mode = 2
 
-[node name="DiceSection" type="VBoxContainer" parent="MainHBox/LeftSection"]
-layout_mode = 2
-
-[node name="DiceHeader" type="HBoxContainer" parent="MainHBox/LeftSection/DiceSection"]
+[node name="DiceHeader" type="HBoxContainer" parent="VBoxContainer/MainHBox/LeftSection/DiceSection"]
 visible = false
 layout_mode = 2
 
-[node name="DiceTitle" type="Label" parent="MainHBox/LeftSection/DiceSection/DiceHeader"]
+[node name="DiceTitle" type="Label" parent="VBoxContainer/MainHBox/LeftSection/DiceSection/DiceHeader"]
 layout_mode = 2
 text = "Dice Hand"
 
-[node name="Spacer" type="Control" parent="MainHBox/LeftSection/DiceSection/DiceHeader"]
+[node name="Spacer" type="Control" parent="VBoxContainer/MainHBox/LeftSection/DiceSection/DiceHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="DiceCountLabel" type="Label" parent="MainHBox/LeftSection/DiceSection/DiceHeader" groups=["dice_count_label"]]
+[node name="DiceCountLabel" type="Label" parent="VBoxContainer/MainHBox/LeftSection/DiceSection/DiceHeader" groups=["dice_count_label"]]
 layout_mode = 2
 text = "0/10"
 
-[node name="DiceGrid" parent="MainHBox/LeftSection/DiceSection" instance=ExtResource("1_5ue3t")]
+[node name="DiceGrid" parent="VBoxContainer/MainHBox/LeftSection/DiceSection" instance=ExtResource("1_5ue3t")]
 layout_mode = 2
 
-[node name="RightSection" type="VBoxContainer" parent="MainHBox"]
+[node name="Control" type="Control" parent="VBoxContainer/MainHBox/LeftSection"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="RightSection" type="VBoxContainer" parent="VBoxContainer/MainHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 alignment = 1
 
-[node name="MenuButton" type="Button" parent="MainHBox/RightSection"]
+[node name="MenuButton" type="Button" parent="VBoxContainer/MainHBox/RightSection"]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 text = "MENU"
 
-[node name="AddStartingGearButton" type="Button" parent="MainHBox/RightSection"]
+[node name="AddStartingGearButton" type="Button" parent="VBoxContainer/MainHBox/RightSection"]
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Add Starting Gear"
@@ -107,44 +128,48 @@ script = ExtResource("5_5kghg")
 starting_items = Array[ExtResource("6_tu5g0")]([ExtResource("8_25ydp"), ExtResource("8_2my3p")])
 drop_item_level = 2
 
-[node name="CombatButton" type="Button" parent="MainHBox/RightSection"]
+[node name="CombatButton" type="Button" parent="VBoxContainer/MainHBox/RightSection"]
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Begin Test Combat"
 script = ExtResource("9_2my3p")
 encounter = ExtResource("10_25ydp")
 
-[node name="ButtonArea" type="CenterContainer" parent="MainHBox/RightSection"]
+[node name="ButtonArea" type="CenterContainer" parent="VBoxContainer/MainHBox/RightSection"]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MainHBox/RightSection/ButtonArea"]
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/MainHBox/RightSection/ButtonArea"]
 layout_mode = 2
 
-[node name="ActionButtonsContainer" type="HBoxContainer" parent="MainHBox/RightSection/ButtonArea/VBoxContainer"]
+[node name="ActionButtonsContainer" type="HBoxContainer" parent="VBoxContainer/MainHBox/RightSection/ButtonArea/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 20
 alignment = 1
 
-[node name="ConfirmButton" type="Button" parent="MainHBox/RightSection/ButtonArea/VBoxContainer/ActionButtonsContainer"]
+[node name="ConfirmButton" type="Button" parent="VBoxContainer/MainHBox/RightSection/ButtonArea/VBoxContainer/ActionButtonsContainer"]
 layout_mode = 2
 text = "Confirm"
 
-[node name="CancelButton" type="Button" parent="MainHBox/RightSection/ButtonArea/VBoxContainer/ActionButtonsContainer"]
+[node name="CancelButton" type="Button" parent="VBoxContainer/MainHBox/RightSection/ButtonArea/VBoxContainer/ActionButtonsContainer"]
 layout_mode = 2
 text = "Cancel"
 
-[node name="Spacer4" type="Control" parent="MainHBox/RightSection/ButtonArea/VBoxContainer"]
+[node name="Spacer4" type="Control" parent="VBoxContainer/MainHBox/RightSection/ButtonArea/VBoxContainer"]
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="RollButton" type="Button" parent="MainHBox/RightSection/ButtonArea/VBoxContainer"]
+[node name="RollButton" type="Button" parent="VBoxContainer/MainHBox/RightSection/ButtonArea/VBoxContainer"]
 layout_mode = 2
 text = "ROLL THE BONES!"
 
-[node name="EndTurnButton" type="Button" parent="MainHBox/RightSection/ButtonArea/VBoxContainer"]
+[node name="EndTurnButton" type="Button" parent="VBoxContainer/MainHBox/RightSection/ButtonArea/VBoxContainer"]
 layout_mode = 2
 text = "End Turn"
 
-[node name="MarginContainer" type="MarginContainer" parent="MainHBox"]
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/MainHBox"]
 layout_mode = 2
+
+[node name="Control2" type="Control" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3

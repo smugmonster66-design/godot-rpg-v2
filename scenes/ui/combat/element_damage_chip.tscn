@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/combat/element_damage_chip.gd" id="1_chip"]
+
+[node name="ElementDamageChip" type="HBoxContainer"]
+script = ExtResource("1_chip")
+visible = false
+mouse_filter = 2
+add_theme_constant_override/separation = 2
+
+[node name="ElementIcon" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(16, 16)
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ValueLabel" type="Label" parent="."]
+mouse_filter = 2
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+vertical_alignment = 1

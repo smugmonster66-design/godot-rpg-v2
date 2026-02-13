@@ -1,16 +1,14 @@
-[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://b62vosd0wti72"]
+[gd_resource type="Resource" script_class="Action" load_steps=5 format=3 uid="uid://b62vosd0wti72"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_sh28g"]
 [ext_resource type="Resource" uid="uid://cld12xhom5ovd" path="res://resources/action_effects/status_conditions/poison_strike_damage.tres" id="2_7payj"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_sbpig"]
 [ext_resource type="Resource" uid="uid://1nx7pffs8mla" path="res://resources/action_effects/status_conditions/poison_strike_apply_poison.tres" id="3_secpa"]
-[ext_resource type="Texture2D" uid="uid://dfhsyoge15o0a" path="res://assets/actions/icons/poison_dagger.png" id="4_v85hi"]
 
 [resource]
 script = ExtResource("2_sbpig")
 action_id = "poison_strike"
 action_name = "Poison Strike"
 action_description = "Deals 1D+2Poison and applies 3 Poison stacks."
-icon = ExtResource("4_v85hi")
 effects = Array[ExtResource("1_sh28g")]([ExtResource("2_7payj"), ExtResource("3_secpa")])
 metadata/_custom_type_script = "uid://b1kctq61bwysh"

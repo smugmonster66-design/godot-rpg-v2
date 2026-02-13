@@ -69,7 +69,7 @@ var fill_texture: NinePatchRect = null
 var stroke_texture: NinePatchRect = null
 var mult_label: Label = null
 var source_badge: TextureRect = null
-
+var damage_floater: DamagePreviewFloater = null
 # ============================================================================
 # STATE
 # ============================================================================
@@ -137,7 +137,7 @@ func _discover_nodes():
 	stroke_texture = find_child("StrokeTexture", true, false) as NinePatchRect
 	mult_label = find_child("MultLabel", true, false) as Label
 	source_badge = find_child("SourceBadge", true, false) as TextureRect
-
+	damage_floater = find_child("DamagePreviewFloater", true, false) as DamagePreviewFloater  # ← ADD THIS
 
 
 func _set_children_mouse_pass():
@@ -226,6 +226,18 @@ func _update_damage_preview():
 	
 	# Tint label with element color
 	dmg_preview_label.add_theme_color_override("font_color", element_color)
+	
+	
+	# ── Update floating element breakdown (with affix bonuses) ──
+	if damage_floater:
+		var attacker_affixes: AffixPoolManager = null
+		if GameManager and GameManager.player:
+			attacker_affixes = GameManager.player.affix_manager
+		damage_floater.update_preview(
+			placed_dice, element, base_damage, damage_multiplier,
+			action_resource, attacker_affixes
+		)
+	
 
 func _update_heal_preview():
 	"""Update preview for heal actions"""
@@ -765,6 +777,11 @@ func _clear_placed_dice():
 	
 	update_icon_state()
 	_update_damage_preview()
+	
+	# ── NEW: Instant-clear the floater ──
+	if damage_floater:
+		damage_floater.clear()
+	
 
 func consume_dice():
 	_clear_placed_dice()

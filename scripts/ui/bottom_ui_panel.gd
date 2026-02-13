@@ -18,30 +18,6 @@ signal cancel_pressed
 # NODE REFERENCES - Matching actual scene structure
 # ============================================================================
 
-# Left section - stats and dice
-@onready var left_section: VBoxContainer = $MainHBox/LeftSection
-@onready var class_label: Label = $MainHBox/LeftSection/Label
-@onready var health_bar: TextureProgressBar = $MainHBox/LeftSection/HealthBar
-@onready var mana_bar: TextureProgressBar = $MainHBox/LeftSection/ManaBar
-@onready var exp_bar: TextureProgressBar = $MainHBox/LeftSection/ExpBar
-@onready var mana_die_selector: ManaDieSelector = $MainHBox/LeftSection/ManaDieSelector
-
-# Dice section
-@onready var dice_section: VBoxContainer = $MainHBox/LeftSection/DiceSection
-@onready var dice_grid: Control = $MainHBox/LeftSection/DiceSection/DiceGrid
-@onready var dice_count_label: Label = $MainHBox/LeftSection/DiceSection/DiceHeader/DiceCountLabel
-
-# Right section - menu and combat buttons
-@onready var right_section: VBoxContainer = $MainHBox/RightSection
-@onready var menu_button: Button = $MainHBox/RightSection/MenuButton
-
-# Combat buttons (in RightSection/ButtonArea)
-@onready var button_area: CenterContainer = $MainHBox/RightSection/ButtonArea
-@onready var roll_button: Button = $MainHBox/RightSection/ButtonArea/VBoxContainer/RollButton
-@onready var end_turn_button: Button = $MainHBox/RightSection/ButtonArea/VBoxContainer/EndTurnButton
-@onready var action_buttons_container: HBoxContainer = $MainHBox/RightSection/ButtonArea/VBoxContainer/ActionButtonsContainer
-@onready var confirm_button: Button = $MainHBox/RightSection/ButtonArea/VBoxContainer/ActionButtonsContainer/ConfirmButton
-@onready var cancel_button: Button = $MainHBox/RightSection/ButtonArea/VBoxContainer/ActionButtonsContainer/CancelButton
 
 # ============================================================================
 # STATE
@@ -50,19 +26,50 @@ var player: Resource = null
 var player_menu: Control = null
 
 
-
+# Node references (discovered in _ready)
+var left_section: Control
+var class_label: Label
+var health_bar: TextureProgressBar
+var mana_die_selector: Control
+#var mana_bar: TextureProgressBar
+var exp_bar: TextureProgressBar
+var dice_section: VBoxContainer
+var dice_grid: Control
+var dice_count_label: Label
+var right_section: VBoxContainer
+var menu_button: Button
+var confirm_button: Button
+var cancel_button: Button
+var roll_button: Button
+var end_turn_button: Button
+var button_area: CenterContainer
+var action_buttons_container: HBoxContainer
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
 
 func _ready():
-	print("📱 BottomUIPanel ready")
+	# Discover nodes by name (reorganization-proof)
+	class_label = find_child("Label", true, false) as Label
+	health_bar = find_child("HealthBar", true, false) as TextureProgressBar
+	mana_die_selector = find_child("ManaDieSelector", true, false)
+	#mana_bar = find_child("ManaBar", true, false) as TextureProgressBar
+	exp_bar = find_child("ExpBar", true, false) as TextureProgressBar
+	dice_section = find_child("DiceSection", true, false) as VBoxContainer
+	dice_grid = find_child("DiceGrid", true, false)
+	dice_count_label = find_child("DiceCountLabel", true, false) as Label
+	menu_button = find_child("MenuButton", true, false) as Button
+	confirm_button = find_child("ConfirmButton", true, false) as Button
+	cancel_button = find_child("CancelButton", true, false) as Button
+	roll_button = find_child("RollButton", true, false) as Button
+	end_turn_button = find_child("EndTurnButton", true, false) as Button
+	button_area = find_child("ButtonArea", true, false) as CenterContainer
+	action_buttons_container = find_child("ActionButtonsContainer", true, false) as HBoxContainer
 	
-	add_to_group("bottom_ui")
 	
-	# Connect menu button
 	if menu_button:
 		menu_button.pressed.connect(_on_menu_button_pressed)
+	
 		print("  ✅ Menu button connected")
 	else:
 		print("  ❌ Menu button not found at $MainHBox/RightSection/MenuButton")
@@ -160,11 +167,7 @@ func _update_stats_display():
 		health_bar.max_value = player.max_hp
 		health_bar.value = player.current_hp
 	
-	# Mana bar
-	if mana_bar:
-		mana_bar.max_value = player.max_mana
-		mana_bar.value = player.current_mana
-	
+
 	# Experience bar
 	if exp_bar and player.active_class:
 		exp_bar.max_value = player.active_class.get_exp_for_next_level()
@@ -186,9 +189,7 @@ func _setup_mana_die_selector():
 	if not player:
 		return
 
-	# Hide the simple mana bar — casters get the selector, non-casters don't need it
-	if mana_bar:
-		mana_bar.hide()
+
 
 	if not mana_die_selector:
 		print("  ⚠️ ManaDieSelector node not found in scene")
@@ -232,9 +233,8 @@ func _on_hp_changed(current: int, maximum: int):
 		health_bar.value = current
 
 func _on_mana_changed(current: int, maximum: int):
-	if mana_bar:
-		mana_bar.max_value = maximum
-		mana_bar.value = current
+	if mana_die_selector and mana_die_selector.has_method("update_mana_bar"):
+		mana_die_selector.update_mana_bar(current, maximum)
 
 func _on_class_changed(_new_class):
 	_update_stats_display()

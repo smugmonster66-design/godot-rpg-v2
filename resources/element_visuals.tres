@@ -19,7 +19,7 @@
 [ext_resource type="Material" path="res://resources/materials/dice/piercing_stroke.tres" id="12_w7ja0"]
 [ext_resource type="Material" path="res://resources/materials/dice/piercing_value.tres" id="13_4rii0"]
 [ext_resource type="Material" path="res://resources/materials/dice/poison_stroke.tres" id="15_t48sy"]
-[ext_resource type="Material" path="res://resources/materials/dice/poison_value.tres" id="16_6pdhu"]
+[ext_resource type="Material" uid="uid://cjs7acwrxpph1" path="res://resources/materials/dice/poison_value.tres" id="16_6pdhu"]
 [ext_resource type="Material" path="res://resources/materials/dice/shadow_stroke.tres" id="19_sbao4"]
 [ext_resource type="Material" path="res://resources/materials/dice/shadow_value.tres" id="20_20lmv"]
 [ext_resource type="Material" path="res://resources/materials/dice/shock_stroke.tres" id="22_gqtnh"]

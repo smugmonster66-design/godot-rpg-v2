@@ -1,6 +1,6 @@
-[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://cjs7acwrxpph1"]
 
-[ext_resource type="Shader" path="res://shaders/dice/poison/poison_value.gdshader" id="1_shader"]
+[ext_resource type="Shader" uid="uid://cmrahkgu3wpei" path="res://shaders/dice/poison/poison_value.gdshader" id="1_shader"]
 
 [resource]
 shader = ExtResource("1_shader")

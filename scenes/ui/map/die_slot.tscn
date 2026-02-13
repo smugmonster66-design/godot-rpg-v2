@@ -2,18 +2,13 @@
 
 [ext_resource type="Script" uid="uid://c38lua4f68kv0" path="res://scripts/ui/map/die_slot.gd" id="1_x72hv"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pg7sh"]
-bg_color = Color(0.15847227, 0.15847233, 0.15847221, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_x72hv"]
 
 [node name="DieSlot" type="PanelContainer"]
 custom_minimum_size = Vector2(24, 24)
 offset_right = 40.0
 offset_bottom = 40.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_pg7sh")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_x72hv")
 script = ExtResource("1_x72hv")
 die_display_scale = 0.30000000000000004
 
@@ -37,7 +32,6 @@ layout_mode = 2
 [node name="ValueLabel" type="Label" parent="Content/DieDisplay" groups=["value_label"]]
 layout_mode = 2
 size_flags_horizontal = 4
-text = "X"
 
 [node name="BottomRow" type="HBoxContainer" parent="Content/DieDisplay"]
 layout_mode = 2
@@ -57,10 +51,12 @@ text = "◆"
 horizontal_alignment = 1
 
 [node name="EmptyDisplay" type="CenterContainer" parent="Content"]
+visible = false
 layout_mode = 2
 mouse_filter = 2
 
 [node name="EmptyLabel" type="Label" parent="Content/EmptyDisplay"]
+visible = false
 layout_mode = 2
 text = "+"
 horizontal_alignment = 1
