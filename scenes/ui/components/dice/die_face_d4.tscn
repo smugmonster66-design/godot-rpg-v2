@@ -5,10 +5,10 @@
 [node name="DiceFace" instance=ExtResource("1_r0c6s")]
 
 [node name="ValueLabel" parent="." index="1"]
-offset_left = 23.0
-offset_top = 32.0
-offset_right = 63.0
-offset_bottom = 115.0
+offset_left = 39.0
+offset_top = 30.0
+offset_right = 79.0
+offset_bottom = 113.0
 theme_override_constants/outline_size = 12
 theme_override_font_sizes/font_size = 60
 text = "X"

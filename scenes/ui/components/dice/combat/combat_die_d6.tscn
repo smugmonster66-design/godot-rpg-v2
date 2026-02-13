@@ -7,3 +7,4 @@
 [node name="ValueLabel" parent="." index="2"]
 offset_left = -42.0
 offset_right = -2.0
+theme_override_font_sizes/font_size = 40

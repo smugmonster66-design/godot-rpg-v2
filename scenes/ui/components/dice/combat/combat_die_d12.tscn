@@ -9,5 +9,5 @@ offset_left = -24.0
 offset_top = -45.0
 offset_right = 26.0
 offset_bottom = 38.0
-theme_override_font_sizes/font_size = 44
+theme_override_font_sizes/font_size = 40
 text = "12"

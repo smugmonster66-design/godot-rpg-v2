@@ -1,5 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://c0mbat_d20_01"]
+[gd_scene load_steps=2 format=3 uid="uid://dsceel0i8h4wv"]
 
-[ext_resource type="PackedScene" uid="uid://c0mbat_d1e_base" path="res://scenes/ui/components/dice/combat/combat_die_object_base.tscn" id="1_base"]
+[ext_resource type="PackedScene" uid="uid://bmga53i2fyko4" path="res://scenes/ui/components/dice/combat/combat_die_object_base.tscn" id="1_base"]
 
 [node name="CombatDieD20" instance=ExtResource("1_base")]
+
+[node name="ValueLabel" parent="." index="2"]
+offset_top = -39.0
+offset_bottom = 44.0
+theme_override_font_sizes/font_size = 40
+text = "20"

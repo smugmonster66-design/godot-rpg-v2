@@ -587,12 +587,7 @@ func _on_roll_pressed():
 		# Roll the hand
 		player.dice_pool.roll_hand()
 		
-		# v4 — Mana System: Refill mana at start of action phase
-		if player.has_mana_pool():
-			player.mana_pool.refill()
-			print("  🔮 Mana refilled to %d/%d" % [
-				player.mana_pool.current_mana,
-				player.mana_pool.max_mana])
+		
 
 		# Wait one frame for refresh to create visuals
 		await get_tree().process_frame
