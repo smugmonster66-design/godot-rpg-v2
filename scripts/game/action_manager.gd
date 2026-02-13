@@ -16,6 +16,11 @@ func initialize(p_player: Player):
 	if player:
 		if not player.equipment_changed.is_connected(_on_equipment_changed):
 			player.equipment_changed.connect(_on_equipment_changed)
+		
+		# Rebuild actions when bonus ranks grant/revoke NEW_ACTION affixes
+		if player.active_class and player.active_class.has_signal("effective_ranks_changed"):
+			if not player.active_class.effective_ranks_changed.is_connected(_on_effective_ranks_changed):
+				player.active_class.effective_ranks_changed.connect(_on_effective_ranks_changed)
 	
 	rebuild_actions()
 
@@ -61,8 +66,22 @@ func _add_item_actions():
 			if elem_id >= 0:
 				action_dict["source_element"] = elem_id
 			
+			# v6: Apply die slot bonuses from action-scoped affixes
+			if player and player.affix_manager:
+				var slot_bonus = player.affix_manager.get_action_die_slot_bonus(
+					item.action.action_id
+				)
+				if slot_bonus > 0:
+					action_dict["die_slots"] = action_dict.get("die_slots", 1) + slot_bonus
+					print("  🎲 +%d die slots to %s (from skill ranks)" % [
+						slot_bonus, item.action.action_name
+					])
+			
 			actions.append(action_dict)
-			print("  ✅ Added action: %s from %s" % [action_dict.get("name", "?"), item.item_name])
+			print("  ✅ Added action: %s from %s (slots: %d)" % [
+				action_dict.get("name", "?"), item.item_name,
+				action_dict.get("die_slots", 1)
+			])
 
 func _add_affix_granted_actions():
 	"""Add actions granted by NEW_ACTION affixes."""
@@ -74,6 +93,16 @@ func _add_affix_granted_actions():
 		if action_resource:
 			var action_dict = action_resource.to_dict()
 			action_dict["action_resource"] = action_resource
+			
+			# v6: Apply die slot bonuses from action-scoped affixes
+			var slot_bonus = player.affix_manager.get_action_die_slot_bonus(
+				action_resource.action_id
+			)
+			if slot_bonus > 0:
+				action_dict["die_slots"] = action_dict.get("die_slots", 1) + slot_bonus
+				print("  🎲 +%d die slots to %s (from skill ranks)" % [
+					slot_bonus, action_resource.action_name
+				])
 			
 			# Try to find source item for icon/rarity/element
 			var source_name = action_dict.get("source", "")
@@ -87,9 +116,16 @@ func _add_affix_granted_actions():
 						action_dict["source_element"] = elem_id
 			
 			actions.append(action_dict)
-			print("  ✅ Added affix action: %s" % action_dict.get("name", "?"))
+			print("  ✅ Added affix action: %s (slots: %d)" % [
+				action_dict.get("name", "?"), action_dict.get("die_slots", 1)
+			])
 
 func _on_equipment_changed(_slot: String, _item):
+	rebuild_actions()
+
+func _on_effective_ranks_changed(_changed_skills: Array[String]):
+	"""Bonus ranks changed — actions may have been granted or revoked."""
+	print("📋 ActionManager: Effective ranks changed for %s — rebuilding" % str(_changed_skills))
 	rebuild_actions()
 
 func get_actions() -> Array[Dictionary]:

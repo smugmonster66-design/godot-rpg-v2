@@ -22,6 +22,7 @@ signal closed
 @export_group("Visuals")
 @export var icon_rect: TextureRect
 @export var overlay: Control  ## Dark background, click to close
+@export var skill_buttons_default_icon: Texture2D
 
 @export_group("Buttons")
 @export var learn_button: Button
@@ -70,7 +71,7 @@ func _ready():
 # SHOW / CLOSE
 # ============================================================================
 
-func show_skill(skill: SkillResource, rank: int, skill_can_learn: bool, points_available: int, missing_reqs: Array = []):
+func show_skill(skill: SkillResource, rank: int, skill_can_learn: bool, points_available: int, missing_reqs: Array = [], effective_rank: int = -1):
 	"""Populate and show the popup for a skill."""
 	current_skill = skill
 	current_rank = rank
@@ -80,6 +81,8 @@ func show_skill(skill: SkillResource, rank: int, skill_can_learn: bool, points_a
 		return
 
 	var max_rank = skill.get_max_rank()
+	if effective_rank < 0:
+		effective_rank = rank
 	var is_maxed = rank >= max_rank
 
 	# Name
@@ -88,17 +91,30 @@ func show_skill(skill: SkillResource, rank: int, skill_can_learn: bool, points_a
 
 	# Icon
 	if icon_rect:
-		icon_rect.texture = skill.icon if skill.icon else null
-
+		if skill.icon:
+			icon_rect.texture = skill.icon
+		elif current_skill and skill_buttons_default_icon:
+			icon_rect.texture = skill_buttons_default_icon
+		else:
+			icon_rect.texture = null
+			
+	
+	
 	# Description — BBCode enabled so [color=red]...[/color] tags render
 	if description_label:
 		description_label.bbcode_enabled = true
 		description_label.clear()
 		description_label.append_text(skill.description)
 
-	# Rank
 	if rank_label:
-		rank_label.text = "Rank: %d / %d" % [rank, max_rank]
+		if effective_rank > rank and rank > 0:
+			rank_label.text = "%d / %d  (+%d from gear)" % [effective_rank, max_rank, effective_rank - rank]
+			rank_label.add_theme_color_override("font_color", Color(0.4, 0.6, 1.0))  # Blue
+		else:
+			rank_label.text = "%d / %d" % [rank, max_rank]
+			rank_label.remove_theme_color_override("font_color")
+
+	print("🔍 Popup: rank=%d effective=%d max=%d" % [rank, effective_rank, max_rank])
 
 	# Cost
 	if cost_label:

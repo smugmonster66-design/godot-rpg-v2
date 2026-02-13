@@ -1,8 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://oquaqbwome63"]
+[gd_scene load_steps=7 format=3 uid="uid://oquaqbwome63"]
 
 [ext_resource type="Texture2D" uid="uid://b1rubriysiqha" path="res://assets/ui/menu_tabs/inv_button_base_stone.png" id="1_3kq64"]
 [ext_resource type="Script" uid="uid://bxgc88xa0lbgj" path="res://scripts/ui/menus/skill_button.gd" id="1_d5ye0"]
 [ext_resource type="Texture2D" uid="uid://bpg8dolk1xfxr" path="res://assets/ui/icons/skills/default skill icon 48.png" id="3_pc0cu"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_pc0cu"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_pc0cu"]
 texture = ExtResource("1_3kq64")
@@ -21,31 +23,51 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_pc0cu")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_pc0cu")
 script = ExtResource("1_d5ye0")
 default_icon = ExtResource("3_pc0cu")
 color_locked = Color(1, 1, 1, 1)
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="ButtonTexture" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxTexture_pc0cu")
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/ButtonTexture"]
 layout_mode = 2
 theme_override_constants/margin_bottom = -10
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
-layout_mode = 2
-
-[node name="Control" type="Control" parent="MarginContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="IconRect" type="TextureRect" parent="MarginContainer/VBoxContainer"]
+[node name="IconRect" type="TextureRect" parent="VBoxContainer/ButtonTexture/MarginContainer"]
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+visible = false
 layout_mode = 2
+alignment = 1
+
+[node name="Control" type="Control" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="NameLabel" type="Label" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
 text = "SkillName"
 horizontal_alignment = 1
+
+[node name="RankLabel" type="Label" parent="VBoxContainer/HBoxContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 10
+text = "X/X"
 
 [node name="LockOverlay" type="ColorRect" parent="."]
 visible = false

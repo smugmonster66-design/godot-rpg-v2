@@ -248,7 +248,7 @@ func _build_skill_grid():
 	if not tree:
 		return
 	var points_spent = _get_points_spent_in_current_tree()
-	skill_canvas.build(tree, _get_skill_rank_callable(), points_spent)
+	skill_canvas.build(tree, _get_skill_rank_callable(), points_spent, player.active_class if player else null)
 
 # ============================================================================
 # SKILL BUTTON UPDATES
@@ -274,11 +274,12 @@ func _on_skill_clicked(skill: SkillResource):
 		return
 	
 	var current_rank = _get_skill_rank(skill.skill_id)
+	var effective_rank = _get_effective_skill_rank(skill)
 	var tree_points = _get_points_spent_in_current_tree()
 	var can_learn = skill.can_learn(_get_skill_rank_callable(), tree_points)
 	var available_points = player.active_class.get_available_skill_points()
 	
-	skill_popup.show_skill(skill, current_rank, can_learn, available_points)
+	skill_popup.show_skill(skill, current_rank, can_learn, available_points, [], effective_rank)
 
 func _on_popup_learn_pressed(skill: SkillResource):
 	"""Handle Learn button press from popup."""
@@ -352,6 +353,18 @@ func _learn_skill(skill: SkillResource):
 			var affix_copy = affix.duplicate_with_source(skill.skill_name, "skill")
 			player.affix_manager.add_affix(affix_copy)
 			print("  ✨ Applied affix: %s" % affix.affix_name)
+			
+			# Register granted actions in the skill→action registry
+			if affix.category == Affix.Category.NEW_ACTION and affix.granted_action:
+				player.active_class.register_skill_action(
+					skill.skill_id, affix.granted_action.action_id
+				)
+				print("  📋 Registered action: %s → %s" % [
+					skill.skill_id, affix.granted_action.action_id
+				])
+	
+	# Track applied effective rank for bonus rank diffing
+	player.active_class.applied_effective_ranks[skill.skill_id] = new_rank
 	
 	# Notify mana pool that available elements/sizes may have changed
 	if player.mana_pool:
@@ -359,16 +372,22 @@ func _learn_skill(skill: SkillResource):
 	
 	print("🌳 Learned %s rank %d!" % [skill.skill_name, new_rank])
 	
+	
+	# Gear bonuses may now apply to the newly learned skill
+	if player.active_class:
+		player.active_class.recalculate_effective_ranks()
+	
+	
 	skill_learned.emit(skill, new_rank)
 	refresh()
 	
-	# Refresh the popup to show updated rank/state
 	if skill_popup and skill_popup.visible:
 		var updated_rank = _get_skill_rank(skill_id)
+		var updated_effective = _get_effective_skill_rank(skill)
 		var tree_points = _get_points_spent_in_current_tree()
 		var can_learn = skill.can_learn(_get_skill_rank_callable(), tree_points)
 		var available_points = player.active_class.get_available_skill_points()
-		skill_popup.show_skill(skill, updated_rank, can_learn, available_points)
+		skill_popup.show_skill(skill, updated_rank, can_learn, available_points, [], updated_effective)
 
 # ============================================================================
 # RESET
@@ -388,8 +407,17 @@ func reset_current_tree():
 		if rank <= 0:
 			continue
 		
+		# Unregister any granted actions
+		var action_id = player.active_class.get_action_for_skill(skill.skill_id)
+		if action_id != "":
+			player.active_class.unregister_skill_action(skill.skill_id)
+			print("  📋 Unregistered action: %s → %s" % [skill.skill_id, action_id])
+		
 		# Remove affixes
 		player.affix_manager.remove_affixes_by_source(skill.skill_name)
+		
+		# Clear applied effective rank tracking
+		player.active_class.applied_effective_ranks.erase(skill.skill_id)
 		
 		# Refund points
 		for i in range(rank * skill.skill_point_cost):
@@ -401,6 +429,8 @@ func reset_current_tree():
 	print("🌳 Reset %s tree" % tree.tree_name)
 	refresh()
 
+
+
 func reset_all_trees():
 	"""Reset all skills across all trees"""
 	if not player or not player.active_class:
@@ -410,10 +440,13 @@ func reset_all_trees():
 		if skill:
 			player.affix_manager.remove_affixes_by_source(skill.skill_name)
 	
+	# Clear registries
+	player.active_class.skill_action_registry.clear()
+	player.active_class.applied_effective_ranks.clear()
+	
 	player.active_class.reset_all_skills()
 	
 	print("🌳 All skills reset!")
-	refresh()
 
 # ============================================================================
 # DEBUG
@@ -428,6 +461,18 @@ func print_learned_skills():
 	print("=== Learned Skills for %s ===" % player.active_class.player_class_name)
 	for skill_id in player.active_class.skill_ranks:
 		print("  %s: Rank %d" % [skill_id, player.active_class.skill_ranks[skill_id]])
+
+func _get_effective_skill_rank(skill: SkillResource) -> int:
+	"""Get effective rank including gear bonuses."""
+	if not player or not player.active_class or not skill:
+		return 0
+	var tree = _get_current_skill_tree()
+	var tree_id = tree.tree_id if tree else ""
+	var class_id = player.active_class.player_class_name if player.active_class else ""
+	return player.active_class.get_effective_skill_rank(
+		skill.skill_id, tree_id, class_id, skill.get_max_rank()
+	)
+
 
 func print_tree_status():
 	"""Debug: Print current tree status"""

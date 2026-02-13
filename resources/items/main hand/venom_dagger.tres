@@ -1,10 +1,11 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=6 format=3 uid="uid://bph6gp6nhb28h"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=7 format=3 uid="uid://bph6gp6nhb28h"]
 
 [ext_resource type="Resource" uid="uid://b62vosd0wti72" path="res://resources/actions/items/weapons/main hand/poison_dagger_poison_strike_action.tres" id="1_i2esi"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_xrgs5"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="2_d08na"]
 [ext_resource type="Texture2D" uid="uid://cehygalcjcvxu" path="res://assets/items/weapons/epic/frost-hammer.png" id="2_i2esi"]
 [ext_resource type="Resource" uid="uid://cfl45vqle17ud" path="res://resources/dice/base elemental dice/d6_poison.tres" id="3_xd7go"]
+[ext_resource type="Resource" uid="uid://c0sxd33tyi0ei" path="res://resources/affixes/test/test_kindling_dock_affix.tres" id="5_jq0cd"]
 
 [resource]
 script = ExtResource("2_d08na")
@@ -14,6 +15,7 @@ icon = ExtResource("2_i2esi")
 rarity = 1
 has_elemental_identity = true
 elemental_identity = 6
+manual_first_affix = ExtResource("5_jq0cd")
 grants_dice = Array[ExtResource("1_xrgs5")]([ExtResource("3_xd7go")])
 grants_action = true
 action = ExtResource("1_i2esi")

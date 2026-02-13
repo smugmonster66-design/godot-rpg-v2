@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://dmqxmg63alred"]
+[gd_scene load_steps=6 format=3 uid="uid://dmqxmg63alred"]
 
 [ext_resource type="Script" uid="uid://ck2sof202atyx" path="res://scripts/ui/menus/skill_popup.gd" id="1_xcuef"]
+[ext_resource type="Texture2D" uid="uid://bpg8dolk1xfxr" path="res://assets/ui/icons/skills/default skill icon 48.png" id="2_jo354"]
 [ext_resource type="Texture2D" uid="uid://cmk1c3mj40ywo" path="res://assets/ui/panels/9patch bones 250x.png" id="2_tjnfd"]
 [ext_resource type="StyleBox" uid="uid://bpgqthlvqbwrr" path="res://scenes/ui/menus/button_texture_stylebox.tres" id="3_jo354"]
 
@@ -26,6 +27,7 @@ cost_label = NodePath("Overlay/PopupPanel/MarginContainer/VBox/StatsHBox/CostLab
 prerequisites_label = NodePath("Overlay/PopupPanel/MarginContainer/VBox/PrerequisitesLabel")
 icon_rect = NodePath("Overlay/PopupPanel/MarginContainer/VBox/IconRect")
 overlay = NodePath("Overlay")
+skill_buttons_default_icon = ExtResource("2_jo354")
 learn_button = NodePath("Overlay/PopupPanel/MarginContainer/VBox/ButtonsHBox/LearnButton")
 close_button = NodePath("Overlay/PopupPanel/MarginContainer/VBox/ButtonsHBox/PopupCloseButton")
 

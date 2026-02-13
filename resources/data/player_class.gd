@@ -231,7 +231,8 @@ func get_all_learned_skill_ids() -> Array[String]:
 # ============================================================================
 
 func get_effective_skill_rank(skill_id: String, tree_id: String = "",
-		class_id: String = "", max_rank: int = 5) -> int:
+		class_id: String = "", max_rank: int = 5,
+		skill_tags: Array[String] = []) -> int:
 	"""Get the effective rank of a skill including bonus ranks from gear.
 	
 	Bonus ranks do NOT unlock unlearned skills — base rank must be >= 1.
@@ -242,31 +243,40 @@ func get_effective_skill_rank(skill_id: String, tree_id: String = "",
 		tree_id: The skill's tree ID (for TREE_SKILL_RANK_BONUS lookups).
 		class_id: The class ID (for CLASS_SKILL_RANK_BONUS lookups).
 		max_rank: Maximum rank this skill supports.
+		skill_tags: Tags on the SkillResource (for TAG_SKILL_RANK_BONUS lookups).
 	"""
 	var base_rank: int = skill_ranks.get(skill_id, 0)
 	if base_rank == 0:
 		return 0  # Unlearned — bonus ranks don't unlock skills
 	
+	
 	var bonus: int = _get_skill_rank_bonus(skill_id, tree_id, class_id)
-	return mini(base_rank + bonus, max_rank)
+	return base_rank + bonus  # Gear can push past max — over-cap re-applies highest rank affix
 
-func _get_skill_rank_bonus(skill_id: String, tree_id: String, class_id: String) -> int:
+func _get_skill_rank_bonus(skill_id: String, tree_id: String,
+		class_id: String, skill_tags: Array[String] = []) -> int:
 	"""Sum all skill rank bonuses from equipment/affixes.
 	
 	Queries the player's AffixPoolManager for:
 	  - SKILL_RANK_BONUS matching this skill_id
 	  - TREE_SKILL_RANK_BONUS matching this tree_id
 	  - CLASS_SKILL_RANK_BONUS matching this class_id
+	  - TAG_SKILL_RANK_BONUS matching any tag on the skill
 	
 	Requires affix_manager to be set on the parent Player.
 	"""
 	var bonus: int = 0
 	
-	# Access affix_manager via the Player (parent sets this at init)
-	# This method is called from skills_tab which has a Player reference
-	# We store a reference when the player is initialized
 	if not _affix_manager_ref:
+		print("⚠️ _affix_manager_ref is null for %s!" % skill_id)
 		return 0
+	
+	
+	var pool = _affix_manager_ref.get_pool(Affix.Category.SKILL_RANK_BONUS)
+	print("🔍 Checking rank bonus for %s — pool size: %d" % [skill_id, pool.size()])
+	for affix in pool:
+		print("   affix: %s | effect_data: %s" % [affix.affix_name, affix.effect_data])
+	
 	
 	# +N to specific skill
 	for affix in _affix_manager_ref.get_pool(Affix.Category.SKILL_RANK_BONUS):
@@ -285,6 +295,15 @@ func _get_skill_rank_bonus(skill_id: String, tree_id: String, class_id: String) 
 			if affix.effect_data.get("class_id", "") == class_id:
 				bonus += int(affix.effect_number)
 	
+	# +N to all skills with a matching tag
+	if not skill_tags.is_empty():
+		for affix in _affix_manager_ref.get_pool(Affix.Category.TAG_SKILL_RANK_BONUS):
+			var required_tag = affix.effect_data.get("tag", "")
+			if required_tag != "" and required_tag in skill_tags:
+				bonus += int(affix.effect_number)
+	
+	
+	print("   → total bonus for %s: %d" % [skill_id, bonus])
 	return bonus
 
 ## Reference to AffixPoolManager — set by Player during initialization.
@@ -295,12 +314,181 @@ func set_affix_manager_ref(manager: AffixPoolManager) -> void:
 	"""Store reference to the player's AffixPoolManager for bonus rank queries."""
 	_affix_manager_ref = manager
 
+# ============================================================================
+# SKILL → ACTION REGISTRY (v6)
+# ============================================================================
+
+## Maps skill_id → action_id for skills that grant combat actions via NEW_ACTION.
+## Populated during skill learning, used by combat to trace actions back to skills.
+var skill_action_registry: Dictionary = {}  # { "flame_eruption": "eruption_action" }
+
+## Tracks the highest rank whose affixes are currently applied per skill.
+## Includes bonus ranks from equipment. Used by Chunk 2 to diff on equip changes.
+var applied_effective_ranks: Dictionary = {}  # { "flame_eruption": 3 }
+
+## Emitted when equipment changes cause effective ranks to shift.
+## Array contains skill_ids whose effective rank changed.
+signal effective_ranks_changed(changed_skills: Array[String])
+
+func register_skill_action(skill_id: String, action_id: String) -> void:
+	"""Register that a skill grants a specific action."""
+	skill_action_registry[skill_id] = action_id
+
+func unregister_skill_action(skill_id: String) -> void:
+	"""Remove a skill's action registration."""
+	skill_action_registry.erase(skill_id)
+
+func get_skill_for_action(action_id: String) -> String:
+	"""Reverse lookup: given an action_id, find which skill granted it."""
+	for skill_id in skill_action_registry:
+		if skill_action_registry[skill_id] == action_id:
+			return skill_id
+	return ""
+
+func get_action_for_skill(skill_id: String) -> String:
+	"""Forward lookup: given a skill_id, get its granted action_id."""
+	return skill_action_registry.get(skill_id, "")
+
+
+# ============================================================================
+# BONUS RANK APPLICATION ENGINE (v6 — Chunk 2)
+# ============================================================================
+
+func recalculate_effective_ranks() -> Array[String]:
+	print("🔍 recalculate_effective_ranks called")
+	print("   _affix_manager_ref: %s" % _affix_manager_ref)
+	
+	"""Recalculate all effective ranks and apply/remove delta affixes.
+	
+	Compares each learned skill's current effective rank (including gear bonuses)
+	against the last applied effective rank. For any difference, applies or
+	removes the appropriate rank affixes.
+	
+	Returns array of skill_ids whose effective rank changed.
+	Call this from Player.recalculate_stats() after equipment affixes are updated.
+	"""
+	if not _affix_manager_ref:
+		return []
+	
+	var changed: Array[String] = []
+	
+	for skill_id in skill_ranks:
+		var base_rank: int = skill_ranks[skill_id]
+		if base_rank == 0:
+			continue
+		
+		# Look up the SkillResource to get tree_id, max_rank, tags
+		var skill: SkillResource = _find_skill_resource(skill_id)
+		if not skill:
+			continue
+		
+		var tree_id: String = _find_tree_id_for_skill(skill_id)
+		var new_effective: int = get_effective_skill_rank(
+			skill_id, tree_id, class_id, skill.get_max_rank(), skill.tags
+		)
+		var old_effective: int = applied_effective_ranks.get(skill_id, base_rank)
+		
+		if new_effective == old_effective:
+			continue
+		
+		changed.append(skill_id)
+		
+		if new_effective > old_effective:
+			# Apply affixes for ranks (old_effective+1) through new_effective
+			for rank in range(old_effective + 1, new_effective + 1):
+				_apply_bonus_rank_affixes(skill, rank)
+		else:
+			# Remove affixes for ranks (new_effective+1) through old_effective
+			for rank in range(new_effective + 1, old_effective + 1):
+				_remove_bonus_rank_affixes(skill, rank)
+		
+		applied_effective_ranks[skill_id] = new_effective
+		print("📊 %s effective rank: %d → %d (base %d)" % [
+			skill.skill_name, old_effective, new_effective, base_rank
+		])
+	
+	if not changed.is_empty():
+		effective_ranks_changed.emit(changed)
+	
+	return changed
+
+
+func _apply_bonus_rank_affixes(skill: SkillResource, rank: int) -> void:
+	"""Apply all affixes for a specific rank of a skill (bonus rank path)."""
+	var affixes = skill.get_affixes_for_rank(rank)
+	for affix in affixes:
+		if not affix:
+			continue
+		var copy = affix.duplicate_with_source(skill.skill_name, "skill")
+		_affix_manager_ref.add_affix(copy)
+		print("  ⬆️ Bonus rank applied: %s (rank %d of %s)" % [
+			affix.affix_name, rank, skill.skill_name
+		])
+		
+		# If this grants an action, register it
+		if affix.category == Affix.Category.NEW_ACTION and affix.granted_action:
+			register_skill_action(skill.skill_id, affix.granted_action.action_id)
+			print("  📋 Bonus rank registered action: %s → %s" % [
+				skill.skill_id, affix.granted_action.action_id
+			])
+
+
+func _remove_bonus_rank_affixes(skill: SkillResource, rank: int) -> void:
+	"""Remove affixes that were applied for a specific bonus rank."""
+	var affixes = skill.get_affixes_for_rank(rank)
+	for affix in affixes:
+		if not affix:
+			continue
+		var removed = _affix_manager_ref.remove_affix_by_source_and_name(
+			skill.skill_name, affix.affix_name
+		)
+		if removed:
+			print("  ⬇️ Bonus rank removed: %s (rank %d of %s)" % [
+				affix.affix_name, rank, skill.skill_name
+			])
+		else:
+			push_warning("  ⚠️ Could not find affix to remove: %s from %s rank %d" % [
+				affix.affix_name, skill.skill_name, rank
+			])
+		
+		# If this removes an action, unregister it
+		if affix.category == Affix.Category.NEW_ACTION and affix.granted_action:
+			unregister_skill_action(skill.skill_id)
+			print("  📋 Bonus rank unregistered action: %s" % skill.skill_id)
+
+
+func _find_skill_resource(skill_id: String) -> SkillResource:
+	"""Find a SkillResource by ID across all skill trees."""
+	for tree in get_skill_trees():
+		if not tree:
+			continue
+		var skill = tree.get_skill_by_id(skill_id)
+		if skill:
+			return skill
+	return null
+
+
+func _find_tree_id_for_skill(skill_id: String) -> String:
+	"""Find which tree a skill belongs to."""
+	for tree in get_skill_trees():
+		if not tree:
+			continue
+		if tree.get_skill_by_id(skill_id):
+			return tree.tree_id
+	return ""
+
+
+
 func reset_all_skills():
 	"""Reset all skills and refund points"""
 	var spent = get_spent_skill_points()
 	skill_ranks.clear()
+	applied_effective_ranks.clear()
+	skill_action_registry.clear()
 	skill_points = total_skill_points
 	print("🌳 Reset all skills, refunded %d points" % spent)
+
+
 
 # ============================================================================
 # DICE METHODS
@@ -443,7 +631,9 @@ func to_save_data() -> Dictionary:
 		"experience": experience,
 		"skill_points": skill_points,
 		"total_skill_points": total_skill_points,
-		"skill_ranks": skill_ranks.duplicate()
+		"skill_ranks": skill_ranks.duplicate(),
+		"skill_action_registry": skill_action_registry.duplicate(),
+		"applied_effective_ranks": applied_effective_ranks.duplicate(),
 	}
 
 func load_save_data(data: Dictionary):
@@ -453,6 +643,10 @@ func load_save_data(data: Dictionary):
 	skill_points = data.get("skill_points", 0)
 	total_skill_points = data.get("total_skill_points", 0)
 	skill_ranks = data.get("skill_ranks", {}).duplicate()
+	skill_action_registry = data.get("skill_action_registry", {}).duplicate()
+	applied_effective_ranks = data.get("applied_effective_ranks", {}).duplicate()
+
+
 
 # ============================================================================
 # VALIDATION

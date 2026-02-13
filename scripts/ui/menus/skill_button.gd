@@ -24,6 +24,7 @@ signal skill_rank_changed(skill: SkillResource, new_rank: int)
 enum State { LOCKED, AVAILABLE, MAXED }
 var current_state: State = State.LOCKED
 var current_rank: int = 0
+var effective_rank: int = 0
 
 # ============================================================================
 # NODE REFERENCES (found via groups or names)
@@ -55,8 +56,11 @@ func _ready():
 	_update_display()
 
 func _find_nodes():
-	icon_rect = $MarginContainer/VBoxContainer/IconRect
-	name_label = $MarginContainer/VBoxContainer/NameLabel
+	icon_rect = $VBoxContainer/ButtonTexture/MarginContainer/IconRect
+	name_label = $VBoxContainer/HBoxContainer/NameLabel
+	rank_label = $VBoxContainer/HBoxContainer/RankLabel
+	lock_overlay = $LockOverlay
+	highlight_panel = $HighlightPanel
 
 func _setup_input():
 	"""Setup mouse interaction"""
@@ -80,9 +84,7 @@ func _update_display():
 	if icon_rect:
 		icon_rect.texture = skill.icon if skill.icon else default_icon
 	
-	# Update name
-	if name_label:
-		name_label.text = skill.skill_name
+	
 	
 	# Update rank display
 	_update_rank_display()
@@ -96,34 +98,51 @@ func _show_empty():
 		icon_rect.texture = null
 	if name_label:
 		name_label.text = ""
-	if rank_label:
-		rank_label.text = ""
 	if lock_overlay:
 		lock_overlay.hide()
 	
 	modulate = Color(0.5, 0.5, 0.5, 0.3)
+
 
 func _update_rank_display():
 	if not rank_label or not skill:
 		return
 	
 	var max_rank = skill.get_max_rank()
+	var has_bonus = effective_rank > current_rank and current_rank > 0
+	var display_rank = effective_rank if has_bonus else current_rank
+	
 	if max_rank > 1:
-		rank_label.text = "%d/%d" % [current_rank, max_rank]
+		if has_bonus:
+			rank_label.text = "%d+%d/%d" % [current_rank, effective_rank - current_rank, max_rank]
+		else:
+			rank_label.text = "%d/%d" % [current_rank, max_rank]
 	else:
-		rank_label.text = "1" if current_rank > 0 else "0"
+		if has_bonus:
+			rank_label.text = "%d" % effective_rank
+		else:
+			rank_label.text = "%d" % current_rank
+	
+	# Blue tint when gear-boosted
+	if has_bonus:
+		rank_label.add_theme_color_override("font_color", Color(0.4, 0.6, 1.0))
+	else:
+		rank_label.remove_theme_color_override("font_color")
+
 
 func _update_visual_state():
 	if not skill:
 		return
 	
+	var button_texture = $ButtonTexture if has_node("ButtonTexture") else null
+	var target = button_texture if button_texture else self
 	match current_state:
 		State.LOCKED:
-			modulate = color_locked
+			target.modulate = color_locked
 		State.AVAILABLE:
-			modulate = color_available
+			target.modulate = color_available
 		State.MAXED:
-			modulate = color_maxed
+			target.modulate = color_maxed
 
 # ============================================================================
 # STATE MANAGEMENT

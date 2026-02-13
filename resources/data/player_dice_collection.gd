@@ -452,7 +452,7 @@ func clear_hand():
 # ============================================================================
 
 func insert_into_hand(index: int, die: DieResource):
-	"""Insert a die into the hand at a specific position.
+	"""Insert a die at a specific position in the hand.
 	Used by the mana system to place a pulled die where the player dropped it.
 	Updates all slot indices, processes neighbor-aware affixes, and emits hand_changed."""
 	index = clampi(index, 0, hand.size())
@@ -464,6 +464,11 @@ func insert_into_hand(index: int, die: DieResource):
 	print("🎲 Inserted %s into hand at index %d (hand size: %d)" % [
 		die.display_name, index, hand.size()])
 
+	# Snapshot values BEFORE affix processing
+	var pre_values: Dictionary = {}
+	for i in range(hand.size()):
+		pre_values[i] = hand[i].modified_value
+
 	# Process ON_ROLL affixes for the new die AND adjacent dice
 	# against the full hand so neighbor conditions can resolve
 	if affix_processor:
@@ -474,7 +479,60 @@ func insert_into_hand(index: int, die: DieResource):
 		if modifier.applies_to_die(die, index):
 			modifier.apply_to_die(die)
 
+	# Track value changes from insertion for deferred animation
+	var insertion_changes: Dictionary = {}
+	for i in range(hand.size()):
+		var old_val = pre_values.get(i, hand[i].modified_value)
+		var new_val = hand[i].modified_value
+		if new_val != old_val:
+			insertion_changes[i] = {"from": old_val, "to": new_val}
+
 	hand_changed.emit()
+
+	# Emit value change events AFTER hand_changed triggers display refresh
+	# call_deferred ensures visuals exist when ReactiveAnimator receives the events
+	if not insertion_changes.is_empty():
+		call_deferred("_emit_insertion_value_events", insertion_changes)
+
+
+func _emit_insertion_value_events(changes: Dictionary):
+	"""Emit DIE_VALUE_CHANGED events for dice modified during mana die insertion.
+	Called deferred so visuals exist when ReactiveAnimator processes the events."""
+	var bus: CombatEventBus = null
+	var managers = get_tree().get_nodes_in_group("combat_manager") if is_inside_tree() else []
+	for m in managers:
+		if "event_bus" in m and m.event_bus:
+			bus = m.event_bus
+			break
+	if not bus:
+		return
+	
+	# Find the display to resolve visuals
+	var displays = get_tree().get_nodes_in_group("dice_pool_display") if is_inside_tree() else []
+	var display: DicePoolDisplay = null
+	for d in displays:
+		if d is DicePoolDisplay:
+			display = d
+			break
+	
+	for die_index in changes:
+		var change = changes[die_index]
+		var visual: Node = null
+		if display:
+			visual = display.get_die_visual_at(die_index)
+		
+		if visual:
+			# Animate the value on the visual (it currently shows final value from refresh)
+			if visual is CombatDieObject and visual.has_method("animate_value_to"):
+				var flash_color = Color(0.5, 1.5, 0.5) if change.to > change.from else Color(1.5, 0.5, 0.5)
+				# Show the pre-change value first, then animate to final
+				if visual.value_label:
+					visual.value_label.text = str(change.from)
+				visual.animate_value_to(change.to, 0.25, flash_color)
+			
+			# Fire the reactive event — triggers pop + floating "+N"
+			bus.emit_die_value_changed(visual, change.from, change.to, "insertion")
+			print("  📡 Deferred DIE_VALUE_CHANGED: die[%d] %d → %d" % [die_index, change.from, change.to])
 
 
 func _process_insertion_affixes(inserted_index: int):
@@ -935,6 +993,9 @@ func _make_affix_result() -> Dictionary:
 		"combat_events": [],
 		"mana_events": [],
 	}
+
+
+
 
 
 func add_die_to_hand(die: DieResource) -> void:

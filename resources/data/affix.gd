@@ -82,6 +82,13 @@ enum Category {
 	SKILL_RANK_BONUS,            ## +N to a specific skill. effect_data: {"skill_id": "flame_inferno"}
 	TREE_SKILL_RANK_BONUS,       ## +N to all skills in a tree. effect_data: {"tree_id": "mage_flame"}
 	CLASS_SKILL_RANK_BONUS,      ## +N to all class skills. effect_data: {"class_id": "mage"}
+	TAG_SKILL_RANK_BONUS,        ## +N to all skills with a tag. effect_data: {"tag": "fire"}
+	# ── Action-Scoped Bonuses (v6) ──
+	ACTION_DAMAGE_BONUS,         ## +N flat damage to a specific action. effect_data: {"action_id": "fireball"}
+	ACTION_DAMAGE_MULTIPLIER,    ## ×N damage to a specific action. effect_data: {"action_id": "fireball"}
+	ACTION_BASE_DAMAGE_BONUS,    ## +N base damage to a specific action. effect_data: {"action_id": "fireball"}
+	ACTION_DIE_SLOT_BONUS,       ## +N die slots to a specific action. effect_data: {"action_id": "fireball"}
+	ACTION_EFFECT_UPGRADE,       ## Adds/modifies an effect on a specific action. effect_data: {"action_id": "fireball", "extra_effect": ActionEffect}
 }
 
 # ============================================================================
@@ -452,6 +459,7 @@ func get_resolved_description() -> String:
 		value_str = str(int(effect_number))
 	
 	return description.replace("N", value_str)
+	
 func _is_multiplier_category() -> bool:
 	"""Check if this affix's category is a multiplier type."""
 	return category in [

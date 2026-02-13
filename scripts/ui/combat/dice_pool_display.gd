@@ -430,9 +430,20 @@ func animate_dice_return(dice_info: Array[Dictionary]):
 		)
 
 
+
+
 func get_die_at_position(pos: Vector2) -> Control:
 	for visual in die_visuals:
 		if visual.get_global_rect().has_point(pos):
+			return visual
+	return null
+
+
+func get_die_visual_at(index: int) -> Control:
+	"""Get the visual node for a die at a specific hand index.
+	Uses slot_index since consumed dice are skipped in the visuals array."""
+	for visual in die_visuals:
+		if is_instance_valid(visual) and "slot_index" in visual and visual.slot_index == index:
 			return visual
 	return null
 

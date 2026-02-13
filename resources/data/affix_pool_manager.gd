@@ -61,6 +61,20 @@ func remove_affixes_by_source(p_source: String):
 		for affix in to_remove:
 			pools[category].erase(affix)
 
+func remove_affix_by_source_and_name(source: String, affix_name: String) -> bool:
+	"""Remove ONE affix matching both source and name. Returns true if found.
+	
+	Used by the bonus rank engine to surgically remove a specific rank's affix
+	without affecting other ranks from the same skill.
+	"""
+	for category in pools:
+		for affix in pools[category]:
+			if affix.matches_source(source) and affix.affix_name == affix_name:
+				pools[category].erase(affix)
+				return true
+	return false
+
+
 # ============================================================================
 # QUERY POOLS
 # ============================================================================
@@ -363,6 +377,102 @@ func get_granted_dice() -> Array[DieResource]:
 				dice.append(die)
 	
 	return dice
+
+# ============================================================================
+# ACTION-SCOPED AFFIX QUERIES (v6)
+# ============================================================================
+
+## All action-scoped categories for iteration
+const ACTION_SCOPED_CATEGORIES: Array[int] = [
+	Affix.Category.ACTION_DAMAGE_BONUS,
+	Affix.Category.ACTION_DAMAGE_MULTIPLIER,
+	Affix.Category.ACTION_BASE_DAMAGE_BONUS,
+	Affix.Category.ACTION_DIE_SLOT_BONUS,
+	Affix.Category.ACTION_EFFECT_UPGRADE,
+]
+
+func get_action_scoped_affixes(action_id: String) -> Array[Affix]:
+	"""Get all affixes that target a specific action, across all scoped categories."""
+	var result: Array[Affix] = []
+	for cat in ACTION_SCOPED_CATEGORIES:
+		for affix in get_pool(cat):
+			if affix.effect_data.get("action_id", "") == action_id:
+				result.append(affix)
+	return result
+
+func get_action_damage_bonus(action_id: String) -> float:
+	"""Sum all flat damage bonuses scoped to an action.
+	
+	Used by combat_calculator during damage resolution (Chunk 4).
+	Returns 0.0 if no matching affixes.
+	"""
+	var total: float = 0.0
+	for affix in get_pool(Affix.Category.ACTION_DAMAGE_BONUS):
+		if affix.effect_data.get("action_id", "") == action_id:
+			total += affix.apply_effect()
+	return total
+
+func get_action_base_damage_bonus(action_id: String) -> float:
+	"""Sum all base damage bonuses scoped to an action.
+	
+	Applied before multipliers — increases the action's effective base_damage.
+	Returns 0.0 if no matching affixes.
+	"""
+	var total: float = 0.0
+	for affix in get_pool(Affix.Category.ACTION_BASE_DAMAGE_BONUS):
+		if affix.effect_data.get("action_id", "") == action_id:
+			total += affix.apply_effect()
+	return total
+
+func get_action_damage_multiplier(action_id: String) -> float:
+	"""Get combined damage multiplier scoped to an action (multiplicative stacking).
+	
+	Multiple affixes multiply together: 1.15 × 1.25 = 1.4375.
+	Returns 1.0 if no matching affixes (identity multiplier).
+	"""
+	var mult: float = 1.0
+	for affix in get_pool(Affix.Category.ACTION_DAMAGE_MULTIPLIER):
+		if affix.effect_data.get("action_id", "") == action_id:
+			mult *= affix.apply_effect()
+	return mult
+
+func get_action_die_slot_bonus(action_id: String) -> int:
+	"""Get total bonus die slots for a specific action.
+	
+	Used by action_manager when building action dicts (Chunk 4).
+	Returns 0 if no matching affixes.
+	"""
+	var total: int = 0
+	for affix in get_pool(Affix.Category.ACTION_DIE_SLOT_BONUS):
+		if affix.effect_data.get("action_id", "") == action_id:
+			total += int(affix.apply_effect())
+	return total
+
+func get_action_effect_upgrades(action_id: String) -> Array[Affix]:
+	"""Get all ACTION_EFFECT_UPGRADE affixes for a specific action.
+	
+	Each upgrade's effect_data contains details about what to add:
+	  - {"action_id": "fireball", "add_status": "burn", "duration": 2, "stacks": 1}
+	  - {"action_id": "fireball", "extra_effect": ActionEffect resource}
+	
+	The combat manager (Chunk 4) interprets these during effect execution.
+	"""
+	var result: Array[Affix] = []
+	for affix in get_pool(Affix.Category.ACTION_EFFECT_UPGRADE):
+		if affix.effect_data.get("action_id", "") == action_id:
+			result.append(affix)
+	return result
+
+func has_action_scoped_affixes(action_id: String) -> bool:
+	"""Quick check: does any action-scoped affix target this action?
+	
+	Useful for UI — skip the scoped tooltip section if nothing applies.
+	"""
+	for cat in ACTION_SCOPED_CATEGORIES:
+		for affix in get_pool(cat):
+			if affix.effect_data.get("action_id", "") == action_id:
+				return true
+	return false
 
 # ============================================================================
 # DEBUG

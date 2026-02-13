@@ -297,6 +297,16 @@ func _finalize_combat_init(p_player: Player):
 	# Reset per-combat charge tracker
 	combat_charge_tracker.clear()
 	
+	# --- MANA: Refill mana pool at combat start ---
+	if player and player.has_mana_pool():
+		if player.mana_pool.refill_on_combat_start:
+			player.mana_pool.refill()
+			print("  🔮 Mana pool refilled: %d / %d" % [
+				player.mana_pool.current_mana, player.mana_pool.max_mana])
+	# --- END MANA ---
+	
+	
+	
 	# Initialize proc processor and fire combat-start procs
 	if not proc_processor:
 		proc_processor = AffixProcProcessor.new()
@@ -1880,6 +1890,7 @@ func _calculate_damage(action_data: Dictionary, attacker, defender) -> int:
 		legacy_effect.dice_count = placed_dice.size()
 		effects = [legacy_effect]
 	
+	
 	# Get attacker's affix manager (players have one, enemies might not)
 	var attacker_affixes: AffixPoolManager = null
 	if attacker is Player:
@@ -1887,16 +1898,41 @@ func _calculate_damage(action_data: Dictionary, attacker, defender) -> int:
 	elif attacker is Combatant and attacker.has_method("get_affix_manager"):
 		attacker_affixes = attacker.get_affix_manager()
 	
+	# v6: Apply ACTION_BASE_DAMAGE_BONUS — adds to base_damage before multipliers
+	var _action_res = action_data.get("action_resource")
+	if _action_res is Action and attacker_affixes:
+		var base_bonus = attacker_affixes.get_action_base_damage_bonus(_action_res.action_id)
+		if base_bonus > 0:
+			var modified_effects: Array[ActionEffect] = []
+			for effect in effects:
+				if effect and effect.effect_type == ActionEffect.EffectType.DAMAGE:
+					var copy = effect.duplicate()
+					copy.base_damage += int(base_bonus)
+					modified_effects.append(copy)
+					print("  📊 Action base damage +%d → %d (from skill ranks)" % [
+						int(base_bonus), copy.base_damage
+					])
+				else:
+					modified_effects.append(effect)
+			effects = modified_effects
+	
 	# Get defender stats
 	var defender_stats = _get_defender_stats(defender)
 	
 	# Use CombatCalculator with DieResource array (not int array)
 	if attacker_affixes:
+		# v6: Extract action_id for action-scoped affix lookups
+		var action_id: String = ""
+		var action_res = action_data.get("action_resource")
+		if action_res is Action:
+			action_id = action_res.action_id
+		
 		var result = CombatCalculator.calculate_attack_damage(
 			attacker_affixes,
 			effects,
 			placed_dice,  # Pass DieResource array directly — no longer extracting ints
-			defender_stats
+			defender_stats,
+			action_id
 		)
 		
 		# Log the element breakdown for debugging

@@ -62,6 +62,9 @@ var _prereq_met_state: Dictionary = {}
 ## Reference to current tree (for line visual config)
 var _current_tree: SkillTree = null
 
+var _player_class_ref: PlayerClass = null
+
+
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
@@ -82,7 +85,8 @@ func _ready():
 # BUILD
 # ============================================================================
 
-func build(tree: SkillTree, rank_getter: Callable, points_spent: int = 0):
+func build(tree: SkillTree, rank_getter: Callable, points_spent: int = 0, player_class: PlayerClass = null):
+	_player_class_ref = player_class
 	skill_rank_getter = rank_getter
 	tree_points_spent = points_spent
 	_current_tree = tree
@@ -210,13 +214,21 @@ func update_all_states(rank_getter: Callable = Callable(), points_spent: int = -
 	queue_redraw()
 
 func _update_button_state(button: SkillButton):
-	"""Update a single button's rank display and locked/available/maxed state."""
 	if not button or not button.skill:
 		return
 
 	var skill = button.skill
 	var current_rank = skill_rank_getter.call(skill.skill_id) if skill_rank_getter.is_valid() else 0
 	button.set_rank(current_rank)
+	
+	# Effective rank from gear bonuses
+	if _player_class_ref:
+		var tree_id = _current_tree.tree_id if _current_tree else ""
+		var class_id = _player_class_ref.player_class_name
+		button.effective_rank = _player_class_ref.get_effective_skill_rank(
+			skill.skill_id, tree_id, class_id, skill.get_max_rank()
+		)
+		button._update_rank_display()
 
 	var can_learn = skill.can_learn(skill_rank_getter, tree_points_spent)
 	if current_rank >= skill.get_max_rank():

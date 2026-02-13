@@ -20,6 +20,14 @@ class_name SkillResource
 @export var skill_point_cost: int = 1
 
 # ============================================================================
+# TAGS — For filtering, equipment bonuses, and UI grouping
+# ============================================================================
+@export_group("Tags")
+## Tags for filtering and skill rank bonus matching.
+## Examples: "fire", "aoe", "damage", "action_grant", "healing", "mana"
+@export var tags: Array[String] = []
+
+# ============================================================================
 # REQUIREMENTS
 # ============================================================================
 @export_group("Requirements")
@@ -60,14 +68,21 @@ func get_max_rank() -> int:
 	return 1
 
 func get_affixes_for_rank(rank: int) -> Array[Affix]:
-	"""Get affixes granted at a specific rank"""
+	"""Get affixes granted at a specific rank.
+	For ranks above max, returns the highest rank's affixes (over-cap from gear)."""
+	# Over-cap check FIRST — before the match swallows it
+	var max_rank := get_max_rank()
+	if rank > max_rank:
+		return get_affixes_for_rank(max_rank)
+	
 	match rank:
 		1: return rank_1_affixes
 		2: return rank_2_affixes
 		3: return rank_3_affixes
 		4: return rank_4_affixes
 		5: return rank_5_affixes
-		_: return []
+	
+	return []
 
 func get_affixes_with_source(rank: int) -> Array[Affix]:
 	"""Get affixes with source tracking set"""
@@ -133,6 +148,29 @@ func has_prerequisites() -> bool:
 	return not prerequisites.is_empty() or tree_points_required > 0
 
 # ============================================================================
+# TAG HELPERS
+# ============================================================================
+
+func has_tag(tag: String) -> bool:
+	"""Check if this skill has a specific tag"""
+	return tag in tags
+
+func has_any_tag(check_tags: Array[String]) -> bool:
+	"""Check if this skill has any of the given tags"""
+	for t in check_tags:
+		if t in tags:
+			return true
+	return false
+
+func has_all_tags(check_tags: Array[String]) -> bool:
+	"""Check if this skill has all of the given tags"""
+	for t in check_tags:
+		if t not in tags:
+			return false
+	return true
+
+
+# ============================================================================
 # GRID POSITION HELPERS
 # ============================================================================
 
@@ -156,6 +194,51 @@ func get_rank_description(rank: int) -> String:
 			parts.append(affix.description)
 	
 	return ", ".join(parts)
+
+func get_full_rank_breakdown(current_rank: int, effective_rank: int) -> String:
+	"""Get a detailed BBCode breakdown of all ranks for the skill popup.
+	
+	Each rank shows:
+	  ✓ Rank N: description    (applied by manual learning)
+	  ✦ Rank N: description    (applied by bonus rank from gear)
+	  ○ Rank N: description    (locked — not yet reached)
+	
+	Args:
+		current_rank: The manually-learned rank.
+		effective_rank: The effective rank including bonus ranks from gear.
+	"""
+	var max_rank = get_max_rank()
+	var lines: Array[String] = []
+	
+	for rank in range(1, max_rank + 1):
+		var desc = get_rank_description(rank)
+		var prefix: String
+		var color: String
+		
+		if rank <= current_rank:
+			prefix = "✓"
+			color = "green"
+		elif rank <= effective_rank:
+			prefix = "✦"
+			color = "cyan"
+		else:
+			prefix = "○"
+			color = "gray"
+		
+		lines.append("[color=%s]%s Rank %d:[/color] %s" % [color, prefix, rank, desc])
+	
+	return "\n".join(lines)
+
+func get_tags_display() -> String:
+	"""Get tags formatted as a space-separated pill list for display."""
+	if tags.is_empty():
+		return ""
+	
+	var parts: Array[String] = []
+	for tag in tags:
+		parts.append("[color=yellow][%s][/color]" % tag)
+	
+	return " ".join(parts)
 
 func get_requirements_text(skill_rank_getter: Callable, tree_points_spent: int) -> String:
 	"""Get human-readable requirements text"""

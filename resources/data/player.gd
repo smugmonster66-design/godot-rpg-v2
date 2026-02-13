@@ -226,6 +226,17 @@ func recalculate_stats():
 		max_mana = new_max_mana
 		current_mana = clampi(roundi(current_mana * (float(max_mana) / float(old_max_mana))), 0, max_mana)
 		mana_changed.emit(current_mana, max_mana)
+	
+	# ── Effective Skill Ranks (v6) ──
+	# Equipment may grant SKILL_RANK_BONUS / TREE_SKILL_RANK_BONUS /
+	# CLASS_SKILL_RANK_BONUS / TAG_SKILL_RANK_BONUS affixes. Recalculate
+	# effective ranks and apply/remove the delta affixes.
+	if active_class:
+		var changed_skills = active_class.recalculate_effective_ranks()
+		if not changed_skills.is_empty():
+			# Mana pool may need updating if mana-related skill affixes changed
+			if mana_pool:
+				mana_pool.notify_options_changed()
 
 # ============================================================================
 # MANA POOL INTEGRATION (v4)
@@ -643,6 +654,7 @@ func switch_class(p_class_name: String) -> bool:
 				affix_manager.remove_affixes_by_source(skill.skill_name)
 	
 	active_class = available_classes[p_class_name]
+	active_class.set_affix_manager_ref(affix_manager)
 	
 	if dice_pool and active_class:
 		var class_dice = active_class.get_starting_dice_copies()
@@ -665,10 +677,25 @@ func _reapply_class_skill_affixes():
 	for skill in active_class.get_all_skills():
 		if not skill:
 			continue
-		var rank = active_class.get_skill_rank(skill.skill_id)
-		if rank <= 0:
+		var base_rank = active_class.get_skill_rank(skill.skill_id)
+		if base_rank <= 0:
 			continue
-		for r in range(1, rank + 1):
+		# Use effective rank (includes gear bonuses) so over-cap affixes get applied
+		var effective_rank = base_rank
+		if active_class._affix_manager_ref:
+			var tree_id = ""
+			var class_id = active_class.player_class_name
+			# Find tree_id for this skill
+			for tree in active_class.get_skill_trees():
+				for s in tree.get_all_skills():
+					if s and s.skill_id == skill.skill_id:
+						tree_id = tree.tree_id
+						break
+				if tree_id != "":
+					break
+			effective_rank = active_class.get_effective_skill_rank(
+				skill.skill_id, tree_id, class_id, skill.get_max_rank())
+		for r in range(1, effective_rank + 1):
 			var affixes = skill.get_affixes_for_rank(r)
 			for affix in affixes:
 				if affix:

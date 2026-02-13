@@ -5,9 +5,11 @@
 [node name="CombatDieD4" instance=ExtResource("1_base")]
 
 [node name="ValueLabel" parent="." index="2"]
-offset_left = -28.0
-offset_top = -37.0
-offset_right = 12.0
-offset_bottom = 46.0
+anchors_preset = -1
+anchor_bottom = 0.55200005
+offset_left = -23.0
+offset_top = -34.0
+offset_right = 17.0
+offset_bottom = 42.551994
 theme_override_font_sizes/font_size = 40
 text = "4"

@@ -21,7 +21,8 @@ static func calculate_attack_damage(
 	attacker_affixes: AffixPoolManager,
 	action_effects: Array[ActionEffect],
 	placed_dice: Array,  # Array of DieResource (untyped for backward compat)
-	defender_stats: Dictionary
+	defender_stats: Dictionary,
+	action_id: String = ""
 ) -> Dictionary:
 	"""
 	Calculate damage from an attack using split elemental damage.
@@ -86,11 +87,23 @@ static func calculate_attack_damage(
 	if attacker_affixes:
 		var primary_element = _get_primary_element(action_effects)
 		_apply_damage_bonuses(packet, attacker_affixes, primary_element)
+		
+		# Step 2b: Action-scoped flat damage bonus (v6)
+		if action_id != "":
+			var action_flat = attacker_affixes.get_action_damage_bonus(action_id)
+			if action_flat > 0:
+				packet.add_damage(primary_element, action_flat)
 	
 	# Step 3: Calculate and apply global damage multiplier from affixes
 	var damage_mult = 1.0
 	if attacker_affixes:
 		damage_mult = _calculate_damage_multiplier(attacker_affixes)
+		
+		# Step 3b: Action-scoped damage multiplier (v6)
+		if action_id != "":
+			var action_mult = attacker_affixes.get_action_damage_multiplier(action_id)
+			damage_mult *= action_mult
+		
 		if damage_mult != 1.0:
 			packet.apply_multiplier(damage_mult)
 	
