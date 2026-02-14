@@ -1,0 +1,40 @@
+[gd_scene load_steps=5 format=3 uid="uid://dg7t680hok5b8"]
+
+[ext_resource type="Script" uid="uid://cikdv8e2od0mx" path="res://scripts/dungeon/dungeon_wall_layer.gd" id="1_wall"]
+[ext_resource type="PackedScene" uid="uid://b3rru5h82j308" path="res://scenes/dungeon/dungeon_door.tscn" id="2_door"]
+
+[sub_resource type="Gradient" id="Gradient_fmryw"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_xjsew"]
+gradient = SubResource("Gradient_fmryw")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.49375, 0.49375)
+
+[node name="DungeonWallLayer" type="Node2D"]
+script = ExtResource("1_wall")
+door_scene = ExtResource("2_door")
+
+[node name="WallSprite" type="Sprite2D" parent="."]
+
+[node name="DoorContainer" type="Node2D" parent="."]
+
+[node name="TorchLeft" type="AnimatedSprite2D" parent="."]
+position = Vector2(-480, -100)
+
+[node name="TorchLight" type="PointLight2D" parent="TorchLeft"]
+color = Color(1, 0.7, 0.3, 1)
+energy = 0.8
+texture = SubResource("GradientTexture2D_xjsew")
+texture_scale = 1.5
+
+[node name="TorchRight" type="AnimatedSprite2D" parent="."]
+position = Vector2(480, -100)
+
+[node name="TorchLight" type="PointLight2D" parent="TorchRight"]
+color = Color(1, 0.7, 0.3, 1)
+energy = 0.8
+texture = SubResource("GradientTexture2D_xjsew")
+texture_scale = 1.5

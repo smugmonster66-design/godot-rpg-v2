@@ -1,0 +1,135 @@
+[gd_scene load_steps=12 format=3 uid="uid://b3hskvtstgnbh"]
+
+[ext_resource type="Script" uid="uid://bbgslbrlnwdxk" path="res://scripts/dungeon/dungeon_scene.gd" id="1_scene"]
+[ext_resource type="Script" uid="uid://dhcd8rdcl43dx" path="res://scripts/dungeon/dungeon_corridor_builder.gd" id="2_corridor"]
+[ext_resource type="PackedScene" uid="uid://dg7t680hok5b8" path="res://scenes/dungeon/dungeon_wall_layer.tscn" id="3_wall"]
+[ext_resource type="PackedScene" uid="uid://dc037xsdbse2w" path="res://scenes/dungeon/popups/dungeon_event_popup.tscn" id="4_evt"]
+[ext_resource type="PackedScene" path="res://scenes/dungeon/popups/dungeon_shop_popup.tscn" id="5_shop"]
+[ext_resource type="PackedScene" path="res://scenes/dungeon/popups/dungeon_rest_popup.tscn" id="6_rest"]
+[ext_resource type="PackedScene" path="res://scenes/dungeon/popups/dungeon_shrine_popup.tscn" id="7_shrine"]
+[ext_resource type="PackedScene" path="res://scenes/dungeon/popups/dungeon_treasure_popup.tscn" id="8_treasure"]
+[ext_resource type="PackedScene" path="res://scenes/dungeon/popups/dungeon_complete_popup.tscn" id="9_complete"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_floor"]
+font_size = 18
+outline_size = 3
+outline_color = Color(0, 0, 0, 0.9)
+shadow_size = 2
+shadow_color = Color(0, 0, 0, 0.6)
+shadow_offset = Vector2(1, 2)
+
+[sub_resource type="LabelSettings" id="LabelSettings_name"]
+font_size = 14
+outline_size = 2
+outline_color = Color(0, 0, 0, 0.8)
+shadow_color = Color(0, 0, 0, 0.4)
+
+[node name="DungeonScene" type="Node2D" groups=["dungeon_scene"]]
+script = ExtResource("1_scene")
+
+[node name="CorridorBuilder" type="Node2D" parent="."]
+script = ExtResource("2_corridor")
+wall_scene = ExtResource("3_wall")
+floor_spacing = 600.0
+
+[node name="PlayerSprite" type="Sprite2D" parent="CorridorBuilder"]
+z_index = 10
+
+[node name="CorridorFrame" type="CanvasLayer" parent="."]
+layer = 3
+
+[node name="FrameOverlay" type="TextureRect" parent="CorridorFrame"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="AmbientLayer" type="CanvasLayer" parent="."]
+
+[node name="ParallaxBackground" type="ParallaxBackground" parent="AmbientLayer"]
+
+[node name="FloorLayer" type="ParallaxLayer" parent="AmbientLayer/ParallaxBackground"]
+motion_scale = Vector2(0.6, 0.4)
+
+[node name="FloorSprite" type="Sprite2D" parent="AmbientLayer/ParallaxBackground/FloorLayer"]
+
+[node name="SideWallsLayer" type="ParallaxLayer" parent="AmbientLayer/ParallaxBackground"]
+motion_scale = Vector2(0.3, 0.3)
+
+[node name="SideWallSprite" type="Sprite2D" parent="AmbientLayer/ParallaxBackground/SideWallsLayer"]
+
+[node name="CeilingLayer" type="ParallaxLayer" parent="AmbientLayer/ParallaxBackground"]
+motion_scale = Vector2(0.2, 0.2)
+
+[node name="CeilingSprite" type="Sprite2D" parent="AmbientLayer/ParallaxBackground/CeilingLayer"]
+
+[node name="DustMotes" type="GPUParticles2D" parent="AmbientLayer"]
+amount = 20
+lifetime = 6.0
+visibility_rect = Rect2(-600, -100, 1200, 2000)
+
+[node name="ProgressUI" type="CanvasLayer" parent="."]
+layer = 4
+
+[node name="FloorLabel" type="Label" parent="ProgressUI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -160.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = 36.0
+grow_horizontal = 0
+text = "Floor 1 / 10"
+label_settings = SubResource("LabelSettings_floor")
+horizontal_alignment = 2
+
+[node name="DungeonNameLabel" type="Label" parent="ProgressUI"]
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 200.0
+offset_bottom = 32.0
+text = "Dungeon"
+label_settings = SubResource("LabelSettings_name")
+
+[node name="ProgressBar" type="TextureProgressBar" parent="ProgressUI"]
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -30.0
+offset_top = -100.0
+offset_right = -10.0
+offset_bottom = 100.0
+grow_horizontal = 0
+grow_vertical = 2
+mouse_filter = 2
+fill_mode = 3
+
+[node name="PopupLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="TransitionOverlay" type="ColorRect" parent="PopupLayer"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="EventPopup" parent="PopupLayer" instance=ExtResource("4_evt")]
+
+[node name="ShopPopup" parent="PopupLayer" instance=ExtResource("5_shop")]
+
+[node name="RestPopup" parent="PopupLayer" instance=ExtResource("6_rest")]
+
+[node name="ShrinePopup" parent="PopupLayer" instance=ExtResource("7_shrine")]
+
+[node name="TreasurePopup" parent="PopupLayer" instance=ExtResource("8_treasure")]
+
+[node name="CompletePopup" parent="PopupLayer" instance=ExtResource("9_complete")]

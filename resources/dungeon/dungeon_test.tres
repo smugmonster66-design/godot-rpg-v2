@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="DungeonDefinition" load_steps=9 format=3 uid="uid://cxorgt3nixhcs"]
+
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="1_sq2uu"]
+[ext_resource type="Script" uid="uid://wf1v60wcm56b" path="res://resources/data/dungeon_event.gd" id="2_qdeae"]
+[ext_resource type="Resource" uid="uid://couqhbcv0nj5p" path="res://resources/encounters/goblin_solo.tres" id="2_tyfei"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_tyfei"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="4_vpaxf"]
+[ext_resource type="Script" uid="uid://bg3nj47jgiftx" path="res://resources/data/dungeon_definition.gd" id="5_8alnp"]
+[ext_resource type="Script" uid="uid://dejkynwv48tug" path="res://resources/data/dungeon_shrine.gd" id="6_3m7te"]
+[ext_resource type="Texture2D" uid="uid://c1evlnktr45lg" path="res://assets/dungeon/test_dungeon/dungeon_wall_tex_base_smaller.png" id="8_tyfei"]
+
+[resource]
+script = ExtResource("5_8alnp")
+dungeon_name = "Test Dungeon"
+dungeon_id = "test_dungeon"
+floor_count = 6
+dungeon_level = 1
+combat_encounters = Array[ExtResource("1_sq2uu")]([ExtResource("2_tyfei")])
+elite_encounters = Array[ExtResource("1_sq2uu")]([ExtResource("2_tyfei")])
+boss_encounters = Array[ExtResource("1_sq2uu")]([ExtResource("2_tyfei")])
+wall_texture = ExtResource("8_tyfei")
+metadata/_custom_type_script = "uid://bg3nj47jgiftx"

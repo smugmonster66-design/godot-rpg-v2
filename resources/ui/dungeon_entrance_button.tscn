@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://bvb7r5rwfohfr"]
+
+[ext_resource type="Script" uid="uid://npjmm1fjaj8t" path="res://scripts/map/dungeon_entrance.gd" id="1_script"]
+[ext_resource type="Resource" uid="uid://cxorgt3nixhcs" path="res://resources/dungeon/dungeon_test.tres" id="2_0q5pq"]
+
+[node name="DungeonEntranceButton" type="Button"]
+custom_minimum_size = Vector2(200, 60)
+text = "Enter Dungeon"
+script = ExtResource("1_script")
+
+[node name="DungeonEntrance" type="Node" parent="."]
+script = ExtResource("1_script")
+dungeon_definition = ExtResource("2_0q5pq")

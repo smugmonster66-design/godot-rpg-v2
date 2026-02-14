@@ -1,0 +1,132 @@
+[gd_scene load_steps=3 format=3 uid="uid://dng_shrine_popup"]
+
+[ext_resource type="Script" path="res://scripts/dungeon/popups/dungeon_shrine_popup.gd" id="1_script"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_title"]
+font_size = 24
+font_color = Color(0.8, 0.5, 1.0, 1)
+outline_size = 4
+outline_color = Color(0, 0, 0, 0.9)
+shadow_size = 3
+shadow_color = Color(0, 0, 0, 0.6)
+shadow_offset = Vector2(2, 3)
+
+; ===========================================================================
+; ShrinePopup — blessing/curse display with accept/decline
+; Emits: { accepted: bool }
+; ===========================================================================
+
+[node name="ShrinePopup" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+; --- dark overlay ---
+
+[node name="PanelBG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+; --- centered panel ---
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="CenterContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(340, 200)
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+; --- title ---
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+text = "Mysterious Shrine"
+horizontal_alignment = 1
+label_settings = SubResource("LabelSettings_title")
+
+[node name="HSeparator" type="HSeparator" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+
+; --- shrine flavor text ---
+
+[node name="FlavorLabel" type="Label" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+text = "An ancient shrine pulses with energy..."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="HSeparator2" type="HSeparator" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+
+; --- blessing section ---
+
+[node name="BlessingSection" type="VBoxContainer" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="BlessingHeader" type="Label" parent="CenterContainer/Panel/VBox/BlessingSection"]
+layout_mode = 2
+text = "Blessing:"
+horizontal_alignment = 1
+
+[node name="BlessingLabel" type="RichTextLabel" parent="CenterContainer/Panel/VBox/BlessingSection"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 40)
+fit_content = true
+text = "+10% Fire Damage"
+
+; --- curse section ---
+
+[node name="CurseSection" type="VBoxContainer" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="CurseHeader" type="Label" parent="CenterContainer/Panel/VBox/CurseSection"]
+layout_mode = 2
+text = "Curse:"
+horizontal_alignment = 1
+
+[node name="CurseLabel" type="RichTextLabel" parent="CenterContainer/Panel/VBox/CurseSection"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 40)
+fit_content = true
+text = "-5% Max HP"
+
+[node name="HSeparator3" type="HSeparator" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+
+; --- accept / decline ---
+
+[node name="ButtonRow" type="HBoxContainer" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 16
+
+[node name="CloseButton" type="Button" parent="CenterContainer/Panel/VBox/ButtonRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Accept"
+
+[node name="DeclineButton" type="Button" parent="CenterContainer/Panel/VBox/ButtonRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Decline"

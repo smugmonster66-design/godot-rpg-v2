@@ -1,0 +1,120 @@
+[gd_scene load_steps=3 format=3 uid="uid://dng_treasure_popup"]
+
+[ext_resource type="Script" path="res://scripts/dungeon/popups/dungeon_treasure_popup.gd" id="1_script"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_title"]
+font_size = 24
+font_color = Color(1.0, 0.85, 0.3, 1)
+outline_size = 4
+outline_color = Color(0, 0, 0, 0.9)
+shadow_size = 3
+shadow_color = Color(0, 0, 0, 0.6)
+shadow_offset = Vector2(2, 3)
+
+; ===========================================================================
+; TreasurePopup — chest loot display
+; Emits: {}
+; ===========================================================================
+
+[node name="TreasurePopup" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+; --- dark overlay ---
+
+[node name="PanelBG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.65)
+
+; --- centered panel ---
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="CenterContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(340, 200)
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+; --- title ---
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+text = "Treasure!"
+horizontal_alignment = 1
+label_settings = SubResource("LabelSettings_title")
+
+[node name="HSeparator" type="HSeparator" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+
+; --- gold reward ---
+
+[node name="GoldSection" type="HBoxContainer" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="GoldIcon" type="TextureRect" parent="CenterContainer/Panel/VBox/GoldSection"]
+layout_mode = 2
+custom_minimum_size = Vector2(24, 24)
+stretch_mode = 5
+
+[node name="GoldLabel" type="Label" parent="CenterContainer/Panel/VBox/GoldSection"]
+layout_mode = 2
+text = "+0 Gold"
+
+[node name="HSeparator2" type="HSeparator" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+
+; --- item loot grid (item displays spawned at runtime) ---
+
+[node name="LootSection" type="VBoxContainer" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="LootHeader" type="Label" parent="CenterContainer/Panel/VBox/LootSection"]
+layout_mode = 2
+text = "Items Found:"
+horizontal_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/Panel/VBox/LootSection"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 120)
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="LootGrid" type="GridContainer" parent="CenterContainer/Panel/VBox/LootSection/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+columns = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="HSeparator3" type="HSeparator" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+
+; --- close button ---
+
+[node name="CloseButton" type="Button" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+text = "Collect"

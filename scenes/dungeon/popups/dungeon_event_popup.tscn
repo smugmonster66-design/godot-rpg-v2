@@ -1,0 +1,84 @@
+[gd_scene load_steps=3 format=3 uid="uid://dc037xsdbse2w"]
+
+[ext_resource type="Script" uid="uid://cpwakqeoanjli" path="res://scripts/dungeon/popups/dungeon_event_popup.gd" id="1_script"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_title"]
+font_size = 24
+font_color = Color(1, 0.95, 0.8, 1)
+outline_size = 4
+outline_color = Color(0, 0, 0, 0.9)
+shadow_size = 3
+shadow_color = Color(0, 0, 0, 0.6)
+shadow_offset = Vector2(2, 3)
+
+[node name="EventPopup" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="PanelBG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.65)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(340, 200)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+text = "Event Title"
+label_settings = SubResource("LabelSettings_title")
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+
+[node name="DescriptionLabel" type="RichTextLabel" parent="CenterContainer/Panel/VBox"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+text = "Event description goes here..."
+fit_content = true
+
+[node name="HSeparator2" type="HSeparator" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+
+[node name="ChoicesContainer" type="VBoxContainer" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ResultSection" type="VBoxContainer" parent="CenterContainer/Panel/VBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ResultLabel" type="RichTextLabel" parent="CenterContainer/Panel/VBox/ResultSection"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+text = "Result text..."
+fit_content = true
+
+[node name="CloseButton" type="Button" parent="CenterContainer/Panel/VBox/ResultSection"]
+layout_mode = 2
+text = "Continue"

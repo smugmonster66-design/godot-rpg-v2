@@ -12,6 +12,12 @@
 [node name="CombatScene" type="Node2D"]
 script = ExtResource("1_c5idb")
 
+[node name="ColorRect" type="ColorRect" parent="."]
+custom_minimum_size = Vector2(1080, 1920)
+offset_right = 1080.0
+offset_bottom = 1920.0
+color = Color(0.13682577, 0.13682574, 0.13682571, 1)
+
 [node name="EncounterSpawner" type="Node2D" parent="."]
 script = ExtResource("2_c5idb")
 combatant_scene = ExtResource("3_vspht")

@@ -1,7 +1,9 @@
-[gd_scene load_steps=18 format=3 uid="uid://b2w217jydc2gl"]
+[gd_scene load_steps=22 format=3 uid="uid://b2w217jydc2gl"]
 
 [ext_resource type="Script" uid="uid://c2ftibv05ag52" path="res://scripts/game/game_root.gd" id="1_pevc5"]
+[ext_resource type="Script" uid="uid://buljuod5rywxy" path="res://scripts/shared/game_camera.gd" id="2_i88f8"]
 [ext_resource type="PackedScene" uid="uid://dg4shmm2jhcnd" path="res://scenes/game/combat_scene.tscn" id="2_n6w2t"]
+[ext_resource type="PackedScene" uid="uid://b3hskvtstgnbh" path="res://scenes/dungeon/dungeon_scene.tscn" id="3_a6cr8"]
 [ext_resource type="PackedScene" uid="uid://cx781vq4omutw" path="res://scenes/game/map_scene.tscn" id="4_0krdv"]
 [ext_resource type="Texture2D" uid="uid://b5idgxy5pjm63" path="res://assets/ui/panels/9patch_bones.png" id="4_n6w2t"]
 [ext_resource type="PackedScene" uid="uid://c0w3t10mfnowo" path="res://scenes/ui/bottom_ui_panel.tscn" id="5_n6w2t"]
@@ -12,6 +14,8 @@
 [ext_resource type="Shader" uid="uid://c81kry17cryo0" path="res://shaders/portrait_frame_glow.gdshader" id="10_ndy65"]
 [ext_resource type="PackedScene" uid="uid://b4cwd535525ap" path="res://scenes/ui/menus/player_menu.tscn" id="11_c2lvh"]
 [ext_resource type="PackedScene" uid="uid://c8lkjoshcff88" path="res://scenes/ui/popups/post_combat_summary.tscn" id="12_a6cr8"]
+[ext_resource type="PackedScene" uid="uid://bvb7r5rwfohfr" path="res://resources/ui/dungeon_entrance_button.tscn" id="15_h5onw"]
+[ext_resource type="Resource" uid="uid://cxorgt3nixhcs" path="res://resources/dungeon/dungeon_test.tres" id="16_f3gwi"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_n6w2t"]
 
@@ -44,9 +48,17 @@ texture = ExtResource("6_0krdv")
 script = ExtResource("1_pevc5")
 dev_mode = true
 
+[node name="GameCamera" type="Camera2D" parent="."]
+script = ExtResource("2_i88f8")
+extra_offset_y = -200.0
+
 [node name="MapLayer" type="CanvasLayer" parent="."]
 
 [node name="MapScene" parent="MapLayer" instance=ExtResource("4_0krdv")]
+
+[node name="DungeonLayer" type="Node2D" parent="."]
+
+[node name="DungeonScene" parent="DungeonLayer" instance=ExtResource("3_a6cr8")]
 
 [node name="CombatLayer" type="CanvasLayer" parent="."]
 visible = false
@@ -145,5 +157,13 @@ offset_right = 40.0
 offset_bottom = 23.0
 
 [node name="PlayerMenu" parent="PersistentUILayer" instance=ExtResource("11_c2lvh")]
+visible = false
 
 [node name="PostCombatSummary" parent="PersistentUILayer" instance=ExtResource("12_a6cr8")]
+
+[node name="DungeonEntranceButton" parent="PersistentUILayer" instance=ExtResource("15_h5onw")]
+offset_left = 854.0
+offset_top = 1516.0
+offset_right = 1054.0
+offset_bottom = 1576.0
+dungeon_definition = ExtResource("16_f3gwi")

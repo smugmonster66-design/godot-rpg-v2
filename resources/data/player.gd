@@ -17,6 +17,8 @@ var agility: int = 10
 var intellect: int = 10
 var luck: int = 10
 
+@export var gold: int = 0
+
 # ============================================================================
 # ELEMENTAL RESISTANCES
 # ============================================================================
@@ -329,6 +331,11 @@ func consume_mana(amount: int) -> bool:
 # ============================================================================
 # EQUIPMENT MANAGEMENT — Now EquippableItem-based
 # ============================================================================
+
+func add_gold(amount: int):
+	gold += amount
+
+
 
 func equip_item(item: EquippableItem, slot: String = "") -> bool:
 	"""Equip an EquippableItem. Returns false if requirements not met."""

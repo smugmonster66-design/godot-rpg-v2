@@ -28,6 +28,14 @@ extends Node
 @onready var map_scene: Node = $MapLayer/MapScene
 @onready var combat_scene: Node = $CombatLayer/CombatScene
 @onready var bottom_ui: Control = $PersistentUILayer/BottomUIPanel
+@onready var dungeon_layer: Node2D = $DungeonLayer
+@onready var dungeon_scene: DungeonScene = $DungeonLayer/DungeonScene
+@onready var camera: GameCamera = $GameCamera
+
+
+var is_in_dungeon: bool = false
+
+
 
 # Persistent UI elements (direct children of PersistentUILayer)
 var player_menu: Control = null
@@ -79,7 +87,19 @@ func _ready():
 	
 	
 	
-	
+	# Dungeon layer — start hidden and disabled
+	dungeon_layer.visible = false
+	dungeon_layer.process_mode = Node.PROCESS_MODE_DISABLED
+
+	# Connect dungeon signals
+	if dungeon_scene:
+		if not dungeon_scene.combat_requested.is_connected(_on_dungeon_combat_requested):
+			dungeon_scene.combat_requested.connect(_on_dungeon_combat_requested)
+		if not dungeon_scene.dungeon_completed.is_connected(_on_dungeon_completed):
+			dungeon_scene.dungeon_completed.connect(_on_dungeon_completed)
+		if not dungeon_scene.dungeon_failed.is_connected(_on_dungeon_failed):
+			dungeon_scene.dungeon_failed.connect(_on_dungeon_failed)
+		print("  ✅ DungeonScene signals connected")
 	
 	
 	
@@ -245,39 +265,119 @@ func start_combat(encounter: Resource = null):
 		bottom_ui.on_combat_started()
 
 func end_combat(player_won: bool = true):
-	"""Hide combat layer, resume map"""
 	if not is_in_combat:
 		push_warning("GameRoot: Not in combat!")
 		return
-
-	print("⚔️ GameRoot: Ending combat (player_won=%s)" % player_won)
+	print("⚔️ GameRoot: Ending combat (won=%s, dungeon=%s)" % [player_won, is_in_dungeon])
 	is_in_combat = false
 
-	# Hide and disable combat layer
 	combat_layer.visible = false
 	combat_layer.process_mode = Node.PROCESS_MODE_DISABLED
-
-	# Reset combat scene for next time
 	if combat_scene and combat_scene.has_method("reset_combat"):
 		combat_scene.reset_combat()
-
-	# Resume map
-	map_scene.process_mode = Node.PROCESS_MODE_INHERIT
-
 	ui_layer.layer = 100
 
-	# Notify UI
-	if bottom_ui and bottom_ui.has_method("on_combat_ended"):
-		bottom_ui.on_combat_ended(player_won)
-
-	# Notify GameManager
-	if GameManager:
-		GameManager.on_combat_ended(player_won)
+	if is_in_dungeon:
+		# Return to dungeon — SKIP GameManager.on_combat_ended (dungeon owns rewards)
+		dungeon_scene.process_mode = Node.PROCESS_MODE_INHERIT
+		dungeon_scene.on_combat_ended(player_won)
+		if bottom_ui and bottom_ui.has_method("on_combat_ended"):
+			bottom_ui.on_combat_ended(player_won)
+	else:
+		# Return to map — normal flow
+		map_scene.process_mode = Node.PROCESS_MODE_INHERIT
+		if bottom_ui and bottom_ui.has_method("on_combat_ended"):
+			bottom_ui.on_combat_ended(player_won)
+		if GameManager:
+			GameManager.on_combat_ended(player_won)
 
 func _show_map():
 	"""Ensure map is visible and running"""
 	map_layer.visible = true
 	map_scene.process_mode = Node.PROCESS_MODE_INHERIT
+
+
+
+
+
+
+# ============================================================================
+# DUNGEON LAYER MANAGEMENT
+# ============================================================================
+
+func enter_dungeon(definition: DungeonDefinition):
+	if is_in_dungeon or is_in_combat:
+		push_warning("GameRoot: Can't enter dungeon now")
+		return
+	print("🏰 GameRoot: Entering dungeon '%s'" % definition.dungeon_name)
+	is_in_dungeon = true
+	map_scene.process_mode = Node.PROCESS_MODE_DISABLED
+	dungeon_layer.visible = true
+	dungeon_layer.process_mode = Node.PROCESS_MODE_INHERIT
+	camera.set_mode(GameCamera.Mode.DUNGEON)
+	# Pass camera BEFORE enter so build_corridor has it for the intro sweep
+	var builder = dungeon_scene.find_child("CorridorBuilder", true, false)
+	if builder:
+		builder.camera = camera
+	dungeon_scene.enter_dungeon(definition, GameManager.player)
+
+func exit_dungeon():
+	camera.set_mode(GameCamera.Mode.MAP)
+	print("🏰 GameRoot: Exiting dungeon")
+	is_in_dungeon = false
+	dungeon_scene.exit_dungeon()
+	dungeon_layer.visible = false
+	dungeon_layer.process_mode = Node.PROCESS_MODE_DISABLED
+	map_scene.process_mode = Node.PROCESS_MODE_INHERIT
+
+func _on_dungeon_combat_requested(encounter: CombatEncounter):
+	print("⚔️ GameRoot: Dungeon combat starting")
+	is_in_combat = true
+	if player_menu and player_menu.visible and player_menu.has_method("close_menu"):
+		player_menu.close_menu()
+	dungeon_scene.process_mode = Node.PROCESS_MODE_DISABLED
+	combat_layer.visible = true
+	combat_layer.process_mode = Node.PROCESS_MODE_INHERIT
+	ui_layer.layer = 5
+	GameManager.pending_encounter = encounter
+	var cm = combat_scene.find_child("CombatManager", true, false)
+	if not cm: cm = combat_scene
+	if cm and cm.has_method("check_pending_encounter"):
+		cm.check_pending_encounter()
+	if bottom_ui and bottom_ui.has_method("on_combat_started"):
+		bottom_ui.on_combat_started()
+	# Fade in from black
+	_fade_from_black()
+
+func _fade_from_black():
+	"""Fade out the black overlay that the dungeon transition left behind."""
+	var overlay = dungeon_scene.find_child("TransitionOverlay", true, false)
+	if not overlay or not overlay.visible:
+		return
+	# Re-enable just the overlay temporarily so the tween works
+	overlay.process_mode = Node.PROCESS_MODE_ALWAYS
+	var tw = create_tween()
+	tw.tween_interval(0.3)  # let combat set up
+	tw.tween_property(overlay, "modulate:a", 0.0, 0.4)
+	tw.tween_callback(func():
+		overlay.visible = false
+		overlay.process_mode = Node.PROCESS_MODE_INHERIT
+	)
+	
+	
+func _on_dungeon_completed(run: DungeonRun):
+	print("🏰 Complete! Gold: %d, Exp: %d, Items: %d" % [
+		run.gold_earned, run.exp_earned, run.items_earned.size()])
+	exit_dungeon()
+
+func _on_dungeon_failed(run: DungeonRun):
+	print("💀 Failed. Gold rolled back to %d" % run.gold_snapshot_on_entry)
+	exit_dungeon()
+
+
+
+
+
 
 # ============================================================================
 # PUBLIC API
