@@ -646,9 +646,8 @@ func _on_roll_pressed():
 		combat_ui.enter_action_phase()
 		
 	# Enable mana die dragging during action phase
-	var bottom_ui = _get_bottom_ui()
-	if bottom_ui and bottom_ui.has_method("set_mana_drag_enabled"):
-		bottom_ui.set_mana_drag_enabled(true)
+	if combat_ui and combat_ui.has_method("set_mana_drag_enabled"):
+		combat_ui.set_mana_drag_enabled(true)
 
 
 
@@ -664,9 +663,8 @@ func _on_player_end_turn():
 	turn_phase_changed.emit(TurnPhase.NONE)
 	
 	
-	var bottom_ui = _get_bottom_ui()
-	if bottom_ui and bottom_ui.has_method("set_mana_drag_enabled"):
-		bottom_ui.set_mana_drag_enabled(false)
+	if combat_ui and combat_ui.has_method("set_mana_drag_enabled"):
+		combat_ui.set_mana_drag_enabled(false)
 	
 	print("🎮 Player ended turn")
 	
@@ -2163,9 +2161,8 @@ func end_combat(player_won: bool):
 	print("\n=== COMBAT ENDED ===")
 	
 	# v4: Disable mana die dragging
-	var bottom_ui = _get_bottom_ui()
-	if bottom_ui and bottom_ui.has_method("set_mana_drag_enabled"):
-		bottom_ui.set_mana_drag_enabled(false)
+	if combat_ui and combat_ui.has_method("set_mana_drag_enabled"):
+		combat_ui.set_mana_drag_enabled(false)
 	
 	
 	combat_state = CombatState.ENDED

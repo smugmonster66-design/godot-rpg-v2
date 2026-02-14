@@ -61,6 +61,7 @@ grow_vertical = 2
 theme_override_constants/separation = -52
 
 [node name="ManaBar" type="TextureProgressBar" parent="HBoxContainer"]
+visible = false
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3

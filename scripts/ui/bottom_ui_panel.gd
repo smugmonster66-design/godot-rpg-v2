@@ -52,7 +52,7 @@ func _ready():
 	# Discover nodes by name (reorganization-proof)
 	class_label = find_child("Label", true, false) as Label
 	health_bar = find_child("HealthBar", true, false) as TextureProgressBar
-	mana_die_selector = find_child("ManaDieSelector", true, false)
+	#mana_die_selector = find_child("ManaDieSelector", true, false)
 	#mana_bar = find_child("ManaBar", true, false) as TextureProgressBar
 	exp_bar = find_child("ExpBar", true, false) as TextureProgressBar
 	dice_section = find_child("DiceSection", true, false) as VBoxContainer
@@ -107,8 +107,7 @@ func initialize(p_player: Resource):
 		print("  ❌ Player is null!")
 		return
 	
-	# Initialize mana die selector (replaces simple mana bar for casters)
-	_setup_mana_die_selector()
+	
 	
 	# Initialize dice grid
 	if dice_grid:
@@ -184,31 +183,6 @@ func _update_dice_count():
 		dice_count_label.text = "%d/%d" % [current, max_dice]
 
 
-func _setup_mana_die_selector():
-	"""Initialize the scene-embedded ManaDieSelector for casters, hide for non-casters."""
-	if not player:
-		return
-
-
-
-	if not mana_die_selector:
-		print("  ⚠️ ManaDieSelector node not found in scene")
-		return
-
-	if player.has_method("has_mana_pool") and player.has_mana_pool():
-		mana_die_selector.show()
-		mana_die_selector.initialize(player)
-		print("  ✅ ManaDieSelector initialized (scene instance)")
-	else:
-		mana_die_selector.hide()
-		print("  ℹ️ No mana pool — mana selector hidden")
-
-
-func set_mana_drag_enabled(enabled: bool):
-	"""Enable/disable mana die dragging. Called by CombatManager on phase change."""
-	if mana_die_selector:
-		mana_die_selector.set_drag_enabled(enabled)
-
 
 func _connect_player_signals():
 	"""Connect to player signals for live stat updates"""
@@ -219,9 +193,7 @@ func _connect_player_signals():
 		if not player.hp_changed.is_connected(_on_hp_changed):
 			player.hp_changed.connect(_on_hp_changed)
 	
-	if player.has_signal("mana_changed"):
-		if not player.mana_changed.is_connected(_on_mana_changed):
-			player.mana_changed.connect(_on_mana_changed)
+	
 	
 	if player.has_signal("class_changed"):
 		if not player.class_changed.is_connected(_on_class_changed):
@@ -232,9 +204,6 @@ func _on_hp_changed(current: int, maximum: int):
 		health_bar.max_value = maximum
 		health_bar.value = current
 
-func _on_mana_changed(current: int, maximum: int):
-	if mana_die_selector and mana_die_selector.has_method("update_mana_bar"):
-		mana_die_selector.update_mana_bar(current, maximum)
 
 func _on_class_changed(_new_class):
 	_update_stats_display()
@@ -282,7 +251,6 @@ func on_combat_ended(_player_won: bool):
 	"""Called when combat ends."""
 	_hide_combat_buttons()
 	_update_stats_display()
-	set_mana_drag_enabled(false)
 	if dice_grid and dice_grid.has_method("refresh"):
 		dice_grid.refresh()
 
@@ -296,7 +264,6 @@ func enter_prep_phase():
 	if action_buttons_container:
 		action_buttons_container.hide()
 	# Disable mana drag during prep (selector stays visible)
-	set_mana_drag_enabled(false)
 
 func enter_action_phase():
 	"""ACTION phase — show End Turn, hide Roll. Confirm/Cancel stay hidden
@@ -310,7 +277,7 @@ func enter_action_phase():
 		action_buttons_container.hide()
 	# Show mana selector for casters during action phase
 	# Disable mana drag during prep (selector stays visible)
-	set_mana_drag_enabled(false)
+
 
 func show_action_buttons(show: bool):
 	"""Show or hide Confirm/Cancel (when action field has dice placed)."""
@@ -325,7 +292,7 @@ func enter_enemy_turn():
 		end_turn_button.hide()
 	if action_buttons_container:
 		action_buttons_container.hide()
-	set_mana_drag_enabled(false)
+
 
 # ============================================================================
 # PUBLIC API

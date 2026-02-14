@@ -348,19 +348,13 @@ func _clear_affix_effects():
 # ============================================================================
 
 func start_drag_visual():
-	"""Visual feedback when drag starts"""
+	"""Visual feedback when drag starts — hide original so only preview shows"""
 	_is_being_dragged = true
 	_original_position = position
 	_original_scale = scale
-	
-	if animation_player and animation_player.has_animation("pickup"):
-		animation_player.play("pickup")
-	else:
-		# Fallback tween animation
-		var tween = create_tween()
-		tween.set_parallel(true)
-		tween.tween_property(self, "scale", Vector2(1.1, 1.1), 0.1)
-		tween.tween_property(self, "modulate", Color(1.2, 1.2, 1.2), 0.1)
+	modulate.a = 0.0
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+
 
 func end_drag_visual(was_placed: bool):
 	"""Visual feedback when drag ends"""
@@ -368,23 +362,23 @@ func end_drag_visual(was_placed: bool):
 	_was_placed = was_placed
 	
 	if was_placed:
+		modulate.a = 0.0
 		if animation_player and animation_player.has_animation("place"):
 			animation_player.play("place")
-		else:
-			# Fallback - just reset
-			modulate = Color.WHITE
-			scale = Vector2.ONE
 	else:
+		modulate.a = 1.0
+		mouse_filter = Control.MOUSE_FILTER_STOP
 		if animation_player and animation_player.has_animation("snap_back"):
 			animation_player.play("snap_back")
 		else:
-			# Fallback tween snap back
+			scale = Vector2(0.8, 0.8)
 			var tween = create_tween()
-			tween.set_parallel(true)
-			tween.tween_property(self, "scale", _original_scale, 0.15).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-			tween.tween_property(self, "modulate", Color.WHITE, 0.15)
+			tween.tween_property(self, "scale", _original_scale, 0.15) \
+				.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	
 	drag_ended.emit(self, was_placed)
+
+
 
 func show_reject_feedback():
 	"""Visual feedback when action is rejected"""
@@ -522,52 +516,41 @@ func _gui_input(event: InputEvent):
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			clicked.emit(self)
 
+
 func _get_drag_data(_at_position: Vector2) -> Variant:
 	"""Godot's native drag initiation - returns drag data to start dragging"""
-	print("🎲 DieObjectBase._get_drag_data() - draggable=%s, die=%s" % [draggable, die_resource != null])
-	
 	if not draggable or not die_resource:
-		print("  ❌ Cannot drag: draggable=%s, has_resource=%s" % [draggable, die_resource != null])
 		return null
 	
 	if die_resource.is_locked:
-		print("  ❌ Die is locked")
 		show_reject_feedback()
 		return null
 	
-	print("  ✅ Starting drag for %s" % die_resource.display_name)
+	# Create preview BEFORE hiding (duplicate() copies visible state)
+	_manual_preview = create_drag_preview()
+	_manual_preview.z_index = 100
+	_manual_preview.visible = true
 	
-	# Start visual feedback
+	# Now hide the original
 	start_drag_visual()
 	
 	# Emit signal for parent to know
 	drag_requested.emit(self)
 	
-	# Create manual preview (not using set_drag_preview to avoid can't-drop cursor)
-	_manual_preview = create_drag_preview()
-	# =========================================================================
-	# DRAG-DROP FIX: Recursively set MOUSE_FILTER_IGNORE on the entire preview
-	# tree. Without this, the preview Control sits under the cursor at z_index
-	# 100 and intercepts _can_drop_data checks, preventing ActionField from
-	# ever seeing the drop. create_drag_preview() sets IGNORE on the root but
-	# child nodes (FillTexture, StrokeTexture, ValueLabel, PreviewEffects,
-	# particles, etc.) can still have STOP or PASS and block the hit test.
-	# =========================================================================
+	# Parent to DragOverlayLayer — search from root, not current_scene
+	var overlay = get_tree().root.find_child("DragOverlayLayer", true, false)
+	if overlay:
+		overlay.add_child(_manual_preview)
+	else:
+		get_tree().root.add_child(_manual_preview)
+	
+	# Must be AFTER add_child — _ready() resets mouse_filter to STOP
 	_set_mouse_ignore_recursive(_manual_preview)
-	_manual_preview.z_index = 100  # Always on top
-	# Add to highest CanvasLayer so preview renders above all UI
-	var overlay = _find_top_canvas_layer()
-	overlay.add_child(_manual_preview)
-	print("🎲 Preview parented to: %s (class: %s, layer: %s)" % [
-	overlay.name, overlay.get_class(),
-	overlay.layer if overlay is CanvasLayer else "N/A"])
+	
 	_update_manual_preview_position()
 	_active_touches.clear()
 	set_process(true)
 	set_process_input(true)
-	
-	
-	self.modulate = Color(1, 1, 1, 0)
 	
 	# Return drag data
 	return {
@@ -578,6 +561,8 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 		"source_position": global_position,
 		"slot_index": get_index()
 	}
+
+
 
 func _process(_delta: float):
 	if _manual_preview and _is_being_dragged:
@@ -606,7 +591,8 @@ func _update_manual_preview_position():
 		_manual_preview.global_position = get_global_mouse_position() - base_size / 2
 
 func _force_cleanup_drag():
-	self.modulate = Color.WHITE
+	modulate.a = 1.0
+	mouse_filter = Control.MOUSE_FILTER_STOP
 	"""Emergency cleanup when NOTIFICATION_DRAG_END is missed."""
 	print("🎲 Drag cleanup: input released but NOTIFICATION_DRAG_END missed — forcing cleanup")
 	if _is_being_dragged:
@@ -640,7 +626,6 @@ func _notification(what: int):
 			if not _is_being_dragged:
 				hide_hover()
 		NOTIFICATION_DRAG_END:
-			self.modulate = Color.WHITE
 			if _is_being_dragged:
 				end_drag_visual(_was_placed)
 				_is_being_dragged = false

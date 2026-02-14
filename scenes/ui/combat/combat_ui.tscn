@@ -1,9 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://0uycurmcavjg"]
+[gd_scene load_steps=8 format=3 uid="uid://0uycurmcavjg"]
 
 [ext_resource type="Script" uid="uid://e624lj2ycb0m" path="res://scripts/ui/components/stat_display.gd" id="1_gwlns"]
 [ext_resource type="PackedScene" uid="uid://dofeq3txtonis" path="res://scenes/ui/combat/enemy_panel.tscn" id="2_8bf5m"]
 [ext_resource type="PackedScene" uid="uid://bb07mxj58qxpy" path="res://scenes/ui/combat/dice_pool_display.tscn" id="2_bo0no"]
 [ext_resource type="PackedScene" uid="uid://ctpamire6rmbu" path="res://scenes/ui/components/die_visual.tscn" id="4_l84v8"]
+[ext_resource type="PackedScene" uid="uid://cmdae6knaxo5a" path="res://scenes/ui/combat/mana_die_selector.tscn" id="5_5ykqc"]
 [ext_resource type="Script" uid="uid://ct2t4rul0p5uv" path="res://scripts/ui/combat/combat_roll_animator.gd" id="5_8bf5m"]
 [ext_resource type="Script" uid="uid://m2g4t6rqu5p8" path="res://scripts/ui/combat/affix_visual_animator.gd" id="6_kesfj"]
 
@@ -118,6 +119,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="DicePoolArea" type="CenterContainer" parent="MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 
 [node name="DicePoolDisplay" parent="MarginContainer/VBox/DicePoolArea" instance=ExtResource("2_bo0no")]
@@ -136,6 +138,12 @@ size_flags_vertical = 3
 [node name="Spacer4" type="Control" parent="MarginContainer/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
+
+[node name="ManaDieSelector" parent="." instance=ExtResource("5_5ykqc")]
+offset_left = 973.0
+offset_top = 1327.0
+offset_right = 973.0
+offset_bottom = 1495.0
 
 [node name="CombatRollAnimator" type="Node" parent="."]
 script = ExtResource("5_8bf5m")

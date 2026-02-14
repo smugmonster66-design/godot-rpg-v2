@@ -24,6 +24,9 @@ var enemy_action_label: Label = null
 var enemy_dice_visuals: Array[Control] = []
 var current_enemy_display: Combatant = null
 
+
+var mana_die_selector: ManaDieSelector = null
+
 # Temp animation visuals (for cleanup)
 var temp_animation_visuals: Array[Control] = []
 
@@ -123,6 +126,13 @@ func _discover_all_nodes():
 	if enemy_hand_container:
 		enemy_action_label = enemy_hand_container.find_child("ActionLabel", true, false) as Label
 	print("    EnemyHandDisplay: %s" % ("✓" if enemy_hand_container else "✗"))
+	
+	# Mana die selector (casters only — lives in CombatUILayer)
+	mana_die_selector = find_child("ManaDieSelector", true, false) as ManaDieSelector
+	if mana_die_selector:
+		mana_die_selector.visible = false  # Hidden until initialized for a caster
+	print("    ManaDieSelector: %s" % ("✓" if mana_die_selector else "✗"))
+	
 	
 	
 func _ensure_scrollable_grid():
@@ -315,7 +325,8 @@ func initialize_ui(p_player: Player, p_enemies):
 	else:
 		push_warning("CombatUI: Could not find CombatEventBus for ReactiveAnimator")
 	
-	
+	# Initialize mana die selector for casters
+	_setup_mana_die_selector()
 	
 	
 	print("🎮 CombatUI initialization complete")
@@ -338,6 +349,30 @@ func _setup_dice_pool():
 	
 	if dice_pool_display.has_method("initialize") and player and player.dice_pool:
 		dice_pool_display.initialize(player.dice_pool)
+
+
+func _setup_mana_die_selector():
+	"""Initialize ManaDieSelector for casters, hide for non-casters."""
+	if not mana_die_selector:
+		return
+	if not player:
+		mana_die_selector.hide()
+		return
+
+	if player.has_method("has_mana_pool") and player.has_mana_pool():
+		mana_die_selector.show()
+		mana_die_selector.initialize(player)
+		print("  ✅ ManaDieSelector initialized (caster)")
+	else:
+		mana_die_selector.hide()
+		print("  ℹ️ No mana pool — mana selector hidden")
+
+
+func set_mana_drag_enabled(enabled: bool):
+	"""Enable/disable mana die dragging. Called by CombatManager on phase change."""
+	if mana_die_selector:
+		mana_die_selector.set_drag_enabled(enabled)
+
 
 # ============================================================================
 # HEALTH UPDATES
@@ -436,6 +471,7 @@ func set_player_turn(is_player: bool):
 			dice_pool_display.hide()
 		if _bottom_ui:
 			_bottom_ui.enter_enemy_turn()
+			set_mana_drag_enabled(false)
 		disable_target_selection()
 
 func refresh_dice_pool():
@@ -465,6 +501,9 @@ func enter_prep_phase():
 	# Delegate button visibility to BottomUIPanel
 	if _bottom_ui:
 		_bottom_ui.enter_prep_phase()
+
+	set_mana_drag_enabled(false)
+
 
 	disable_target_selection()
 	selected_action_field = null
