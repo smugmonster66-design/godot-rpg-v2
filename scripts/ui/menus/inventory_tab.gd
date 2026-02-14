@@ -7,7 +7,6 @@ extends Control
 # ============================================================================
 # RARITY SHADER CONFIGURATION
 # ============================================================================
-@export var rarity_colors: RarityColors = null
 @export var use_rarity_shaders: bool = true
 
 @export_group("Shader Settings")
@@ -95,14 +94,6 @@ func _ready():
 	
 	# Load rarity shader
 	rarity_shader = load("res://shaders/rarity_border.gdshader")
-	
-	# Load default rarity colors if not set
-	if not rarity_colors:
-		var default_colors = load("res://resources/data/rarity_colors.tres")
-		if default_colors:
-			rarity_colors = default_colors
-		else:
-			rarity_colors = RarityColors.new()
 	
 	_discover_ui_elements()
 	print("🎒 InventoryTab: Ready")
@@ -280,7 +271,7 @@ func _rebuild_inventory_grid():
 		empty_label.text = "No items in this category"
 		empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		empty_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		empty_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+		empty_label.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
 		inventory_grid.add_child(empty_label)
 		return
 	
@@ -341,7 +332,7 @@ func _create_item_button(item) -> Control:
 		btn.texture_normal = tex
 	
 	# Apply rarity shader
-	if use_rarity_shaders and rarity_shader and rarity_colors:
+	if use_rarity_shaders and rarity_shader:
 		_apply_rarity_shader_to_button(btn, item)
 	
 	wrapper.add_child(btn)
@@ -367,8 +358,8 @@ func _create_item_button(item) -> Control:
 		# "E" badge in top-right corner
 		var badge = Label.new()
 		badge.text = "E"
-		badge.add_theme_font_size_override("font_size", 14)
-		badge.add_theme_color_override("font_color", Color.WHITE)
+		badge.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.caption)
+		badge.add_theme_color_override("font_color", ThemeManager.PALETTE.text_primary)
 		badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		badge.custom_minimum_size = Vector2(20, 20)
@@ -376,9 +367,10 @@ func _create_item_button(item) -> Control:
 		
 		# Badge background
 		var badge_bg = Panel.new()
-		var style = StyleBoxFlat.new()
-		style.bg_color = Color(0.2, 0.6, 0.2, 0.9)
-		style.set_corner_radius_all(4)
+		var style = ThemeManager._flat_box(
+			Color(ThemeManager.PALETTE.success.r, ThemeManager.PALETTE.success.g,
+				ThemeManager.PALETTE.success.b, 0.9),
+			Color(0, 0, 0, 0), 4, 0)
 		badge_bg.add_theme_stylebox_override("panel", style)
 		badge_bg.custom_minimum_size = Vector2(20, 20)
 		badge_bg.position = Vector2(glow_pad + 2, glow_pad + 2)
@@ -410,7 +402,7 @@ func _apply_rarity_shader_to_button(button: TextureButton, item):
 	shader_material.shader = rarity_shader
 	
 	var rarity_name = _item_rarity_name(item)
-	var color = rarity_colors.get_color_for_rarity(rarity_name)
+	var color = ThemeManager.get_rarity_color(rarity_name)
 	
 	shader_material.set_shader_parameter("border_color", color)
 	shader_material.set_shader_parameter("glow_radius", glow_radius)
@@ -490,8 +482,7 @@ func _update_item_details():
 	if name_labels.size() > 0:
 		var rarity_name = _item_rarity_name(selected_item)
 		name_labels[0].text = _item_name(selected_item)
-		if rarity_colors:
-			name_labels[0].add_theme_color_override("font_color", rarity_colors.get_color_for_rarity(rarity_name))
+		name_labels[0].add_theme_color_override("font_color", ThemeManager.get_rarity_color(rarity_name))
 	
 	# Show item image with rarity shader + glow layer
 	if image_rects.size() > 0:
@@ -537,7 +528,7 @@ func _update_item_details():
 			if equippable.item_level > 0:
 				var level_label = Label.new()
 				level_label.text = "Item Level %d (Region %d)" % [equippable.item_level, equippable.region]
-				level_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+				level_label.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
 				affix_container.add_child(level_label)
 			
 			# Inherent affixes (green-tinted — manual/identity affixes)
@@ -558,13 +549,13 @@ func _update_item_details():
 				for req_text in unmet:
 					var req_label = Label.new()
 					req_label.text = req_text
-					req_label.add_theme_color_override("font_color", Color(0.9, 0.3, 0.3))
+					req_label.add_theme_color_override("font_color", ThemeManager.PALETTE.danger)
 					affix_container.add_child(req_label)
 			
 			# Sell value
 			var sell_label = Label.new()
 			sell_label.text = "Sell: %d gold" % equippable.get_sell_value()
-			sell_label.add_theme_color_override("font_color", Color(0.8, 0.7, 0.3))
+			sell_label.add_theme_color_override("font_color", ThemeManager.PALETTE.warning)
 			affix_container.add_child(sell_label)
 		
 		
@@ -586,7 +577,8 @@ func _update_item_details():
 				var threshold_label = Label.new()
 				var prefix = "✓" if is_active else "✗"
 				threshold_label.text = "  %s (%d) %s" % [prefix, threshold.required_pieces, threshold.description]
-				threshold_label.add_theme_color_override("font_color", Color.GREEN if is_active else Color(0.4, 0.4, 0.4))
+				threshold_label.add_theme_color_override("font_color",
+					ThemeManager.PALETTE.success if is_active else ThemeManager.PALETTE.locked)
 				threshold_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 				affix_container.add_child(threshold_label)
 	
@@ -653,12 +645,12 @@ func _update_item_details():
 
 func _apply_rarity_shader_to_texture_rect(tex_rect: TextureRect, item):
 	"""Apply rarity glow shader to any TextureRect"""
-	if not use_rarity_shaders or not rarity_shader or not rarity_colors:
+	if not use_rarity_shaders or not rarity_shader:
 		tex_rect.material = null
 		return
 	
 	var rarity_name = _item_rarity_name(item)
-	var color = rarity_colors.get_color_for_rarity(rarity_name)
+	var color = ThemeManager.get_rarity_color(rarity_name)
 	
 	var mat = ShaderMaterial.new()
 	mat.shader = rarity_shader

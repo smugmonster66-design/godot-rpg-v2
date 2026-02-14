@@ -14,7 +14,7 @@ var value_label: Label
 var current_value: int = 0
 var max_value: int = 100
 var display_name: String = "HP"
-var bar_color: Color = Color.GREEN
+var bar_color: Color = Color(0.20, 0.75, 0.25)  # ThemeManager.PALETTE.health
 
 # ============================================================================
 # INITIALIZATION
@@ -76,9 +76,9 @@ func update_display():
 		if percent > 0.5:
 			bar.modulate = bar_color
 		elif percent > 0.25:
-			bar.modulate = Color.YELLOW
+			bar.modulate = ThemeManager.PALETTE.warning
 		else:
-			bar.modulate = Color.RED
+			bar.modulate = ThemeManager.PALETTE.health_low
 	
 	if value_label:
 		value_label.text = "%d / %d" % [current_value, max_value]

@@ -219,64 +219,27 @@ func set_active(active: bool):
 	is_active = active
 	
 	if active:
-		# ACTIVE STATE - Bright and highlighted
-		var active_style = StyleBoxFlat.new()
-		active_style.bg_color = Color(0.35, 0.4, 0.5, 1.0)  # Bright background
-		active_style.border_width_left = 3
-		active_style.border_width_right = 3
-		active_style.border_width_top = 3
-		active_style.border_width_bottom = 3
-		active_style.border_color = Color(0.6, 0.7, 0.9, 1.0)  # Bright blue border
-		active_style.corner_radius_top_left = 6
-		active_style.corner_radius_top_right = 6
-		active_style.corner_radius_bottom_left = 6
-		active_style.corner_radius_bottom_right = 6
-		
+		# ACTIVE STATE
+		var active_style = ThemeManager._flat_box(
+			ThemeManager.PALETTE.bg_elevated, ThemeManager.PALETTE.border_focus, 6, 3)
 		add_theme_stylebox_override("normal", active_style)
-		add_theme_stylebox_override("hover", active_style)  # Stay bright on hover
-		
-		# Brighten the icon
-		modulate = Color(1.0, 1.0, 1.0, 1.0)  # Full brightness
-		
-		# Brighten label
+		add_theme_stylebox_override("hover", active_style)
+		modulate = Color(1.0, 1.0, 1.0, 1.0)
 		if label:
-			label.add_theme_color_override("font_color", Color.WHITE)
+			label.add_theme_color_override("font_color", ThemeManager.PALETTE.text_primary)
 	else:
-		# INACTIVE STATE - Dimmed/darkened
-		var inactive_style = StyleBoxFlat.new()
-		inactive_style.bg_color = Color(0.15, 0.15, 0.2, 0.7)  # Dark, semi-transparent
-		inactive_style.border_width_left = 2
-		inactive_style.border_width_right = 2
-		inactive_style.border_width_top = 2
-		inactive_style.border_width_bottom = 2
-		inactive_style.border_color = Color(0.3, 0.3, 0.4, 1.0)  # Dim border
-		inactive_style.corner_radius_top_left = 6
-		inactive_style.corner_radius_top_right = 6
-		inactive_style.corner_radius_bottom_left = 6
-		inactive_style.corner_radius_bottom_right = 6
-		
+		# INACTIVE STATE
+		var inactive_style = ThemeManager._flat_box(
+			ThemeManager.PALETTE.bg_panel, ThemeManager.PALETTE.border_default, 6, 2)
 		add_theme_stylebox_override("normal", inactive_style)
 		
-		# Hover state for inactive buttons
-		var hover_style = StyleBoxFlat.new()
-		hover_style.bg_color = Color(0.2, 0.2, 0.25, 0.8)
-		hover_style.border_width_left = 2
-		hover_style.border_width_right = 2
-		hover_style.border_width_top = 2
-		hover_style.border_width_bottom = 2
-		hover_style.border_color = Color(0.4, 0.4, 0.5, 1.0)
-		hover_style.corner_radius_top_left = 6
-		hover_style.corner_radius_top_right = 6
-		hover_style.corner_radius_bottom_left = 6
-		hover_style.corner_radius_bottom_right = 6
+		var hover_style = ThemeManager._flat_box(
+			ThemeManager.PALETTE.bg_hover, ThemeManager.PALETTE.border_default, 6, 2)
 		add_theme_stylebox_override("hover", hover_style)
-		
-		# Dim the icon
-		modulate = Color(0.6, 0.6, 0.6, 1.0)  # 60% brightness
-		
-		# Dim label
+		modulate = Color(ThemeManager.PALETTE.text_muted.r, ThemeManager.PALETTE.text_muted.g,
+			ThemeManager.PALETTE.text_muted.b, 1.0)
 		if label:
-			label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+			label.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
 
 func set_icon(normal: Texture2D, pressed: Texture2D = null, disabled_tex: Texture2D = null):
 	"""Change the button icon at runtime"""

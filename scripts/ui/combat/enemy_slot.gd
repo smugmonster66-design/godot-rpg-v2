@@ -18,10 +18,14 @@ signal slot_unhovered(slot: EnemySlot)
 @export var die_icon_size: Vector2 = Vector2(24, 24)
 
 @export_group("Colors")
+## When true, uses the exported colors below. When false, falls back to ThemeManager PALETTE.
+@export var use_custom_slot_colors: bool = true
 @export var empty_slot_color: Color = Color(0.2, 0.2, 0.2, 0.5)
 @export var filled_slot_color: Color = Color(0.3, 0.2, 0.2, 0.9)
 @export var selected_slot_color: Color = Color(0.5, 0.4, 0.2, 0.95)
 @export var dead_slot_color: Color = Color(0.15, 0.1, 0.1, 0.8)
+# NOTE: These are enemy-specific tints (red-shifted), intentionally different
+# from generic PALETTE values. Keep as exports for designer tuning.
 
 # ============================================================================
 # NODE REFERENCES - Found from scene
@@ -46,6 +50,9 @@ var style_box: StyleBoxFlat = null
 var dice_icons: Array[Control] = []
 var turn_indicator_material: ShaderMaterial = null
 var turn_indicator: Control = null
+
+func _slot_color(custom: Color, palette_fallback: Color) -> Color:
+	return custom if use_custom_slot_colors else palette_fallback
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
@@ -58,17 +65,9 @@ func _ready():
 	set_empty()
 
 func _setup_style():
-	"""Setup panel StyleBox"""
-	var current_style = get_theme_stylebox("panel")
-	if current_style is StyleBoxFlat:
-		style_box = current_style.duplicate()
-	else:
-		style_box = StyleBoxFlat.new()
-		style_box.set_corner_radius_all(8)
-		style_box.set_border_width_all(2)
-	
-	style_box.bg_color = empty_slot_color
-	style_box.border_color = Color(0.3, 0.3, 0.3)
+	style_box = ThemeManager._flat_box(
+		_slot_color(empty_slot_color, ThemeManager.PALETTE.bg_panel),
+		ThemeManager.PALETTE.border_subtle, 8, 2)
 	add_theme_stylebox_override("panel", style_box)
 
 func _connect_signals():
@@ -162,8 +161,8 @@ func set_empty():
 		dice_pool_bar.hide()
 	
 	if style_box:
-		style_box.bg_color = empty_slot_color
-		style_box.border_color = Color(0.3, 0.3, 0.3)
+		style_box.bg_color = _slot_color(empty_slot_color, ThemeManager.PALETTE.bg_panel)
+		style_box.border_color = ThemeManager.PALETTE.border_subtle
 	
 	if selection_indicator:
 		selection_indicator.hide()
@@ -177,11 +176,11 @@ func set_selected(selected: bool):
 	
 	if style_box:
 		if selected and not is_empty and is_alive():
-			style_box.bg_color = selected_slot_color
-			style_box.border_color = Color(1.0, 0.9, 0.2)
+			style_box.bg_color = _slot_color(selected_slot_color, ThemeManager.PALETTE.bg_elevated)
+			style_box.border_color = ThemeManager.PALETTE.maxed
 		elif not is_empty and is_alive():
-			style_box.bg_color = filled_slot_color
-			style_box.border_color = Color(0.6, 0.3, 0.3)
+			style_box.bg_color = _slot_color(filled_slot_color, ThemeManager.PALETTE.bg_hover)
+			style_box.border_color = ThemeManager.PALETTE.danger
 
 func update_health(current: int, maximum: int):
 	"""Update health display"""
@@ -350,7 +349,7 @@ func _update_display():
 	# Name
 	if name_label:
 		name_label.text = enemy.combatant_name
-		name_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.9))
+		name_label.add_theme_color_override("font_color", ThemeManager.PALETTE.text_primary)
 	
 	# Health
 	if health_bar:
@@ -363,8 +362,8 @@ func _update_display():
 	
 	# Style
 	if style_box:
-		style_box.bg_color = filled_slot_color
-		style_box.border_color = Color(0.6, 0.3, 0.3)
+		style_box.bg_color = _slot_color(filled_slot_color, ThemeManager.PALETTE.bg_hover)
+		style_box.border_color = ThemeManager.PALETTE.danger
 
 # ============================================================================
 # SIGNAL HANDLERS
@@ -382,7 +381,7 @@ func _on_mouse_entered():
 	if not is_empty and is_alive():
 		slot_hovered.emit(self)
 		if style_box and not is_selected:
-			style_box.border_color = Color(0.9, 0.7, 0.3)
+			style_box.border_color = ThemeManager.PALETTE.warning
 
 func _on_mouse_exited():
 	"""Handle mouse exit"""
@@ -390,9 +389,9 @@ func _on_mouse_exited():
 		slot_unhovered.emit(self)
 		if style_box and not is_selected:
 			if is_alive():
-				style_box.border_color = Color(0.6, 0.3, 0.3)
+				style_box.border_color = ThemeManager.PALETTE.danger
 			else:
-				style_box.border_color = Color(0.3, 0.2, 0.2)
+				style_box.border_color = Color(ThemeManager.PALETTE.danger.darkened(0.5))
 
 func _on_enemy_health_changed(current: int, maximum: int):
 	"""Handle enemy health change"""
@@ -404,11 +403,11 @@ func _on_enemy_died():
 		portrait_rect.modulate = Color(0.3, 0.3, 0.3, 0.7)
 	
 	if name_label:
-		name_label.add_theme_color_override("font_color", Color(0.5, 0.3, 0.3))
+		name_label.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
 	
 	if style_box:
-		style_box.bg_color = dead_slot_color
-		style_box.border_color = Color(0.3, 0.2, 0.2)
+		style_box.bg_color = _slot_color(dead_slot_color, ThemeManager.PALETTE.bg_darkest)
+		style_box.border_color = Color(ThemeManager.PALETTE.danger.darkened(0.5))
 	
 	if selection_indicator:
 		selection_indicator.hide()

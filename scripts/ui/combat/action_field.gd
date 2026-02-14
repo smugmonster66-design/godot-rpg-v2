@@ -87,18 +87,9 @@ const SLOT_SIZE = Vector2(62, 62)
 const DIE_SCALE = 0.5
 
 # ============================================================================
-# ELEMENT COLORS (for fallback/labels)
-# ============================================================================
-const ELEMENT_COLORS = {
-	ActionEffect.DamageType.SLASHING: Color(0.8, 0.8, 0.8),
-	ActionEffect.DamageType.BLUNT: Color(0.6, 0.5, 0.4),
-	ActionEffect.DamageType.PIERCING: Color(0.9, 0.9, 0.7),
-	ActionEffect.DamageType.FIRE: Color(1.0, 0.4, 0.2),
-	ActionEffect.DamageType.ICE: Color(0.4, 0.8, 1.0),
-	ActionEffect.DamageType.SHOCK: Color(1.0, 1.0, 0.3),
-	ActionEffect.DamageType.POISON: Color(0.4, 0.9, 0.3),
-	ActionEffect.DamageType.SHADOW: Color(0.5, 0.3, 0.7),
-}
+# ELEMENT COLORS — resolved via ThemeManager.get_element_color_enum()
+# ============================================================================ActionEffect.DamageType.SHADOW: Color(0.5, 0.3, 0.7),
+
 
 const ELEMENT_NAMES = {
 	ActionEffect.DamageType.SLASHING: "Slashing",
@@ -162,7 +153,7 @@ func _apply_element_shader():
 	"""Apply fill + stroke shader materials from central element config"""
 	if not GameManager or not GameManager.ELEMENT_VISUALS:
 		if fill_texture:
-			fill_texture.modulate = ELEMENT_COLORS.get(element, Color.WHITE) * Color(0.5, 0.5, 0.5)
+			fill_texture.modulate = ThemeManager.get_element_color_enum(element) * Color(0.5, 0.5, 0.5)
 		return
 	
 	var config = GameManager.ELEMENT_VISUALS
@@ -214,17 +205,14 @@ func _update_damage_preview():
 		return
 	
 	var element_name = ELEMENT_NAMES.get(element, "")
-	var element_color = ELEMENT_COLORS.get(element, Color.WHITE)
+	var element_color = ThemeManager.get_element_color_enum(element)
 	
 	if placed_dice.size() == 0:
-		# Show formula: "2D+10 Fire"
 		dmg_preview_label.text = _get_damage_formula()
 	else:
-		# Show calculated damage: "→ 28 Fire"
 		var total_damage = _calculate_preview_damage()
 		dmg_preview_label.text = "→ %d %s" % [total_damage, element_name]
 	
-	# Tint label with element color
 	dmg_preview_label.add_theme_color_override("font_color", element_color)
 	
 	
@@ -247,7 +235,7 @@ func _update_heal_preview():
 		var total_heal = _calculate_preview_heal()
 		dmg_preview_label.text = "→ %d HP" % total_heal
 	
-	dmg_preview_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4))
+	dmg_preview_label.add_theme_color_override("font_color", ThemeManager.PALETTE.success)
 
 func _get_damage_formula() -> String:
 	"""Get the damage formula string (e.g., '2D+10 Fire')"""
@@ -427,11 +415,7 @@ func _apply_rarity_shader_to_badge(tex_rect: TextureRect, rarity_name: String):
 	if not shader:
 		return
 	
-	var rarity_colors_res = load("res://resources/data/rarity_colors.tres")
-	if not rarity_colors_res:
-		return
-	
-	var color = rarity_colors_res.get_color_for_rarity(rarity_name)
+	var color = ThemeManager.get_rarity_color(rarity_name)
 	
 	var mat = ShaderMaterial.new()
 	mat.shader = shader
@@ -469,11 +453,10 @@ func create_die_slots():
 		die_slot_panels.append(slot)
 
 func _setup_empty_slot(slot: Panel):
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.15, 0.15, 0.15, 0.8)
-	style.border_color = Color(0.4, 0.4, 0.4)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(4)
+	var style = ThemeManager._flat_box(
+		Color(ThemeManager.PALETTE.bg_input.r, ThemeManager.PALETTE.bg_input.g,
+			ThemeManager.PALETTE.bg_input.b, 0.8),
+		ThemeManager.PALETTE.border_subtle, 4, 2)
 	slot.add_theme_stylebox_override("panel", style)
 
 # ============================================================================
@@ -734,9 +717,9 @@ func update_icon_state():
 	if not icon_rect:
 		return
 	if is_disabled:
-		icon_rect.modulate = Color(0.3, 0.3, 0.3)
+		icon_rect.modulate = ThemeManager.PALETTE.locked
 	elif placed_dice.size() > 0:
-		icon_rect.modulate = Color(0.5, 0.5, 0.5)
+		icon_rect.modulate = ThemeManager.PALETTE.text_muted
 	else:
 		icon_rect.modulate = Color.WHITE
 

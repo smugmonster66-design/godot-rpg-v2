@@ -227,7 +227,9 @@ func _on_slot_clicked(slot: DieSlot):
 
 func _on_drag_started(slot: DieSlot, _die: DieResource):
 	"""Visual feedback when drag starts"""
-	slot.modulate = Color(0.6, 0.6, 0.6, 0.7)
+	slot.modulate = Color(ThemeManager.PALETTE.text_muted.r,
+		ThemeManager.PALETTE.text_muted.g,
+		ThemeManager.PALETTE.text_muted.b, 0.7)
 
 func _on_drag_ended(slot: DieSlot):
 	"""Restore visual when drag ends"""

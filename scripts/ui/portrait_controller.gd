@@ -13,7 +13,6 @@ signal portrait_clicked()
 # EXPORTS
 # ============================================================================
 @export_group("Resources")
-@export var rarity_colors: RarityColors = null
 @export var portrait_mask_shader: Shader = null
 @export var frame_glow_shader: Shader = null
 
@@ -132,9 +131,10 @@ func _create_level_badge():
 	# Background panel
 	level_badge_bg = Panel.new()
 	level_badge_bg.name = "LevelBadgeBG"
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.1, 0.1, 0.1, 0.85)
-	style.set_corner_radius_all(4)
+	var style = ThemeManager._flat_box(
+		Color(ThemeManager.PALETTE.bg_darkest.r, ThemeManager.PALETTE.bg_darkest.g,
+			ThemeManager.PALETTE.bg_darkest.b, 0.85),
+		Color(0, 0, 0, 0), 4, 0)
 	style.content_margin_left = 4
 	style.content_margin_right = 4
 	style.content_margin_top = 2
@@ -157,7 +157,7 @@ func _create_level_badge():
 	level_badge_label.name = "LevelLabel"
 	level_badge_label.text = "Lv.1"
 	level_badge_label.add_theme_font_size_override("font_size", badge_font_size)
-	level_badge_label.add_theme_color_override("font_color", Color.WHITE)
+	level_badge_label.add_theme_color_override("font_color", ThemeManager.PALETTE.text_primary)
 	level_badge_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	level_badge_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	level_badge_label.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -244,17 +244,7 @@ func _update_rarity_glow():
 		_frame_material.set_shader_parameter("glow_intensity", 0.0)
 		return
 
-	# Get color from RarityColors resource
-	var glow_color: Color = Color.WHITE
-	if rarity_colors:
-		glow_color = rarity_colors.get_color_for_rarity_enum(highest_rarity)
-	else:
-		# Fallback colors
-		match highest_rarity:
-			EquippableItem.Rarity.UNCOMMON: glow_color = Color(0.2, 0.8, 0.2)
-			EquippableItem.Rarity.RARE: glow_color = Color(0.2, 0.5, 1.0)
-			EquippableItem.Rarity.EPIC: glow_color = Color(0.7, 0.2, 0.9)
-			EquippableItem.Rarity.LEGENDARY: glow_color = Color(1.0, 0.6, 0.0)
+	var glow_color: Color = ThemeManager.get_rarity_color_enum(highest_rarity)
 
 	# Intensity scales: base + proportional to count of highest rarity items
 	var count_ratio: float = float(highest_count) / float(total_equipment_slots)
@@ -371,22 +361,7 @@ func _create_status_icon(effect: Dictionary) -> TextureRect:
 
 func _get_status_color(effect_name: String) -> Color:
 	"""Get a representative color for a status effect."""
-	match effect_name:
-		"poison": return Color(0.4, 0.85, 0.25)
-		"burn": return Color(1.0, 0.4, 0.1)
-		"bleed": return Color(0.8, 0.1, 0.1)
-		"chill": return Color(0.5, 0.8, 1.0)
-		"stunned": return Color(1.0, 1.0, 0.2)
-		"slowed": return Color(0.4, 0.4, 0.8)
-		"corrode": return Color(0.6, 0.5, 0.1)
-		"shadow": return Color(0.3, 0.1, 0.4)
-		"block": return Color(0.6, 0.6, 0.6)
-		"dodge": return Color(0.2, 0.9, 0.6)
-		"overhealth": return Color(0.9, 0.9, 0.2)
-		"expose": return Color(1.0, 0.5, 0.5)
-		"enfeeble": return Color(0.5, 0.3, 0.5)
-		"ignition": return Color(1.0, 0.6, 0.0)
-		_: return Color.WHITE
+	return ThemeManager.get_status_color(effect_name)
 
 # ============================================================================
 # LEVEL BADGE

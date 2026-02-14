@@ -46,10 +46,10 @@ enum DragType {
 			update_display()
 
 @export_group("Colors")
-@export var empty_color: Color = Color(0.15, 0.15, 0.2)
-@export var hover_color: Color = Color(0.2, 0.2, 0.3)
-@export var selected_color: Color = Color(0.25, 0.3, 0.35)
-@export var drag_target_color: Color = Color(0.2, 0.3, 0.2)
+@export var empty_color: Color = Color(0.08, 0.08, 0.12)       # PALETTE.bg_input
+@export var hover_color: Color = Color(0.18, 0.16, 0.26)       # PALETTE.bg_hover
+@export var selected_color: Color = Color(0.30, 0.50, 0.80)    # PALETTE.available
+@export var drag_target_color: Color = Color(0.30, 0.75, 0.35) # PALETTE.success
 
 # ============================================================================
 # CONSTANTS

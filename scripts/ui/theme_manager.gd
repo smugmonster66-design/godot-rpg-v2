@@ -97,6 +97,12 @@ const PALETTE = {
 	"armor":            Color(0.60, 0.60, 0.65),       # Armor indicator
 	"barrier":          Color(0.40, 0.70, 0.95),       # Magic barrier
 
+	# ── Stat Colors ──────────────────────────────────────────────────────
+	"strength":         Color(1.0, 0.35, 0.2),         # STR
+	"agility":          Color(0.3, 0.85, 0.35),        # AGI
+	"intellect":        Color(0.3, 0.45, 1.0),         # INT
+	"luck":             Color(1.0, 0.85, 0.2),         # LCK      # Magic barrier
+
 	# ── Cate (the divine cat companion) ──────────────────────────────────
 	"cate_happy":       Color(1.0, 0.85, 0.40),
 	"cate_neutral":     Color(0.70, 0.70, 0.75),
@@ -167,11 +173,13 @@ func _build_theme():
 
 func _apply_to_project():
 	"""Set as the project-wide default theme so all Controls inherit it."""
-	# Merge into ThemeDB's project theme — this cascades to every Control
-	# that doesn't have an explicit theme override.
-	ThemeDB.get_project_theme().merge_with(theme)
-	print("  🎨 Merged into project theme")
-
+	var project_theme = ThemeDB.get_project_theme()
+	if project_theme:
+		project_theme.merge_with(theme)
+		print("  🎨 Merged into project theme")
+	else:
+		get_tree().root.theme = theme
+		print("  🎨 Applied theme to root viewport")
 
 # ============================================================================
 # FONTS
@@ -614,8 +622,8 @@ func get_element_color(element_string: String) -> Color:
 
 
 func get_element_color_enum(element: int) -> Color:
-	"""Get element color from DieResource.Element or ActionEffect.DamageType enum value."""
-	# Maps to the same element names used in mana_pool.gd / affix_evaluator.gd
+	"""Get element color from ActionEffect.DamageType enum value.
+	For DieResource.Element, use get_die_element_color() instead."""
 	match element:
 		0: return PALETTE.slashing   # SLASHING
 		1: return PALETTE.piercing   # PIERCING
@@ -626,6 +634,43 @@ func get_element_color_enum(element: int) -> Color:
 		6: return PALETTE.poison     # POISON
 		7: return PALETTE.shadow     # SHADOW
 		_: return PALETTE.text_primary
+
+
+func get_die_element_color(element: int) -> Color:
+	"""Get element color from DieResource.Element enum value.
+	DieResource.Element ordering: NONE=0, FIRE=1, ICE=2, SHOCK=3,
+	POISON=4, SHADOW=5, SLASHING=6, BLUNT=7, PIERCING=8, FAITH=9"""
+	match element:
+		0: return PALETTE.text_secondary  # NONE
+		1: return PALETTE.fire
+		2: return PALETTE.ice
+		3: return PALETTE.shock
+		4: return PALETTE.poison
+		5: return PALETTE.shadow
+		6: return PALETTE.slashing
+		7: return PALETTE.blunt
+		8: return PALETTE.piercing
+		_: return PALETTE.text_primary
+
+
+func get_status_color(status_name: String) -> Color:
+	"""Get a representative UI color for a status effect by name."""
+	# Element-based statuses pull from element colors
+	match status_name:
+		"poison": return PALETTE.poison
+		"burn", "ignition": return PALETTE.fire
+		"chill": return PALETTE.ice
+		"shadow": return PALETTE.shadow
+		"bleed": return PALETTE.danger
+		"stunned": return PALETTE.warning
+		"slowed": return PALETTE.primary
+		"corrode": return Color(0.6, 0.5, 0.1)
+		"block": return PALETTE.armor
+		"dodge": return PALETTE.success
+		"overhealth": return PALETTE.warning
+		"expose": return Color(1.0, 0.5, 0.5)
+		"enfeeble": return Color(0.5, 0.3, 0.5)
+		_: return Color.WHITE
 
 
 func get_rarity_color(rarity_name: String) -> Color:

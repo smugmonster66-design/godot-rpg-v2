@@ -145,10 +145,9 @@ func _update_item_details():
 			unequip_buttons[0].hide()
 		return
 	
-	# Item name + rarity
 	if name_labels.size() > 0:
 		name_labels[0].text = selected_item.item_name
-		name_labels[0].add_theme_color_override("font_color", selected_item.get_rarity_color())
+		name_labels[0].add_theme_color_override("font_color", ThemeManager.get_rarity_color_enum(selected_item.rarity))
 	
 	# Item image
 	if image_rects.size() > 0:
@@ -186,9 +185,10 @@ func _update_item_details():
 func _add_affix_label(container: VBoxContainer, affix: Affix, color: Color):
 	"""Add a single affix display to the container."""
 	var affix_panel = PanelContainer.new()
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.15, 0.15, 0.2, 0.6)
-	style.set_corner_radius_all(4)
+	var style = ThemeManager._flat_box(
+		Color(ThemeManager.PALETTE.bg_input.r, ThemeManager.PALETTE.bg_input.g,
+			ThemeManager.PALETTE.bg_input.b, 0.6),
+		Color(0, 0, 0, 0), 4, 0)
 	style.content_margin_left = 8
 	style.content_margin_right = 8
 	style.content_margin_top = 4
@@ -201,13 +201,13 @@ func _add_affix_label(container: VBoxContainer, affix: Affix, color: Color):
 	
 	var name_label = Label.new()
 	name_label.text = affix.affix_name
-	name_label.add_theme_font_size_override("font_size", 14)
+	name_label.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.caption)
 	name_label.add_theme_color_override("font_color", color)
 	vbox.add_child(name_label)
 	
 	var desc_label = Label.new()
 	desc_label.text = affix.get_resolved_description()
-	desc_label.add_theme_font_size_override("font_size", 12)
+	desc_label.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.small)
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(desc_label)
 	

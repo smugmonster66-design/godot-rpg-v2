@@ -575,14 +575,8 @@ func is_heavy_weapon() -> bool:
 	return equip_slot == EquipSlot.HEAVY
 
 func get_rarity_color() -> Color:
-	"""Get color for rarity tier"""
-	match rarity:
-		Rarity.COMMON: return Color.WHITE
-		Rarity.UNCOMMON: return Color.GREEN
-		Rarity.RARE: return Color.BLUE
-		Rarity.EPIC: return Color.PURPLE
-		Rarity.LEGENDARY: return Color.ORANGE
-		_: return Color.WHITE
+	"""Get color for rarity tier — delegates to ThemeManager."""
+	return ThemeManager.get_rarity_color_enum(rarity)
 
 func get_rarity_name() -> String:
 	"""Get rarity name as string"""

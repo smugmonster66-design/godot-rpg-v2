@@ -127,34 +127,34 @@ func _update_stats_display():
 	
 	# ── Vitals ──
 	_add_section_header("Vitals")
-	_add_stat_row("HP", "%d / %d" % [player.current_hp, player.max_hp], Color.RED)
-	_add_stat_row("Mana", "%d / %d" % [player.current_mana, player.max_mana], Color.CYAN)
+	_add_stat_row("HP", "%d / %d" % [player.current_hp, player.max_hp], ThemeManager.PALETTE.health)
+	_add_stat_row("Mana", "%d / %d" % [player.current_mana, player.max_mana], ThemeManager.PALETTE.mana)
 	
 	_add_separator()
 	
 	# ── Primary Stats ──
 	_add_section_header("Primary Stats")
-	_add_stat_row("Strength", str(player.get_total_stat("strength")), Color.ORANGE_RED)
-	_add_stat_row("Agility", str(player.get_total_stat("agility")), Color.GREEN)
-	_add_stat_row("Intellect", str(player.get_total_stat("intellect")), Color.ROYAL_BLUE)
-	_add_stat_row("Luck", str(player.get_total_stat("luck")), Color.GOLD)
+	_add_stat_row("Strength", str(player.get_total_stat("strength")), ThemeManager.PALETTE.strength)
+	_add_stat_row("Agility", str(player.get_total_stat("agility")), ThemeManager.PALETTE.agility)
+	_add_stat_row("Intellect", str(player.get_total_stat("intellect")), ThemeManager.PALETTE.intellect)
+	_add_stat_row("Luck", str(player.get_total_stat("luck")), ThemeManager.PALETTE.luck)
 	
 	_add_separator()
 	
 	# ── Defense ──
 	_add_section_header("Defense")
-	_add_stat_row("Armor", str(player.get_armor()), Color.GRAY)
-	_add_stat_row("Barrier", str(player.get_barrier()), Color.LIGHT_BLUE)
+	_add_stat_row("Armor", str(player.get_armor()), ThemeManager.PALETTE.armor)
+	_add_stat_row("Barrier", str(player.get_barrier()), ThemeManager.PALETTE.barrier)
 	
 	_add_separator()
 	
 	# ── Resistances ──
 	_add_section_header("Resistances")
-	_add_stat_row("Fire Resist", str(player.get_resist("fire")), Color.ORANGE_RED)
-	_add_stat_row("Ice Resist", str(player.get_resist("ice")), Color.SKY_BLUE)
-	_add_stat_row("Shock Resist", str(player.get_resist("shock")), Color.YELLOW)
-	_add_stat_row("Poison Resist", str(player.get_resist("poison")), Color.DARK_GREEN)
-	_add_stat_row("Shadow Resist", str(player.get_resist("shadow")), Color.DARK_VIOLET)
+	_add_stat_row("Fire Resist", str(player.get_resist("fire")), ThemeManager.get_element_color("fire"))
+	_add_stat_row("Ice Resist", str(player.get_resist("ice")), ThemeManager.get_element_color("ice"))
+	_add_stat_row("Shock Resist", str(player.get_resist("shock")), ThemeManager.get_element_color("shock"))
+	_add_stat_row("Poison Resist", str(player.get_resist("poison")), ThemeManager.get_element_color("poison"))
+	_add_stat_row("Shadow Resist", str(player.get_resist("shadow")), ThemeManager.get_element_color("shadow"))
 	
 	_add_separator()
 	
@@ -172,10 +172,10 @@ func _update_stats_display():
 	# Granted actions
 	var granted_actions = player.affix_manager.get_granted_actions()
 	if granted_actions.size() > 0:
-		_add_stat_row("Granted Actions", str(granted_actions.size()), Color.MEDIUM_PURPLE)
+		_add_stat_row("Granted Actions", str(granted_actions.size()), ThemeManager.PALETTE.experience)
 		for action in granted_actions:
 			var action_name = action.action_name if "action_name" in action else str(action)
-			_add_stat_row("  •", action_name, Color(0.7, 0.6, 0.9))
+			_add_stat_row("  •", action_name, ThemeManager.PALETTE.experience)
 	
 	_add_separator()
 	
@@ -186,10 +186,10 @@ func _update_stats_display():
 		var pool = player.affix_manager.pools[category]
 		for affix in pool:
 			if affix.show_in_active_list:
-				_add_stat_row("•", affix.affix_name, Color(0.6, 0.6, 0.6))
+				_add_stat_row("•", affix.affix_name, ThemeManager.PALETTE.text_secondary)
 				total_affixes += 1
 	if total_affixes == 0:
-		_add_stat_row("", "None", Color(0.5, 0.5, 0.5))
+		_add_stat_row("", "None", ThemeManager.PALETTE.text_muted)
 	
 	_add_separator()
 	
@@ -198,7 +198,7 @@ func _update_stats_display():
 	if player.set_tracker:
 		var active_sets = player.set_tracker.get_active_sets()
 		if active_sets.is_empty():
-			_add_stat_row("", "No sets equipped", Color(0.5, 0.5, 0.5))
+			_add_stat_row("", "No sets equipped", ThemeManager.PALETTE.text_muted)
 		else:
 			for set_id in active_sets:
 				var info = active_sets[set_id]
@@ -210,7 +210,7 @@ func _update_stats_display():
 					var color = Color.GREEN if is_active else Color(0.4, 0.4, 0.4)
 					_add_stat_row("  %s (%d)" % [prefix, threshold.required_pieces], threshold.description, color)
 	else:
-		_add_stat_row("", "No set tracker", Color(0.5, 0.5, 0.5))
+		_add_stat_row("", "No set tracker", ThemeManager.PALETTE.text_muted)
 	
 	_add_separator()
 	
@@ -223,16 +223,16 @@ func _update_stats_display():
 			var src = die.source if die.source else "Base"
 			sources[src] = sources.get(src, 0) + 1
 		for src in sources:
-			_add_stat_row("  %s" % src, "×%d" % sources[src], Color(0.7, 0.7, 0.7))
+			_add_stat_row("  %s" % src, "×%d" % sources[src], ThemeManager.PALETTE.text_secondary)
 	else:
-		_add_stat_row("", "No dice pool", Color(0.5, 0.5, 0.5))
+		_add_stat_row("", "No dice pool", ThemeManager.PALETTE.text_muted)
 
 func _add_section_header(title: String):
 	"""Add a bold section header"""
 	var label = Label.new()
 	label.text = title
-	label.add_theme_font_size_override("font_size", 15)
-	label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.4))
+	label.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.caption)
+	label.add_theme_color_override("font_color", ThemeManager.PALETTE.warning)
 	stats_container.add_child(label)
 
 

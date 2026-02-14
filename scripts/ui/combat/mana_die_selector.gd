@@ -76,17 +76,7 @@ var _drag_start_pos: Vector2 = Vector2.ZERO
 # CONSTANTS
 # ============================================================================
 
-const ELEMENT_COLORS: Dictionary = {
-	0: Color(0.6, 0.6, 0.6),
-	1: Color(1.0, 0.4, 0.2),
-	2: Color(0.3, 0.7, 1.0),
-	3: Color(0.9, 0.9, 0.2),
-	4: Color(0.3, 0.9, 0.3),
-	5: Color(0.5, 0.2, 0.8),
-	6: Color(0.8, 0.8, 0.8),
-	7: Color(0.7, 0.5, 0.3),
-	8: Color(0.9, 0.9, 0.9),
-}
+# Element colors resolved via ThemeManager.get_die_element_color()
 
 const ELEMENT_TAGS: Dictionary = {
 	DieResource.Element.NONE: "neutral",
@@ -495,8 +485,7 @@ func _animate_preview_grow_back():
 		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		lbl.add_theme_font_size_override("font_size", 10)
-		var elem_color = ELEMENT_COLORS.get(int(mana_pool.selected_element), Color.WHITE)
-		lbl.add_theme_color_override("font_color", elem_color)
+		lbl.add_theme_color_override("font_color", ThemeManager.get_die_element_color(mana_pool.selected_element))
 		_current_preview = lbl
 
 	preview_anchor.add_child(_current_preview)
@@ -632,8 +621,7 @@ func _update_die_preview():
 		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		lbl.add_theme_font_size_override("font_size", 10)
-		var elem_color = ELEMENT_COLORS.get(int(mana_pool.selected_element), Color.WHITE)
-		lbl.add_theme_color_override("font_color", elem_color)
+		lbl.add_theme_color_override("font_color", ThemeManager.get_die_element_color(mana_pool.selected_element))
 		_current_preview = lbl
 
 	preview_anchor.add_child(_current_preview)

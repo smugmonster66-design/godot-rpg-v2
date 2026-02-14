@@ -75,9 +75,9 @@ func on_value_changed(old_value: int, new_value: int):
 	
 	# Visual feedback for value change
 	if new_value > old_value:
-		_flash_color(Color(0.5, 1.0, 0.5))  # Green for increase
+		_flash_color(ThemeManager.PALETTE.success)
 	elif new_value < old_value:
-		_flash_color(Color(1.0, 0.5, 0.5))  # Red for decrease
+		_flash_color(ThemeManager.PALETTE.danger)
 
 func _flash_color(color: Color):
 	"""Brief color flash effect"""

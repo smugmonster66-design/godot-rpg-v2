@@ -183,7 +183,11 @@ func _update_button_visuals():
 		if btn.button_pressed:
 			btn.modulate = Color(1.0, 1.0, 1.0, 1.0)
 		else:
-			btn.modulate = Color(0.5, 0.5, 0.5, 1.0)
+			btn.modulate = Color(ThemeManager.PALETTE.text_muted.r,
+				ThemeManager.PALETTE.text_muted.g,
+				ThemeManager.PALETTE.text_muted.b, 1.0)
+
+
 
 # ============================================================================
 # SIGNAL HANDLERS
