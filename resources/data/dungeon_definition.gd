@@ -62,6 +62,11 @@ class_name DungeonDefinition
 @export var fog_color: Color = Color(0.1, 0.08, 0.15, 1.0)
 @export var ambient_color: Color = Color(0.8, 0.7, 0.6, 1.0)
 @export var torch_color: Color = Color(1.0, 0.7, 0.3, 1.0)
+# Under @export_group("Theme"), add alongside existing entries:
+@export var side_wall_texture: Texture2D = null
+@export var ceiling_texture: Texture2D = null
+@export var frame_texture: Texture2D = null
+
 
 # ============================================================================
 # FLOOR LAYOUT RULES

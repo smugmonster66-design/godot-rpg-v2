@@ -75,23 +75,35 @@ func set_interactive(interactive: bool):
 # DEPTH APPEARANCE — called by CorridorBuilder each frame
 # ============================================================================
 
-func update_depth(camera_y: float):
-	var distance = abs(global_position.y - camera_y)
-	var depth = clampf(distance / max_visible_distance, 0.0, 1.0)
+func update_depth(camera_y: float, vp_y: float, floor_line_y: float):
+	# Perspective t: 0.0 at floor line (full width), 1.0 at VP (zero width)
+	var denom := vp_y - floor_line_y
+	var t: float
+	if absf(denom) < 0.001:
+		t = 0.0
+	else:
+		t = (global_position.y - floor_line_y) / denom
 
-	# Scale: perspective shrink
-	var s = lerpf(1.0, min_depth_scale, depth)
+	# Scale follows the perspective lines exactly
+	var s := clampf(1.0 - t, min_depth_scale, 1.0)
 	scale = Vector2(s, s)
 
-	# Fog: darken + tint toward fog color
-	modulate = Color.WHITE.lerp(fog_color, depth * 0.6)
-	modulate.a = lerpf(1.0, 0.0, depth)
+	# Fog: ramp with t (deeper = foggier)
+	var fog_t := clampf(t, 0.0, 1.0)
+	modulate = Color.WHITE.lerp(fog_color, fog_t * 0.6)
+
+	# Alpha fade for very distant walls
+	if t > 0.85:
+		modulate.a = lerpf(1.0, 0.0, (t - 0.85) / 0.15)
+	else:
+		modulate.a = 1.0
 
 	# Behind camera — invisible
 	if global_position.y > camera_y + behind_fade_threshold:
 		modulate.a = 0.0
 
 	z_index = -floor_num
+
 
 # ============================================================================
 # SIGNAL RELAY

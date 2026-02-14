@@ -14,12 +14,19 @@ signal door_selected(node_id: int)
 @export var camera_tween_duration: float = 0.8
 @export var intro_duration: float = 2.0
 
+# Add to CONFIGURATION section, alongside existing exports:
+@export_group("Perspective")
+@export_range(0.0, 1.0, 0.01) var vp_ratio: float = 0.1
+@export_range(0.0, 1.0, 0.01) var floor_line_ratio: float = 0.70
+@export var corridor_half_width: float = 480.0
 
 # ============================================================================
 # REFERENCES — set by DungeonScene in _connect_signals
 # ============================================================================
 var camera: GameCamera = null
 var player_sprite: Node2D = null
+var debug_overlay: CorridorDebugOverlay = null
+var corridor_surfaces: CorridorSurfaces = null
 
 # ============================================================================
 # STATE
@@ -53,16 +60,39 @@ func build_corridor(run: DungeonRun):
 		wall.door_clicked.connect(_on_door_clicked)
 		_walls[f] = wall
 
+
+	if not corridor_surfaces:
+		corridor_surfaces = find_child("CorridorSurfaces", true, false) as CorridorSurfaces
+	if corridor_surfaces:
+		corridor_surfaces.corridor_half_width = corridor_half_width
+
+
+
 	if camera:
 		camera.global_position = Vector2.ZERO
 
 	# Floor 0 is START (auto-completes), so floor 1 doors should be interactive
 	_set_interactive_floor(1)
 	_play_intro()
+	
+	
+	
+	# Sync debug overlay
+	if not debug_overlay:
+		debug_overlay = find_child("DebugOverlay", true, false) as CorridorDebugOverlay
+	if debug_overlay:
+		debug_overlay.vp_ratio = vp_ratio
+		debug_overlay.floor_line_ratio = floor_line_ratio
+		debug_overlay.corridor_half_width = corridor_half_width
+		debug_overlay.sync_from_builder(camera, _walls, floor_spacing)
 
 	print("🏰 Corridor built: %d walls" % _walls.size())
 
 func clear_corridor():
+	if debug_overlay:
+		debug_overlay.walls = {}
+	if corridor_surfaces:
+		corridor_surfaces.clear()
 	for wall in _walls.values():
 		if is_instance_valid(wall): wall.queue_free()
 	_walls.clear()
@@ -94,23 +124,56 @@ func _play_intro():
 	camera.corridor_intro(Vector2(0, boss_y), Vector2.ZERO)
 
 
+# In DungeonWallLayer or CorridorBuilder
+
+# The vanishing point in world space (relative to camera each frame)
+# This is the point all distant walls converge toward
+func _get_vanishing_point(camera: GameCamera) -> Vector2:
+	var playable_h = camera.get_playable_height()
+	# VP sits near the top of the playable area
+	# vp_ratio: 0.0 = top edge, 0.5 = center, 1.0 = bottom
+	var vp_ratio: float = 0.1  # 10% from top — tweak to taste
+	return Vector2(
+		camera.global_position.x,
+		camera.global_position.y + camera.offset.y - playable_h / 2.0 + playable_h * vp_ratio
+	)
+
+
+
 # ============================================================================
 # DEPTH + PLAYER TRACKING
 # ============================================================================
 
 func _process(_delta: float):
 	if not camera: return
-	var cam_y = camera.global_position.y
+
+	var cam_pos := camera.global_position
+	var cam_y := cam_pos.y
+	var playable_h := camera.get_playable_height()
+	var cam_offset_y := camera.offset.y
+
+	var playable_top_y := cam_y + cam_offset_y - playable_h / 2.0
+	var playable_bot_y := cam_y + cam_offset_y + playable_h / 2.0
+	var vp_y := playable_top_y + playable_h * vp_ratio
+	var floor_line_y := lerpf(vp_y, playable_bot_y, floor_line_ratio)
+	var vp := Vector2(cam_pos.x, vp_y)
+
+	# Update wall depth
 	for wall in _walls.values():
 		if is_instance_valid(wall):
-			wall.update_depth(cam_y)
+			wall.update_depth(cam_y, vp_y, floor_line_y)
 
+	# Update corridor surfaces
+	if corridor_surfaces:
+		corridor_surfaces.update_surfaces(cam_pos, cam_offset_y, playable_h, vp, floor_line_y)
+
+	# Player sprite
 	if player_sprite and camera:
-		var playable_h = camera.get_playable_height()
 		player_sprite.global_position = Vector2(
-			camera.global_position.x,
-			camera.global_position.y + camera.offset.y + playable_h * 0.30
+			cam_pos.x,
+			cam_pos.y + cam_offset_y + playable_h * 0.30
 		)
+
 
 # ============================================================================
 # INTERACTION

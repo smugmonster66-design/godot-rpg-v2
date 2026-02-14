@@ -50,6 +50,7 @@ var complete_popup = null
 func _ready():
 	add_to_group("dungeon_scene")
 	_discover_nodes()
+	_setup_dust_motes()
 	_connect_signals()
 	print("🏰 DungeonScene ready")
 
@@ -118,6 +119,8 @@ func enter_dungeon(definition: DungeonDefinition, player: Player):
 	if dungeon_name_label:
 		dungeon_name_label.text = definition.dungeon_name
 	_update_floor_ui()
+
+	_apply_theme(definition)
 
 	# Build corridor
 	if corridor_builder:
@@ -416,6 +419,101 @@ func _cleanup_temp_effects():
 	if current_run:
 		for affix in current_run.shrine_affixes_applied:
 			_player.affix_manager.remove_affix(affix)
+
+
+# New method in dungeon_scene.gd:
+
+func _apply_theme(definition: DungeonDefinition):
+	# Ambient parallax textures
+	var floor_sprite = find_child("FloorSprite", true, false) as Sprite2D
+	var side_wall_sprite = find_child("SideWallSprite", true, false) as Sprite2D
+	var ceiling_sprite = find_child("CeilingSprite", true, false) as Sprite2D
+	var frame_overlay = find_child("FrameOverlay", true, false) as TextureRect
+
+	if floor_sprite and definition.floor_texture:
+		floor_sprite.texture = definition.floor_texture
+	if side_wall_sprite and definition.side_wall_texture:
+		side_wall_sprite.texture = definition.side_wall_texture
+	if ceiling_sprite and definition.ceiling_texture:
+		ceiling_sprite.texture = definition.ceiling_texture
+	if frame_overlay and definition.frame_texture:
+		frame_overlay.texture = definition.frame_texture
+
+	# Torch color
+	var torch_left = find_child("TorchLeft", true, false)
+	var torch_right = find_child("TorchRight", true, false)
+	if definition.torch_color != Color.BLACK:
+		for torch in [torch_left, torch_right]:
+			if not torch: continue
+			var light = torch.find_child("TorchLight", false, false) as PointLight2D
+			if light:
+				light.color = definition.torch_color
+
+
+	var overlay = $CorridorFrame/FrameOverlay  # adjust path
+	if overlay and overlay.material:
+		var mat = overlay.material as ShaderMaterial
+		if mat:
+			mat.set_shader_parameter("fog_color", definition.fog_color)
+			mat.set_shader_parameter("accent_color", definition.ambient_color)
+
+	var surfaces = find_child("CorridorSurfaces", true, false) as CorridorSurfaces
+	if surfaces:
+		surfaces.apply_theme(definition)
+
+	# Dust motes tinted to ambient color
+	var dust = find_child("DustMotes", true, false) as GPUParticles2D
+	if dust and definition.ambient_color != Color.BLACK:
+		dust.modulate = definition.ambient_color
+
+
+func _setup_dust_motes():
+	var dust = find_child("DustMotes", true, false) as GPUParticles2D
+	if not dust: return
+
+	var mat = ParticleProcessMaterial.new()
+
+	# Slow random drift
+	mat.direction = Vector3(0, -1, 0)
+	mat.spread = 180.0
+	mat.initial_velocity_min = 5.0
+	mat.initial_velocity_max = 15.0
+	mat.gravity = Vector3(0, -2.0, 0)
+
+	# Gentle size variation
+	mat.scale_min = 0.5
+	mat.scale_max = 1.5
+
+	# Spawn across the visible corridor area
+	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	mat.emission_box_extents = Vector3(500, 800, 0)
+
+	# Fade in and out
+	var alpha_curve = CurveTexture.new()
+	var curve = Curve.new()
+	curve.add_point(Vector2(0.0, 0.0))
+	curve.add_point(Vector2(0.2, 0.6))
+	curve.add_point(Vector2(0.8, 0.6))
+	curve.add_point(Vector2(1.0, 0.0))
+	alpha_curve.curve = curve
+	mat.alpha_curve = alpha_curve
+
+	# Warm white base — _apply_theme tints via modulate
+	mat.color = Color(1.0, 0.95, 0.85, 0.4)
+
+	dust.process_material = mat
+
+	# Tiny soft circle texture
+	var img = Image.create(8, 8, false, Image.FORMAT_RGBA8)
+	var center = Vector2(3.5, 3.5)
+	for x in 8:
+		for y in 8:
+			var dist = Vector2(x, y).distance_to(center) / 3.5
+			var a = clampf(1.0 - dist * dist, 0.0, 1.0)
+			img.set_pixel(x, y, Color(1, 1, 1, a))
+	var tex = ImageTexture.create_from_image(img)
+	dust.texture = tex
+
 
 func _is_first_cleared(dungeon_id: String) -> bool:
 	return GameManager.completed_encounters.has("dungeon_" + dungeon_id) if GameManager else false
