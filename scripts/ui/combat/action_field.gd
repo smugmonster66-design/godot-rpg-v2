@@ -512,6 +512,14 @@ func _can_drop_data(_pos: Vector2, data: Variant) -> bool:
 		return false
 	if not has_charges():
 		return false
+
+	# Only one action field can hold dice at a time
+	if placed_dice.size() == 0:
+		# This field is empty — reject if any other field has dice
+		for sibling in get_parent().get_children():
+			if sibling is ActionField and sibling != self and sibling.placed_dice.size() > 0:
+				return false
+
 	# Check accepted elements (from Action resource)
 	if action_resource and action_resource.accepted_elements.size() > 0:
 		var die = data.get("die") as DieResource
@@ -520,6 +528,7 @@ func _can_drop_data(_pos: Vector2, data: Variant) -> bool:
 			if die_element not in action_resource.accepted_elements:
 				return false
 	return true
+
 
 func _drop_data(_pos: Vector2, data: Variant):
 	if not data is Dictionary:

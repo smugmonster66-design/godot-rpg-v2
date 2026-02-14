@@ -365,10 +365,23 @@ func _finalize_combat_init(p_player: Player):
 	# --- Reactive Animation: Bridge status signals to event bus ---
 	if event_bus:
 		_connect_status_event_bridges()
-	
-	
-	
-	# Start first round
+
+	# Brief delay for scene transition (fade-from-black is ~0.7s)
+	if GameManager.game_root and GameManager.game_root.is_in_dungeon:
+		await get_tree().create_timer(0.5).timeout
+
+	print("🔍 BEFORE drop-in check: combat_ui=%s, enemy_panel=%s" % [
+		combat_ui != null,
+		combat_ui.enemy_panel != null if combat_ui else "N/A"])
+
+	if combat_ui and combat_ui.enemy_panel and combat_ui.enemy_panel.has_method("play_drop_in_animation"):
+		print("🔍 CALLING play_drop_in_animation()")
+		await combat_ui.enemy_panel.play_drop_in_animation()
+		print("🔍 RETURNED from play_drop_in_animation()")
+	else:
+		print("🔍 SKIPPED drop-in — condition failed")
+
+	print("🔍 CALLING _start_round()")
 	_start_round()
 
 
@@ -848,75 +861,80 @@ func _play_action_with_animation(action_data: Dictionary, targets: Array, target
 	combat_state = CombatState.PLAYER_TURN
 
 func _get_enemy_portrait_position(enemy_index: int) -> Vector2:
-	"""Get the center position of an enemy's portrait in the UI"""
+	"""Get the center position of an enemy's portrait in the UI."""
 	if not combat_ui or not combat_ui.enemy_panel:
 		return Vector2.ZERO
-	
-	var enemy_panel = combat_ui.enemy_panel
-	if enemy_index < 0 or enemy_index >= enemy_panel.enemy_slots.size():
+
+	# Get the combatant, then find its slot
+	var combatant = enemy_combatants[enemy_index] \
+		if enemy_index < enemy_combatants.size() else null
+	if not combatant:
 		return Vector2.ZERO
-	
-	var slot: EnemySlot = enemy_panel.enemy_slots[enemy_index]
+
+	var slot_idx = combat_ui.enemy_panel.get_slot_for_combatant(combatant)
+	if slot_idx < 0:
+		return Vector2.ZERO
+
+	var slot: EnemySlot = combat_ui.enemy_panel.enemy_slots[slot_idx]
 	if not slot or not slot.portrait_rect:
 		return Vector2.ZERO
-	
-	# Return center of portrait
-	var portrait = slot.portrait_rect
-	return portrait.global_position + portrait.size / 2
 
+	return slot.portrait_rect.global_position + slot.portrait_rect.size / 2
 
 # ============================================================================
 # ENEMY TURN
 # ============================================================================
 
 func _start_enemy_turn(enemy: Combatant):
+	"""Start an enemy's turn"""
+	combat_state = CombatState.ENEMY_TURN
+
 	# --- STATUS: Enemy start-of-turn processing ---
 	if enemy.has_node("StatusTracker"):
 		var tracker: StatusTracker = enemy.get_node("StatusTracker")
 		var tick_results = tracker.process_turn_start()
 		await _apply_status_tick_results(null, enemy, tick_results)
-		
+
 		if not enemy.is_alive():
 			_check_enemy_death(enemy)
 			return
 	# --- END STATUS ---
-	
-	# ... rest of existing _start_enemy_turn code unchanged ...
-	
-	"""Start an enemy's turn"""
-	combat_state = CombatState.ENEMY_TURN
-	
+
 	if combat_ui and combat_ui.has_method("set_player_turn"):
 		combat_ui.set_player_turn(false)
-	
+
 	# Tell enemy panel to create dice hidden (same pattern as player)
 	if combat_ui and combat_ui.enemy_panel:
 		combat_ui.enemy_panel.hide_for_roll_animation = true
-	
+
 	enemy.start_turn()
-	
+
 	if combat_ui and combat_ui.has_method("show_enemy_hand"):
 		combat_ui.show_enemy_hand(enemy)
-	
+
 	# Small delay to let UI update
 	await get_tree().create_timer(0.3).timeout
-	
+
 	# Play roll animation - projectiles come from the enemy's portrait
 	if combat_ui and combat_ui.roll_animator and combat_ui.enemy_panel:
-		var enemy_panel = combat_ui.enemy_panel
-		var source_pos = _get_enemy_portrait_position(enemy_panel.get_enemy_index(enemy))
-		
-		# Wait one frame for layout
+		var ep = combat_ui.enemy_panel
+		var slot_idx = ep.get_slot_for_combatant(enemy)
+		var source_pos = Vector2.ZERO
+
+		if slot_idx >= 0 and slot_idx < ep.enemy_slots.size():
+			var slot: EnemySlot = ep.enemy_slots[slot_idx]
+			if slot.portrait_rect:
+				source_pos = slot.portrait_rect.global_position + slot.portrait_rect.size / 2.0
+
 		await get_tree().process_frame
-		
+
 		await combat_ui.roll_animator.play_roll_sequence_for(
-			enemy_panel,
-			enemy_panel.hand_dice_visuals,
+			ep,
+			ep.hand_dice_visuals,
 			source_pos
 		)
-	
-	_process_enemy_turn(enemy)
 
+	_process_enemy_turn(enemy)
 
 
 func _process_enemy_turn(enemy: Combatant):
@@ -2105,6 +2123,10 @@ func _on_enemy_died(enemy: Combatant):
 		combat_ui.on_enemy_died(index)
 	
 	_check_combat_end()
+	
+
+
+
 
 func _on_player_died():
 	"""Handle player death"""

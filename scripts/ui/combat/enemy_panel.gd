@@ -8,13 +8,22 @@ class_name EnemyPanel
 # ============================================================================
 signal enemy_selected(enemy: Combatant, slot_index: int)
 signal selection_changed(slot_index: int)
-
+signal intro_animation_finished
 # ============================================================================
 # EXPORTS
 # ============================================================================
 @export var die_visual_scene: PackedScene = null
 @export var die_move_duration: float = 0.4
 @export var die_scale_duration: float = 0.15
+
+
+@export_group("Drop-In Animation")
+## How far above final position the panel starts (pixels)
+@export var drop_distance: float = 600.0
+## Total animation duration (seconds)
+@export var drop_duration: float = 0.55
+## How far past rest position it bounces (ratio of drop_distance)
+@export var bounce_overshoot: float = 0.15
 
 # ============================================================================
 # NODE REFERENCES
@@ -44,6 +53,7 @@ var hide_for_roll_animation: bool = false
 # ============================================================================
 
 func _ready():
+	modulate.a = 0.0
 	# Load die visual scene if not set
 	#if not die_visual_scene:
 	#	die_visual_scene = load("res://scenes/ui/components/die_visual.tscn")
@@ -56,6 +66,19 @@ func _ready():
 		dice_hand_container.hide()
 	
 	print("👹 EnemyPanel ready with %d slots" % enemy_slots.size())
+
+
+var _debug_frame_count: int = 0
+
+func _process(_delta):
+	_debug_frame_count += 1
+	if _debug_frame_count <= 120:  # First 2 seconds only
+		if modulate.a == 0.0 and _debug_frame_count % 30 == 0:
+			print("👁️ Frame %d: EnemyPanel still invisible (modulate.a=0)" % _debug_frame_count)
+		if modulate.a > 0.0 and _debug_frame_count % 30 == 0:
+			print("👁️ Frame %d: EnemyPanel VISIBLE (modulate.a=%f, pos=%s, gpos=%s, vis=%s)" % [
+				_debug_frame_count, modulate.a, position, global_position, visible])
+
 
 func _discover_slots():
 	"""Find all EnemySlot children"""
@@ -82,34 +105,130 @@ func _connect_slot_signals():
 # ============================================================================
 
 func initialize_enemies(enemies: Array):
-	"""Initialize slots with enemy combatants"""
-	print("👹 Initializing %d enemies in panel" % enemies.size())
+	"""Initialize slots with enemy combatants (sequential assignment).
+    For slot-aware positioning, use initialize_enemies_with_slots() instead."""
+	initialize_enemies_with_slots(enemies, null)
+
+
+func initialize_enemies_with_slots(enemies: Array, encounter: CombatEncounter = null):
+	"""Initialize slots with enemies mapped to their designated positions."""
+	print("👹 Initializing %d enemies in panel (slot-aware)" % enemies.size())
 	
-	for i in range(enemy_slots.size()):
-		if i < enemies.size():
-			var enemy = enemies[i]
-			var enemy_data = enemy.enemy_data if enemy else null
-			enemy_slots[i].set_enemy(enemy, enemy_data)
+	# Clear all slots first
+	for slot in enemy_slots:
+		slot.set_empty()
+	
+	# Map each enemy to its designated slot
+	for i in range(enemies.size()):
+		var enemy = enemies[i]
+		var slot_index: int = 1  # default: middle
+		if encounter:
+			slot_index = encounter.get_enemy_slot(i)
 		else:
-			enemy_slots[i].set_empty()
+			# Fallback sequential
+			slot_index = clampi(i, 0, enemy_slots.size() - 1)
+		
+		if slot_index >= 0 and slot_index < enemy_slots.size():
+			var enemy_data = enemy.enemy_data if enemy else null
+			enemy_slots[slot_index].set_enemy(enemy, enemy_data)
+			print("  Slot %d ← %s" % [slot_index, enemy.combatant_name if enemy else "null"])
 	
-	# Select first living enemy
 	select_first_living_enemy()
+
+# ============================================================================
+# DROP-IN ANIMATION
+# ============================================================================
+
+
+# ============================================================================
+# DROP-IN ANIMATION
+# ============================================================================
+
+
+func play_drop_in_animation():
+	visible = true
+	modulate.a = 0.0
+
+	# Wait one frame for VBox to assign the correct local position
+	await get_tree().process_frame
+
+	# Capture the VBox-assigned resting position
+	var final_y = position.y
+
+	# Offset above screen, reveal
+	position.y = final_y - drop_distance
+	modulate.a = 1.0
+
+	var tween = create_tween()
+
+	# Phase 1: Heavy slam down past target
+	var overshoot_y = final_y + (drop_distance * bounce_overshoot)
+	tween.tween_property(self, "position:y", overshoot_y, drop_duration * 0.6) \
+		.set_trans(Tween.TRANS_QUAD) \
+		.set_ease(Tween.EASE_IN)
+
+	# Phase 2: Elastic rebound upward
+	var rebound_y = final_y - (drop_distance * bounce_overshoot * 0.3)
+	tween.tween_property(self, "position:y", rebound_y, drop_duration * 0.2) \
+		.set_trans(Tween.TRANS_SINE) \
+		.set_ease(Tween.EASE_OUT)
+
+	# Phase 3: Settle to final rest
+	tween.tween_property(self, "position:y", final_y, drop_duration * 0.2) \
+		.set_trans(Tween.TRANS_SINE) \
+		.set_ease(Tween.EASE_IN_OUT)
+
+	await tween.finished
+
+	position.y = final_y
+	intro_animation_finished.emit()
+
+
+
+func get_slot_for_combatant(combatant: Combatant) -> int:
+	"""Find which slot holds this combatant. Returns -1 if not found."""
+	for i in range(enemy_slots.size()):
+		if not enemy_slots[i].is_empty and enemy_slots[i].enemy == combatant:
+			return i
+	return -1
+
 
 func update_enemy_health(enemy_index: int, current: int, maximum: int):
 	"""Update health display for an enemy"""
 	if enemy_index >= 0 and enemy_index < enemy_slots.size():
 		enemy_slots[enemy_index].update_health(current, maximum)
 
+
 func on_enemy_died(enemy_index: int):
-	"""Handle enemy death visuals"""
-	if enemy_index >= 0 and enemy_index < enemy_slots.size():
-		var slot = enemy_slots[enemy_index]
+	"""Handle enemy death visuals by enemy_combatants array index.
+	Finds the correct slot since array index ≠ slot index with slot-aware positioning."""
+	# enemy_index is the index in CombatManager.enemy_combatants, not the slot index
+	# Search all slots for the matching combatant
+	for slot in enemy_slots:
+		if slot.is_empty:
+			continue
+		var enemy = slot.get_enemy()
+		if not enemy or enemy.is_alive():
+			continue
+		# This enemy is dead — handle it
 		slot.set_selected(false)
-		
-		# If this was selected, move to next living enemy
-		if enemy_index == selected_slot_index:
+		if slot.slot_index == selected_slot_index:
 			select_first_living_enemy()
+		return
+
+
+func on_enemy_died_by_combatant(combatant: Combatant):
+	"""Handle enemy death visuals using combatant reference."""
+	var slot_idx = get_slot_for_combatant(combatant)
+	if slot_idx < 0:
+		return
+
+	var slot = enemy_slots[slot_idx]
+	slot.set_selected(false)
+
+	# If this was selected, move to next living enemy
+	if slot_idx == selected_slot_index:
+		select_first_living_enemy()
 
 # ============================================================================
 # SELECTION
@@ -296,11 +415,8 @@ func hide_all_turn_indicators():
 			slot.hide_turn_indicator()
 
 func get_enemy_index(enemy: Combatant) -> int:
-	"""Get slot index for an enemy"""
-	for i in range(enemy_slots.size()):
-		if enemy_slots[i].enemy == enemy:
-			return i
-	return -1
+	"""Get the slot index for a specific enemy combatant."""
+	return get_slot_for_combatant(enemy)
 
 func get_enemy_visual(index: int) -> Control:
 	"""Get the EnemySlot visual node for a given enemy index.

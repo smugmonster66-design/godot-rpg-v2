@@ -117,8 +117,10 @@ func _discover_all_nodes():
 	_bottom_ui = get_tree().get_first_node_in_group("bottom_ui") as BottomUIPanel
 	print("    BottomUI: %s" % ("✓" if _bottom_ui else "✗"))
 	
-	# Enemy panel
+	# Enemy panel — start hidden for drop-in animation
 	enemy_panel = find_child("EnemyPanel", true, false) as EnemyPanel
+	if enemy_panel:
+		enemy_panel.visible = false
 	print("    EnemyPanel: %s" % ("✓" if enemy_panel else "✗"))
 	
 	# Enemy hand display (for enemy turns)
@@ -241,12 +243,16 @@ func initialize_ui(p_player: Player, p_enemies):
 	
 	print("  Enemies: %d" % enemies.size())
 	
-	# Initialize enemy panel
+	# Initialize enemy panel with slot-aware positioning
 	if enemy_panel:
-		enemy_panel.initialize_enemies(enemies)
-		print("  ✅ Enemy panel initialized")
-	else:
-		print("  ⚠️ No enemy panel found")
+		var encounter: CombatEncounter = null
+		var combat_mgr = get_tree().get_first_node_in_group("combat_manager")
+		if combat_mgr and combat_mgr.current_encounter:
+			encounter = combat_mgr.current_encounter
+		
+		# No need to hide — panel starts hidden from _ready()
+		enemy_panel.initialize_enemies_with_slots(enemies, encounter)
+		print("  ✅ Enemy panel initialized (slot-aware)")
 	
 	# Create ActionManager if needed
 	if not action_manager:
@@ -491,19 +497,15 @@ func enter_prep_phase():
 	if dice_pool_display:
 		dice_pool_display.hide()
 
-	# Clear action fields
-	for child in action_fields_grid.get_children():
-		child.queue_free()
-	action_fields.clear()
+	# Clear placed dice from action fields, but keep the fields
+	for field in action_fields:
+		if is_instance_valid(field) and field.placed_dice.size() > 0:
+			field.clear_dice()
 
 	hide_enemy_hand()
 
-	# Delegate button visibility to BottomUIPanel
 	if _bottom_ui:
 		_bottom_ui.enter_prep_phase()
-
-	set_mana_drag_enabled(false)
-
 
 	disable_target_selection()
 	selected_action_field = null

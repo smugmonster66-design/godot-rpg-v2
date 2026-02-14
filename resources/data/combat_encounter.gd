@@ -20,7 +20,9 @@ class_name CombatEncounter
 
 ## Spawn positions for each enemy (index matches enemies array)
 ## If empty or insufficient, uses default positions
-@export var enemy_positions: Array[Vector2] = []
+enum EnemySlotPosition { LEFT = 0, MIDDLE = 1, RIGHT = 2 }
+
+@export var enemy_slots: Array[int] = []  # Values from EnemySlotPosition]
 
 # ============================================================================
 # ENVIRONMENT
@@ -75,15 +77,16 @@ const DEFAULT_ENEMY_POSITIONS = [
 func get_enemy_count() -> int:
 	return enemies.size()
 
-func get_enemy_position(index: int) -> Vector2:
-	"""Get spawn position for enemy at index"""
-	if index < enemy_positions.size() and enemy_positions[index] != Vector2.ZERO:
-		return enemy_positions[index]
-	elif index < DEFAULT_ENEMY_POSITIONS.size():
-		return DEFAULT_ENEMY_POSITIONS[index]
-	else:
-		# Generate position for additional enemies
-		return Vector2(600 + (index * 50), 200 + (index * 80))
+func get_enemy_slot(index: int) -> int:
+	"""Get the UI slot (0=left, 1=middle, 2=right) for enemy at index."""
+	if index < enemy_slots.size():
+		return clampi(enemy_slots[index], 0, 2)
+	# Auto-assign: center single enemies, spread multiples left-to-right
+	match enemies.size():
+		1: return EnemySlotPosition.MIDDLE
+		2: return EnemySlotPosition.LEFT if index == 0 else EnemySlotPosition.RIGHT
+		_: return clampi(index, 0, 2)
+
 
 func get_total_experience() -> int:
 	"""Calculate total experience reward"""
@@ -123,6 +126,16 @@ func validate() -> Array[String]:
 			warnings.append("Enemy '%s' has no actions" % enemies[i].enemy_name)
 		elif enemies[i].starting_dice.size() == 0:
 			warnings.append("Enemy '%s' has no dice" % enemies[i].enemy_name)
+	
+	# Add to validate():
+	if enemy_slots.size() >= 2:
+		var used: Dictionary = {}
+		for i in range(mini(enemy_slots.size(), enemies.size())):
+			var slot = enemy_slots[i]
+			if used.has(slot):
+				warnings.append("Duplicate slot position %d for enemies %d and %d" % [slot, used[slot], i])
+			used[slot] = i
+	
 	
 	return warnings
 

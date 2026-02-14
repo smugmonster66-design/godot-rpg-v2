@@ -17,6 +17,8 @@ extends Node
 @export_range(1, 100) var dev_item_level: int = 15
 @export_range(1, 6) var dev_item_region: int = 1
 
+signal combat_intro_ready
+var _combat_intro_done: bool = false
 
 # ============================================================================
 # NODE REFERENCES
@@ -263,8 +265,14 @@ func start_combat(encounter: Resource = null):
 
 	if bottom_ui and bottom_ui.has_method("on_combat_started"):
 		bottom_ui.on_combat_started()
+		
+	
+	_combat_intro_done = true
+	combat_intro_ready.emit()
+	
 
 func end_combat(player_won: bool = true):
+	_combat_intro_done = false
 	if not is_in_combat:
 		push_warning("GameRoot: Not in combat!")
 		return
@@ -350,20 +358,21 @@ func _on_dungeon_combat_requested(encounter: CombatEncounter):
 	_fade_from_black()
 
 func _fade_from_black():
-	"""Fade out the black overlay that the dungeon transition left behind."""
 	var overlay = dungeon_scene.find_child("TransitionOverlay", true, false)
 	if not overlay or not overlay.visible:
+		_combat_intro_done = true
+		combat_intro_ready.emit()
 		return
-	# Re-enable just the overlay temporarily so the tween works
 	overlay.process_mode = Node.PROCESS_MODE_ALWAYS
 	var tw = create_tween()
-	tw.tween_interval(0.3)  # let combat set up
+	tw.tween_interval(0.3)
 	tw.tween_property(overlay, "modulate:a", 0.0, 0.4)
 	tw.tween_callback(func():
 		overlay.visible = false
 		overlay.process_mode = Node.PROCESS_MODE_INHERIT
+		_combat_intro_done = true
+		combat_intro_ready.emit()
 	)
-	
 	
 func _on_dungeon_completed(run: DungeonRun):
 	print("🏰 Complete! Gold: %d, Exp: %d, Items: %d" % [

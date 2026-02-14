@@ -99,7 +99,7 @@ func _spawn_single_enemy(enemy_data: EnemyData, index: int, container: Node) -> 
 	enemy.is_player_controlled = false
 	
 	# Set position
-	enemy.position = current_encounter.get_enemy_position(index)
+	#enemy.position = current_encounter.get_enemy_position(index)
 	
 	# Apply stat scaling if needed
 	if current_encounter.stat_multiplier != 1.0:
