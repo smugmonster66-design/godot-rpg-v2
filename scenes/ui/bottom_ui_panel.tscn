@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://c0w3t10mfnowo"]
+[gd_scene load_steps=15 format=3 uid="uid://c0w3t10mfnowo"]
 
 [ext_resource type="Script" uid="uid://cs3ncaepru3rn" path="res://scripts/ui/bottom_ui_panel.gd" id="1_1ip7k"]
 [ext_resource type="PackedScene" uid="uid://ds3fslulucbxd" path="res://scenes/ui/map/dice_grid.tscn" id="1_5ue3t"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://bgqcm8i82101" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_hp.png" id="3_smlgd"]
 [ext_resource type="Texture2D" uid="uid://bhdufq5sfxngf" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_stroke_basic.png" id="4_0x4yc"]
 [ext_resource type="Script" uid="uid://fxekowigxepb" path="res://scripts/ui/components/add_gear_button.gd" id="5_5kghg"]
+[ext_resource type="Texture2D" uid="uid://i70pssjftg8l" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_mana.png" id="5_smlgd"]
 [ext_resource type="Texture2D" uid="uid://dsvp7sgpdimti" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_xp.png" id="6_smlgd"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="6_tu5g0"]
 [ext_resource type="Resource" uid="uid://bph6gp6nhb28h" path="res://resources/items/main hand/venom_dagger.tres" id="8_2my3p"]
@@ -63,8 +64,20 @@ stretch_margin_top = 10
 stretch_margin_right = 15
 stretch_margin_bottom = 10
 texture_under = ExtResource("2_ob1iw")
-texture_over = ExtResource("3_smlgd")
-texture_progress = ExtResource("4_0x4yc")
+texture_over = ExtResource("4_0x4yc")
+texture_progress = ExtResource("3_smlgd")
+
+[node name="ManaBar" type="TextureProgressBar" parent="VBoxContainer/MainHBox/LeftSection"]
+custom_minimum_size = Vector2(300, 40)
+layout_mode = 2
+nine_patch_stretch = true
+stretch_margin_left = 15
+stretch_margin_top = 10
+stretch_margin_right = 15
+stretch_margin_bottom = 10
+texture_under = ExtResource("2_ob1iw")
+texture_over = ExtResource("4_0x4yc")
+texture_progress = ExtResource("5_smlgd")
 
 [node name="ExpBar" type="TextureProgressBar" parent="VBoxContainer/MainHBox/LeftSection"]
 custom_minimum_size = Vector2(300, 40)
@@ -75,8 +88,8 @@ stretch_margin_top = 10
 stretch_margin_right = 15
 stretch_margin_bottom = 10
 texture_under = ExtResource("2_ob1iw")
-texture_over = ExtResource("6_smlgd")
-texture_progress = ExtResource("4_0x4yc")
+texture_over = ExtResource("4_0x4yc")
+texture_progress = ExtResource("6_smlgd")
 
 [node name="DiceSection" type="VBoxContainer" parent="VBoxContainer/MainHBox/LeftSection"]
 layout_mode = 2

@@ -31,7 +31,7 @@ var left_section: Control
 var class_label: Label
 var health_bar: TextureProgressBar
 var mana_die_selector: Control
-#var mana_bar: TextureProgressBar
+var mana_bar: TextureProgressBar
 var exp_bar: TextureProgressBar
 var dice_section: VBoxContainer
 var dice_grid: Control
@@ -44,6 +44,9 @@ var roll_button: Button
 var end_turn_button: Button
 var button_area: CenterContainer
 var action_buttons_container: HBoxContainer
+
+var mana_pool_ref: ManaPool = null
+
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
@@ -53,7 +56,7 @@ func _ready():
 	class_label = find_child("Label", true, false) as Label
 	health_bar = find_child("HealthBar", true, false) as TextureProgressBar
 	#mana_die_selector = find_child("ManaDieSelector", true, false)
-	#mana_bar = find_child("ManaBar", true, false) as TextureProgressBar
+	mana_bar = find_child("ManaBar", true, false) as TextureProgressBar
 	exp_bar = find_child("ExpBar", true, false) as TextureProgressBar
 	dice_section = find_child("DiceSection", true, false) as VBoxContainer
 	dice_grid = find_child("DiceGrid", true, false)
@@ -167,6 +170,15 @@ func _update_stats_display():
 		health_bar.value = player.current_hp
 	
 
+	# Initialize mana bar (same pattern as ManaDieSelector)
+	if player.has_method("has_mana_pool") and player.has_mana_pool():
+		mana_pool_ref = player.mana_pool
+		if mana_pool_ref.mana_changed.is_connected(_on_mana_changed):
+			mana_pool_ref.mana_changed.disconnect(_on_mana_changed)
+		mana_pool_ref.mana_changed.connect(_on_mana_changed)
+		_update_mana_bar()
+
+
 	# Experience bar
 	if exp_bar and player.active_class:
 		exp_bar.max_value = player.active_class.get_exp_for_next_level()
@@ -193,8 +205,6 @@ func _connect_player_signals():
 		if not player.hp_changed.is_connected(_on_hp_changed):
 			player.hp_changed.connect(_on_hp_changed)
 	
-	
-	
 	if player.has_signal("class_changed"):
 		if not player.class_changed.is_connected(_on_class_changed):
 			player.class_changed.connect(_on_class_changed)
@@ -204,6 +214,20 @@ func _on_hp_changed(current: int, maximum: int):
 		health_bar.max_value = maximum
 		health_bar.value = current
 
+func _on_mana_changed(current: int, max_mana: int):
+	if mana_bar:
+		mana_bar.max_value = max_mana
+		mana_bar.value = current
+
+func _update_mana_bar():
+	if not mana_bar:
+		return
+	if not mana_pool_ref:
+		mana_bar.visible = false
+		return
+	mana_bar.visible = true
+	mana_bar.max_value = mana_pool_ref.max_mana
+	mana_bar.value = mana_pool_ref.current_mana
 
 func _on_class_changed(_new_class):
 	_update_stats_display()

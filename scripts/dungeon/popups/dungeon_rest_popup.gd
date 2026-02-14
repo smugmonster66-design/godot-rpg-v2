@@ -49,7 +49,7 @@ func show_popup(data: Dictionary) -> void:
 
 	# --- Heal slider setup ---
 	if _player and heal_slider:
-		var missing_hp = _player.max_health - _player.health
+		var missing_hp = _player.max_hp - _player.current_hp
 		if missing_hp <= 0:
 			# Full health — hide heal section entirely
 			if heal_section: heal_section.hide()
@@ -98,10 +98,10 @@ func _on_slider_changed(value: float):
 	if heal_label:
 		heal_label.text = "Heal: %d HP" % _heal_amount
 	if health_preview and _player:
-		var current = _player.health
-		var after = mini(current + _heal_amount, _player.max_health)
+		var current = _player.current_hp
+		var after = mini(current + _heal_amount, _player.max_hp)
 		health_preview.text = "HP: %d / %d → %d / %d" % [
-			current, _player.max_health, after, _player.max_health]
+			current, _player.max_hp, after, _player.max_hp]
 
 func _on_affix_selected(index: int, affix: DiceAffix, pressed_btn: Button):
 	_chosen_affix = affix
