@@ -22,7 +22,8 @@ static func calculate_attack_damage(
 	action_effects: Array[ActionEffect],
 	placed_dice: Array,  # Array of DieResource (untyped for backward compat)
 	defender_stats: Dictionary,
-	action_id: String = ""
+	action_id: String = "",
+	accepted_elements: Array[int] = []
 ) -> Dictionary:
 	"""
 	Calculate damage from an attack using split elemental damage.
@@ -67,8 +68,18 @@ static func calculate_attack_damage(
 				var die_value = float(die.get_total_value())
 				var die_damage_type = die.get_effective_damage_type(effect_element)
 				
-				# Apply match bonus if die element matches action element
-				if die.is_element_match(effect_element):
+				# Multi-element match: if accepted_elements is set, any die whose
+				# element is in the list gets the synergy bonus. Otherwise fall back
+				# to the standard single-element check.
+				var is_match: bool
+				if accepted_elements.size() > 0:
+					var die_elem = die.get_effective_element()
+					is_match = (die_elem != DieResource.Element.NONE
+						and die_elem in accepted_elements)
+				else:
+					is_match = die.is_element_match(effect_element)
+				
+				if is_match:
 					die_value *= ELEMENT_MATCH_BONUS
 				
 				effect_damages[die_damage_type] = effect_damages.get(die_damage_type, 0.0) + die_value
@@ -140,7 +151,8 @@ static func calculate_preview_damage(
 	placed_dice: Array,
 	action_element: ActionEffect.DamageType,
 	base_damage: int,
-	damage_multiplier: float
+	damage_multiplier: float,
+	accepted_elements: Array[int] = []
 ) -> Dictionary:
 	"""
 	Lightweight preview calculation for the action field UI.
@@ -157,7 +169,15 @@ static func calculate_preview_damage(
 		var die_value = float(die.get_total_value())
 		var die_damage_type = die.get_effective_damage_type(action_element)
 		
-		if die.is_element_match(action_element):
+		var is_match: bool
+		if accepted_elements.size() > 0:
+			var die_elem = die.get_effective_element()
+			is_match = (die_elem != DieResource.Element.NONE
+				and die_elem in accepted_elements)
+		else:
+			is_match = die.is_element_match(action_element)
+		
+		if is_match:
 			die_value *= ELEMENT_MATCH_BONUS
 		
 		damages[die_damage_type] = damages.get(die_damage_type, 0.0) + die_value

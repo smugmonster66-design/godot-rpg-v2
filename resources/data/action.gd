@@ -26,6 +26,7 @@ enum ChargeType {
 @export_group("Dice Requirements")
 @export var die_slots: int = 1
 @export var min_dice_required: int = 0
+@export var accepted_elements: Array[int] = []
 
 # ============================================================================
 # CHARGES
@@ -172,6 +173,7 @@ func to_dict() -> Dictionary:
 		"confirm_event": confirm_event,
 		"impact_event": impact_event,
 		"placement_event": placement_event,
+		"accepted_elements": accepted_elements,
 		# Charge info
 		"charge_type": charge_type,
 		"max_charges": max_charges,

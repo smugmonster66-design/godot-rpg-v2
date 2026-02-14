@@ -1962,12 +1962,18 @@ func _calculate_damage(action_data: Dictionary, attacker, defender) -> int:
 		if action_res is Action:
 			action_id = action_res.action_id
 		
+		# Extract accepted_elements for multi-element synergy (e.g. Chromatic Bolt)
+		var accepted_elems: Array[int] = []
+		if action_res is Action:
+			accepted_elems = action_res.accepted_elements
+		
 		var result = CombatCalculator.calculate_attack_damage(
 			attacker_affixes,
 			effects,
 			placed_dice,  # Pass DieResource array directly — no longer extracting ints
 			defender_stats,
-			action_id
+			action_id,
+			accepted_elems
 		)
 		
 		# Log the element breakdown for debugging

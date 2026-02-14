@@ -57,6 +57,10 @@ var _active_elements: Dictionary = {}  # DamageType → bool
 ## Whether the floater has been configured (guards against early calls)
 var _is_configured: bool = false
 
+
+## Cached accepted_elements from Action resource for multi-element match checks
+var _current_accepted_elements: Array[int] = []
+
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
@@ -123,6 +127,11 @@ func update_preview(
 		clear()
 		return
 	
+	# Cache accepted_elements for multi-element match checks
+	_current_accepted_elements = []
+	if action_resource and action_resource.accepted_elements.size() > 0:
+		_current_accepted_elements = action_resource.accepted_elements
+	
 	# Step 1: Calculate base element breakdown from dice + effects
 	var damages: Dictionary = {}
 	
@@ -187,8 +196,16 @@ func _calculate_from_effects(
 				var die_value: float = float(die.get_total_value())
 				var die_damage_type: ActionEffect.DamageType = die.get_effective_damage_type(effect_element)
 				
-				# Element match bonus
-				if die.is_element_match(effect_element):
+				# Multi-element match for accepted_elements actions (e.g. Chromatic Bolt)
+				var is_match: bool
+				if _current_accepted_elements.size() > 0:
+					var die_elem = die.get_effective_element()
+					is_match = (die_elem != DieResource.Element.NONE
+						and die_elem in _current_accepted_elements)
+				else:
+					is_match = die.is_element_match(effect_element)
+				
+				if is_match:
 					die_value *= CombatCalculator.ELEMENT_MATCH_BONUS
 				
 				effect_damages[die_damage_type] = effect_damages.get(die_damage_type, 0.0) + die_value

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_ae"]
+
+[resource]
+script = ExtResource("1_ae")
+effect_name = "Chromatic Shock"
+damage_type = 5
+base_damage = 1
+dice_count = 0
+metadata/_custom_type_script = "uid://dqmfu54osidoc"

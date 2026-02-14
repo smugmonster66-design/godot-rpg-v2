@@ -1,9 +1,9 @@
-[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://cddplmsf7bjeo"]
 
-[ext_resource type="Shader" path="res://shaders/dice/shock/shock_value.gdshader" id="1_shader"]
+[ext_resource type="Shader" uid="uid://pa42u87k2sg1" path="res://shaders/dice/shock/shock_value.gdshader" id="1_shader"]
 
 [resource]
 shader = ExtResource("1_shader")
-shader_parameter/text_color = Color(0.9, 0.95, 1, 1)
-shader_parameter/flash_color = Color(1, 1, 0.9, 1)
+shader_parameter/text_color = Color(0.6, 0.82, 1, 1)
+shader_parameter/flash_color = Color(0.92, 0.96, 1, 1)
 shader_parameter/flicker_speed = 6.0
