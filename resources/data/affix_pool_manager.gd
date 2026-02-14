@@ -144,6 +144,58 @@ func has_affix_with_tag(tag: String) -> bool:
 				return true
 	return false
 
+
+# ============================================================================
+# CATEGORY-PREFIX QUERIES (v6)
+# ============================================================================
+
+func get_affixes_by_category_prefix(prefix: String) -> Array[Affix]:
+	"""Get all active affixes whose Category enum name starts with prefix.
+    
+    Used by ClassActionResolver to collect all CLASS_ACTION_* affixes.
+    
+    Args:
+        prefix: Category name prefix, e.g. "CLASS_ACTION_"
+    
+    Returns:
+        Flat array of matching Affix resources across all matching pools.
+    """
+	var result: Array[Affix] = []
+	var category_names := Affix.Category.keys()
+	
+	for i in range(category_names.size()):
+		if category_names[i].begins_with(prefix):
+			var category_value: int = Affix.Category.values()[i]
+			if pools.has(category_value):
+				for affix in pools[category_value]:
+					if affix is Affix:
+						result.append(affix)
+	
+	return result
+
+func get_class_action_modifiers() -> Dictionary:
+	"""Get all CLASS_ACTION_* affixes grouped by their specific category.
+    
+    Returns:
+        Dictionary keyed by Affix.Category with Array[Affix] values.
+        Only includes categories that have at least one active affix.
+    """
+	var result: Dictionary = {}
+	var ca_categories := [
+		Affix.Category.CLASS_ACTION_STAT_MOD,
+		Affix.Category.CLASS_ACTION_EFFECT_ADD,
+		Affix.Category.CLASS_ACTION_EFFECT_REPLACE,
+		Affix.Category.CLASS_ACTION_UPGRADE,
+		Affix.Category.CLASS_ACTION_CONDITIONAL,
+	]
+	
+	for cat in ca_categories:
+		var pool := get_pool(cat)
+		if pool.size() > 0:
+			result[cat] = pool
+	
+	return result
+
 # ============================================================================
 # BULK OPERATIONS (v2)
 # ============================================================================

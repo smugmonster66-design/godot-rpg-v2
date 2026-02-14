@@ -89,6 +89,18 @@ enum Category {
 	ACTION_BASE_DAMAGE_BONUS,    ## +N base damage to a specific action. effect_data: {"action_id": "fireball"}
 	ACTION_DIE_SLOT_BONUS,       ## +N die slots to a specific action. effect_data: {"action_id": "fireball"}
 	ACTION_EFFECT_UPGRADE,       ## Adds/modifies an effect on a specific action. effect_data: {"action_id": "fireball", "extra_effect": ActionEffect}
+	# ── Class Action Modifiers (v6) ──
+	CLASS_ACTION_STAT_MOD,       ## Modifies a numeric property on the class action.
+								 ## effect_data: {"property": String, "operation": "add"|"multiply"}
+								 ## effect_number = the value to add or multiply by.
+	CLASS_ACTION_EFFECT_ADD,     ## Appends an ActionEffect to the class action's effect chain.
+								 ## effect_data: {"action_effect": ActionEffect}
+	CLASS_ACTION_EFFECT_REPLACE, ## Replaces an ActionEffect at a specific index.
+								 ## effect_data: {"effect_index": int, "action_effect": ActionEffect}
+	CLASS_ACTION_UPGRADE,        ## Wholesale replaces the class action with a new Action.
+								 ## Uses existing granted_action field.
+	CLASS_ACTION_CONDITIONAL,    ## Adds a conditional rider effect to the class action.
+								 ## effect_data: {"condition": AffixCondition, "action_effect": ActionEffect}
 }
 
 # ============================================================================

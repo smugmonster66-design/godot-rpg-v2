@@ -147,6 +147,34 @@ func check_pending_encounter():
 			initialize_combat(GameManager.player)
 
 
+
+func _execute_conditional_riders(action_resource: Action,
+		source: Combatant, targets: Array) -> void:
+	if not action_resource.has_meta("conditional_riders"):
+		return
+	
+	var riders: Array = action_resource.get_meta("conditional_riders")
+	
+	for rider in riders:
+		var condition = rider.get("condition")
+		var effect: ActionEffect = rider.get("effect")
+		
+		if not effect:
+			continue
+		
+		# Check rider condition against current combat state
+		var should_fire := true
+		var combat_context := _build_combat_context(source, targets)
+		if condition and condition.has_method("evaluate"):
+			should_fire = condition.evaluate(combat_context)
+		
+		if should_fire:
+			var rider_results := effect.execute(
+				source, targets, [], combat_context)
+			_process_action_effect_results(rider_results, source)
+
+
+
 func _execute_action(action_data: Dictionary, source: Node2D, targets: Array[Combatant]):
 	var animation_set = action_data.get("animation_set") as CombatAnimationSet
 	
@@ -1185,6 +1213,13 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 		var placed_dice: Array = action_data.get("placed_dice", [])
 		player.dice_pool.finalize_dice_consumption(placed_dice)
 	# --- END FINALIZE ---
+	
+	# --- v6: CLASS ACTION CONDITIONAL RIDERS ---
+	if action_data.get("is_class_action", false):
+		var class_action_resource = action_data.get("action_resource") as Action
+		if class_action_resource:
+			_execute_conditional_riders(class_action_resource, source, targets)
+	# --- END CLASS ACTION ---
 
 
 
@@ -2245,6 +2280,29 @@ func _build_proc_context(extra: Dictionary = {}) -> Dictionary:
 	# Merge caller-specific keys (damage_dealt, target, etc.)
 	ctx.merge(extra, true)
 	return ctx
+
+
+func _build_combat_context(source: Combatant, targets: Array) -> Dictionary:
+	"""Build a context dict for conditional rider evaluation.
+	Extends _build_proc_context with target-specific state."""
+	var ctx := _build_proc_context()
+	ctx["source"] = source
+	ctx["targets"] = targets
+	
+	if targets.size() > 0 and targets[0] is Combatant:
+		var primary = targets[0]
+		ctx["target"] = primary
+		ctx["target_hp_percent"] = float(primary.current_health) / maxf(float(primary.max_health), 1.0)
+		
+		# Target status info for conditions like "if target is Burning"
+		var target_tracker := _get_status_tracker(primary)
+		if target_tracker:
+			ctx["target_tracker"] = target_tracker
+			ctx["target_statuses"] = target_tracker.active_statuses
+	
+	return ctx
+
+
 
 
 func _apply_proc_results(results: Dictionary) -> void:

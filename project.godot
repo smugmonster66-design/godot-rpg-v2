@@ -35,7 +35,7 @@ window/stretch/aspect="expand"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/affix_builder/plugin.cfg", "res://addons/auto_scene_documenter/plugin.cfg")
+enabled=PackedStringArray("res://addons/affix_builder/plugin.cfg", "res://addons/auto_scene_documenter/plugin.cfg", "res://addons/dungeon_editor/plugin.cfg", "res://addons/theme_editor/plugin.cfg")
 
 [rendering]
 

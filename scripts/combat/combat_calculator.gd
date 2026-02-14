@@ -52,6 +52,9 @@ static func calculate_attack_damage(
 		
 		var effect_element = effect.damage_type
 		
+		# Per-effect buckets so the multiplier only scales THIS effect's contribution
+		var effect_damages: Dictionary = {}
+		
 		# Route each die's value into its own element bucket
 		for i in range(effect.dice_count):
 			if dice_index >= placed_dice.size():
@@ -68,20 +71,24 @@ static func calculate_attack_damage(
 				if die.is_element_match(effect_element):
 					die_value *= ELEMENT_MATCH_BONUS
 				
-				packet.add_damage(die_damage_type, die_value)
+				effect_damages[die_damage_type] = effect_damages.get(die_damage_type, 0.0) + die_value
 			else:
 				# Legacy fallback: raw int value → action element (no match bonus)
 				var raw_value = int(die) if die is int else 0
-				packet.add_damage(effect_element, float(raw_value))
+				effect_damages[effect_element] = effect_damages.get(effect_element, 0.0) + float(raw_value)
 		
 		# Base damage always goes into the action effect's element
 		if effect.base_damage > 0:
-			packet.add_damage(effect_element, float(effect.base_damage))
+			effect_damages[effect_element] = effect_damages.get(effect_element, 0.0) + float(effect.base_damage)
 		
-		# Apply the effect's damage multiplier to ALL buckets built so far
-		# Note: This applies per-effect, so multi-effect actions scale correctly
+		# Apply this effect's multiplier to only its own contribution
 		if effect.damage_multiplier != 1.0:
-			packet.apply_multiplier(effect.damage_multiplier)
+			for dt in effect_damages:
+				effect_damages[dt] *= effect.damage_multiplier
+		
+		# Merge into the main packet
+		for dt in effect_damages:
+			packet.add_damage(dt, effect_damages[dt])
 	
 	# Step 2: Add type-specific damage bonuses from attacker affixes
 	if attacker_affixes:

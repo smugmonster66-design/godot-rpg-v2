@@ -82,6 +82,25 @@ var skill_ranks: Dictionary = {}
 @export var starting_actions: Array[Dictionary] = []
 @export var unlocked_at_level: int = 1
 
+
+
+# ============================================================================
+# CLASS ACTION (v6)
+# ============================================================================
+@export_group("Class Action")
+## The signature combat action for this class. Always available in combat.
+## Skills can modify this action via CLASS_ACTION_* affix categories.
+@export var class_action: Action = null
+
+## If true, the class action cannot be unequipped or replaced by items.
+## The CLASS_ACTION_UPGRADE category can still swap it via skills.
+@export var class_action_locked: bool = true
+
+## Optional: tag applied to the class action for affix condition checks.
+## e.g., "warrior_class_action", "mage_class_action"
+@export var class_action_tag: String = ""
+
+
 # ============================================================================
 # MANA SYSTEM (v4)
 # ============================================================================
