@@ -62,6 +62,16 @@ class_name DungeonDefinition
 @export var fog_color: Color = Color(0.1, 0.08, 0.15, 1.0)
 @export var ambient_color: Color = Color(0.8, 0.7, 0.6, 1.0)
 @export var torch_color: Color = Color(1.0, 0.7, 0.3, 1.0)
+
+# ============================================================================
+# MAP VISUALS (Slay the Spire-style flowchart map)
+# ============================================================================
+@export_group("Map Visuals")
+@export var map_background: Texture2D = null       ## cross-section stone/earth bg
+@export var map_node_backing: Texture2D = null     ## chamber circle behind icons
+@export var map_path_color: Color = Color(0.55, 0.45, 0.3, 0.7)
+## 0 = desaturate (dim locked nodes), 1 = hard fog (hide behind overlay)
+@export_range(0, 1) var map_fog_mode: int = 0
 # Under @export_group("Theme"), add alongside existing entries:
 @export var side_wall_texture: Texture2D = null
 @export var ceiling_texture: Texture2D = null

@@ -316,9 +316,9 @@ func enter_dungeon(definition: DungeonDefinition):
 	dungeon_layer.process_mode = Node.PROCESS_MODE_INHERIT
 	camera.set_mode(GameCamera.Mode.DUNGEON)
 	# Pass camera BEFORE enter so build_corridor has it for the intro sweep
-	var builder = dungeon_scene.find_child("CorridorBuilder", true, false)
-	if builder:
-		builder.camera = camera
+	var dmap = dungeon_scene.find_child("DungeonMap", true, false)
+	if dmap:
+		dmap.camera = camera
 	dungeon_scene.enter_dungeon(definition, GameManager.player)
 
 func exit_dungeon():

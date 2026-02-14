@@ -15,7 +15,7 @@
 script = ExtResource("5_8alnp")
 dungeon_name = "Test Dungeon"
 dungeon_id = "test_dungeon"
-floor_count = 6
+floor_count = 8
 dungeon_level = 1
 combat_encounters = Array[ExtResource("1_sq2uu")]([ExtResource("2_tyfei")])
 elite_encounters = Array[ExtResource("1_sq2uu")]([ExtResource("2_tyfei")])
@@ -25,4 +25,6 @@ door_texture = ExtResource("3_8alnp")
 floor_texture = ExtResource("3_3m7te")
 side_wall_texture = ExtResource("3_3m7te")
 ceiling_texture = ExtResource("3_3m7te")
+min_nodes_per_floor = 3
+max_nodes_per_floor = 4
 metadata/_custom_type_script = "uid://bg3nj47jgiftx"

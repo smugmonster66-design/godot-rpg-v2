@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://dfgmt7r8x8n88"]
+
+[ext_resource type="Script" uid="uid://4ltoasdxehpc" path="res://scripts/dungeon/dungeon_map.gd" id="1_map"]
+[ext_resource type="PackedScene" uid="uid://b8iq7qaqtsis6" path="res://scenes/dungeon/dungeon_map_node.tscn" id="2_node"]
+[ext_resource type="Texture2D" uid="uid://b0vo6kryy0h8k" path="res://assets/dice/d4s/d4-fill-basic.png" id="3_4s057"]
+
+[node name="DungeonMap" type="Node2D"]
+script = ExtResource("1_map")
+node_scene = ExtResource("2_node")
+row_spacing = 300.0
+column_spacing = 300.0
+jitter_x = 0.0
+jitter_y = 0.0
+
+[node name="PathLines" type="Node2D" parent="."]
+
+[node name="Nodes" type="Node2D" parent="."]
+
+[node name="FogOverlays" type="Node2D" parent="."]
+
+[node name="PlayerToken" type="Sprite2D" parent="."]
+z_index = 10
+texture = ExtResource("3_4s057")

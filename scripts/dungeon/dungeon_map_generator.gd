@@ -87,17 +87,35 @@ func _generate_paths(run: DungeonRun, def: DungeonDefinition):
 		var next = run.floors[f + 1]
 		if curr.size() == 0 or next.size() == 0: continue
 
-		for cid in curr:
-			_connect(run, cid, next[randi() % next.size()])
+		# Sort both floors by column index so positional mapping is stable
+		curr.sort_custom(func(a, b): return run.get_node(a).column < run.get_node(b).column)
+		next.sort_custom(func(a, b): return run.get_node(a).column < run.get_node(b).column)
+
+		# Each current node connects to its nearest neighbor(s) on next floor
+		for ci in curr.size():
+			# Map position proportionally: which next-floor index is "closest"?
+			var ratio = float(ci) / max(curr.size() - 1, 1)
+			var target_idx = roundi(ratio * (next.size() - 1))
+			_connect(run, curr[ci], next[target_idx])
+
+			# Optionally also connect to an adjacent neighbor (one step left or right)
+			if next.size() > 1 and randf() < 0.35:
+				var offset = 1 if randf() > 0.5 else -1
+				var adj_idx = clampi(target_idx + offset, 0, next.size() - 1)
+				if adj_idx != target_idx:
+					_connect(run, curr[ci], next[adj_idx])
+
+		# Guarantee no orphans on next floor
 		for nid in next:
 			var node = run.get_node(nid)
 			if node.connections_from.size() == 0:
-				_connect(run, curr[randi() % curr.size()], nid)
-		if curr.size() > 1 and next.size() > 1:
-			for cid in curr:
-				for nid in next:
-					if randf() < 0.3:
-						_connect(run, cid, nid)
+				# Find nearest current-floor node by index
+				var ni = next.find(nid)
+				var ratio2 = float(ni) / max(next.size() - 1, 1)
+				var best_ci = roundi(ratio2 * (curr.size() - 1))
+				_connect(run, curr[best_ci], nid)
+
+
 
 func _connect(run: DungeonRun, from_id: int, to_id: int):
 	var f = run.get_node(from_id)

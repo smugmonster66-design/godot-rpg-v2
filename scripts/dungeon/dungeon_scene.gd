@@ -26,7 +26,7 @@ var _combat_node: DungeonNodeData = null
 # ============================================================================
 # NODE REFERENCES — all discovered from scene tree, never code-created
 # ============================================================================
-var corridor_builder: DungeonCorridorBuilder = null
+var dungeon_map: DungeonMap = null
 var dungeon_camera: Camera2D = null
 var floor_label: Label = null
 var dungeon_name_label: Label = null
@@ -57,8 +57,8 @@ func _ready():
 func _discover_nodes():
 	print("  🔍 Discovering dungeon nodes...")
 
-	corridor_builder = find_child("CorridorBuilder", true, false) as DungeonCorridorBuilder
-	print("    CorridorBuilder: %s" % ("✓" if corridor_builder else "✗"))
+	dungeon_map = find_child("DungeonMap", true, false) as DungeonMap
+	print("    DungeonMap: %s" % ("✓" if dungeon_map else "✗"))
 
 	dungeon_camera = find_child("DungeonCamera", true, false) as Camera2D
 	print("    DungeonCamera: %s" % ("✓" if dungeon_camera else "✗"))
@@ -83,11 +83,10 @@ func _discover_nodes():
 
 func _connect_signals():
 	# Corridor builder → door selection
-	if corridor_builder:
-		corridor_builder.camera = dungeon_camera
-		corridor_builder.player_sprite = corridor_builder.find_child("PlayerSprite", true, false)
-		if not corridor_builder.door_selected.is_connected(_on_door_selected):
-			corridor_builder.door_selected.connect(_on_door_selected)
+	if dungeon_map:
+		dungeon_map.camera = dungeon_camera
+		if not dungeon_map.node_selected.is_connected(_on_node_selected):
+			dungeon_map.node_selected.connect(_on_node_selected)
 
 	# Popup result signals — each popup emits popup_closed(result: Dictionary)
 	for popup in [event_popup, shop_popup, rest_popup, shrine_popup,
@@ -120,11 +119,10 @@ func enter_dungeon(definition: DungeonDefinition, player: Player):
 		dungeon_name_label.text = definition.dungeon_name
 	_update_floor_ui()
 
-	_apply_theme(definition)
 
 	# Build corridor
-	if corridor_builder:
-		corridor_builder.build_corridor(current_run)
+	if dungeon_map:
+		dungeon_map.build_map(current_run)
 
 	dungeon_started.emit(definition)
 
@@ -138,8 +136,8 @@ func enter_dungeon(definition: DungeonDefinition, player: Player):
 
 func exit_dungeon():
 	_cleanup_temp_effects()
-	if corridor_builder:
-		corridor_builder.clear_corridor()
+	if dungeon_map:
+		dungeon_map.clear_map()
 	current_run = null
 	_player = null
 
@@ -147,7 +145,7 @@ func exit_dungeon():
 # NODE HANDLING
 # ============================================================================
 
-func _on_door_selected(node_id: int):
+func _on_node_selected(node_id: int):
 	if _awaiting_combat: return
 	_enter_node(node_id)
 
@@ -177,8 +175,7 @@ func _enter_node(node_id: int):
 # ============================================================================
 
 func _handle_start(node: DungeonNodeData):
-	current_run.complete_node(node.id)
-	node_completed.emit(node)
+	_complete_and_advance(node)
 
 func _handle_combat(node: DungeonNodeData):
 	if not node.encounter:
@@ -358,6 +355,10 @@ func _complete_and_advance(node: DungeonNodeData):
 	current_run.complete_node(node.id)
 	node_completed.emit(node)
 	_update_floor_ui()
+	
+	# Tell the map to reveal next-floor nodes
+	if dungeon_map:
+		dungeon_map.complete_node(node.id)
 
 func _update_floor_ui():
 	if not current_run: return
@@ -424,48 +425,7 @@ func _cleanup_temp_effects():
 # New method in dungeon_scene.gd:
 
 func _apply_theme(definition: DungeonDefinition):
-	# Ambient parallax textures
-	var floor_sprite = find_child("FloorSprite", true, false) as Sprite2D
-	var side_wall_sprite = find_child("SideWallSprite", true, false) as Sprite2D
-	var ceiling_sprite = find_child("CeilingSprite", true, false) as Sprite2D
-	var frame_overlay = find_child("FrameOverlay", true, false) as TextureRect
-
-	if floor_sprite and definition.floor_texture:
-		floor_sprite.texture = definition.floor_texture
-	if side_wall_sprite and definition.side_wall_texture:
-		side_wall_sprite.texture = definition.side_wall_texture
-	if ceiling_sprite and definition.ceiling_texture:
-		ceiling_sprite.texture = definition.ceiling_texture
-	if frame_overlay and definition.frame_texture:
-		frame_overlay.texture = definition.frame_texture
-
-	# Torch color
-	var torch_left = find_child("TorchLeft", true, false)
-	var torch_right = find_child("TorchRight", true, false)
-	if definition.torch_color != Color.BLACK:
-		for torch in [torch_left, torch_right]:
-			if not torch: continue
-			var light = torch.find_child("TorchLight", false, false) as PointLight2D
-			if light:
-				light.color = definition.torch_color
-
-
-	var overlay = $CorridorFrame/FrameOverlay  # adjust path
-	if overlay and overlay.material:
-		var mat = overlay.material as ShaderMaterial
-		if mat:
-			mat.set_shader_parameter("fog_color", definition.fog_color)
-			mat.set_shader_parameter("accent_color", definition.ambient_color)
-
-	var surfaces = find_child("CorridorSurfaces", true, false) as CorridorSurfaces
-	if surfaces:
-		surfaces.apply_theme(definition)
-
-	# Dust motes tinted to ambient color
-	var dust = find_child("DustMotes", true, false) as GPUParticles2D
-	if dust and definition.ambient_color != Color.BLACK:
-		dust.modulate = definition.ambient_color
-
+	pass
 
 func _setup_dust_motes():
 	var dust = find_child("DustMotes", true, false) as GPUParticles2D
