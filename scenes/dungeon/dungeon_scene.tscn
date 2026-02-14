@@ -1,8 +1,9 @@
-[gd_scene load_steps=12 format=3 uid="uid://b3hskvtstgnbh"]
+[gd_scene load_steps=13 format=3 uid="uid://b3hskvtstgnbh"]
 
 [ext_resource type="Script" uid="uid://bbgslbrlnwdxk" path="res://scripts/dungeon/dungeon_scene.gd" id="1_scene"]
 [ext_resource type="Script" uid="uid://dhcd8rdcl43dx" path="res://scripts/dungeon/dungeon_corridor_builder.gd" id="2_corridor"]
 [ext_resource type="PackedScene" uid="uid://dg7t680hok5b8" path="res://scenes/dungeon/dungeon_wall_layer.tscn" id="3_wall"]
+[ext_resource type="Texture2D" uid="uid://b0vo6kryy0h8k" path="res://assets/dice/d4s/d4-fill-basic.png" id="4_8f4kc"]
 [ext_resource type="PackedScene" uid="uid://dc037xsdbse2w" path="res://scenes/dungeon/popups/dungeon_event_popup.tscn" id="4_evt"]
 [ext_resource type="PackedScene" path="res://scenes/dungeon/popups/dungeon_shop_popup.tscn" id="5_shop"]
 [ext_resource type="PackedScene" path="res://scenes/dungeon/popups/dungeon_rest_popup.tscn" id="6_rest"]
@@ -34,6 +35,7 @@ floor_spacing = 600.0
 
 [node name="PlayerSprite" type="Sprite2D" parent="CorridorBuilder"]
 z_index = 10
+texture = ExtResource("4_8f4kc")
 
 [node name="CorridorFrame" type="CanvasLayer" parent="."]
 layer = 3
