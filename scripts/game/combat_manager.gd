@@ -861,25 +861,19 @@ func _play_action_with_animation(action_data: Dictionary, targets: Array, target
 	combat_state = CombatState.PLAYER_TURN
 
 func _get_enemy_portrait_position(enemy_index: int) -> Vector2:
-	"""Get the center position of an enemy's portrait in the UI."""
+	"""Get the center position of an enemy's portrait in the UI.
+	Uses enemy_panel.get_enemy_visual() which translates array index → slot."""
 	if not combat_ui or not combat_ui.enemy_panel:
 		return Vector2.ZERO
 
-	# Get the combatant, then find its slot
-	var combatant = enemy_combatants[enemy_index] \
-		if enemy_index < enemy_combatants.size() else null
-	if not combatant:
+	var slot = combat_ui.enemy_panel.get_enemy_visual(enemy_index)
+	if not slot or not slot is EnemySlot or not slot.portrait_rect:
 		return Vector2.ZERO
 
-	var slot_idx = combat_ui.enemy_panel.get_slot_for_combatant(combatant)
-	if slot_idx < 0:
-		return Vector2.ZERO
+	var portrait = slot.portrait_rect
+	return portrait.global_position + portrait.size / 2
 
-	var slot: EnemySlot = combat_ui.enemy_panel.enemy_slots[slot_idx]
-	if not slot or not slot.portrait_rect:
-		return Vector2.ZERO
 
-	return slot.portrait_rect.global_position + slot.portrait_rect.size / 2
 
 # ============================================================================
 # ENEMY TURN
@@ -2183,9 +2177,9 @@ func end_combat(player_won: bool):
 	print("\n=== COMBAT ENDED ===")
 	
 	# v4: Disable mana die dragging
-	if combat_ui and combat_ui.has_method("set_mana_drag_enabled"):
-		combat_ui.set_mana_drag_enabled(false)
-	
+	var bottom_ui = _get_bottom_ui()
+	if bottom_ui and bottom_ui.has_method("set_mana_drag_enabled"):
+		bottom_ui.set_mana_drag_enabled(false)
 	
 	combat_state = CombatState.ENDED
 	turn_phase = TurnPhase.NONE
@@ -2197,9 +2191,9 @@ func end_combat(player_won: bool):
 	else:
 		print("💀 Defeat!")
 	
-	# Clear player status effects
-	if player:
-		player.clear_combat_status_effects()
+	# Clear player status effects (on combatant node, not Player resource)
+	if player_combatant and player_combatant.has_node("StatusTracker"):
+		player_combatant.get_node("StatusTracker").clear_all()
 	
 	# Clear enemy status effects
 	for enemy in enemy_combatants:
@@ -2220,31 +2214,57 @@ func end_combat(player_won: bool):
 
 
 func _on_combat_ended(player_won: bool):
-	"""Handle combat end cleanup"""
-	if player_won:
-		# Calculate rewards
-		var total_exp = 0
-		var total_gold = 0
-		
-		for enemy in enemy_combatants:
-			var rewards = enemy.get_rewards()
-			total_exp += rewards.experience
-			total_gold += rewards.gold
-		
-		print("  Rewards: %d XP, %d Gold" % [total_exp, total_gold])
-		
-		# Apply rewards to player
-		if player:
-			player.gold += total_gold
-			if player.active_class:
-				player.active_class.add_experience(total_exp)
-				
+	"""Cleanup, then hand off to GameRoot for scene transition + rewards."""
+	
 	# --- Reactive Animation Cleanup ---
 	if combat_ui and "reactive_animator" in combat_ui and combat_ui.reactive_animator:
 		combat_ui.reactive_animator.cleanup()
 	if event_bus:
 		event_bus.emit_combat_ended(player_won)
 		event_bus.clear_history()
+	
+	# Bridge to GameRoot → GameManager.on_combat_ended() → post-combat summary
+	if GameManager and GameManager.game_root:
+		GameManager.game_root.end_combat(player_won)
+		
+
+
+
+func reset_combat():
+	"""Clean up all combat state for next encounter.
+	Called by GameRoot.end_combat() before hiding the combat layer."""
+	print("🔄 CombatManager: reset_combat")
+	
+	# Clear enemy panel
+	if combat_ui and combat_ui.enemy_panel:
+		for slot in combat_ui.enemy_panel.enemy_slots:
+			slot.set_empty()
+		combat_ui.enemy_panel.hide_all_turn_indicators()
+		combat_ui.enemy_panel.hide_dice_hand()
+		combat_ui.enemy_panel.modulate.a = 0.0  # Ready for next drop-in
+	
+	# Clear action fields
+	if combat_ui and combat_ui.action_fields_grid:
+		for child in combat_ui.action_fields_grid.get_children():
+			child.queue_free()
+		combat_ui.action_fields.clear()
+	
+	# Clear dice pool display
+	if combat_ui and combat_ui.dice_pool_display:
+		combat_ui.dice_pool_display.hide()
+	
+	# Hide enemy hand
+	if combat_ui and combat_ui.has_method("hide_enemy_hand"):
+		combat_ui.hide_enemy_hand()
+	
+	# Reset state
+	enemy_combatants.clear()
+	combat_state = CombatState.INITIALIZING
+	turn_phase = TurnPhase.NONE
+	current_round = 0
+	current_turn_index = 0
+	turn_order.clear()
+
 
 
 # ============================================================================

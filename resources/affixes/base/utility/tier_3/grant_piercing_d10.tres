@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://cxfa43jxr7nac"]
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://cxfa43jxr7nac"]
 
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_4fnkl"]
+[ext_resource type="Resource" uid="uid://baguots6jv62u" path="res://resources/dice/base/d10_piercing.tres" id="2_a3kir"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_rqeo8"]
 [ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_a3kir"]
 
@@ -11,3 +12,4 @@ description = "Add a Piercing D10 to your dice pool"
 category = 32
 tags = Array[String](["dice_grant", "piercing"])
 effect_number = 1.0
+granted_dice = Array[ExtResource("1_4fnkl")]([ExtResource("2_a3kir")])

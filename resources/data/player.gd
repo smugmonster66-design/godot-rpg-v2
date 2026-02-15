@@ -539,6 +539,12 @@ func remove_from_inventory(item: EquippableItem):
 	inventory.erase(item)
 	inventory_changed.emit()
 
+
+func add_experience(amount: int):
+	if active_class:
+		active_class.add_experience(amount)
+
+
 # ============================================================================
 # COMBAT HELPERS
 # ============================================================================

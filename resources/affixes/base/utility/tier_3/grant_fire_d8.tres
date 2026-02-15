@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://dlughshpuvhye"]
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://dlughshpuvhye"]
 
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_vgvog"]
+[ext_resource type="Resource" uid="uid://c8hata17eoqql" path="res://resources/dice/base/d8_fire.tres" id="2_0vqeg"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_33k42"]
 [ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_0vqeg"]
 
@@ -11,3 +12,4 @@ description = "Add a Fire D8 to your dice pool"
 category = 32
 tags = Array[String](["dice_grant", "fire"])
 effect_number = 1.0
+granted_dice = Array[ExtResource("1_vgvog")]([ExtResource("2_0vqeg")])

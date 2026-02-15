@@ -44,8 +44,13 @@ var selection_enabled: bool = false
 var current_enemy: Combatant = null
 var hand_dice_visuals: Array[Control] = []
 var is_animating: bool = false
-var hide_for_roll_animation: bool = false  
+var hide_for_roll_animation: bool = false
 
+## Maps enemy_combatants array index → slot index.
+## Populated during initialize_enemies / initialize_enemies_with_slots.
+## Every public method that accepts an enemy_index uses this to find the
+## correct slot, so combat_manager never needs to know slot layout.
+var _enemy_to_slot: Dictionary = {}  # {int: int}
 
 
 # ============================================================================
@@ -54,17 +59,14 @@ var hide_for_roll_animation: bool = false
 
 func _ready():
 	modulate.a = 0.0
-	# Load die visual scene if not set
-	#if not die_visual_scene:
-	#	die_visual_scene = load("res://scenes/ui/components/die_visual.tscn")
-	
+
 	_discover_slots()
 	_connect_slot_signals()
-	
+
 	# Hide dice hand initially
 	if dice_hand_container:
 		dice_hand_container.hide()
-	
+
 	print("👹 EnemyPanel ready with %d slots" % enemy_slots.size())
 
 
@@ -83,10 +85,10 @@ func _process(_delta):
 func _discover_slots():
 	"""Find all EnemySlot children"""
 	enemy_slots.clear()
-	
+
 	if not slots_container:
 		return
-	
+
 	for child in slots_container.get_children():
 		if child is EnemySlot:
 			child.slot_index = enemy_slots.size()
@@ -101,49 +103,90 @@ func _connect_slot_signals():
 			slot.slot_hovered.connect(_on_slot_hovered)
 
 # ============================================================================
+# INDEX TRANSLATION
+# ============================================================================
+
+func _slot_for(enemy_index: int) -> int:
+	"""Translate an enemy_combatants array index to the actual slot index.
+	Falls back to the raw index if no mapping exists (backwards compat)."""
+	return _enemy_to_slot.get(enemy_index, enemy_index)
+
+# ============================================================================
 # ENEMY MANAGEMENT
 # ============================================================================
 
 func initialize_enemies(enemies: Array):
-	"""Initialize slots with enemy combatants (sequential assignment).
-	For slot-aware positioning, use initialize_enemies_with_slots() instead."""
-	initialize_enemies_with_slots(enemies, null)
+	"""Initialize slots with enemy combatants.
+	Uses centered slot layout: 1→middle, 2→flanks, 3→all."""
+	print("👹 Initializing %d enemies in panel (auto-centered)" % enemies.size())
+
+	# Clear all slots
+	for slot in enemy_slots:
+		slot.set_empty()
+
+	# Centered mapping
+	var slot_map: Array[int] = _get_centered_mapping(enemies.size())
+
+	_enemy_to_slot.clear()
+	for i in range(enemies.size()):
+		var slot_idx: int = slot_map[i]
+		_enemy_to_slot[i] = slot_idx
+
+		var enemy = enemies[i]
+		var enemy_data = enemy.enemy_data if enemy else null
+		enemy_slots[slot_idx].set_enemy(enemy, enemy_data)
+		print("  Slot %d ← %s (enemy_index %d)" % [
+			slot_idx, enemy.combatant_name if enemy else "null", i])
+
+	select_first_living_enemy()
 
 
 func initialize_enemies_with_slots(enemies: Array, encounter: CombatEncounter = null):
 	"""Initialize slots with enemies mapped to their designated positions."""
 	print("👹 Initializing %d enemies in panel (slot-aware)" % enemies.size())
-	
+
 	# Clear all slots first
 	for slot in enemy_slots:
 		slot.set_empty()
-	
-	# Map each enemy to its designated slot
+
+	_enemy_to_slot.clear()
+
 	for i in range(enemies.size()):
 		var enemy = enemies[i]
-		var slot_index: int = 1  # default: middle
-		if encounter:
+		var slot_index: int
+
+		if encounter and encounter.has_method("get_enemy_slot"):
 			slot_index = encounter.get_enemy_slot(i)
 		else:
-			# Fallback sequential
-			slot_index = clampi(i, 0, enemy_slots.size() - 1)
-		
-		if slot_index >= 0 and slot_index < enemy_slots.size():
-			var enemy_data = enemy.enemy_data if enemy else null
-			enemy_slots[slot_index].set_enemy(enemy, enemy_data)
-			print("  Slot %d ← %s" % [slot_index, enemy.combatant_name if enemy else "null"])
-	
+			# Fallback to centered layout
+			var slot_map := _get_centered_mapping(enemies.size())
+			slot_index = slot_map[i]
+
+		slot_index = clampi(slot_index, 0, enemy_slots.size() - 1)
+		_enemy_to_slot[i] = slot_index
+
+		var enemy_data = enemy.enemy_data if enemy else null
+		enemy_slots[slot_index].set_enemy(enemy, enemy_data)
+		print("  Slot %d ← %s (enemy_index %d)" % [
+			slot_index, enemy.combatant_name if enemy else "null", i])
+
 	select_first_living_enemy()
 
+
+func _get_centered_mapping(enemy_count: int) -> Array[int]:
+	"""Map enemy array indices to centered slot positions.
+	1 enemy  → [1]         (middle)
+	2 enemies → [0, 2]     (flanks)
+	3 enemies → [0, 1, 2]  (all)
+	"""
+	match enemy_count:
+		1: return [1]
+		2: return [0, 2]
+		_: return [0, 1, 2]
+
 # ============================================================================
 # DROP-IN ANIMATION
 # ============================================================================
-
-
-# ============================================================================
-# DROP-IN ANIMATION
-# ============================================================================
-
 
 func play_drop_in_animation():
 	visible = true
@@ -184,6 +227,9 @@ func play_drop_in_animation():
 	intro_animation_finished.emit()
 
 
+# ============================================================================
+# PUBLIC API — All accept enemy_combatants array index, translate internally
+# ============================================================================
 
 func get_slot_for_combatant(combatant: Combatant) -> int:
 	"""Find which slot holds this combatant. Returns -1 if not found."""
@@ -194,27 +240,21 @@ func get_slot_for_combatant(combatant: Combatant) -> int:
 
 
 func update_enemy_health(enemy_index: int, current: int, maximum: int):
-	"""Update health display for an enemy"""
-	if enemy_index >= 0 and enemy_index < enemy_slots.size():
-		enemy_slots[enemy_index].update_health(current, maximum)
+	"""Update health display for an enemy by combatant array index."""
+	var slot_idx := _slot_for(enemy_index)
+	if slot_idx >= 0 and slot_idx < enemy_slots.size():
+		enemy_slots[slot_idx].update_health(current, maximum)
 
 
 func on_enemy_died(enemy_index: int):
-	"""Handle enemy death visuals by enemy_combatants array index.
-	Finds the correct slot since array index ≠ slot index with slot-aware positioning."""
-	# enemy_index is the index in CombatManager.enemy_combatants, not the slot index
-	# Search all slots for the matching combatant
-	for slot in enemy_slots:
-		if slot.is_empty:
-			continue
-		var enemy = slot.get_enemy()
-		if not enemy or enemy.is_alive():
-			continue
-		# This enemy is dead — handle it
+	"""Handle enemy death visuals by combatant array index."""
+	var slot_idx := _slot_for(enemy_index)
+	if slot_idx >= 0 and slot_idx < enemy_slots.size():
+		var slot = enemy_slots[slot_idx]
 		slot.set_selected(false)
-		if slot.slot_index == selected_slot_index:
+
+		if slot_idx == selected_slot_index:
 			select_first_living_enemy()
-		return
 
 
 func on_enemy_died_by_combatant(combatant: Combatant):
@@ -226,9 +266,49 @@ func on_enemy_died_by_combatant(combatant: Combatant):
 	var slot = enemy_slots[slot_idx]
 	slot.set_selected(false)
 
-	# If this was selected, move to next living enemy
 	if slot_idx == selected_slot_index:
 		select_first_living_enemy()
+
+
+func show_turn_indicator(enemy_index: int):
+	"""Show turn indicator for a specific enemy by combatant array index."""
+	hide_all_turn_indicators()
+
+	var slot_idx := _slot_for(enemy_index)
+	if slot_idx >= 0 and slot_idx < enemy_slots.size():
+		var slot = enemy_slots[slot_idx]
+		if slot.has_method("show_turn_indicator"):
+			slot.show_turn_indicator()
+
+func hide_turn_indicator(enemy_index: int):
+	"""Hide turn indicator for a specific enemy by combatant array index."""
+	var slot_idx := _slot_for(enemy_index)
+	if slot_idx >= 0 and slot_idx < enemy_slots.size():
+		var slot = enemy_slots[slot_idx]
+		if slot.has_method("hide_turn_indicator"):
+			slot.hide_turn_indicator()
+
+func hide_all_turn_indicators():
+	"""Hide all turn indicators"""
+	for slot in enemy_slots:
+		if slot.has_method("hide_turn_indicator"):
+			slot.hide_turn_indicator()
+
+
+func get_enemy_index(enemy: Combatant) -> int:
+	"""Get the slot index for a specific enemy combatant.
+	Used by combat_ui to pass to show_turn_indicator etc."""
+	return get_slot_for_combatant(enemy)
+
+
+func get_enemy_visual(index: int) -> Control:
+	"""Get the EnemySlot visual node for a given enemy array index.
+	Used by ReactiveAnimator for shake, flash, scale effects on enemies."""
+	var slot_idx := _slot_for(index)
+	if slot_idx >= 0 and slot_idx < enemy_slots.size():
+		return enemy_slots[slot_idx]
+	return null
+
 
 # ============================================================================
 # SELECTION
@@ -237,7 +317,7 @@ func on_enemy_died_by_combatant(combatant: Combatant):
 func set_selection_enabled(enabled: bool):
 	"""Enable or disable target selection"""
 	selection_enabled = enabled
-	
+
 	for slot in enemy_slots:
 		if enabled:
 			slot.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
@@ -245,22 +325,22 @@ func set_selection_enabled(enabled: bool):
 			slot.mouse_default_cursor_shape = Control.CURSOR_ARROW
 
 func select_slot(index: int):
-	"""Select a specific slot"""
+	"""Select a specific slot by slot index"""
 	if index < 0 or index >= enemy_slots.size():
 		return
-	
+
 	var slot = enemy_slots[index]
 	if slot.is_empty or not slot.is_alive():
 		return
-	
+
 	# Deselect previous
 	if selected_slot_index >= 0 and selected_slot_index < enemy_slots.size():
 		enemy_slots[selected_slot_index].set_selected(false)
-	
+
 	# Select new
 	selected_slot_index = index
 	slot.set_selected(true)
-	
+
 	selection_changed.emit(index)
 
 func select_first_living_enemy():
@@ -270,7 +350,7 @@ func select_first_living_enemy():
 		if not slot.is_empty and slot.is_alive():
 			select_slot(i)
 			return
-	
+
 	selected_slot_index = -1
 
 func get_selected_enemy() -> Combatant:
@@ -291,9 +371,9 @@ func _on_slot_clicked(slot: EnemySlot):
 	"""Handle slot click"""
 	if not selection_enabled:
 		return
-	
+
 	select_slot(slot.slot_index)
-	
+
 	var enemy = slot.get_enemy()
 	if enemy:
 		enemy_selected.emit(enemy, slot.slot_index)
@@ -309,22 +389,22 @@ func _on_slot_hovered(slot: EnemySlot):
 func show_dice_hand(enemy_combatant: Combatant):
 	"""Show enemy's rolled dice hand"""
 	current_enemy = enemy_combatant
-	
+
 	if not dice_hand_container:
 		return
-	
+
 	dice_hand_container.show()
-	
+
 	# Set label
 	if action_label:
 		action_label.text = "%s's Turn" % enemy_combatant.combatant_name
-	
+
 	# Clear previous dice
 	_clear_hand_dice()
-	
+
 	# Add dice visuals for rolled hand
 	var hand_dice = enemy_combatant.get_available_dice()
-	
+
 	for die in hand_dice:
 		var visual = _create_die_visual(die)
 		if visual:
@@ -338,10 +418,10 @@ func show_dice_hand(enemy_combatant: Combatant):
 func hide_dice_hand():
 	"""Hide the dice hand display"""
 	current_enemy = null
-	
+
 	if dice_hand_container:
 		dice_hand_container.hide()
-	
+
 	_clear_hand_dice()
 
 func refresh_dice_hand():
@@ -364,84 +444,49 @@ func animate_die_used(die_index: int) -> void:
 	if die_index >= hand_dice_visuals.size():
 		await get_tree().create_timer(0.1).timeout
 		return
-	
+
 	is_animating = true
-	
+
 	var visual = hand_dice_visuals[die_index]
 	if not is_instance_valid(visual):
 		is_animating = false
 		return
-	
+
 	# Flash effect
 	var flash_tween = create_tween()
 	flash_tween.tween_property(visual, "modulate", Color(1.5, 1.5, 0.5), die_scale_duration)
 	flash_tween.tween_property(visual, "modulate", Color.WHITE, die_scale_duration)
 	await flash_tween.finished
-	
+
 	# Fade out
 	var fade_tween = create_tween()
 	fade_tween.set_parallel(true)
 	fade_tween.tween_property(visual, "modulate:a", 0.0, die_move_duration)
 	fade_tween.tween_property(visual, "scale", Vector2(0.5, 0.5), die_move_duration)
 	await fade_tween.finished
-	
+
 	is_animating = false
 
 # ============================================================================
 # PRIVATE HELPERS
 # ============================================================================
 
-func show_turn_indicator(enemy_index: int):
-	"""Show turn indicator for a specific enemy"""
-	# Hide all first
-	hide_all_turn_indicators()
-	
-	if enemy_index >= 0 and enemy_index < enemy_slots.size():
-		var slot = enemy_slots[enemy_index]
-		if slot.has_method("show_turn_indicator"):
-			slot.show_turn_indicator()
-
-func hide_turn_indicator(enemy_index: int):
-	"""Hide turn indicator for a specific enemy"""
-	if enemy_index >= 0 and enemy_index < enemy_slots.size():
-		var slot = enemy_slots[enemy_index]
-		if slot.has_method("hide_turn_indicator"):
-			slot.hide_turn_indicator()
-
-func hide_all_turn_indicators():
-	"""Hide all turn indicators"""
-	for slot in enemy_slots:
-		if slot.has_method("hide_turn_indicator"):
-			slot.hide_turn_indicator()
-
-func get_enemy_index(enemy: Combatant) -> int:
-	"""Get the slot index for a specific enemy combatant."""
-	return get_slot_for_combatant(enemy)
-
-func get_enemy_visual(index: int) -> Control:
-	"""Get the EnemySlot visual node for a given enemy index.
-	Used by ReactiveAnimator for shake, flash, scale effects on enemies."""
-	if index >= 0 and index < enemy_slots.size():
-		return enemy_slots[index]
-	return null
-
 func _create_die_visual(die: DieResource) -> Control:
 	"""Create a die visual for the hand using new CombatDieObject system"""
-	# Use the new system - same as player dice
 	if die.has_method("instantiate_combat_visual"):
 		var visual = die.instantiate_combat_visual()
 		if visual:
-			visual.draggable = false  # Enemy dice aren't draggable by player
+			visual.draggable = false
 			visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			return visual
-	
+
 	# Fallback to old system if needed
 	if die_visual_scene:
 		var visual = die_visual_scene.instantiate()
 		if visual.has_method("set_die"):
 			visual.set_die(die)
 		return visual
-	
+
 	return null
 
 

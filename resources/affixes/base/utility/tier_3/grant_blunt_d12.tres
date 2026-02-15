@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://cgu018eyo3dqw"]
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://cgu018eyo3dqw"]
 
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_jnsa2"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_6pedq"]
+[ext_resource type="Resource" uid="uid://x1l67ej62snt" path="res://resources/dice/base/d12_blunt.tres" id="2_njcbn"]
 [ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_njcbn"]
 
 [resource]
@@ -11,3 +12,4 @@ description = "Add a Blunt D12 to your dice pool"
 category = 32
 tags = Array[String](["dice_grant", "blunt"])
 effect_number = 1.0
+granted_dice = Array[ExtResource("1_jnsa2")]([ExtResource("2_njcbn")])

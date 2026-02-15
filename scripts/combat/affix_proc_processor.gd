@@ -238,7 +238,7 @@ func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 		"source": affix.source,
 	}
 	
-	var proc_effect = affix.effect_data.get("proc_effect", "")
+	var proc_effect = affix.effect_data.get("proc_effect", affix.effect_data.get("effect", ""))
 	
 	# If no explicit proc_effect, infer from category
 	if proc_effect == "":

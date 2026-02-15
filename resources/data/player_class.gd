@@ -195,6 +195,11 @@ func gain_experience(amount: int) -> bool:
 	
 	return leveled
 
+func add_experience(amount: int) -> bool:
+	"""Alias for gain_experience (matches caller convention)."""
+	return gain_experience(amount)
+
+
 func get_available_skill_points() -> int:
 	"""Get skill points available to spend"""
 	return skill_points

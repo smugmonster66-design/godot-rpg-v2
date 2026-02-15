@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="AffixTable" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="AffixTable" load_steps=7 format=3 uid="uid://7jgm7i4gwjdc"]
 
-[ext_resource type="Script" path="res://resources/data/affix.gd" id="1_affix_script"]
-[ext_resource type="Script" path="res://resources/data/affix_table.gd" id="2_table_script"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_affix_script"]
+[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="2_table_script"]
 [ext_resource type="Resource" path="res://resources/affixes/region_1/utility/tier_1/mana_bonus.tres" id="affix_0"]
 [ext_resource type="Resource" path="res://resources/affixes/region_1/utility/tier_1/gold_find_bonus.tres" id="affix_1"]
 [ext_resource type="Resource" path="res://resources/affixes/region_1/utility/tier_1/xp_bonus.tres" id="affix_2"]

@@ -33,7 +33,7 @@ var _combat_intro_done: bool = false
 @onready var dungeon_layer: Node2D = $DungeonLayer
 @onready var dungeon_scene: DungeonScene = $DungeonLayer/DungeonScene
 @onready var camera: GameCamera = $GameCamera
-
+@onready var combat_ui_layer: CanvasLayer = null
 
 var is_in_dungeon: bool = false
 
@@ -105,7 +105,7 @@ func _ready():
 	
 	
 	
-	
+	combat_ui_layer = combat_scene.find_child("CombatUILayer", true, false)
 
 
 
@@ -254,6 +254,9 @@ func start_combat(encounter: Resource = null):
 	combat_layer.visible = true
 	combat_layer.process_mode = Node.PROCESS_MODE_INHERIT
 
+	
+
+
 	ui_layer.layer = 5
 
 	# Tell CombatManager to pick up the encounter
@@ -283,6 +286,7 @@ func end_combat(player_won: bool = true):
 	combat_layer.process_mode = Node.PROCESS_MODE_DISABLED
 	if combat_scene and combat_scene.has_method("reset_combat"):
 		combat_scene.reset_combat()
+	
 	ui_layer.layer = 100
 
 	if is_in_dungeon:
@@ -373,7 +377,10 @@ func _fade_from_black():
 		_combat_intro_done = true
 		combat_intro_ready.emit()
 	)
-	
+
+
+
+
 func _on_dungeon_completed(run: DungeonRun):
 	print("🏰 Complete! Gold: %d, Exp: %d, Items: %d" % [
 		run.gold_earned, run.exp_earned, run.items_earned.size()])

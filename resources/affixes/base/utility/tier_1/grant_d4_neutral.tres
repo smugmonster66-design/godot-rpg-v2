@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://csngh34e2ya2k"]
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://csngh34e2ya2k"]
 
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_fg2ae"]
+[ext_resource type="Resource" uid="uid://cwbv8lccisqck" path="res://resources/dice/base/d4_none.tres" id="2_44b5r"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_ygeo4"]
 [ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_44b5r"]
 
@@ -11,3 +12,4 @@ description = "Add a neutral D4 to your dice pool"
 category = 32
 tags = Array[String](["dice_grant", "neutral"])
 effect_number = 1.0
+granted_dice = Array[ExtResource("1_fg2ae")]([ExtResource("2_44b5r")])

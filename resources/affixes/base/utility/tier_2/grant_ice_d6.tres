@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://c4hfmuyx57nt8"]
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://c4hfmuyx57nt8"]
 
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_7l0ul"]
+[ext_resource type="Resource" uid="uid://c416ns0ib7j4j" path="res://resources/dice/base/d6_ice.tres" id="2_c3xq3"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_xh0pl"]
 [ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_c3xq3"]
 
@@ -11,3 +12,4 @@ description = "Add a Ice D6 to your dice pool"
 category = 32
 tags = Array[String](["dice_grant", "ice"])
 effect_number = 1.0
+granted_dice = Array[ExtResource("1_7l0ul")]([ExtResource("2_c3xq3")])
