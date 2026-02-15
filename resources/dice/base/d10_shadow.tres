@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=6 format=3 uid="uid://ca11tg3hrcvkt"]
+
+[ext_resource type="Resource" uid="uid://c2pgrap71kn5v" path="res://resources/affixes/elements/shadow_element.tres" id="1_a72ne"]
+[ext_resource type="Texture2D" uid="uid://klk23dga0emp" path="res://assets/dice/d10s/d10-fill-basic.png" id="2_nshop"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_rijc5"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_r65bg"]
+[ext_resource type="Texture2D" uid="uid://bnn478mo72l40" path="res://assets/dice/d10s/d10-stroke-basic.png" id="5_uo8nc"]
+
+[resource]
+script = ExtResource("4_r65bg")
+display_name = "Shadow D10"
+die_type = 10
+element = 8
+element_affix = ExtResource("1_a72ne")
+fill_texture = ExtResource("2_nshop")
+stroke_texture = ExtResource("5_uo8nc")

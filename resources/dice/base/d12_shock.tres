@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=6 format=3 uid="uid://dlmrafu5goh2p"]
+
+[ext_resource type="Resource" path="res://resources/affixes/elements/shock_element.tres" id="1_aybne"]
+[ext_resource type="Texture2D" uid="uid://r7bikgya1ua8" path="res://assets/dice/d12s/d12-basic-fill.png" id="2_c3tau"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_qx53b"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_bf6lo"]
+[ext_resource type="Texture2D" uid="uid://d3cgge7kyfsqd" path="res://assets/dice/d12s/d12-basic-stroke.png" id="5_7yi0w"]
+
+[resource]
+script = ExtResource("4_bf6lo")
+display_name = "Shock D12"
+die_type = 12
+element = 6
+element_affix = ExtResource("1_aybne")
+fill_texture = ExtResource("2_c3tau")
+stroke_texture = ExtResource("5_7yi0w")

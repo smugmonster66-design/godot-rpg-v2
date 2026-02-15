@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=6 format=3 uid="uid://b8cumufp7e4bm"]
+
+[ext_resource type="Resource" uid="uid://d30mnsg7qdo5r" path="res://resources/affixes/elements/poison_element.tres" id="1_ye778"]
+[ext_resource type="Texture2D" uid="uid://dafbo6iupqxp1" path="res://assets/dice/d20s/d20-fill-basic.png" id="2_gleyk"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_ftuyi"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_171ai"]
+[ext_resource type="Texture2D" uid="uid://qrdelu0wa2bp" path="res://assets/dice/d20s/d20-stroke-basic.png" id="5_6bsbe"]
+
+[resource]
+script = ExtResource("4_171ai")
+display_name = "Poison D20"
+die_type = 20
+element = 7
+element_affix = ExtResource("1_ye778")
+fill_texture = ExtResource("2_gleyk")
+stroke_texture = ExtResource("5_6bsbe")

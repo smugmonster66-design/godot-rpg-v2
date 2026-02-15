@@ -155,11 +155,11 @@ func get_affixes_by_category_prefix(prefix: String) -> Array[Affix]:
     Used by ClassActionResolver to collect all CLASS_ACTION_* affixes.
     
     Args:
-        prefix: Category name prefix, e.g. "CLASS_ACTION_"
+		prefix: Category name prefix, e.g. "CLASS_ACTION_"
     
     Returns:
         Flat array of matching Affix resources across all matching pools.
-    """
+	"""
 	var result: Array[Affix] = []
 	var category_names := Affix.Category.keys()
 	
@@ -179,7 +179,7 @@ func get_class_action_modifiers() -> Dictionary:
     Returns:
         Dictionary keyed by Affix.Category with Array[Affix] values.
         Only includes categories that have at least one active affix.
-    """
+	"""
 	var result: Dictionary = {}
 	var ca_categories := [
 		Affix.Category.CLASS_ACTION_STAT_MOD,

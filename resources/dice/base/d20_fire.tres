@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=6 format=3 uid="uid://cu5kd6qx3t5bq"]
+
+[ext_resource type="Resource" uid="uid://7voejwf2ow1m" path="res://resources/affixes/elements/fire_element.tres" id="1_280g6"]
+[ext_resource type="Texture2D" uid="uid://dafbo6iupqxp1" path="res://assets/dice/d20s/d20-fill-basic.png" id="2_8ltyv"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_spaos"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_sbiow"]
+[ext_resource type="Texture2D" uid="uid://qrdelu0wa2bp" path="res://assets/dice/d20s/d20-stroke-basic.png" id="5_rd237"]
+
+[resource]
+script = ExtResource("4_sbiow")
+display_name = "Fire D20"
+die_type = 20
+element = 4
+element_affix = ExtResource("1_280g6")
+fill_texture = ExtResource("2_8ltyv")
+stroke_texture = ExtResource("5_rd237")

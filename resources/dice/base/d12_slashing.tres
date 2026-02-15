@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=6 format=3 uid="uid://b1auaflbceffj"]
+
+[ext_resource type="Resource" path="res://resources/affixes/elements/slashing_element.tres" id="1_6a883"]
+[ext_resource type="Texture2D" uid="uid://r7bikgya1ua8" path="res://assets/dice/d12s/d12-basic-fill.png" id="2_tlgm2"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_j260c"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_gbfg1"]
+[ext_resource type="Texture2D" uid="uid://d3cgge7kyfsqd" path="res://assets/dice/d12s/d12-basic-stroke.png" id="5_pimnw"]
+
+[resource]
+script = ExtResource("4_gbfg1")
+display_name = "Slashing D12"
+die_type = 12
+element = 1
+element_affix = ExtResource("1_6a883")
+fill_texture = ExtResource("2_tlgm2")
+stroke_texture = ExtResource("5_pimnw")

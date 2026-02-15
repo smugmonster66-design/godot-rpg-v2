@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=6 format=3 uid="uid://pcxge12soiy2"]
+
+[ext_resource type="Resource" uid="uid://2a7ntncvy5ij" path="res://resources/affixes/elements/blunt_element.tres" id="1_76kpu"]
+[ext_resource type="Texture2D" uid="uid://der0rcr1m1pb2" path="res://assets/dice/d8s/d8-fill-basic.png" id="2_gumyw"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_xbno3"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_i3bd3"]
+[ext_resource type="Texture2D" uid="uid://ccv17kswol4os" path="res://assets/dice/d8s/d8-stroke-basic.png" id="5_npmgc"]
+
+[resource]
+script = ExtResource("4_i3bd3")
+display_name = "Blunt D8"
+die_type = 8
+element = 2
+element_affix = ExtResource("1_76kpu")
+fill_texture = ExtResource("2_gumyw")
+stroke_texture = ExtResource("5_npmgc")

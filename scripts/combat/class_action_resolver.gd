@@ -309,7 +309,7 @@ func _collect_conditionals(action: Action, mods: Dictionary,
 	
 	Two-layer condition model:
 	  - The affix's own condition gates whether the rider is COLLECTED
-	    (i.e., is this skill active / does context permit it).
+		(i.e., is this skill active / does context permit it).
 	  - The rider's inner condition gates whether it FIRES in combat
 	    (i.e., does the target have Burn? Is HP below threshold?).
 	"""

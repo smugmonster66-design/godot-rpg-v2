@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=6 format=3 uid="uid://uaul0xfqknlx"]
+
+[ext_resource type="Resource" uid="uid://6rsbaoccvjqc" path="res://resources/affixes/elements/ice_element.tres" id="1_jckyo"]
+[ext_resource type="Texture2D" uid="uid://klk23dga0emp" path="res://assets/dice/d10s/d10-fill-basic.png" id="2_siaj1"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_r5c20"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_1w1d6"]
+[ext_resource type="Texture2D" uid="uid://bnn478mo72l40" path="res://assets/dice/d10s/d10-stroke-basic.png" id="5_dn8pb"]
+
+[resource]
+script = ExtResource("4_1w1d6")
+display_name = "Ice D10"
+die_type = 10
+element = 5
+element_affix = ExtResource("1_jckyo")
+fill_texture = ExtResource("2_siaj1")
+stroke_texture = ExtResource("5_dn8pb")

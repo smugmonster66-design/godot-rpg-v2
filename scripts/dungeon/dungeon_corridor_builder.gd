@@ -121,7 +121,11 @@ func _on_transition_done(f: int):
 func _play_intro():
 	if not camera or _walls.size() == 0: return
 	var boss_y = -(_run.definition.floor_count - 1) * floor_spacing
-	camera.corridor_intro(Vector2(0, boss_y), Vector2.ZERO)
+	var playable_h = camera.get_playable_height() if camera.has_method("get_playable_height") else 1470.0
+	# Camera below boss = boss appears higher on screen
+	var start_y = boss_y + playable_h / 3.0
+	print("🎬 Intro: boss_y=%f, playable_h=%f, start_y=%f" % [boss_y, playable_h, start_y])
+	camera.corridor_intro(Vector2(0, start_y), Vector2.ZERO)
 
 
 # In DungeonWallLayer or CorridorBuilder

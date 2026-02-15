@@ -372,7 +372,13 @@ func _play_intro():
 	var start_id = _run.floors[0][0] if _run.floors[0].size() > 0 else -1
 	var boss_y = _node_positions.get(boss_id, Vector2.ZERO).y if boss_id >= 0 else 0.0
 	var start_y = _node_positions.get(start_id, Vector2.ZERO).y if start_id >= 0 else 0.0
-	var boss_cam = Vector2(map_width / 2.0, boss_y)
+
+	# Offset camera down so boss appears 2/3 up the playable area
+	var viewport_h = get_viewport_rect().size.y
+	var playable_h = viewport_h - camera.bottom_panel_height if camera else viewport_h
+	var boss_offset = playable_h / 3.0
+
+	var boss_cam = Vector2(map_width / 2.0, boss_y + boss_offset)
 	var start_cam = Vector2(map_width / 2.0, start_y)
 	if camera.has_method("corridor_set_position"):
 		camera.corridor_set_position(boss_cam)

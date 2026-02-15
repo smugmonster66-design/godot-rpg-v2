@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=6 format=3 uid="uid://boveav78dpmm"]
+
+[ext_resource type="Resource" uid="uid://6rsbaoccvjqc" path="res://resources/affixes/elements/ice_element.tres" id="1_32nd0"]
+[ext_resource type="Texture2D" uid="uid://b0vo6kryy0h8k" path="res://assets/dice/d4s/d4-fill-basic.png" id="2_4r3p0"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_galxj"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_ue6ah"]
+[ext_resource type="Texture2D" uid="uid://chvsl8icqe00h" path="res://assets/dice/d4s/d4-stroke-basic.png" id="5_80qvl"]
+
+[resource]
+script = ExtResource("4_ue6ah")
+display_name = "Ice D4"
+die_type = 4
+element = 5
+element_affix = ExtResource("1_32nd0")
+fill_texture = ExtResource("2_4r3p0")
+stroke_texture = ExtResource("5_80qvl")

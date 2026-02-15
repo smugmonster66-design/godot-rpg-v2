@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=6 format=3 uid="uid://drdxqyb5kcuoa"]
+
+[ext_resource type="Resource" uid="uid://dc86xxo6gws3l" path="res://resources/affixes/elements/piercing_element.tres" id="1_0vpmf"]
+[ext_resource type="Texture2D" uid="uid://dafbo6iupqxp1" path="res://assets/dice/d20s/d20-fill-basic.png" id="2_rvh35"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_18lym"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_tl7ms"]
+[ext_resource type="Texture2D" uid="uid://qrdelu0wa2bp" path="res://assets/dice/d20s/d20-stroke-basic.png" id="5_wrwt5"]
+
+[resource]
+script = ExtResource("4_tl7ms")
+display_name = "Piercing D20"
+die_type = 20
+element = 3
+element_affix = ExtResource("1_0vpmf")
+fill_texture = ExtResource("2_rvh35")
+stroke_texture = ExtResource("5_wrwt5")

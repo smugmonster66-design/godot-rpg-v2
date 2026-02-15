@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=6 format=3 uid="uid://dknbq8nsgx7a2"]
+
+[ext_resource type="Resource" uid="uid://2a7ntncvy5ij" path="res://resources/affixes/elements/blunt_element.tres" id="1_8efs8"]
+[ext_resource type="Texture2D" uid="uid://dafbo6iupqxp1" path="res://assets/dice/d20s/d20-fill-basic.png" id="2_8vcuf"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_2prew"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_ocmaw"]
+[ext_resource type="Texture2D" uid="uid://qrdelu0wa2bp" path="res://assets/dice/d20s/d20-stroke-basic.png" id="5_plxcp"]
+
+[resource]
+script = ExtResource("4_ocmaw")
+display_name = "Blunt D20"
+die_type = 20
+element = 2
+element_affix = ExtResource("1_8efs8")
+fill_texture = ExtResource("2_8vcuf")
+stroke_texture = ExtResource("5_plxcp")

@@ -106,7 +106,7 @@ func _connect_slot_signals():
 
 func initialize_enemies(enemies: Array):
 	"""Initialize slots with enemy combatants (sequential assignment).
-    For slot-aware positioning, use initialize_enemies_with_slots() instead."""
+	For slot-aware positioning, use initialize_enemies_with_slots() instead."""
 	initialize_enemies_with_slots(enemies, null)
 
 

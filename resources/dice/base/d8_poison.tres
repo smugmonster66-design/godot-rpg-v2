@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=6 format=3 uid="uid://d0oqhqlnwhkce"]
+
+[ext_resource type="Resource" uid="uid://d30mnsg7qdo5r" path="res://resources/affixes/elements/poison_element.tres" id="1_trvaa"]
+[ext_resource type="Texture2D" uid="uid://der0rcr1m1pb2" path="res://assets/dice/d8s/d8-fill-basic.png" id="2_go3wx"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_15gnm"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_841q8"]
+[ext_resource type="Texture2D" uid="uid://ccv17kswol4os" path="res://assets/dice/d8s/d8-stroke-basic.png" id="5_trc3r"]
+
+[resource]
+script = ExtResource("4_841q8")
+display_name = "Poison D8"
+die_type = 8
+element = 7
+element_affix = ExtResource("1_trvaa")
+fill_texture = ExtResource("2_go3wx")
+stroke_texture = ExtResource("5_trc3r")

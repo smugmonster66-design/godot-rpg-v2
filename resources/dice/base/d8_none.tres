@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=5 format=3 uid="uid://mxojnvfwmj81"]
+
+[ext_resource type="Texture2D" uid="uid://der0rcr1m1pb2" path="res://assets/dice/d8s/d8-fill-basic.png" id="1_ocvij"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_trxs1"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="3_61s48"]
+[ext_resource type="Texture2D" uid="uid://ccv17kswol4os" path="res://assets/dice/d8s/d8-stroke-basic.png" id="4_igt20"]
+
+[resource]
+script = ExtResource("3_61s48")
+display_name = "D8"
+die_type = 8
+fill_texture = ExtResource("1_ocvij")
+stroke_texture = ExtResource("4_igt20")

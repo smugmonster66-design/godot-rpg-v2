@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=5 format=3 uid="uid://3hr00nv50my"]
+
+[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="1_ybhf5"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_yq3rb"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="3_oy02n"]
+[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="4_csb4l"]
+
+[resource]
+script = ExtResource("3_oy02n")
+display_name = "Faith D6"
+element = 9
+fill_texture = ExtResource("1_ybhf5")
+stroke_texture = ExtResource("4_csb4l")
