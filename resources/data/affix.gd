@@ -432,7 +432,7 @@ func roll_value(power_position: float = -1.0, scaling_config: AffixScalingConfig
 	# Step 5: Round appropriately
 	# Multipliers (values near 1.x) get 2 decimal places
 	# Everything else rounds to integers
-	effect_number = _round_value(effect_number)
+	effect_number = _round_value(rolled)
 	
 	return effect_number
 
@@ -563,7 +563,7 @@ func get_resolved_description() -> String:
 	else:
 		value_str = str(int(effect_number))
 
-	return description.replace("N", value_str)
+	return description.replace("N", value_str).replace("{value}", value_str)
 
 func _is_multiplier_category() -> bool:
 	"""Check if this affix's category is a multiplier type."""

@@ -703,21 +703,11 @@ func _create_affix_display_from_affix(affix: Affix, name_color: Color = Color(0.
 	"""Create a display panel for an Affix resource (EquippableItem path)"""
 	var panel = PanelContainer.new()
 	
-	var vbox = VBoxContainer.new()
-	panel.add_child(vbox)
-	
-	# Affix name
-	var name_label = Label.new()
-	name_label.text = affix.affix_name
-	name_label.add_theme_color_override("font_color", name_color)
-	vbox.add_child(name_label)
-	
-	# Affix description
 	var desc_label = Label.new()
 	desc_label.text = affix.get_resolved_description()
-	desc_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+	desc_label.add_theme_color_override("font_color", name_color)
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	vbox.add_child(desc_label)
+	panel.add_child(desc_label)
 	
 	return panel
 

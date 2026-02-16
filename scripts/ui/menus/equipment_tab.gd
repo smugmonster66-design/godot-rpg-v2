@@ -195,23 +195,16 @@ func _add_affix_label(container: VBoxContainer, affix: Affix, color: Color):
 	style.content_margin_bottom = 4
 	affix_panel.add_theme_stylebox_override("panel", style)
 	
-	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 2)
-	affix_panel.add_child(vbox)
-	
-	var name_label = Label.new()
-	name_label.text = affix.affix_name
-	name_label.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.caption)
-	name_label.add_theme_color_override("font_color", color)
-	vbox.add_child(name_label)
-	
 	var desc_label = Label.new()
 	desc_label.text = affix.get_resolved_description()
-	desc_label.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.small)
+	desc_label.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.caption)
+	desc_label.add_theme_color_override("font_color", color)
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	vbox.add_child(desc_label)
+	affix_panel.add_child(desc_label)
 	
 	container.add_child(affix_panel)
+
+
 
 func _add_set_info(container: VBoxContainer, set_def: SetDefinition):
 	"""Add set bonus info below affixes."""
