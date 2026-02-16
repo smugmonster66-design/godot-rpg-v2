@@ -106,7 +106,7 @@ func _initialize_from_enemy_data():
 	# Get player level for scaling
 	var player_level: int = 1
 	if GameManager and GameManager.player:
-		player_level = GameManager.player.get_level()
+		player_level = GameManager.player.level
 	
 	# Roll enemy affixes at effective level
 	var roll_result: Dictionary = enemy_data.roll_combat_affixes(player_level)

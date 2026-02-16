@@ -1,13 +1,17 @@
-[gd_resource type="Resource" script_class="DieResource" load_steps=5 format=3 uid="uid://cirm5pd2dmk62"]
+[gd_resource type="Resource" script_class="DieResource" load_steps=7 format=3 uid="uid://cirm5pd2dmk62"]
 
-[ext_resource type="Texture2D" uid="uid://dafbo6iupqxp1" path="res://assets/dice/d20s/d20-fill-basic.png" id="1_h16o1"]
-[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_aw0ge"]
-[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="3_b4y5l"]
-[ext_resource type="Texture2D" uid="uid://qrdelu0wa2bp" path="res://assets/dice/d20s/d20-stroke-basic.png" id="4_nufbn"]
+[ext_resource type="PackedScene" uid="uid://dsceel0i8h4wv" path="res://scenes/ui/components/dice/combat/combat_die_d20.tscn" id="1_b4y5l"]
+[ext_resource type="Texture2D" uid="uid://dafbo6iupqxp1" path="res://assets/dice/d20s/d20-fill-basic.png" id="2_nufbn"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_7pttl"]
+[ext_resource type="PackedScene" uid="uid://bi6v6otk6sqdc" path="res://scenes/ui/components/dice/pool/pool_die_d20.tscn" id="4_nufbn"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="5_cbkne"]
+[ext_resource type="Texture2D" uid="uid://qrdelu0wa2bp" path="res://assets/dice/d20s/d20-stroke-basic.png" id="6_dgg1c"]
 
 [resource]
-script = ExtResource("3_b4y5l")
+script = ExtResource("5_cbkne")
 display_name = "D20"
 die_type = 20
-fill_texture = ExtResource("1_h16o1")
-stroke_texture = ExtResource("4_nufbn")
+fill_texture = ExtResource("2_nufbn")
+stroke_texture = ExtResource("6_dgg1c")
+combat_die_scene = ExtResource("1_b4y5l")
+pool_die_scene = ExtResource("4_nufbn")

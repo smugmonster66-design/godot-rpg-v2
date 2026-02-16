@@ -174,6 +174,15 @@ func _run() -> void:
 			else:
 				die.element_affix = null
 
+			# Die object scenes (size-specific with fallback to base)
+			var size_lower := size_name.to_lower()
+			var pool_path := "res://scenes/ui/components/dice/pool/pool_die_%s.tscn" % size_lower
+			var combat_path := "res://scenes/ui/components/dice/combat/combat_die_%s.tscn" % size_lower
+			var pool_exists := ResourceLoader.exists(pool_path)
+			print("  🔍 Pool: %s → exists=%s" % [pool_path, pool_exists])
+			die.pool_die_scene = load(pool_path) if pool_exists else load("res://scenes/ui/components/dice/pool/pool_die_object_base.tscn")
+			die.combat_die_scene = load(combat_path) if ResourceLoader.exists(combat_path) else load("res://scenes/ui/components/dice/combat/combat_die_object_base.tscn")
+
 			var err := ResourceSaver.save(die, path)
 			if err == OK:
 				_created += 1

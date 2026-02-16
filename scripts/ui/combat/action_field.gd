@@ -64,7 +64,7 @@ var icon_container: PanelContainer = null
 var icon_rect: TextureRect = null
 var die_slots_grid: GridContainer = null
 var description_label: RichTextLabel = null
-var dmg_preview_label: Label = null
+var dmg_preview_label: RichTextLabel = null
 var fill_texture: NinePatchRect = null
 var stroke_texture: NinePatchRect = null
 var mult_label: Label = null
@@ -123,7 +123,7 @@ func _discover_nodes():
 	icon_rect = find_child("IconRect", true, false) as TextureRect
 	die_slots_grid = find_child("DieSlotsGrid", true, false) as GridContainer
 	description_label = find_child("DescriptionLabel", true, false) as RichTextLabel
-	dmg_preview_label = find_child("DmgPreviewLabel", true, false) as Label
+	_discover_and_swap_dmg_label()
 	fill_texture = find_child("FillTexture", true, false) as NinePatchRect
 	stroke_texture = find_child("StrokeTexture", true, false) as NinePatchRect
 	mult_label = find_child("MultLabel", true, false) as Label
@@ -140,7 +140,48 @@ func _set_mouse_pass_recursive(node: Node):
 			child.mouse_filter = Control.MOUSE_FILTER_PASS
 		_set_mouse_pass_recursive(child)
 
-
+func _discover_and_swap_dmg_label():
+	"""Find DmgPreviewLabel and swap from Label to RichTextLabel if needed."""
+	var found = find_child("DmgPreviewLabel", true, false)
+	
+	if found is RichTextLabel:
+		dmg_preview_label = found as RichTextLabel
+		dmg_preview_label.bbcode_enabled = true
+		return
+	
+	if not found is Label:
+		push_warning("ActionField: DmgPreviewLabel not found")
+		return
+	
+	var old_label: Label = found as Label
+	var parent = old_label.get_parent()
+	var idx = old_label.get_index()
+	
+	var rtl = RichTextLabel.new()
+	rtl.name = "DmgPreviewLabel"
+	rtl.bbcode_enabled = true
+	rtl.fit_content = true
+	rtl.scroll_active = false
+	rtl.mouse_filter = Control.MOUSE_FILTER_PASS
+	rtl.size_flags_horizontal = old_label.size_flags_horizontal
+	rtl.size_flags_vertical = old_label.size_flags_vertical
+	rtl.custom_minimum_size = old_label.custom_minimum_size
+	
+	# Copy font size override if present
+	if old_label.has_theme_font_size_override("font_size"):
+		rtl.add_theme_font_size_override("normal_font_size",
+			old_label.get_theme_font_size("font_size"))
+	
+	# Outline for readability on dark backgrounds
+	rtl.add_theme_constant_override("outline_size", 2)
+	rtl.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
+	
+	parent.remove_child(old_label)
+	parent.add_child(rtl)
+	parent.move_child(rtl, idx)
+	old_label.queue_free()
+	
+	dmg_preview_label = rtl
 
 func setup_drop_target():
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -189,34 +230,59 @@ func set_element(new_element: ActionEffect.DamageType):
 # ============================================================================
 
 func _update_damage_preview():
-	"""Update the damage preview label based on placed dice state"""
+	"""Update damage preview with Balatro-style Power × Mult breakdown."""
 	if not dmg_preview_label:
 		return
 	
-	# Non-damage actions show different text
+	# Non-damage actions
 	if action_type == ActionType.DEFEND:
-		dmg_preview_label.text = "Defense"
+		dmg_preview_label.text = ""
+		dmg_preview_label.append_text("[center]Defense[/center]")
 		return
 	elif action_type == ActionType.HEAL:
 		_update_heal_preview()
 		return
 	elif action_type == ActionType.SPECIAL:
-		dmg_preview_label.text = "Special"
+		dmg_preview_label.text = ""
+		dmg_preview_label.append_text("[center]Special[/center]")
 		return
 	
-	var element_name = ELEMENT_NAMES.get(element, "")
-	var element_color = ThemeManager.get_element_color_enum(element)
+	var element_name: String = ELEMENT_NAMES.get(element, "")
+	var element_color: Color = ThemeManager.get_element_color_enum(element)
+	var elem_hex: String = element_color.to_html(false)
+	
+	# Clear previous content
+	dmg_preview_label.text = ""
 	
 	if placed_dice.size() == 0:
-		dmg_preview_label.text = _get_damage_formula()
+		# Formula mode: "2D+5 Fire" in element color
+		var formula: String = _get_damage_formula()
+		dmg_preview_label.append_text(
+			"[center][color=#%s]%s[/color][/center]" % [elem_hex, formula])
 	else:
-		var total_damage = _calculate_preview_damage()
-		dmg_preview_label.text = "→ %d %s" % [total_damage, element_name]
+		# Balatro breakdown mode
+		var power: int = _calculate_preview_power()
+		var mult: float = _calculate_preview_mult()
+		var total: int = maxi(0, int(power * mult))
+		
+		if mult > 1.001 or mult < 0.999:
+			# Full breakdown: "17 × 2.0x = 34 Fire"
+			dmg_preview_label.append_text(
+				"[center]" +
+				"[color=#ffffff]%d[/color]" % power +
+				"[color=#888888] × [/color]" +
+				"[color=#ff6666]%.1fx[/color]" % mult +
+				"[color=#888888] = [/color]" +
+				"[color=#%s]%d %s[/color]" % [elem_hex, total, element_name] +
+				"[/center]"
+			)
+		else:
+			# No meaningful mult: "→ 17 Fire"
+			dmg_preview_label.append_text(
+				"[center][color=#%s]→ %d %s[/color][/center]" % [
+					elem_hex, total, element_name])
 	
-	dmg_preview_label.add_theme_color_override("font_color", element_color)
-	
-	
-	# ── Update floating element breakdown (with affix bonuses) ──
+	# Update floating element chips (unchanged)
 	if damage_floater:
 		var attacker_affixes: AffixPoolManager = null
 		if GameManager and GameManager.player:
@@ -225,17 +291,100 @@ func _update_damage_preview():
 			placed_dice, element, base_damage, damage_multiplier,
 			action_resource, attacker_affixes
 		)
-	
+
+
 
 func _update_heal_preview():
-	"""Update preview for heal actions"""
-	if placed_dice.size() == 0:
-		dmg_preview_label.text = _get_heal_formula()
-	else:
-		var total_heal = _calculate_preview_heal()
-		dmg_preview_label.text = "→ %d HP" % total_heal
+	"""Update preview for heal actions using RichTextLabel BBCode."""
+	if not dmg_preview_label:
+		return
 	
-	dmg_preview_label.add_theme_color_override("font_color", ThemeManager.PALETTE.success)
+	var heal_hex: String = ThemeManager.PALETTE.success.to_html(false)
+	
+	dmg_preview_label.text = ""
+	
+	if placed_dice.size() == 0:
+		var formula: String = _get_heal_formula()
+		dmg_preview_label.append_text(
+			"[center][color=#%s]%s[/color][/center]" % [heal_hex, formula])
+	else:
+		var total_heal: int = _calculate_preview_heal()
+		dmg_preview_label.append_text(
+			"[center][color=#%s]→ %d HP[/color][/center]" % [heal_hex, total_heal])
+
+func _calculate_preview_power() -> int:
+	"""Calculate pre-mult power: dice values + element match + base damage + flat bonuses.
+	This is the 'Chips' in Balatro terms — everything that gets multiplied."""
+	var dice_total: float = 0.0
+	
+	for die in placed_dice:
+		if die is DieResource:
+			var die_value: float = float(die.get_total_value())
+			
+			# Element match bonus is part of power (amplifies the die contribution)
+			var is_match: bool = false
+			if action_resource and action_resource is Action:
+				var accepted: Array[int] = action_resource.accepted_elements
+				if accepted.size() > 0:
+					var die_elem = die.get_effective_element()
+					is_match = (die_elem != DieResource.Element.NONE
+						and die_elem in accepted)
+				else:
+					is_match = die.is_element_match(element)
+			else:
+				is_match = die.is_element_match(element)
+			
+			if is_match:
+				die_value *= CombatCalculator.ELEMENT_MATCH_BONUS
+			
+			dice_total += die_value
+	
+	var power: float = dice_total + float(base_damage)
+	
+	# Flat damage bonuses from affixes (mirrors CombatCalculator._apply_damage_bonuses)
+	if GameManager and GameManager.player:
+		var affixes: AffixPoolManager = GameManager.player.affix_manager
+		if affixes:
+			# Global flat bonus
+			for affix in affixes.get_pool(Affix.Category.DAMAGE_BONUS):
+				power += affix.apply_effect()
+			
+			# Type-specific flat bonus
+			var type_cat_name: String = DamagePreviewFloater.TYPE_BONUS_CATEGORIES.get(element, "")
+			if type_cat_name != "" and type_cat_name in Affix.Category:
+				var cat = Affix.Category.get(type_cat_name)
+				for affix in affixes.get_pool(cat):
+					power += affix.apply_effect()
+			
+			# Action-scoped flat bonus (v6)
+			if action_resource and action_resource is Action:
+				var action_flat = affixes.get_action_base_damage_bonus(action_resource.action_id)
+				power += action_flat
+	
+	return maxi(0, int(power))
+
+
+
+func _calculate_preview_mult() -> float:
+	"""Calculate total damage multiplier from action base + affixes.
+	This is the 'Mult' in Balatro terms — scales all power."""
+	var mult: float = damage_multiplier  # Action's own multiplier
+	
+	if GameManager and GameManager.player:
+		var affixes: AffixPoolManager = GameManager.player.affix_manager
+		if affixes:
+			# Global damage multiplier affixes
+			for affix in affixes.get_pool(Affix.Category.DAMAGE_MULTIPLIER):
+				mult *= affix.apply_effect()
+			
+			# Action-scoped multiplier (v6)
+			if action_resource and action_resource is Action:
+				var action_mult = affixes.get_action_damage_multiplier(
+					action_resource.action_id)
+				mult *= action_mult
+	
+	return mult
+
 
 func _get_damage_formula() -> String:
 	"""Get the damage formula string (e.g., '2D+10 Fire')"""
@@ -283,10 +432,8 @@ func _get_heal_formula() -> String:
 	return formula + " HP"
 
 func _calculate_preview_damage() -> int:
-	"""Calculate damage with currently placed dice"""
-	var dice_total = get_total_dice_value()
-	var raw_damage = (dice_total + base_damage) * damage_multiplier
-	return int(raw_damage)
+	"""Legacy convenience — returns power × mult."""
+	return maxi(0, int(_calculate_preview_power() * _calculate_preview_mult()))
 
 func _calculate_preview_heal() -> int:
 	"""Calculate heal with currently placed dice"""

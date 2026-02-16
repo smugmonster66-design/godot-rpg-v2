@@ -115,14 +115,14 @@ texture_margin_left = 5.0
 texture_margin_top = 15.0
 texture_margin_bottom = 10.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_t1rrh"]
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_lhrnl"]
 texture = ExtResource("14_5yqe8")
 texture_margin_left = 22.0
 texture_margin_top = 22.0
 texture_margin_right = 22.0
 texture_margin_bottom = 22.0
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_lhrnl"]
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_t1rrh"]
 texture = ExtResource("14_5yqe8")
 texture_margin_left = 22.0
 texture_margin_top = 22.0
@@ -660,8 +660,8 @@ pulse_amount = 0.5
 detail_glow_config = ExtResource("16_lhrnl")
 grid_glow_config = ExtResource("16_lhrnl")
 grid_item_size = 128.0
-grid_columns = 7
-grid_spacing = 0.0
+grid_columns = 6
+grid_spacing = 5.0
 detail_icon_size = 80.0
 detail_container_size = 128.0
 metadata/tab_name = "Inventory"
@@ -800,6 +800,24 @@ metadata/category_name = "Consumable"
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_lhrnl")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="ItemName" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 44
+text = "No Item Selected"
+horizontal_alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+
 [node name="InventoryDetailsPanel" type="PanelContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer" groups=["inventory_details_panel"]]
 layout_mode = 2
 size_flags_vertical = 3
@@ -809,17 +827,6 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_t1rrh")
 [node name="DetailsVBox" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/InventoryDetailsPanel"]
 layout_mode = 2
 theme_override_constants/separation = 10
-
-[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/InventoryDetailsPanel/DetailsVBox"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_lhrnl")
-
-[node name="ItemName" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/InventoryDetailsPanel/DetailsVBox/PanelContainer"]
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 44
-text = "No Item Selected"
-horizontal_alignment = 1
 
 [node name="CenterContainer" type="CenterContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/InventoryDetailsPanel/DetailsVBox"]
 layout_mode = 2

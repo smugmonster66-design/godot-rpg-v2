@@ -1,16 +1,20 @@
-[gd_resource type="Resource" script_class="DieResource" load_steps=6 format=3 uid="uid://cu5kd6qx3t5bq"]
+[gd_resource type="Resource" script_class="DieResource" load_steps=8 format=3 uid="uid://cu5kd6qx3t5bq"]
 
-[ext_resource type="Resource" uid="uid://7voejwf2ow1m" path="res://resources/affixes/elements/fire_element.tres" id="1_280g6"]
-[ext_resource type="Texture2D" uid="uid://dafbo6iupqxp1" path="res://assets/dice/d20s/d20-fill-basic.png" id="2_8ltyv"]
-[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_spaos"]
-[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_sbiow"]
-[ext_resource type="Texture2D" uid="uid://qrdelu0wa2bp" path="res://assets/dice/d20s/d20-stroke-basic.png" id="5_rd237"]
+[ext_resource type="PackedScene" uid="uid://dsceel0i8h4wv" path="res://scenes/ui/components/dice/combat/combat_die_d20.tscn" id="1_spaos"]
+[ext_resource type="Resource" uid="uid://7voejwf2ow1m" path="res://resources/affixes/elements/fire_element.tres" id="2_sbiow"]
+[ext_resource type="Texture2D" uid="uid://dafbo6iupqxp1" path="res://assets/dice/d20s/d20-fill-basic.png" id="3_rd237"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="4_ckogp"]
+[ext_resource type="PackedScene" uid="uid://bi6v6otk6sqdc" path="res://scenes/ui/components/dice/pool/pool_die_d20.tscn" id="5_sbiow"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="6_1fe6u"]
+[ext_resource type="Texture2D" uid="uid://qrdelu0wa2bp" path="res://assets/dice/d20s/d20-stroke-basic.png" id="7_fkpmr"]
 
 [resource]
-script = ExtResource("4_sbiow")
+script = ExtResource("6_1fe6u")
 display_name = "Fire D20"
 die_type = 20
 element = 4
-element_affix = ExtResource("1_280g6")
-fill_texture = ExtResource("2_8ltyv")
-stroke_texture = ExtResource("5_rd237")
+element_affix = ExtResource("2_sbiow")
+fill_texture = ExtResource("3_rd237")
+stroke_texture = ExtResource("7_fkpmr")
+combat_die_scene = ExtResource("1_spaos")
+pool_die_scene = ExtResource("5_sbiow")

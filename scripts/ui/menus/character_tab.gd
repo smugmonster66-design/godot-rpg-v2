@@ -143,18 +143,12 @@ func _update_stats_display():
 	
 	# ── Defense ──
 	_add_section_header("Defense")
-	_add_stat_row("Armor", str(player.get_armor()), ThemeManager.PALETTE.armor)
-	_add_stat_row("Barrier", str(player.get_barrier()), ThemeManager.PALETTE.barrier)
-	
-	_add_separator()
-	
-	# ── Resistances ──
-	_add_section_header("Resistances")
-	_add_stat_row("Fire Resist", str(player.get_resist("fire")), ThemeManager.get_element_color("fire"))
-	_add_stat_row("Ice Resist", str(player.get_resist("ice")), ThemeManager.get_element_color("ice"))
-	_add_stat_row("Shock Resist", str(player.get_resist("shock")), ThemeManager.get_element_color("shock"))
-	_add_stat_row("Poison Resist", str(player.get_resist("poison")), ThemeManager.get_element_color("poison"))
-	_add_stat_row("Shadow Resist", str(player.get_resist("shadow")), ThemeManager.get_element_color("shadow"))
+	var armor_val = player.get_armor()
+	var barrier_val = player.get_barrier()
+	var armor_pct = armor_val / (100.0 + armor_val) * 100.0 if armor_val > 0 else 0.0
+	var barrier_pct = barrier_val / (100.0 + barrier_val) * 100.0 if barrier_val > 0 else 0.0
+	_add_stat_row("Armor", "%d (%.0f%% phys reduction)" % [armor_val, armor_pct], ThemeManager.PALETTE.text_muted)
+	_add_stat_row("Barrier", "%d (%.0f%% magic reduction)" % [barrier_val, barrier_pct], ThemeManager.PALETTE.text_muted)
 	
 	_add_separator()
 	

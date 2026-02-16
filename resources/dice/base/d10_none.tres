@@ -1,8 +1,10 @@
-[gd_resource type="Resource" script_class="DieResource" load_steps=5 format=3 uid="uid://b47fenhk4xnx1"]
+[gd_resource type="Resource" script_class="DieResource" load_steps=7 format=3 uid="uid://b47fenhk4xnx1"]
 
+[ext_resource type="PackedScene" uid="uid://dx08yqjhk2hu0" path="res://scenes/ui/components/dice/combat/combat_die_d10.tscn" id="1_igfpn"]
 [ext_resource type="Texture2D" uid="uid://klk23dga0emp" path="res://assets/dice/d10s/d10-fill-basic.png" id="1_j7ss8"]
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_vy4eo"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="3_igfpn"]
+[ext_resource type="PackedScene" uid="uid://biqti34m42xcy" path="res://scenes/ui/components/dice/pool/pool_die_d10.tscn" id="4_1xykw"]
 [ext_resource type="Texture2D" uid="uid://bnn478mo72l40" path="res://assets/dice/d10s/d10-stroke-basic.png" id="4_03ke3"]
 
 [resource]
@@ -11,3 +13,5 @@ display_name = "D10"
 die_type = 10
 fill_texture = ExtResource("1_j7ss8")
 stroke_texture = ExtResource("4_03ke3")
+combat_die_scene = ExtResource("1_igfpn")
+pool_die_scene = ExtResource("4_1xykw")

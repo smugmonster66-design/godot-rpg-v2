@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://yqcuq20fomfu"]
 
-[ext_resource type="PackedScene" path="res://scenes/ui/components/dice/pool/pool_die_object_base.tscn" id="1_base"]
+[ext_resource type="PackedScene" uid="uid://b4oxnael3p4wu" path="res://scenes/ui/components/dice/pool/pool_die_object_base.tscn" id="1_base"]
 
 [node name="PoolDieD12" instance=ExtResource("1_base")]
 

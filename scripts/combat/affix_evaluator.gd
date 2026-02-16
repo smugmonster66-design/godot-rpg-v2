@@ -610,13 +610,13 @@ func _stat_to_multiplier_category(stat_name: String) -> int:
 		_: return -1
 
 func _element_to_resist_category(element: String) -> int:
+	"""All magical element resistance now routes through BARRIER_BONUS.
+	Individual resist categories (FIRE_RESIST_BONUS etc.) are deprecated."""
 	match element:
-		"fire": return Affix.Category.FIRE_RESIST_BONUS
-		"ice": return Affix.Category.ICE_RESIST_BONUS
-		"shock": return Affix.Category.SHOCK_RESIST_BONUS
-		"poison": return Affix.Category.POISON_RESIST_BONUS
-		"shadow": return Affix.Category.SHADOW_RESIST_BONUS
-		_: return -1
+		"fire", "ice", "shock", "poison", "shadow":
+			return Affix.Category.BARRIER_BONUS
+		_:
+			return -1
 
 func damage_type_to_element_string(damage_type) -> String:
 	"""Convert a DamageType enum value to a lowercase element string.

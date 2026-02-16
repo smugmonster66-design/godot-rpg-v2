@@ -19,14 +19,7 @@ var luck: int = 10
 
 @export var gold: int = 0
 
-# ============================================================================
-# ELEMENTAL RESISTANCES
-# ============================================================================
-var fire_resist: int = 0
-var ice_resist: int = 0
-var shock_resist: int = 0
-var poison_resist: int = 0
-var shadow_resist: int = 0
+
 
 # ============================================================================
 # PLAYER LEVEL (for equip requirements)
@@ -587,24 +580,21 @@ func get_available_combat_actions() -> Array:
 	return actions
 
 func get_defense_stats() -> Dictionary:
+	"""Defense stats for damage calculation.
+	Players use armor (physical) and barrier (magical) only.
+	No per-element modifiers — those are enemy-only."""
 	return {
 		"armor": get_armor(),
-		"fire_resist": get_resist("fire"),
-		"ice_resist": get_resist("ice"),
-		"shock_resist": get_resist("shock"),
-		"poison_resist": get_resist("poison"),
-		"shadow_resist": get_resist("shadow")
+		"barrier": get_barrier(),
+		"element_modifiers": {},
+		"defense_mult": 1.0,
 	}
 
-func get_resist(element: String) -> int:
-	var base = get(element + "_resist") if (element + "_resist") in self else 0
-	
-	var resist_category = _element_to_resist_category(element)
-	if resist_category >= 0:
-		for affix in affix_manager.get_pool(resist_category):
-			base += int(affix.apply_effect())
-	
-	return base
+func get_resist(_element: String) -> int:
+	"""DEPRECATED: Individual resists removed. All magical defense uses barrier.
+	Kept for backwards compatibility — returns barrier value."""
+	push_warning("Player.get_resist() is deprecated — use get_barrier() instead")
+	return get_barrier()
 
 # ============================================================================
 # EQUIPMENT SETS
@@ -749,13 +739,4 @@ func _stat_to_multiplier_category(stat_name: String) -> int:
 		"agility": return Affix.Category.AGILITY_MULTIPLIER
 		"intellect": return Affix.Category.INTELLECT_MULTIPLIER
 		"luck": return Affix.Category.LUCK_MULTIPLIER
-		_: return -1
-
-func _element_to_resist_category(element: String) -> int:
-	match element:
-		"fire": return Affix.Category.FIRE_RESIST_BONUS
-		"ice": return Affix.Category.ICE_RESIST_BONUS
-		"shock": return Affix.Category.SHOCK_RESIST_BONUS
-		"poison": return Affix.Category.POISON_RESIST_BONUS
-		"shadow": return Affix.Category.SHADOW_RESIST_BONUS
 		_: return -1

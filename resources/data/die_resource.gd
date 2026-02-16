@@ -190,31 +190,17 @@ func instantiate_pool_visual() -> Control:
 
 func _get_default_combat_scene() -> PackedScene:
 	var path = "res://scenes/ui/components/dice/combat/combat_die_d%d.tscn" % die_type
-	print("🎲 _get_default_combat_scene: checking %s" % path)
 	if ResourceLoader.exists(path):
-		print("  ✅ Found!")
 		return load(path)
-	# Fallback to generic
-	var fallback = "res://scenes/ui/components/dice/combat/combat_die_object_base.tscn"
-	print("  ❌ Not found, trying fallback: %s" % fallback)
-	if ResourceLoader.exists(fallback):
-		return load(fallback)
-	print("  ❌ Fallback also not found!")
-	return null
+	print("  ⚠️ Combat scene not found: %s — using base" % path)
+	return load("res://scenes/ui/components/dice/combat/combat_die_object_base.tscn")
 
 func _get_default_pool_scene() -> PackedScene:
 	var path = "res://scenes/ui/components/dice/pool/pool_die_d%d.tscn" % die_type
-	print("🎲 _get_default_pool_scene: checking %s" % path)
 	if ResourceLoader.exists(path):
-		print("  ✅ Found!")
 		return load(path)
-	# Fallback to generic
-	var fallback = "res://scenes/ui/components/dice/pool/pool_die_object_base.tscn"
-	print("  ❌ Not found, trying fallback: %s" % fallback)
-	if ResourceLoader.exists(fallback):
-		return load(fallback)
-	print("  ❌ Fallback also not found!")
-	return null
+	print("  ⚠️ Pool scene not found: %s — using base" % path)
+	return load("res://scenes/ui/components/dice/pool/pool_die_object_base.tscn")
 
 # ============================================================================
 # ROLLING

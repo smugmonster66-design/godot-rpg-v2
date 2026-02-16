@@ -1,9 +1,11 @@
-[gd_resource type="Resource" script_class="DieResource" load_steps=6 format=3 uid="uid://dgqr1betlrb1u"]
+[gd_resource type="Resource" script_class="DieResource" load_steps=8 format=3 uid="uid://dgqr1betlrb1u"]
 
+[ext_resource type="PackedScene" uid="uid://b4wyrmm8bfq20" path="res://scenes/ui/components/dice/combat/combat_die_d8.tscn" id="1_f28k5"]
 [ext_resource type="Resource" uid="uid://c2pgrap71kn5v" path="res://resources/affixes/elements/shadow_element.tres" id="1_mvwrg"]
 [ext_resource type="Texture2D" uid="uid://der0rcr1m1pb2" path="res://assets/dice/d8s/d8-fill-basic.png" id="2_y1web"]
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_f28k5"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_c6yho"]
+[ext_resource type="PackedScene" uid="uid://lx27hjqny6b8" path="res://scenes/ui/components/dice/pool/pool_die_d8.tscn" id="5_c6yho"]
 [ext_resource type="Texture2D" uid="uid://ccv17kswol4os" path="res://assets/dice/d8s/d8-stroke-basic.png" id="5_ymrfn"]
 
 [resource]
@@ -14,3 +16,5 @@ element = 8
 element_affix = ExtResource("1_mvwrg")
 fill_texture = ExtResource("2_y1web")
 stroke_texture = ExtResource("5_ymrfn")
+combat_die_scene = ExtResource("1_f28k5")
+pool_die_scene = ExtResource("5_c6yho")

@@ -63,54 +63,69 @@ func apply_type_multiplier(type: ActionEffect.DamageType, multiplier: float):
 # CALCULATE FINAL DAMAGE
 # ============================================================================
 
+## Tuning constant for percentage defense formula.
+## Higher = defense less effective. Lower = defense more effective.
+## At 100: 50 def = 33% reduction, 100 def = 50%, 200 def = 67%.
+const DEFENSE_CONSTANT: float = 100.0
+
+
 func calculate_final_damage(defender_stats: Dictionary, defense_mult: float = 1.0) -> int:
-	"""
-	Calculate total damage after defenses.
+	"""Calculate total damage after percentage-based defenses.
 	
 	defender_stats should contain:
-	- armor: int (reduces physical)
-	- fire_resist: int
-	- ice_resist: int
-	- shock_resist: int
-	- poison_resist: int
-	- shadow_resist: int
+	  - armor: float (physical defense for percentage reduction)
+	  - barrier: float (magical defense for percentage reduction)
+	  - element_modifiers: Dictionary (optional, enemy only)
+	    Keys: DamageType name strings e.g. "FIRE", "ICE"
+	    Values: float multiplier — 0.0=immune, 0.5=resistant, 1.5=weak
 	"""
+	var element_mods: Dictionary = defender_stats.get("element_modifiers", {})
 	var total: float = 0.0
 	
 	for type in ActionEffect.DamageType.values():
-		var damage = damages[type]
-		if damage <= 0:
+		var damage: float = damages[type]
+		if damage <= 0.0:
 			continue
 		
-		var reduction = _get_reduction_for_type(type, defender_stats) * defense_mult
-		var final = max(0.0, damage - reduction)
-		total += final
+		# Step 1: Element modifier (immunity / resistance / weakness)
+		var type_key: String = ActionEffect.DamageType.keys()[type]
+		var elem_mod: float = element_mods.get(type_key, 1.0)
+		damage *= elem_mod
+		
+		if damage <= 0.0:
+			continue  # Immune — skip defense calc
+		
+		# Step 2: Get defense stat (armor for physical, barrier for magical)
+		var defense: float = _get_defense_for_type(type, defender_stats) * defense_mult
+		
+		# Step 3: Percentage reduction with diminishing returns
+		var reduction_pct: float = defense / (DEFENSE_CONSTANT + defense) if defense > 0.0 else 0.0
+		total += damage * (1.0 - reduction_pct)
 	
 	return roundi(total)
 
 
-func _get_reduction_for_type(type: ActionEffect.DamageType, stats: Dictionary) -> float:
-	"""Get the appropriate resistance for a damage type.
-	Piercing ignores a fraction of armor (configured in CombatCalculator).
+
+
+func _get_defense_for_type(type: ActionEffect.DamageType, stats: Dictionary) -> float:
+	"""Get the defense value for a damage type.
+	Physical types (Slashing, Blunt, Piercing) use armor.
+	Magical types (Fire, Ice, Shock, Poison, Shadow) use barrier.
+	Piercing ignores a fraction of armor.
 	"""
 	match type:
 		ActionEffect.DamageType.SLASHING, \
 		ActionEffect.DamageType.BLUNT:
-			return stats.get("armor", 0)
+			return maxf(0.0, stats.get("armor", 0))
 		ActionEffect.DamageType.PIERCING:
-			# Piercing ignores a fraction of armor
-			var armor = stats.get("armor", 0)
-			return armor * (1.0 - CombatCalculator.PIERCING_ARMOR_PENETRATION)
-		ActionEffect.DamageType.FIRE:
-			return stats.get("fire_resist", 0)
-		ActionEffect.DamageType.ICE:
-			return stats.get("ice_resist", 0)
-		ActionEffect.DamageType.SHOCK:
-			return stats.get("shock_resist", 0)
-		ActionEffect.DamageType.POISON:
-			return stats.get("poison_resist", 0)
+			var armor: float = stats.get("armor", 0)
+			return maxf(0.0, armor * (1.0 - CombatCalculator.PIERCING_ARMOR_PENETRATION))
+		ActionEffect.DamageType.FIRE, \
+		ActionEffect.DamageType.ICE, \
+		ActionEffect.DamageType.SHOCK, \
+		ActionEffect.DamageType.POISON, \
 		ActionEffect.DamageType.SHADOW:
-			return stats.get("shadow_resist", 0)
+			return maxf(0.0, stats.get("barrier", 0))
 		_:
 			return 0.0
 

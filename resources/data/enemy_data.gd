@@ -125,6 +125,34 @@ enum TargetPriority {
 ## Drag Affix templates here. Each gets duplicated and rolled at effective_level.
 ## These work identically to item affixes: category determines which stat they boost.
 @export var enemy_affixes: Array[Affix] = []
+
+
+
+# ============================================================================
+# ELEMENTAL MODIFIERS — Controls resistance/immunity/weakness per element
+# ============================================================================
+@export_group("Elemental Modifiers")
+
+## Per-element damage multipliers applied to incoming damage BEFORE defense.
+## Missing elements default to 1.0 (normal damage).
+## Keys must match ActionEffect.DamageType names:
+##   SLASHING, BLUNT, PIERCING, FIRE, ICE, SHOCK, POISON, SHADOW
+##
+## Value guide:
+##   0.0  = Immune    (fire elemental vs fire)
+##   0.25 = Highly resistant
+##   0.5  = Resistant (takes half)
+##   0.75 = Slightly resistant
+##   1.0  = Normal    (default — no entry needed)
+##   1.5  = Weak      (takes 150%)
+##   2.0  = Very weak (takes double)
+##
+## Example: {"FIRE": 0.0, "ICE": 2.0} = immune to fire, weak to ice
+@export var element_modifiers: Dictionary = {}
+
+
+
+
 # ============================================================================
 # UTILITY METHODS
 # ============================================================================
@@ -235,6 +263,39 @@ func roll_combat_affixes(player_level: int) -> Dictionary:
 		"rolled_affixes": rolled,
 		"stat_totals": stat_totals,
 	}
+
+
+func get_element_modifier(damage_type: ActionEffect.DamageType) -> float:
+	"""Get the damage multiplier for a specific element.
+	Returns 1.0 (normal) for elements not in the dictionary."""
+	var key: String = ActionEffect.DamageType.keys()[damage_type]
+	return element_modifiers.get(key, 1.0)
+
+func get_all_immunities() -> Array[String]:
+	"""Element names this enemy is immune to (modifier <= 0). For UI."""
+	var result: Array[String] = []
+	for key in element_modifiers:
+		if element_modifiers[key] <= 0.0:
+			result.append(key.capitalize())
+	return result
+
+func get_all_weaknesses() -> Array[String]:
+	"""Element names this enemy is weak to (modifier > 1). For UI."""
+	var result: Array[String] = []
+	for key in element_modifiers:
+		if element_modifiers[key] > 1.0:
+			result.append(key.capitalize())
+	return result
+
+func get_all_resistances() -> Array[String]:
+	"""Element names this enemy resists (0 < modifier < 1). For UI."""
+	var result: Array[String] = []
+	for key in element_modifiers:
+		if element_modifiers[key] > 0.0 and element_modifiers[key] < 1.0:
+			result.append(key.capitalize())
+	return result
+
+
 
 
 func _to_string() -> String:

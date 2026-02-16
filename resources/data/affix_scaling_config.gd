@@ -159,7 +159,7 @@ func compute_fuzz_range(center: float, effect_min: float, effect_max: float,
 	var total_range: float = effect_max - effect_min
 	
 	# Percentage-based fuzz
-	var pct_fuzz: float = total_range * fuzz_pct
+	var pct_fuzz: float = absf(center) * fuzz_pct
 	
 	# Absolute minimum fuzz (prevents tiny-range determinism)
 	var actual_fuzz: float = maxf(pct_fuzz, min_absolute_fuzz)

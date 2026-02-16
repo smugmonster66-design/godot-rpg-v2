@@ -2052,19 +2052,21 @@ func _calculate_heal(action_data: Dictionary, healer) -> int:
 	return int((dice_total + base_heal) * multiplier)
 
 func _get_defender_stats(defender) -> Dictionary:
-	"""Get defense stats from defender"""
+	"""Get defense stats from defender.
+	Returns armor, barrier, element_modifiers, and defense_mult."""
 	if defender is Player:
 		return defender.get_defense_stats()
 	elif defender is Combatant:
+		var elem_mods: Dictionary = {}
+		if defender.enemy_data and defender.enemy_data.element_modifiers.size() > 0:
+			elem_mods = defender.enemy_data.element_modifiers
 		return {
 			"armor": defender.armor,
-			"fire_resist": defender.get("fire_resist") if defender.get("fire_resist") else 0,
-			"ice_resist": defender.get("ice_resist") if defender.get("ice_resist") else 0,
-			"shock_resist": defender.get("shock_resist") if defender.get("shock_resist") else 0,
-			"poison_resist": defender.get("poison_resist") if defender.get("poison_resist") else 0,
-			"shadow_resist": defender.get("shadow_resist") if defender.get("shadow_resist") else 0,
+			"barrier": defender.barrier,
+			"element_modifiers": elem_mods,
+			"defense_mult": 1.0,
 		}
-	return {"armor": 0}
+	return {"armor": 0, "barrier": 0, "element_modifiers": {}, "defense_mult": 1.0}
 
 # ============================================================================
 # HEALTH MANAGEMENT

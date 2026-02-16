@@ -1,14 +1,18 @@
-[gd_resource type="Resource" script_class="DieResource" load_steps=5 format=3 uid="uid://ykwpgdqstxlo"]
+[gd_resource type="Resource" script_class="DieResource" load_steps=7 format=3 uid="uid://ykwpgdqstxlo"]
 
-[ext_resource type="Texture2D" uid="uid://dafbo6iupqxp1" path="res://assets/dice/d20s/d20-fill-basic.png" id="1_bcj0s"]
-[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_orvnh"]
-[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="3_x87vr"]
-[ext_resource type="Texture2D" uid="uid://qrdelu0wa2bp" path="res://assets/dice/d20s/d20-stroke-basic.png" id="4_kl5b8"]
+[ext_resource type="PackedScene" uid="uid://dsceel0i8h4wv" path="res://scenes/ui/components/dice/combat/combat_die_d20.tscn" id="1_x87vr"]
+[ext_resource type="Texture2D" uid="uid://dafbo6iupqxp1" path="res://assets/dice/d20s/d20-fill-basic.png" id="2_kl5b8"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_qcrem"]
+[ext_resource type="PackedScene" uid="uid://bi6v6otk6sqdc" path="res://scenes/ui/components/dice/pool/pool_die_d20.tscn" id="4_kl5b8"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="5_ie0l2"]
+[ext_resource type="Texture2D" uid="uid://qrdelu0wa2bp" path="res://assets/dice/d20s/d20-stroke-basic.png" id="6_ntngh"]
 
 [resource]
-script = ExtResource("3_x87vr")
+script = ExtResource("5_ie0l2")
 display_name = "Faith D20"
 die_type = 20
 element = 9
-fill_texture = ExtResource("1_bcj0s")
-stroke_texture = ExtResource("4_kl5b8")
+fill_texture = ExtResource("2_kl5b8")
+stroke_texture = ExtResource("6_ntngh")
+combat_die_scene = ExtResource("1_x87vr")
+pool_die_scene = ExtResource("4_kl5b8")

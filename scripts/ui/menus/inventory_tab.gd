@@ -442,7 +442,7 @@ func _update_item_details():
 		return
 	
 	# ── Discover fixed UI nodes ──
-	var name_labels = item_details_panel.find_children("*Name*", "Label", true, false)
+	var name_labels = find_children("*Name*", "Label", true, false)
 	var image_rects = item_details_panel.find_children("*Image*", "TextureRect", true, false)
 	var desc_labels = item_details_panel.find_children("*Desc*", "Label", true, false)
 	var affix_containers = item_details_panel.find_children("*Affix*", "VBoxContainer", true, false)
@@ -456,9 +456,15 @@ func _update_item_details():
 	
 	# ── No item selected — clear everything ──
 	if selected_item == null:
+		# Close any floating die tooltip
+		_close_die_tooltip()
 		if name_labels.size() > 0:
 			name_labels[0].text = "No Item Selected"
 			name_labels[0].remove_theme_color_override("font_color")
+			var subtitle_label = name_labels[0].get_parent().find_child("SubtitleLabel", false, false)
+			if subtitle_label:
+				subtitle_label.text = ""
+				subtitle_label.hide()
 		if image_rects.size() > 0:
 			image_rects[0].texture = null
 			image_rects[0].material = null
@@ -474,11 +480,27 @@ func _update_item_details():
 			_details_scroll.scroll_vertical = 0
 		return
 	
-	# ── 1. Item name (rarity colored) ──
+	# Close any floating die tooltip from previous item
+	_close_die_tooltip()
+	
+	# ── 1. Item name (rarity colored) + subtitle ──
 	if name_labels.size() > 0:
 		var rarity_name = _item_rarity_name(selected_item)
 		name_labels[0].text = _item_name(selected_item)
 		name_labels[0].add_theme_color_override("font_color", ThemeManager.get_rarity_color(rarity_name))
+		
+		# Populate subtitle label (scene sibling of ItemName)
+		var subtitle_label = name_labels[0].get_parent().find_child("SubtitleLabel", false, false)
+		if subtitle_label:
+			if selected_item is EquippableItem:
+				var slot_display = "Heavy Weapon" if selected_item.is_heavy_weapon() else selected_item.get_slot_name()
+				subtitle_label.text = "%s · %s" % [selected_item.get_rarity_name(), slot_display]
+				subtitle_label.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
+				subtitle_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				subtitle_label.show()
+			else:
+				subtitle_label.text = ""
+				subtitle_label.hide()
 	
 	# ── 3. Item image ──
 	if image_rects.size() > 0:
@@ -512,21 +534,13 @@ func _update_item_details():
 			equippable = selected_item
 		
 		if equippable:
-			# ── 2. Rarity · Slot subtitle ──
-			var subtitle = Label.new()
-			var slot_display = "Heavy Weapon" if equippable.is_heavy_weapon() else equippable.get_slot_name()
-			subtitle.text = "%s · %s" % [equippable.get_rarity_name(), slot_display]
-			subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			#subtitle.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.caption)
-			subtitle.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
-			affix_container.add_child(subtitle)
-			
 			# ── 5. Elemental identity ──
 			var elem_row = _create_element_row(equippable)
 			affix_container.add_child(elem_row)
 			
 			# ── 6. Dice Granted ──
-			if equippable.grants_dice.size() > 0:
+			# ── 6. Dice Granted (direct + affix) ──
+			if _collect_all_granted_dice(equippable).size() > 0:
 				_add_section_separator(affix_container)
 				var dice_section = _create_dice_granted_section(equippable)
 				affix_container.add_child(dice_section)
@@ -592,7 +606,21 @@ func _update_item_details():
 					threshold_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 					affix_container.add_child(threshold_label)
 			
-			# ── 12. Requirements (all shown: green if met, red if not) ──
+			# ── 12. Item Level ──
+			_add_section_separator(affix_container)
+			if equippable.item_level > 0:
+				var level_label = Label.new()
+				level_label.text = "Item Level %d (Region %d)" % [equippable.item_level, equippable.region]
+				level_label.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
+				affix_container.add_child(level_label)
+			
+			# ── 13. Sell value ──
+			var sell_label = Label.new()
+			sell_label.text = "Sell: %d gold" % equippable.get_sell_value()
+			sell_label.add_theme_color_override("font_color", ThemeManager.PALETTE.warning)
+			affix_container.add_child(sell_label)
+			
+			# ── 14. Requirements (all shown: green if met, red if not) ──
 			if equippable.has_requirements():
 				_add_section_separator(affix_container)
 				var all_reqs = []
@@ -612,31 +640,15 @@ func _update_item_details():
 				for req in all_reqs:
 					var req_label = Label.new()
 					req_label.text = "Requires %s" % req[0]
-					#req_label.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.small)
 					req_label.add_theme_color_override("font_color",
 						ThemeManager.PALETTE.success if req[1] else ThemeManager.PALETTE.danger)
 					affix_container.add_child(req_label)
-			
-			# ── 13. Item Level ──
-			_add_section_separator(affix_container)
-			if equippable.item_level > 0:
-				var level_label = Label.new()
-				level_label.text = "Item Level %d (Region %d)" % [equippable.item_level, equippable.region]
-				#level_label.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.small)
-				level_label.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
-				affix_container.add_child(level_label)
-			
-			# ── 14. Sell value ──
-			var sell_label = Label.new()
-			sell_label.text = "Sell: %d gold" % equippable.get_sell_value()
-			#sell_label.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.small)
-			sell_label.add_theme_color_override("font_color", ThemeManager.PALETTE.warning)
-			affix_container.add_child(sell_label)
 			
 			# ── 15. Flavor text (red, centered) ──
 			if equippable.flavor_text and equippable.flavor_text != "":
 				_add_section_separator(affix_container)
 				var flavor = Label.new()
+				flavor.theme_type_variation = &"FlavorLabel"
 				flavor.text = equippable.flavor_text
 				flavor.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 				#flavor.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.small)
@@ -796,13 +808,14 @@ func _create_affix_display_from_affix(affix: Affix, name_color: Color = Color(0.
 # ============================================================================
 
 func _create_dice_granted_section(equippable: EquippableItem) -> VBoxContainer:
-	"""Create a section showing granted dice with pool visuals."""
+	"""Create a section showing all granted dice (direct + affix) as tappable previews."""
+	var all_dice := _collect_all_granted_dice(equippable)
+	
 	var section = VBoxContainer.new()
 	section.add_theme_constant_override("separation", 6)
 	
 	var header = Label.new()
 	header.text = "Adds Dice:"
-	#header.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.caption)
 	header.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
 	section.add_child(header)
 	
@@ -810,34 +823,37 @@ func _create_dice_granted_section(equippable: EquippableItem) -> VBoxContainer:
 	dice_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	dice_row.add_theme_constant_override("separation", 8)
 	
-	for die_res in equippable.grants_dice:
-		if not die_res:
-			continue
-		
+	for die_res in all_dice:
 		var die_visual = die_res.instantiate_pool_visual()
 		if die_visual:
-			dice_row.add_child(die_visual)
-			# MUST happen AFTER add_child() — _ready() resets custom_minimum_size
-			die_visual.set_display_scale(0.3)  # 0.3 × 124 = ~37px
-			die_visual.custom_minimum_size = Vector2.ZERO
-			die_visual.draggable = false
-			die_visual.mouse_filter = Control.MOUSE_FILTER_STOP
+			var preview_size := Vector2(60, 60)
 			
-			# Hide value label (same pattern as DieSlot._show_die)
-			var val_label = die_visual.find_child("ValueLabel", true, false)
-			if val_label:
-				val_label.hide()
+			# Clickable wrapper — flat Button gives reliable hit area
+			var die_btn := Button.new()
+			die_btn.flat = true
+			die_btn.custom_minimum_size = preview_size
+			die_btn.clip_contents = true
+			die_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+			die_btn.pressed.connect(_on_granted_die_pressed.bind(die_btn, die_res))
+			dice_row.add_child(die_btn)
 			
-			# Click to toggle tooltip
-			die_visual.gui_input.connect(_on_granted_die_input.bind(die_visual, die_res))
+			# Add die visual inside button
+			die_btn.add_child(die_visual)
+			
+			# Defer overrides — _ready() resets mouse_filter/size/custom_minimum_size
+			var die_scale: float = preview_size.x / die_visual.base_size.x
+			_lock_die_preview.call_deferred(die_visual, die_scale)
 		else:
-			var fallback = Label.new()
-			fallback.text = "D%d" % die_res.die_type
+			var fallback := Button.new()
+			fallback.flat = true
+			var elem_name = die_res.get_element_name() if die_res.has_element() else ""
+			fallback.text = "%s D%d" % [elem_name, die_res.die_type] if elem_name else "D%d" % die_res.die_type
+			fallback.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
+			fallback.pressed.connect(_on_granted_die_pressed.bind(fallback, die_res))
 			dice_row.add_child(fallback)
 	
 	section.add_child(dice_row)
 	return section
-
 
 func _on_category_button_toggled(button_pressed: bool, category_name: String):
 	"""Category button toggled"""
@@ -854,6 +870,23 @@ func _on_item_button_pressed(item, button: TextureButton):
 	_update_item_details()
 	item_selected.emit(item)  # Bubble up
 
+func _collect_all_granted_dice(equippable: EquippableItem) -> Array[DieResource]:
+	"""Gather every die this item grants — both direct and via affixes."""
+	var dice: Array[DieResource] = []
+	
+	# Direct grants (dragged into grants_dice in inspector)
+	for die in equippable.grants_dice:
+		if die:
+			dice.append(die)
+	
+	# Affix-granted dice (e.g. "Grant Blunt D4" utility affixes)
+	for affix in equippable.item_affixes:
+		if affix is Affix and affix.category == Affix.Category.DICE:
+			for die in affix.granted_dice:
+				if die:
+					dice.append(die)
+	
+	return dice
 
 func _highlight_selected_button(button: TextureButton):
 	# Reset previous selection
@@ -976,37 +1009,89 @@ func _ensure_details_scroll():
 	print("  ✓ Details panel wrapped in ScrollContainer")
 
 
-func _on_granted_die_input(event: InputEvent, die_visual: Control, die_res: DieResource):
-	"""Toggle tooltip on tap/click."""
-	if not event is InputEventMouseButton:
-		return
-	if not event.pressed or event.button_index != MOUSE_BUTTON_LEFT:
-		return
-	
+func _lock_die_preview(die_visual: DieObjectBase, die_scale: float):
+	"""Deferred: lock down die preview after _ready() has finished."""
+	die_visual.draggable = false
+	die_visual.pivot_offset = Vector2.ZERO  # Scale from top-left, not center
+	die_visual.scale = Vector2(die_scale, die_scale)
+	die_visual.custom_minimum_size = Vector2.ZERO
+	die_visual.size = die_visual.base_size
+	die_visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	die_visual.set_process(false)  # Disable drag cleanup process
+	for child in die_visual.find_children("*", "Control", true, false):
+		child.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var val_label = die_visual.find_child("ValueLabel", true, false)
+	if val_label:
+		val_label.hide()
+
+
+func _on_granted_die_pressed(source: Control, die_res: DieResource):
+	"""Toggle a floating popup tooltip on button press."""
 	# Close existing tooltip (same die = toggle off, different die = swap)
 	if _active_die_tooltip and is_instance_valid(_active_die_tooltip):
-		var is_same = _active_die_tooltip.get_meta("source_die", null) == die_visual
-		_active_die_tooltip.queue_free()
-		_active_die_tooltip = null
+		var is_same = _active_die_tooltip.get_meta("source_die", null) == source
+		_close_die_tooltip()
 		if is_same:
 			return
 	
 	_active_die_tooltip = _build_die_tooltip(die_res)
-	_active_die_tooltip.set_meta("source_die", die_visual)
+	_active_die_tooltip.set_meta("source_die", source)
 	
-	# Add to the affix container so it flows in the scroll
-	var affix_containers = item_details_panel.find_children("*Affix*", "VBoxContainer", true, false)
-	if affix_containers.size() > 0:
-		# Insert right after the dice section
-		var dice_section = die_visual.get_parent().get_parent()  # HBox → VBox (section)
-		var idx = dice_section.get_index() + 1
-		var parent_container = dice_section.get_parent()
-		parent_container.add_child(_active_die_tooltip)
-		parent_container.move_child(_active_die_tooltip, idx)
+	# Create a temporary CanvasLayer above everything
+	var overlay_layer = CanvasLayer.new()
+	overlay_layer.name = "DieTooltipLayer"
+	overlay_layer.layer = 200  # Above all other UI layers
+	get_tree().root.add_child(overlay_layer)
+	overlay_layer.add_child(_active_die_tooltip)
+	
+	# Convert source position to screen space
+	var anchor_screen_pos = source.get_screen_position() + source.size / 2.0
+	_position_die_tooltip.call_deferred(anchor_screen_pos)
 
+func _position_die_tooltip(anchor_pos: Vector2):
+	"""Position the floating tooltip near the anchor point, clamped to screen."""
+	if not _active_die_tooltip or not is_instance_valid(_active_die_tooltip):
+		return
+	
+	var tooltip_size = _active_die_tooltip.size
+	var viewport_size = get_viewport_rect().size
+	
+	# Center above the anchor
+	var pos = Vector2(
+		anchor_pos.x - tooltip_size.x / 2.0,
+		anchor_pos.y - tooltip_size.y - 12.0
+	)
+	# If it would go above screen, put it below instead
+	if pos.y < 8.0:
+		pos.y = anchor_pos.y + 20.0
+	# Clamp horizontally
+	pos.x = clampf(pos.x, 8.0, viewport_size.x - tooltip_size.x - 8.0)
+	
+	_active_die_tooltip.position = pos
+	
+	# Close when tapped
+	_active_die_tooltip.gui_input.connect(_on_die_tooltip_input)
+
+
+func _on_die_tooltip_input(event: InputEvent):
+	"""Close tooltip when tapped."""
+	if event is InputEventMouseButton and event.pressed:
+		_close_die_tooltip()
+
+
+func _close_die_tooltip():
+	"""Clean up tooltip and its CanvasLayer."""
+	if _active_die_tooltip and is_instance_valid(_active_die_tooltip):
+		var layer = _active_die_tooltip.get_parent()
+		_active_die_tooltip.queue_free()
+		if layer is CanvasLayer and layer.name == "DieTooltipLayer":
+			layer.queue_free()
+	_active_die_tooltip = null
 
 func _build_die_tooltip(die_res: DieResource) -> PanelContainer:
-	"""Build a tooltip panel showing die details."""
+	"""Build a compact tooltip showing die name and any dice affixes.
+	Standard dice (e.g. 'Ice D6') just show name + affixes.
+	Unique dice with custom names show full details."""
 	var panel = PanelContainer.new()
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.12, 0.12, 0.18, 0.95)
@@ -1020,72 +1105,48 @@ func _build_die_tooltip(die_res: DieResource) -> PanelContainer:
 	vbox.add_theme_constant_override("separation", 4)
 	panel.add_child(vbox)
 	
-	# Die type header
+	# Check if this is a standard die (name contains "D{size}") or unique
+	var size_tag = "D%d" % die_res.die_type
+	var is_unique = size_tag not in die_res.display_name
+	
+	# Die name
 	var header = Label.new()
-	header.text = "D%d" % die_res.die_type
+	header.text = die_res.display_name
 	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	header.add_theme_color_override("font_color", Color(1, 1, 1))
 	vbox.add_child(header)
 	
-	# Max value
-	var max_label = Label.new()
-	max_label.text = "Max Roll: %d" % die_res.get_max_value()
-	max_label.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
-	vbox.add_child(max_label)
-	
-	# Element
-	if die_res.has_element():
-		var damage_type := die_res.element as ActionEffect.DamageType
-		var elem_row = HBoxContainer.new()
-		elem_row.add_theme_constant_override("separation", 4)
+	# Unique dice: show size + element beneath the name
+	if is_unique:
+		var subtitle = Label.new()
+		var elem_name = die_res.get_element_name() if die_res.has_element() else ""
+		subtitle.text = "%s %s" % [elem_name, size_tag] if elem_name else size_tag
+		subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		subtitle.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
+		vbox.add_child(subtitle)
 		
-		if GameManager and GameManager.ELEMENT_VISUALS:
-			var icon_rect = TextureRect.new()
-			icon_rect.custom_minimum_size = Vector2(18, 18)
-			icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			var elem_icon = GameManager.ELEMENT_VISUALS.get_icon(damage_type)
-			if elem_icon:
-				icon_rect.texture = elem_icon
-				icon_rect.modulate = GameManager.ELEMENT_VISUALS.get_tint_color(damage_type)
-			elem_row.add_child(icon_rect)
-		
-		var elem_label = Label.new()
-		elem_label.text = die_res.get_element_name()
-		if GameManager and GameManager.ELEMENT_VISUALS:
-			elem_label.add_theme_color_override("font_color", GameManager.ELEMENT_VISUALS.get_tint_color(damage_type))
-		elem_row.add_child(elem_label)
-		vbox.add_child(elem_row)
+		# Flavor text if present
+		if die_res.has_method("get_flavor_text"):
+			var flavor = die_res.get_flavor_text()
+			if flavor and flavor != "":
+				var flavor_label = Label.new()
+				flavor_label.text = flavor
+				flavor_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				flavor_label.add_theme_color_override("font_color", Color(0.85, 0.2, 0.2))
+				flavor_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				vbox.add_child(flavor_label)
 	
 	# Dice affixes
-	if die_res.dice_affixes and die_res.dice_affixes.size() > 0:
-		var sep = HSeparator.new()
-		sep.add_theme_constant_override("separation", 4)
-		var line_style = StyleBoxLine.new()
-		line_style.color = Color(1, 1, 1, 0.1)
-		line_style.thickness = 1
-		sep.add_theme_stylebox_override("separator", line_style)
-		vbox.add_child(sep)
-		
-		for dice_affix in die_res.dice_affixes:
-			if not dice_affix:
-				continue
-			var affix_label = Label.new()
-			affix_label.text = dice_affix.get_description() if dice_affix.has_method("get_description") else str(dice_affix)
-			affix_label.add_theme_color_override("font_color", Color(0.7, 0.9, 0.7))
-			affix_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			vbox.add_child(affix_label)
-	
-	# Tap to close hint
-	var hint = Label.new()
-	hint.text = "tap die to close"
-	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint.add_theme_color_override("font_color", Color(1, 1, 1, 0.3))
-	vbox.add_child(hint)
+	var all_affixes = die_res.get_all_affixes()
+	for dice_affix in all_affixes:
+		if not dice_affix:
+			continue
+		var affix_label = Label.new()
+		affix_label.text = dice_affix.get_description() if dice_affix.has_method("get_description") else dice_affix.affix_name
+		affix_label.add_theme_color_override("font_color", Color(0.7, 0.9, 0.7))
+		vbox.add_child(affix_label)
 	
 	return panel
-
-
 
 func _update_category_button_visuals():
 	"""Dim unselected category buttons to 50%"""
