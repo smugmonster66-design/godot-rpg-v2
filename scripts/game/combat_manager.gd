@@ -2073,6 +2073,7 @@ func _get_defender_stats(defender) -> Dictionary:
 func _on_player_health_changed(current: int, maximum: int):
 	if player:
 		player.current_hp = current
+		player.hp_changed.emit(current, maximum)
 	_update_player_health()
 
 func _on_enemy_health_changed(_current: int, _maximum: int, enemy_index: int):

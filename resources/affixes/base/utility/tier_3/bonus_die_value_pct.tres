@@ -12,3 +12,4 @@ category = 36
 tags = Array[String](["dice_manipulation"])
 effect_min = 0.05
 effect_max = 0.3
+rounding_mode = 2

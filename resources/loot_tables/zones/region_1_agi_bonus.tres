@@ -1,0 +1,136 @@
+[gd_resource type="Resource" script_class="LootTable" load_steps=45 format=3 uid="uid://cn3jowdrcpcfn"]
+
+[ext_resource type="Script" uid="uid://b2rburvcl540q" path="res://resources/data/loot_drop.gd" id="1_jo4ej"]
+[ext_resource type="Script" uid="uid://boj6mculdlkuk" path="res://resources/data/loot_table.gd" id="2_aoa08"]
+[ext_resource type="Resource" uid="uid://br6nqq5g3o56q" path="res://resources/items/region_1/head/leather_cap.tres" id="3_2gums"]
+[ext_resource type="Resource" uid="uid://bxqkcbnyypwnj" path="res://resources/items/region_1/head/warded_leather_cap.tres" id="4_q7pyy"]
+[ext_resource type="Resource" uid="uid://wrcenrpnfprd" path="res://resources/items/region_1/head/scouts_half_helm.tres" id="5_w8jgc"]
+[ext_resource type="Resource" uid="uid://mbkx1j8le68b" path="res://resources/items/region_1/torso/leather_jerkin.tres" id="6_3hep6"]
+[ext_resource type="Resource" uid="uid://b16dkl7r6q8c1" path="res://resources/items/region_1/torso/warded_leather_jerkin.tres" id="7_bxinw"]
+[ext_resource type="Resource" uid="uid://cy754nj6lug87" path="res://resources/items/region_1/torso/scouts_jerkin.tres" id="8_4h4xb"]
+[ext_resource type="Resource" uid="uid://bvl4nd6i1i8hj" path="res://resources/items/region_1/gloves/leather_gloves.tres" id="9_i3ukb"]
+[ext_resource type="Resource" uid="uid://c15x5jmeisdvv" path="res://resources/items/region_1/gloves/warded_leather_gloves.tres" id="10_yuli4"]
+[ext_resource type="Resource" uid="uid://dca5oi6bgeexu" path="res://resources/items/region_1/gloves/scouts_gloves.tres" id="11_imvei"]
+[ext_resource type="Resource" uid="uid://dnd8s3prh53s6" path="res://resources/items/region_1/boots/leather_boots.tres" id="12_moy7e"]
+[ext_resource type="Resource" uid="uid://bjy2jwglg6dd0" path="res://resources/items/region_1/boots/warded_leather_boots.tres" id="13_de8pt"]
+[ext_resource type="Resource" uid="uid://c2bcj2dx5nci5" path="res://resources/items/region_1/boots/scouts_boots.tres" id="14_xahki"]
+[ext_resource type="Resource" uid="uid://daj3cqcqxs5q6" path="res://resources/items/region_1/main_hand/officers_rapier.tres" id="15_r88tm"]
+[ext_resource type="Resource" uid="uid://csvossjigmmmn" path="res://resources/items/region_1/main_hand/sanctum_stiletto.tres" id="16_swo8g"]
+[ext_resource type="Resource" uid="uid://bbmgumupmxs12" path="res://resources/items/region_1/off_hand/scouts_buckler_armor.tres" id="17_v7of4"]
+[ext_resource type="Resource" uid="uid://cr2wttgkpmpwc" path="res://resources/items/region_1/off_hand/scouts_buckler_barrier.tres" id="18_v7wia"]
+[ext_resource type="Resource" uid="uid://dhiw8c12ulmw6" path="res://resources/items/region_1/off_hand/scouts_buckler_hybrid.tres" id="19_jggca"]
+[ext_resource type="Resource" uid="uid://bsik173yxjwnj" path="res://resources/items/region_1/off_hand/parrying_blade.tres" id="20_88nwx"]
+[ext_resource type="Resource" uid="uid://bi1upc4nqq26l" path="res://resources/items/region_1/heavy/longbow.tres" id="21_bljxh"]
+[ext_resource type="Resource" uid="uid://ctr2ttf6weouq" path="res://resources/items/region_1/accessory/scouts_band.tres" id="22_oiah4"]
+[ext_resource type="Resource" uid="uid://bb83a30kcnjsr" path="res://resources/items/region_1/accessory/riders_pendant.tres" id="23_6maoq"]
+
+[sub_resource type="Resource" id="Resource_4lcqq"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("3_2gums")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_kgmck"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("4_q7pyy")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_ts4g1"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("5_w8jgc")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_xn5y5"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("6_3hep6")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_uk6p3"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("7_bxinw")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_21ror"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("8_4h4xb")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_pyrp0"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("9_i3ukb")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_he7gp"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("10_yuli4")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_vj8cu"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("11_imvei")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_i33v3"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("12_moy7e")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_86hcy"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("13_de8pt")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_cngsm"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("14_xahki")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_wvpej"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("15_r88tm")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_biwft"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("16_swo8g")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_abypb"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("17_v7of4")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_iahg5"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("18_v7wia")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_v8ycx"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("19_jggca")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_xf84u"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("20_88nwx")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_1t316"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("21_bljxh")
+drop_weight = 4
+
+[sub_resource type="Resource" id="Resource_d6wjy"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("22_oiah4")
+drop_weight = 3
+
+[sub_resource type="Resource" id="Resource_nefrx"]
+script = ExtResource("1_jo4ej")
+item_template = ExtResource("23_6maoq")
+drop_weight = 3
+
+[resource]
+script = ExtResource("2_aoa08")
+table_name = "region_1_agi_bonus"
+description = "Region 1 — AGI archetype bonus pool. Enemies matching this stat roll a bonus item from here."
+weighted_drops = Array[ExtResource("1_jo4ej")]([SubResource("Resource_4lcqq"), SubResource("Resource_kgmck"), SubResource("Resource_ts4g1"), SubResource("Resource_xn5y5"), SubResource("Resource_uk6p3"), SubResource("Resource_21ror"), SubResource("Resource_pyrp0"), SubResource("Resource_he7gp"), SubResource("Resource_vj8cu"), SubResource("Resource_i33v3"), SubResource("Resource_86hcy"), SubResource("Resource_cngsm"), SubResource("Resource_wvpej"), SubResource("Resource_biwft"), SubResource("Resource_abypb"), SubResource("Resource_iahg5"), SubResource("Resource_v8ycx"), SubResource("Resource_xf84u"), SubResource("Resource_1t316"), SubResource("Resource_d6wjy"), SubResource("Resource_nefrx")])

@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=10 format=3 uid="uid://csvossjigmmmn"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_pfnoe"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_ahuen"]
+[ext_resource type="Resource" uid="uid://dlfux8drlkb3t" path="res://resources/affixes/base_stats/inherent_agility.tres" id="2_neadc"]
+[ext_resource type="Resource" uid="uid://ckylwdt2phbob" path="res://resources/affixes/base_stats/inherent_damage.tres" id="3_6748y"]
+[ext_resource type="Resource" uid="uid://dc86xxo6gws3l" path="res://resources/affixes/elements/piercing_element.tres" id="3_neadc"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="4_6748y"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="5_dv8h0"]
+[ext_resource type="Resource" uid="uid://hnmjxghaf5mm" path="res://resources/slot_definitions/main_hand_slot.tres" id="6_dog6j"]
+
+[sub_resource type="Resource" id="Resource_pfnoe"]
+script = ExtResource("2_ahuen")
+display_name = "D4"
+die_type = 4
+element = 3
+element_affix = ExtResource("3_neadc")
+
+[resource]
+script = ExtResource("5_dv8h0")
+item_name = "Sanctum Stiletto"
+description = "A slim blade favored by those who solve problems quietly. Not technically listed in any naval inventory."
+flavor_text = "It's a letter opener. A very sharp, very concealable letter opener."
+rarity = 1
+has_elemental_identity = true
+elemental_identity = 2
+slot_definition = ExtResource("6_dog6j")
+base_stat_affixes = Array[ExtResource("1_pfnoe")]([ExtResource("2_neadc"), ExtResource("3_6748y")])
+grants_dice = Array[ExtResource("2_ahuen")]([SubResource("Resource_pfnoe")])

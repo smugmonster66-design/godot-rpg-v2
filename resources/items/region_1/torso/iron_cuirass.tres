@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://dn6b2cpwr46m4"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_66edq"]
+[ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_hfvoh"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_q6ac2"]
+[ext_resource type="Resource" uid="uid://by212c4j0x5gp" path="res://resources/affixes/base_stats/inherent_health.tres" id="3_2rtlj"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_v66mx"]
+[ext_resource type="Resource" uid="uid://cbv0pogyu7y55" path="res://resources/slot_definitions/torso_slot.tres" id="4_hfvoh"]
+[ext_resource type="Resource" uid="uid://bvlqcx16ejx" path="res://resources/affixes/base_stats/inherent_armor.tres" id="4_m5g56"]
+
+[resource]
+script = ExtResource("3_v66mx")
+item_name = "Iron Cuirass"
+description = "Solid iron construction, built to absorb punishment. Standard issue for Sanctum's front-line infantry."
+flavor_text = "They make them tough in Sanctum. The cuirass, that is. Also the people."
+rarity = 1
+equip_slot = 1
+slot_definition = ExtResource("4_hfvoh")
+base_stat_affixes = Array[ExtResource("1_66edq")]([ExtResource("2_hfvoh"), ExtResource("3_2rtlj"), ExtResource("4_m5g56")])

@@ -599,7 +599,7 @@ corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [resource]
-default_font_size = 16
+default_font_size = 24
 ActionFieldPanel/colors/font_color = Color(1, 1, 1, 1)
 ActionFieldPanel/styles/die_slot_empty = SubResource("StyleBoxFlat_phtau")
 ActionFieldPanel/styles/die_slot_hover = SubResource("StyleBoxFlat_p7nge")
@@ -666,11 +666,11 @@ TooltipPanel/styles/panel = SubResource("StyleBoxFlat_fq2up")
 VScrollBar/styles/grabber = SubResource("StyleBoxFlat_a575i")
 VScrollBar/styles/grabber_highlight = SubResource("StyleBoxFlat_k16lf")
 VScrollBar/styles/scroll = SubResource("StyleBoxFlat_rlewp")
-caption/font_sizes/font_size = 13
+caption/font_sizes/font_size = 16
 display/font_sizes/font_size = 36
-header/font_sizes/font_size = 28
-large/font_sizes/font_size = 20
-normal/font_sizes/font_size = 16
-small/font_sizes/font_size = 12
+header/font_sizes/font_size = 40
+large/font_sizes/font_size = 30
+normal/font_sizes/font_size = 24
+small/font_sizes/font_size = 16
 tiny/font_sizes/font_size = 10
-title/font_sizes/font_size = 24
+title/font_sizes/font_size = 44

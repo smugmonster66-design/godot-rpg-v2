@@ -1,229 +1,27 @@
-[gd_resource type="Resource" script_class="AffixTable" load_steps=22 format=3 uid="uid://bxj4ebsngyqxw"]
+[gd_resource type="Resource" script_class="AffixTable" load_steps=20 format=3 uid="uid://bxj4ebsngyqxw"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_nf1bu"]
-[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_4jipp"]
-[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_tlf32"]
+[ext_resource type="Resource" uid="uid://dsyr3kfp5cy73" path="res://resources/affixes/base/defense/tier_2/barrier_bonus.tres" id="2_1ont2"]
+[ext_resource type="Resource" uid="uid://d3oy2v726rlwu" path="res://resources/affixes/base/defense/tier_2/heal_on_hit_taken_flat.tres" id="3_3js3f"]
 [ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="4_3orc7"]
-
-[sub_resource type="Resource" id="Resource_t1rxy"]
-script = ExtResource("1_nf1bu")
-affix_name = "Barrier Bonus"
-description = "+N Barrier"
-category = 27
-tags = Array[String](["defense", "barrier"])
-effect_min = 3.0
-effect_max = 120.0
-
-[sub_resource type="Resource" id="Resource_vsg1b"]
-script = ExtResource("1_nf1bu")
-affix_name = "Heal on Hit Taken"
-description = "Heal N when hit"
-category = 35
-tags = Array[String](["proc", "heal", "defensive"])
-effect_min = 1.0
-effect_max = 30.0
-effect_data = {
-"effect": "heal_flat"
-}
-proc_trigger = 2
-
-[sub_resource type="Resource" id="Resource_fej3l"]
-script = ExtResource("1_nf1bu")
-affix_name = "Gain Armor on Hit Taken"
-description = "+N armor when hit"
-category = 35
-tags = Array[String](["proc", "armor", "defensive"])
-effect_min = 1.0
-effect_max = 20.0
-effect_data = {
-"effect": "gain_armor"
-}
-proc_trigger = 2
-
-[sub_resource type="Resource" id="Resource_gyjm7"]
-script = ExtResource("1_nf1bu")
-affix_name = "Gain Barrier on Hit Taken"
-description = "+N barrier when hit"
-category = 35
-tags = Array[String](["proc", "barrier", "defensive"])
-effect_min = 1.0
-effect_max = 20.0
-effect_data = {
-"effect": "gain_barrier"
-}
-proc_trigger = 2
-
-[sub_resource type="Resource" id="Resource_uml2j"]
-script = ExtResource("1_nf1bu")
-affix_name = "HP Regen on Turn Start"
-description = "Heal N at start of turn"
-category = 35
-tags = Array[String](["proc", "heal", "regen"])
-effect_min = 1.0
-effect_max = 25.0
-effect_data = {
-"effect": "heal_flat"
-}
-proc_trigger = 3
-
-[sub_resource type="Resource" id="Resource_sxl8a"]
-script = ExtResource("1_nf1bu")
-affix_name = "Barrier Regen on Turn Start"
-description = "+N barrier at start of turn"
-category = 35
-tags = Array[String](["proc", "barrier", "regen"])
-effect_min = 1.0
-effect_max = 20.0
-effect_data = {
-"effect": "gain_barrier"
-}
-proc_trigger = 3
-
-[sub_resource type="Resource" id="Resource_wg23v"]
-script = ExtResource("1_nf1bu")
-affix_name = "Armor Regen on Turn Start"
-description = "+N armor at start of turn"
-category = 35
-tags = Array[String](["proc", "armor", "regen"])
-effect_min = 1.0
-effect_max = 15.0
-effect_data = {
-"effect": "gain_armor"
-}
-proc_trigger = 3
-
-[sub_resource type="Resource" id="Resource_1rdmm"]
-script = ExtResource("1_nf1bu")
-affix_name = "Heal on Turn End"
-description = "Heal N at end of turn"
-category = 35
-tags = Array[String](["proc", "heal", "regen"])
-effect_min = 1.0
-effect_max = 25.0
-effect_data = {
-"effect": "heal_flat"
-}
-proc_trigger = 4
-
-[sub_resource type="Resource" id="Resource_yiteh"]
-script = ExtResource("1_nf1bu")
-affix_name = "Barrier on Turn End"
-description = "+N barrier at end of turn"
-category = 35
-tags = Array[String](["proc", "barrier", "regen"])
-effect_min = 1.0
-effect_max = 20.0
-effect_data = {
-"effect": "gain_barrier"
-}
-proc_trigger = 4
-
-[sub_resource type="Resource" id="Resource_wu4j5"]
-script = ExtResource("1_nf1bu")
-affix_name = "Starting Armor"
-description = "+N armor at combat start"
-category = 35
-tags = Array[String](["proc", "armor", "combat_start"])
-effect_min = 2.0
-effect_max = 40.0
-effect_data = {
-"effect": "gain_armor"
-}
-proc_trigger = 5
-
-[sub_resource type="Resource" id="Resource_otwcm"]
-script = ExtResource("1_nf1bu")
-affix_name = "Starting Barrier"
-description = "+N barrier at combat start"
-category = 35
-tags = Array[String](["proc", "barrier", "combat_start"])
-effect_min = 2.0
-effect_max = 30.0
-effect_data = {
-"effect": "gain_barrier"
-}
-proc_trigger = 5
-
-[sub_resource type="Resource" id="Resource_1ont2"]
-script = ExtResource("1_nf1bu")
-affix_name = "Bonus Armor on Defend"
-description = "+N extra armor when defending"
-category = 35
-tags = Array[String](["proc", "armor", "defend"])
-effect_min = 2.0
-effect_max = 25.0
-effect_data = {
-"effect": "gain_armor"
-}
-proc_trigger = 10
-
-[sub_resource type="Resource" id="Resource_3js3f"]
-script = ExtResource("1_nf1bu")
-affix_name = "Heal on Defend"
-description = "Heal N when defending"
-category = 35
-tags = Array[String](["proc", "heal", "defend"])
-effect_min = 2.0
-effect_max = 25.0
-effect_data = {
-"effect": "heal_flat"
-}
-proc_trigger = 10
-
-[sub_resource type="Resource" id="Resource_bdmc3"]
-script = ExtResource("1_nf1bu")
-affix_name = "Heal on Kill"
-description = "Heal N on kill"
-category = 35
-tags = Array[String](["proc", "heal", "on_kill"])
-effect_min = 2.0
-effect_max = 30.0
-effect_data = {
-"effect": "heal_flat"
-}
-proc_trigger = 9
-
-[sub_resource type="Resource" id="Resource_8jhmc"]
-script = ExtResource("1_nf1bu")
-affix_name = "Armor on Kill"
-description = "+N armor on kill"
-category = 35
-tags = Array[String](["proc", "armor", "on_kill"])
-effect_min = 1.0
-effect_max = 20.0
-effect_data = {
-"effect": "gain_armor"
-}
-proc_trigger = 9
-
-[sub_resource type="Resource" id="Resource_fc1q1"]
-script = ExtResource("1_nf1bu")
-affix_name = "Barrier on Kill"
-description = "+N barrier on kill"
-category = 35
-tags = Array[String](["proc", "barrier", "on_kill"])
-effect_min = 1.0
-effect_max = 20.0
-effect_data = {
-"effect": "gain_barrier"
-}
-proc_trigger = 9
-
-[sub_resource type="Resource" id="Resource_tuc5e"]
-script = ExtResource("1_nf1bu")
-affix_name = "Heal after Combat (% HP)"
-description = "Heal N% max HP after combat"
-category = 35
-tags = Array[String](["proc", "heal", "out_of_combat"])
-effect_min = 0.03
-effect_max = 0.2
-effect_data = {
-"effect": "heal_percent_max_hp"
-}
-proc_trigger = 6
+[ext_resource type="Resource" uid="uid://cj7p25d74ek2n" path="res://resources/affixes/base/defense/tier_2/gain_armor_on_hit_taken.tres" id="4_bdmc3"]
+[ext_resource type="Resource" uid="uid://2lwpijcuc2w7" path="res://resources/affixes/base/defense/tier_2/gain_barrier_on_hit_taken.tres" id="5_8jhmc"]
+[ext_resource type="Resource" uid="uid://o34q5q3thh8y" path="res://resources/affixes/base/defense/tier_2/hp_regen_on_turn_start.tres" id="6_fc1q1"]
+[ext_resource type="Resource" uid="uid://df6gt5pesyhrw" path="res://resources/affixes/base/defense/tier_2/barrier_regen_on_turn_start.tres" id="7_tuc5e"]
+[ext_resource type="Resource" uid="uid://c5dfce5gpxsjx" path="res://resources/affixes/base/defense/tier_2/armor_regen_on_turn_start.tres" id="8_3o0u3"]
+[ext_resource type="Resource" uid="uid://bqmjag315taif" path="res://resources/affixes/base/defense/tier_2/heal_on_turn_end.tres" id="9_dj2i3"]
+[ext_resource type="Resource" uid="uid://dsdgsij1jf5wl" path="res://resources/affixes/base/defense/tier_2/barrier_on_turn_end.tres" id="10_gp67p"]
+[ext_resource type="Resource" uid="uid://2hy66oivacld" path="res://resources/affixes/base/defense/tier_2/starting_armor.tres" id="11_c1270"]
+[ext_resource type="Resource" uid="uid://bdv0hmv4p6rup" path="res://resources/affixes/base/defense/tier_2/starting_barrier.tres" id="12_upe02"]
+[ext_resource type="Resource" uid="uid://bbkv38wtx2b1o" path="res://resources/affixes/base/defense/tier_2/bonus_armor_on_defend.tres" id="13_un4cy"]
+[ext_resource type="Resource" uid="uid://bw0tfynb5v6b6" path="res://resources/affixes/base/defense/tier_2/heal_on_defend.tres" id="14_ybdgy"]
+[ext_resource type="Resource" uid="uid://tv5dgwqkwmq" path="res://resources/affixes/base/defense/tier_2/heal_on_kill_flat.tres" id="15_uleap"]
+[ext_resource type="Resource" uid="uid://bsp4o3cce8frp" path="res://resources/affixes/base/defense/tier_2/armor_on_kill.tres" id="16_kxlto"]
+[ext_resource type="Resource" uid="uid://dwwxfcmsntd8s" path="res://resources/affixes/base/defense/tier_2/barrier_on_kill.tres" id="17_rul21"]
+[ext_resource type="Resource" uid="uid://bok34ma467qh0" path="res://resources/affixes/base/defense/tier_2/heal_after_combat_pct.tres" id="18_5smv0"]
 
 [resource]
 script = ExtResource("4_3orc7")
 table_name = "Defense Tier 2"
 description = "Base defense affixes, tier 2. Auto-generated."
-available_affixes = Array[ExtResource("1_nf1bu")]([SubResource("Resource_t1rxy"), SubResource("Resource_vsg1b"), SubResource("Resource_fej3l"), SubResource("Resource_gyjm7"), SubResource("Resource_uml2j"), SubResource("Resource_sxl8a"), SubResource("Resource_wg23v"), SubResource("Resource_1rdmm"), SubResource("Resource_yiteh"), SubResource("Resource_wu4j5"), SubResource("Resource_otwcm"), SubResource("Resource_1ont2"), SubResource("Resource_3js3f"), SubResource("Resource_bdmc3"), SubResource("Resource_8jhmc"), SubResource("Resource_fc1q1"), SubResource("Resource_tuc5e")])
+available_affixes = Array[ExtResource("1_nf1bu")]([ExtResource("2_1ont2"), ExtResource("3_3js3f"), ExtResource("4_bdmc3"), ExtResource("5_8jhmc"), ExtResource("6_fc1q1"), ExtResource("7_tuc5e"), ExtResource("8_3o0u3"), ExtResource("9_dj2i3"), ExtResource("10_gp67p"), ExtResource("11_c1270"), ExtResource("12_upe02"), ExtResource("13_un4cy"), ExtResource("14_ybdgy"), ExtResource("15_uleap"), ExtResource("16_kxlto"), ExtResource("17_rul21"), ExtResource("18_5smv0")])

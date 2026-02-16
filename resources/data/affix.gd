@@ -135,6 +135,18 @@ enum ProcTrigger {
 	ON_DEFEND,          ## When player uses a defend action
 }
 
+
+# ============================================================================
+# ROUNDING MODE ENUM (v4)
+# ============================================================================
+enum RoundMode {
+	AUTO,       ## Integer for flat bonuses, 2-decimal for multiplier categories (legacy default)
+	INTEGER,    ## Always round to nearest integer (flat stats, armor, health, damage)
+	DECIMAL_2,  ## Always snap to 2 decimal places (percentages, proc chances, multipliers)
+}
+
+
+
 # ============================================================================
 # BASIC DATA
 # ============================================================================
@@ -187,6 +199,7 @@ var source_type: String = ""
 # EFFECT DATA
 # ============================================================================
 @export_group("Effect Values")
+
 ## For simple numeric bonuses/multipliers
 @export var effect_number: float = 0.0
 
@@ -206,6 +219,13 @@ var source_type: String = ""
 ## 0.0 = deterministic (same level = same value), 0.2 = ±20% spread.
 @export_range(-1.0, 1.0) var roll_fuzz: float = -1.0
 
+## How rolled values are rounded. AUTO uses legacy behavior (multiplier
+## categories get 2 decimals, everything else rounds to integer).
+## Set to DECIMAL_2 for percentage-scale affixes (proc chances, gold find, etc.)
+## to prevent fractional values (e.g. 0.25) from rounding to 0.
+@export var rounding_mode: RoundMode = RoundMode.AUTO
+
+
 ## Where does the effect magnitude come from? (v2)
 ## STATIC uses effect_number literally. Others derive at runtime.
 @export var value_source: ValueSource = ValueSource.STATIC
@@ -220,7 +240,12 @@ var source_type: String = ""
 @export var proc_trigger: ProcTrigger = ProcTrigger.NONE
 ## Probability the proc fires when triggered (0.0 to 1.0).
 @export_range(0.0, 1.0) var proc_chance: float = 1.0
+## Minimum proc chance across the full item level range (level 1).
+## Set both min and max to 0.0 to use static proc_chance instead.
+@export_range(0.0, 1.0) var proc_chance_min: float = 0.0
 
+## Maximum proc chance across the full item level range (level 100).
+@export_range(0.0, 1.0) var proc_chance_max: float = 0.0
 # ============================================================================
 # GRANTED ACTION (for NEW_ACTION category)
 # ============================================================================
@@ -372,10 +397,7 @@ func roll_value(power_position: float = -1.0, scaling_config: AffixScalingConfig
 		if effect_curve:
 			t = effect_curve.sample(t)
 		effect_number = lerpf(effect_min, effect_max, t)
-		if _is_multiplier_category():
-			effect_number = snappedf(effect_number, 0.01)
-		else:
-			effect_number = roundf(effect_number)
+		effect_number = _round_value(effect_number)
 		return effect_number
 	
 	# Step 1: Apply per-affix curve override (if any)
@@ -410,10 +432,7 @@ func roll_value(power_position: float = -1.0, scaling_config: AffixScalingConfig
 	# Step 5: Round appropriately
 	# Multipliers (values near 1.x) get 2 decimal places
 	# Everything else rounds to integers
-	if _is_multiplier_category():
-		effect_number = snappedf(rolled, 0.01)
-	else:
-		effect_number = roundf(rolled)
+	effect_number = _round_value(effect_number)
 	
 	return effect_number
 
@@ -422,56 +441,130 @@ func has_scaling() -> bool:
 	"""Check if this affix uses level-based scaling (has min/max defined)."""
 	return not (effect_min == 0.0 and effect_max == 0.0)
 
+func roll_proc_chance(power_position: float = -1.0, scaling_config: AffixScalingConfig = null) -> float:
+	"""Roll proc_chance based on item level, same curve logic as roll_value().
+
+	If proc_chance_min and proc_chance_max are both 0.0, proc_chance is
+	left unchanged (static). Otherwise, scales proc_chance within the
+	min/max range using the same power_position and fuzz system.
+
+	Args:
+		power_position: 0.0 (weakest) to 1.0 (strongest). From scaling config.
+						Pass -1.0 (or omit) for legacy random roll behavior.
+		scaling_config: Global scaling config for fuzz defaults. Can be null.
+
+	Returns:
+		The rolled proc_chance (also stored in proc_chance).
+	"""
+	if not has_proc_chance_scaling():
+		return proc_chance
+
+	# Legacy behavior: no power_position → pure random
+	if power_position < 0.0:
+		var t: float = randf()
+		if effect_curve:
+			t = effect_curve.sample(t)
+		proc_chance = snappedf(lerpf(proc_chance_min, proc_chance_max, t), 0.01)
+		return proc_chance
+
+	# Scaled behavior: mirrors roll_value() steps 1-4
+	var t_curved: float = power_position
+	if effect_curve:
+		t_curved = effect_curve.sample(power_position)
+
+	var center: float = lerpf(proc_chance_min, proc_chance_max, t_curved)
+
+	var roll_min_v: float = center
+	var roll_max_v: float = center
+
+	if scaling_config:
+		var fuzz_range = scaling_config.compute_fuzz_range(
+			center, proc_chance_min, proc_chance_max,
+			roll_fuzz
+		)
+		roll_min_v = fuzz_range.min
+		roll_max_v = fuzz_range.max
+	elif roll_fuzz > 0.0:
+		var total_range: float = proc_chance_max - proc_chance_min
+		var fuzz_amount: float = maxf(total_range * roll_fuzz, 0.01)
+		roll_min_v = maxf(proc_chance_min, center - fuzz_amount)
+		roll_max_v = minf(proc_chance_max, center + fuzz_amount)
+
+	proc_chance = clampf(
+		snappedf(randf_range(roll_min_v, roll_max_v), 0.01),
+		0.0, 1.0
+	)
+	return proc_chance
+
+
+func has_proc_chance_scaling() -> bool:
+	"""Check if this affix uses level-based proc chance scaling."""
+	return not (proc_chance_min == 0.0 and proc_chance_max == 0.0)
+
+
+
+
+
+
 
 func get_value_range_string() -> String:
 	"""Get a human-readable string showing the value range.
-	
+
 	Returns:
-		"5" for static, "1–8" for scaled, "1.05×–1.40×" for multipliers.
+		"5" for static, "1–8" for scaled, "1.05×–1.40×" for multipliers,
+		"5%–25%" for DECIMAL_2 percentage affixes.
 	"""
 	if not has_scaling():
 		if _is_multiplier_category():
 			return "%.2f×" % effect_number
+		if rounding_mode == RoundMode.DECIMAL_2:
+			return "%d%%" % int(effect_number * 100)
 		return str(int(effect_number))
-	
+
 	if _is_multiplier_category():
 		return "%.2f×–%.2f×" % [effect_min, effect_max]
+	if rounding_mode == RoundMode.DECIMAL_2:
+		return "%d%%–%d%%" % [int(effect_min * 100), int(effect_max * 100)]
 	return "%d–%d" % [int(effect_min), int(effect_max)]
 
 
 func get_rolled_value_string() -> String:
 	"""Get the current rolled value as a display string.
-	
+
 	Returns:
-		"+5" for flat bonuses, "×1.25" for multipliers.
+		"+5" for flat bonuses, "×1.25" for multipliers, "25%" for DECIMAL_2.
 	"""
 	if _is_multiplier_category():
 		return "×%.2f" % effect_number
+	if rounding_mode == RoundMode.DECIMAL_2:
+		return "%d%%" % int(effect_number * 100)
 	return "+%d" % int(effect_number)
-
 
 
 func get_resolved_description() -> String:
 	"""Get description with 'N' replaced by the actual rolled value.
-	
-	Handles formatting by category:
+
+	Handles formatting by rounding mode and category:
 	  - Multipliers: "×1.25"
-	  - Proc chances (0.0–1.0 range): "25%"
+	  - DECIMAL_2: "25%"
 	  - Flat bonuses: "7"
 	"""
 	if description.is_empty():
 		return ""
-	
+
 	var value_str: String
 	if _is_multiplier_category():
 		value_str = "%.2f" % effect_number
+	elif rounding_mode == RoundMode.DECIMAL_2:
+		value_str = "%d%%" % int(effect_number * 100)
 	elif effect_number > 0.0 and effect_number < 1.0:
+		# Legacy fallback for untagged percentage affixes
 		value_str = "%d%%" % int(effect_number * 100)
 	else:
 		value_str = str(int(effect_number))
-	
+
 	return description.replace("N", value_str)
-	
+
 func _is_multiplier_category() -> bool:
 	"""Check if this affix's category is a multiplier type."""
 	return category in [
@@ -482,6 +575,33 @@ func _is_multiplier_category() -> bool:
 		Category.DAMAGE_MULTIPLIER,
 		Category.DEFENSE_MULTIPLIER,
 	]
+
+func _round_value(value: float) -> float:
+	"""Round a value according to this affix's rounding_mode.
+
+	AUTO preserves legacy behavior: multiplier categories get 2 decimals,
+	everything else rounds to integer. INTEGER and DECIMAL_2 override
+	regardless of category.
+	"""
+	match rounding_mode:
+		RoundMode.INTEGER:
+			return roundf(value)
+		RoundMode.DECIMAL_2:
+			return snappedf(value, 0.01)
+		_:  # AUTO
+			if _is_multiplier_category():
+				return snappedf(value, 0.01)
+			return roundf(value)
+
+func get_proc_chance_range_string() -> String:
+	"""Get human-readable proc chance range for tooltips.
+
+	Returns:
+		"25%" for static, "10%–40%" for scaled.
+	"""
+	if not has_proc_chance_scaling():
+		return "%d%%" % int(proc_chance * 100)
+	return "%d%%–%d%%" % [int(proc_chance_min * 100), int(proc_chance_max * 100)]
 
 # ============================================================================
 # CONDITION HELPERS (v2)

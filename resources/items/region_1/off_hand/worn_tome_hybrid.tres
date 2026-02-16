@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://bwnfnjbqog2hw"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_0d256"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_0ofne"]
+[ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_cevmm"]
+[ext_resource type="Resource" uid="uid://cnwjvnlvxrxs2" path="res://resources/affixes/base_stats/inherent_armor_hybrid.tres" id="3_38f53"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_d340i"]
+[ext_resource type="Resource" uid="uid://btsq4gakq82l7" path="res://resources/slot_definitions/off_hand_slot.tres" id="4_cevmm"]
+[ext_resource type="Resource" uid="uid://bo60aqpcko6p6" path="res://resources/affixes/base_stats/inherent_barrier_hybrid.tres" id="4_kedsv"]
+
+[resource]
+script = ExtResource("3_d340i")
+item_name = "Reinforced Worn Tome"
+description = "A thick reference manual that doubles as a focus. The marginalia is in three languages, two of which may not exist."
+flavor_text = "Metal clasps and arcane ink. Knowledge is power, and so is getting hit with this."
+rarity = 1
+equip_slot = 5
+slot_definition = ExtResource("4_cevmm")
+base_stat_affixes = Array[ExtResource("1_0d256")]([ExtResource("2_cevmm"), ExtResource("3_38f53"), ExtResource("4_kedsv")])
+base_value = 12

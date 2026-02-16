@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://cfm7irysporb1"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_a1lx5"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_5rlwx"]
+[ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_i1vn1"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_82612"]
+[ext_resource type="Resource" uid="uid://cnwjvnlvxrxs2" path="res://resources/affixes/base_stats/inherent_armor_hybrid.tres" id="3_k2i0k"]
+[ext_resource type="Resource" uid="uid://d0u4wgvhs8sam" path="res://resources/slot_definitions/gloves_slot.tres" id="4_i1vn1"]
+[ext_resource type="Resource" uid="uid://bo60aqpcko6p6" path="res://resources/affixes/base_stats/inherent_barrier_hybrid.tres" id="4_v7v80"]
+
+[resource]
+script = ExtResource("3_82612")
+item_name = "Scholar's Wraps"
+description = "Academic-issue gear balancing mundane and magical defense. Required reading not included."
+flavor_text = "Required for laboratory work. The stains are from alchemy. Probably."
+rarity = 1
+equip_slot = 2
+slot_definition = ExtResource("4_i1vn1")
+base_stat_affixes = Array[ExtResource("1_a1lx5")]([ExtResource("2_i1vn1"), ExtResource("3_k2i0k"), ExtResource("4_v7v80")])

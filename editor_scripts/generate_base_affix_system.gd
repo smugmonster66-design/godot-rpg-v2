@@ -143,9 +143,14 @@ func _create_or_update_affix(entry: Dictionary) -> Dictionary:
 		print("    → setting proc_trigger")
 		affix.proc_trigger = entry.proc_trigger
 	if entry.has("proc_chance_min"):
-		print("    → setting proc_chance via effect_min/max")
-		affix.effect_min = entry.proc_chance_min
-		affix.effect_max = entry.proc_chance_max
+		print("    → setting proc_chance_min/max")
+		affix.proc_chance_min = entry.proc_chance_min
+		affix.proc_chance_max = entry.proc_chance_max
+		# Set static proc_chance to midpoint for backwards compat
+		affix.proc_chance = (entry.proc_chance_min + entry.proc_chance_max) / 2.0
+	if entry.has("rounding_mode"):
+		print("    → setting rounding_mode")
+		affix.rounding_mode = entry.rounding_mode
 	if entry.has("effect_data") and affix.effect_data.is_empty():
 		print("    → setting effect_data")
 		affix.effect_data = entry.effect_data
@@ -268,6 +273,7 @@ func _create_scaling_config() -> void:
 func _build_catalog() -> Array:
 	var C := Affix.Category
 	var P := Affix.ProcTrigger
+	var RM := Affix.RoundMode
 	var catalog: Array = []
 	
 	# ── OFFENSE TIER 1 (8 affixes) ──────────────────────────────────────
@@ -481,7 +487,8 @@ func _build_catalog() -> Array:
 		"affix_name": "Lifesteal", "description": "Heal N% of damage dealt on hit",
 		"family": "offense", "tier": 3, "category": C.PROC,
 		"proc_trigger": P.ON_DEAL_DAMAGE,
-		"proc_chance_min": 0.03, "proc_chance_max": 0.20,
+		"effect_min": 0.03, "effect_max": 0.20,
+		"rounding_mode": RM.DECIMAL_2,
 		"effect_data": {"effect": "heal_percent_damage"},
 		"tags": ["proc", "heal", "on_hit"]
 	})
@@ -490,7 +497,8 @@ func _build_catalog() -> Array:
 		"affix_name": "Bonus % Damage on Hit", "description": "+N% bonus damage on each hit",
 		"family": "offense", "tier": 3, "category": C.PROC,
 		"proc_trigger": P.ON_DEAL_DAMAGE,
-		"proc_chance_min": 0.05, "proc_chance_max": 0.25,
+		"effect_min": 0.05, "effect_max": 0.25,
+		"rounding_mode": RM.DECIMAL_2,
 		"effect_data": {"effect": "bonus_damage_percent"},
 		"tags": ["proc", "damage", "on_hit"]
 	})
@@ -836,7 +844,8 @@ func _build_catalog() -> Array:
 		"affix_name": "Heal after Combat (% HP)", "description": "Heal N% max HP after combat",
 		"family": "defense", "tier": 2, "category": C.PROC,
 		"proc_trigger": P.ON_COMBAT_END,
-		"proc_chance_min": 0.03, "proc_chance_max": 0.20,
+		"effect_min": 0.03, "effect_max": 0.20,
+		"rounding_mode": RM.DECIMAL_2,
 		"effect_data": {"effect": "heal_percent_max_hp"},
 		"tags": ["proc", "heal", "out_of_combat"]
 	})
@@ -855,7 +864,8 @@ func _build_catalog() -> Array:
 		"affix_name": "Heal on Hit Taken (% HP)", "description": "Heal N% max HP when hit",
 		"family": "defense", "tier": 3, "category": C.PROC,
 		"proc_trigger": P.ON_TAKE_DAMAGE,
-		"proc_chance_min": 0.02, "proc_chance_max": 0.15,
+		"effect_min": 0.02, "effect_max": 0.15,
+		"rounding_mode": RM.DECIMAL_2,
 		"effect_data": {"effect": "heal_percent_max_hp"},
 		"tags": ["proc", "heal", "defensive"]
 	})
@@ -945,7 +955,8 @@ func _build_catalog() -> Array:
 		"affix_name": "Heal on Kill (% HP)", "description": "Heal N% max HP on kill",
 		"family": "defense", "tier": 3, "category": C.PROC,
 		"proc_trigger": P.ON_KILL,
-		"proc_chance_min": 0.03, "proc_chance_max": 0.20,
+		"effect_min": 0.03, "effect_max": 0.20,
+		"rounding_mode": RM.DECIMAL_2,
 		"effect_data": {"effect": "heal_percent_max_hp"},
 		"tags": ["proc", "heal", "on_kill"]
 	})
@@ -1010,6 +1021,7 @@ func _build_catalog() -> Array:
 		"affix_name": "Gold Find Bonus", "description": "+N% gold from encounters",
 		"family": "utility", "tier": 1, "category": C.MISC,
 		"effect_min": 0.05, "effect_max": 0.50,
+		"rounding_mode": RM.DECIMAL_2,
 		"tags": ["out_of_combat", "gold"]
 	})
 	catalog.append({
@@ -1017,6 +1029,7 @@ func _build_catalog() -> Array:
 		"affix_name": "XP Find Bonus", "description": "+N% experience from encounters",
 		"family": "utility", "tier": 1, "category": C.MISC,
 		"effect_min": 0.05, "effect_max": 0.40,
+		"rounding_mode": RM.DECIMAL_2,
 		"tags": ["out_of_combat", "xp"]
 	})
 	catalog.append({
@@ -1024,6 +1037,7 @@ func _build_catalog() -> Array:
 		"affix_name": "Loot Find Bonus", "description": "+N% loot drop chance",
 		"family": "utility", "tier": 1, "category": C.MISC,
 		"effect_min": 0.05, "effect_max": 0.35,
+		"rounding_mode": RM.DECIMAL_2,
 		"tags": ["out_of_combat", "loot"]
 	})
 	catalog.append({
@@ -1031,6 +1045,7 @@ func _build_catalog() -> Array:
 		"affix_name": "Rarity Find Bonus", "description": "+N% chance for higher rarity drops",
 		"family": "utility", "tier": 1, "category": C.MISC,
 		"effect_min": 0.03, "effect_max": 0.25,
+		"rounding_mode": RM.DECIMAL_2,
 		"tags": ["out_of_combat", "loot", "rarity"]
 	})
 	
@@ -1240,6 +1255,7 @@ func _build_catalog() -> Array:
 		"affix_name": "Bonus Die Value %", "description": "+N% to all rolled die values",
 		"family": "utility", "tier": 3, "category": C.MISC,
 		"effect_min": 0.05, "effect_max": 0.30,
+		"rounding_mode": RM.DECIMAL_2,
 		"tags": ["dice_manipulation"]
 	})
 	catalog.append({

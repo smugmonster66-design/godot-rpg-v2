@@ -207,14 +207,17 @@ func _play_combat_transition(encounter: CombatEncounter):
 	)
 
 func on_combat_ended(player_won: bool):
-	"""Called by GameRoot. Dungeon owns ALL reward distribution."""
+	"""Called by GameRoot. Dungeon owns ALL reward distribution.
+	v4: Now rolls per-enemy loot in addition to flat dungeon gold/exp."""
 	_awaiting_combat = false
 	if not _combat_node: return
 	var node = _combat_node
 	_combat_node = null
 
 	if player_won:
-		var gold = 0; var exp = 0
+		# ── Flat dungeon gold/exp (unchanged) ──
+		var gold: int = 0
+		var exp: int = 0
 		match node.node_type:
 			DungeonEnums.NodeType.COMBAT:
 				gold = current_run.definition.gold_per_combat
@@ -225,10 +228,50 @@ func on_combat_ended(player_won: bool):
 			DungeonEnums.NodeType.BOSS:
 				gold = current_run.definition.gold_per_elite * 2
 				exp = current_run.definition.exp_per_elite * 2
+
+		# ── Per-enemy loot (v4) ──
+		var region_config: RegionLootConfig = null
+		if GameManager and GameManager.region_loot_config:
+			region_config = GameManager.region_loot_config
+
+		if region_config and node.encounter:
+			var luck: float = 0.0
+			if _player:
+				luck = float(_player.get_total_stat("luck"))
+
+			for enemy_data: EnemyData in node.encounter.enemies:
+				if not enemy_data:
+					continue
+
+				# Use effective level: scale to player, floor at enemy minimum
+				var eff_level: int = enemy_data.get_effective_level(
+					_player.get_level() if _player else 1)
+
+				var results: Array[Dictionary] = LootManager.roll_loot_from_combat(
+					region_config,
+					enemy_data.enemy_tier,
+					enemy_data.enemy_archetype,
+					eff_level,
+					luck,
+				)
+
+				for result: Dictionary in results:
+					if result.get("type") == "currency":
+						gold += result.get("amount", 0)
+					else:
+						var item: EquippableItem = result.get("item")
+						if item and _player:
+							_player.add_to_inventory(item)
+							current_run.track_item(item)
+
+		# ── Apply gold/exp ──
 		if gold > 0:
-			_player.add_gold(gold); current_run.track_gold(gold)
+			_player.add_gold(gold)
+			current_run.track_gold(gold)
 		if exp > 0:
-			_player.add_experience(exp); current_run.track_exp(exp)
+			_player.add_experience(exp)
+			current_run.track_exp(exp)
+
 		_complete_and_advance(node)
 		if node.node_type == DungeonEnums.NodeType.BOSS:
 			_on_dungeon_complete()

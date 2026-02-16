@@ -38,6 +38,10 @@ var selection_shader: ShaderMaterial = null
 var is_target_selected: bool = false
 var affix_manager: AffixPoolManager = null
 
+# ── Level Scaling ──
+## Effective level computed at spawn. Used for loot item_level.
+var _effective_level: int = 1
+
 # ============================================================================
 # NODE REFERENCES
 # ============================================================================
@@ -75,17 +79,11 @@ func _ready():
 	update_display()
 
 func _initialize_from_enemy_data():
-	"""Initialize all combatant properties from EnemyData resource"""
+	"""Initialize combatant from EnemyData. Rolls affixes at effective level."""
 	print("🎲 Initializing combatant from EnemyData: %s" % enemy_data.enemy_name)
 	
 	# Identity
 	combatant_name = enemy_data.enemy_name
-	
-	# Stats
-	max_health = enemy_data.max_health
-	current_health = max_health
-	armor = enemy_data.base_armor
-	barrier = enemy_data.base_barrier
 	
 	# AI settings
 	ai_strategy = enemy_data.ai_strategy
@@ -102,20 +100,57 @@ func _initialize_from_enemy_data():
 	if enemy_data.sprite_texture and sprite:
 		sprite.texture = enemy_data.sprite_texture
 	
-	# Create affix manager for this enemy
+	# ── Affix-driven stats ──
 	affix_manager = AffixPoolManager.new()
 	
-	# If enemy_data has affixes, add them
-	if enemy_data.has_method("get_affixes"):
-		for affix in enemy_data.get_affixes():
-			affix_manager.add_affix(affix)
+	# Get player level for scaling
+	var player_level: int = 1
+	if GameManager and GameManager.player:
+		player_level = GameManager.player.get_level()
 	
+	# Roll enemy affixes at effective level
+	var roll_result: Dictionary = enemy_data.roll_combat_affixes(player_level)
 	
-	print("  ✅ %s: HP=%d, Armor=%d, Dice=%d, Actions=%d" % [
-		combatant_name, max_health, armor, 
-		dice_collection.get_pool_count() if dice_collection else 0, 
-		actions.size()
+	# Base stats + affix bonuses
+	max_health = enemy_data.max_health + roll_result.get("health_bonus", 0)
+	current_health = max_health
+	armor = enemy_data.base_armor
+	barrier = enemy_data.base_barrier
+	
+	# Register all rolled affixes with the affix manager
+	var rolled_affixes: Array = roll_result.get("rolled_affixes", [])
+	for affix: Affix in rolled_affixes:
+		affix_manager.add_affix(affix)
+		
+		# Apply flat stat bonuses from affix categories
+		match affix.category:
+			Affix.Category.ARMOR_BONUS:
+				armor += int(affix.effect_number)
+			Affix.Category.BARRIER_BONUS:
+				barrier += int(affix.effect_number)
+			Affix.Category.DEFENSE_BONUS:
+				armor += int(affix.effect_number)
+			# Health is already handled via health_bonus
+			# Other categories (STRENGTH_BONUS, DAMAGE_BONUS, etc.) live in
+			# the affix_manager for resolution during combat calculations.
+	
+	# Store effective level for loot drops
+	_effective_level = roll_result.get("effective_level", enemy_data.enemy_level_floor)
+	
+	print("  ✅ %s: HP=%d (%d base + %d affix), Armor=%d, Barrier=%d, Dice=%d, Actions=%d, EffLv=%d" % [
+		combatant_name, max_health, enemy_data.max_health,
+		roll_result.get("health_bonus", 0),
+		armor, barrier,
+		dice_collection.get_pool_count() if dice_collection else 0,
+		actions.size(), _effective_level
 	])
+	
+	# Debug: print stat breakdown
+	var stat_totals: Dictionary = roll_result.get("stat_totals", {})
+	for cat_name: String in stat_totals:
+		print("    📊 %s: +%s" % [cat_name, str(stat_totals[cat_name])])
+
+
 
 func get_affix_manager() -> AffixPoolManager:
 	"""Get this combatant's affix manager"""
@@ -331,10 +366,16 @@ func get_rewards() -> Dictionary:
 		return {
 			"experience": enemy_data.experience_reward,
 			"gold": enemy_data.get_gold_reward(),
-			"loot_table": enemy_data.loot_table_id
+			"loot_table": enemy_data.loot_table_id,
+			"effective_level": _effective_level,
 		}
 	return {
 		"experience": 0,
 		"gold": 0,
-		"loot_table": ""
+		"loot_table": "",
+		"effective_level": 1,
 	}
+
+func get_effective_level() -> int:
+	"""Get this enemy's effective level (computed at spawn)."""
+	return _effective_level

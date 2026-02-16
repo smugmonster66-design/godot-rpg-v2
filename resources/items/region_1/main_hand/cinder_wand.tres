@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=10 format=3 uid="uid://cygp3r3gwfpf1"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_85pki"]
+[ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_hy1s5"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_irykh"]
+[ext_resource type="Resource" uid="uid://7voejwf2ow1m" path="res://resources/affixes/elements/fire_element.tres" id="3_hy1s5"]
+[ext_resource type="Resource" uid="uid://dbgj0wcg21i0b" path="res://resources/affixes/base_stats/inherent_mana.tres" id="3_vk7r2"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="4_vk7r2"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="5_d63rm"]
+[ext_resource type="Resource" uid="uid://hnmjxghaf5mm" path="res://resources/slot_definitions/main_hand_slot.tres" id="6_feyf7"]
+
+[sub_resource type="Resource" id="Resource_85pki"]
+script = ExtResource("2_irykh")
+display_name = "D4"
+die_type = 4
+element = 4
+element_affix = ExtResource("3_hy1s5")
+
+[resource]
+script = ExtResource("5_d63rm")
+item_name = "Cinder Wand"
+description = "A slender wand that smells faintly of smoke. Academy-standard for pyromantic exercises."
+flavor_text = "Warranty void if used to light cigars. (It will be used to light cigars.)"
+rarity = 1
+has_elemental_identity = true
+elemental_identity = 3
+slot_definition = ExtResource("6_feyf7")
+base_stat_affixes = Array[ExtResource("1_85pki")]([ExtResource("2_hy1s5"), ExtResource("3_vk7r2")])
+grants_dice = Array[ExtResource("2_irykh")]([SubResource("Resource_85pki")])

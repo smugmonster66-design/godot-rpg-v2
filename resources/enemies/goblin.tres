@@ -1,20 +1,20 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=8 format=3 uid="uid://ckwt0g0tr5gij"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=9 format=3 uid="uid://ckwt0g0tr5gij"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_bxi3o"]
 [ext_resource type="Resource" uid="uid://c8dyd1d4rmg7g" path="res://resources/actions/enemy/goblins/goblin_stab.tres" id="2_3kmag"]
 [ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="2_eoums"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="3_3kmag"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_k3uoj"]
 [ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="3_qxlb2"]
+[ext_resource type="Resource" uid="uid://dey1njrhd3r2d" path="res://resources/affixes/base_stats/enemy_inherent_health.tres" id="4_k3uoj"]
 [ext_resource type="Resource" uid="uid://byir7m1xtkf74" path="res://resources/dice/d6_basic.tres" id="5_qxlb2"]
-[ext_resource type="Resource" uid="uid://ctsfrcjdr4fmn" path="res://resources/dice/item/weapon/epic/d12_frost_hammer_die.tres" id="7_8263n"]
 
 [resource]
 script = ExtResource("2_eoums")
 enemy_name = "Goblin"
 description = "He's stab-happy to see you."
 portrait = ExtResource("3_qxlb2")
-max_health = 25
-starting_dice = Array[ExtResource("3_3kmag")]([ExtResource("5_qxlb2"), ExtResource("7_8263n")])
+starting_dice = Array[ExtResource("3_3kmag")]([ExtResource("5_qxlb2")])
 combat_actions = Array[ExtResource("1_bxi3o")]([ExtResource("2_3kmag")])
 ai_strategy = 0
 experience_reward = 15

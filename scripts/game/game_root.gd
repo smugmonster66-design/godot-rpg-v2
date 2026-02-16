@@ -16,6 +16,7 @@ extends Node
 @export var dev_items: Array[EquippableItem] = []
 @export_range(1, 100) var dev_item_level: int = 15
 @export_range(1, 6) var dev_item_region: int = 1
+@export_range(1, 6) var debug_region: int = 1
 
 signal combat_intro_ready
 var _combat_intro_done: bool = false
@@ -57,7 +58,9 @@ var is_in_combat: bool = false
 
 func _ready():
 	print("🎮 GameRoot initializing...")
-
+	
+	GameManager.set_active_region(debug_region)
+	
 	# Start with combat hidden
 	combat_layer.visible = false
 	combat_layer.process_mode = Node.PROCESS_MODE_DISABLED

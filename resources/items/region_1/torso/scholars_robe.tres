@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://2umafeyhxwb7"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_qt8f6"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_f33sl"]
+[ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_qmpye"]
+[ext_resource type="Resource" uid="uid://cnwjvnlvxrxs2" path="res://resources/affixes/base_stats/inherent_armor_hybrid.tres" id="3_ojrt7"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_tla61"]
+[ext_resource type="Resource" uid="uid://bo60aqpcko6p6" path="res://resources/affixes/base_stats/inherent_barrier_hybrid.tres" id="4_pv174"]
+[ext_resource type="Resource" uid="uid://cbv0pogyu7y55" path="res://resources/slot_definitions/torso_slot.tres" id="4_qmpye"]
+
+[resource]
+script = ExtResource("3_tla61")
+item_name = "Scholar's Robe"
+description = "Academic-issue gear balancing mundane and magical defense. Required reading not included."
+flavor_text = "Academy dress code, Section 3: 'Robes must be functional AND dignified.' This achieves one of those."
+rarity = 1
+equip_slot = 1
+slot_definition = ExtResource("4_qmpye")
+base_stat_affixes = Array[ExtResource("1_qt8f6")]([ExtResource("2_qmpye"), ExtResource("3_ojrt7"), ExtResource("4_pv174")])

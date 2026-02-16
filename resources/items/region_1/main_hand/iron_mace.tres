@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=12 format=3 uid="uid://c3mxcdofxsyud"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_sidbm"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_17tr3"]
+[ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_hpb5h"]
+[ext_resource type="Resource" uid="uid://2a7ntncvy5ij" path="res://resources/affixes/elements/blunt_element.tres" id="3_hpb5h"]
+[ext_resource type="Resource" uid="uid://by212c4j0x5gp" path="res://resources/affixes/base_stats/inherent_health.tres" id="3_tly2s"]
+[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="4_tly2s"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="5_yiugh"]
+[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="6_gw0i5"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="7_e4r4o"]
+[ext_resource type="Resource" uid="uid://hnmjxghaf5mm" path="res://resources/slot_definitions/main_hand_slot.tres" id="8_hnuin"]
+
+[sub_resource type="Resource" id="Resource_sidbm"]
+script = ExtResource("2_17tr3")
+display_name = "D6"
+element = 2
+element_affix = ExtResource("3_hpb5h")
+fill_texture = ExtResource("4_tly2s")
+stroke_texture = ExtResource("6_gw0i5")
+
+[resource]
+script = ExtResource("7_e4r4o")
+item_name = "Iron Mace"
+description = "Heavy, blunt, and remarkably persuasive. Popular among dock enforcers and people who prefer their arguments concise."
+flavor_text = "Some problems can't be solved with paperwork. For everything else, there's the mace."
+rarity = 1
+has_elemental_identity = true
+elemental_identity = 1
+slot_definition = ExtResource("8_hnuin")
+base_stat_affixes = Array[ExtResource("1_sidbm")]([ExtResource("2_hpb5h"), ExtResource("3_tly2s")])
+grants_dice = Array[ExtResource("2_17tr3")]([SubResource("Resource_sidbm")])
+base_value = 15

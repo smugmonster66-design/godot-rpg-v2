@@ -12,3 +12,4 @@ category = 36
 tags = Array[String](["out_of_combat", "loot", "rarity"])
 effect_min = 0.03
 effect_max = 0.25
+rounding_mode = 2

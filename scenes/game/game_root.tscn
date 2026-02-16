@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://b2w217jydc2gl"]
+[gd_scene load_steps=23 format=3 uid="uid://b2w217jydc2gl"]
 
 [ext_resource type="Script" uid="uid://c2ftibv05ag52" path="res://scripts/game/game_root.gd" id="1_pevc5"]
 [ext_resource type="Script" uid="uid://buljuod5rywxy" path="res://scripts/shared/game_camera.gd" id="2_i88f8"]
@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" uid="uid://c8lkjoshcff88" path="res://scenes/ui/popups/post_combat_summary.tscn" id="12_a6cr8"]
 [ext_resource type="PackedScene" uid="uid://bvb7r5rwfohfr" path="res://resources/ui/dungeon_entrance_button.tscn" id="15_h5onw"]
 [ext_resource type="Resource" uid="uid://cxorgt3nixhcs" path="res://resources/dungeon/dungeon_test.tres" id="16_f3gwi"]
+[ext_resource type="PackedScene" path="res://scenes/debug/debug_loot_panel.tscn" id="17_kdtot"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_n6w2t"]
 
@@ -66,7 +67,7 @@ visible = false
 [node name="CombatScene" parent="CombatLayer" instance=ExtResource("2_n6w2t")]
 
 [node name="PersistentUILayer" type="CanvasLayer" parent="."]
-layer = 100
+layer = 99
 
 [node name="PanelContainer" type="PanelContainer" parent="PersistentUILayer"]
 custom_minimum_size = Vector2(0, 342)
@@ -167,3 +168,14 @@ offset_top = 1516.0
 offset_right = 1054.0
 offset_bottom = 1576.0
 dungeon_definition = ExtResource("16_f3gwi")
+
+[node name="DebugLayer" type="CanvasLayer" parent="."]
+layer = 200
+
+[node name="DebugLootPanel" parent="DebugLayer" instance=ExtResource("17_kdtot")]
+anchors_preset = 6
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -266.0
+offset_bottom = 266.0
+grow_vertical = 2

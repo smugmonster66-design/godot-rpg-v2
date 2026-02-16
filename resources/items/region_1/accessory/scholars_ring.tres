@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=7 format=3 uid="uid://6uhmu4om7awv"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_004fy"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_6ewv0"]
+[ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_u4nu8"]
+[ext_resource type="Resource" uid="uid://dbgj0wcg21i0b" path="res://resources/affixes/base_stats/inherent_mana.tres" id="3_7d6b1"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_u4nu8"]
+[ext_resource type="Resource" uid="uid://baxp7h1tamq4" path="res://resources/slot_definitions/accessory_slot.tres" id="4_7d6b1"]
+
+[resource]
+script = ExtResource("3_u4nu8")
+item_name = "Scholar's Ring"
+description = "A ring set with a cloudy crystal that hums when near magical texts. The Academy awards these upon completion of basic studies."
+flavor_text = "Completion of basic studies takes six years. 'Basic' is relative."
+rarity = 1
+equip_slot = 7
+slot_definition = ExtResource("4_7d6b1")
+base_stat_affixes = Array[ExtResource("1_004fy")]([ExtResource("2_u4nu8"), ExtResource("3_7d6b1")])
+base_value = 12

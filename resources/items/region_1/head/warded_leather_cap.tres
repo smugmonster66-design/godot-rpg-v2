@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://bxqkcbnyypwnj"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_5nwyl"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_4dkwg"]
+[ext_resource type="Resource" uid="uid://dlfux8drlkb3t" path="res://resources/affixes/base_stats/inherent_agility.tres" id="2_hoj7b"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_0c5wi"]
+[ext_resource type="Resource" uid="uid://dbgj0wcg21i0b" path="res://resources/affixes/base_stats/inherent_mana.tres" id="3_m2jps"]
+[ext_resource type="Resource" uid="uid://3himbtyqcloq" path="res://resources/affixes/base_stats/inherent_barrier.tres" id="4_foq21"]
+[ext_resource type="Resource" uid="uid://l4haca2jhusf" path="res://resources/slot_definitions/head_slot.tres" id="4_hoj7b"]
+
+[resource]
+script = ExtResource("3_0c5wi")
+item_name = "Warded Leather Cap"
+description = "Light leather infused with defensive wards. Moves like cloth, protects like it has opinions about your survival."
+flavor_text = "The ward activates faster than your reflexes. Which says more about the ward than your reflexes."
+rarity = 1
+equip_slot = 0
+slot_definition = ExtResource("4_hoj7b")
+base_stat_affixes = Array[ExtResource("1_5nwyl")]([ExtResource("2_hoj7b"), ExtResource("3_m2jps"), ExtResource("4_foq21")])

@@ -1,97 +1,19 @@
-[gd_resource type="Resource" script_class="AffixTable" load_steps=14 format=3 uid="uid://b2msb2b65qm18"]
+[gd_resource type="Resource" script_class="AffixTable" load_steps=12 format=3 uid="uid://b2msb2b65qm18"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_d5ud6"]
-[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_d1fui"]
-[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_c4dq1"]
+[ext_resource type="Resource" uid="uid://dus8fc86kvcx3" path="res://resources/affixes/base/defense/tier_1/armor_bonus.tres" id="2_gm7be"]
+[ext_resource type="Resource" uid="uid://2ais74w2j5ck" path="res://resources/affixes/base/defense/tier_1/defense_bonus.tres" id="3_y1n70"]
+[ext_resource type="Resource" uid="uid://dnqny3kpamke" path="res://resources/affixes/base/defense/tier_1/fire_resist.tres" id="4_ec1d0"]
 [ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="4_l605t"]
-
-[sub_resource type="Resource" id="Resource_ne506"]
-script = ExtResource("1_d5ud6")
-affix_name = "Armor Bonus"
-description = "+N Armor"
-category = 13
-tags = Array[String](["defense", "armor", "physical"])
-effect_min = 2.0
-effect_max = 80.0
-
-[sub_resource type="Resource" id="Resource_a886c"]
-script = ExtResource("1_d5ud6")
-affix_name = "Defense Bonus"
-description = "+N Defense"
-category = 11
-tags = Array[String](["defense"])
-effect_min = 1.0
-effect_max = 60.0
-
-[sub_resource type="Resource" id="Resource_o0i68"]
-script = ExtResource("1_d5ud6")
-affix_name = "Fire Resist"
-description = "+N Fire resistance"
-category = 14
-tags = Array[String](["resist", "elemental", "fire"])
-effect_min = 2.0
-effect_max = 40.0
-
-[sub_resource type="Resource" id="Resource_gm7be"]
-script = ExtResource("1_d5ud6")
-affix_name = "Ice Resist"
-description = "+N Ice resistance"
-category = 15
-tags = Array[String](["resist", "elemental", "ice"])
-effect_min = 2.0
-effect_max = 40.0
-
-[sub_resource type="Resource" id="Resource_y1n70"]
-script = ExtResource("1_d5ud6")
-affix_name = "Shock Resist"
-description = "+N Shock resistance"
-category = 16
-tags = Array[String](["resist", "elemental", "shock"])
-effect_min = 2.0
-effect_max = 40.0
-
-[sub_resource type="Resource" id="Resource_ec1d0"]
-script = ExtResource("1_d5ud6")
-affix_name = "Poison Resist"
-description = "+N Poison resistance"
-category = 17
-tags = Array[String](["resist", "elemental", "poison"])
-effect_min = 2.0
-effect_max = 40.0
-
-[sub_resource type="Resource" id="Resource_gkuj1"]
-script = ExtResource("1_d5ud6")
-affix_name = "Shadow Resist"
-description = "+N Shadow resistance"
-category = 18
-tags = Array[String](["resist", "elemental", "shadow"])
-effect_min = 2.0
-effect_max = 40.0
-
-[sub_resource type="Resource" id="Resource_p1jml"]
-script = ExtResource("1_d5ud6")
-affix_name = "Health Bonus"
-description = "+N maximum health"
-category = 28
-tags = Array[String](["defense", "health"])
-effect_min = 5.0
-effect_max = 250.0
-
-[sub_resource type="Resource" id="Resource_qfsry"]
-script = ExtResource("1_d5ud6")
-affix_name = "Heal after Combat"
-description = "Heal N after combat"
-category = 35
-tags = Array[String](["proc", "heal", "out_of_combat"])
-effect_min = 3.0
-effect_max = 50.0
-effect_data = {
-"effect": "heal_flat"
-}
-proc_trigger = 6
+[ext_resource type="Resource" uid="uid://dsgbiumd734el" path="res://resources/affixes/base/defense/tier_1/ice_resist.tres" id="5_gkuj1"]
+[ext_resource type="Resource" uid="uid://d0y43aa7dop0t" path="res://resources/affixes/base/defense/tier_1/shock_resist.tres" id="6_p1jml"]
+[ext_resource type="Resource" uid="uid://jhsm16n06ud6" path="res://resources/affixes/base/defense/tier_1/poison_resist.tres" id="7_qfsry"]
+[ext_resource type="Resource" uid="uid://bgrdt5r5yqqfo" path="res://resources/affixes/base/defense/tier_1/shadow_resist.tres" id="8_38mwg"]
+[ext_resource type="Resource" uid="uid://4agp3mq3qu5n" path="res://resources/affixes/base/defense/tier_1/health_bonus.tres" id="9_vm3u2"]
+[ext_resource type="Resource" uid="uid://dhy55g4tugb3x" path="res://resources/affixes/base/defense/tier_1/heal_after_combat_flat.tres" id="10_vsygt"]
 
 [resource]
 script = ExtResource("4_l605t")
 table_name = "Defense Tier 1"
 description = "Base defense affixes, tier 1. Auto-generated."
-available_affixes = Array[ExtResource("1_d5ud6")]([SubResource("Resource_ne506"), SubResource("Resource_a886c"), SubResource("Resource_o0i68"), SubResource("Resource_gm7be"), SubResource("Resource_y1n70"), SubResource("Resource_ec1d0"), SubResource("Resource_gkuj1"), SubResource("Resource_p1jml"), SubResource("Resource_qfsry")])
+available_affixes = Array[ExtResource("1_d5ud6")]([ExtResource("2_gm7be"), ExtResource("3_y1n70"), ExtResource("4_ec1d0"), ExtResource("5_gkuj1"), ExtResource("6_p1jml"), ExtResource("7_qfsry"), ExtResource("8_38mwg"), ExtResource("9_vm3u2"), ExtResource("10_vsygt")])

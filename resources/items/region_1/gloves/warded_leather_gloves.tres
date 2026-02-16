@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://c15x5jmeisdvv"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_2fvwp"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_roudw"]
+[ext_resource type="Resource" uid="uid://dlfux8drlkb3t" path="res://resources/affixes/base_stats/inherent_agility.tres" id="2_x0u24"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_l3e4p"]
+[ext_resource type="Resource" uid="uid://ckylwdt2phbob" path="res://resources/affixes/base_stats/inherent_damage.tres" id="3_uayia"]
+[ext_resource type="Resource" uid="uid://3himbtyqcloq" path="res://resources/affixes/base_stats/inherent_barrier.tres" id="4_lhw1q"]
+[ext_resource type="Resource" uid="uid://d0u4wgvhs8sam" path="res://resources/slot_definitions/gloves_slot.tres" id="4_x0u24"]
+
+[resource]
+script = ExtResource("3_l3e4p")
+item_name = "Warded Leather Gloves"
+description = "Light leather infused with defensive wards. Moves like cloth, protects like it has opinions about your survival."
+flavor_text = "The ward makes your fingers tingle. Riders say it improves their grip. The tingling does not improve their grip."
+rarity = 1
+equip_slot = 2
+slot_definition = ExtResource("4_x0u24")
+base_stat_affixes = Array[ExtResource("1_2fvwp")]([ExtResource("2_x0u24"), ExtResource("3_uayia"), ExtResource("4_lhw1q")])

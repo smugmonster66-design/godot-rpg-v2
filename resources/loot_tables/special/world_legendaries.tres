@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="LootTable" load_steps=3 format=3 uid="uid://7in5naml01mw"]
+
+[ext_resource type="Script" uid="uid://b2rburvcl540q" path="res://resources/data/loot_drop.gd" id="1_yb4fh"]
+[ext_resource type="Script" uid="uid://boj6mculdlkuk" path="res://resources/data/loot_table.gd" id="2_w7aos"]
+
+[resource]
+script = ExtResource("2_w7aos")
+table_name = "world_legendaries"
+description = "Hand-curated world legendaries. Any enemy can trigger a drop from here. Add legendary item templates via the Inspector."

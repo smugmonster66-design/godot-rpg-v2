@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=10 format=3 uid="uid://ce0egc5uw63cw"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_3jub3"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_47n1r"]
+[ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_fd3o5"]
+[ext_resource type="Resource" uid="uid://6rsbaoccvjqc" path="res://resources/affixes/elements/ice_element.tres" id="3_fd3o5"]
+[ext_resource type="Resource" uid="uid://dbgj0wcg21i0b" path="res://resources/affixes/base_stats/inherent_mana.tres" id="3_xy0f2"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="4_xy0f2"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="5_7klrb"]
+[ext_resource type="Resource" uid="uid://hnmjxghaf5mm" path="res://resources/slot_definitions/main_hand_slot.tres" id="6_pgvul"]
+
+[sub_resource type="Resource" id="Resource_3jub3"]
+script = ExtResource("2_47n1r")
+display_name = "D4"
+die_type = 4
+element = 5
+element_affix = ExtResource("3_fd3o5")
+
+[resource]
+script = ExtResource("5_7klrb")
+item_name = "Frost Wand"
+description = "Cold to the touch. Standard-issue for cryomantic cadets."
+flavor_text = "Also useful for keeping drinks cold at officer's mess. Unofficially."
+rarity = 1
+has_elemental_identity = true
+elemental_identity = 4
+slot_definition = ExtResource("6_pgvul")
+base_stat_affixes = Array[ExtResource("1_3jub3")]([ExtResource("2_fd3o5"), ExtResource("3_xy0f2")])
+grants_dice = Array[ExtResource("2_47n1r")]([SubResource("Resource_3jub3")])

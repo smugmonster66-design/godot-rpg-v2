@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://c0o5pr2pg3db0"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_owwpc"]
+[ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_jtsio"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_wdqu8"]
+[ext_resource type="Resource" uid="uid://cnwjvnlvxrxs2" path="res://resources/affixes/base_stats/inherent_armor_hybrid.tres" id="3_3ox1q"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_f2dfk"]
+[ext_resource type="Resource" uid="uid://btsq4gakq82l7" path="res://resources/slot_definitions/off_hand_slot.tres" id="4_jtsio"]
+[ext_resource type="Resource" uid="uid://bo60aqpcko6p6" path="res://resources/affixes/base_stats/inherent_barrier_hybrid.tres" id="4_omoqb"]
+
+[resource]
+script = ExtResource("3_f2dfk")
+item_name = "Reinforced Naval Shield"
+description = "A broad shield bearing Sanctum's anchor emblem. Designed for holding formation on a pitching deck."
+flavor_text = "Half steel, half sorcery. Sanctum's military budget in physical form."
+rarity = 1
+equip_slot = 5
+slot_definition = ExtResource("4_jtsio")
+base_stat_affixes = Array[ExtResource("1_owwpc")]([ExtResource("2_jtsio"), ExtResource("3_3ox1q"), ExtResource("4_omoqb")])
+base_value = 12

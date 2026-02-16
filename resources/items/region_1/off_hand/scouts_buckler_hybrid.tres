@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://dhiw8c12ulmw6"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_op33j"]
+[ext_resource type="Resource" uid="uid://dlfux8drlkb3t" path="res://resources/affixes/base_stats/inherent_agility.tres" id="2_765fk"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_ml1io"]
+[ext_resource type="Resource" uid="uid://cnwjvnlvxrxs2" path="res://resources/affixes/base_stats/inherent_armor_hybrid.tres" id="3_28xt8"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_toniq"]
+[ext_resource type="Resource" uid="uid://btsq4gakq82l7" path="res://resources/slot_definitions/off_hand_slot.tres" id="4_765fk"]
+[ext_resource type="Resource" uid="uid://bo60aqpcko6p6" path="res://resources/affixes/base_stats/inherent_barrier_hybrid.tres" id="4_s2f02"]
+
+[resource]
+script = ExtResource("3_toniq")
+item_name = "Reinforced Scout's Buckler"
+description = "A light round shield strapped to the forearm. Favored by griffin riders and anyone who needs a free hand."
+flavor_text = "Light steel rim, magical core. The rider's compromise."
+rarity = 1
+equip_slot = 5
+slot_definition = ExtResource("4_765fk")
+base_stat_affixes = Array[ExtResource("1_op33j")]([ExtResource("2_765fk"), ExtResource("3_28xt8"), ExtResource("4_s2f02")])
+base_value = 12

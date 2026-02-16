@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://cv1o450e44s5g"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_5r0t7"]
+[ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_g8hee"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_nd8if"]
+[ext_resource type="Resource" uid="uid://by212c4j0x5gp" path="res://resources/affixes/base_stats/inherent_health.tres" id="3_dqbp3"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_hykq2"]
+[ext_resource type="Resource" uid="uid://btsq4gakq82l7" path="res://resources/slot_definitions/off_hand_slot.tres" id="4_g8hee"]
+[ext_resource type="Resource" uid="uid://bvlqcx16ejx" path="res://resources/affixes/base_stats/inherent_armor.tres" id="4_spi7j"]
+
+[resource]
+script = ExtResource("3_hykq2")
+item_name = "Naval Shield"
+description = "A broad shield bearing Sanctum's anchor emblem. Designed for holding formation on a pitching deck."
+flavor_text = "Stops swords. Stops arrows. Does not stop superior officers from assigning extra watch duty."
+rarity = 1
+equip_slot = 5
+slot_definition = ExtResource("4_g8hee")
+base_stat_affixes = Array[ExtResource("1_5r0t7")]([ExtResource("2_g8hee"), ExtResource("3_dqbp3"), ExtResource("4_spi7j")])
+base_value = 12

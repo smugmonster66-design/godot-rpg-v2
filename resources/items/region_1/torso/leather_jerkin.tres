@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://mbkx1j8le68b"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_3bujq"]
+[ext_resource type="Resource" uid="uid://dlfux8drlkb3t" path="res://resources/affixes/base_stats/inherent_agility.tres" id="2_2gwxr"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_j8qbh"]
+[ext_resource type="Resource" uid="uid://by212c4j0x5gp" path="res://resources/affixes/base_stats/inherent_health.tres" id="3_8v3cw"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_jlbjv"]
+[ext_resource type="Resource" uid="uid://cbv0pogyu7y55" path="res://resources/slot_definitions/torso_slot.tres" id="4_2gwxr"]
+[ext_resource type="Resource" uid="uid://bvlqcx16ejx" path="res://resources/affixes/base_stats/inherent_armor.tres" id="4_gsygi"]
+
+[resource]
+script = ExtResource("3_jlbjv")
+item_name = "Leather Jerkin"
+description = "Hardened leather shaped for mobility. Griffin riders and scouts swear by it, though they disagree on the proper way to lace it."
+flavor_text = "Tanned with a proprietary process the leatherworkers refuse to discuss. It smells fine. Mostly."
+rarity = 1
+equip_slot = 1
+slot_definition = ExtResource("4_2gwxr")
+base_stat_affixes = Array[ExtResource("1_3bujq")]([ExtResource("2_2gwxr"), ExtResource("3_8v3cw"), ExtResource("4_gsygi")])

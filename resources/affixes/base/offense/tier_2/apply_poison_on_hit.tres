@@ -10,10 +10,11 @@ affix_name = "Apply Poison on Hit"
 description = "N% chance to Poison on hit"
 category = 35
 tags = Array[String](["proc", "status", "poison", "on_hit"])
-effect_min = 0.1
-effect_max = 0.5
 effect_data = {
 "effect": "apply_status",
 "status": "poison"
 }
 proc_trigger = 1
+proc_chance = 0.3
+proc_chance_min = 0.1
+proc_chance_max = 0.5

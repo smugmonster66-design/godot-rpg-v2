@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://cgs62edoqo2j8"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_2gd6c"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_13abj"]
+[ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_kkeac"]
+[ext_resource type="Resource" uid="uid://dbgj0wcg21i0b" path="res://resources/affixes/base_stats/inherent_mana.tres" id="3_0hsyf"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_tqwiu"]
+[ext_resource type="Resource" uid="uid://btsq4gakq82l7" path="res://resources/slot_definitions/off_hand_slot.tres" id="4_kkeac"]
+[ext_resource type="Resource" uid="uid://bvlqcx16ejx" path="res://resources/affixes/base_stats/inherent_armor.tres" id="4_ocl5o"]
+
+[resource]
+script = ExtResource("3_tqwiu")
+item_name = "Worn Tome"
+description = "A thick reference manual that doubles as a focus. The marginalia is in three languages, two of which may not exist."
+flavor_text = "Reinforced binding. Some spells require a blunt instrument, and this qualifies."
+rarity = 1
+equip_slot = 5
+slot_definition = ExtResource("4_kkeac")
+base_stat_affixes = Array[ExtResource("1_2gd6c")]([ExtResource("2_kkeac"), ExtResource("3_0hsyf"), ExtResource("4_ocl5o")])
+base_value = 12

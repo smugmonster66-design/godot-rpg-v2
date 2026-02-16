@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EnemyTierLootConfig" load_steps=2 format=3 uid="uid://bmt3u6rls3g53"]
+
+[ext_resource type="Script" uid="uid://d0wqvqpbbt3jk" path="res://resources/data/enemy_tier_loot_config.gd" id="1_xiap1"]
+
+[resource]
+script = ExtResource("1_xiap1")
+tier_name = "World Boss"
+tier = 4
+common_weight = 0
+uncommon_weight = 0
+rare_weight = 30
+epic_weight = 70
+drop_count_min = 2
+drop_count_max = 3
+nothing_weight = 0
+archetype_bonus_chance = 1.0
+world_legendary_chance = 0.15
+currency_min = 50
+currency_max = 120

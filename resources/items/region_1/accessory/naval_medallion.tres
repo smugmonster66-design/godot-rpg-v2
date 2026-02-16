@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=7 format=3 uid="uid://dt4is4rt2hey"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_uj6ib"]
+[ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_666we"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_veoto"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_666we"]
+[ext_resource type="Resource" uid="uid://ckylwdt2phbob" path="res://resources/affixes/base_stats/inherent_damage.tres" id="3_v04i6"]
+[ext_resource type="Resource" uid="uid://baxp7h1tamq4" path="res://resources/slot_definitions/accessory_slot.tres" id="4_v04i6"]
+
+[resource]
+script = ExtResource("3_666we")
+item_name = "Naval Medallion"
+description = "A bronze medallion stamped with Sanctum's crest. Officers who distinguish themselves in combat receive one. Officers who distinguish themselves in paperwork receive two."
+flavor_text = "Wear it over your heart. It won't stop an arrow, but the dramatic irony might slow one down."
+rarity = 1
+equip_slot = 7
+slot_definition = ExtResource("4_v04i6")
+base_stat_affixes = Array[ExtResource("1_uj6ib")]([ExtResource("2_666we"), ExtResource("3_v04i6")])
+base_value = 12

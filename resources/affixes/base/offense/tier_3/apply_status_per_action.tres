@@ -10,9 +10,10 @@ affix_name = "Apply Status per Action"
 description = "Chance to apply status per action"
 category = 35
 tags = Array[String](["proc", "status"])
-effect_min = 0.1
-effect_max = 0.4
 effect_data = {
 "effect": "apply_status"
 }
 proc_trigger = 8
+proc_chance = 0.25
+proc_chance_min = 0.1
+proc_chance_max = 0.4

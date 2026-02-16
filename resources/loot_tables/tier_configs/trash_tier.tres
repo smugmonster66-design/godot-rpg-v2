@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="EnemyTierLootConfig" load_steps=2 format=3 uid="uid://bkwfpk6cv5k6g"]
+
+[ext_resource type="Script" uid="uid://d0wqvqpbbt3jk" path="res://resources/data/enemy_tier_loot_config.gd" id="1_0wowo"]
+
+[resource]
+script = ExtResource("1_0wowo")
+currency_min = 3
+currency_max = 10

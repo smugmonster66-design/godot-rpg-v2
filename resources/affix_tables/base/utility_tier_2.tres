@@ -1,225 +1,29 @@
-[gd_resource type="Resource" script_class="AffixTable" load_steps=34 format=3 uid="uid://chcat14ipehjk"]
+[gd_resource type="Resource" script_class="AffixTable" load_steps=22 format=3 uid="uid://chcat14ipehjk"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_6rmh3"]
-[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_pynx3"]
-[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_r46xp"]
+[ext_resource type="Resource" uid="uid://bvre5yqbbuyr3" path="res://resources/affixes/base/utility/tier_2/mana_regen_per_turn.tres" id="2_6gocy"]
+[ext_resource type="Resource" uid="uid://b0vespy3opnk0" path="res://resources/affixes/base/utility/tier_2/mana_cost_reduction.tres" id="3_yxgr5"]
+[ext_resource type="Resource" uid="uid://ygkaq3ggqp22" path="res://resources/affixes/base/utility/tier_2/mana_on_kill.tres" id="4_a7yom"]
 [ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="4_uile2"]
-[ext_resource type="Resource" uid="uid://mxojnvfwmj81" path="res://resources/dice/base/d8_none.tres" id="die_0"]
-[ext_resource type="Resource" uid="uid://b47fenhk4xnx1" path="res://resources/dice/base/d10_none.tres" id="die_1"]
-[ext_resource type="Resource" uid="uid://gc6akc7crfwb" path="res://resources/dice/base/d6_fire.tres" id="die_2"]
-[ext_resource type="Resource" uid="uid://c416ns0ib7j4j" path="res://resources/dice/base/d6_ice.tres" id="die_3"]
-[ext_resource type="Resource" uid="uid://dalywoj3rokxn" path="res://resources/dice/base/d6_shock.tres" id="die_4"]
-[ext_resource type="Resource" uid="uid://exm08oxk02p6" path="res://resources/dice/base/d6_poison.tres" id="die_5"]
-[ext_resource type="Resource" uid="uid://tyqu36n2ctml" path="res://resources/dice/base/d6_shadow.tres" id="die_6"]
-[ext_resource type="Resource" uid="uid://cyfnae7ocl3lt" path="res://resources/dice/base/d6_slashing.tres" id="die_7"]
-[ext_resource type="Resource" uid="uid://njy4roswqqdg" path="res://resources/dice/base/d6_blunt.tres" id="die_8"]
-[ext_resource type="Resource" uid="uid://hkwxt6y2yqyt" path="res://resources/dice/base/d6_piercing.tres" id="die_9"]
-
-[sub_resource type="Resource" id="Resource_hjfjs"]
-script = ExtResource("1_6rmh3")
-affix_name = "Mana Regen per Turn"
-description = "+N mana at start of each turn"
-category = 33
-tags = Array[String](["mana", "regen"])
-effect_min = 1.0
-effect_max = 15.0
-
-[sub_resource type="Resource" id="Resource_pxu80"]
-script = ExtResource("1_6rmh3")
-affix_name = "Mana Cost Reduction"
-description = "Reduce action mana costs by N"
-category = 36
-tags = Array[String](["mana"])
-effect_min = 1.0
-effect_max = 10.0
-
-[sub_resource type="Resource" id="Resource_alg2j"]
-script = ExtResource("1_6rmh3")
-affix_name = "Mana on Kill"
-description = "+N mana on kill"
-category = 35
-tags = Array[String](["proc", "mana", "on_kill"])
-effect_min = 1.0
-effect_max = 15.0
-effect_data = {
-"effect": "mana_restore"
-}
-proc_trigger = 9
-
-[sub_resource type="Resource" id="Resource_4hli2"]
-script = ExtResource("1_6rmh3")
-affix_name = "Grant D8 (Neutral)"
-description = "Add a neutral D8 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "neutral"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_pynx3")]([ExtResource("die_0")])
-
-[sub_resource type="Resource" id="Resource_rr8ob"]
-script = ExtResource("1_6rmh3")
-affix_name = "Grant D10 (Neutral)"
-description = "Add a neutral D10 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "neutral"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_pynx3")]([ExtResource("die_1")])
-
-[sub_resource type="Resource" id="Resource_jxe7v"]
-script = ExtResource("1_6rmh3")
-affix_name = "Grant Fire D6"
-description = "Add a Fire D6 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "fire"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_pynx3")]([ExtResource("die_2")])
-
-[sub_resource type="Resource" id="Resource_4kibg"]
-script = ExtResource("1_6rmh3")
-affix_name = "Grant Ice D6"
-description = "Add a Ice D6 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "ice"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_pynx3")]([ExtResource("die_3")])
-
-[sub_resource type="Resource" id="Resource_a8lj2"]
-script = ExtResource("1_6rmh3")
-affix_name = "Grant Shock D6"
-description = "Add a Shock D6 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "shock"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_pynx3")]([ExtResource("die_4")])
-
-[sub_resource type="Resource" id="Resource_odgrh"]
-script = ExtResource("1_6rmh3")
-affix_name = "Grant Poison D6"
-description = "Add a Poison D6 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "poison"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_pynx3")]([ExtResource("die_5")])
-
-[sub_resource type="Resource" id="Resource_o3mnk"]
-script = ExtResource("1_6rmh3")
-affix_name = "Grant Shadow D6"
-description = "Add a Shadow D6 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "shadow"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_pynx3")]([ExtResource("die_6")])
-
-[sub_resource type="Resource" id="Resource_1ns0b"]
-script = ExtResource("1_6rmh3")
-affix_name = "Grant Slashing D6"
-description = "Add a Slashing D6 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "slashing"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_pynx3")]([ExtResource("die_7")])
-
-[sub_resource type="Resource" id="Resource_u8q7q"]
-script = ExtResource("1_6rmh3")
-affix_name = "Grant Blunt D6"
-description = "Add a Blunt D6 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "blunt"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_pynx3")]([ExtResource("die_8")])
-
-[sub_resource type="Resource" id="Resource_ys3b2"]
-script = ExtResource("1_6rmh3")
-affix_name = "Grant Piercing D6"
-description = "Add a Piercing D6 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "piercing"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_pynx3")]([ExtResource("die_9")])
-
-[sub_resource type="Resource" id="Resource_6gocy"]
-script = ExtResource("1_6rmh3")
-affix_name = "Reroll Lowest Die"
-description = "Reroll your lowest die once per turn"
-category = 35
-tags = Array[String](["dice_manipulation"])
-effect_number = 1.0
-effect_data = {
-"effect": "reroll_lowest"
-}
-proc_trigger = 3
-
-[sub_resource type="Resource" id="Resource_yxgr5"]
-script = ExtResource("1_6rmh3")
-affix_name = "Bonus Die Value"
-description = "+N to all rolled die values"
-category = 36
-tags = Array[String](["dice_manipulation"])
-effect_min = 1.0
-effect_max = 3.0
-
-[sub_resource type="Resource" id="Resource_a7yom"]
-script = ExtResource("1_6rmh3")
-affix_name = "Starting Mana"
-description = "+N mana at combat start"
-category = 35
-tags = Array[String](["proc", "mana", "combat_start"])
-effect_min = 2.0
-effect_max = 20.0
-effect_data = {
-"effect": "mana_restore"
-}
-proc_trigger = 5
-
-[sub_resource type="Resource" id="Resource_pwu5e"]
-script = ExtResource("1_6rmh3")
-affix_name = "Extra Die on Turn Start"
-description = "Roll one additional die at turn start"
-category = 35
-tags = Array[String](["dice_manipulation"])
-effect_number = 1.0
-effect_data = {
-"effect": "grant_extra_die"
-}
-proc_trigger = 3
-
-[sub_resource type="Resource" id="Resource_rlvei"]
-script = ExtResource("1_6rmh3")
-affix_name = "Mana after Combat"
-description = "+N mana after combat"
-category = 35
-tags = Array[String](["proc", "mana", "out_of_combat"])
-effect_min = 2.0
-effect_max = 20.0
-effect_data = {
-"effect": "mana_restore"
-}
-proc_trigger = 6
-
-[sub_resource type="Resource" id="Resource_xc8f4"]
-script = ExtResource("1_6rmh3")
-affix_name = "Mana on Die Used"
-description = "+N mana when a die is consumed"
-category = 35
-tags = Array[String](["proc", "mana", "dice"])
-effect_min = 1.0
-effect_max = 8.0
-effect_data = {
-"effect": "mana_restore"
-}
-proc_trigger = 7
+[ext_resource type="Resource" uid="uid://br0bcxdown1qp" path="res://resources/affixes/base/utility/tier_2/grant_d8_neutral.tres" id="5_pwu5e"]
+[ext_resource type="Resource" uid="uid://1vnka2lmqw5p" path="res://resources/affixes/base/utility/tier_2/grant_d10_neutral.tres" id="6_rlvei"]
+[ext_resource type="Resource" uid="uid://dv6wauj8xu64k" path="res://resources/affixes/base/utility/tier_2/grant_fire_d6.tres" id="7_xc8f4"]
+[ext_resource type="Resource" uid="uid://c4hfmuyx57nt8" path="res://resources/affixes/base/utility/tier_2/grant_ice_d6.tres" id="8_dcuh5"]
+[ext_resource type="Resource" uid="uid://b7qeu73kg7flp" path="res://resources/affixes/base/utility/tier_2/grant_shock_d6.tres" id="9_7dmms"]
+[ext_resource type="Resource" uid="uid://c0bn77dq3hsop" path="res://resources/affixes/base/utility/tier_2/grant_poison_d6.tres" id="10_wq73r"]
+[ext_resource type="Resource" uid="uid://c04rl4u67mje7" path="res://resources/affixes/base/utility/tier_2/grant_shadow_d6.tres" id="11_iemgs"]
+[ext_resource type="Resource" uid="uid://drj7tpcmrqblp" path="res://resources/affixes/base/utility/tier_2/grant_slashing_d6.tres" id="12_yjun0"]
+[ext_resource type="Resource" uid="uid://bndpr6fhhpqox" path="res://resources/affixes/base/utility/tier_2/grant_blunt_d6.tres" id="13_vbprw"]
+[ext_resource type="Resource" uid="uid://dmpxwwtf31see" path="res://resources/affixes/base/utility/tier_2/grant_piercing_d6.tres" id="14_vto08"]
+[ext_resource type="Resource" uid="uid://jub7jlfxrxkg" path="res://resources/affixes/base/utility/tier_2/reroll_lowest_die.tres" id="15_wxlge"]
+[ext_resource type="Resource" uid="uid://ccqxwwl1frxxc" path="res://resources/affixes/base/utility/tier_2/bonus_die_value_flat.tres" id="16_nhlbi"]
+[ext_resource type="Resource" uid="uid://bh3j4pfjcqd1a" path="res://resources/affixes/base/utility/tier_2/starting_mana.tres" id="17_tone7"]
+[ext_resource type="Resource" uid="uid://b5t10oi01rq5x" path="res://resources/affixes/base/utility/tier_2/extra_die_on_turn_start.tres" id="18_pkkg5"]
+[ext_resource type="Resource" uid="uid://ci2nbxqgs4xh4" path="res://resources/affixes/base/utility/tier_2/heal_after_combat_mana.tres" id="19_yrxaf"]
+[ext_resource type="Resource" uid="uid://p7tucpeowilp" path="res://resources/affixes/base/utility/tier_2/mana_on_die_used.tres" id="20_hapep"]
 
 [resource]
 script = ExtResource("4_uile2")
 table_name = "Utility Tier 2"
 description = "Base utility affixes, tier 2. Auto-generated."
-available_affixes = Array[ExtResource("1_6rmh3")]([SubResource("Resource_hjfjs"), SubResource("Resource_pxu80"), SubResource("Resource_alg2j"), SubResource("Resource_4hli2"), SubResource("Resource_rr8ob"), SubResource("Resource_jxe7v"), SubResource("Resource_4kibg"), SubResource("Resource_a8lj2"), SubResource("Resource_odgrh"), SubResource("Resource_o3mnk"), SubResource("Resource_1ns0b"), SubResource("Resource_u8q7q"), SubResource("Resource_ys3b2"), SubResource("Resource_6gocy"), SubResource("Resource_yxgr5"), SubResource("Resource_a7yom"), SubResource("Resource_pwu5e"), SubResource("Resource_rlvei"), SubResource("Resource_xc8f4")])
+available_affixes = Array[ExtResource("1_6rmh3")]([ExtResource("2_6gocy"), ExtResource("3_yxgr5"), ExtResource("4_a7yom"), ExtResource("5_pwu5e"), ExtResource("6_rlvei"), ExtResource("7_xc8f4"), ExtResource("8_dcuh5"), ExtResource("9_7dmms"), ExtResource("10_wq73r"), ExtResource("11_iemgs"), ExtResource("12_yjun0"), ExtResource("13_vbprw"), ExtResource("14_vto08"), ExtResource("15_wxlge"), ExtResource("16_nhlbi"), ExtResource("17_tone7"), ExtResource("18_pkkg5"), ExtResource("19_yrxaf"), ExtResource("20_hapep")])

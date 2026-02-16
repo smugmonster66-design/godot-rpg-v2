@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://b7lo0cgilcnis"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_i8vle"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_b2qyq"]
+[ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_vipbs"]
+[ext_resource type="Resource" uid="uid://cnwjvnlvxrxs2" path="res://resources/affixes/base_stats/inherent_armor_hybrid.tres" id="3_1e4li"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_ha6s2"]
+[ext_resource type="Resource" uid="uid://bo60aqpcko6p6" path="res://resources/affixes/base_stats/inherent_barrier_hybrid.tres" id="4_v7nih"]
+[ext_resource type="Resource" uid="uid://b650s5tyjtg6r" path="res://resources/slot_definitions/boots_slot.tres" id="4_vipbs"]
+
+[resource]
+script = ExtResource("3_ha6s2")
+item_name = "Scholar's Shoes"
+description = "Academic-issue gear balancing mundane and magical defense. Required reading not included."
+flavor_text = "Academy standard. The enchantment keeps them clean, which is the real magic."
+rarity = 1
+equip_slot = 3
+slot_definition = ExtResource("4_vipbs")
+base_stat_affixes = Array[ExtResource("1_i8vle")]([ExtResource("2_vipbs"), ExtResource("3_1e4li"), ExtResource("4_v7nih")])

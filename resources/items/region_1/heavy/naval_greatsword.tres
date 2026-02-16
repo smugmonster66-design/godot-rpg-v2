@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=10 format=3 uid="uid://dobwte1wf32f1"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_srw3m"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_egjo2"]
+[ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_re4ii"]
+[ext_resource type="Resource" uid="uid://ckylwdt2phbob" path="res://resources/affixes/base_stats/inherent_damage.tres" id="3_25hi8"]
+[ext_resource type="Resource" path="res://resources/affixes/elements/slashing_element.tres" id="3_re4ii"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="4_25hi8"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="5_sckrt"]
+[ext_resource type="Resource" uid="uid://dmbm1ao1pu7q4" path="res://resources/slot_definitions/heavy_slot.tres" id="6_gb6q7"]
+
+[sub_resource type="Resource" id="Resource_srw3m"]
+script = ExtResource("2_egjo2")
+display_name = "D8"
+die_type = 8
+element = 1
+element_affix = ExtResource("3_re4ii")
+
+[resource]
+script = ExtResource("5_sckrt")
+item_name = "Naval Greatsword"
+description = "A two-handed blade that makes a statement. The statement is usually 'get out of my way.'"
+flavor_text = "Requisition Form 14-C (Heavy): 'Approval required from two officers. Neither of whom wants to argue with someone holding this.'"
+rarity = 1
+equip_slot = 6
+has_elemental_identity = true
+slot_definition = ExtResource("6_gb6q7")
+base_stat_affixes = Array[ExtResource("1_srw3m")]([ExtResource("2_re4ii"), ExtResource("3_25hi8")])
+grants_dice = Array[ExtResource("2_egjo2")]([SubResource("Resource_srw3m")])
+base_value = 25

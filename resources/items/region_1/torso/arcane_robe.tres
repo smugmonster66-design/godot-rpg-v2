@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://djwjjkderf6bd"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_xr7em"]
+[ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_mehdq"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_wy5ay"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_55sxj"]
+[ext_resource type="Resource" uid="uid://by212c4j0x5gp" path="res://resources/affixes/base_stats/inherent_health.tres" id="3_ve3c8"]
+[ext_resource type="Resource" uid="uid://3himbtyqcloq" path="res://resources/affixes/base_stats/inherent_barrier.tres" id="4_134jp"]
+[ext_resource type="Resource" uid="uid://cbv0pogyu7y55" path="res://resources/slot_definitions/torso_slot.tres" id="4_mehdq"]
+
+[resource]
+script = ExtResource("3_55sxj")
+item_name = "Arcane Robe"
+description = "Pure arcane weave that hums with protective energy. The preferred attire of those who consider armor gauche."
+flavor_text = "The robe's protective aura gently discourages physical contact. Very popular at faculty meetings."
+rarity = 1
+equip_slot = 1
+slot_definition = ExtResource("4_mehdq")
+base_stat_affixes = Array[ExtResource("1_xr7em")]([ExtResource("2_mehdq"), ExtResource("3_ve3c8"), ExtResource("4_134jp")])

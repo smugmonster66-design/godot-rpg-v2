@@ -1,179 +1,23 @@
-[gd_resource type="Resource" script_class="AffixTable" load_steps=18 format=3 uid="uid://cxxl35mmk0tiv"]
+[gd_resource type="Resource" script_class="AffixTable" load_steps=16 format=3 uid="uid://cxxl35mmk0tiv"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_v1fdn"]
-[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_j54i4"]
-[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_j57m6"]
+[ext_resource type="Resource" uid="uid://mc8ntg5rbukv" path="res://resources/affixes/base/defense/tier_3/defense_multiplier.tres" id="2_b1tia"]
+[ext_resource type="Resource" uid="uid://ctkg48wpfegu1" path="res://resources/affixes/base/defense/tier_3/heal_on_hit_taken_pct.tres" id="3_88sf0"]
 [ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="4_7tkkg"]
-
-[sub_resource type="Resource" id="Resource_a3qds"]
-script = ExtResource("1_v1fdn")
-affix_name = "Defense Multiplier"
-description = "×N defense"
-category = 12
-tags = Array[String](["defense", "multiplier"])
-effect_min = 1.05
-effect_max = 1.5
-
-[sub_resource type="Resource" id="Resource_2a8ob"]
-script = ExtResource("1_v1fdn")
-affix_name = "Heal on Hit Taken (% HP)"
-description = "Heal N% max HP when hit"
-category = 35
-tags = Array[String](["proc", "heal", "defensive"])
-effect_min = 0.02
-effect_max = 0.15
-effect_data = {
-"effect": "heal_percent_max_hp"
-}
-proc_trigger = 2
-
-[sub_resource type="Resource" id="Resource_ltuow"]
-script = ExtResource("1_v1fdn")
-affix_name = "Thorns"
-description = "Apply debuff to attacker when hit"
-category = 35
-tags = Array[String](["proc", "thorns", "defensive"])
-effect_min = 0.15
-effect_max = 0.5
-effect_data = {
-"effect": "apply_status",
-"target": "attacker"
-}
-proc_trigger = 2
-
-[sub_resource type="Resource" id="Resource_277ap"]
-script = ExtResource("1_v1fdn")
-affix_name = "Temp Buff on Hit Taken"
-description = "Gain temp defensive buff when hit"
-category = 35
-tags = Array[String](["proc", "buff", "defensive"])
-effect_number = 1.0
-effect_data = {
-"effect": "temp_affix"
-}
-proc_trigger = 2
-
-[sub_resource type="Resource" id="Resource_6p16a"]
-script = ExtResource("1_v1fdn")
-affix_name = "Stacking Buff on Hit Taken"
-description = "+N defense per hit taken"
-category = 35
-tags = Array[String](["proc", "stacking", "defensive"])
-effect_min = 1.0
-effect_max = 10.0
-effect_data = {
-"effect": "stacking_buff"
-}
-proc_trigger = 2
-
-[sub_resource type="Resource" id="Resource_nnl7k"]
-script = ExtResource("1_v1fdn")
-affix_name = "Thorns: Chill"
-description = "Apply Chill to attacker when hit"
-category = 35
-tags = Array[String](["proc", "thorns", "status", "ice"])
-effect_min = 0.15
-effect_max = 0.5
-effect_data = {
-"effect": "apply_status",
-"status": "chill",
-"target": "attacker"
-}
-proc_trigger = 2
-
-[sub_resource type="Resource" id="Resource_ubofl"]
-script = ExtResource("1_v1fdn")
-affix_name = "Thorns: Slowed"
-description = "Apply Slowed to attacker when hit"
-category = 35
-tags = Array[String](["proc", "thorns", "status"])
-effect_min = 0.15
-effect_max = 0.5
-effect_data = {
-"effect": "apply_status",
-"status": "slowed",
-"target": "attacker"
-}
-proc_trigger = 2
-
-[sub_resource type="Resource" id="Resource_b1tia"]
-script = ExtResource("1_v1fdn")
-affix_name = "Thorns: Corrode"
-description = "Apply Corrode to attacker when hit"
-category = 35
-tags = Array[String](["proc", "thorns", "status"])
-effect_min = 0.15
-effect_max = 0.5
-effect_data = {
-"effect": "apply_status",
-"status": "corrode",
-"target": "attacker"
-}
-proc_trigger = 2
-
-[sub_resource type="Resource" id="Resource_88sf0"]
-script = ExtResource("1_v1fdn")
-affix_name = "Thorns: Enfeeble"
-description = "Apply Enfeeble to attacker when hit"
-category = 35
-tags = Array[String](["proc", "thorns", "status"])
-effect_min = 0.15
-effect_max = 0.5
-effect_data = {
-"effect": "apply_status",
-"status": "enfeeble",
-"target": "attacker"
-}
-proc_trigger = 2
-
-[sub_resource type="Resource" id="Resource_rqb61"]
-script = ExtResource("1_v1fdn")
-affix_name = "Barrier on Defend"
-description = "+N barrier when defending"
-category = 35
-tags = Array[String](["proc", "barrier", "defend"])
-effect_min = 2.0
-effect_max = 30.0
-effect_data = {
-"effect": "gain_barrier"
-}
-proc_trigger = 10
-
-[sub_resource type="Resource" id="Resource_ohbcn"]
-script = ExtResource("1_v1fdn")
-affix_name = "Temp Buff on Defend"
-description = "Gain temp buff after defending"
-category = 35
-tags = Array[String](["proc", "buff", "defend"])
-effect_number = 1.0
-effect_data = {
-"effect": "temp_affix"
-}
-proc_trigger = 10
-
-[sub_resource type="Resource" id="Resource_5firs"]
-script = ExtResource("1_v1fdn")
-affix_name = "Heal on Kill (% HP)"
-description = "Heal N% max HP on kill"
-category = 35
-tags = Array[String](["proc", "heal", "on_kill"])
-effect_min = 0.03
-effect_max = 0.2
-effect_data = {
-"effect": "heal_percent_max_hp"
-}
-proc_trigger = 9
-
-[sub_resource type="Resource" id="Resource_42212"]
-script = ExtResource("1_v1fdn")
-affix_name = "Granted Defensive Action"
-description = "Grants a bonus defend/heal action"
-category = 31
-tags = Array[String](["action_grant", "defensive"])
-effect_number = 1.0
+[ext_resource type="Resource" uid="uid://c6wmsa3rfola6" path="res://resources/affixes/base/defense/tier_3/thorns_apply_status.tres" id="4_rqb61"]
+[ext_resource type="Resource" uid="uid://c84wtyqukx5p" path="res://resources/affixes/base/defense/tier_3/temp_buff_on_hit_taken.tres" id="5_ohbcn"]
+[ext_resource type="Resource" uid="uid://cxmgicr8vv82j" path="res://resources/affixes/base/defense/tier_3/stacking_buff_on_hit_taken.tres" id="6_5firs"]
+[ext_resource type="Resource" uid="uid://bhx4eewtcdijj" path="res://resources/affixes/base/defense/tier_3/thorns_chill.tres" id="7_42212"]
+[ext_resource type="Resource" uid="uid://i5xjefks7eck" path="res://resources/affixes/base/defense/tier_3/thorns_slowed.tres" id="8_8v6e0"]
+[ext_resource type="Resource" uid="uid://ckghl3urxa2wr" path="res://resources/affixes/base/defense/tier_3/thorns_corrode.tres" id="9_o7ko0"]
+[ext_resource type="Resource" uid="uid://r0mdgd7atmon" path="res://resources/affixes/base/defense/tier_3/thorns_enfeeble.tres" id="10_i1m0y"]
+[ext_resource type="Resource" uid="uid://yosfrref1if8" path="res://resources/affixes/base/defense/tier_3/barrier_on_defend.tres" id="11_i2u45"]
+[ext_resource type="Resource" uid="uid://8ymak4uxqlsi" path="res://resources/affixes/base/defense/tier_3/temp_buff_on_defend.tres" id="12_it3ww"]
+[ext_resource type="Resource" uid="uid://1t37yfguityo" path="res://resources/affixes/base/defense/tier_3/heal_on_kill_pct.tres" id="13_h68ep"]
+[ext_resource type="Resource" uid="uid://cbs27g5caqju0" path="res://resources/affixes/base/defense/tier_3/granted_defensive_action.tres" id="14_0buco"]
 
 [resource]
 script = ExtResource("4_7tkkg")
 table_name = "Defense Tier 3"
 description = "Base defense affixes, tier 3. Auto-generated."
-available_affixes = Array[ExtResource("1_v1fdn")]([SubResource("Resource_a3qds"), SubResource("Resource_2a8ob"), SubResource("Resource_ltuow"), SubResource("Resource_277ap"), SubResource("Resource_6p16a"), SubResource("Resource_nnl7k"), SubResource("Resource_ubofl"), SubResource("Resource_b1tia"), SubResource("Resource_88sf0"), SubResource("Resource_rqb61"), SubResource("Resource_ohbcn"), SubResource("Resource_5firs"), SubResource("Resource_42212")])
+available_affixes = Array[ExtResource("1_v1fdn")]([ExtResource("2_b1tia"), ExtResource("3_88sf0"), ExtResource("4_rqb61"), ExtResource("5_ohbcn"), ExtResource("6_5firs"), ExtResource("7_42212"), ExtResource("8_8v6e0"), ExtResource("9_o7ko0"), ExtResource("10_i1m0y"), ExtResource("11_i2u45"), ExtResource("12_it3ww"), ExtResource("13_h68ep"), ExtResource("14_0buco")])

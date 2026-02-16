@@ -12,3 +12,4 @@ category = 36
 tags = Array[String](["out_of_combat", "xp"])
 effect_min = 0.05
 effect_max = 0.4
+rounding_mode = 2

@@ -10,10 +10,11 @@ affix_name = "Duplicate Die on Max Roll"
 description = "N% chance to duplicate die on max value"
 category = 35
 tags = Array[String](["dice_manipulation"])
-effect_min = 0.1
-effect_max = 0.35
 effect_data = {
 "condition": "max_roll",
 "effect": "duplicate_die"
 }
 proc_trigger = 7
+proc_chance = 0.22499999999999998
+proc_chance_min = 0.1
+proc_chance_max = 0.35

@@ -151,11 +151,11 @@ func roll_affix_for_slot(slot_def: SlotDefinition, tier: int,
 	
 	# Duplicate and roll value
 	var rolled: Affix = base_affix.duplicate_with_source("", "item")
-	
+
 	if scaling_config and rolled.has_scaling():
 		var power_pos: float = scaling_config.get_power_position(item_level)
 		rolled.roll_value(power_pos, scaling_config)
-	
+
 	return rolled
 
 

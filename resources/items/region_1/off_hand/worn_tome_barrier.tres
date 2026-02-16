@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://bd2f611ghr6cd"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_f18mi"]
+[ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_e6tnm"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_tik51"]
+[ext_resource type="Resource" uid="uid://dbgj0wcg21i0b" path="res://resources/affixes/base_stats/inherent_mana.tres" id="3_dyndb"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_r6jlo"]
+[ext_resource type="Resource" uid="uid://3himbtyqcloq" path="res://resources/affixes/base_stats/inherent_barrier.tres" id="4_7j8or"]
+[ext_resource type="Resource" uid="uid://btsq4gakq82l7" path="res://resources/slot_definitions/off_hand_slot.tres" id="4_e6tnm"]
+
+[resource]
+script = ExtResource("3_r6jlo")
+item_name = "Warded Worn Tome"
+description = "A thick reference manual that doubles as a focus. The marginalia is in three languages, two of which may not exist."
+flavor_text = "The pages themselves are warded. Try to read them too fast and they ward you off."
+rarity = 1
+equip_slot = 5
+slot_definition = ExtResource("4_e6tnm")
+base_stat_affixes = Array[ExtResource("1_f18mi")]([ExtResource("2_e6tnm"), ExtResource("3_dyndb"), ExtResource("4_7j8or")])
+base_value = 12

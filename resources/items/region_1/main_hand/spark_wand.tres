@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=10 format=3 uid="uid://bjy6tpckui4lt"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_pk8px"]
+[ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_267dj"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_m4ys1"]
+[ext_resource type="Resource" uid="uid://dbgj0wcg21i0b" path="res://resources/affixes/base_stats/inherent_mana.tres" id="3_6m1ru"]
+[ext_resource type="Resource" path="res://resources/affixes/elements/shock_element.tres" id="3_267dj"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="4_6m1ru"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="5_vdd45"]
+[ext_resource type="Resource" uid="uid://hnmjxghaf5mm" path="res://resources/slot_definitions/main_hand_slot.tres" id="6_ew0yj"]
+
+[sub_resource type="Resource" id="Resource_pk8px"]
+script = ExtResource("2_m4ys1")
+display_name = "D4"
+die_type = 4
+element = 6
+element_affix = ExtResource("3_267dj")
+
+[resource]
+script = ExtResource("5_vdd45")
+item_name = "Spark Wand"
+description = "Crackles with static even when idle. The Academy recommends rubber gloves, which no one wears."
+flavor_text = "Side effects may include involuntary hair styling and an inability to pet cats."
+rarity = 1
+has_elemental_identity = true
+elemental_identity = 5
+slot_definition = ExtResource("6_ew0yj")
+base_stat_affixes = Array[ExtResource("1_pk8px")]([ExtResource("2_267dj"), ExtResource("3_6m1ru")])
+grants_dice = Array[ExtResource("2_m4ys1")]([SubResource("Resource_pk8px")])

@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=13 format=3 uid="uid://c1popobltweg6"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_448xf"]
+[ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_sufn8"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_xccfd"]
+[ext_resource type="Resource" uid="uid://dbgj0wcg21i0b" path="res://resources/affixes/base_stats/inherent_mana.tres" id="3_36ivq"]
+[ext_resource type="Resource" uid="uid://c2pgrap71kn5v" path="res://resources/affixes/elements/shadow_element.tres" id="3_sufn8"]
+[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="4_36ivq"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="5_gveej"]
+[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="6_8ndvp"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="7_m4sio"]
+[ext_resource type="Resource" uid="uid://dmbm1ao1pu7q4" path="res://resources/slot_definitions/heavy_slot.tres" id="8_ytql8"]
+
+[sub_resource type="Resource" id="Resource_448xf"]
+script = ExtResource("2_xccfd")
+display_name = "D6"
+element = 8
+element_affix = ExtResource("3_sufn8")
+fill_texture = ExtResource("4_36ivq")
+stroke_texture = ExtResource("6_8ndvp")
+
+[sub_resource type="Resource" id="Resource_xccfd"]
+script = ExtResource("2_xccfd")
+display_name = "D6"
+element = 8
+element_affix = ExtResource("3_sufn8")
+fill_texture = ExtResource("4_36ivq")
+stroke_texture = ExtResource("6_8ndvp")
+
+[resource]
+script = ExtResource("7_m4sio")
+item_name = "Shadow Staff"
+description = "The shadows around it seem slightly too deep and slightly too interested in what you're doing. The Academy keeps these under lock and key."
+flavor_text = "Access requires Form 91-Blackout, signed by three department heads, two of whom deny it exists."
+rarity = 1
+equip_slot = 6
+has_elemental_identity = true
+elemental_identity = 7
+slot_definition = ExtResource("8_ytql8")
+base_stat_affixes = Array[ExtResource("1_448xf")]([ExtResource("2_sufn8"), ExtResource("3_36ivq")])
+grants_dice = Array[ExtResource("2_xccfd")]([SubResource("Resource_448xf"), SubResource("Resource_xccfd")])
+base_value = 25

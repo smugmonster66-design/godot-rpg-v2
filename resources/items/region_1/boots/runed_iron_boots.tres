@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://ctfo4sww2sj7m"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_e4i1y"]
+[ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_ik2hl"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_uv1dp"]
+[ext_resource type="Resource" uid="uid://xo8iycx4pgmg" path="res://resources/affixes/base_stats/inherent_defense.tres" id="3_1sold"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_xyyrd"]
+[ext_resource type="Resource" uid="uid://3himbtyqcloq" path="res://resources/affixes/base_stats/inherent_barrier.tres" id="4_e16dx"]
+[ext_resource type="Resource" uid="uid://b650s5tyjtg6r" path="res://resources/slot_definitions/boots_slot.tres" id="4_ik2hl"]
+
+[resource]
+script = ExtResource("3_xyyrd")
+item_name = "Runed Iron Boots"
+description = "Iron plate inscribed with protective runes. The enchantment work isn't cheap, but neither is replacing soldiers."
+flavor_text = "The runes help you stand firm against magical force. And regular force. And sergeants."
+rarity = 1
+equip_slot = 3
+slot_definition = ExtResource("4_ik2hl")
+base_stat_affixes = Array[ExtResource("1_e4i1y")]([ExtResource("2_ik2hl"), ExtResource("3_1sold"), ExtResource("4_e16dx")])

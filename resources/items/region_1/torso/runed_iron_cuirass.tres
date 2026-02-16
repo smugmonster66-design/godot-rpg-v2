@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://dlxllqanvw1mb"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_rlpy0"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_lkwne"]
+[ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_wwr0x"]
+[ext_resource type="Resource" uid="uid://by212c4j0x5gp" path="res://resources/affixes/base_stats/inherent_health.tres" id="3_bid0q"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_o1s6d"]
+[ext_resource type="Resource" uid="uid://3himbtyqcloq" path="res://resources/affixes/base_stats/inherent_barrier.tres" id="4_6ka5c"]
+[ext_resource type="Resource" uid="uid://cbv0pogyu7y55" path="res://resources/slot_definitions/torso_slot.tres" id="4_wwr0x"]
+
+[resource]
+script = ExtResource("3_o1s6d")
+item_name = "Runed Iron Cuirass"
+description = "Iron plate inscribed with protective runes. The enchantment work isn't cheap, but neither is replacing soldiers."
+flavor_text = "The enchantment was added after the third repair. Prevention is cheaper than metalwork."
+rarity = 1
+equip_slot = 1
+slot_definition = ExtResource("4_wwr0x")
+base_stat_affixes = Array[ExtResource("1_rlpy0")]([ExtResource("2_wwr0x"), ExtResource("3_bid0q"), ExtResource("4_6ka5c")])

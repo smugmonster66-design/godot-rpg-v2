@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://dey1njrhd3r2d"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_1p2e8"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_cpp3n"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_rbl26"]
+
+[resource]
+script = ExtResource("2_cpp3n")
+affix_name = "Enemy inherent health scaling"
+description = "Scales enemy health"
+category = 28
+tags = Array[String](["health", "inherent", "enemy"])
+effect_min = 10.0
+effect_max = 1000.0
+metadata/_custom_type_script = "uid://c8ianog20smkw"

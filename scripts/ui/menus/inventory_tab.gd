@@ -531,6 +531,16 @@ func _update_item_details():
 				level_label.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
 				affix_container.add_child(level_label)
 			
+			
+			
+			# Base stat affixes (blue-tinted — always present on every copy)
+			for affix in equippable.base_affixes:
+				if affix:
+					var display = _create_affix_display_from_affix(affix, Color(0.6, 0.75, 0.95))
+					affix_container.add_child(display)
+			
+			
+			
 			# Inherent affixes (green-tinted — manual/identity affixes)
 			for affix in equippable.inherent_affixes:
 				if affix:

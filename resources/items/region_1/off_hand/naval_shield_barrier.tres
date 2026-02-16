@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://djukhx7aj2kh"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_8bp38"]
+[ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_jek4d"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_wp73l"]
+[ext_resource type="Resource" uid="uid://by212c4j0x5gp" path="res://resources/affixes/base_stats/inherent_health.tres" id="3_jxrhd"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_ny6w8"]
+[ext_resource type="Resource" uid="uid://btsq4gakq82l7" path="res://resources/slot_definitions/off_hand_slot.tres" id="4_jek4d"]
+[ext_resource type="Resource" uid="uid://3himbtyqcloq" path="res://resources/affixes/base_stats/inherent_barrier.tres" id="4_pwotf"]
+
+[resource]
+script = ExtResource("3_ny6w8")
+item_name = "Warded Naval Shield"
+description = "A broad shield bearing Sanctum's anchor emblem. Designed for holding formation on a pitching deck."
+flavor_text = "The enchantment glows faintly when struck. The enchanter's invoice glows considerably brighter."
+rarity = 1
+equip_slot = 5
+slot_definition = ExtResource("4_jek4d")
+base_stat_affixes = Array[ExtResource("1_8bp38")]([ExtResource("2_jek4d"), ExtResource("3_jxrhd"), ExtResource("4_pwotf")])
+base_value = 12

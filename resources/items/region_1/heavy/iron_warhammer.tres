@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=10 format=3 uid="uid://dab6uqulv8s3q"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_2b680"]
+[ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_20n3h"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_hce4c"]
+[ext_resource type="Resource" uid="uid://2a7ntncvy5ij" path="res://resources/affixes/elements/blunt_element.tres" id="3_20n3h"]
+[ext_resource type="Resource" uid="uid://by212c4j0x5gp" path="res://resources/affixes/base_stats/inherent_health.tres" id="3_gddo5"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="4_gddo5"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="5_h4qp8"]
+[ext_resource type="Resource" uid="uid://dmbm1ao1pu7q4" path="res://resources/slot_definitions/heavy_slot.tres" id="6_gclur"]
+
+[sub_resource type="Resource" id="Resource_2b680"]
+script = ExtResource("2_hce4c")
+display_name = "D8"
+die_type = 8
+element = 2
+element_affix = ExtResource("3_20n3h")
+
+[resource]
+script = ExtResource("5_h4qp8")
+item_name = "Iron Warhammer"
+description = "What it lacks in subtlety, it makes up for in everything else. Popular in the naval yards for resolving structural and interpersonal disputes."
+flavor_text = "Maintenance log: 'Used to repair hull breach. Also caused hull breach. Net positive.'"
+rarity = 1
+equip_slot = 6
+has_elemental_identity = true
+elemental_identity = 1
+slot_definition = ExtResource("6_gclur")
+base_stat_affixes = Array[ExtResource("1_2b680")]([ExtResource("2_20n3h"), ExtResource("3_gddo5")])
+grants_dice = Array[ExtResource("2_hce4c")]([SubResource("Resource_2b680")])
+base_value = 25

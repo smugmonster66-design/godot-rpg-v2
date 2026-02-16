@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://dnd8s3prh53s6"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_ql0k2"]
+[ext_resource type="Resource" uid="uid://dlfux8drlkb3t" path="res://resources/affixes/base_stats/inherent_agility.tres" id="2_6qc4n"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_ii4ki"]
+[ext_resource type="Resource" uid="uid://by212c4j0x5gp" path="res://resources/affixes/base_stats/inherent_health.tres" id="3_diyve"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_lw1pd"]
+[ext_resource type="Resource" uid="uid://b650s5tyjtg6r" path="res://resources/slot_definitions/boots_slot.tres" id="4_6qc4n"]
+[ext_resource type="Resource" uid="uid://bvlqcx16ejx" path="res://resources/affixes/base_stats/inherent_armor.tres" id="4_mu7k3"]
+
+[resource]
+script = ExtResource("3_lw1pd")
+item_name = "Leather Boots"
+description = "Hardened leather shaped for mobility. Griffin riders and scouts swear by it, though they disagree on the proper way to lace it."
+flavor_text = "Soft-soled for stealth. Hard-toed for when stealth fails."
+rarity = 1
+equip_slot = 3
+slot_definition = ExtResource("4_6qc4n")
+base_stat_affixes = Array[ExtResource("1_ql0k2")]([ExtResource("2_6qc4n"), ExtResource("3_diyve"), ExtResource("4_mu7k3")])

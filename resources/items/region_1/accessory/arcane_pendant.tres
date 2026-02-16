@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=7 format=3 uid="uid://bcrfc808hyhra"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_df3bi"]
+[ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_2m2xs"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_4tf6j"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_2m2xs"]
+[ext_resource type="Resource" uid="uid://dbgj0wcg21i0b" path="res://resources/affixes/base_stats/inherent_mana.tres" id="3_7gjqu"]
+[ext_resource type="Resource" uid="uid://baxp7h1tamq4" path="res://resources/slot_definitions/accessory_slot.tres" id="4_7gjqu"]
+
+[resource]
+script = ExtResource("3_2m2xs")
+item_name = "Arcane Pendant"
+description = "A pendant of interlocking geometric shapes that glow faintly. Used as both a focus and a conversation starter at academic functions."
+flavor_text = "At the last faculty dinner, three pendants in close proximity set off the fire ward. Twice."
+rarity = 1
+equip_slot = 7
+slot_definition = ExtResource("4_7gjqu")
+base_stat_affixes = Array[ExtResource("1_df3bi")]([ExtResource("2_2m2xs"), ExtResource("3_7gjqu")])
+base_value = 12

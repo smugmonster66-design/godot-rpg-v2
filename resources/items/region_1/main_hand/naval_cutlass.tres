@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=12 format=3 uid="uid://cvaptd3rg4lsg"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_8db64"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_a1tb1"]
+[ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_kbm27"]
+[ext_resource type="Resource" path="res://resources/affixes/elements/slashing_element.tres" id="3_kbm27"]
+[ext_resource type="Resource" uid="uid://ckylwdt2phbob" path="res://resources/affixes/base_stats/inherent_damage.tres" id="3_n12cx"]
+[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="4_n12cx"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="5_n5rm6"]
+[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="6_0mf5p"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="7_i7xfq"]
+[ext_resource type="Resource" uid="uid://hnmjxghaf5mm" path="res://resources/slot_definitions/main_hand_slot.tres" id="8_g4b4v"]
+
+[sub_resource type="Resource" id="Resource_8db64"]
+script = ExtResource("2_a1tb1")
+display_name = "D6"
+element = 1
+element_affix = ExtResource("3_kbm27")
+fill_texture = ExtResource("4_n12cx")
+stroke_texture = ExtResource("6_0mf5p")
+
+[resource]
+script = ExtResource("7_i7xfq")
+item_name = "Naval Cutlass"
+description = "Standard-issue naval sidearm. Approved for deck combat, corridor fighting, and aggressive negotiation."
+flavor_text = "Requisition Form 14-C: 'One (1) cutlass, regulation. Not to be used for opening coconuts. Again.'"
+rarity = 1
+has_elemental_identity = true
+slot_definition = ExtResource("8_g4b4v")
+base_stat_affixes = Array[ExtResource("1_8db64")]([ExtResource("2_kbm27"), ExtResource("3_n12cx")])
+grants_dice = Array[ExtResource("2_a1tb1")]([SubResource("Resource_8db64")])
+base_value = 15

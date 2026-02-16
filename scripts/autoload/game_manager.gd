@@ -12,7 +12,9 @@ const DIE_BASE_TEXTURES = preload("res://resources/die_base_textures.tres")
 
 
 
-
+## Active region loot config. Set this when the player enters a new region.
+## For Region 1, drag region_1_loot_config.tres here in Inspector.
+var region_loot_config: RegionLootConfig = null
 
 # ============================================================================
 # STARTING ITEMS CONFIGURATION
@@ -44,6 +46,19 @@ var game_root: Node = null
 
 # Combat results to pass to summary
 var last_combat_results: Dictionary = {}
+
+
+
+
+
+const REGION_LOOT_CONFIGS := {
+	1: "res://resources/loot_tables/regions/region_1_loot_config.tres",
+	# 2: "res://resources/loot_tables/regions/region_2_loot_config.tres",
+}
+
+
+
+
 
 
 
@@ -253,33 +268,84 @@ func has_completed_encounter(encounter_id: String) -> bool:
 
 
 func on_combat_ended(player_won: bool):
-	"""Called when combat ends (from GameRoot.end_combat)"""
+	"""Called when combat ends (from GameRoot.end_combat).
+	Rolls loot per-enemy from the encounter using the tier loot system."""
 	if player_won and pending_encounter:
 		mark_encounter_completed(pending_encounter)
 
-		# Calculate rewards
-		var exp = pending_encounter.get_total_experience()
-		var gold_range = pending_encounter.get_total_gold_range()
-		var gold = randi_range(gold_range.x, gold_range.y)
+		# ── XP (unchanged) ──
+		var exp: int = pending_encounter.get_total_experience()
 
-		print("🎮 Combat rewards: %d XP, %d gold" % [exp, gold])
+		# ── Loot: roll per-enemy ──
+		var all_loot: Array[Dictionary] = []
+		var total_gold: int = 0
 
+		# Collect effective levels from spawned combatants if available
+		var combatant_levels: Array[int] = []
+		if game_root and game_root.combat_scene:
+			var spawner: Node = game_root.combat_scene.find_child(
+				"EncounterSpawner", true, false)
+			if spawner and spawner.has_method("get_spawned_enemies"):
+				for enemy: Combatant in spawner.get_spawned_enemies():
+					combatant_levels.append(enemy.get_effective_level())
+
+		for i: int in range(pending_encounter.enemies.size()):
+			var enemy_data: EnemyData = pending_encounter.enemies[i]
+			if not enemy_data:
+				continue
+
+			# Use effective level from spawned combatant, fall back to floor
+			var eff_level: int = enemy_data.enemy_level_floor
+			if i < combatant_levels.size():
+				eff_level = combatant_levels[i]
+
+			if region_loot_config:
+				var luck: float = 0.0
+				if player:
+					luck = float(player.get_total_stat("luck"))
+
+				var enemy_results: Array[Dictionary] = LootManager.roll_loot_from_combat(
+					region_loot_config,
+					enemy_data.enemy_tier,
+					enemy_data.enemy_archetype,
+					eff_level,
+					luck,
+				)
+
+				for result: Dictionary in enemy_results:
+					if result.get("type") == "currency":
+						total_gold += result.get("amount", 0)
+					else:
+						all_loot.append(result)
+			else:
+				total_gold += enemy_data.get_gold_reward()
+
+		# ── Apply rewards ──
 		if player:
 			player.add_experience(exp)
-			player.add_gold(gold)
+			if total_gold > 0:
+				player.add_gold(total_gold)
 
-		# Show post-combat summary via GameRoot
+			# Add equipment to inventory
+			for loot_result: Dictionary in all_loot:
+				var item: EquippableItem = loot_result.get("item")
+				if item:
+					player.add_to_inventory(item)
+
+		print("🎮 Combat rewards: %d XP, %d gold, %d items" % [
+			exp, total_gold, all_loot.size()])
+
+		# ── Post-combat summary ──
 		if game_root and game_root.has_method("show_post_combat_summary"):
 			game_root.show_post_combat_summary({
 				"victory": true,
 				"xp_gained": exp,
-				"gold_gained": gold,
-				"loot": []  # TODO: populate from loot system
+				"gold_gained": total_gold,
+				"loot": all_loot,
 			})
 
 	clear_pending_encounter()
 
-	# Legacy fallback only
 	if not game_root:
 		load_map_scene()
 
@@ -288,6 +354,16 @@ func on_combat_ended(player_won: bool):
 # ============================================================================
 # SIGNAL HANDLERS
 # ============================================================================
+
+func set_active_region(region_num: int):
+	var path: String = REGION_LOOT_CONFIGS.get(region_num, "")
+	if path != "" and ResourceLoader.exists(path):
+		region_loot_config = load(path)
+		print("🗺️ Active region loot: R%d" % region_num)
+	else:
+		region_loot_config = null
+		push_warning("No loot config for region %d" % region_num)
+
 
 func _on_start_combat():
 	"""Handle start combat from map"""

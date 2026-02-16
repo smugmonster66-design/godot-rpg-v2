@@ -1,84 +1,18 @@
-[gd_resource type="Resource" script_class="AffixTable" load_steps=13 format=3 uid="uid://cgr2120ydytqr"]
+[gd_resource type="Resource" script_class="AffixTable" load_steps=11 format=3 uid="uid://cgr2120ydytqr"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_g3tr7"]
-[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_6ai8p"]
-[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_uh0qj"]
+[ext_resource type="Resource" uid="uid://ceei5xmn8o77p" path="res://resources/affixes/base/offense/tier_1/strength_bonus.tres" id="2_iv73y"]
+[ext_resource type="Resource" uid="uid://dq6e1mdn3g7fk" path="res://resources/affixes/base/offense/tier_1/agility_bonus.tres" id="3_rc6ox"]
+[ext_resource type="Resource" uid="uid://cpebgbfs43oxc" path="res://resources/affixes/base/offense/tier_1/intellect_bonus.tres" id="4_e1k4o"]
 [ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="4_x1ly4"]
-
-[sub_resource type="Resource" id="Resource_ipg2i"]
-script = ExtResource("1_g3tr7")
-affix_name = "Strength Bonus"
-description = "+N Strength"
-category = 1
-tags = Array[String](["stat", "physical"])
-effect_min = 1.0
-effect_max = 50.0
-
-[sub_resource type="Resource" id="Resource_ixc52"]
-script = ExtResource("1_g3tr7")
-affix_name = "Agility Bonus"
-description = "+N Agility"
-category = 2
-tags = Array[String](["stat", "physical"])
-effect_min = 1.0
-effect_max = 50.0
-
-[sub_resource type="Resource" id="Resource_iv73y"]
-script = ExtResource("1_g3tr7")
-affix_name = "Intellect Bonus"
-description = "+N Intellect"
-category = 3
-tags = Array[String](["stat", "magical"])
-effect_min = 1.0
-effect_max = 50.0
-
-[sub_resource type="Resource" id="Resource_rc6ox"]
-script = ExtResource("1_g3tr7")
-affix_name = "Luck Bonus"
-description = "+N Luck"
-category = 4
-tags = Array[String](["stat"])
-effect_min = 1.0
-effect_max = 50.0
-
-[sub_resource type="Resource" id="Resource_e1k4o"]
-script = ExtResource("1_g3tr7")
-affix_name = "Global Damage Bonus"
-description = "+N damage to all attacks"
-category = 9
-tags = Array[String](["damage"])
-effect_min = 1.0
-effect_max = 30.0
-
-[sub_resource type="Resource" id="Resource_yv7q1"]
-script = ExtResource("1_g3tr7")
-affix_name = "Slashing Damage Bonus"
-description = "+N Slashing damage"
-category = 19
-tags = Array[String](["damage", "physical", "slashing"])
-effect_min = 1.0
-effect_max = 25.0
-
-[sub_resource type="Resource" id="Resource_wc8lq"]
-script = ExtResource("1_g3tr7")
-affix_name = "Blunt Damage Bonus"
-description = "+N Blunt damage"
-category = 20
-tags = Array[String](["damage", "physical", "blunt"])
-effect_min = 1.0
-effect_max = 25.0
-
-[sub_resource type="Resource" id="Resource_lobbx"]
-script = ExtResource("1_g3tr7")
-affix_name = "Piercing Damage Bonus"
-description = "+N Piercing damage"
-category = 21
-tags = Array[String](["damage", "physical", "piercing"])
-effect_min = 1.0
-effect_max = 25.0
+[ext_resource type="Resource" uid="uid://dfly53sir6i1m" path="res://resources/affixes/base/offense/tier_1/luck_bonus.tres" id="5_yv7q1"]
+[ext_resource type="Resource" uid="uid://dwp1tftf4h5ni" path="res://resources/affixes/base/offense/tier_1/global_damage_bonus.tres" id="6_wc8lq"]
+[ext_resource type="Resource" uid="uid://o1pn8l73ep3i" path="res://resources/affixes/base/offense/tier_1/slashing_damage_bonus.tres" id="7_lobbx"]
+[ext_resource type="Resource" uid="uid://cc4lxdf30usle" path="res://resources/affixes/base/offense/tier_1/blunt_damage_bonus.tres" id="8_f87xl"]
+[ext_resource type="Resource" uid="uid://onwd3d2dhnid" path="res://resources/affixes/base/offense/tier_1/piercing_damage_bonus.tres" id="9_0lpvs"]
 
 [resource]
 script = ExtResource("4_x1ly4")
 table_name = "Offense Tier 1"
 description = "Base offense affixes, tier 1. Auto-generated."
-available_affixes = Array[ExtResource("1_g3tr7")]([SubResource("Resource_ipg2i"), SubResource("Resource_ixc52"), SubResource("Resource_iv73y"), SubResource("Resource_rc6ox"), SubResource("Resource_e1k4o"), SubResource("Resource_yv7q1"), SubResource("Resource_wc8lq"), SubResource("Resource_lobbx")])
+available_affixes = Array[ExtResource("1_g3tr7")]([ExtResource("2_iv73y"), ExtResource("3_rc6ox"), ExtResource("4_e1k4o"), ExtResource("5_yv7q1"), ExtResource("6_wc8lq"), ExtResource("7_lobbx"), ExtResource("8_f87xl"), ExtResource("9_0lpvs")])

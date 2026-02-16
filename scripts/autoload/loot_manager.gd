@@ -425,6 +425,151 @@ func _process_nested_table(drop: LootDrop, source: String,
 	
 	return {}
 
+
+
+
+
+
+
+# ============================================================================
+# COMBAT LOOT API (v4) — Driven by RegionLootConfig + EnemyTierLootConfig
+# ============================================================================
+
+func roll_loot_from_combat(
+	region_config: RegionLootConfig,
+	tier: EnemyTierLootConfig.EnemyTier,
+	archetype: EnemyTierLootConfig.Archetype,
+	enemy_level: int,
+	luck_bonus: float = 0.0,
+) -> Array[Dictionary]:
+	"""Full combat loot generation driven by region + tier configs.
+	
+	Flow:
+	  1. Read tier config for drop count + rarity weights
+	  2. For each drop slot: pick from shared pool → roll rarity → generate item
+	  3. Check archetype bonus → maybe roll from stat-filtered pool
+	  4. Check world legendary → maybe roll from legendary pool
+	  5. Roll currency from tier config
+	
+	Args:
+		region_config: The region's master loot configuration.
+		tier: Enemy tier enum (TRASH, ELITE, MINI_BOSS, BOSS, WORLD_BOSS).
+		archetype: Enemy stat archetype (NONE, STR, AGI, INT).
+		enemy_level: Enemy level → flows to item_level (with jitter).
+		luck_bonus: Player luck stat. Adds to world legendary chance.
+	
+	Returns:
+		Array of loot results: [{type: "item"/"currency", item/amount, ...}]
+	"""
+	if not region_config:
+		push_warning("LootManager.roll_loot_from_combat(): null region_config")
+		return []
+	
+	var tier_config: EnemyTierLootConfig = region_config.get_tier_config(tier)
+	if not tier_config:
+		push_warning("LootManager.roll_loot_from_combat(): no config for tier %d" % tier)
+		return []
+	
+	var region_num: int = region_config.region_number
+	var results: Array[Dictionary] = []
+	
+	print("💀 Combat loot: %s (Lv.%d, R%d, %s)" % [
+		tier_config.tier_name, enemy_level, region_num,
+		EnemyTierLootConfig.Archetype.keys()[archetype]])
+	
+	# ── Step 1: Equipment drops from shared pool ──
+	var shared_pool: LootTable = region_config.shared_item_pool
+	var drop_count: int = tier_config.roll_drop_count()
+	
+	if drop_count > 0 and shared_pool and shared_pool.weighted_drops.size() > 0:
+		for i: int in range(drop_count):
+			var result: Dictionary = _pick_and_generate(
+				shared_pool, tier_config, enemy_level, region_num)
+			if result.size() > 0:
+				results.append(result)
+	elif drop_count == 0:
+		print("  💨 No equipment drops")
+	
+	# ── Step 2: Archetype bonus ──
+	if archetype != EnemyTierLootConfig.Archetype.NONE and tier_config.should_roll_archetype_bonus():
+		var archetype_pool: LootTable = region_config.get_archetype_pool(archetype)
+		if archetype_pool and archetype_pool.weighted_drops.size() > 0:
+			var bonus_result: Dictionary = _pick_and_generate(
+				archetype_pool, tier_config, enemy_level, region_num)
+			if bonus_result.size() > 0:
+				bonus_result["source"] = "archetype_bonus"
+				results.append(bonus_result)
+				print("  🎯 Archetype bonus triggered!")
+	
+	# ── Step 3: World legendary check ──
+	var legendary_chance: float = tier_config.world_legendary_chance
+	if luck_bonus > 0.0:
+		legendary_chance += luck_bonus * 0.001  # +0.1% per luck point
+	
+	if legendary_chance > 0.0 and randf() < legendary_chance:
+		var legendary_pool: LootTable = region_config.world_legendary_pool
+		if legendary_pool and legendary_pool.weighted_drops.size() > 0:
+			var legendary_drop: LootDrop = _select_weighted_drop(legendary_pool.weighted_drops)
+			if legendary_drop and legendary_drop.item_template:
+				var legendary_result: Dictionary = generate_drop(
+					legendary_drop.item_template, enemy_level, region_num,
+					EquippableItem.Rarity.LEGENDARY)
+				if legendary_result.size() > 0:
+					legendary_result["source"] = "world_legendary"
+					results.append(legendary_result)
+					print("  ⭐ WORLD LEGENDARY DROP!")
+		else:
+			# Pool empty — no legendaries configured yet, silently skip
+			pass
+	
+	# ── Step 4: Currency ──
+	var gold: int = tier_config.roll_currency()
+	if gold > 0:
+		results.append({
+			"type": "currency",
+			"amount": gold,
+			"source": tier_config.tier_name,
+		})
+		print("  💰 %d Gold" % gold)
+	
+	print("💀 Combat loot complete: %d results" % results.size())
+	return results
+
+
+func _pick_and_generate(
+	pool: LootTable,
+	tier_config: EnemyTierLootConfig,
+	enemy_level: int,
+	region_num: int,
+) -> Dictionary:
+	"""Pick a random item from a pool, roll rarity from tier config, generate.
+	
+	Args:
+		pool: LootTable to pick from (uses weighted_drops).
+		tier_config: Tier config for rarity rolling.
+		enemy_level: Enemy level → item_level.
+		region_num: Region number for stamping.
+	
+	Returns:
+		Loot result dict, or empty dict on failure.
+	"""
+	var drop: LootDrop = _select_weighted_drop(pool.weighted_drops)
+	if not drop or not drop.item_template:
+		return {}
+	
+	# Roll rarity from tier config (or use LootDrop's force_rarity if set)
+	var rarity: int = drop.force_rarity if drop.force_rarity >= 0 else tier_config.roll_rarity()
+	
+	return generate_drop(drop.item_template, enemy_level, region_num, rarity)
+
+
+
+
+
+
+
+
+
 # ============================================================================
 # UTILITY FUNCTIONS
 # ============================================================================

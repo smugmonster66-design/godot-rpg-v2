@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=10 format=3 uid="uid://4c56rt5hegkx"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_umq3p"]
+[ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_8b2ys"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_me3us"]
+[ext_resource type="Resource" uid="uid://ckylwdt2phbob" path="res://resources/affixes/base_stats/inherent_damage.tres" id="3_3v7db"]
+[ext_resource type="Resource" uid="uid://dc86xxo6gws3l" path="res://resources/affixes/elements/piercing_element.tres" id="3_8b2ys"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="4_3v7db"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="5_2a1m5"]
+[ext_resource type="Resource" uid="uid://dmbm1ao1pu7q4" path="res://resources/slot_definitions/heavy_slot.tres" id="6_pyjeo"]
+
+[sub_resource type="Resource" id="Resource_umq3p"]
+script = ExtResource("2_me3us")
+display_name = "D8"
+die_type = 8
+element = 3
+element_affix = ExtResource("3_8b2ys")
+
+[resource]
+script = ExtResource("5_2a1m5")
+item_name = "Marine Halberd"
+description = "The preferred weapon of Sanctum's marine boarding parties. Excellent reach for keeping enemies at exactly the distance you want them."
+flavor_text = "Boarding Protocol, Step 1: Point halberd at enemy. Step 2: Advance. Step 3: There is no step 3."
+rarity = 1
+equip_slot = 6
+has_elemental_identity = true
+elemental_identity = 2
+slot_definition = ExtResource("6_pyjeo")
+base_stat_affixes = Array[ExtResource("1_umq3p")]([ExtResource("2_8b2ys"), ExtResource("3_3v7db")])
+grants_dice = Array[ExtResource("2_me3us")]([SubResource("Resource_umq3p")])
+base_value = 25

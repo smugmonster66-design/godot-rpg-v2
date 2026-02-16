@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=13 format=3 uid="uid://coxryhl4iqj3"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_1llio"]
+[ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_gy7r3"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_tpf51"]
+[ext_resource type="Resource" path="res://resources/affixes/elements/shock_element.tres" id="3_gy7r3"]
+[ext_resource type="Resource" uid="uid://dbgj0wcg21i0b" path="res://resources/affixes/base_stats/inherent_mana.tres" id="3_myqu7"]
+[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="4_myqu7"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="5_2cuef"]
+[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="6_uv2q1"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="7_nfso5"]
+[ext_resource type="Resource" uid="uid://dmbm1ao1pu7q4" path="res://resources/slot_definitions/heavy_slot.tres" id="8_ggubi"]
+
+[sub_resource type="Resource" id="Resource_1llio"]
+script = ExtResource("2_tpf51")
+display_name = "D6"
+element = 6
+element_affix = ExtResource("3_gy7r3")
+fill_texture = ExtResource("4_myqu7")
+stroke_texture = ExtResource("6_uv2q1")
+
+[sub_resource type="Resource" id="Resource_tpf51"]
+script = ExtResource("2_tpf51")
+display_name = "D6"
+element = 6
+element_affix = ExtResource("3_gy7r3")
+fill_texture = ExtResource("4_myqu7")
+stroke_texture = ExtResource("6_uv2q1")
+
+[resource]
+script = ExtResource("7_nfso5")
+item_name = "Storm Staff"
+description = "The air around it smells of ozone and poor decisions. Banned from use during thunderstorms after the Incident."
+flavor_text = "We don't talk about the Incident. Except in the safety manual. Pages 47 through 83."
+rarity = 1
+equip_slot = 6
+has_elemental_identity = true
+elemental_identity = 5
+slot_definition = ExtResource("8_ggubi")
+base_stat_affixes = Array[ExtResource("1_1llio")]([ExtResource("2_gy7r3"), ExtResource("3_myqu7")])
+grants_dice = Array[ExtResource("2_tpf51")]([SubResource("Resource_1llio"), SubResource("Resource_tpf51")])
+base_value = 25

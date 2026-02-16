@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://copqb60w3jpc1"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_ta0v4"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_kuv20"]
+[ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_w8lmg"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_6slrb"]
+[ext_resource type="Resource" uid="uid://ckylwdt2phbob" path="res://resources/affixes/base_stats/inherent_damage.tres" id="3_iydix"]
+[ext_resource type="Resource" uid="uid://bvlqcx16ejx" path="res://resources/affixes/base_stats/inherent_armor.tres" id="4_id77b"]
+[ext_resource type="Resource" uid="uid://d0u4wgvhs8sam" path="res://resources/slot_definitions/gloves_slot.tres" id="4_w8lmg"]
+
+[resource]
+script = ExtResource("3_6slrb")
+item_name = "Plated Wraps"
+description = "Cloth reinforced with thin metal plates. The Academy compromise between 'protected' and 'able to cast without clanking.'"
+flavor_text = "Plated finger guards that somehow don't interfere with somatic components. The Academy is still publishing papers on why."
+rarity = 1
+equip_slot = 2
+slot_definition = ExtResource("4_w8lmg")
+base_stat_affixes = Array[ExtResource("1_ta0v4")]([ExtResource("2_w8lmg"), ExtResource("3_iydix"), ExtResource("4_id77b")])

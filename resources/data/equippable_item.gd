@@ -13,6 +13,14 @@
 #   - Unique legendary affix system preserved
 #   - to_dict() now includes item_level, region, value_display, value_range
 #
+# v3 CHANGELOG (Base Stat Affix Layer):
+#   - Added base_stat_affixes: Array[Affix] for inherent stat bonuses
+#   - These scale with item_level but are SEPARATE from rolled affix slots
+#   - manual_*_affix slots now reserved for item identity (poison-on-hit, etc.)
+#   - New runtime array: base_affixes (scaled copies of base_stat_affixes)
+#   - initialize_affixes() priority: base_stat → manual identity → rolled → unique
+#   - item_affixes = base_affixes + inherent_affixes + rolled_affixes
+#
 extends Resource
 class_name EquippableItem
 
@@ -44,7 +52,7 @@ enum EquipSlot {
 @export var item_name: String = "New Item"
 @export_multiline var description: String = "An equippable item."
 @export_multiline var flavor_text: String = ""
-@export var icon: Texture2D = null
+@export var icon: Texture2D = DEFAULT_ICON
 @export var rarity: Rarity = Rarity.COMMON
 @export var equip_slot: EquipSlot = EquipSlot.MAIN_HAND:
 	set(value):
@@ -80,6 +88,17 @@ enum EquipSlot {
 @export_range(1, 6) var region: int = 1
 
 # ============================================================================
+# BASE STAT AFFIXES (v3) — Inherent stat bonuses every item has
+# ============================================================================
+@export_group("Base Stat Affixes")
+
+## Stat bonuses baked into this item template (STR/AGI/INT, Health, Armor, etc.).
+## These are ALWAYS present regardless of rarity and scale with item_level.
+## Separate from the rolled affix slots — a Common and an Epic version of the
+## same item share these base stats, the Epic just gets rolled affixes on top.
+@export var base_stat_affixes: Array[Affix] = []
+
+# ============================================================================
 # AFFIX SYSTEM - TABLES (legacy — kept for backwards compatibility)
 # ============================================================================
 @export_group("Affix Tables (Legacy)")
@@ -90,12 +109,13 @@ enum EquipSlot {
 @export var third_affix_table: AffixTable = null
 
 # ============================================================================
-# AFFIX SYSTEM - MANUAL OVERRIDE
+# AFFIX SYSTEM - MANUAL OVERRIDE (Item Identity)
 # ============================================================================
-@export_group("Manual Affixes (Override)")
+@export_group("Manual Affixes (Identity)")
 
-## Manual affix assignment (optional — overrides table rolling).
-## Leave these empty to use the SlotDefinition-based table rolling.
+## Item identity affixes — what makes this item special beyond base stats.
+## Examples: "Venom Dagger always has poison-on-hit", "Flame Sword has fire proc"
+## Leave empty for generic items that rely on base stats + rolled affixes.
 @export var manual_first_affix: Affix = null
 @export var manual_second_affix: Affix = null
 @export var manual_third_affix: Affix = null
@@ -108,6 +128,10 @@ enum EquipSlot {
 ## This is the COMBINED array used by combat, player stats, etc.
 var item_affixes: Array[Affix] = []
 
+## Base stat affixes — scaled copies of base_stat_affixes template.
+## Always present on every item regardless of rarity.
+var base_affixes: Array[Affix] = []
+
 ## Inherent affixes — baked into the item template (from manual affix slots).
 ## These define the item's identity (e.g. "Venom Dagger always has poison").
 ## Displayed green-tinted in the inventory detail panel.
@@ -117,6 +141,9 @@ var inherent_affixes: Array[Affix] = []
 ## These are the random bonuses that add variety between drops.
 ## Displayed gold-tinted in the inventory detail panel.
 var rolled_affixes: Array[Affix] = []
+
+# Near the top, after class_name EquippableItem
+const DEFAULT_ICON: Texture2D = preload("res://assets/ui/icons/items/placeholder_item.png")
 
 # ============================================================================
 # DICE
@@ -180,6 +207,7 @@ func initialize_affixes(affix_pool = null):
 	"""Initialize affixes using the best available system.
 	
 	Priority order:
+	  0. base_stat_affixes → base_affixes (always, scales with item_level)
 	  1. Manual affixes (if any manual_*_affix is set) → inherent_affixes
 	  2. SlotDefinition + AffixTableRegistry (new system) → rolled_affixes
 	  3. Legacy table slots (fallback for unmigrated items) → rolled_affixes
@@ -188,8 +216,13 @@ func initialize_affixes(affix_pool = null):
 		affix_pool: Legacy parameter, ignored. Kept for API compatibility.
 	"""
 	item_affixes.clear()
+	base_affixes.clear()
 	inherent_affixes.clear()
 	rolled_affixes.clear()
+	
+	# Priority 0: Base stat affixes → always applied
+	if base_stat_affixes.size() > 0:
+		_use_base_stat_affixes()
 	
 	# Priority 1: Manual affixes → inherent
 	if manual_first_affix or manual_second_affix or manual_third_affix:
@@ -209,6 +242,44 @@ func initialize_affixes(affix_pool = null):
 	# Combine into item_affixes for backwards compatibility
 	_rebuild_combined_affixes()
 
+# ============================================================================
+# BASE STAT AFFIXES (v3)
+# ============================================================================
+
+func _use_base_stat_affixes():
+	"""Scale and apply base_stat_affixes from the template.
+	
+	These are the inherent stat bonuses every copy of this item gets
+	(STR, Health, Armor, etc.). They scale with item_level just like
+	rolled affixes do, but they're always present regardless of rarity.
+	"""
+	var scaling_config: AffixScalingConfig = null
+	var power_pos: float = clampf(float(item_level - 1) / 99.0, 0.0, 1.0)
+	
+	var registry = _get_registry()
+	if registry and registry.scaling_config:
+		scaling_config = registry.scaling_config
+		power_pos = scaling_config.get_power_position(item_level)
+	
+	for template_affix in base_stat_affixes:
+		if not template_affix:
+			continue
+		var copy = template_affix.duplicate_with_source(item_name, "item_base")
+		if copy.has_scaling():
+			copy.roll_value(power_pos, scaling_config)
+		copy.roll_proc_chance(power_pos, scaling_config)
+		base_affixes.append(copy)
+		if OS.is_debug_build():
+			print("  📊 Base stat: %s" % template_affix.affix_name)
+
+
+func has_base_stat_affixes() -> bool:
+	"""Check if this item template has base stat affixes defined."""
+	return base_stat_affixes.size() > 0
+
+# ============================================================================
+# SLOT DEFINITION HELPERS
+# ============================================================================
 
 func _has_slot_definition_system() -> bool:
 	"""Check if the new SlotDefinition system is available."""
@@ -323,6 +394,7 @@ func _roll_from_slot_definition() -> void:
 		
 		if rolled.has_scaling():
 			rolled.roll_value(power_pos, scaling_config)
+		rolled.roll_proc_chance(power_pos, scaling_config) 
 		
 		rolled_affixes.append(rolled)
 		
@@ -387,6 +459,7 @@ func _use_manual_affixes():
 		var copy = manual_first_affix.duplicate_with_source(item_name, "item")
 		if copy.has_scaling():
 			copy.roll_value(power_pos, scaling_config)
+		copy.roll_proc_chance(power_pos, scaling_config)  # NEW
 		inherent_affixes.append(copy)
 		print("  ✓ Using manual affix 1: %s" % manual_first_affix.affix_name)
 	
@@ -394,6 +467,7 @@ func _use_manual_affixes():
 		var copy = manual_second_affix.duplicate_with_source(item_name, "item")
 		if copy.has_scaling():
 			copy.roll_value(power_pos, scaling_config)
+		copy.roll_proc_chance(power_pos, scaling_config)  # NEW
 		inherent_affixes.append(copy)
 		print("  ✓ Using manual affix 2: %s" % manual_second_affix.affix_name)
 	
@@ -401,6 +475,7 @@ func _use_manual_affixes():
 		var copy = manual_third_affix.duplicate_with_source(item_name, "item")
 		if copy.has_scaling():
 			copy.roll_value(power_pos, scaling_config)
+		copy.roll_proc_chance(power_pos, scaling_config)  # NEW
 		inherent_affixes.append(copy)
 		print("  ✓ Using manual affix 3: %s" % manual_third_affix.affix_name)
 
@@ -432,22 +507,24 @@ func _roll_from_tables():
 	print("✨ Rolled %d affixes for %s (legacy tables)" % [rolled_affixes.size(), item_name])
 
 func _roll_from_table(table: AffixTable, tier_name: String):
-	"""Roll one affix from a specific affix table (legacy)"""
-	if not table:
-		print("  ⚠️ No %s affix table assigned for %s" % [tier_name, item_name])
-		return
-	
-	if not table.is_valid():
-		print("  ⚠️ %s affix table is empty for %s" % [tier_name, item_name])
+	if not table or not table.is_valid():
 		return
 	
 	var affix = table.get_random_affix()
 	if affix:
 		var affix_copy = affix.duplicate_with_source(item_name, "item")
+		# Scale the value if this affix has min/max ranges
+		if affix_copy.has_scaling():
+			var power_pos := clampf(float(item_level - 1) / 99.0, 0.0, 1.0)
+			var registry = _get_registry()
+			if registry and registry.scaling_config:
+				power_pos = registry.scaling_config.get_power_position(item_level)
+				affix_copy.roll_value(power_pos, registry.scaling_config)
+			else:
+				affix_copy.roll_value(power_pos)
 		rolled_affixes.append(affix_copy)
-		print("  🎲 Rolled %s affix: %s (from table: %s)" % [tier_name, affix.affix_name, table.table_name])
-	else:
-		print("  ❌ Failed to roll from %s table" % tier_name)
+
+
 
 # ============================================================================
 # UNIQUE LEGENDARY AFFIX
@@ -493,8 +570,10 @@ func get_all_affixes() -> Array[Affix]:
 	return item_affixes.duplicate()
 
 func _rebuild_combined_affixes() -> void:
-	"""Merge inherent + rolled into item_affixes for backwards compatibility."""
+	"""Merge base + inherent + rolled into item_affixes for backwards compatibility."""
 	item_affixes.clear()
+	for a in base_affixes:
+		item_affixes.append(a)
 	for a in inherent_affixes:
 		item_affixes.append(a)
 	for a in rolled_affixes:

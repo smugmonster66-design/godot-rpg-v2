@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://bjy2jwglg6dd0"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_qx7n7"]
+[ext_resource type="Resource" uid="uid://dlfux8drlkb3t" path="res://resources/affixes/base_stats/inherent_agility.tres" id="2_ldtie"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_obao3"]
+[ext_resource type="Resource" uid="uid://by212c4j0x5gp" path="res://resources/affixes/base_stats/inherent_health.tres" id="3_6fvbk"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_sd4c4"]
+[ext_resource type="Resource" uid="uid://3himbtyqcloq" path="res://resources/affixes/base_stats/inherent_barrier.tres" id="4_irxt7"]
+[ext_resource type="Resource" uid="uid://b650s5tyjtg6r" path="res://resources/slot_definitions/boots_slot.tres" id="4_ldtie"]
+
+[resource]
+script = ExtResource("3_sd4c4")
+item_name = "Warded Leather Boots"
+description = "Light leather infused with defensive wards. Moves like cloth, protects like it has opinions about your survival."
+flavor_text = "The ward cushions falls from moderate heights. 'Moderate' being the operative word."
+rarity = 1
+equip_slot = 3
+slot_definition = ExtResource("4_ldtie")
+base_stat_affixes = Array[ExtResource("1_qx7n7")]([ExtResource("2_ldtie"), ExtResource("3_6fvbk"), ExtResource("4_irxt7")])

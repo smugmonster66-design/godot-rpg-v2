@@ -12,6 +12,7 @@ category = 35
 tags = Array[String](["proc", "damage", "on_hit"])
 effect_min = 0.05
 effect_max = 0.25
+rounding_mode = 2
 effect_data = {
 "effect": "bonus_damage_percent"
 }

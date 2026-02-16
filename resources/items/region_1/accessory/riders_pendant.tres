@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=7 format=3 uid="uid://bb83a30kcnjsr"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_kgnq8"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_i664l"]
+[ext_resource type="Resource" uid="uid://dlfux8drlkb3t" path="res://resources/affixes/base_stats/inherent_agility.tres" id="2_ng7jp"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_ng7jp"]
+[ext_resource type="Resource" uid="uid://by212c4j0x5gp" path="res://resources/affixes/base_stats/inherent_health.tres" id="3_vengi"]
+[ext_resource type="Resource" uid="uid://baxp7h1tamq4" path="res://resources/slot_definitions/accessory_slot.tres" id="4_vengi"]
+
+[resource]
+script = ExtResource("3_ng7jp")
+item_name = "Rider's Pendant"
+description = "A feather-shaped charm worn by the griffin corps. Said to bring luck in the air. At minimum, it brings a sense of belonging."
+flavor_text = "Griffin riders are superstitious. This is the most tasteful expression of that."
+rarity = 1
+equip_slot = 7
+slot_definition = ExtResource("4_vengi")
+base_stat_affixes = Array[ExtResource("1_kgnq8")]([ExtResource("2_ng7jp"), ExtResource("3_vengi")])
+base_value = 12

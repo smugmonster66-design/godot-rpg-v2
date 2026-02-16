@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://cd7jhmtv8eqhm"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_6t46r"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_0w4fy"]
+[ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_xyely"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_3ue6j"]
+[ext_resource type="Resource" uid="uid://ckylwdt2phbob" path="res://resources/affixes/base_stats/inherent_damage.tres" id="3_y3q5r"]
+[ext_resource type="Resource" uid="uid://bvlqcx16ejx" path="res://resources/affixes/base_stats/inherent_armor.tres" id="4_bvrq6"]
+[ext_resource type="Resource" uid="uid://d0u4wgvhs8sam" path="res://resources/slot_definitions/gloves_slot.tres" id="4_xyely"]
+
+[resource]
+script = ExtResource("3_3ue6j")
+item_name = "Iron Gauntlets"
+description = "Solid iron construction, built to absorb punishment. Standard issue for Sanctum's front-line infantry."
+flavor_text = "The knuckles are reinforced. For protection. Definitely just for protection."
+rarity = 1
+equip_slot = 2
+slot_definition = ExtResource("4_xyely")
+base_stat_affixes = Array[ExtResource("1_6t46r")]([ExtResource("2_xyely"), ExtResource("3_y3q5r"), ExtResource("4_bvrq6")])

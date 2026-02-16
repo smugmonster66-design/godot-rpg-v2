@@ -10,11 +10,12 @@ affix_name = "Thorns: Chill"
 description = "Apply Chill to attacker when hit"
 category = 35
 tags = Array[String](["proc", "thorns", "status", "ice"])
-effect_min = 0.15
-effect_max = 0.5
 effect_data = {
 "effect": "apply_status",
 "status": "chill",
 "target": "attacker"
 }
 proc_trigger = 2
+proc_chance = 0.325
+proc_chance_min = 0.15
+proc_chance_max = 0.5

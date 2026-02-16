@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=13 format=3 uid="uid://bs2egaqy2fmij"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_h1wbq"]
+[ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_hmfib"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_y7i1r"]
+[ext_resource type="Resource" uid="uid://dbgj0wcg21i0b" path="res://resources/affixes/base_stats/inherent_mana.tres" id="3_4ywql"]
+[ext_resource type="Resource" uid="uid://6rsbaoccvjqc" path="res://resources/affixes/elements/ice_element.tres" id="3_hmfib"]
+[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="4_4ywql"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="5_my3n5"]
+[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="6_qqo26"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="7_2bi5e"]
+[ext_resource type="Resource" uid="uid://dmbm1ao1pu7q4" path="res://resources/slot_definitions/heavy_slot.tres" id="8_bg8u3"]
+
+[sub_resource type="Resource" id="Resource_h1wbq"]
+script = ExtResource("2_y7i1r")
+display_name = "D6"
+element = 5
+element_affix = ExtResource("3_hmfib")
+fill_texture = ExtResource("4_4ywql")
+stroke_texture = ExtResource("6_qqo26")
+
+[sub_resource type="Resource" id="Resource_y7i1r"]
+script = ExtResource("2_y7i1r")
+display_name = "D6"
+element = 5
+element_affix = ExtResource("3_hmfib")
+fill_texture = ExtResource("4_4ywql")
+stroke_texture = ExtResource("6_qqo26")
+
+[resource]
+script = ExtResource("7_2bi5e")
+item_name = "Frost Staff"
+description = "Perpetually cold, occasionally frosted. Leaving it near beverages is considered a perk, not a malfunction."
+flavor_text = "The Academy's cooling budget dropped significantly after issuing these. Coincidence, surely."
+rarity = 1
+equip_slot = 6
+has_elemental_identity = true
+elemental_identity = 4
+slot_definition = ExtResource("8_bg8u3")
+base_stat_affixes = Array[ExtResource("1_h1wbq")]([ExtResource("2_hmfib"), ExtResource("3_4ywql")])
+grants_dice = Array[ExtResource("2_y7i1r")]([SubResource("Resource_h1wbq"), SubResource("Resource_y7i1r")])
+base_value = 25

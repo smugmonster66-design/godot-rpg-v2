@@ -10,11 +10,12 @@ affix_name = "Thorns: Enfeeble"
 description = "Apply Enfeeble to attacker when hit"
 category = 35
 tags = Array[String](["proc", "thorns", "status"])
-effect_min = 0.15
-effect_max = 0.5
 effect_data = {
 "effect": "apply_status",
 "status": "enfeeble",
 "target": "attacker"
 }
 proc_trigger = 2
+proc_chance = 0.325
+proc_chance_min = 0.15
+proc_chance_max = 0.5

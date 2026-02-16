@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://bbmgumupmxs12"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_j1g81"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_v06gx"]
+[ext_resource type="Resource" uid="uid://dlfux8drlkb3t" path="res://resources/affixes/base_stats/inherent_agility.tres" id="2_y3ban"]
+[ext_resource type="Resource" uid="uid://by212c4j0x5gp" path="res://resources/affixes/base_stats/inherent_health.tres" id="3_hq0ed"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_hrj27"]
+[ext_resource type="Resource" uid="uid://bvlqcx16ejx" path="res://resources/affixes/base_stats/inherent_armor.tres" id="4_0gvn8"]
+[ext_resource type="Resource" uid="uid://btsq4gakq82l7" path="res://resources/slot_definitions/off_hand_slot.tres" id="4_y3ban"]
+
+[resource]
+script = ExtResource("3_hrj27")
+item_name = "Scout's Buckler"
+description = "A light round shield strapped to the forearm. Favored by griffin riders and anyone who needs a free hand."
+flavor_text = "Small enough to not slow you down. Large enough to matter."
+rarity = 1
+equip_slot = 5
+slot_definition = ExtResource("4_y3ban")
+base_stat_affixes = Array[ExtResource("1_j1g81")]([ExtResource("2_y3ban"), ExtResource("3_hq0ed"), ExtResource("4_0gvn8")])
+base_value = 12

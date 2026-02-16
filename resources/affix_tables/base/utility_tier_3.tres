@@ -1,342 +1,40 @@
-[gd_resource type="Resource" script_class="AffixTable" load_steps=60 format=3 uid="uid://bpjwlymtq5ikl"]
+[gd_resource type="Resource" script_class="AffixTable" load_steps=33 format=3 uid="uid://bpjwlymtq5ikl"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_w7k3p"]
-[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_73ilr"]
-[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_4vxal"]
+[ext_resource type="Resource" uid="uid://cpcitidk7a4u0" path="res://resources/affixes/base/utility/tier_3/grant_d12_neutral.tres" id="2_amn3h"]
+[ext_resource type="Resource" uid="uid://dlughshpuvhye" path="res://resources/affixes/base/utility/tier_3/grant_fire_d8.tres" id="3_4cy1e"]
+[ext_resource type="Resource" uid="uid://bcfcjpfixod6m" path="res://resources/affixes/base/utility/tier_3/grant_ice_d8.tres" id="4_22vsf"]
 [ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="4_nu6vt"]
-[ext_resource type="Resource" uid="uid://qmx58wm8w361" path="res://resources/dice/base/d12_none.tres" id="die_0"]
-[ext_resource type="Resource" uid="uid://c8hata17eoqql" path="res://resources/dice/base/d8_fire.tres" id="die_1"]
-[ext_resource type="Resource" uid="uid://ctcw5orsjo0nr" path="res://resources/dice/base/d8_ice.tres" id="die_2"]
-[ext_resource type="Resource" uid="uid://wxul364fieh8" path="res://resources/dice/base/d8_shock.tres" id="die_3"]
-[ext_resource type="Resource" uid="uid://d0oqhqlnwhkce" path="res://resources/dice/base/d8_poison.tres" id="die_4"]
-[ext_resource type="Resource" uid="uid://dgqr1betlrb1u" path="res://resources/dice/base/d8_shadow.tres" id="die_5"]
-[ext_resource type="Resource" uid="uid://cd5t4lgwe543g" path="res://resources/dice/base/d8_slashing.tres" id="die_6"]
-[ext_resource type="Resource" uid="uid://pcxge12soiy2" path="res://resources/dice/base/d8_blunt.tres" id="die_7"]
-[ext_resource type="Resource" uid="uid://cviu4ii5jxi58" path="res://resources/dice/base/d8_piercing.tres" id="die_8"]
-[ext_resource type="Resource" uid="uid://cby4yf4a6xkfv" path="res://resources/dice/base/d10_fire.tres" id="die_9"]
-[ext_resource type="Resource" uid="uid://uaul0xfqknlx" path="res://resources/dice/base/d10_ice.tres" id="die_10"]
-[ext_resource type="Resource" uid="uid://crc3ijiparone" path="res://resources/dice/base/d10_shock.tres" id="die_11"]
-[ext_resource type="Resource" uid="uid://cj7c0y3tuv2cs" path="res://resources/dice/base/d10_poison.tres" id="die_12"]
-[ext_resource type="Resource" uid="uid://ca11tg3hrcvkt" path="res://resources/dice/base/d10_shadow.tres" id="die_13"]
-[ext_resource type="Resource" uid="uid://cmh0c5ttr7v77" path="res://resources/dice/base/d10_slashing.tres" id="die_14"]
-[ext_resource type="Resource" uid="uid://bgdlfehv60402" path="res://resources/dice/base/d10_blunt.tres" id="die_15"]
-[ext_resource type="Resource" uid="uid://baguots6jv62u" path="res://resources/dice/base/d10_piercing.tres" id="die_16"]
-[ext_resource type="Resource" uid="uid://c1nehvjm5t6pu" path="res://resources/dice/base/d12_fire.tres" id="die_17"]
-[ext_resource type="Resource" uid="uid://bdeo6183h4mmv" path="res://resources/dice/base/d12_ice.tres" id="die_18"]
-[ext_resource type="Resource" uid="uid://dlmrafu5goh2p" path="res://resources/dice/base/d12_shock.tres" id="die_19"]
-[ext_resource type="Resource" uid="uid://ddjv7mpbhyvhg" path="res://resources/dice/base/d12_poison.tres" id="die_20"]
-[ext_resource type="Resource" uid="uid://cbfqjof0aj4qn" path="res://resources/dice/base/d12_shadow.tres" id="die_21"]
-[ext_resource type="Resource" uid="uid://b1auaflbceffj" path="res://resources/dice/base/d12_slashing.tres" id="die_22"]
-[ext_resource type="Resource" uid="uid://x1l67ej62snt" path="res://resources/dice/base/d12_blunt.tres" id="die_23"]
-[ext_resource type="Resource" uid="uid://b2ia6xx7bjsoh" path="res://resources/dice/base/d12_piercing.tres" id="die_24"]
-
-[sub_resource type="Resource" id="Resource_12hlg"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant D12 (Neutral)"
-description = "Add a neutral D12 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "neutral"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_0")])
-
-[sub_resource type="Resource" id="Resource_13vce"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Fire D8"
-description = "Add a Fire D8 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "fire"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_1")])
-
-[sub_resource type="Resource" id="Resource_na4i5"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Ice D8"
-description = "Add a Ice D8 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "ice"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_2")])
-
-[sub_resource type="Resource" id="Resource_fy43u"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Shock D8"
-description = "Add a Shock D8 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "shock"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_3")])
-
-[sub_resource type="Resource" id="Resource_k2yf1"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Poison D8"
-description = "Add a Poison D8 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "poison"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_4")])
-
-[sub_resource type="Resource" id="Resource_fsran"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Shadow D8"
-description = "Add a Shadow D8 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "shadow"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_5")])
-
-[sub_resource type="Resource" id="Resource_4fe4g"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Slashing D8"
-description = "Add a Slashing D8 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "slashing"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_6")])
-
-[sub_resource type="Resource" id="Resource_j16bp"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Blunt D8"
-description = "Add a Blunt D8 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "blunt"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_7")])
-
-[sub_resource type="Resource" id="Resource_j6rit"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Piercing D8"
-description = "Add a Piercing D8 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "piercing"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_8")])
-
-[sub_resource type="Resource" id="Resource_brveq"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Fire D10"
-description = "Add a Fire D10 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "fire"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_9")])
-
-[sub_resource type="Resource" id="Resource_fedu1"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Ice D10"
-description = "Add a Ice D10 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "ice"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_10")])
-
-[sub_resource type="Resource" id="Resource_csatq"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Shock D10"
-description = "Add a Shock D10 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "shock"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_11")])
-
-[sub_resource type="Resource" id="Resource_cneut"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Poison D10"
-description = "Add a Poison D10 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "poison"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_12")])
-
-[sub_resource type="Resource" id="Resource_c5ru6"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Shadow D10"
-description = "Add a Shadow D10 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "shadow"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_13")])
-
-[sub_resource type="Resource" id="Resource_6e3nv"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Slashing D10"
-description = "Add a Slashing D10 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "slashing"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_14")])
-
-[sub_resource type="Resource" id="Resource_1i01y"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Blunt D10"
-description = "Add a Blunt D10 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "blunt"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_15")])
-
-[sub_resource type="Resource" id="Resource_wxl7y"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Piercing D10"
-description = "Add a Piercing D10 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "piercing"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_16")])
-
-[sub_resource type="Resource" id="Resource_28d7i"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Fire D12"
-description = "Add a Fire D12 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "fire"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_17")])
-
-[sub_resource type="Resource" id="Resource_tliii"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Ice D12"
-description = "Add a Ice D12 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "ice"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_18")])
-
-[sub_resource type="Resource" id="Resource_kuy7u"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Shock D12"
-description = "Add a Shock D12 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "shock"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_19")])
-
-[sub_resource type="Resource" id="Resource_pr1b5"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Poison D12"
-description = "Add a Poison D12 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "poison"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_20")])
-
-[sub_resource type="Resource" id="Resource_ehtyj"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Shadow D12"
-description = "Add a Shadow D12 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "shadow"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_21")])
-
-[sub_resource type="Resource" id="Resource_6yh2l"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Slashing D12"
-description = "Add a Slashing D12 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "slashing"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_22")])
-
-[sub_resource type="Resource" id="Resource_wo74t"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Blunt D12"
-description = "Add a Blunt D12 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "blunt"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_23")])
-
-[sub_resource type="Resource" id="Resource_amn3h"]
-script = ExtResource("1_w7k3p")
-affix_name = "Grant Piercing D12"
-description = "Add a Piercing D12 to your dice pool"
-category = 32
-tags = Array[String](["dice_grant", "piercing"])
-effect_number = 1.0
-
-granted_dice = Array[ExtResource("2_73ilr")]([ExtResource("die_24")])
-
-[sub_resource type="Resource" id="Resource_4cy1e"]
-script = ExtResource("1_w7k3p")
-affix_name = "Reroll Any Die"
-description = "Reroll one die of your choice per turn"
-category = 35
-tags = Array[String](["dice_manipulation"])
-effect_number = 1.0
-effect_data = {
-"effect": "reroll_any"
-}
-proc_trigger = 3
-
-[sub_resource type="Resource" id="Resource_22vsf"]
-script = ExtResource("1_w7k3p")
-affix_name = "Bonus Die Value %"
-description = "+N% to all rolled die values"
-category = 36
-tags = Array[String](["dice_manipulation"])
-effect_min = 0.05
-effect_max = 0.3
-
-[sub_resource type="Resource" id="Resource_4w1sm"]
-script = ExtResource("1_w7k3p")
-affix_name = "Duplicate Die on Max Roll"
-description = "N% chance to duplicate die on max value"
-category = 35
-tags = Array[String](["dice_manipulation"])
-effect_min = 0.1
-effect_max = 0.35
-effect_data = {
-"condition": "max_roll",
-"effect": "duplicate_die"
-}
-proc_trigger = 7
-
-[sub_resource type="Resource" id="Resource_7s45x"]
-script = ExtResource("1_w7k3p")
-affix_name = "Convert Die Element"
-description = "Convert one die per turn to equipped element"
-category = 35
-tags = Array[String](["dice_manipulation", "elemental"])
-effect_number = 1.0
-effect_data = {
-"effect": "convert_element"
-}
-proc_trigger = 3
-
-[sub_resource type="Resource" id="Resource_4bith"]
-script = ExtResource("1_w7k3p")
-affix_name = "Granted Utility Action"
-description = "Grants a bonus utility action"
-category = 31
-tags = Array[String](["action_grant", "utility"])
-effect_number = 1.0
+[ext_resource type="Resource" uid="uid://hmt1q7iby7e2" path="res://resources/affixes/base/utility/tier_3/grant_shock_d8.tres" id="5_4w1sm"]
+[ext_resource type="Resource" uid="uid://8tt77ujr87fb" path="res://resources/affixes/base/utility/tier_3/grant_poison_d8.tres" id="6_7s45x"]
+[ext_resource type="Resource" uid="uid://c0eyt4ir7u0yq" path="res://resources/affixes/base/utility/tier_3/grant_shadow_d8.tres" id="7_4bith"]
+[ext_resource type="Resource" uid="uid://dcscfh2fkpa2u" path="res://resources/affixes/base/utility/tier_3/grant_slashing_d8.tres" id="8_mqcmn"]
+[ext_resource type="Resource" uid="uid://dxu4oq8toercr" path="res://resources/affixes/base/utility/tier_3/grant_blunt_d8.tres" id="9_lmk2d"]
+[ext_resource type="Resource" uid="uid://d2gd5lcrjs38b" path="res://resources/affixes/base/utility/tier_3/grant_piercing_d8.tres" id="10_rydlk"]
+[ext_resource type="Resource" uid="uid://llolfop53wfx" path="res://resources/affixes/base/utility/tier_3/grant_fire_d10.tres" id="11_qur2l"]
+[ext_resource type="Resource" uid="uid://75cvbeas66ot" path="res://resources/affixes/base/utility/tier_3/grant_ice_d10.tres" id="12_dswvl"]
+[ext_resource type="Resource" uid="uid://c7kyioh3yusqs" path="res://resources/affixes/base/utility/tier_3/grant_shock_d10.tres" id="13_iyec1"]
+[ext_resource type="Resource" uid="uid://byrgtsav30b80" path="res://resources/affixes/base/utility/tier_3/grant_poison_d10.tres" id="14_pyqt8"]
+[ext_resource type="Resource" uid="uid://derm6squ33po0" path="res://resources/affixes/base/utility/tier_3/grant_shadow_d10.tres" id="15_lwkdp"]
+[ext_resource type="Resource" uid="uid://dy18geox6lip4" path="res://resources/affixes/base/utility/tier_3/grant_slashing_d10.tres" id="16_ai75a"]
+[ext_resource type="Resource" uid="uid://dudmwipimf108" path="res://resources/affixes/base/utility/tier_3/grant_blunt_d10.tres" id="17_l7wld"]
+[ext_resource type="Resource" uid="uid://cxfa43jxr7nac" path="res://resources/affixes/base/utility/tier_3/grant_piercing_d10.tres" id="18_3ikwu"]
+[ext_resource type="Resource" uid="uid://dcs7vyarkrc7c" path="res://resources/affixes/base/utility/tier_3/grant_fire_d12.tres" id="19_eggwp"]
+[ext_resource type="Resource" uid="uid://ct16mfw7f44hl" path="res://resources/affixes/base/utility/tier_3/grant_ice_d12.tres" id="20_rh87x"]
+[ext_resource type="Resource" uid="uid://diqvv347mq8ar" path="res://resources/affixes/base/utility/tier_3/grant_shock_d12.tres" id="21_l3wfu"]
+[ext_resource type="Resource" uid="uid://q5rjfkx37lwm" path="res://resources/affixes/base/utility/tier_3/grant_poison_d12.tres" id="22_mm4g3"]
+[ext_resource type="Resource" uid="uid://ccq0peds1w1c8" path="res://resources/affixes/base/utility/tier_3/grant_shadow_d12.tres" id="23_inbb5"]
+[ext_resource type="Resource" uid="uid://b18a2xigncpoj" path="res://resources/affixes/base/utility/tier_3/grant_slashing_d12.tres" id="24_gtyxs"]
+[ext_resource type="Resource" uid="uid://cgu018eyo3dqw" path="res://resources/affixes/base/utility/tier_3/grant_blunt_d12.tres" id="25_0hxvd"]
+[ext_resource type="Resource" uid="uid://dysru4gp7yc0j" path="res://resources/affixes/base/utility/tier_3/grant_piercing_d12.tres" id="26_vg8d8"]
+[ext_resource type="Resource" uid="uid://d1106pe2gvrlm" path="res://resources/affixes/base/utility/tier_3/reroll_any_die.tres" id="27_svxhk"]
+[ext_resource type="Resource" uid="uid://brbbp3h6aer8y" path="res://resources/affixes/base/utility/tier_3/bonus_die_value_pct.tres" id="28_rnju4"]
+[ext_resource type="Resource" uid="uid://ckrkfmu1eancu" path="res://resources/affixes/base/utility/tier_3/duplicate_die_on_max.tres" id="29_i0rwv"]
+[ext_resource type="Resource" uid="uid://kmo3oew5bw6h" path="res://resources/affixes/base/utility/tier_3/convert_die_element.tres" id="30_3cqq4"]
+[ext_resource type="Resource" uid="uid://dq5sc08wxn0qb" path="res://resources/affixes/base/utility/tier_3/granted_utility_action.tres" id="31_38ecc"]
 
 [resource]
 script = ExtResource("4_nu6vt")
 table_name = "Utility Tier 3"
 description = "Base utility affixes, tier 3. Auto-generated."
-available_affixes = Array[ExtResource("1_w7k3p")]([SubResource("Resource_12hlg"), SubResource("Resource_13vce"), SubResource("Resource_na4i5"), SubResource("Resource_fy43u"), SubResource("Resource_k2yf1"), SubResource("Resource_fsran"), SubResource("Resource_4fe4g"), SubResource("Resource_j16bp"), SubResource("Resource_j6rit"), SubResource("Resource_brveq"), SubResource("Resource_fedu1"), SubResource("Resource_csatq"), SubResource("Resource_cneut"), SubResource("Resource_c5ru6"), SubResource("Resource_6e3nv"), SubResource("Resource_1i01y"), SubResource("Resource_wxl7y"), SubResource("Resource_28d7i"), SubResource("Resource_tliii"), SubResource("Resource_kuy7u"), SubResource("Resource_pr1b5"), SubResource("Resource_ehtyj"), SubResource("Resource_6yh2l"), SubResource("Resource_wo74t"), SubResource("Resource_amn3h"), SubResource("Resource_4cy1e"), SubResource("Resource_22vsf"), SubResource("Resource_4w1sm"), SubResource("Resource_7s45x"), SubResource("Resource_4bith")])
+available_affixes = Array[ExtResource("1_w7k3p")]([ExtResource("2_amn3h"), ExtResource("3_4cy1e"), ExtResource("4_22vsf"), ExtResource("5_4w1sm"), ExtResource("6_7s45x"), ExtResource("7_4bith"), ExtResource("8_mqcmn"), ExtResource("9_lmk2d"), ExtResource("10_rydlk"), ExtResource("11_qur2l"), ExtResource("12_dswvl"), ExtResource("13_iyec1"), ExtResource("14_pyqt8"), ExtResource("15_lwkdp"), ExtResource("16_ai75a"), ExtResource("17_l7wld"), ExtResource("18_3ikwu"), ExtResource("19_eggwp"), ExtResource("20_rh87x"), ExtResource("21_l3wfu"), ExtResource("22_mm4g3"), ExtResource("23_inbb5"), ExtResource("24_gtyxs"), ExtResource("25_0hxvd"), ExtResource("26_vg8d8"), ExtResource("27_svxhk"), ExtResource("28_rnju4"), ExtResource("29_i0rwv"), ExtResource("30_3cqq4"), ExtResource("31_38ecc")])

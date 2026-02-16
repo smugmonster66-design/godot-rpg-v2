@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://wrcenrpnfprd"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_53di3"]
+[ext_resource type="Resource" uid="uid://dlfux8drlkb3t" path="res://resources/affixes/base_stats/inherent_agility.tres" id="2_6ujvm"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_508lj"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_6k3bk"]
+[ext_resource type="Resource" uid="uid://cnwjvnlvxrxs2" path="res://resources/affixes/base_stats/inherent_armor_hybrid.tres" id="3_t3xqw"]
+[ext_resource type="Resource" uid="uid://l4haca2jhusf" path="res://resources/slot_definitions/head_slot.tres" id="4_6ujvm"]
+[ext_resource type="Resource" uid="uid://bo60aqpcko6p6" path="res://resources/affixes/base_stats/inherent_barrier_hybrid.tres" id="4_iu1gq"]
+
+[resource]
+script = ExtResource("3_6k3bk")
+item_name = "Scout's Half-Helm"
+description = "Scout-issue gear combining leather and light enchantment. Keeps you alive and fast, in that order."
+flavor_text = "Scouting Division motto: 'We saw it first.' The half-helm helps with the seeing part."
+rarity = 1
+equip_slot = 0
+slot_definition = ExtResource("4_6ujvm")
+base_stat_affixes = Array[ExtResource("1_53di3")]([ExtResource("2_6ujvm"), ExtResource("3_t3xqw"), ExtResource("4_iu1gq")])

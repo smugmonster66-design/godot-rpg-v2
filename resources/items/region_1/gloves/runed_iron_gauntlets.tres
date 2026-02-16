@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://b5e8xbmllvxrb"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_33llf"]
+[ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_354so"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_cy4j8"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_fkw1q"]
+[ext_resource type="Resource" uid="uid://ckylwdt2phbob" path="res://resources/affixes/base_stats/inherent_damage.tres" id="3_rehpi"]
+[ext_resource type="Resource" uid="uid://d0u4wgvhs8sam" path="res://resources/slot_definitions/gloves_slot.tres" id="4_354so"]
+[ext_resource type="Resource" uid="uid://3himbtyqcloq" path="res://resources/affixes/base_stats/inherent_barrier.tres" id="4_dkicr"]
+
+[resource]
+script = ExtResource("3_fkw1q")
+item_name = "Runed Iron Gauntlets"
+description = "Iron plate inscribed with protective runes. The enchantment work isn't cheap, but neither is replacing soldiers."
+flavor_text = "The runes across the fingers make punching things produce a satisfying shimmer."
+rarity = 1
+equip_slot = 2
+slot_definition = ExtResource("4_354so")
+base_stat_affixes = Array[ExtResource("1_33llf")]([ExtResource("2_354so"), ExtResource("3_rehpi"), ExtResource("4_dkicr")])

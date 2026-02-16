@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EnemyTierLootConfig" load_steps=2 format=3 uid="uid://b0213w2f85es7"]
+
+[ext_resource type="Script" uid="uid://d0wqvqpbbt3jk" path="res://resources/data/enemy_tier_loot_config.gd" id="1_y7jax"]
+
+[resource]
+script = ExtResource("1_y7jax")
+tier_name = "Mini-Boss"
+tier = 2
+common_weight = 5
+uncommon_weight = 30
+rare_weight = 40
+epic_weight = 25
+drop_count_min = 1
+drop_count_max = 2
+nothing_weight = 0
+archetype_bonus_chance = 0.35
+world_legendary_chance = 0.02
+currency_min = 15
+currency_max = 40

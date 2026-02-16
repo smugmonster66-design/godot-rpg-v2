@@ -1,0 +1,418 @@
+[gd_resource type="Resource" script_class="LootTable" load_steps=139 format=3 uid="uid://c1l8ufdjsnsr6"]
+
+[ext_resource type="Script" uid="uid://b2rburvcl540q" path="res://resources/data/loot_drop.gd" id="1_f4y21"]
+[ext_resource type="Script" uid="uid://boj6mculdlkuk" path="res://resources/data/loot_table.gd" id="2_qxp3d"]
+[ext_resource type="Resource" uid="uid://bqm3b5p4lxeof" path="res://resources/items/region_1/head/iron_helm.tres" id="3_kgg4t"]
+[ext_resource type="Resource" uid="uid://bgslt5aea1mn4" path="res://resources/items/region_1/head/runed_iron_helm.tres" id="4_vrmye"]
+[ext_resource type="Resource" uid="uid://raoa2tbik26r" path="res://resources/items/region_1/head/marine_helm.tres" id="5_jc7be"]
+[ext_resource type="Resource" uid="uid://br6nqq5g3o56q" path="res://resources/items/region_1/head/leather_cap.tres" id="6_8qf31"]
+[ext_resource type="Resource" uid="uid://bxqkcbnyypwnj" path="res://resources/items/region_1/head/warded_leather_cap.tres" id="7_ql6kb"]
+[ext_resource type="Resource" uid="uid://wrcenrpnfprd" path="res://resources/items/region_1/head/scouts_half_helm.tres" id="8_0xute"]
+[ext_resource type="Resource" uid="uid://coa37vlkyjoin" path="res://resources/items/region_1/head/plated_circlet.tres" id="9_8vwkf"]
+[ext_resource type="Resource" uid="uid://bpnb2ud6ypvtk" path="res://resources/items/region_1/head/arcane_circlet.tres" id="10_fkgf0"]
+[ext_resource type="Resource" uid="uid://bxhx2ehfcvdlu" path="res://resources/items/region_1/head/scholars_circlet.tres" id="11_p5mdj"]
+[ext_resource type="Resource" uid="uid://dn6b2cpwr46m4" path="res://resources/items/region_1/torso/iron_cuirass.tres" id="12_6rsqq"]
+[ext_resource type="Resource" uid="uid://dlxllqanvw1mb" path="res://resources/items/region_1/torso/runed_iron_cuirass.tres" id="13_02u8m"]
+[ext_resource type="Resource" uid="uid://clw8sxtkgs5yo" path="res://resources/items/region_1/torso/marine_cuirass.tres" id="14_87ddr"]
+[ext_resource type="Resource" uid="uid://mbkx1j8le68b" path="res://resources/items/region_1/torso/leather_jerkin.tres" id="15_os1or"]
+[ext_resource type="Resource" uid="uid://b16dkl7r6q8c1" path="res://resources/items/region_1/torso/warded_leather_jerkin.tres" id="16_cy13h"]
+[ext_resource type="Resource" uid="uid://cy754nj6lug87" path="res://resources/items/region_1/torso/scouts_jerkin.tres" id="17_6puk3"]
+[ext_resource type="Resource" uid="uid://eaxe1e4t0mee" path="res://resources/items/region_1/torso/plated_robe.tres" id="18_34h0s"]
+[ext_resource type="Resource" uid="uid://djwjjkderf6bd" path="res://resources/items/region_1/torso/arcane_robe.tres" id="19_wv5yg"]
+[ext_resource type="Resource" uid="uid://2umafeyhxwb7" path="res://resources/items/region_1/torso/scholars_robe.tres" id="20_c2nw8"]
+[ext_resource type="Resource" uid="uid://cd7jhmtv8eqhm" path="res://resources/items/region_1/gloves/iron_gauntlets.tres" id="21_i3tx8"]
+[ext_resource type="Resource" uid="uid://b5e8xbmllvxrb" path="res://resources/items/region_1/gloves/runed_iron_gauntlets.tres" id="22_tscr4"]
+[ext_resource type="Resource" uid="uid://cuq4yqi62hi48" path="res://resources/items/region_1/gloves/marine_gauntlets.tres" id="23_sh1nu"]
+[ext_resource type="Resource" uid="uid://bvl4nd6i1i8hj" path="res://resources/items/region_1/gloves/leather_gloves.tres" id="24_1ptim"]
+[ext_resource type="Resource" uid="uid://c15x5jmeisdvv" path="res://resources/items/region_1/gloves/warded_leather_gloves.tres" id="25_vjamn"]
+[ext_resource type="Resource" uid="uid://dca5oi6bgeexu" path="res://resources/items/region_1/gloves/scouts_gloves.tres" id="26_ptsbp"]
+[ext_resource type="Resource" uid="uid://copqb60w3jpc1" path="res://resources/items/region_1/gloves/plated_wraps.tres" id="27_j1yos"]
+[ext_resource type="Resource" uid="uid://0hrlbxse7j6w" path="res://resources/items/region_1/gloves/arcane_wraps.tres" id="28_i4nn0"]
+[ext_resource type="Resource" uid="uid://cfm7irysporb1" path="res://resources/items/region_1/gloves/scholars_wraps.tres" id="29_4ooa8"]
+[ext_resource type="Resource" uid="uid://dukd6ymd58f8x" path="res://resources/items/region_1/boots/iron_boots.tres" id="30_8xbxc"]
+[ext_resource type="Resource" uid="uid://ctfo4sww2sj7m" path="res://resources/items/region_1/boots/runed_iron_boots.tres" id="31_23sex"]
+[ext_resource type="Resource" uid="uid://xis50ai06708" path="res://resources/items/region_1/boots/marine_boots.tres" id="32_lo73m"]
+[ext_resource type="Resource" uid="uid://dnd8s3prh53s6" path="res://resources/items/region_1/boots/leather_boots.tres" id="33_4lhuc"]
+[ext_resource type="Resource" uid="uid://bjy2jwglg6dd0" path="res://resources/items/region_1/boots/warded_leather_boots.tres" id="34_clm5k"]
+[ext_resource type="Resource" uid="uid://c2bcj2dx5nci5" path="res://resources/items/region_1/boots/scouts_boots.tres" id="35_wcdxj"]
+[ext_resource type="Resource" uid="uid://chj6je71i17ax" path="res://resources/items/region_1/boots/plated_shoes.tres" id="36_m1chj"]
+[ext_resource type="Resource" uid="uid://kf01o3feospa" path="res://resources/items/region_1/boots/arcane_shoes.tres" id="37_xwhbc"]
+[ext_resource type="Resource" uid="uid://b7lo0cgilcnis" path="res://resources/items/region_1/boots/scholars_shoes.tres" id="38_ingav"]
+[ext_resource type="Resource" uid="uid://cvaptd3rg4lsg" path="res://resources/items/region_1/main_hand/naval_cutlass.tres" id="39_ihth8"]
+[ext_resource type="Resource" uid="uid://daj3cqcqxs5q6" path="res://resources/items/region_1/main_hand/officers_rapier.tres" id="40_hf1dv"]
+[ext_resource type="Resource" uid="uid://c3mxcdofxsyud" path="res://resources/items/region_1/main_hand/iron_mace.tres" id="41_gk515"]
+[ext_resource type="Resource" uid="uid://csvossjigmmmn" path="res://resources/items/region_1/main_hand/sanctum_stiletto.tres" id="42_kxrt3"]
+[ext_resource type="Resource" uid="uid://cygp3r3gwfpf1" path="res://resources/items/region_1/main_hand/cinder_wand.tres" id="43_gctpa"]
+[ext_resource type="Resource" uid="uid://ce0egc5uw63cw" path="res://resources/items/region_1/main_hand/frost_wand.tres" id="44_puq1f"]
+[ext_resource type="Resource" uid="uid://bjy6tpckui4lt" path="res://resources/items/region_1/main_hand/spark_wand.tres" id="45_q4egc"]
+[ext_resource type="Resource" uid="uid://cv1o450e44s5g" path="res://resources/items/region_1/off_hand/naval_shield_armor.tres" id="46_wrf4u"]
+[ext_resource type="Resource" uid="uid://djukhx7aj2kh" path="res://resources/items/region_1/off_hand/naval_shield_barrier.tres" id="47_s1i33"]
+[ext_resource type="Resource" uid="uid://c0o5pr2pg3db0" path="res://resources/items/region_1/off_hand/naval_shield_hybrid.tres" id="48_c7iy5"]
+[ext_resource type="Resource" uid="uid://bbmgumupmxs12" path="res://resources/items/region_1/off_hand/scouts_buckler_armor.tres" id="49_k80qw"]
+[ext_resource type="Resource" uid="uid://cr2wttgkpmpwc" path="res://resources/items/region_1/off_hand/scouts_buckler_barrier.tres" id="50_5w6ee"]
+[ext_resource type="Resource" uid="uid://dhiw8c12ulmw6" path="res://resources/items/region_1/off_hand/scouts_buckler_hybrid.tres" id="51_bojwc"]
+[ext_resource type="Resource" uid="uid://cgs62edoqo2j8" path="res://resources/items/region_1/off_hand/worn_tome_armor.tres" id="52_fwqn1"]
+[ext_resource type="Resource" uid="uid://bd2f611ghr6cd" path="res://resources/items/region_1/off_hand/worn_tome_barrier.tres" id="53_bgvlr"]
+[ext_resource type="Resource" uid="uid://bwnfnjbqog2hw" path="res://resources/items/region_1/off_hand/worn_tome_hybrid.tres" id="54_n1ehy"]
+[ext_resource type="Resource" uid="uid://bsik173yxjwnj" path="res://resources/items/region_1/off_hand/parrying_blade.tres" id="55_xs18s"]
+[ext_resource type="Resource" uid="uid://dobwte1wf32f1" path="res://resources/items/region_1/heavy/naval_greatsword.tres" id="56_clhh1"]
+[ext_resource type="Resource" uid="uid://dab6uqulv8s3q" path="res://resources/items/region_1/heavy/iron_warhammer.tres" id="57_1be70"]
+[ext_resource type="Resource" uid="uid://4c56rt5hegkx" path="res://resources/items/region_1/heavy/marine_halberd.tres" id="58_vx2df"]
+[ext_resource type="Resource" uid="uid://bi1upc4nqq26l" path="res://resources/items/region_1/heavy/longbow.tres" id="59_xb2ml"]
+[ext_resource type="Resource" uid="uid://s04r24seht3y" path="res://resources/items/region_1/heavy/ember_staff.tres" id="60_gwnn0"]
+[ext_resource type="Resource" uid="uid://bs2egaqy2fmij" path="res://resources/items/region_1/heavy/frost_staff_region1.tres" id="61_hkx30"]
+[ext_resource type="Resource" uid="uid://coxryhl4iqj3" path="res://resources/items/region_1/heavy/storm_staff.tres" id="62_8p0om"]
+[ext_resource type="Resource" uid="uid://bhyr02fejrmnu" path="res://resources/items/region_1/heavy/venom_staff.tres" id="63_wkmri"]
+[ext_resource type="Resource" uid="uid://c1popobltweg6" path="res://resources/items/region_1/heavy/shadow_staff.tres" id="64_agfie"]
+[ext_resource type="Resource" uid="uid://db7rh6uyae7al" path="res://resources/items/region_1/accessory/iron_signet.tres" id="65_sad8q"]
+[ext_resource type="Resource" uid="uid://ctr2ttf6weouq" path="res://resources/items/region_1/accessory/scouts_band.tres" id="66_n1whx"]
+[ext_resource type="Resource" uid="uid://6uhmu4om7awv" path="res://resources/items/region_1/accessory/scholars_ring.tres" id="67_iky30"]
+[ext_resource type="Resource" uid="uid://dt4is4rt2hey" path="res://resources/items/region_1/accessory/naval_medallion.tres" id="68_ncbi3"]
+[ext_resource type="Resource" uid="uid://bb83a30kcnjsr" path="res://resources/items/region_1/accessory/riders_pendant.tres" id="69_0eg7o"]
+[ext_resource type="Resource" uid="uid://bcrfc808hyhra" path="res://resources/items/region_1/accessory/arcane_pendant.tres" id="70_gegx4"]
+
+[sub_resource type="Resource" id="Resource_v82tm"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("3_kgg4t")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_bgp52"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("4_vrmye")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_bvw4t"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("5_jc7be")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_5kw30"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("6_8qf31")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_0jjyq"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("7_ql6kb")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_tsrm6"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("8_0xute")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_ot13l"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("9_8vwkf")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_h1kpl"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("10_fkgf0")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_2p7nt"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("11_p5mdj")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_18yao"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("12_6rsqq")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_2n5sr"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("13_02u8m")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_nt0bj"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("14_87ddr")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_ec1yn"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("15_os1or")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_kcrsp"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("16_cy13h")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_o0cgu"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("17_6puk3")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_sja5t"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("18_34h0s")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_tkyal"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("19_wv5yg")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_j4352"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("20_c2nw8")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_j8dbs"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("21_i3tx8")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_xui5x"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("22_tscr4")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_kx3dw"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("23_sh1nu")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_86sc0"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("24_1ptim")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_mupj1"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("25_vjamn")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_jpjvv"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("26_ptsbp")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_k0meb"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("27_j1yos")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_sunlg"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("28_i4nn0")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_3nk1l"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("29_4ooa8")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_u6rcq"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("30_8xbxc")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_50i33"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("31_23sex")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_ihyhn"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("32_lo73m")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_2l5th"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("33_4lhuc")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_4cpyh"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("34_clm5k")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_1kilc"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("35_wcdxj")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_sb0ss"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("36_m1chj")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_2hob1"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("37_xwhbc")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_m4nvi"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("38_ingav")
+drop_weight = 10
+
+[sub_resource type="Resource" id="Resource_l1gjk"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("39_ihth8")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_a8716"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("40_hf1dv")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_a6bvy"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("41_gk515")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_8580a"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("42_kxrt3")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_eohwf"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("43_gctpa")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_mb2ix"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("44_puq1f")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_tybw7"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("45_q4egc")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_rvxwc"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("46_wrf4u")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_vahvr"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("47_s1i33")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_h2g3n"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("48_c7iy5")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_d4cux"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("49_k80qw")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_fajcs"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("50_5w6ee")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_40uhr"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("51_bojwc")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_857ey"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("52_fwqn1")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_mxtmm"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("53_bgvlr")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_hmckh"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("54_n1ehy")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_6pivf"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("55_xs18s")
+drop_weight = 6
+
+[sub_resource type="Resource" id="Resource_vx03p"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("56_clhh1")
+drop_weight = 4
+
+[sub_resource type="Resource" id="Resource_rwken"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("57_1be70")
+drop_weight = 4
+
+[sub_resource type="Resource" id="Resource_rf2uc"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("58_vx2df")
+drop_weight = 4
+
+[sub_resource type="Resource" id="Resource_qxrrf"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("59_xb2ml")
+drop_weight = 4
+
+[sub_resource type="Resource" id="Resource_ju573"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("60_gwnn0")
+drop_weight = 4
+
+[sub_resource type="Resource" id="Resource_fgqyx"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("61_hkx30")
+drop_weight = 4
+
+[sub_resource type="Resource" id="Resource_1qo42"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("62_8p0om")
+drop_weight = 4
+
+[sub_resource type="Resource" id="Resource_aoq3m"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("63_wkmri")
+drop_weight = 4
+
+[sub_resource type="Resource" id="Resource_cinnr"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("64_agfie")
+drop_weight = 4
+
+[sub_resource type="Resource" id="Resource_c51bo"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("65_sad8q")
+drop_weight = 3
+
+[sub_resource type="Resource" id="Resource_hxgpe"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("66_n1whx")
+drop_weight = 3
+
+[sub_resource type="Resource" id="Resource_mhlpj"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("67_iky30")
+drop_weight = 3
+
+[sub_resource type="Resource" id="Resource_56jlc"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("68_ncbi3")
+drop_weight = 3
+
+[sub_resource type="Resource" id="Resource_v7fvn"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("69_0eg7o")
+drop_weight = 3
+
+[sub_resource type="Resource" id="Resource_gcesi"]
+script = ExtResource("1_f4y21")
+item_template = ExtResource("70_gegx4")
+drop_weight = 3
+
+[resource]
+script = ExtResource("2_qxp3d")
+table_name = "region_1_shared"
+description = "Region 1 (Sanctum) — All base items, weighted by slot rarity."
+weighted_drops = Array[ExtResource("1_f4y21")]([SubResource("Resource_v82tm"), SubResource("Resource_bgp52"), SubResource("Resource_bvw4t"), SubResource("Resource_5kw30"), SubResource("Resource_0jjyq"), SubResource("Resource_tsrm6"), SubResource("Resource_ot13l"), SubResource("Resource_h1kpl"), SubResource("Resource_2p7nt"), SubResource("Resource_18yao"), SubResource("Resource_2n5sr"), SubResource("Resource_nt0bj"), SubResource("Resource_ec1yn"), SubResource("Resource_kcrsp"), SubResource("Resource_o0cgu"), SubResource("Resource_sja5t"), SubResource("Resource_tkyal"), SubResource("Resource_j4352"), SubResource("Resource_j8dbs"), SubResource("Resource_xui5x"), SubResource("Resource_kx3dw"), SubResource("Resource_86sc0"), SubResource("Resource_mupj1"), SubResource("Resource_jpjvv"), SubResource("Resource_k0meb"), SubResource("Resource_sunlg"), SubResource("Resource_3nk1l"), SubResource("Resource_u6rcq"), SubResource("Resource_50i33"), SubResource("Resource_ihyhn"), SubResource("Resource_2l5th"), SubResource("Resource_4cpyh"), SubResource("Resource_1kilc"), SubResource("Resource_sb0ss"), SubResource("Resource_2hob1"), SubResource("Resource_m4nvi"), SubResource("Resource_l1gjk"), SubResource("Resource_a8716"), SubResource("Resource_a6bvy"), SubResource("Resource_8580a"), SubResource("Resource_eohwf"), SubResource("Resource_mb2ix"), SubResource("Resource_tybw7"), SubResource("Resource_rvxwc"), SubResource("Resource_vahvr"), SubResource("Resource_h2g3n"), SubResource("Resource_d4cux"), SubResource("Resource_fajcs"), SubResource("Resource_40uhr"), SubResource("Resource_857ey"), SubResource("Resource_mxtmm"), SubResource("Resource_hmckh"), SubResource("Resource_6pivf"), SubResource("Resource_vx03p"), SubResource("Resource_rwken"), SubResource("Resource_rf2uc"), SubResource("Resource_qxrrf"), SubResource("Resource_ju573"), SubResource("Resource_fgqyx"), SubResource("Resource_1qo42"), SubResource("Resource_aoq3m"), SubResource("Resource_cinnr"), SubResource("Resource_c51bo"), SubResource("Resource_hxgpe"), SubResource("Resource_mhlpj"), SubResource("Resource_56jlc"), SubResource("Resource_v7fvn"), SubResource("Resource_gcesi")])

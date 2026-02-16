@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=7 format=3 uid="uid://db7rh6uyae7al"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_w80xm"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_1chee"]
+[ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_61o36"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_61o36"]
+[ext_resource type="Resource" uid="uid://by212c4j0x5gp" path="res://resources/affixes/base_stats/inherent_health.tres" id="3_jqfkq"]
+[ext_resource type="Resource" uid="uid://baxp7h1tamq4" path="res://resources/slot_definitions/accessory_slot.tres" id="4_jqfkq"]
+
+[resource]
+script = ExtResource("3_61o36")
+item_name = "Iron Signet"
+description = "A heavy ring bearing an anchor seal. Worn by naval enlisted to prove their service, and occasionally to improve their punches."
+flavor_text = "The seal reads 'SERVICE, DUTY, PAPERWORK.' The last word is worn away on most examples."
+rarity = 1
+equip_slot = 7
+slot_definition = ExtResource("4_jqfkq")
+base_stat_affixes = Array[ExtResource("1_w80xm")]([ExtResource("2_61o36"), ExtResource("3_jqfkq")])
+base_value = 12
