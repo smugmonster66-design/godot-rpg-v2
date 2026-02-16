@@ -803,6 +803,7 @@ size_flags_horizontal = 3
 [node name="InventoryDetailsPanel" type="PanelContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer" groups=["inventory_details_panel"]]
 layout_mode = 2
 size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
 theme_override_styles/panel = SubResource("StyleBoxTexture_t1rrh")
 
 [node name="DetailsVBox" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/InventoryDetailsPanel"]

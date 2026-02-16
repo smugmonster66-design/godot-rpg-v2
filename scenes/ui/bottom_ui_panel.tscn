@@ -1,18 +1,12 @@
-[gd_scene load_steps=15 format=3 uid="uid://c0w3t10mfnowo"]
+[gd_scene load_steps=9 format=3 uid="uid://c0w3t10mfnowo"]
 
 [ext_resource type="Script" uid="uid://cs3ncaepru3rn" path="res://scripts/ui/bottom_ui_panel.gd" id="1_1ip7k"]
 [ext_resource type="PackedScene" uid="uid://ds3fslulucbxd" path="res://scenes/ui/map/dice_grid.tscn" id="1_5ue3t"]
 [ext_resource type="Texture2D" uid="uid://c6sqtdxnbp2ab" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_bg.png" id="2_ob1iw"]
 [ext_resource type="Texture2D" uid="uid://bgqcm8i82101" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_hp.png" id="3_smlgd"]
 [ext_resource type="Texture2D" uid="uid://bhdufq5sfxngf" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_stroke_basic.png" id="4_0x4yc"]
-[ext_resource type="Script" uid="uid://fxekowigxepb" path="res://scripts/ui/components/add_gear_button.gd" id="5_5kghg"]
 [ext_resource type="Texture2D" uid="uid://i70pssjftg8l" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_mana.png" id="5_smlgd"]
 [ext_resource type="Texture2D" uid="uid://dsvp7sgpdimti" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_xp.png" id="6_smlgd"]
-[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="6_tu5g0"]
-[ext_resource type="Resource" uid="uid://bph6gp6nhb28h" path="res://resources/items/main hand/venom_dagger.tres" id="8_2my3p"]
-[ext_resource type="Resource" uid="uid://bb7im66tynxkr" path="res://resources/items/head/iron_helm.tres" id="8_25ydp"]
-[ext_resource type="Script" uid="uid://bmitbn1xm1k41" path="res://scripts/ui/components/combat_button.gd" id="9_2my3p"]
-[ext_resource type="Resource" uid="uid://couqhbcv0nj5p" path="res://resources/encounters/goblin_solo.tres" id="10_25ydp"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_smlgd"]
 
@@ -128,21 +122,6 @@ layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 text = "MENU"
-
-[node name="AddStartingGearButton" type="Button" parent="VBoxContainer/MainHBox/RightSection"]
-layout_mode = 2
-size_flags_horizontal = 4
-text = "Add Starting Gear"
-script = ExtResource("5_5kghg")
-starting_items = Array[ExtResource("6_tu5g0")]([ExtResource("8_25ydp"), ExtResource("8_2my3p")])
-drop_item_level = 2
-
-[node name="CombatButton" type="Button" parent="VBoxContainer/MainHBox/RightSection"]
-layout_mode = 2
-size_flags_horizontal = 4
-text = "Begin Test Combat"
-script = ExtResource("9_2my3p")
-encounter = ExtResource("10_25ydp")
 
 [node name="ButtonArea" type="CenterContainer" parent="VBoxContainer/MainHBox/RightSection"]
 layout_mode = 2

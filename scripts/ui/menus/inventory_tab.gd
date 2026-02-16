@@ -80,8 +80,12 @@ var current_category: String = "All"
 # Shader resources
 var rarity_shader: Shader = null
 
+var _active_die_tooltip: PanelContainer = null
+
 # Add to STATE section
 var _selected_button: TextureButton = null
+
+var _details_scroll: ScrollContainer = null
 
 # ============================================================================
 # INITIALIZATION
@@ -128,6 +132,7 @@ func _discover_ui_elements():
 			break
 	
 	_update_category_button_visuals()
+	_ensure_details_scroll()
 
 # ============================================================================
 # PUBLIC API
@@ -358,7 +363,7 @@ func _create_item_button(item) -> Control:
 		# "E" badge in top-right corner
 		var badge = Label.new()
 		badge.text = "E"
-		badge.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.caption)
+		#badge.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.caption)
 		badge.add_theme_color_override("font_color", ThemeManager.PALETTE.text_primary)
 		badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -432,33 +437,25 @@ func _get_item_type_color(item) -> Color:
 
 
 func _update_item_details():
-	"""Update the item details panel"""
-	print("🔍 _update_item_details called")
-	
+	"""Update the item details panel."""
 	if not item_details_panel:
-		print("  ❌ No item_details_panel!")
 		return
 	
-	# Find UI elements in details panel
+	# ── Discover fixed UI nodes ──
 	var name_labels = item_details_panel.find_children("*Name*", "Label", true, false)
 	var image_rects = item_details_panel.find_children("*Image*", "TextureRect", true, false)
 	var desc_labels = item_details_panel.find_children("*Desc*", "Label", true, false)
 	var affix_containers = item_details_panel.find_children("*Affix*", "VBoxContainer", true, false)
 	var action_buttons_containers = find_children("ActionButtons", "HBoxContainer", true, false)
 	
-	print("  Found %d ActionButtons containers" % action_buttons_containers.size())
-	
-	# Get individual buttons from ActionButtons container
 	var use_buttons = []
 	var equip_buttons = []
 	if action_buttons_containers.size() > 0:
 		use_buttons = action_buttons_containers[0].find_children("*Use*", "Button", false, false)
 		equip_buttons = action_buttons_containers[0].find_children("*Equip*", "Button", false, false)
-		print("  Found %d Use buttons, %d Equip buttons" % [use_buttons.size(), equip_buttons.size()])
 	
+	# ── No item selected — clear everything ──
 	if selected_item == null:
-		print("  No item selected - hiding buttons")
-		# Clear details
 		if name_labels.size() > 0:
 			name_labels[0].text = "No Item Selected"
 			name_labels[0].remove_theme_color_override("font_color")
@@ -471,186 +468,222 @@ func _update_item_details():
 		if affix_containers.size() > 0:
 			for child in affix_containers[0].get_children():
 				child.queue_free()
-		# Hide action buttons container
 		if action_buttons_containers.size() > 0:
 			action_buttons_containers[0].hide()
+		if _details_scroll:
+			_details_scroll.scroll_vertical = 0
 		return
 	
-	print("  Selected item: %s" % _item_name(selected_item))
-	
-	# Show item name with rarity color
+	# ── 1. Item name (rarity colored) ──
 	if name_labels.size() > 0:
 		var rarity_name = _item_rarity_name(selected_item)
 		name_labels[0].text = _item_name(selected_item)
 		name_labels[0].add_theme_color_override("font_color", ThemeManager.get_rarity_color(rarity_name))
 	
-	# Show item image with rarity shader + glow layer
+	# ── 3. Item image ──
 	if image_rects.size() > 0:
 		image_rects[0].custom_minimum_size = Vector2(detail_icon_size, detail_icon_size)
-		
-		# Constrain the container so glow doesn't bleed into neighbors
 		var center = image_rects[0].get_parent()
 		if center is CenterContainer:
 			center.custom_minimum_size = Vector2(detail_container_size, detail_container_size)
-			#center.clip_contents = true
 		
-		var icon = _item_icon(selected_item)
-		if icon:
-			image_rects[0].texture = icon
+		var item_icon = _item_icon(selected_item)
+		if item_icon:
+			image_rects[0].texture = item_icon
 		else:
-			# Create colored placeholder
 			var img = Image.create(100, 100, false, Image.FORMAT_RGBA8)
 			img.fill(_get_item_type_color(selected_item))
-			var tex = ImageTexture.create_from_image(img)
-			image_rects[0].texture = tex
+			image_rects[0].texture = ImageTexture.create_from_image(img)
 		_apply_rarity_shader_to_texture_rect(image_rects[0], selected_item)
 		RarityGlowHelper.apply_glow(image_rects[0], image_rects[0].texture, _item_rarity_name(selected_item), detail_glow_config)
 	
-	# Show description
+	# ── 4. Description ──
 	if desc_labels.size() > 0:
 		desc_labels[0].text = _item_description(selected_item)
 	
-	# Show affixes
+	# ── Build dynamic content in affix container ──
 	if affix_containers.size() > 0:
-		var affix_container = affix_containers[0]
+		var affix_container: VBoxContainer = affix_containers[0]
 		for child in affix_container.get_children():
 			child.queue_free()
 		
-		# ── Resolve EquippableItem reference ──
-		# Inventory stores EquippableItem Resources directly (v3).
 		var equippable: EquippableItem = null
 		if selected_item is EquippableItem:
 			equippable = selected_item
 		
-		# ── Affix display (EquippableItem path) ──
 		if equippable:
-			# Item level / region
+			# ── 2. Rarity · Slot subtitle ──
+			var subtitle = Label.new()
+			var slot_display = "Heavy Weapon" if equippable.is_heavy_weapon() else equippable.get_slot_name()
+			subtitle.text = "%s · %s" % [equippable.get_rarity_name(), slot_display]
+			subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			#subtitle.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.caption)
+			subtitle.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
+			affix_container.add_child(subtitle)
+			
+			# ── 5. Elemental identity ──
+			var elem_row = _create_element_row(equippable)
+			affix_container.add_child(elem_row)
+			
+			# ── 6. Dice Granted ──
+			if equippable.grants_dice.size() > 0:
+				_add_section_separator(affix_container)
+				var dice_section = _create_dice_granted_section(equippable)
+				affix_container.add_child(dice_section)
+			
+			# ── 7. Action Granted ──
+			if equippable.grants_action and equippable.action:
+				_add_section_separator(affix_container)
+				var action_label = Label.new()
+				action_label.text = "Grants: %s" % equippable.action.action_name
+				#action_label.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.caption)
+				action_label.add_theme_color_override("font_color", Color(0.4, 0.8, 1.0))
+				affix_container.add_child(action_label)
+				if equippable.action.description and equippable.action.description != "":
+					var action_desc = Label.new()
+					action_desc.text = equippable.action.description
+					#action_desc.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.small)
+					action_desc.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
+					action_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+					affix_container.add_child(action_desc)
+			
+			# ── 8. Base stat affixes (blue) ──
+			if equippable.base_affixes.size() > 0:
+				_add_section_separator(affix_container)
+				for affix in equippable.base_affixes:
+					if affix:
+						var lbl = _create_affix_label(affix, Color(0.6, 0.75, 0.95))
+						affix_container.add_child(lbl)
+			
+			# ── 9. Inherent affixes (green) ──
+			if equippable.inherent_affixes.size() > 0:
+				for affix in equippable.inherent_affixes:
+					if affix:
+						var lbl = _create_affix_label(affix, Color(0.7, 0.9, 0.7))
+						affix_container.add_child(lbl)
+			
+			# ── 10. Rolled affixes (gold) ──
+			if equippable.rolled_affixes.size() > 0:
+				_add_section_separator(affix_container)
+				for affix in equippable.rolled_affixes:
+					if affix:
+						var lbl = _create_affix_label(affix, Color(0.9, 0.7, 0.3))
+						affix_container.add_child(lbl)
+			
+			# ── 11. Set info ──
+			var set_def: SetDefinition = _item_set_definition(selected_item)
+			if set_def:
+				_add_section_separator(affix_container)
+				var set_header = Label.new()
+				var equipped_count: int = 0
+				if player and player.set_tracker:
+					equipped_count = player.set_tracker.get_equipped_count(set_def.set_id)
+				set_header.text = "%s (%d/%d)" % [set_def.set_name, equipped_count, set_def.get_total_pieces()]
+				set_header.add_theme_color_override("font_color", set_def.set_color)
+				affix_container.add_child(set_header)
+				
+				for threshold in set_def.thresholds:
+					var is_active = player and player.set_tracker and player.set_tracker.is_threshold_active(set_def.set_id, threshold.required_pieces)
+					var threshold_label = Label.new()
+					var prefix = "✓" if is_active else "✗"
+					threshold_label.text = "  %s (%d) %s" % [prefix, threshold.required_pieces, threshold.description]
+					threshold_label.add_theme_color_override("font_color",
+						ThemeManager.PALETTE.success if is_active else ThemeManager.PALETTE.locked)
+					threshold_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+					affix_container.add_child(threshold_label)
+			
+			# ── 12. Requirements (all shown: green if met, red if not) ──
+			if equippable.has_requirements():
+				_add_section_separator(affix_container)
+				var all_reqs = []
+				if equippable.required_level > 0:
+					all_reqs.append(["Level %d" % equippable.required_level,
+						player and player.level >= equippable.required_level])
+				if equippable.required_strength > 0:
+					all_reqs.append(["%d Strength" % equippable.required_strength,
+						player and player.get_total_stat("strength") >= equippable.required_strength])
+				if equippable.required_agility > 0:
+					all_reqs.append(["%d Agility" % equippable.required_agility,
+						player and player.get_total_stat("agility") >= equippable.required_agility])
+				if equippable.required_intellect > 0:
+					all_reqs.append(["%d Intellect" % equippable.required_intellect,
+						player and player.get_total_stat("intellect") >= equippable.required_intellect])
+				
+				for req in all_reqs:
+					var req_label = Label.new()
+					req_label.text = "Requires %s" % req[0]
+					#req_label.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.small)
+					req_label.add_theme_color_override("font_color",
+						ThemeManager.PALETTE.success if req[1] else ThemeManager.PALETTE.danger)
+					affix_container.add_child(req_label)
+			
+			# ── 13. Item Level ──
+			_add_section_separator(affix_container)
 			if equippable.item_level > 0:
 				var level_label = Label.new()
 				level_label.text = "Item Level %d (Region %d)" % [equippable.item_level, equippable.region]
+				#level_label.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.small)
 				level_label.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
 				affix_container.add_child(level_label)
 			
-			
-			
-			# Base stat affixes (blue-tinted — always present on every copy)
-			for affix in equippable.base_affixes:
-				if affix:
-					var display = _create_affix_display_from_affix(affix, Color(0.6, 0.75, 0.95))
-					affix_container.add_child(display)
-			
-			
-			
-			# Inherent affixes (green-tinted — manual/identity affixes)
-			for affix in equippable.inherent_affixes:
-				if affix:
-					var display = _create_affix_display_from_affix(affix, Color(0.7, 0.9, 0.7))
-					affix_container.add_child(display)
-			
-			# Rolled affixes (gold-tinted — random table rolls)
-			for affix in equippable.rolled_affixes:
-				if affix:
-					var display = _create_affix_display_from_affix(affix, Color(0.9, 0.7, 0.3))
-					affix_container.add_child(display)
-			
-			# Equip requirements (red if unmet)
-			if equippable.has_requirements():
-				var unmet = equippable.get_unmet_requirements(player) if player else []
-				for req_text in unmet:
-					var req_label = Label.new()
-					req_label.text = req_text
-					req_label.add_theme_color_override("font_color", ThemeManager.PALETTE.danger)
-					affix_container.add_child(req_label)
-			
-			# Sell value
+			# ── 14. Sell value ──
 			var sell_label = Label.new()
 			sell_label.text = "Sell: %d gold" % equippable.get_sell_value()
+			#sell_label.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.small)
 			sell_label.add_theme_color_override("font_color", ThemeManager.PALETTE.warning)
 			affix_container.add_child(sell_label)
-		
-		
-		# Show set info (works for both types)
-		var set_def: SetDefinition = _item_set_definition(selected_item)
-		if set_def:
-			# Set header
-			var set_header = Label.new()
-			var equipped_count: int = 0
-			if player and player.set_tracker:
-				equipped_count = player.set_tracker.get_equipped_count(set_def.set_id)
-			set_header.text = "%s (%d/%d)" % [set_def.set_name, equipped_count, set_def.get_total_pieces()]
-			set_header.add_theme_color_override("font_color", set_def.set_color)
-			affix_container.add_child(set_header)
 			
-			# Threshold bonuses
-			for threshold in set_def.thresholds:
-				var is_active = player and player.set_tracker and player.set_tracker.is_threshold_active(set_def.set_id, threshold.required_pieces)
-				var threshold_label = Label.new()
-				var prefix = "✓" if is_active else "✗"
-				threshold_label.text = "  %s (%d) %s" % [prefix, threshold.required_pieces, threshold.description]
-				threshold_label.add_theme_color_override("font_color",
-					ThemeManager.PALETTE.success if is_active else ThemeManager.PALETTE.locked)
-				threshold_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-				affix_container.add_child(threshold_label)
+			# ── 15. Flavor text (red, centered) ──
+			if equippable.flavor_text and equippable.flavor_text != "":
+				_add_section_separator(affix_container)
+				var flavor = Label.new()
+				flavor.text = equippable.flavor_text
+				flavor.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				#flavor.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.small)
+				flavor.add_theme_color_override("font_color", Color(0.85, 0.2, 0.2))
+				flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				affix_container.add_child(flavor)
 	
-	# Determine which buttons to show
+	# ── Action buttons ──
 	var is_equip = _is_equipment(selected_item)
-	var is_consume = _is_consumable(selected_item)
-	var show_any_button = is_equip or is_consume
+	var is_consumable = _is_consumable(selected_item)
+	var is_equipped = _is_item_equipped(selected_item)
 	
-	print("  is_equipment: %s, is_consumable: %s, show_any: %s" % [is_equip, is_consume, show_any_button])
-	
-	# Show/hide ActionButtons container
 	if action_buttons_containers.size() > 0:
-		if show_any_button:
-			print("  ✅ Showing ActionButtons container")
-			action_buttons_containers[0].show()
-		else:
-			print("  ❌ Hiding ActionButtons container")
-			action_buttons_containers[0].hide()
-	
-	# Configure Use button for consumables
-	if use_buttons.size() > 0:
-		var use_btn = use_buttons[0]
-		if is_consume:
-			print("  ✅ Showing Use button")
-			use_btn.show()
-			use_btn.disabled = false
-			# Disconnect old connections
-			for connection in use_btn.pressed.get_connections():
-				use_btn.pressed.disconnect(connection.callable)
-			use_btn.pressed.connect(_on_use_item_pressed)
-		else:
-			print("  ❌ Hiding Use button")
-			use_btn.hide()
-	
-	# Configure Equip button for equipment
-	if equip_buttons.size() > 0:
-		var equip_btn = equip_buttons[0]
-		if is_equip:
-			print("  ✅ Showing Equip button")
-			equip_btn.show()
-			equip_btn.disabled = false
-			# Toggle label based on equipped state
-			if _is_item_equipped(selected_item):
-				equip_btn.text = "Unequip"
+		action_buttons_containers[0].show()
+		
+		if use_buttons.size() > 0:
+			var use_btn = use_buttons[0]
+			if is_consumable:
+				use_btn.show()
+				use_btn.text = "Use"
+				for connection in use_btn.pressed.get_connections():
+					use_btn.pressed.disconnect(connection.callable)
+				use_btn.pressed.connect(_on_use_item_pressed)
 			else:
-				equip_btn.text = "Equip"
-				# Show requirement lock for EquippableItem
-				var eq_ref: EquippableItem = selected_item if selected_item is EquippableItem else null
-				if eq_ref and player and not eq_ref.can_equip(player):
-					equip_btn.text = "Equip (Locked)"
-					equip_btn.disabled = true
-			print("    Button disabled state: %s" % equip_btn.disabled)
-			# Disconnect old connections
-			for connection in equip_btn.pressed.get_connections():
-				print("    Disconnecting old connection")
-				equip_btn.pressed.disconnect(connection.callable)
-			print("    Connecting _on_equip_item_pressed")
-			equip_btn.pressed.connect(_on_equip_item_pressed)
-			print("    Button now has %d connections" % equip_btn.pressed.get_connections().size())
-		else:
-			print("  ❌ Hiding Equip button")
-			equip_btn.hide()
+				use_btn.hide()
+		
+		if equip_buttons.size() > 0:
+			var equip_btn = equip_buttons[0]
+			if is_equip:
+				equip_btn.show()
+				equip_btn.text = "Unequip" if is_equipped else "Equip"
+				equip_btn.disabled = false
+				
+				if not is_equipped and selected_item is EquippableItem:
+					if not selected_item.can_equip(player):
+						equip_btn.disabled = true
+				
+				for connection in equip_btn.pressed.get_connections():
+					equip_btn.pressed.disconnect(connection.callable)
+				equip_btn.pressed.connect(_on_equip_item_pressed)
+			else:
+				equip_btn.hide()
+	
+	# Reset scroll to top when selecting a new item
+	if _details_scroll:
+		_details_scroll.scroll_vertical = 0
+
 
 
 func _apply_rarity_shader_to_texture_rect(tex_rect: TextureRect, item):
@@ -699,21 +732,112 @@ func _create_affix_display(affix: Dictionary) -> PanelContainer:
 	
 	return panel
 
-func _create_affix_display_from_affix(affix: Affix, name_color: Color = Color(0.9, 0.7, 0.3)) -> PanelContainer:
-	"""Create a display panel for an Affix resource (EquippableItem path)"""
-	var panel = PanelContainer.new()
+func _create_affix_label(affix: Affix, color: Color = Color(0.9, 0.7, 0.3)) -> Label:
+	"""Create a simple colored label showing the affix's resolved description."""
+	var lbl = Label.new()
+	lbl.text = affix.get_resolved_description()
+	#lbl.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.caption)
+	lbl.add_theme_color_override("font_color", color)
+	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	return lbl
+
+func _add_section_separator(container: VBoxContainer):
+	"""Add a thin horizontal line between sections."""
+	var sep = HSeparator.new()
+	sep.add_theme_constant_override("separation", 6)
+	var line_style = StyleBoxLine.new()
+	line_style.color = Color(1, 1, 1, 0.1)
+	line_style.thickness = 1
+	sep.add_theme_stylebox_override("separator", line_style)
+	container.add_child(sep)
+
+func _create_element_row(equippable: EquippableItem) -> HBoxContainer:
+	"""Create a row showing the item's elemental identity (icon + label)."""
+	var row = HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 6)
 	
-	var desc_label = Label.new()
-	desc_label.text = affix.get_resolved_description()
-	desc_label.add_theme_color_override("font_color", name_color)
-	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	panel.add_child(desc_label)
+	var elem_id = equippable.get_elemental_identity()
 	
-	return panel
+	# Icon (or spacer)
+	var icon_rect = TextureRect.new()
+	icon_rect.custom_minimum_size = Vector2(24, 24)
+	icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	
+	if elem_id >= 0 and GameManager and GameManager.ELEMENT_VISUALS:
+		var elem_icon = GameManager.ELEMENT_VISUALS.get_icon(elem_id)
+		if elem_icon:
+			icon_rect.texture = elem_icon
+			icon_rect.modulate = GameManager.ELEMENT_VISUALS.get_tint_color(elem_id)
+		
+		row.add_child(icon_rect)
+		
+		# Element name label
+		var elem_label = Label.new()
+		var elem_name = ActionEffect.DamageType.keys()[elem_id].capitalize() if elem_id < ActionEffect.DamageType.size() else "Unknown"
+		elem_label.text = elem_name
+		#elem_label.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.caption)
+		elem_label.add_theme_color_override("font_color", GameManager.ELEMENT_VISUALS.get_tint_color(elem_id))
+		row.add_child(elem_label)
+	else:
+		# No element — invisible spacer keeps layout consistent
+		icon_rect.modulate = Color(1, 1, 1, 0)
+		row.add_child(icon_rect)
+	
+	return row
+
+# Keep old name as wrapper so nothing breaks elsewhere
+func _create_affix_display_from_affix(affix: Affix, name_color: Color = Color(0.9, 0.7, 0.3)) -> Control:
+	return _create_affix_label(affix, name_color)
 
 # ============================================================================
 # SIGNAL HANDLERS
 # ============================================================================
+
+func _create_dice_granted_section(equippable: EquippableItem) -> VBoxContainer:
+	"""Create a section showing granted dice with pool visuals."""
+	var section = VBoxContainer.new()
+	section.add_theme_constant_override("separation", 6)
+	
+	var header = Label.new()
+	header.text = "Adds Dice:"
+	#header.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.caption)
+	header.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
+	section.add_child(header)
+	
+	var dice_row = HBoxContainer.new()
+	dice_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	dice_row.add_theme_constant_override("separation", 8)
+	
+	for die_res in equippable.grants_dice:
+		if not die_res:
+			continue
+		
+		var die_visual = die_res.instantiate_pool_visual()
+		if die_visual:
+			dice_row.add_child(die_visual)
+			# MUST happen AFTER add_child() — _ready() resets custom_minimum_size
+			die_visual.set_display_scale(0.3)  # 0.3 × 124 = ~37px
+			die_visual.custom_minimum_size = Vector2.ZERO
+			die_visual.draggable = false
+			die_visual.mouse_filter = Control.MOUSE_FILTER_STOP
+			
+			# Hide value label (same pattern as DieSlot._show_die)
+			var val_label = die_visual.find_child("ValueLabel", true, false)
+			if val_label:
+				val_label.hide()
+			
+			# Click to toggle tooltip
+			die_visual.gui_input.connect(_on_granted_die_input.bind(die_visual, die_res))
+		else:
+			var fallback = Label.new()
+			fallback.text = "D%d" % die_res.die_type
+			dice_row.add_child(fallback)
+	
+	section.add_child(dice_row)
+	return section
+
 
 func _on_category_button_toggled(button_pressed: bool, category_name: String):
 	"""Category button toggled"""
@@ -811,6 +935,156 @@ func _on_equip_item_pressed():
 		refresh()
 	else:
 		print("❌ Failed to equip item")
+
+func _ensure_details_scroll():
+	"""Wrap the DetailsVBox in a ScrollContainer if not already done."""
+	if not item_details_panel:
+		return
+	if _details_scroll:
+		return  # Already wrapped
+	
+	var details_vbox = item_details_panel.find_child("DetailsVBox", false, false)
+	if not details_vbox:
+		print("  ⚠️ DetailsVBox not found — can't add scroll")
+		return
+	
+	# Create ScrollContainer
+	_details_scroll = ScrollContainer.new()
+	_details_scroll.name = "DetailsScroll"
+	_details_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_details_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	_details_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_details_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	
+	# Reparent: remove DetailsVBox from panel, add scroll, put vbox inside scroll
+	var parent = details_vbox.get_parent()
+	var idx = details_vbox.get_index()
+	parent.remove_child(details_vbox)
+	parent.add_child(_details_scroll)
+	parent.move_child(_details_scroll, idx)
+	_details_scroll.add_child(details_vbox)
+	
+	# Make sure DetailsVBox expands inside scroll
+	details_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	details_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	
+	# Subtle scrollbar
+	var v_bar = _details_scroll.get_v_scroll_bar()
+	if v_bar:
+		v_bar.modulate.a = 0.3
+	
+	print("  ✓ Details panel wrapped in ScrollContainer")
+
+
+func _on_granted_die_input(event: InputEvent, die_visual: Control, die_res: DieResource):
+	"""Toggle tooltip on tap/click."""
+	if not event is InputEventMouseButton:
+		return
+	if not event.pressed or event.button_index != MOUSE_BUTTON_LEFT:
+		return
+	
+	# Close existing tooltip (same die = toggle off, different die = swap)
+	if _active_die_tooltip and is_instance_valid(_active_die_tooltip):
+		var is_same = _active_die_tooltip.get_meta("source_die", null) == die_visual
+		_active_die_tooltip.queue_free()
+		_active_die_tooltip = null
+		if is_same:
+			return
+	
+	_active_die_tooltip = _build_die_tooltip(die_res)
+	_active_die_tooltip.set_meta("source_die", die_visual)
+	
+	# Add to the affix container so it flows in the scroll
+	var affix_containers = item_details_panel.find_children("*Affix*", "VBoxContainer", true, false)
+	if affix_containers.size() > 0:
+		# Insert right after the dice section
+		var dice_section = die_visual.get_parent().get_parent()  # HBox → VBox (section)
+		var idx = dice_section.get_index() + 1
+		var parent_container = dice_section.get_parent()
+		parent_container.add_child(_active_die_tooltip)
+		parent_container.move_child(_active_die_tooltip, idx)
+
+
+func _build_die_tooltip(die_res: DieResource) -> PanelContainer:
+	"""Build a tooltip panel showing die details."""
+	var panel = PanelContainer.new()
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.12, 0.18, 0.95)
+	style.border_color = Color(1, 1, 1, 0.2)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(4)
+	style.set_content_margin_all(8)
+	panel.add_theme_stylebox_override("panel", style)
+	
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 4)
+	panel.add_child(vbox)
+	
+	# Die type header
+	var header = Label.new()
+	header.text = "D%d" % die_res.die_type
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.add_theme_color_override("font_color", Color(1, 1, 1))
+	vbox.add_child(header)
+	
+	# Max value
+	var max_label = Label.new()
+	max_label.text = "Max Roll: %d" % die_res.get_max_value()
+	max_label.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
+	vbox.add_child(max_label)
+	
+	# Element
+	if die_res.has_element():
+		var damage_type := die_res.element as ActionEffect.DamageType
+		var elem_row = HBoxContainer.new()
+		elem_row.add_theme_constant_override("separation", 4)
+		
+		if GameManager and GameManager.ELEMENT_VISUALS:
+			var icon_rect = TextureRect.new()
+			icon_rect.custom_minimum_size = Vector2(18, 18)
+			icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			var elem_icon = GameManager.ELEMENT_VISUALS.get_icon(damage_type)
+			if elem_icon:
+				icon_rect.texture = elem_icon
+				icon_rect.modulate = GameManager.ELEMENT_VISUALS.get_tint_color(damage_type)
+			elem_row.add_child(icon_rect)
+		
+		var elem_label = Label.new()
+		elem_label.text = die_res.get_element_name()
+		if GameManager and GameManager.ELEMENT_VISUALS:
+			elem_label.add_theme_color_override("font_color", GameManager.ELEMENT_VISUALS.get_tint_color(damage_type))
+		elem_row.add_child(elem_label)
+		vbox.add_child(elem_row)
+	
+	# Dice affixes
+	if die_res.dice_affixes and die_res.dice_affixes.size() > 0:
+		var sep = HSeparator.new()
+		sep.add_theme_constant_override("separation", 4)
+		var line_style = StyleBoxLine.new()
+		line_style.color = Color(1, 1, 1, 0.1)
+		line_style.thickness = 1
+		sep.add_theme_stylebox_override("separator", line_style)
+		vbox.add_child(sep)
+		
+		for dice_affix in die_res.dice_affixes:
+			if not dice_affix:
+				continue
+			var affix_label = Label.new()
+			affix_label.text = dice_affix.get_description() if dice_affix.has_method("get_description") else str(dice_affix)
+			affix_label.add_theme_color_override("font_color", Color(0.7, 0.9, 0.7))
+			affix_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			vbox.add_child(affix_label)
+	
+	# Tap to close hint
+	var hint = Label.new()
+	hint.text = "tap die to close"
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.add_theme_color_override("font_color", Color(1, 1, 1, 0.3))
+	vbox.add_child(hint)
+	
+	return panel
+
 
 
 func _update_category_button_visuals():

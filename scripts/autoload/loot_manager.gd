@@ -27,6 +27,7 @@ var loot_tables: Dictionary = {}
 ## How many levels above/below source the item can roll.
 ## source_level=20, spread=3 → item_level ranges 17–23.
 @export var item_level_spread: int = 3
+@export var level_grace: int = 3
 
 ## Cached reference to the scaling config (auto-loaded from registry).
 var _scaling_config: AffixScalingConfig = null
@@ -194,6 +195,8 @@ func generate_drop(item_template: EquippableItem, source_level: int,
 		1, 100
 	)
 	item.region = source_region
+	
+	item.required_level = maxi(1, item.item_level - level_grace)
 	
 	# Roll affixes
 	item.initialize_affixes()
@@ -371,6 +374,10 @@ func _process_item_drop(drop: LootDrop, source: String,
 			source_level + randi_range(-item_level_spread, item_level_spread),
 			1, 100
 		)
+	
+	# Stamp required_level from item_level
+	item.required_level = maxi(1, item.item_level - level_grace)
+		
 	
 	# Stamp region
 	if source_region > 0:
