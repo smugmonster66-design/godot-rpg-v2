@@ -12,9 +12,9 @@ signal reached_target()
 @export_group("Visual")
 @export var spin_speed: float = 0.0  # Degrees per second (0 = no spin)
 
-@onready var sprite = $Sprite2D
-@onready var trail = $GPUParticles2D
-@onready var audio = $AudioStreamPlayer2D
+@onready var sprite = get_node_or_null("Sprite2D")
+@onready var trail = get_node_or_null("GPUParticles2D")
+@onready var audio = get_node_or_null("AudioStreamPlayer2D")
 
 var target_position: Vector2
 var travel_curve: Curve
@@ -22,12 +22,16 @@ var travel_duration: float = 0.4
 var _start_position: Vector2
 
 func setup(from: Vector2, to: Vector2, p_duration: float = 0.4, p_curve: Curve = null):
-	"""Configure projectile path"""
 	_start_position = from
 	global_position = from
 	target_position = to
 	travel_duration = p_duration
 	travel_curve = p_curve
+	print("🚀 Projectile setup: from=%s to=%s duration=%s" % [from, to, p_duration])
+	print("🚀 Projectile: global_pos=%s scale=%s rotation=%s" % [global_position, scale, rotation])
+	print("🚀 Projectile: parent=%s (type: %s)" % [get_parent().name if get_parent() else "null", get_parent().get_class() if get_parent() else "null"])
+	if sprite:
+		print("🚀 Sprite: pos=%s size=%s" % [sprite.position, sprite.texture.get_size() if sprite.texture else "no texture"])
 	
 	if rotate_to_target:
 		rotation = from.angle_to_point(to)

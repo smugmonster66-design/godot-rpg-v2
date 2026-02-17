@@ -599,7 +599,7 @@ corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [resource]
-default_font_size = 24
+default_font_size = 16
 ActionFieldPanel/colors/font_color = Color(1, 1, 1, 1)
 ActionFieldPanel/styles/die_slot_empty = SubResource("StyleBoxFlat_phtau")
 ActionFieldPanel/styles/die_slot_hover = SubResource("StyleBoxFlat_p7nge")
@@ -642,7 +642,7 @@ Label/colors/font_color = Color(1, 1, 1, 1)
 Label/colors/font_shadow_color = Color(0, 0, 0, 0.5)
 Label/constants/shadow_offset_x = 1
 Label/constants/shadow_offset_y = 1
-Label/font_sizes/Flavour_Font_Size = 24
+Label/font_sizes/Flavour_Font_Size = 16
 MenuHeader/colors/font_color = Color(1, 0.85, 0.2, 1)
 MenuHeader/font_sizes/font_size = 24
 MenuHeader/styles/panel = SubResource("StyleBoxFlat_rcal2")

@@ -38,7 +38,7 @@ func play_action_animation(
 	animation_sequence_started.emit()
 	
 	# 1. Cast animation (at source/action field)
-	if animation_set.cast_effect:
+	if animation_set.cast_preset or animation_set.cast_effect:
 		await _play_cast(animation_set, source_position)
 	
 	if animation_set.apply_effect_at == CombatAnimationSet.EffectTiming.ON_CAST:
@@ -56,7 +56,7 @@ func play_action_animation(
 	travel_finished.emit()
 	
 	# 3. Impact animation (at each target)
-	if animation_set.impact_effect and target_positions.size() > 0:
+	if (animation_set.impact_preset or animation_set.impact_effect) and target_positions.size() > 0:
 		if animation_set.impact_delay > 0:
 			await get_tree().create_timer(animation_set.impact_delay).timeout
 		await _play_impact(animation_set, target_positions, target_nodes)
@@ -68,19 +68,43 @@ func play_action_animation(
 	animation_sequence_finished.emit()
 
 func _play_cast(anim_set: CombatAnimationSet, position: Vector2):
-	var effect = anim_set.cast_effect.instantiate()
-	_add_effect(effect, position + anim_set.cast_offset)
-	effect.scale = anim_set.cast_scale
+	var cast_pos = position + (anim_set.cast_offset if anim_set.cast_offset else Vector2.ZERO)
+	var effect: Node
+	
+	# Preset takes priority — auto-instantiate the right CombatEffect
+	if anim_set.cast_preset:
+		var combat_effect = CombatAnimationSet.create_effect_from_preset(anim_set.cast_preset)
+		if combat_effect:
+			_add_effect(combat_effect, cast_pos)
+			# CombatEffect presets use absolute positioning — don't scale the container
+			_configure_effect(combat_effect, anim_set.cast_preset, cast_pos, cast_pos)
+			effect = combat_effect
+	
+	# Fallback to PackedScene
+	if not effect and anim_set.cast_effect:
+		effect = anim_set.cast_effect.instantiate()
+		_add_effect(effect, cast_pos)
+		effect.scale *= anim_set.cast_scale
+	
+	if not effect:
+		return
 	
 	if anim_set.cast_sound:
 		_play_sound(anim_set.cast_sound, position)
 	
 	if effect.has_method("play"):
 		effect.play()
-		await effect.effect_finished
+		if effect.has_signal("effect_finished") or effect.has_signal("finished"):
+			await _await_effect_finished(effect)
+		else:
+			await get_tree().create_timer(anim_set.cast_duration).timeout
+			if is_instance_valid(effect):
+				effect.queue_free()
 	else:
 		await get_tree().create_timer(anim_set.cast_duration).timeout
-		effect.queue_free()
+		if is_instance_valid(effect):
+			effect.queue_free()
+
 
 func _play_travel(anim_set: CombatAnimationSet, from: Vector2, targets: Array[Vector2]):
 	var projectiles: Array = []
@@ -88,7 +112,7 @@ func _play_travel(anim_set: CombatAnimationSet, from: Vector2, targets: Array[Ve
 	for target_pos in targets:
 		var projectile = anim_set.travel_effect.instantiate()
 		_add_effect(projectile, from)
-		projectile.scale = anim_set.travel_scale
+		projectile.scale *= anim_set.travel_scale
 		
 		if projectile.has_method("setup"):
 			projectile.setup(from, target_pos, anim_set.travel_duration, anim_set.travel_curve)
@@ -110,14 +134,31 @@ func _play_impact(anim_set: CombatAnimationSet, positions: Array[Vector2], nodes
 	var effects: Array = []
 	
 	for i in range(positions.size()):
-		var effect = anim_set.impact_effect.instantiate()
-		var pos = positions[i] + anim_set.impact_offset
-		_add_effect(effect, pos)
-		effect.scale = anim_set.impact_scale
+		var pos = positions[i] + (anim_set.impact_offset if anim_set.impact_offset else Vector2.ZERO)
+		var effect: Node
 		
-		# If shader effect, setup target node
-		if effect is ShaderEffect and i < nodes.size():
-			effect.setup(nodes[i])
+		# Preset takes priority
+		if anim_set.impact_preset:
+			var combat_effect = CombatAnimationSet.create_effect_from_preset(anim_set.impact_preset)
+			if combat_effect:
+				_add_effect(combat_effect, pos)
+				# CombatEffect presets use absolute positioning — don't scale the container
+				var source_pos = positions[0] if positions.size() > 0 else pos
+				_configure_effect(combat_effect, anim_set.impact_preset, source_pos, pos)
+				if i < nodes.size() and nodes[i]:
+					combat_effect.set_target_node(nodes[i])
+				effect = combat_effect
+		
+		# Fallback to PackedScene
+		if not effect and anim_set.impact_effect:
+			effect = anim_set.impact_effect.instantiate()
+			_add_effect(effect, pos)
+			effect.scale *= anim_set.impact_scale
+			if effect is ShaderEffect and i < nodes.size():
+				effect.setup(nodes[i])
+		
+		if not effect:
+			continue
 		
 		if anim_set.impact_sound:
 			_play_sound(anim_set.impact_sound, pos)
@@ -129,8 +170,8 @@ func _play_impact(anim_set: CombatAnimationSet, positions: Array[Vector2], nodes
 	
 	# Wait for all impacts
 	for effect in effects:
-		if effect.has_signal("effect_finished"):
-			await effect.effect_finished
+		await _await_effect_finished(effect)
+
 
 func _add_effect(effect: Node, position: Vector2):
 	if effects_layer:
@@ -140,6 +181,37 @@ func _add_effect(effect: Node, position: Vector2):
 	
 	if effect is Node2D:
 		effect.global_position = position
+	elif effect is Control:
+		effect.global_position = position
+
+
+func _configure_effect(combat_effect: Variant, preset: Variant, source_pos: Vector2, target_pos: Vector2):
+	"""Route configure() call based on effect subclass type."""
+	if combat_effect is SummonEffect:
+		combat_effect.configure(preset, target_pos)
+		print("🔮 SummonEffect configured: target_pos=%s, global_pos=%s, size=%s, rect=%s" % [target_pos, combat_effect.global_position, combat_effect.size, combat_effect.get_rect()])
+	elif combat_effect is EmanateEffect:
+		combat_effect.configure(preset, source_pos)
+	elif combat_effect is ImpactEffect:
+		combat_effect.configure(preset, source_pos, target_pos)
+	elif combat_effect is ShatterEffect:
+		combat_effect.configure(preset, target_pos)
+	elif combat_effect is ScatterConvergeEffect:
+		combat_effect.configure(preset, source_pos, target_pos, {})
+	else:
+		# Future effect types — try generic configure_base
+		if combat_effect.has_method("configure_base"):
+			combat_effect.configure_base(preset, source_pos, target_pos)
+
+
+func _await_effect_finished(effect: Node):
+	"""Await whichever completion signal the effect emits."""
+	if effect.has_signal("effect_finished"):
+		await effect.effect_finished
+	elif effect.has_signal("finished"):
+		await effect.finished
+	else:
+		return
 
 func _play_sound(stream: AudioStream, position: Vector2):
 	var player = AudioStreamPlayer2D.new()

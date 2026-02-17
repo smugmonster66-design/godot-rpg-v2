@@ -12,6 +12,7 @@ func configure(preset: SummonPreset, target: Vector2, _source: Vector2 = Vector2
 	configure_base(preset, target, target)
 
 func _execute_node_track() -> void:
+	print("🔮 SummonEffect._execute_node_track: _source_pos=%s _target_pos=%s global_pos=%s is_inside_tree=%s" % [_source_pos, _target_pos, global_position, is_inside_tree()])
 	var soft_circle = _generate_soft_circle()
 
 	# Pre-glow at target

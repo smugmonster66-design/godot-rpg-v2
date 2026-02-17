@@ -7,19 +7,19 @@
 [ext_resource type="Resource" path="res://resources/action_effects/mage/chromatic_bolt/chromatic_bolt_ice_bonus.tres" id="5_ice"]
 [ext_resource type="Resource" path="res://resources/action_effects/mage/chromatic_bolt/chromatic_bolt_shock_bonus.tres" id="6_shock"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_vap71"]
-[ext_resource type="Resource" uid="uid://bgjeq3ifqp066" path="res://resources/animations/classes/mage/flame/chromatic bolt/cboltflame/chromatic_bolt_fire_animation_set.tres" id="7_dnrcd"]
+[ext_resource type="Resource" uid="uid://bgjeq3ifqp066" path="res://resources/animations/classes/mage/flame/chromatic bolt/cboltflame/chromatic_bolt_fire_animation_set.tres" id="7_vap71"]
 
 [sub_resource type="Resource" id="Resource_ddyuh"]
 script = ExtResource("6_vap71")
 damage_type = 3
-animation_set = ExtResource("7_dnrcd")
+animation_set = ExtResource("7_vap71")
 metadata/_custom_type_script = "uid://klf77hgcwdfc"
 
 [resource]
 script = ExtResource("1_action")
 action_id = "mage_chromatic_bolt"
 action_name = "Chromatic Bolt"
-action_description = "Hurl a bolt of prismatic energy. Accepts Fire, Ice, or Shock dice — all three elements synergize."
+action_description = "A bolt of prismatic energy that matches the element of its dice. "
 min_dice_required = 1
 accepted_elements = Array[int]([4, 5, 6])
 charge_type = 1

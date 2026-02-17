@@ -27,6 +27,8 @@ shadow_color = Color(0, 0, 0, 0.4)
 script = ExtResource("1_scene")
 
 [node name="DungeonMap" parent="." instance=ExtResource("2_4nx0w")]
+camera_tween_duration = 0.3
+intro_duration = 2.0
 
 [node name="DustMotes" type="GPUParticles2D" parent="."]
 amount = 20

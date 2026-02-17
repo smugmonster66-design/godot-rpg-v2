@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SummonPreset" load_steps=3 format=3 uid="uid://btj71nqndhp6j"]
+
+[ext_resource type="Script" uid="uid://bxft1vftskx0t" path="res://scripts/effects/foundation/shader_param_animation.gd" id="1_k72iu"]
+[ext_resource type="Script" uid="uid://c0xi788dtl2ux" path="res://scripts/effects/summon_preset.gd" id="2_hwuf3"]
+
+[resource]
+script = ExtResource("2_hwuf3")
+particle_count = 24
+spawn_radius = 171.071
+converge_duration = 0.45
+particle_size = Vector2(24, 24)
+particle_color = Color(0.6573616, 0.30417925, 0.033815317, 0.851)
+arrival_flash_duration = 0.12000000000000001
+arrival_flash_color = Color(1, 0.95281494, 0.61138725, 1)
+pre_glow_duration = 0.15000000000000002
+pre_glow_intensity = 0.35
+metadata/_custom_type_script = "uid://c0xi788dtl2ux"
