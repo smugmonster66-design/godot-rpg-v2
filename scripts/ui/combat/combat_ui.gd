@@ -504,12 +504,14 @@ func enter_prep_phase():
 
 	hide_enemy_hand()
 
+	# Show player actions immediately (replaces enemy actions from previous turn)
+	refresh_action_fields()
+
 	if _bottom_ui:
 		_bottom_ui.enter_prep_phase()
 
 	disable_target_selection()
 	selected_action_field = null
-
 
 func enter_action_phase():
 	print("🎮 CombatUI: Entering ACTION phase")

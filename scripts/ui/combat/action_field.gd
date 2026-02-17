@@ -70,6 +70,15 @@ var stroke_texture: NinePatchRect = null
 var mult_label: Label = null
 var source_badge: TextureRect = null
 var damage_floater: DamagePreviewFloater = null
+# Chromatic (multi-element) shader support
+var _chromatic_fill_material: ShaderMaterial = null
+var _chromatic_stroke_material: ShaderMaterial = null
+var _is_chromatic_action: bool = false
+@export var _chromatic_stroke_enabled: bool = true
+## Per-element stroke shader toggle. Missing keys default to true.
+@export var _element_stroke_overrides: Dictionary = {}
+# Example: { ActionEffect.DamageType.FIRE: false } disables fire stroke only
+
 # ============================================================================
 # STATE
 # ============================================================================
@@ -191,7 +200,32 @@ func setup_drop_target():
 # ============================================================================
 
 func _apply_element_shader():
-	"""Apply fill + stroke shader materials from central element config"""
+	"""Apply fill + stroke shader materials from central element config.
+	Chromatic (multi-element) actions get the prismatic shader instead."""
+	
+	# Check if this is a chromatic action
+	_detect_chromatic()
+	
+	# If chromatic and no dice placed yet, use the prismatic shader
+	if _is_chromatic_action and placed_dice.is_empty():
+		_apply_chromatic_shader()
+		return
+	
+	# If chromatic with dice placed, use the placed die's element
+	if _is_chromatic_action and not placed_dice.is_empty():
+		var die = placed_dice[0] as DieResource
+		if die:
+			var die_elem = die.get_effective_element()
+			if die_elem != DieResource.Element.NONE:
+				var dt = DieResource.ELEMENT_TO_DAMAGE_TYPE.get(die_elem, -1)
+				if dt >= 0:
+					_swap_to_element_shader(dt)
+					return
+		# Fallback to chromatic if die has no element
+		_apply_chromatic_shader()
+		return
+	
+	# Standard single-element behavior (unchanged)
 	if not GameManager or not GameManager.ELEMENT_VISUALS:
 		if fill_texture:
 			fill_texture.modulate = ThemeManager.get_element_color_enum(element) * Color(0.5, 0.5, 0.5)
@@ -209,14 +243,16 @@ func _apply_element_shader():
 			fill_texture.material = null
 			fill_texture.modulate = config.get_tint_color(element) * Color(0.5, 0.5, 0.5)
 	
-	# Stroke material — full brightness
+	# Stroke material — full brightness (per-element toggle)
 	if stroke_texture:
-		var stroke_mat = config.get_stroke_material(element)
-		if stroke_mat:
-			stroke_texture.material = stroke_mat
+		if _element_stroke_overrides.get(element, false):
+			var stroke_mat = config.get_stroke_material(element)
+			if stroke_mat:
+				stroke_texture.material = stroke_mat
+			else:
+				stroke_texture.material = null
 		else:
 			stroke_texture.material = null
-
 
 func set_element(new_element: ActionEffect.DamageType):
 	"""Change the element and update visuals"""
@@ -225,6 +261,83 @@ func set_element(new_element: ActionEffect.DamageType):
 	_setup_source_badge()
 	_update_damage_preview()
 
+
+# ============================================================================
+# CHROMATIC (MULTI-ELEMENT) SHADER SUPPORT
+# ============================================================================
+
+func _detect_chromatic():
+	"""Check if this action accepts multiple elements (e.g. Chromatic Bolt).
+	If so, load the chromatic prismatic shader materials."""
+	_is_chromatic_action = false
+	
+	if not action_resource:
+		return
+	
+	# An action is "chromatic" if it accepts 2+ elements
+	if action_resource.accepted_elements.size() >= 2:
+		_is_chromatic_action = true
+		
+		# Lazy-load chromatic materials
+		if not _chromatic_fill_material:
+			if ResourceLoader.exists("res://resources/materials/dice/chromatic_fill.tres"):
+				_chromatic_fill_material = load("res://resources/materials/dice/chromatic_fill.tres").duplicate()
+		if not _chromatic_stroke_material:
+			if ResourceLoader.exists("res://resources/materials/dice/chromatic_stroke.tres"):
+				_chromatic_stroke_material = load("res://resources/materials/dice/chromatic_stroke.tres").duplicate()
+
+
+func _apply_chromatic_shader():
+	"""Apply the prismatic chromatic shader (all three elements blended)."""
+	if fill_texture:
+		if _chromatic_fill_material:
+			fill_texture.material = _chromatic_fill_material
+			fill_texture.modulate = Color(0.5, 0.5, 0.5)  # Darkened like normal element shaders
+		else:
+			# Fallback: purple-ish tint to signal multi-element
+			fill_texture.material = null
+			fill_texture.modulate = Color(0.4, 0.25, 0.5)
+	
+	if stroke_texture:
+		if _chromatic_stroke_material and _chromatic_stroke_enabled:
+			stroke_texture.material = _chromatic_stroke_material
+		else:
+			stroke_texture.material = null
+
+
+func _swap_to_element_shader(die_element: int):
+	"""Swap the action field shader to match a specific die's element.
+	Called when a die is placed into a chromatic action field."""
+	if not GameManager or not GameManager.ELEMENT_VISUALS:
+		return
+	
+	var config = GameManager.ELEMENT_VISUALS
+	var elem := die_element as ActionEffect.DamageType
+	
+	if fill_texture:
+		var fill_mat = config.get_fill_material(elem)
+		if fill_mat:
+			fill_texture.material = fill_mat
+			fill_texture.modulate = Color(0.5, 0.5, 0.5)
+		else:
+			fill_texture.material = null
+			fill_texture.modulate = config.get_tint_color(elem) * Color(0.5, 0.5, 0.5)
+	
+	if stroke_texture:
+		if _element_stroke_overrides.get(elem, false):
+			var stroke_mat = config.get_stroke_material(elem)
+			if stroke_mat:
+				stroke_texture.material = stroke_mat
+			else:
+				stroke_texture.material = null
+		else:
+			stroke_texture.material = null
+
+
+func _restore_chromatic_shader():
+	"""Restore the prismatic chromatic shader after dice are removed."""
+	if _is_chromatic_action:
+		_apply_chromatic_shader()
 # ============================================================================
 # DAMAGE PREVIEW
 # ============================================================================
@@ -772,6 +885,15 @@ func place_die_animated(die: DieResource, from_pos: Vector2, source_visual: Cont
 	
 	update_icon_state()
 	_update_damage_preview()
+	
+	# ── Chromatic shader swap: match the placed die's element ──
+	if _is_chromatic_action and die:
+		var die_elem = die.get_effective_element()
+		if die_elem != DieResource.Element.NONE:
+			var dt = DieResource.ELEMENT_TO_DAMAGE_TYPE.get(die_elem, -1)
+			if dt >= 0:
+				_swap_to_element_shader(dt)
+	
 	die_placed.emit(self, die)
 	
 	if is_ready_to_confirm():
@@ -927,6 +1049,9 @@ func _clear_placed_dice():
 	# ── NEW: Instant-clear the floater ──
 	if damage_floater:
 		damage_floater.clear()
+	
+	# Restore chromatic shader if this is a multi-element action
+	_restore_chromatic_shader()
 	
 
 func consume_dice():

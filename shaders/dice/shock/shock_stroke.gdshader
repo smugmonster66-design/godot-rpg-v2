@@ -4,7 +4,7 @@ shader_type canvas_item;
 uniform vec4 storm_base : source_color = vec4(0.10, 0.14, 0.28, 1.0);
 uniform vec4 arc_color : source_color = vec4(0.55, 0.78, 1.0, 1.0);
 uniform vec4 spark_color : source_color = vec4(0.9, 0.95, 1.0, 1.0);
-uniform float arc_speed : hint_range(1.0, 8.0) = 4.0;
+uniform float arc_speed : hint_range(0.1, 8.0) = 4.0;
 uniform float arc_intensity : hint_range(0.0, 1.0) = 0.8;
 
 float hash(vec2 p) {

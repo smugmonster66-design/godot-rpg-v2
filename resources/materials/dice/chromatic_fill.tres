@@ -1,0 +1,18 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://shaders/dice/chromatic/chromatic_fill.gdshader" id="1_shader"]
+
+[resource]
+shader = ExtResource("1_shader")
+shader_parameter/fire_core = Color(1, 0.9, 0.3, 1)
+shader_parameter/fire_mid = Color(1, 0.5, 0.1, 1)
+shader_parameter/fire_edge = Color(0.8, 0.2, 0.05, 1)
+shader_parameter/ice_deep = Color(0.15, 0.3, 0.5, 1)
+shader_parameter/ice_mid = Color(0.4, 0.7, 0.9, 1)
+shader_parameter/ice_bright = Color(0.85, 0.95, 1, 1)
+shader_parameter/shock_dark = Color(0.06, 0.08, 0.18, 1)
+shader_parameter/shock_mid = Color(0.12, 0.16, 0.3, 1)
+shader_parameter/shock_bolt = Color(0.55, 0.78, 1, 1)
+shader_parameter/rotation_speed = 0.15
+shader_parameter/blend_sharpness = 3.0
+shader_parameter/shimmer_intensity = 0.6

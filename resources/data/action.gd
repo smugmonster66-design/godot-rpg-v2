@@ -60,6 +60,9 @@ var current_cooldown: int = 0
 @export var animation_set: CombatAnimationSet
 
 
+@export var element_animation_overrides: Array[ElementAnimationOverride] = []
+
+
 # ============================================================================
 # VISUAL EVENTS — drag CombatVisualEvent .tres files here
 # ============================================================================
@@ -228,6 +231,14 @@ func execute_simple(source, primary_target, all_enemies: Array, all_allies: Arra
 # ============================================================================
 # UTILITY
 # ============================================================================
+
+
+func get_animation_for_element(damage_type: int) -> CombatAnimationSet:
+	for override in element_animation_overrides:
+		if override and int(override.damage_type) == damage_type:
+			return override.animation_set
+	return null
+
 
 func get_total_dice_needed() -> int:
 	"""Calculate total dice needed across all effects"""

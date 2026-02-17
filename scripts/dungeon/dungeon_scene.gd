@@ -245,7 +245,7 @@ func on_combat_ended(player_won: bool):
 
 				# Use effective level: scale to player, floor at enemy minimum
 				var eff_level: int = enemy_data.get_effective_level(
-					_player.get_level() if _player else 1)
+					_player.level if _player else 1)
 
 				var results: Array[Dictionary] = LootManager.roll_loot_from_combat(
 					region_config,

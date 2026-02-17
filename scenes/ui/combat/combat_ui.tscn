@@ -147,6 +147,9 @@ offset_bottom = 1495.0
 
 [node name="CombatRollAnimator" type="Node" parent="."]
 script = ExtResource("5_8bf5m")
+roll_settle_duration = 8.0
+roll_oscillations = 5.0
+roll_amplitude = 8.0
 
 [node name="AffixVisualAnimator" type="Node" parent="."]
 script = ExtResource("6_kesfj")

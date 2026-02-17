@@ -35,6 +35,19 @@ class_name CombatRollAnimator
 
 
 # ============================================================================
+# ROLL SETTLE SHADER
+# ============================================================================
+
+## Preloaded roll shaders — set in inspector or hardcode paths
+@export_group("Roll Settle")
+@export var roll_fill_shader: Shader = preload("res://shaders/die_roll_fill.gdshader")
+@export var roll_stroke_shader: Shader = preload("res://shaders/die_roll_stroke.gdshader")
+@export var roll_settle_duration: float = 0.8
+@export var roll_oscillations: float = 3.0
+@export var roll_amplitude: float = 1.5
+@export var roll_decay: float = 3.0
+@export var roll_tilt_strength: float = 0.8
+# ============================================================================
 # REFERENCES (set via initialize())
 # ============================================================================
 ## The DicePoolDisplay showing the combat hand
@@ -413,20 +426,86 @@ func _spawn_projectile(source_info: Dictionary) -> RollProjectile:
 # PHASE 3: REVEAL
 # ============================================================================
 
+# In _reveal_hand_die() — only the additions, existing pop is untouched:
+
 func _reveal_hand_die(hand_visual: Control):
-	"""Make the hand die visible with a scale pop animation."""
 	hand_visual.modulate = Color.WHITE
-	
 	if "draggable" in hand_visual:
 		hand_visual.draggable = true
-	
+
 	var base_scale = Vector2.ONE
 	hand_visual.scale = base_scale * pop_scale
-	
 	var tween = create_tween()
 	tween.tween_property(
 		hand_visual, "scale", base_scale, pop_duration
 	).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+
+func _apply_roll_settle(die_visual: DieObjectBase):
+	var fill_rect: TextureRect = die_visual.fill_texture
+	var stroke_rect: TextureRect = die_visual.stroke_texture
+	if not fill_rect or not stroke_rect:
+		return
+
+	var original_fill_mat: Material = fill_rect.material
+	var original_stroke_mat: Material = stroke_rect.material
+	var original_fill_modulate: Color = fill_rect.modulate
+
+	var fill_mat := ShaderMaterial.new()
+	fill_mat.shader = roll_fill_shader
+	fill_mat.set_shader_parameter("color_tint", original_fill_modulate)
+	fill_mat.set_shader_parameter("rotation_angle", Vector2(roll_amplitude, roll_amplitude * 0.8))
+	fill_mat.set_shader_parameter("tilt_strength", roll_tilt_strength)
+
+	var stroke_mat := ShaderMaterial.new()
+	stroke_mat.shader = roll_stroke_shader
+	stroke_mat.set_shader_parameter("rotation_angle", Vector2(roll_amplitude, roll_amplitude * 0.8))
+	stroke_mat.set_shader_parameter("tilt_strength", roll_tilt_strength)
+
+	fill_rect.material = fill_mat
+	fill_rect.modulate = Color.WHITE
+	stroke_rect.material = stroke_mat
+
+	var phase_offset := randf() * TAU
+	var amp := roll_amplitude
+	var osc := roll_oscillations
+	var dec := roll_decay
+	var _fill_ref = weakref(fill_rect)
+	var _stroke_ref = weakref(stroke_rect)
+
+	var tween = create_tween()
+	tween.tween_method(func(t: float):
+		var decay_val = exp(-dec * t)
+		var rot = Vector2(
+			sin(t * TAU * osc + phase_offset) * amp * decay_val,
+			cos(t * TAU * (osc * 0.85) + phase_offset) * amp * 0.8 * decay_val
+		)
+		fill_mat.set_shader_parameter("rotation_angle", rot)
+		stroke_mat.set_shader_parameter("rotation_angle", rot)
+	, 0.0, 1.0, roll_settle_duration)
+
+	tween.finished.connect(func():
+		var fr = _fill_ref.get_ref()
+		var sr = _stroke_ref.get_ref()
+		if fr and is_instance_valid(fr):
+			fr.material = original_fill_mat
+			fr.modulate = original_fill_modulate
+		if sr and is_instance_valid(sr):
+			sr.material = original_stroke_mat
+	, CONNECT_ONE_SHOT)
+
+
+
+func _compute_roll_rotation(t: float, fill_mat: ShaderMaterial, stroke_mat: ShaderMaterial, phase_offset: float):
+	var decay = exp(-roll_decay * t)
+	var rot = Vector2(
+		sin(t * TAU * roll_oscillations + phase_offset) * roll_amplitude * decay,
+		cos(t * TAU * (roll_oscillations * 0.85) + phase_offset) * roll_amplitude * 0.75 * decay
+	)
+	if t < 0.05 or t > 0.95:
+		print("🎲 roll_rotation t=%.3f rot=%s" % [t, rot])
+	fill_mat.set_shader_parameter("rotation_angle", rot)
+	stroke_mat.set_shader_parameter("rotation_angle", rot)
+
 
 # ============================================================================
 # DATA GATHERING HELPERS

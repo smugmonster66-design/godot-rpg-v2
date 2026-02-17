@@ -731,8 +731,19 @@ func _on_action_confirmed(action_data: Dictionary):
 	# Get animation set from action_resource
 	var animation_set: CombatAnimationSet = null
 	var action_resource = action_data.get("action_resource") as Action
-	if action_resource and action_resource.get("animation_set"):
-		animation_set = action_resource.animation_set
+	if action_resource:
+		# Check for element-specific animation override from placed dice
+		var placed = action_data.get("placed_dice", []) as Array
+		if placed.size() > 0 and action_resource.has_method("get_animation_for_element"):
+			var first_die = placed[0] as DieResource
+			if first_die:
+				var die_elem = first_die.get_effective_element()
+				var dt = DieResource.ELEMENT_TO_DAMAGE_TYPE.get(die_elem, -1)
+				if dt >= 0:
+					animation_set = action_resource.get_animation_for_element(dt)
+		# Fallback to default animation_set
+		if not animation_set and action_resource.get("animation_set"):
+			animation_set = action_resource.animation_set
 	
 	# Get the action field that was used (for source position)
 	var action_field: ActionField = null
