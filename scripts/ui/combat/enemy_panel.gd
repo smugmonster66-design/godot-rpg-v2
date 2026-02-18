@@ -65,7 +65,7 @@ func _ready():
 
 	# Hide dice hand initially
 	if dice_hand_container:
-		dice_hand_container.hide()
+		dice_hand_container.modulate.a = 0.0
 
 	print("👹 EnemyPanel ready with %d slots" % enemy_slots.size())
 
@@ -393,7 +393,7 @@ func show_dice_hand(enemy_combatant: Combatant):
 	if not dice_hand_container:
 		return
 
-	dice_hand_container.show()
+	dice_hand_container.modulate.a = 1.0
 
 	# Set label
 	if action_label:
@@ -420,7 +420,7 @@ func hide_dice_hand():
 	current_enemy = null
 
 	if dice_hand_container:
-		dice_hand_container.hide()
+		dice_hand_container.modulate.a = 0.0
 
 	_clear_hand_dice()
 

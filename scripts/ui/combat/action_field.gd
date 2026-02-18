@@ -78,6 +78,10 @@ var _is_chromatic_action: bool = false
 ## Per-element stroke shader toggle. Missing keys default to true.
 @export var _element_stroke_overrides: Dictionary = {}
 # Example: { ActionEffect.DamageType.FIRE: false } disables fire stroke only
+var damage_formula_label: RichTextLabel = null
+var charge_container: PanelContainer = null
+var charge_rich_label: RichTextLabel = null
+
 
 # ============================================================================
 # STATE
@@ -90,7 +94,7 @@ var dice_source_info: Array[Dictionary] = []
 # Source item visual data (for badge display)
 var source_icon: Texture2D = null
 var source_rarity: String = "Common"
-
+var damage_formula_text: String = ""
 
 const SLOT_SIZE = Vector2(62, 62)
 const DIE_SCALE = 0.5
@@ -133,11 +137,14 @@ func _discover_nodes():
 	die_slots_grid = find_child("DieSlotsGrid", true, false) as GridContainer
 	description_label = find_child("DescriptionLabel", true, false) as RichTextLabel
 	_discover_and_swap_dmg_label()
+	damage_formula_label = find_child("DamageFormulaLabel", true, false) as RichTextLabel
+	charge_container = find_child("ChargeContainer", true, false) as PanelContainer
+	charge_rich_label = charge_container.find_child("ChargeLabel", true, false) as RichTextLabel if charge_container else null
 	fill_texture = find_child("FillTexture", true, false) as NinePatchRect
 	stroke_texture = find_child("StrokeTexture", true, false) as NinePatchRect
 	mult_label = find_child("MultLabel", true, false) as Label
 	source_badge = find_child("SourceBadge", true, false) as TextureRect
-	damage_floater = find_child("DamagePreviewFloater", true, false) as DamagePreviewFloater  # ← ADD THIS
+	damage_floater = find_child("DamagePreviewFloater", true, false) as DamagePreviewFloater  
 
 
 func _set_children_mouse_pass():
@@ -373,7 +380,7 @@ func _update_damage_preview():
 		dmg_preview_label.append_text(
 			"[center][color=#%s]%s[/color][/center]" % [elem_hex, formula])
 	else:
-		# Balatro breakdown mode
+		# breakdown mode
 		var power: int = _calculate_preview_power()
 		var mult: float = _calculate_preview_mult()
 		var total: int = maxi(0, int(power * mult))
@@ -395,6 +402,8 @@ func _update_damage_preview():
 				"[center][color=#%s]→ %d %s[/color][/center]" % [
 					elem_hex, total, element_name])
 	
+	_update_damage_formula_label()
+	
 	# Update floating element chips (unchanged)
 	if damage_floater:
 		var attacker_affixes: AffixPoolManager = null
@@ -405,7 +414,130 @@ func _update_damage_preview():
 			action_resource, attacker_affixes
 		)
 
+func _update_damage_formula_label():
+	"""Update DamageFormulaLabel: shows damage_formula when empty, per-element breakdown with dice."""
+	if not damage_formula_label:
+		return
+	
+	damage_formula_label.text = ""
+	
+	if placed_dice.is_empty():
+		# No dice — show the action's static formula text
+		if damage_formula_text != "":
+			damage_formula_label.append_text("[center]%s[/center]" % damage_formula_text)
+			damage_formula_label.show()
+		else:
+			damage_formula_label.hide()
+		return
+	
+	# Dice placed — compute per-element breakdown and show as rich text
+	var damages: Dictionary = _calculate_element_breakdown()
+	
+	if damages.is_empty():
+		damage_formula_label.hide()
+		return
+	
+	# Build "6 Fire + 2 Ice + 1 Shock" string with colored elements
+	var parts: Array[String] = []
+	for dt_int in DamagePreviewFloater.ELEMENT_ORDER:
+		var dt = dt_int as ActionEffect.DamageType
+		var value = int(damages.get(dt, 0.0))
+		if value <= 0:
+			continue
+		var elem_name = ELEMENT_NAMES.get(dt, "Unknown")
+		var elem_color = ThemeManager.get_element_color_enum(dt)
+		var hex = elem_color.to_html(false)
+		parts.append("[color=#%s]%d %s[/color]" % [hex, value, elem_name])
+	
+	if parts.is_empty():
+		damage_formula_label.hide()
+		return
+	
+	var joined = " [color=#888888]+[/color] ".join(parts)
+	damage_formula_label.append_text("[center]%s[/center]" % joined)
+	damage_formula_label.show()
 
+
+func _calculate_element_breakdown() -> Dictionary:
+	"""Calculate per-element damage dict using the same logic as DamagePreviewFloater."""
+	var damages: Dictionary = {}
+	
+	if action_resource and not action_resource.effects.is_empty():
+		# Use effect-aware calculation
+		var dice_index: int = 0
+		for effect in action_resource.effects:
+			if effect.effect_type != ActionEffect.EffectType.DAMAGE:
+				continue
+			var effect_element = effect.damage_type
+			var effect_damages: Dictionary = {}
+			for i in range(effect.dice_count):
+				if dice_index >= placed_dice.size():
+					break
+				var die = placed_dice[dice_index]
+				dice_index += 1
+				if die is DieResource:
+					var die_value = float(die.get_total_value())
+					var die_damage_type = die.get_effective_damage_type(effect_element)
+					var is_match: bool
+					if action_resource.accepted_elements.size() > 0:
+						var die_elem = die.get_effective_element()
+						is_match = (die_elem != DieResource.Element.NONE
+							and die_elem in action_resource.accepted_elements)
+					else:
+						is_match = die.is_element_match(effect_element)
+					if is_match:
+						die_value *= CombatCalculator.ELEMENT_MATCH_BONUS
+					effect_damages[die_damage_type] = effect_damages.get(die_damage_type, 0.0) + die_value
+			if effect.base_damage > 0:
+				effect_damages[effect_element] = effect_damages.get(effect_element, 0.0) + float(effect.base_damage)
+			if effect.damage_multiplier != 1.0:
+				for dt in effect_damages:
+					effect_damages[dt] *= effect.damage_multiplier
+			for dt in effect_damages:
+				damages[dt] = damages.get(dt, 0.0) + effect_damages[dt]
+	else:
+		# Legacy single-element fallback
+		damages = CombatCalculator.calculate_preview_damage(
+			placed_dice, element, base_damage, damage_multiplier
+		)
+	
+	# Apply attacker affix bonuses
+	if GameManager and GameManager.player:
+		var affixes = GameManager.player.affix_manager
+		if affixes:
+			var primary = element
+			if action_resource and not action_resource.effects.is_empty():
+				for eff in action_resource.effects:
+					if eff.effect_type == ActionEffect.EffectType.DAMAGE:
+						primary = eff.damage_type
+						break
+			# Global flat bonus
+			var global_bonus: float = 0.0
+			for affix in affixes.get_pool(Affix.Category.DAMAGE_BONUS):
+				global_bonus += affix.apply_effect()
+			if global_bonus > 0:
+				damages[primary] = damages.get(primary, 0.0) + global_bonus
+			# Type-specific
+			for damage_type in DamagePreviewFloater.TYPE_BONUS_CATEGORIES:
+				var cat_name = DamagePreviewFloater.TYPE_BONUS_CATEGORIES[damage_type]
+				if cat_name in Affix.Category:
+					var cat = Affix.Category.get(cat_name)
+					var bonus: float = 0.0
+					for affix in affixes.get_pool(cat):
+						bonus += affix.apply_effect()
+					if bonus > 0:
+						damages[damage_type] = damages.get(damage_type, 0.0) + bonus
+			# Global multiplier
+			var mult: float = 1.0
+			for affix in affixes.get_pool(Affix.Category.DAMAGE_MULTIPLIER):
+				mult *= affix.apply_effect()
+			if action_resource and action_resource.action_id != "":
+				mult *= affixes.get_action_damage_multiplier(action_resource.action_id)
+			if mult != 1.0:
+				for dt in damages:
+					damages[dt] *= mult
+	
+	return damages
 
 func _update_heal_preview():
 	"""Update preview for heal actions using RichTextLabel BBCode."""
@@ -578,7 +710,9 @@ func configure_from_dict(action_data: Dictionary):
 	restricted_tags = action_data.get("restricted_tags", [])
 	source = action_data.get("source", "")
 	action_resource = action_data.get("action_resource", null)
-	
+	damage_formula_text = action_data.get("damage_formula", "")
+	if damage_formula_text == "" and action_resource and action_resource.damage_formula != "":
+		damage_formula_text = action_resource.damage_formula
 	# Source item visual data
 	source_icon = action_data.get("source_icon", null)
 	source_rarity = action_data.get("source_rarity", "Common")
@@ -626,6 +760,13 @@ func refresh_ui():
 		name_label.text = action_name
 	if icon_rect:
 		icon_rect.texture = action_icon
+	if description_label:
+		if action_description != "":
+			description_label.text = ""
+			description_label.append_text("[center][i]%s[/i][/center]" % action_description)
+			description_label.show()
+		else:
+			description_label.hide()
 	if mult_label:
 		if damage_multiplier != 1.0:
 			mult_label.text = "×%.1f" % damage_multiplier
@@ -637,6 +778,7 @@ func refresh_ui():
 	update_charge_display()
 	update_disabled_state()
 	_update_damage_preview()
+	_update_damage_formula_label()
 
 
 func _setup_source_badge():
@@ -734,14 +876,27 @@ func consume_charge():
 	update_charge_display()
 
 func update_charge_display():
-	if not charge_label:
-		return
+	"""Update both legacy ChargeLabel and new ChargeContainer/RichTextLabel."""
+	# Legacy label (FooterRow)
+	if charge_label and charge_label is Label:
+		if action_resource and action_resource.charge_type != Action.ChargeType.UNLIMITED:
+			charge_label.text = "%d/%d" % [action_resource.current_charges, action_resource.max_charges]
+			charge_label.show()
+		else:
+			charge_label.hide()
 	
-	if action_resource and action_resource.charge_type != Action.ChargeType.UNLIMITED:
-		charge_label.text = "%d/%d" % [action_resource.current_charges, action_resource.max_charges]
-		charge_label.show()
-	else:
-		charge_label.hide()
+	# New rich text charge display
+	if charge_rich_label and charge_container:
+		if action_resource and action_resource.charge_type != Action.ChargeType.UNLIMITED:
+			charge_rich_label.text = ""
+			var charges_text = "%d/%d" % [action_resource.current_charges, action_resource.max_charges]
+			var type_label = action_resource.get_charge_type_label()
+			if type_label != "":
+				charges_text += " [i]%s[/i]" % type_label
+			charge_rich_label.append_text(charges_text)
+			charge_container.show()
+		else:
+			charge_container.hide()
 
 func update_disabled_state():
 	is_disabled = not has_charges()

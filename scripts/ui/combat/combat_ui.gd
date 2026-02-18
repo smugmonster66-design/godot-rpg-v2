@@ -469,12 +469,10 @@ func set_player_turn(is_player: bool):
 	is_enemy_turn = not is_player
 	
 	if is_player:
-		if dice_pool_display:
-			dice_pool_display.show()
+		_set_dice_pool_visible(true)
 		hide_enemy_hand()
 	else:
-		if dice_pool_display:
-			dice_pool_display.hide()
+		_set_dice_pool_visible(false)
 		if _bottom_ui:
 			_bottom_ui.enter_enemy_turn()
 			set_mana_drag_enabled(false)
@@ -486,6 +484,18 @@ func refresh_dice_pool():
 		dice_pool_display.refresh()
 
 
+func _set_dice_pool_visible(vis: bool):
+	"""Show/hide dice pool without collapsing layout."""
+	if not dice_pool_display:
+		return
+	if vis:
+		dice_pool_display.modulate.a = 1.0
+		dice_pool_display.mouse_filter = Control.MOUSE_FILTER_STOP
+	else:
+		dice_pool_display.modulate.a = 0.0
+		dice_pool_display.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+
 # ============================================================================
 # PHASE MANAGEMENT
 # ============================================================================
@@ -494,8 +504,7 @@ func enter_prep_phase():
 	print("🎮 CombatUI: Entering PREP phase")
 	is_enemy_turn = false
 
-	if dice_pool_display:
-		dice_pool_display.hide()
+	_set_dice_pool_visible(false)
 
 	# Clear placed dice from action fields, but keep the fields
 	for field in action_fields:
@@ -516,8 +525,7 @@ func enter_prep_phase():
 func enter_action_phase():
 	print("🎮 CombatUI: Entering ACTION phase")
 
-	if dice_pool_display:
-		dice_pool_display.show()
+	_set_dice_pool_visible(true)
 
 	refresh_action_fields()
 	reset_action_charges_for_turn()

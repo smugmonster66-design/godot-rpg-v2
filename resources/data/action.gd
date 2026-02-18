@@ -18,6 +18,7 @@ enum ChargeType {
 @export var action_id: String = ""
 @export var action_name: String = "New Action"
 @export_multiline var action_description: String = ""
+@export var damage_formula: String = ""
 @export var icon: Texture2D = null
 
 # ============================================================================
@@ -167,6 +168,7 @@ func to_dict() -> Dictionary:
 		"id": action_id,
 		"name": action_name,
 		"description": action_description,
+		"damage_formula": damage_formula,
 		"icon": icon,
 		"die_slots": die_slots,
 		"min_dice_required": min_dice_required,

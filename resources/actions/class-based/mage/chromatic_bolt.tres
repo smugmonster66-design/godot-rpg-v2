@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Action" load_steps=10 format=3 uid="uid://7frg7sa8wjlc"]
+[gd_resource type="Resource" script_class="Action" load_steps=12 format=3 uid="uid://7frg7sa8wjlc"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_action"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_ae"]
@@ -8,11 +8,18 @@
 [ext_resource type="Resource" path="res://resources/action_effects/mage/chromatic_bolt/chromatic_bolt_shock_bonus.tres" id="6_shock"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_vap71"]
 [ext_resource type="Resource" uid="uid://bgjeq3ifqp066" path="res://resources/animations/classes/mage/flame/chromatic bolt/cboltflame/chromatic_bolt_fire_animation_set.tres" id="7_vap71"]
+[ext_resource type="Resource" uid="uid://tspwgx50bmmh" path="res://resources/animations/classes/mage/storm/chromatic bolt/chromatic_bolt_lightning_aniset.tres" id="8_dnrcd"]
 
 [sub_resource type="Resource" id="Resource_ddyuh"]
 script = ExtResource("6_vap71")
 damage_type = 3
 animation_set = ExtResource("7_vap71")
+metadata/_custom_type_script = "uid://klf77hgcwdfc"
+
+[sub_resource type="Resource" id="Resource_1ejov"]
+script = ExtResource("6_vap71")
+damage_type = 5
+animation_set = ExtResource("8_dnrcd")
 metadata/_custom_type_script = "uid://klf77hgcwdfc"
 
 [resource]
@@ -24,5 +31,5 @@ min_dice_required = 1
 accepted_elements = Array[int]([4, 5, 6])
 charge_type = 1
 effects = Array[ExtResource("2_ae")]([ExtResource("3_primary"), ExtResource("4_fire"), ExtResource("5_ice"), ExtResource("6_shock")])
-element_animation_overrides = Array[ExtResource("6_vap71")]([SubResource("Resource_ddyuh"), null])
+element_animation_overrides = Array[ExtResource("6_vap71")]([SubResource("Resource_ddyuh"), SubResource("Resource_1ejov")])
 metadata/_custom_type_script = "uid://b1kctq61bwysh"

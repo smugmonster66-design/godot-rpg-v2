@@ -783,6 +783,27 @@ func _play_action_with_animation(action_data: Dictionary, targets: Array, target
 		# Fallback to player combatant position
 		source_pos = player_combatant.global_position
 	
+	
+	# === DEBUG: Verify source position ===
+	print("🔍 SOURCE POS DEBUG ========================")
+	print("  action_field: %s" % (action_field.name if action_field else "NULL"))
+	if action_field:
+		print("  action_field.global_position: %s" % action_field.global_position)
+		print("  action_field.size: %s" % action_field.size)
+		if action_field.die_slot_panels.size() > 0:
+			var slot = action_field.die_slot_panels[0]
+			print("  first_slot.global_position: %s" % slot.global_position)
+			print("  first_slot.size: %s" % slot.size)
+			print("  computed source_pos: %s" % source_pos)
+		else:
+			print("  ⚠️  No die_slot_panels!")
+	else:
+		print("  ⚠️  No action_field found!")
+	print("  Final source_pos: %s" % source_pos)
+	print("============================================")
+	
+	
+	
 	# === GET TARGET POSITIONS (Enemy portrait centers in UI) ===
 	var target_positions: Array[Vector2] = []
 	var target_nodes: Array[Node2D] = []

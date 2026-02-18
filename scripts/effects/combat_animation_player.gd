@@ -68,42 +68,40 @@ func play_action_animation(
 	animation_sequence_finished.emit()
 
 func _play_cast(anim_set: CombatAnimationSet, position: Vector2):
-	var cast_pos = position + (anim_set.cast_offset if anim_set.cast_offset else Vector2.ZERO)
-	var effect: Node
+	var cast_pos = position + anim_set.cast_offset
 	
-	# Preset takes priority — auto-instantiate the right CombatEffect
-	if anim_set.cast_preset:
-		var combat_effect = CombatAnimationSet.create_effect_from_preset(anim_set.cast_preset)
-		if combat_effect:
-			_add_effect(combat_effect, cast_pos)
-			# CombatEffect presets use absolute positioning — don't scale the container
-			_configure_effect(combat_effect, anim_set.cast_preset, cast_pos, cast_pos)
-			effect = combat_effect
-	
-	# Fallback to PackedScene
-	if not effect and anim_set.cast_effect:
-		effect = anim_set.cast_effect.instantiate()
+	# Path A: PackedScene cast effect (Node2D-based, e.g. ParticleEffect)
+	if anim_set.cast_effect and anim_set.cast_effect is PackedScene:
+		var effect = anim_set.cast_effect.instantiate()
 		_add_effect(effect, cast_pos)
-		effect.scale *= anim_set.cast_scale
-	
-	if not effect:
-		return
-	
-	if anim_set.cast_sound:
-		_play_sound(anim_set.cast_sound, position)
-	
-	if effect.has_method("play"):
-		effect.play()
-		if effect.has_signal("effect_finished") or effect.has_signal("finished"):
-			await _await_effect_finished(effect)
+		effect.scale = anim_set.cast_scale
+		
+		if anim_set.cast_sound:
+			_play_sound(anim_set.cast_sound, cast_pos)
+		
+		if effect.has_method("play"):
+			effect.play()
+			await effect.effect_finished
 		else:
 			await get_tree().create_timer(anim_set.cast_duration).timeout
-			if is_instance_valid(effect):
-				effect.queue_free()
-	else:
-		await get_tree().create_timer(anim_set.cast_duration).timeout
-		if is_instance_valid(effect):
 			effect.queue_free()
+		return
+	
+	# Path B: CombatEffectPreset cast (Control-based, created programmatically)
+	if anim_set.cast_preset:
+		var effect = CombatAnimationSet.create_effect_from_preset(anim_set.cast_preset)
+		if effect:
+			_add_effect(effect, cast_pos)
+			_configure_effect(effect, anim_set.cast_preset, cast_pos, cast_pos)
+			
+			if anim_set.cast_sound:
+				_play_sound(anim_set.cast_sound, cast_pos)
+			
+			await effect.play()
+			return
+	
+	# Path C: Neither valid, just wait cast_duration
+	await get_tree().create_timer(anim_set.cast_duration).timeout
 
 
 func _play_travel(anim_set: CombatAnimationSet, from: Vector2, targets: Array[Vector2]):
@@ -179,6 +177,12 @@ func _add_effect(effect: Node, position: Vector2):
 	else:
 		get_tree().root.add_child(effect)
 	
+	# CombatEffect subclasses use PRESET_FULL_RECT as a fullscreen overlay
+	# and position particles internally via _target_pos from configure().
+	# Setting their global_position shifts the overlay and breaks child coords.
+	if effect is CombatEffect:
+		return
+	
 	if effect is Node2D:
 		effect.global_position = position
 	elif effect is Control:
@@ -189,7 +193,6 @@ func _configure_effect(combat_effect: Variant, preset: Variant, source_pos: Vect
 	"""Route configure() call based on effect subclass type."""
 	if combat_effect is SummonEffect:
 		combat_effect.configure(preset, target_pos)
-		print("🔮 SummonEffect configured: target_pos=%s, global_pos=%s, size=%s, rect=%s" % [target_pos, combat_effect.global_position, combat_effect.size, combat_effect.get_rect()])
 	elif combat_effect is EmanateEffect:
 		combat_effect.configure(preset, source_pos)
 	elif combat_effect is ImpactEffect:
