@@ -393,6 +393,7 @@ func show_dice_hand(enemy_combatant: Combatant):
 	if not dice_hand_container:
 		return
 
+	dice_hand_container.visible = true
 	dice_hand_container.modulate.a = 1.0
 
 	# Set label

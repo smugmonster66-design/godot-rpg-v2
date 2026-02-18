@@ -13,4 +13,6 @@ travel_effect = ExtResource("4_hk2sx")
 travel_duration = 0.2
 impact_effect = ExtResource("2_5mg1h")
 impact_duration = 0.2
+cast_travel_overlap = 0.15
+travel_impact_overlap = 0.15
 metadata/_custom_type_script = "uid://luoa1f4jirnk"

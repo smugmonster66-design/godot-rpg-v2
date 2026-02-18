@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EmanatePreset" load_steps=3 format=3 uid="uid://lt80ceegbap4"]
+
+[ext_resource type="Script" uid="uid://bxft1vftskx0t" path="res://scripts/effects/foundation/shader_param_animation.gd" id="1_gapau"]
+[ext_resource type="Script" uid="uid://du3k7cnnwpv1p" path="res://scripts/effects/emanate_preset.gd" id="2_io0y0"]
+
+[resource]
+script = ExtResource("2_io0y0")
+ring_count = 1
+ring_start_radius = 25.0
+ring_end_radius = 50.0
+ring_thickness = 8.0
+ring_duration = 0.25
+total_duration = 0.30000000000000004
+metadata/_custom_type_script = "uid://du3k7cnnwpv1p"

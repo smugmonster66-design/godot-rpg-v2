@@ -715,6 +715,36 @@ func _on_options_changed():
 	_update_cost_label()
 
 
+func cleanup():
+	"""Clean up all visuals for combat end. Called by CombatManager.reset_combat()."""
+	# Kill any active drag
+	if _is_dragging:
+		_is_dragging = false
+		set_process(false)
+	
+	# Free floating drag visual (lives in DragOverlayLayer)
+	if _drag_visual and is_instance_valid(_drag_visual):
+		_drag_visual.queue_free()
+		_drag_visual = null
+	
+	# Free the preview die in the selector
+	if _current_preview and is_instance_valid(_current_preview):
+		_current_preview.queue_free()
+		_current_preview = null
+	
+	# Disconnect mana pool signals
+	if mana_pool:
+		if mana_pool.has_signal("mana_changed") and mana_pool.mana_changed.is_connected(_on_mana_changed):
+			mana_pool.mana_changed.disconnect(_on_mana_changed)
+		if mana_pool.has_signal("element_changed") and mana_pool.element_changed.is_connected(_on_element_changed):
+			mana_pool.element_changed.disconnect(_on_element_changed)
+		if mana_pool.has_signal("die_size_changed") and mana_pool.die_size_changed.is_connected(_on_size_changed):
+			mana_pool.die_size_changed.disconnect(_on_size_changed)
+		mana_pool = null
+	
+	hide()
+
+
 func _set_mouse_ignore_recursive(node: Node):
 	if node is Control:
 		node.mouse_filter = Control.MOUSE_FILTER_IGNORE

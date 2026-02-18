@@ -173,6 +173,7 @@ dungeon_definition = ExtResource("16_f3gwi")
 layer = 200
 
 [node name="DebugLootPanel" parent="DebugLayer" instance=ExtResource("17_kdtot")]
+layout_mode = 3
 anchors_preset = 6
 anchor_top = 0.5
 anchor_bottom = 0.5

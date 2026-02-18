@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://dofeq3txtonis"]
+[gd_scene load_steps=4 format=3 uid="uid://dofeq3txtonis"]
 
 [ext_resource type="Script" uid="uid://diwnfbide3q17" path="res://scripts/ui/combat/enemy_panel.gd" id="1_o7t4d"]
 [ext_resource type="PackedScene" uid="uid://c1kmjpwav45is" path="res://scenes/ui/combat/enemy_slot.tscn" id="2_g7aqa"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_g7aqa"]
 
 [node name="EnemyPanel" type="VBoxContainer"]
 offset_right = 388.0
@@ -35,6 +37,7 @@ size_flags_horizontal = 3
 visible = false
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_g7aqa")
 
 [node name="MarginContainer" type="MarginContainer" parent="EnemyDiceHand"]
 layout_mode = 2
@@ -48,6 +51,7 @@ layout_mode = 2
 theme_override_constants/separation = 6
 
 [node name="ActionLabel" type="Label" parent="EnemyDiceHand/MarginContainer/VBox"]
+visible = false
 layout_mode = 2
 text = "EnemyTurn"
 horizontal_alignment = 1

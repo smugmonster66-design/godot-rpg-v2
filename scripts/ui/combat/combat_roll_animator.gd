@@ -33,6 +33,10 @@ class_name CombatRollAnimator
 ## Enable scatter-converge instead of plain projectile
 @export var use_scatter_converge: bool = true
 
+@export_group("Entry Emanate")
+## Emanate preset to play when a die appears in hand. Null = no emanate.
+@export var entry_emanate_preset: EmanatePreset = null
+
 
 # ============================================================================
 # ROLL SETTLE SHADER
@@ -61,6 +65,8 @@ var pool_dice_grid = null  # DiceGrid
 var _projectile_container: Control = null
 var _is_animating: bool = false
 
+var _effects_layer: CanvasLayer = null
+
 # ============================================================================
 # SIGNALS
 # ============================================================================
@@ -86,17 +92,14 @@ func _ready():
 	canvas_layer.add_child(_projectile_container)
 
 func initialize(hand_display: Control, pool_grid = null):
-	"""Call during CombatUI.initialize_ui() to set references.
-	
-	Args:
-		hand_display: The DicePoolDisplay node showing combat hand dice.
-		pool_grid: (Optional) The DiceGrid from BottomUI showing pool dice.
-			If null, projectiles originate from bottom-center of screen.
-	"""
 	dice_pool_display = hand_display
 	pool_dice_grid = pool_grid
-	print("🎬 CombatRollAnimator initialized (hand_display: %s, pool_grid: %s)" % [
-		hand_display != null, pool_grid != null
+	
+	# EffectsLayer is a sibling of CombatUILayer, not a child — search from scene root
+	_effects_layer = get_tree().root.find_child("EffectsLayer", true, false)
+	
+	print("🎬 CombatRollAnimator initialized (hand_display: %s, pool_grid: %s, effects_layer: %s)" % [
+		hand_display != null, pool_grid != null, _effects_layer != null
 	])
 
 func is_animating() -> bool:
@@ -426,19 +429,79 @@ func _spawn_projectile(source_info: Dictionary) -> RollProjectile:
 # PHASE 3: REVEAL
 # ============================================================================
 
-# In _reveal_hand_die() — only the additions, existing pop is untouched:
-
 func _reveal_hand_die(hand_visual: Control):
 	hand_visual.modulate = Color.WHITE
+
 	if "draggable" in hand_visual:
 		hand_visual.draggable = true
 
+	# Capture center BEFORE scale changes global_position
+	var center = hand_visual.global_position + hand_visual.get_combined_minimum_size() / 2.0
+
 	var base_scale = Vector2.ONE
 	hand_visual.scale = base_scale * pop_scale
+
 	var tween = create_tween()
 	tween.tween_property(
 		hand_visual, "scale", base_scale, pop_duration
 	).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+
+	_play_entry_emanate(hand_visual, center)
+
+
+func _play_entry_emanate(hand_visual: Control, center: Vector2):
+	if not entry_emanate_preset or not _projectile_container:
+		return
+
+	var element: int = DieResource.Element.NONE
+	if hand_visual is DieObjectBase and hand_visual.die_resource:
+		element = hand_visual.die_resource.element
+
+	var preset = entry_emanate_preset.duplicate() as EmanatePreset
+	preset.emanate_color = _get_emanate_color_for_element(element)
+
+	var effect = EmanateEffect.new()
+	_projectile_container.add_child(effect)
+	effect.configure(preset, center)
+	effect.play()
+	
+
+func _get_emanate_color_for_element(die_element: int) -> Color:
+	"""Pull element color from global config, with hardcoded fallback."""
+	if GameManager and GameManager.ELEMENT_VISUALS:
+		var damage_type = _die_element_to_damage_type(die_element)
+		if damage_type >= 0:
+			var tint = GameManager.ELEMENT_VISUALS.get_tint_color(damage_type)
+			# Config returns white when tint_color was never set — use fallback
+			if tint != Color.WHITE:
+				tint.a = 0.8
+				return tint
+
+	# Fallback palette when config has no tint
+	match die_element:
+		DieResource.Element.FIRE:     return Color(1.0, 0.4, 0.1, 0.8)
+		DieResource.Element.ICE:      return Color(0.3, 0.8, 1.0, 0.8)
+		DieResource.Element.SHOCK:    return Color(0.4, 0.7, 1.0, 0.8)
+		DieResource.Element.POISON:   return Color(0.3, 0.9, 0.2, 0.8)
+		DieResource.Element.SHADOW:   return Color(0.5, 0.2, 0.8, 0.8)
+		DieResource.Element.SLASHING: return Color(0.9, 0.9, 0.9, 0.6)
+		DieResource.Element.BLUNT:    return Color(0.7, 0.5, 0.3, 0.6)
+		DieResource.Element.PIERCING: return Color(0.8, 0.8, 0.6, 0.6)
+		_:                            return Color(0.8, 0.8, 0.8, 0.5)
+
+
+static func _die_element_to_damage_type(die_element: int) -> int:
+	"""Convert DieResource.Element → ActionEffect.DamageType. Returns -1 for NONE."""
+	match die_element:
+		DieResource.Element.SLASHING: return ActionEffect.DamageType.SLASHING
+		DieResource.Element.BLUNT: return ActionEffect.DamageType.BLUNT
+		DieResource.Element.PIERCING: return ActionEffect.DamageType.PIERCING
+		DieResource.Element.FIRE: return ActionEffect.DamageType.FIRE
+		DieResource.Element.ICE: return ActionEffect.DamageType.ICE
+		DieResource.Element.SHOCK: return ActionEffect.DamageType.SHOCK
+		DieResource.Element.POISON: return ActionEffect.DamageType.POISON
+		DieResource.Element.SHADOW: return ActionEffect.DamageType.SHADOW
+		_: return -1
 
 func _apply_roll_settle(die_visual: DieObjectBase):
 	var fill_rect: TextureRect = die_visual.fill_texture
@@ -605,6 +668,24 @@ func play_roll_sequence_for(target_display: Control, visuals: Array, source_posi
 			captured_targets.append(visual.global_position + visual.size / 2.0)
 		else:
 			captured_targets.append(Vector2.ZERO)
+	
+	# ── DIAGNOSTIC ──
+	print("  🔍 Generic roll: target_display=%s, visible=%s, pos=%s, size=%s" % [
+		target_display.name if target_display else "null",
+		target_display.visible if target_display else "N/A",
+		target_display.global_position if target_display else "N/A",
+		target_display.size if target_display else "N/A",
+	])
+	for i in range(visuals.size()):
+		var v = visuals[i]
+		if is_instance_valid(v):
+			print("  🔍 Visual[%d]: gpos=%s, size=%s, in_tree=%s, parent=%s" % [
+				i, v.global_position, v.size, v.is_inside_tree(),
+				v.get_parent().name if v.get_parent() else "null"
+			])
+	print("  🔍 Captured targets: %s" % [captured_targets])
+	print("  🔍 Source position: %s" % source_center)
+	# ── END DIAGNOSTIC ──
 	
 	# ── Step 2: Fire staggered per-die animations ──
 	var total = visuals.size()

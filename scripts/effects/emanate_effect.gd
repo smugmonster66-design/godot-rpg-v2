@@ -50,6 +50,12 @@ func _spawn_ring(ring_index: int):
 	ring.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	ring.modulate = _emanate_preset.emanate_color
 
+	if _emanate_preset.additive_blend:
+		var mat = CanvasItemMaterial.new()
+		mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+		ring.material = mat
+
+
 	# Start small at source
 	var start_size = Vector2.ONE * _emanate_preset.ring_start_radius * 2
 	var end_size = Vector2.ONE * _emanate_preset.ring_end_radius * 2

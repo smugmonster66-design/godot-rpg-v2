@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://lightning_cast_effect"]
+[gd_scene load_steps=8 format=3 uid="uid://cj1hno5k221nd"]
 
-[ext_resource type="Script" path="res://scripts/effects/particle_effect.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://c1pmu5cw4o18f" path="res://scripts/effects/particle_effect.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://c6hfpnookob8g" path="res://assets/particles/star_09.png" id="2_5hab6"]
 
 [sub_resource type="Gradient" id="Gradient_charge"]
 offsets = PackedFloat32Array(0, 0.15, 0.6, 1)
@@ -27,7 +28,6 @@ initial_velocity_max = 80.0
 angular_velocity_min = -360.0
 angular_velocity_max = 360.0
 gravity = Vector3(0, 0, 0)
-attractor_interaction_enabled = true
 damping_min = 40.0
 damping_max = 80.0
 scale_min = 0.3
@@ -37,14 +37,13 @@ color_ramp = SubResource("GradientTexture1D_charge")
 
 [node name="LightningCastEffect" type="Node2D"]
 script = ExtResource("1_script")
-one_shot = true
-use_color_override = false
-auto_free = true
 duration = 0.3
 
 [node name="GPUParticles2D" type="GPUParticles2D" parent="."]
+emitting = false
 amount = 16
-process_material = SubResource("ParticleProcessMaterial_charge")
+texture = ExtResource("2_5hab6")
 lifetime = 0.3
 one_shot = true
 explosiveness = 0.8
+process_material = SubResource("ParticleProcessMaterial_charge")

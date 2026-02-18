@@ -29,7 +29,8 @@ func play_action_animation(
 	target_positions: Array[Vector2],
 	target_nodes: Array[Node2D] = []
 ) -> void:
-	"""Play full animation sequence for an action"""
+	"""Play full animation sequence for an action.
+	Stages can overlap using cast_travel_overlap and travel_impact_overlap."""
 	
 	if not animation_set:
 		apply_effect_now.emit()
@@ -37,9 +38,19 @@ func play_action_animation(
 	
 	animation_sequence_started.emit()
 	
+	var has_cast = animation_set.cast_preset or animation_set.cast_effect
+	var has_travel = animation_set.travel_effect and target_positions.size() > 0
+	var has_impact = (animation_set.impact_preset or animation_set.impact_effect) and target_positions.size() > 0
+	
 	# 1. Cast animation (at source/action field)
-	if animation_set.cast_preset or animation_set.cast_effect:
-		await _play_cast(animation_set, source_position)
+	if has_cast:
+		if has_travel and animation_set.cast_travel_overlap > 0.0:
+			# Fire-and-forget the cast, wait only (cast_duration - overlap) before starting travel
+			_play_cast(animation_set, source_position)  # no await — runs in background
+			var wait = max(animation_set.cast_duration - animation_set.cast_travel_overlap, 0.02)
+			await get_tree().create_timer(wait).timeout
+		else:
+			await _play_cast(animation_set, source_position)
 	
 	if animation_set.apply_effect_at == CombatAnimationSet.EffectTiming.ON_CAST:
 		apply_effect_now.emit()
@@ -47,8 +58,13 @@ func play_action_animation(
 	cast_finished.emit()
 	
 	# 2. Travel animation (projectile to each target)
-	if animation_set.travel_effect and target_positions.size() > 0:
-		await _play_travel(animation_set, source_position, target_positions)
+	if has_travel:
+		if has_impact and animation_set.travel_impact_overlap > 0.0:
+			_play_travel(animation_set, source_position, target_positions)
+			var wait = max(animation_set.travel_duration - animation_set.travel_impact_overlap, 0.02)
+			await get_tree().create_timer(wait).timeout
+		else:
+			await _play_travel(animation_set, source_position, target_positions)
 	
 	if animation_set.apply_effect_at == CombatAnimationSet.EffectTiming.ON_TRAVEL_END:
 		apply_effect_now.emit()
@@ -56,7 +72,7 @@ func play_action_animation(
 	travel_finished.emit()
 	
 	# 3. Impact animation (at each target)
-	if (animation_set.impact_preset or animation_set.impact_effect) and target_positions.size() > 0:
+	if has_impact:
 		if animation_set.impact_delay > 0:
 			await get_tree().create_timer(animation_set.impact_delay).timeout
 		await _play_impact(animation_set, target_positions, target_nodes)

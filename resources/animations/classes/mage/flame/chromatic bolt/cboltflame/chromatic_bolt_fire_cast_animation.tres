@@ -5,12 +5,15 @@
 
 [resource]
 script = ExtResource("2_csje8")
-particle_count = 16
+particle_count = 24
+spawn_radius = 180.0
+converge_duration = 0.25
 particle_size = Vector2(32, 32)
 particle_color = Color(0.6627451, 0.16470589, 0, 0.7019608)
 start_stagger = 0.1
 arrival_flash_duration = 0.12000000000000001
 arrival_flash_color = Color(1, 0.83116233, 0.53611076, 1)
+pre_glow_enabled = false
 pre_glow_duration = 0.12000000000000001
 pre_glow_intensity = 0.35
 metadata/_custom_type_script = "uid://c0xi788dtl2ux"

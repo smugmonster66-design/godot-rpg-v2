@@ -937,6 +937,11 @@ func _start_enemy_turn(enemy: Combatant):
 
 	if combat_ui and combat_ui.has_method("show_enemy_hand"):
 		combat_ui.show_enemy_hand(enemy)
+		
+		
+	# Extra frames for EnemyDiceHand layout propagation (was hidden, now visible)
+	await get_tree().process_frame
+	await get_tree().process_frame
 
 	# Small delay to let UI update
 	await get_tree().create_timer(0.3).timeout
@@ -2291,6 +2296,11 @@ func reset_combat():
 	# Hide enemy hand
 	if combat_ui and combat_ui.has_method("hide_enemy_hand"):
 		combat_ui.hide_enemy_hand()
+	
+	# Clean up mana die selector
+	if combat_ui and combat_ui.mana_die_selector:
+		combat_ui.mana_die_selector.cleanup()
+	
 	
 	# Reset state
 	enemy_combatants.clear()

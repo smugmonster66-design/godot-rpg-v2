@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://lightning_impact_effect"]
+[gd_scene load_steps=8 format=3 uid="uid://dtdi7u1tyqi2l"]
 
-[ext_resource type="Script" path="res://scripts/effects/particle_effect.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://c1pmu5cw4o18f" path="res://scripts/effects/particle_effect.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://c6hfpnookob8g" path="res://assets/particles/star_09.png" id="2_jdff6"]
 
 [sub_resource type="Gradient" id="Gradient_impact"]
 offsets = PackedFloat32Array(0, 0.05, 0.4, 1)
@@ -33,15 +34,15 @@ scale_curve = SubResource("CurveTexture_impact_scale")
 color_ramp = SubResource("GradientTexture1D_impact")
 
 [node name="LightningImpactEffect" type="Node2D"]
+scale = Vector2(0.5, 0.5)
 script = ExtResource("1_script")
-one_shot = true
-use_color_override = false
-auto_free = true
 duration = 0.4
 
 [node name="GPUParticles2D" type="GPUParticles2D" parent="."]
+emitting = false
 amount = 32
-process_material = SubResource("ParticleProcessMaterial_impact")
+texture = ExtResource("2_jdff6")
 lifetime = 0.5
 one_shot = true
 explosiveness = 0.95
+process_material = SubResource("ParticleProcessMaterial_impact")

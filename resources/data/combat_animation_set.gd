@@ -66,6 +66,33 @@ enum EffectTiming {
 	ON_IMPACT      ## Apply effect when impact animation plays (default)
 }
 
+## When to apply the actual game effect (damage, heal, etc.)
+@export var apply_effect_at: EffectTiming = EffectTiming.ON_IMPACT
+
+# ============================================================================
+# STAGE OVERLAP - Let stages start before the previous one finishes
+# ============================================================================
+@export_group("Stage Overlap")
+## Start travel this many seconds before cast finishes (0 = fully sequential)
+@export var cast_travel_overlap: float = 0.0
+## Start impact this many seconds before travel finishes (0 = fully sequential)
+@export var travel_impact_overlap: float = 0.0
+
+# ============================================================================
+# AUDIO
+# ============================================================================
+@export_group("Audio")
+## Sound to play when cast animation starts
+@export var cast_sound: AudioStream
+## Sound to play when projectile launches
+@export var travel_sound: AudioStream
+## Sound to play on impact
+@export var impact_sound: AudioStream
+
+# ============================================================================
+# FACTORY
+# ============================================================================
+
 ## Instantiate the correct CombatEffect subclass from a preset resource.
 static func create_effect_from_preset(preset: Variant) -> Variant:
 	if preset is SummonPreset:
@@ -81,17 +108,3 @@ static func create_effect_from_preset(preset: Variant) -> Variant:
 	else:
 		push_warning("CombatAnimationSet: Unknown preset type: %s" % preset.get_class())
 		return null
-
-## When to apply the actual game effect (damage, heal, etc.)
-@export var apply_effect_at: EffectTiming = EffectTiming.ON_IMPACT
-
-# ============================================================================
-# AUDIO
-# ============================================================================
-@export_group("Audio")
-## Sound to play when cast animation starts
-@export var cast_sound: AudioStream
-## Sound to play when projectile launches
-@export var travel_sound: AudioStream
-## Sound to play on impact
-@export var impact_sound: AudioStream

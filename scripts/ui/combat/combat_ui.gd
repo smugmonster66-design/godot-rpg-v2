@@ -275,38 +275,48 @@ func initialize_ui(p_player: Player, p_enemies):
 	# Reset all charges for combat start
 	reset_action_charges_for_combat()
 	
-	# Create and initialize roll animator
-	roll_animator = CombatRollAnimator.new()
-	roll_animator.name = "RollAnimator"
-	add_child(roll_animator)
+	# --- Roll animator (find scene node first, fallback to code-created) ---
+	if not roll_animator:
+		roll_animator = find_child("CombatRollAnimator", true, false) as CombatRollAnimator
+	if not roll_animator:
+		roll_animator = CombatRollAnimator.new()
+		roll_animator.name = "CombatRollAnimator"
+		add_child(roll_animator)
 	
 	# Initialize with hand display + optional pool grid for source positions
 	var bottom_ui_grid = _find_pool_dice_grid()
 	roll_animator.initialize(dice_pool_display, bottom_ui_grid)
 	
-	# --- Combat effect player (general purpose visual effects) ---
-	effect_player = CombatEffectPlayer.new()
-	effect_player.name = "CombatEffectPlayer"
-	add_child(effect_player)
+	# --- Combat effect player (find scene node first, fallback to code-created) ---
+	if not effect_player:
+		effect_player = find_child("CombatEffectPlayer", true, false) as CombatEffectPlayer
+	if not effect_player:
+		effect_player = CombatEffectPlayer.new()
+		effect_player.name = "CombatEffectPlayer"
+		add_child(effect_player)
 	effect_player.initialize(dice_pool_display, enemy_panel, player_health_display)
 	print("  ✅ CombatEffectPlayer initialized")
 	
-	# --- v2.2: Affix visual animator (roll effects, projectiles between dice) ---
-	affix_visual_animator = AffixVisualAnimator.new()
-	affix_visual_animator.name = "AffixVisualAnimator"
-	add_child(affix_visual_animator)
+	# --- Affix visual animator (find scene node first, fallback to code-created) ---
+	if not affix_visual_animator:
+		affix_visual_animator = find_child("AffixVisualAnimator", true, false) as AffixVisualAnimator
+	if not affix_visual_animator:
+		affix_visual_animator = AffixVisualAnimator.new()
+		affix_visual_animator.name = "AffixVisualAnimator"
+		add_child(affix_visual_animator)
 	if player and player.dice_pool and "affix_processor" in player.dice_pool and player.dice_pool.affix_processor:
 		affix_visual_animator.initialize(dice_pool_display, player.dice_pool.affix_processor, roll_animator, effect_player)
 		print("  ✅ AffixVisualAnimator initialized")
 	else:
 		push_warning("CombatUI: Could not initialize AffixVisualAnimator — no affix_processor found")
 	
-	
-	
-	# --- Reactive animation system ---
-	reactive_animator = ReactiveAnimator.new()
-	reactive_animator.name = "ReactiveAnimator"
-	add_child(reactive_animator)
+	# --- Reactive animation system (find scene node first, fallback to code-created) ---
+	if not reactive_animator:
+		reactive_animator = find_child("ReactiveAnimator", true, false) as ReactiveAnimator
+	if not reactive_animator:
+		reactive_animator = ReactiveAnimator.new()
+		reactive_animator.name = "ReactiveAnimator"
+		add_child(reactive_animator)
 	
 	# Load all reaction .tres files from the reactions directory
 	var reaction_dir = "res://resources/effects/reactions/"
@@ -818,14 +828,12 @@ func animate_die_to_action_field(die_visual: Control, action_name: String, die: 
 	
 	var target_slot = field.die_slot_panels[slot_index]
 	
-	# Debug: check what we got
 	print("  🎬 animate_die_to_action_field:")
 	print("    die_visual valid: %s" % (die_visual != null and is_instance_valid(die_visual)))
 	print("    die: %s" % (die.display_name if die else "null"))
 	
 	if not die_visual or not is_instance_valid(die_visual):
 		print("  ⚠️ No valid die_visual to animate")
-		# Still need to place the die data even without visual
 		if die:
 			field.placed_dice.append(die)
 		await get_tree().create_timer(0.3).timeout
@@ -843,16 +851,15 @@ func animate_die_to_action_field(die_visual: Control, action_name: String, die: 
 	# Store start position before reparenting
 	var start_global_pos = die_visual.global_position
 	
-	# Reparent to the scene root temporarily for smooth animation
+	# Reparent to projectile overlay (layer 100) for smooth animation above all UI
 	var old_parent = die_visual.get_parent()
 	if old_parent:
 		old_parent.remove_child(die_visual)
-	get_tree().root.add_child(die_visual)
+	roll_animator._projectile_container.add_child(die_visual)
 	
 	# Configure for animation
 	die_visual.visible = true
 	die_visual.global_position = start_global_pos
-	die_visual.z_index = 100
 	if "draggable" in die_visual:
 		die_visual.draggable = false
 	die_visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -872,8 +879,8 @@ func animate_die_to_action_field(die_visual: Control, action_name: String, die: 
 	move_tween.tween_property(die_visual, "scale", Vector2(field.DIE_SCALE, field.DIE_SCALE), 0.3).set_ease(Tween.EASE_OUT)
 	await move_tween.finished
 	
-	# Now reparent to the actual slot
-	get_tree().root.remove_child(die_visual)
+	# Reparent to the actual slot
+	roll_animator._projectile_container.remove_child(die_visual)
 	target_slot.add_child(die_visual)
 	
 	# Set final local position

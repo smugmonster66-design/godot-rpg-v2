@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://luoa1f4jirnk" path="res://resources/data/combat_animation_set.gd" id="1_6moot"]
 [ext_resource type="PackedScene" path="res://scenes/effects/cast/lightning_cast_effect.tscn" id="1_hhsir"]
-[ext_resource type="PackedScene" path="res://scenes/effects/impact/lightning_impact_effect.tscn" id="2_i6l0v"]
+[ext_resource type="PackedScene" uid="uid://dtdi7u1tyqi2l" path="res://scenes/effects/impact/lightning_impact_effect.tscn" id="2_i6l0v"]
 [ext_resource type="PackedScene" path="res://scenes/effects/projectiles/lightning_bolt_effect.tscn" id="4_8sfte"]
 
 [resource]
