@@ -124,6 +124,11 @@ func refresh():
 		var die = hand[i]
 		# Consumed dice are kept in the array for stable indexing but not shown
 		if die.is_consumed:
+			var spacer = Control.new()
+			spacer.name = "ConsumedSpacer_%d" % i
+			spacer.custom_minimum_size = Vector2(124, 124)  # Match die visual size
+			spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			add_child(spacer)
 			continue
 		var visual = _create_die_visual(die, i)
 		if visual:

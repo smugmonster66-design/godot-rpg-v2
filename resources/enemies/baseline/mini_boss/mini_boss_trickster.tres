@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://cdqfmd7hyc2v8"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://cdqfmd7hyc2v8"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_yvq5g"]
 [ext_resource type="Resource" uid="uid://mrxvd5tmgbpd" path="res://resources/actions/enemy_base/poke.tres" id="2_o54yp"]
@@ -6,6 +6,7 @@
 [ext_resource type="Resource" uid="uid://bnmecfmmy1xsb" path="res://resources/actions/enemy_base/sabotage.tres" id="4_brp6b"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_3bsyk"]
 [ext_resource type="Resource" uid="uid://dukagxso81fx" path="res://resources/affixes/base_stats/enemy/enemy_health_agi_support.tres" id="6_j1sy2"]
+[ext_resource type="Texture2D" uid="uid://bacrlq8i11ylv" path="res://assets/characters/enemies/test_dummy_512.png" id="7_o54yp"]
 [ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_tss1f"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_6ftqb"]
 [ext_resource type="Resource" uid="uid://mxojnvfwmj81" path="res://resources/dice/base/d8_none.tres" id="9_xv8ln"]
@@ -15,9 +16,10 @@
 script = ExtResource("7_tss1f")
 enemy_name = "Mini-Boss Trickster"
 description = "Baseline Mini-Boss Trickster."
+portrait = ExtResource("7_o54yp")
+sprite_texture = ExtResource("7_o54yp")
 template = ExtResource("10_j1d5f")
 combat_role = 4
-enemy_tags = PackedStringArray()
 max_health = 15
 starting_dice = Array[ExtResource("8_6ftqb")]([ExtResource("9_xv8ln"), ExtResource("9_xv8ln")])
 combat_actions = Array[ExtResource("1_yvq5g")]([ExtResource("2_o54yp"), ExtResource("3_gpnoe"), ExtResource("4_brp6b")])

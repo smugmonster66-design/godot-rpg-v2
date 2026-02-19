@@ -107,6 +107,7 @@ func _spawn_single_enemy(enemy_data: EnemyData, index: int, container: Node) -> 
 	
 	# Add to scene
 	container.add_child(enemy)
+	enemy.visible = false
 	
 	print("    [%d] %s at %s" % [index, enemy_data.enemy_name, enemy.position])
 	

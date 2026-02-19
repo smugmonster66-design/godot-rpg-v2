@@ -40,6 +40,7 @@ layer = 4
 visible = false
 
 [node name="FloorLabel" type="Label" parent="ProgressUI"]
+visible = false
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
@@ -53,6 +54,7 @@ label_settings = SubResource("LabelSettings_floor")
 horizontal_alignment = 2
 
 [node name="DungeonNameLabel" type="Label" parent="ProgressUI"]
+visible = false
 offset_left = 12.0
 offset_top = 12.0
 offset_right = 200.0
@@ -61,6 +63,7 @@ text = "Dungeon"
 label_settings = SubResource("LabelSettings_name")
 
 [node name="ProgressBar" type="TextureProgressBar" parent="ProgressUI"]
+visible = false
 anchors_preset = 6
 anchor_left = 1.0
 anchor_top = 0.5

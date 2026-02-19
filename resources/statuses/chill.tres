@@ -3,14 +3,15 @@
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_ormld"]
 [ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_grh24"]
 [ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_u5r48"]
-[ext_resource type="Resource" uid="uid://dtw8chkka17ps" path="res://resources/statuses/freeze.tres" id="4_ikv4q"]
+[ext_resource type="Resource" uid="uid://dtw8chkka17ps" path="res://resources/statuses/freeze.tres" id="4_u5r48"]
 
 [resource]
 script = ExtResource("2_grh24")
 status_id = "chill"
+cleanse_tags = Array[String](["debuff", "chill", "ice", "slow_effect"])
 stack_threshold = 15
 threshold_effect = 2
-threshold_status = ExtResource("4_ikv4q")
+threshold_status = ExtResource("4_u5r48")
 affix_name = "Chill"
 description = "Every 2 stacks reduces die values by 1. Does not decay naturally."
 show_in_summary = false

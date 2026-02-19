@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://cs4srntpcbybb"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://cs4srntpcbybb"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_6u4aq"]
 [ext_resource type="Resource" uid="uid://c63ch5dhpuvv3" path="res://resources/actions/enemy_base/spark.tres" id="2_kc2a1"]
@@ -6,6 +6,7 @@
 [ext_resource type="Resource" uid="uid://dq1xdlnoycvj4" path="res://resources/actions/enemy_base/chain_spark.tres" id="4_okvqa"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_mkxfp"]
 [ext_resource type="Resource" uid="uid://cneee54ixptk" path="res://resources/affixes/base_stats/enemy/enemy_health_int_skirmisher.tres" id="6_3fyji"]
+[ext_resource type="Texture2D" uid="uid://bacrlq8i11ylv" path="res://assets/characters/enemies/test_dummy_512.png" id="7_kc2a1"]
 [ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_txvct"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_t6l7a"]
 [ext_resource type="Resource" uid="uid://crc3ijiparone" path="res://resources/dice/base/d10_shock.tres" id="9_7ky0c"]
@@ -16,9 +17,10 @@
 script = ExtResource("7_txvct")
 enemy_name = "World Boss Battle Mage"
 description = "Baseline World Boss Battle Mage."
+portrait = ExtResource("7_kc2a1")
+sprite_texture = ExtResource("7_kc2a1")
 template = ExtResource("11_4kfrh")
 combat_role = 1
-enemy_tags = PackedStringArray()
 max_health = 48
 base_barrier = 1
 starting_dice = Array[ExtResource("8_t6l7a")]([ExtResource("9_7ky0c"), ExtResource("10_nsyiv"), ExtResource("9_7ky0c"), ExtResource("10_nsyiv"), ExtResource("9_7ky0c")])

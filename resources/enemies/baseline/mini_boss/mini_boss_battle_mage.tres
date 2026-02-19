@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://bj77sd41yf33"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://bj77sd41yf33"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_sq3f8"]
 [ext_resource type="Resource" uid="uid://c63ch5dhpuvv3" path="res://resources/actions/enemy_base/spark.tres" id="2_ar64i"]
@@ -6,6 +6,7 @@
 [ext_resource type="Resource" uid="uid://dq1xdlnoycvj4" path="res://resources/actions/enemy_base/chain_spark.tres" id="4_eko66"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_8xdfj"]
 [ext_resource type="Resource" uid="uid://cneee54ixptk" path="res://resources/affixes/base_stats/enemy/enemy_health_int_skirmisher.tres" id="6_nkhte"]
+[ext_resource type="Texture2D" uid="uid://bacrlq8i11ylv" path="res://assets/characters/enemies/test_dummy_512.png" id="7_ar64i"]
 [ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_grvbr"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_n84ys"]
 [ext_resource type="Resource" uid="uid://wxul364fieh8" path="res://resources/dice/base/d8_shock.tres" id="9_0de4t"]
@@ -16,9 +17,10 @@
 script = ExtResource("7_grvbr")
 enemy_name = "Mini-Boss Battle Mage"
 description = "Baseline Mini-Boss Battle Mage."
+portrait = ExtResource("7_ar64i")
+sprite_texture = ExtResource("7_ar64i")
 template = ExtResource("11_gnehx")
 combat_role = 1
-enemy_tags = PackedStringArray()
 max_health = 20
 starting_dice = Array[ExtResource("8_n84ys")]([ExtResource("9_0de4t"), ExtResource("10_6qn2l"), ExtResource("9_0de4t"), ExtResource("10_6qn2l")])
 combat_actions = Array[ExtResource("1_sq3f8")]([ExtResource("2_ar64i"), ExtResource("3_vderc"), ExtResource("4_eko66")])

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://dsxjfmtjo51sq"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://dsxjfmtjo51sq"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_0n6co"]
 [ext_resource type="Resource" uid="uid://0pygaobs5j01" path="res://resources/actions/enemy_base/precision_strike.tres" id="2_rsyiu"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_mmlv7"]
 [ext_resource type="Resource" uid="uid://kq714ftw81r7" path="res://resources/affixes/base_stats/enemy/enemy_health_agi_brute.tres" id="6_qr5ej"]
 [ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_751ew"]
+[ext_resource type="Texture2D" uid="uid://bacrlq8i11ylv" path="res://assets/characters/enemies/test_dummy_512.png" id="7_rsyiu"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_5quqj"]
 [ext_resource type="Resource" uid="uid://b2ia6xx7bjsoh" path="res://resources/dice/base/d12_piercing.tres" id="9_75to3"]
 [ext_resource type="Resource" uid="uid://chq1ry50v1nwr" path="res://resources/enemy_templates/brute_agi.tres" id="10_yntxa"]
@@ -15,8 +16,9 @@
 script = ExtResource("7_751ew")
 enemy_name = "Boss Duelist"
 description = "Baseline Boss Duelist."
+portrait = ExtResource("7_rsyiu")
+sprite_texture = ExtResource("7_rsyiu")
 template = ExtResource("10_yntxa")
-enemy_tags = PackedStringArray()
 max_health = 36
 starting_dice = Array[ExtResource("8_5quqj")]([ExtResource("9_75to3"), ExtResource("9_75to3"), ExtResource("9_75to3"), ExtResource("9_75to3")])
 combat_actions = Array[ExtResource("1_0n6co")]([ExtResource("2_rsyiu"), ExtResource("3_ak4mp"), ExtResource("4_jx7u0")])

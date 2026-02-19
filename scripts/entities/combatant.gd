@@ -295,12 +295,12 @@ func has_usable_dice() -> bool:
 	"""Check if combatant has dice available to use"""
 	if not dice_collection:
 		return false
-	return dice_collection.get_hand_count() > 0
+	return dice_collection.get_unconsumed_count() > 0
 
 func get_available_dice() -> Array[DieResource]:
-	"""Get currently available dice (hand)"""
+	"""Get currently available (unconsumed) dice"""
 	if dice_collection:
-		return dice_collection.get_hand_dice()
+		return dice_collection.get_unconsumed_hand()
 	return []
 
 # ============================================================================

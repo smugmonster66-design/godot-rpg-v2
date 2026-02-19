@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://dyhgfxflmv7hf"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://dyhgfxflmv7hf"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_xywxg"]
 [ext_resource type="Resource" uid="uid://da2uxbu8iojio" path="res://resources/actions/enemy_base/slam.tres" id="2_upy12"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_u3hhm"]
 [ext_resource type="Resource" uid="uid://dk58bj3nm6p3k" path="res://resources/affixes/base_stats/enemy/enemy_health_str_tank.tres" id="6_d4dix"]
 [ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_1sqru"]
+[ext_resource type="Texture2D" uid="uid://bacrlq8i11ylv" path="res://assets/characters/enemies/test_dummy_512.png" id="7_upy12"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_3dh16"]
 [ext_resource type="Resource" uid="uid://pcxge12soiy2" path="res://resources/dice/base/d8_blunt.tres" id="9_ownq6"]
 [ext_resource type="Resource" uid="uid://cxim1rxv60be5" path="res://resources/enemy_templates/tank_str.tres" id="10_7e6mf"]
@@ -15,9 +16,10 @@
 script = ExtResource("7_1sqru")
 enemy_name = "Elite Tank"
 description = "Baseline Elite Tank."
+portrait = ExtResource("7_upy12")
+sprite_texture = ExtResource("7_upy12")
 template = ExtResource("10_7e6mf")
 combat_role = 3
-enemy_tags = PackedStringArray()
 max_health = 22
 base_armor = 4
 starting_dice = Array[ExtResource("8_3dh16")]([ExtResource("9_ownq6"), ExtResource("9_ownq6")])

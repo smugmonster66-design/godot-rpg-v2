@@ -32,37 +32,74 @@ func _run():
 		var s = sa_script.new()
 		_apply_definition(s, def, _sa, _af)
 		var path = "res://resources/statuses/%s.tres" % def["status_id"]
+		
+		# Load threshold_status reference BEFORE saving
+		if def.has("threshold_status_path") and def["threshold_status_path"] != "":
+			var ts = load(def["threshold_status_path"])
+			if ts:
+				s.threshold_status = ts
+			else:
+				push_warning("  ⚠️ Could not load threshold_status: %s" % def["threshold_status_path"])
+		
 		var err = ResourceSaver.save(s, path)
 		if err == OK:
-			print("  ✓ Created: %s" % path)
+			print("  ✓ %s — dmg=%d type=%d tags=%s stacks_max=%d" % [
+				def["status_id"],
+				s.damage_per_stack,
+				s.tick_damage_type,
+				s.cleanse_tags,
+				s.max_stacks,
+			])
 			count += 1
 		else:
 			push_error("  ✗ Failed to save: %s (error %d)" % [path, err])
 	
 	print("=== Done: %d StatusAffix resources generated ===" % count)
 
+
 func _apply_definition(s, def: Dictionary, _sa, _af):
+	# ── Identity ──
 	s.status_id = def["status_id"]
 	s.affix_name = def["affix_name"]
 	s.description = def["description"]
-	s.category = def.get("category", 36)  # MISC
+	s.category = def.get("category", 36)
 	s.show_in_summary = false
+	
+	# ── Duration & Stacking ──
 	s.duration_type = def.get("duration_type", 0)
 	s.default_duration = def.get("default_duration", 3)
 	s.max_stacks = def.get("max_stacks", 99)
 	s.refresh_on_reapply = def.get("refresh_on_reapply", true)
+	
+	# ── Decay ──
 	s.decay_style = def.get("decay_style", 0)
 	s.decay_amount = def.get("decay_amount", 1)
 	s.falls_off_between_turns = def.get("falls_off_between_turns", false)
+	
+	# ── Timing ──
 	s.tick_timing = def.get("tick_timing", 0)
 	s.expire_timing = def.get("expire_timing", 1)
+	
+	# ── Classification ──
 	s.is_debuff = def.get("is_debuff", true)
 	s.can_be_cleansed = def.get("can_be_cleansed", true)
-	s.cleanse_tags = def.get("cleanse_tags", [])
+	
+	# ── Tick Effects (these were lost to the typed array abort before) ──
 	s.damage_per_stack = def.get("damage_per_stack", 0)
 	s.tick_damage_type = def.get("tick_damage_type", 0)
 	s.heal_per_stack = def.get("heal_per_stack", 0)
 	s.stat_modifier_per_stack = def.get("stat_modifier_per_stack", {})
+	
+	# ── Stack Threshold (v4) ──
+	s.stack_threshold = def.get("stack_threshold", 0)
+	s.threshold_effect = def.get("threshold_effect", 0)
+	s.threshold_value = def.get("threshold_value", 1.0)
+	s.threshold_stacks = def.get("threshold_stacks", 1)
+	# threshold_status is a Resource reference — handled in _run() via load()
+	
+	# ── Typed array — MUST use .assign() to avoid Godot 4.x silent abort ──
+	s.cleanse_tags.assign(def.get("cleanse_tags", []))
+
 
 func _get_all_definitions(_sa, _af) -> Array:
 	# Local enum shortcuts — resolved at runtime, not parse time
@@ -76,11 +113,20 @@ func _get_all_definitions(_sa, _af) -> Array:
 	var DMG_NONE = 0
 	var DMG_PHYSICAL = 1
 	var DMG_MAGICAL = 2
-	var CAT_PER_TURN = 33   # Count from Affix.Category enum
+	var CAT_PER_TURN = 33
 	var CAT_DEFENSE = 11
 	var CAT_MISC = 36
+	
+	# Threshold effects
+	var THRESH_NONE = 0
+	var THRESH_BURST = 1
+	var THRESH_APPLY_STATUS = 2
+	var THRESH_CUSTOM = 3
 
 	return [
+		# ================================================================
+		# DoTs
+		# ================================================================
 		{
 			"status_id": "poison",
 			"affix_name": "Poison",
@@ -110,6 +156,10 @@ func _get_all_definitions(_sa, _af) -> Array:
 			"tick_damage_type": DMG_MAGICAL,
 			"is_debuff": true,
 			"cleanse_tags": ["debuff", "dot", "burn", "fire", "magical_dot"],
+			# v4: Explodes at 5 stacks for burst damage
+			"stack_threshold": 5,
+			"threshold_effect": THRESH_BURST,
+			"threshold_value": 1.5,
 		},
 		{
 			"status_id": "bleed",
@@ -140,6 +190,10 @@ func _get_all_definitions(_sa, _af) -> Array:
 			"is_debuff": true,
 			"cleanse_tags": ["debuff", "dot", "shadow", "magical_dot"],
 		},
+
+		# ================================================================
+		# Debuffs (no tick damage)
+		# ================================================================
 		{
 			"status_id": "chill",
 			"affix_name": "Chill",
@@ -151,6 +205,11 @@ func _get_all_definitions(_sa, _af) -> Array:
 			"tick_timing": TICK_START,
 			"is_debuff": true,
 			"cleanse_tags": ["debuff", "chill", "ice", "slow_effect"],
+			# v4: Converts to Frozen at 15 stacks
+			"stack_threshold": 15,
+			"threshold_effect": THRESH_APPLY_STATUS,
+			"threshold_stacks": 1,
+			"threshold_status_path": "res://resources/statuses/freeze.tres",
 		},
 		{
 			"status_id": "slowed",
@@ -181,7 +240,7 @@ func _get_all_definitions(_sa, _af) -> Array:
 		{
 			"status_id": "corrode",
 			"affix_name": "Corrode",
-			"description": "Reduces armor for a set duration.",
+			"description": "Reduces armor by 2 per stack for a set duration.",
 			"category": CAT_MISC,
 			"duration_type": TURN_BASED,
 			"default_duration": 3,
@@ -193,7 +252,7 @@ func _get_all_definitions(_sa, _af) -> Array:
 		{
 			"status_id": "enfeeble",
 			"affix_name": "Enfeeble",
-			"description": "Reduces outgoing damage for a set duration.",
+			"description": "Reduces outgoing damage by 10% per stack for a set duration.",
 			"category": CAT_MISC,
 			"duration_type": TURN_BASED,
 			"default_duration": 3,
@@ -213,6 +272,10 @@ func _get_all_definitions(_sa, _af) -> Array:
 			"is_debuff": true,
 			"cleanse_tags": ["debuff", "expose"],
 		},
+
+		# ================================================================
+		# Buffs
+		# ================================================================
 		{
 			"status_id": "overhealth",
 			"affix_name": "Overhealth",

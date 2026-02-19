@@ -1,5 +1,6 @@
-[gd_resource type="Theme" load_steps=43 format=3 uid="uid://b87llggw1n1df"]
+[gd_resource type="Theme" load_steps=44 format=3 uid="uid://b87llggw1n1df"]
 
+[ext_resource type="Texture2D" uid="uid://hwffuipvgxdx" path="res://assets/ui/panels/9patch fill basic.png" id="1_0u5ek"]
 [ext_resource type="FontFile" uid="uid://mccqdptsfq8k" path="res://assets/fonts/Oregano.otf" id="1_p7nge"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_phtau"]
@@ -240,21 +241,12 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jiupg"]
-content_margin_left = 4.0
-content_margin_top = 4.0
-content_margin_right = 4.0
-content_margin_bottom = 4.0
-bg_color = Color(0.12, 0.06, 0.06, 0.9)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.5, 0.2, 0.2, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_eeyjl"]
+texture = ExtResource("1_0u5ek")
+texture_margin_left = 70.0
+texture_margin_top = 70.0
+texture_margin_right = 70.0
+texture_margin_bottom = 70.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7ybn2"]
 content_margin_left = 4.0
@@ -628,7 +620,7 @@ CombatButton/styles/pressed = SubResource("StyleBoxFlat_u1mr8")
 Control/colors/font_color = Color(1, 1, 1, 1)
 DicePoolPanel/styles/panel = SubResource("StyleBoxFlat_ruoye")
 EnemyPanel/colors/font_color = Color(1, 1, 1, 1)
-EnemyPanel/styles/panel = SubResource("StyleBoxFlat_jiupg")
+EnemyPanel/styles/panel = SubResource("StyleBoxTexture_eeyjl")
 FlavorLabel/base_type = &"Label"
 FlavorLabel/font_sizes/font_size = 16
 FlavorLabel/fonts/font = ExtResource("1_p7nge")

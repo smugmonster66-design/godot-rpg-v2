@@ -16,7 +16,6 @@ script = ExtResource("7_pm03a")
 enemy_name = "Boss Brute"
 description = "Baseline Boss Brute."
 template = ExtResource("10_1ut4q")
-enemy_tags = PackedStringArray()
 max_health = 48
 base_armor = 3
 starting_dice = Array[ExtResource("8_3xyiy")]([ExtResource("9_xksg6"), ExtResource("9_xksg6"), ExtResource("9_xksg6"), ExtResource("9_xksg6")])

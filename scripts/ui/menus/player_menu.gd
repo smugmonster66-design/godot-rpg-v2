@@ -210,6 +210,8 @@ func _on_tab_refresh_requested(tab: Control):
 
 func _on_tab_data_changed(tab: Control):
 	"""Tab reports data changed - notify other tabs"""
+	if not visible:
+		return  # Menu is closed (e.g. during combat) — skip entirely
 	for other_tab in active_tabs:
 		if other_tab != tab and other_tab.has_method("on_external_data_change"):
 			other_tab.on_external_data_change()

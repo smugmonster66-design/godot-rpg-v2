@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://matp0ed8qolx"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://matp0ed8qolx"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_a4qif"]
 [ext_resource type="Resource" uid="uid://begv50agccdr2" path="res://resources/actions/enemy_base/smash.tres" id="2_5o8k1"]
@@ -6,6 +6,7 @@
 [ext_resource type="Resource" uid="uid://j6lnu4bac00v" path="res://resources/actions/enemy_base/crushing_blow.tres" id="4_q6ii0"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_bnthy"]
 [ext_resource type="Resource" uid="uid://chmejcvma7x2j" path="res://resources/affixes/base_stats/enemy/enemy_health_str_brute.tres" id="6_u8s13"]
+[ext_resource type="Texture2D" uid="uid://bacrlq8i11ylv" path="res://assets/characters/enemies/test_dummy_512.png" id="7_5o8k1"]
 [ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_v34yf"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_4dqkm"]
 [ext_resource type="Resource" uid="uid://bgdlfehv60402" path="res://resources/dice/base/d10_blunt.tres" id="9_ty6ph"]
@@ -15,8 +16,9 @@
 script = ExtResource("7_v34yf")
 enemy_name = "Mini-Boss Brute"
 description = "Baseline Mini-Boss Brute."
+portrait = ExtResource("7_5o8k1")
+sprite_texture = ExtResource("7_5o8k1")
 template = ExtResource("10_pufwd")
-enemy_tags = PackedStringArray()
 max_health = 30
 base_armor = 2
 starting_dice = Array[ExtResource("8_4dqkm")]([ExtResource("9_ty6ph"), ExtResource("9_ty6ph"), ExtResource("9_ty6ph")])

@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="StatusAffix" load_steps=4 format=3 uid="uid://behojsm6qvxjl"]
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=5 format=3 uid="uid://behojsm6qvxjl"]
 
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_1tvga"]
 [ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_hglx4"]
+[ext_resource type="Texture2D" uid="uid://dpd802lns5bxl" path="res://assets/status_effects/burn_status.png" id="2_pmphs"]
 [ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_hglx4"]
 
 [resource]
@@ -9,10 +10,14 @@ script = ExtResource("2_hglx4")
 status_id = "burn"
 duration_type = 1
 tick_timing = 1
+cleanse_tags = Array[String](["debuff", "dot", "burn", "fire", "magical_dot"])
+damage_per_stack = 1
+tick_damage_type = 2
 stack_threshold = 5
 threshold_effect = 1
 threshold_value = 1.5
 affix_name = "Burn"
 description = "Deals magical damage at the end of each turn for a set duration."
+icon = ExtResource("2_pmphs")
 show_in_summary = false
 category = 33

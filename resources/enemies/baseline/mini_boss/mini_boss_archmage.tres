@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://ce42pr72jw6bi"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://ce42pr72jw6bi"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_lgec3"]
 [ext_resource type="Resource" uid="uid://t07im4pj58ml" path="res://resources/actions/enemy_base/magic_bolt.tres" id="2_6b4k8"]
@@ -6,6 +6,7 @@
 [ext_resource type="Resource" uid="uid://c5j0k0tk343w6" path="res://resources/actions/enemy_base/ignite.tres" id="4_fi7tm"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_0iap5"]
 [ext_resource type="Resource" uid="uid://dryx3uup40h6u" path="res://resources/affixes/base_stats/enemy/enemy_health_int_caster.tres" id="6_tr7j7"]
+[ext_resource type="Texture2D" uid="uid://bacrlq8i11ylv" path="res://assets/characters/enemies/test_dummy_512.png" id="7_6b4k8"]
 [ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_vng34"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_g54bq"]
 [ext_resource type="Resource" uid="uid://c8hata17eoqql" path="res://resources/dice/base/d8_fire.tres" id="9_64xt7"]
@@ -15,9 +16,10 @@
 script = ExtResource("7_vng34")
 enemy_name = "Mini-Boss Archmage"
 description = "Baseline Mini-Boss Archmage."
+portrait = ExtResource("7_6b4k8")
+sprite_texture = ExtResource("7_6b4k8")
 template = ExtResource("10_qvivd")
 combat_role = 2
-enemy_tags = PackedStringArray()
 max_health = 17
 base_barrier = 2
 starting_dice = Array[ExtResource("8_g54bq")]([ExtResource("9_64xt7"), ExtResource("9_64xt7"), ExtResource("9_64xt7")])

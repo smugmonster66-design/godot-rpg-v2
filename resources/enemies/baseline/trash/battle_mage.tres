@@ -1,10 +1,11 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://cphwelbse0n84"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://cphwelbse0n84"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_rlulx"]
 [ext_resource type="Resource" uid="uid://c63ch5dhpuvv3" path="res://resources/actions/enemy_base/spark.tres" id="2_2xl8d"]
 [ext_resource type="Resource" uid="uid://dkskjvqg2xh1k" path="res://resources/actions/enemy_base/frost_shard.tres" id="3_0artv"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="4_2ultn"]
 [ext_resource type="Resource" uid="uid://cneee54ixptk" path="res://resources/affixes/base_stats/enemy/enemy_health_int_skirmisher.tres" id="5_moya1"]
+[ext_resource type="Texture2D" uid="uid://bacrlq8i11ylv" path="res://assets/characters/enemies/test_dummy_512.png" id="6_2xl8d"]
 [ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="6_py5q5"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="7_x1txl"]
 [ext_resource type="Resource" uid="uid://dalywoj3rokxn" path="res://resources/dice/base/d6_shock.tres" id="8_r0oy3"]
@@ -15,9 +16,10 @@
 script = ExtResource("6_py5q5")
 enemy_name = "Battle Mage"
 description = "Baseline Battle Mage."
+portrait = ExtResource("6_2xl8d")
+sprite_texture = ExtResource("6_2xl8d")
 template = ExtResource("10_t28rb")
 combat_role = 1
-enemy_tags = PackedStringArray()
 max_health = 8
 starting_dice = Array[ExtResource("7_x1txl")]([ExtResource("8_r0oy3"), ExtResource("9_faqne"), ExtResource("8_r0oy3")])
 combat_actions = Array[ExtResource("1_rlulx")]([ExtResource("2_2xl8d"), ExtResource("3_0artv")])

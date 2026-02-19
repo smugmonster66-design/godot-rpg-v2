@@ -22,6 +22,7 @@ script = ExtResource("2_c5idb")
 combatant_scene = ExtResource("3_vspht")
 
 [node name="PlayerCombatant" parent="." instance=ExtResource("2_v0jgu")]
+visible = false
 max_health = 25
 
 [node name="CombatUILayer" parent="." instance=ExtResource("3_c5idb")]

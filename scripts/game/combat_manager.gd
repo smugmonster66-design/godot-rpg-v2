@@ -683,7 +683,7 @@ func _on_player_end_turn():
 	
 	# --- STATUS: End-of-turn processing ---
 	if player and player.status_tracker:
-		var tick_results = player.status_tracker.process_turn_start()
+		var tick_results = player.status_tracker.process_turn_end()
 		await _apply_status_tick_results(player, player_combatant, tick_results)
 		
 		if not player_combatant.is_alive():
@@ -985,6 +985,7 @@ func _process_enemy_turn(enemy: Combatant):
 func _animate_enemy_action(enemy: Combatant, decision: EnemyAI.Decision):
 	"""Animate enemy placing dice and executing action"""
 	combat_state = CombatState.ANIMATING
+	var used_visuals: Array[Control] = []
 	
 	var action_name = decision.action.get("name", "Attack")
 	
@@ -1005,7 +1006,9 @@ func _animate_enemy_action(enemy: Combatant, decision: EnemyAI.Decision):
 		if combat_ui and combat_ui.enemy_panel:
 			print("    hand_dice_visuals count: %d" % combat_ui.enemy_panel.hand_dice_visuals.size())
 			for vis in combat_ui.enemy_panel.hand_dice_visuals:
-				if is_instance_valid(vis) and vis.visible and vis.has_method("get_die"):
+				if vis in used_visuals:
+					continue
+				if is_instance_valid(vis) and vis.visible and vis.modulate.a > 0.0 and vis.has_method("get_die"):
 					var vis_die = vis.get_die()
 					# Match by reference OR by display_name as fallback
 					if vis_die == die or (vis_die and vis_die.display_name == die.display_name):
@@ -1016,12 +1019,17 @@ func _animate_enemy_action(enemy: Combatant, decision: EnemyAI.Decision):
 		# Fallback: if no match, find first visible die visual
 		if not die_visual and combat_ui and combat_ui.enemy_panel:
 			for vis in combat_ui.enemy_panel.hand_dice_visuals:
-				if is_instance_valid(vis) and vis.visible:
+				if vis in used_visuals:
+					continue
+				if is_instance_valid(vis) and vis.visible and vis.modulate.a > 0.0:
 					die_visual = vis
 					print("    ⚠️ Using fallback (first visible)")
 					break
 		
 		print("    Found visual: %s" % (die_visual != null))
+		
+		if die_visual:
+			used_visuals.append(die_visual)
 		
 		# Animate die to action field
 		if combat_ui and combat_ui.has_method("animate_die_to_action_field"):
@@ -1030,6 +1038,8 @@ func _animate_enemy_action(enemy: Combatant, decision: EnemyAI.Decision):
 			await get_tree().create_timer(enemy.dice_drag_duration).timeout
 		
 		enemy.consume_action_die(die)
+		
+		
 	
 	# Brief pause before action executes
 	await get_tree().create_timer(0.3).timeout
@@ -1089,7 +1099,13 @@ func _animate_enemy_action(enemy: Combatant, decision: EnemyAI.Decision):
 	# Small delay before finishing turn
 	await get_tree().create_timer(0.2).timeout
 	
-	_finish_enemy_turn(enemy)
+	# Brief pause between actions for readability
+	await get_tree().create_timer(enemy.action_delay).timeout
+	
+	# Loop back to use remaining dice (no hand refresh needed —
+	# animation already hides used die visuals, and _finish_enemy_turn
+	# handles full cleanup)
+	_process_enemy_turn(enemy)
 
 
 func _finish_enemy_turn(enemy: Combatant):
@@ -1102,7 +1118,13 @@ func _finish_enemy_turn(enemy: Combatant):
 	# --- STATUS: Enemy end-of-turn processing ---
 	if enemy.has_node("StatusTracker"):
 		var tracker: StatusTracker = enemy.get_node("StatusTracker")
+		
+		for sid in tracker.active_statuses:
+			var inst = tracker.active_statuses[sid]
+			var sa = inst["status_affix"]
+			
 		var tick_results = tracker.process_turn_end()
+		
 		await _apply_status_tick_results(null, enemy, tick_results)
 		
 		if not enemy.is_alive():
@@ -1133,6 +1155,25 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 				var damage = _calculate_damage(action_data, source, target)
 				print("  💥 %s deals %d damage to %s" % [source.combatant_name, damage, target.combatant_name])
 				target.take_damage(damage)
+
+				# Emit reactive animation event
+				if event_bus:
+					var visual = _get_combatant_visual(target)
+					if visual:
+						var element_str = ""
+						var action_resource = action_data.get("action_resource") as Action
+						if action_resource and action_resource.effects.size() > 0:
+							element_str = ActionEffect.DamageType.keys()[action_resource.effects[0].damage_type]
+						event_bus.emit_damage_dealt(visual, damage, element_str, false, _get_combatant_visual(source))
+				
+				
+				
+				
+				
+				
+				
+				
+				
 				
 				# v5: Track unique enemies hit for Crucible's Gift
 				if source == player_combatant and target not in _enemies_hit_this_turn:

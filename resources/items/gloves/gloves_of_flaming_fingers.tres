@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=7 format=3 uid="uid://dm6jge56hb5y3"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_fkx7g"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_e0e3w"]
+[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="3_jsw5b"]
+[ext_resource type="Resource" uid="uid://dqlm8wabyvcr5" path="res://resources/actions/flaming_fingies_action_debug.tres" id="4_0eb1a"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="6_q16a7"]
+[ext_resource type="Resource" uid="uid://d0u4wgvhs8sam" path="res://resources/slot_definitions/gloves_slot.tres" id="7_heuao"]
+
+[resource]
+script = ExtResource("6_q16a7")
+item_name = "Gloves of Flaming Fingers"
+description = "These gloves have their fingertips coated in ground peppers for some extra zing."
+rarity = 3
+equip_slot = 2
+slot_definition = ExtResource("7_heuao")
+grants_action = true
+action = ExtResource("4_0eb1a")
+metadata/_custom_type_script = "uid://gax4pbuq25uv"

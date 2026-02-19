@@ -1,10 +1,11 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=10 format=3 uid="uid://b7di8yda71omu"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://b7di8yda71omu"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_eb05v"]
 [ext_resource type="Resource" uid="uid://begv50agccdr2" path="res://resources/actions/enemy_base/smash.tres" id="2_pnog6"]
 [ext_resource type="Resource" uid="uid://c2o8najs6s3xh" path="res://resources/actions/enemy_base/brace.tres" id="3_mu28f"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="4_oikv3"]
 [ext_resource type="Resource" uid="uid://chmejcvma7x2j" path="res://resources/affixes/base_stats/enemy/enemy_health_str_brute.tres" id="5_d81ad"]
+[ext_resource type="Texture2D" uid="uid://bacrlq8i11ylv" path="res://assets/characters/enemies/test_dummy_512.png" id="6_pnog6"]
 [ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="6_tn77a"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="7_p6rbk"]
 [ext_resource type="Resource" uid="uid://pcxge12soiy2" path="res://resources/dice/base/d8_blunt.tres" id="8_u3nnv"]
@@ -14,8 +15,9 @@
 script = ExtResource("6_tn77a")
 enemy_name = "Brute"
 description = "Baseline Brute."
+portrait = ExtResource("6_pnog6")
+sprite_texture = ExtResource("6_pnog6")
 template = ExtResource("9_m4kuj")
-enemy_tags = PackedStringArray()
 max_health = 12
 base_armor = 2
 starting_dice = Array[ExtResource("7_p6rbk")]([ExtResource("8_u3nnv"), ExtResource("8_u3nnv")])

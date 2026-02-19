@@ -36,6 +36,7 @@ scale_curve = SubResource("CurveTexture_charge_scale")
 color_ramp = SubResource("GradientTexture1D_charge")
 
 [node name="LightningCastEffect" type="Node2D"]
+scale = Vector2(2, 2)
 script = ExtResource("1_script")
 duration = 0.3
 

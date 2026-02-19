@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://smaupnjapgcl"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://smaupnjapgcl"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_82rcn"]
 [ext_resource type="Resource" uid="uid://0pygaobs5j01" path="res://resources/actions/enemy_base/precision_strike.tres" id="2_t3cah"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_2tebq"]
 [ext_resource type="Resource" uid="uid://kq714ftw81r7" path="res://resources/affixes/base_stats/enemy/enemy_health_agi_brute.tres" id="6_idvlo"]
 [ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_ji3ur"]
+[ext_resource type="Texture2D" uid="uid://bacrlq8i11ylv" path="res://assets/characters/enemies/test_dummy_512.png" id="7_t3cah"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_vp2hw"]
 [ext_resource type="Resource" uid="uid://baguots6jv62u" path="res://resources/dice/base/d10_piercing.tres" id="9_odkuk"]
 [ext_resource type="Resource" uid="uid://chq1ry50v1nwr" path="res://resources/enemy_templates/brute_agi.tres" id="10_5aiek"]
@@ -15,8 +16,9 @@
 script = ExtResource("7_ji3ur")
 enemy_name = "Mini-Boss Duelist"
 description = "Baseline Mini-Boss Duelist."
+portrait = ExtResource("7_t3cah")
+sprite_texture = ExtResource("7_t3cah")
 template = ExtResource("10_5aiek")
-enemy_tags = PackedStringArray()
 max_health = 22
 starting_dice = Array[ExtResource("8_vp2hw")]([ExtResource("9_odkuk"), ExtResource("9_odkuk"), ExtResource("9_odkuk")])
 combat_actions = Array[ExtResource("1_82rcn")]([ExtResource("2_t3cah"), ExtResource("3_225fd"), ExtResource("4_g2r18")])

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://b8j8l7h8xyb1d"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://b8j8l7h8xyb1d"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_2ttiq"]
 [ext_resource type="Resource" uid="uid://da2uxbu8iojio" path="res://resources/actions/enemy_base/slam.tres" id="2_rlhli"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_w5emb"]
 [ext_resource type="Resource" uid="uid://dk58bj3nm6p3k" path="res://resources/affixes/base_stats/enemy/enemy_health_str_tank.tres" id="6_ut3ku"]
 [ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_cbvfu"]
+[ext_resource type="Texture2D" uid="uid://bacrlq8i11ylv" path="res://assets/characters/enemies/test_dummy_512.png" id="7_rlhli"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_orjar"]
 [ext_resource type="Resource" uid="uid://bgdlfehv60402" path="res://resources/dice/base/d10_blunt.tres" id="9_3fx78"]
 [ext_resource type="Resource" uid="uid://cxim1rxv60be5" path="res://resources/enemy_templates/tank_str.tres" id="10_ymhvl"]
@@ -15,9 +16,10 @@
 script = ExtResource("7_cbvfu")
 enemy_name = "Boss Tank"
 description = "Baseline Boss Tank."
+portrait = ExtResource("7_rlhli")
+sprite_texture = ExtResource("7_rlhli")
 template = ExtResource("10_ymhvl")
 combat_role = 3
-enemy_tags = PackedStringArray()
 max_health = 60
 base_armor = 6
 base_barrier = 1

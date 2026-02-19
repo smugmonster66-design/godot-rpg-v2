@@ -553,9 +553,9 @@ func _update_item_details():
 				#action_label.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.caption)
 				action_label.add_theme_color_override("font_color", Color(0.4, 0.8, 1.0))
 				affix_container.add_child(action_label)
-				if equippable.action.description and equippable.action.description != "":
+				if equippable.action.action_description and equippable.action.action_description != "":
 					var action_desc = Label.new()
-					action_desc.text = equippable.action.description
+					action_desc.text = equippable.action.action_description
 					#action_desc.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.small)
 					action_desc.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
 					action_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -1009,7 +1009,7 @@ func _ensure_details_scroll():
 	print("  ✓ Details panel wrapped in ScrollContainer")
 
 
-func _lock_die_preview(die_visual: DieObjectBase, die_scale: float):
+func _lock_die_preview(die_visual, die_scale: float):
 	"""Deferred: lock down die preview after _ready() has finished."""
 	die_visual.draggable = false
 	die_visual.pivot_offset = Vector2.ZERO  # Scale from top-left, not center

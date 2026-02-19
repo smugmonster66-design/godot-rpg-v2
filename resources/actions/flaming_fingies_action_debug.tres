@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Action" load_steps=5 format=3 uid="uid://dqlm8wabyvcr5"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_r33pt"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="2_c4jtw"]
+[ext_resource type="Resource" uid="uid://crcyumd6g2byg" path="res://resources/action_effects/status_conditions/apply_burn_stacks.tres" id="2_f408c"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="3_f408c"]
+
+[resource]
+script = ExtResource("3_f408c")
+action_id = "debug_burn_action"
+action_name = "Flaming Fingies"
+action_description = "Applies a Burn stack with spicy touching."
+effects = Array[ExtResource("1_r33pt")]([ExtResource("2_f408c")])
+metadata/_custom_type_script = "uid://b1kctq61bwysh"

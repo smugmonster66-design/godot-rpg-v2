@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://bbs2ktie4puey"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://bbs2ktie4puey"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_80eko"]
 [ext_resource type="Resource" uid="uid://t07im4pj58ml" path="res://resources/actions/enemy_base/magic_bolt.tres" id="2_i4tst"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_ks22y"]
 [ext_resource type="Resource" uid="uid://dryx3uup40h6u" path="res://resources/affixes/base_stats/enemy/enemy_health_int_caster.tres" id="6_4i63n"]
 [ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_3ygui"]
+[ext_resource type="Texture2D" uid="uid://bacrlq8i11ylv" path="res://assets/characters/enemies/test_dummy_512.png" id="7_i4tst"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_sn3qn"]
 [ext_resource type="Resource" uid="uid://c8hata17eoqql" path="res://resources/dice/base/d8_fire.tres" id="9_wv2gl"]
 [ext_resource type="Resource" uid="uid://dayw6ar4mjdg7" path="res://resources/enemy_templates/caster_int.tres" id="10_arxa6"]
@@ -15,9 +16,10 @@
 script = ExtResource("7_3ygui")
 enemy_name = "Elite Archmage"
 description = "Baseline Elite Archmage."
+portrait = ExtResource("7_i4tst")
+sprite_texture = ExtResource("7_i4tst")
 template = ExtResource("10_arxa6")
 combat_role = 2
-enemy_tags = PackedStringArray()
 base_barrier = 1
 starting_dice = Array[ExtResource("8_sn3qn")]([ExtResource("9_wv2gl"), ExtResource("9_wv2gl")])
 combat_actions = Array[ExtResource("1_80eko")]([ExtResource("2_i4tst"), ExtResource("3_01umk"), ExtResource("4_0b1cj")])

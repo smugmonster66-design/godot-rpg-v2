@@ -1,12 +1,14 @@
-[gd_resource type="Resource" script_class="StatusAffix" load_steps=3 format=3 uid="uid://cmbyoht2oxk2n"]
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=4 format=3 uid="uid://cmbyoht2oxk2n"]
 
-[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_nqj8s"]
-[ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_j54tw"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_j54tw"]
+[ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_fgqln"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_gvrg4"]
 
 [resource]
-script = ExtResource("2_j54tw")
+script = ExtResource("2_fgqln")
 status_id = "expose"
 max_stacks = 50
+cleanse_tags = Array[String](["debuff", "expose"])
 affix_name = "Expose"
 description = "Increases crit chance against this target by 2% per stack."
 show_in_summary = false

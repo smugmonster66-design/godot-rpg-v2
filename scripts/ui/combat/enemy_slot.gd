@@ -17,6 +17,9 @@ signal slot_unhovered(slot: EnemySlot)
 @export var default_portrait: Texture2D = null
 @export var die_icon_size: Vector2 = Vector2(24, 24)
 
+@export var portrait_size: Vector2 = Vector2(180, 180)
+@export var health_overlap: float = 16.0
+
 @export_group("Colors")
 ## When true, uses the exported colors below. When false, falls back to ThemeManager PALETTE.
 @export var use_custom_slot_colors: bool = true
@@ -31,12 +34,13 @@ signal slot_unhovered(slot: EnemySlot)
 # NODE REFERENCES - Found from scene
 # ============================================================================
 @onready var dice_pool_bar: HBoxContainer = $MarginContainer/VBox/DicePoolBar
-@onready var portrait_rect: TextureRect = $MarginContainer/VBox/Portrait
-@onready var selection_indicator: Panel = $MarginContainer/VBox/Portrait/SelectionIndicator
-@onready var name_label: Label = $MarginContainer/VBox/NameLabel
-@onready var health_bar: TextureProgressBar = $MarginContainer/VBox/HealthBar
+@onready var name_label: Label = $MarginContainer/VBox/PortraitSection/NameLabel
 @onready var health_label: Label = $MarginContainer/VBox/HealthLabel
 #@onready var turn_indicator: ColorRect = $MarginContainer/VBox/TurnIndicatorRect
+
+@onready var portrait_rect: TextureRect = $MarginContainer/VBox/PortraitSection/Portrait
+@onready var selection_indicator: Panel = $MarginContainer/VBox/PortraitSection/Portrait/SelectionIndicator
+@onready var health_bar: TextureProgressBar = $MarginContainer/VBox/PortraitSection/HealthBar
 
 
 # ============================================================================
@@ -50,6 +54,7 @@ var style_box: StyleBoxFlat = null
 var dice_icons: Array[Control] = []
 var turn_indicator_material: ShaderMaterial = null
 var turn_indicator: Control = null
+var status_display: StatusEffectDisplay = null
 
 func _slot_color(custom: Color, palette_fallback: Color) -> Color:
 	return custom if use_custom_slot_colors else palette_fallback
@@ -60,15 +65,40 @@ func _slot_color(custom: Color, palette_fallback: Color) -> Color:
 func _ready():
 	_setup_style()
 	turn_indicator = find_child("TurnIndicatorRect", true, false)
+	var portrait_section = $MarginContainer/VBox/PortraitSection
+	portrait_section.custom_minimum_size = Vector2(portrait_size.x, portrait_size.y + health_overlap)
+	portrait_rect.custom_minimum_size = portrait_size
+	
+	if health_bar:
+		health_bar.offset_left = -portrait_size.x / 2.0
+		health_bar.offset_right = portrait_size.x / 2.0
+	
 	_setup_turn_indicator()
 	_connect_signals()
 	set_empty()
+	_create_status_display()
+
+
+func _create_status_display():
+	"""Create the status effect icon strip below the health bar."""
+	var vbox = $MarginContainer/VBox
+	if not vbox:
+		return
+	status_display = StatusEffectDisplay.new()
+	status_display.name = "StatusDisplay"
+	status_display.custom_minimum_size = Vector2(0, 30)
+	vbox.add_child(status_display)
+	
+	# Let input flow through to status icons
+	$MarginContainer.mouse_filter = Control.MOUSE_FILTER_PASS
+	vbox.mouse_filter = Control.MOUSE_FILTER_PASS
+
 
 func _setup_style():
 	style_box = ThemeManager._flat_box(
 		_slot_color(empty_slot_color, ThemeManager.PALETTE.bg_panel),
 		ThemeManager.PALETTE.border_subtle, 8, 2)
-	add_theme_stylebox_override("panel", style_box)
+	#add_theme_stylebox_override("panel", style_box)
 
 func _connect_signals():
 	"""Connect input signals"""
@@ -166,6 +196,13 @@ func set_empty():
 	
 	if selection_indicator:
 		selection_indicator.hide()
+		
+		
+		
+	
+	
+	if status_display:
+		status_display.disconnect_tracker()
 
 func set_selected(selected: bool):
 	"""Set selection state"""
@@ -364,6 +401,13 @@ func _update_display():
 	if style_box:
 		style_box.bg_color = _slot_color(filled_slot_color, ThemeManager.PALETTE.bg_hover)
 		style_box.border_color = ThemeManager.PALETTE.danger
+		
+	
+	
+	# Status effects
+	if status_display and enemy and enemy.has_node("StatusTracker"):
+		var tracker: StatusTracker = enemy.get_node("StatusTracker")
+		status_display.connect_tracker(tracker)
 
 # ============================================================================
 # SIGNAL HANDLERS
@@ -411,6 +455,11 @@ func _on_enemy_died():
 	
 	if selection_indicator:
 		selection_indicator.hide()
+		
+	
+	
+	if status_display:
+		status_display.modulate = Color(0.5, 0.5, 0.5, 0.5)
 	
 	if dice_pool_bar:
 		dice_pool_bar.modulate = Color(0.5, 0.5, 0.5, 0.5)
