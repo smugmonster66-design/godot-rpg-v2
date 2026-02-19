@@ -76,7 +76,7 @@ func calculate_final_damage(defender_stats: Dictionary, defense_mult: float = 1.
 	  - armor: float (physical defense for percentage reduction)
 	  - barrier: float (magical defense for percentage reduction)
 	  - element_modifiers: Dictionary (optional, enemy only)
-	    Keys: DamageType name strings e.g. "FIRE", "ICE"
+		Keys: DamageType name strings e.g. "FIRE", "ICE"
 	    Values: float multiplier — 0.0=immune, 0.5=resistant, 1.5=weak
 	"""
 	var element_mods: Dictionary = defender_stats.get("element_modifiers", {})

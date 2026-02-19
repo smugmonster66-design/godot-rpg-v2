@@ -1,6 +1,5 @@
-[gd_scene load_steps=9 format=3 uid="uid://0uycurmcavjg"]
+[gd_scene load_steps=8 format=3 uid="uid://0uycurmcavjg"]
 
-[ext_resource type="Script" uid="uid://e624lj2ycb0m" path="res://scripts/ui/components/stat_display.gd" id="1_gwlns"]
 [ext_resource type="PackedScene" uid="uid://dofeq3txtonis" path="res://scenes/ui/combat/enemy_panel.tscn" id="2_8bf5m"]
 [ext_resource type="PackedScene" uid="uid://bb07mxj58qxpy" path="res://scenes/ui/combat/dice_pool_display.tscn" id="2_bo0no"]
 [ext_resource type="PackedScene" uid="uid://ctpamire6rmbu" path="res://scenes/ui/components/die_visual.tscn" id="4_l84v8"]
@@ -27,59 +26,21 @@ layout_mode = 2
 theme_override_constants/separation = 0
 
 [node name="TopBar" type="HBoxContainer" parent="MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
-size_flags_vertical = 3
-
-[node name="Control" type="Control" parent="MarginContainer/VBox/TopBar"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="PlayerHealth" type="HBoxContainer" parent="MarginContainer/VBox/TopBar"]
-visible = false
-layout_mode = 2
-script = ExtResource("1_gwlns")
-
-[node name="NameLabel" type="Label" parent="MarginContainer/VBox/TopBar/PlayerHealth"]
-layout_mode = 2
-text = "Player:"
-
-[node name="Control" type="Control" parent="MarginContainer/VBox/TopBar/PlayerHealth"]
-custom_minimum_size = Vector2(10, 0)
-layout_mode = 2
-
-[node name="ProgressBar" type="ProgressBar" parent="MarginContainer/VBox/TopBar/PlayerHealth"]
-layout_mode = 2
-
-[node name="ValueLabel" type="Label" parent="MarginContainer/VBox/TopBar/PlayerHealth"]
-layout_mode = 2
+alignment = 1
 
 [node name="EnemyPanel" parent="MarginContainer/VBox/TopBar" instance=ExtResource("2_8bf5m")]
-layout_mode = 2
-
-[node name="EnemyHealth" type="HBoxContainer" parent="MarginContainer/VBox/TopBar"]
-visible = false
-layout_mode = 2
-script = ExtResource("1_gwlns")
-
-[node name="NameLabel" type="Label" parent="MarginContainer/VBox/TopBar/EnemyHealth"]
-layout_mode = 2
-text = "Enemy"
-
-[node name="ProgressBar" type="ProgressBar" parent="MarginContainer/VBox/TopBar/EnemyHealth"]
-layout_mode = 2
-
-[node name="ValueLabel" type="Label" parent="MarginContainer/VBox/TopBar/EnemyHealth"]
-layout_mode = 2
-
-[node name="Control2" type="Control" parent="MarginContainer/VBox/TopBar"]
 layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="Spacer1" type="Control" parent="MarginContainer/VBox"]
+visible = false
 layout_mode = 2
 size_flags_vertical = 3
 
 [node name="CenterArea" type="Control" parent="MarginContainer/VBox"]
+visible = false
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 size_flags_vertical = 3
@@ -88,6 +49,7 @@ size_flags_vertical = 3
 custom_minimum_size = Vector2(0, 400)
 layout_mode = 2
 size_flags_vertical = 3
+alignment = 1
 
 [node name="ActionFieldsScroll" type="ScrollContainer" parent="MarginContainer/VBox/ActionFieldsArea"]
 layout_mode = 2
@@ -110,35 +72,40 @@ theme_override_constants/v_separation = 10
 columns = 2
 
 [node name="Spacer2" type="Control" parent="MarginContainer/VBox"]
+visible = false
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 size_flags_vertical = 3
 
 [node name="Spacer3" type="Control" parent="MarginContainer/VBox"]
+visible = false
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="DicePoolArea" type="CenterContainer" parent="MarginContainer/VBox"]
+[node name="Spacer" type="Control" parent="MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBox"]
+layout_mode = 2
+
+[node name="DicePoolArea" type="CenterContainer" parent="MarginContainer/VBox/VBoxContainer"]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 
-[node name="DicePoolDisplay" parent="MarginContainer/VBox/DicePoolArea" instance=ExtResource("2_bo0no")]
+[node name="DicePoolDisplay" parent="MarginContainer/VBox/VBoxContainer/DicePoolArea" instance=ExtResource("2_bo0no")]
 custom_minimum_size = Vector2(180, 180)
 layout_mode = 2
 mouse_filter = 0
 die_visual_scene = ExtResource("4_l84v8")
 
-[node name="DicePoolLabel" type="Label" parent="MarginContainer/VBox/DicePoolArea"]
+[node name="DicePoolLabel" type="Label" parent="MarginContainer/VBox/VBoxContainer/DicePoolArea"]
 layout_mode = 2
 
-[node name="Spacer" type="Control" parent="MarginContainer/VBox"]
+[node name="Spacer4" type="Control" parent="MarginContainer/VBox/VBoxContainer"]
+custom_minimum_size = Vector2(0, 370)
 layout_mode = 2
-size_flags_vertical = 3
-
-[node name="Spacer4" type="Control" parent="MarginContainer/VBox"]
-layout_mode = 2
-size_flags_vertical = 3
 
 [node name="ManaDieSelector" parent="." instance=ExtResource("5_5ykqc")]
 offset_left = 973.0

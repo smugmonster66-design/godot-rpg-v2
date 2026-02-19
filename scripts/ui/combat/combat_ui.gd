@@ -851,23 +851,23 @@ func animate_die_to_action_field(die_visual: Control, action_name: String, die: 
 	# Store start position before reparenting
 	var start_global_pos = die_visual.global_position
 	
-	# Reparent to projectile overlay (layer 100) for smooth animation above all UI
-	var old_parent = die_visual.get_parent()
-	if old_parent:
-		old_parent.remove_child(die_visual)
-	roll_animator._projectile_container.add_child(die_visual)
+	# Hide original in place (keeps grid space occupied)
+	die_visual.modulate.a = 0.0
 	
-	# Configure for animation
-	die_visual.visible = true
-	die_visual.global_position = start_global_pos
-	if "draggable" in die_visual:
-		die_visual.draggable = false
-	die_visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Create clone for flight animation
+	var clone = die_visual.duplicate()
+	roll_animator._projectile_container.add_child(clone)
+	clone.global_position = start_global_pos
+	clone.modulate.a = 1.0
+	clone.visible = true
+	if "draggable" in clone:
+		clone.draggable = false
+	clone.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	
 	# Flash effect
 	var flash_tween = create_tween()
-	flash_tween.tween_property(die_visual, "modulate", Color(1.5, 1.5, 0.5), 0.1)
-	flash_tween.tween_property(die_visual, "modulate", Color.WHITE, 0.1)
+	flash_tween.tween_property(clone, "modulate", Color(1.5, 1.5, 0.5), 0.1)
+	flash_tween.tween_property(clone, "modulate", Color.WHITE, 0.1)
 	await flash_tween.finished
 	
 	# Calculate target position (center of slot in global coords)
@@ -875,20 +875,20 @@ func animate_die_to_action_field(die_visual: Control, action_name: String, die: 
 	
 	# Animate to target
 	var move_tween = create_tween().set_parallel(true)
-	move_tween.tween_property(die_visual, "global_position", target_global - die_visual.pivot_offset * field.DIE_SCALE, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-	move_tween.tween_property(die_visual, "scale", Vector2(field.DIE_SCALE, field.DIE_SCALE), 0.3).set_ease(Tween.EASE_OUT)
+	move_tween.tween_property(clone, "global_position", target_global - clone.pivot_offset * field.DIE_SCALE, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	move_tween.tween_property(clone, "scale", Vector2(field.DIE_SCALE, field.DIE_SCALE), 0.3).set_ease(Tween.EASE_OUT)
 	await move_tween.finished
 	
-	# Reparent to the actual slot
-	roll_animator._projectile_container.remove_child(die_visual)
-	target_slot.add_child(die_visual)
+	# Move clone to the actual slot
+	roll_animator._projectile_container.remove_child(clone)
+	target_slot.add_child(clone)
 	
 	# Set final local position
-	die_visual.z_index = 0
-	die_visual.custom_minimum_size = Vector2.ZERO
-	die_visual.position = field.SLOT_SIZE / 2 - die_visual.pivot_offset
+	clone.z_index = 0
+	clone.custom_minimum_size = Vector2.ZERO
+	clone.position = field.SLOT_SIZE / 2 - clone.pivot_offset
 	
-	field.dice_visuals.append(die_visual)
+	field.dice_visuals.append(clone)
 	field.update_icon_state()
 
 

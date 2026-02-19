@@ -1,47 +1,43 @@
-[gd_scene load_steps=7 format=3 uid="uid://4ahxkdbgy447"]
+[gd_scene load_steps=8 format=3 uid="uid://4ahxkdbgy447"]
 
 [ext_resource type="Script" uid="uid://ckcnmmdmj10wo" path="res://scripts/ui/combat/action_field.gd" id="1_vm0q0"]
-[ext_resource type="Texture2D" uid="uid://b5idgxy5pjm63" path="res://assets/ui/panels/9patch_bones.png" id="2_r6w7g"]
-[ext_resource type="Texture2D" uid="uid://b7t35b1xyhqhr" path="res://assets/ui/panels/9patch_bones_frame.png" id="3_qph8m"]
+[ext_resource type="Texture2D" uid="uid://hwffuipvgxdx" path="res://assets/ui/panels/9patch fill basic.png" id="2_0cgqb"]
 [ext_resource type="Theme" uid="uid://b87llggw1n1df" path="res://resources/themes/base_theme.tres" id="4_joayw"]
+[ext_resource type="Texture2D" uid="uid://dkib2pw8pxtxr" path="res://assets/ui/panels/9patch stroke basic.png" id="4_sgqpl"]
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_sgqpl"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0cgqb"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_joayw"]
-texture = ExtResource("2_r6w7g")
-texture_margin_left = 75.0
-texture_margin_top = 75.0
-texture_margin_right = 75.0
-texture_margin_bottom = 75.0
+texture = ExtResource("2_0cgqb")
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sgqpl"]
 
 [node name="ActionField" type="PanelContainer"]
-custom_minimum_size = Vector2(0, 100)
 offset_right = 120.0
 offset_bottom = 100.0
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxTexture_sgqpl")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_0cgqb")
 script = ExtResource("1_vm0q0")
 _chromatic_stroke_enabled = false
 metadata/_edit_vertical_guides_ = [-146.0]
 
 [node name="FillTexture" type="NinePatchRect" parent="."]
 layout_mode = 2
-texture = ExtResource("2_r6w7g")
-patch_margin_left = 15
-patch_margin_top = 15
-patch_margin_right = 15
-patch_margin_bottom = 15
+texture = ExtResource("2_0cgqb")
+patch_margin_left = 20
+patch_margin_top = 20
+patch_margin_right = 20
+patch_margin_bottom = 20
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
-theme_override_constants/margin_left = 25
-theme_override_constants/margin_top = 30
-theme_override_constants/margin_right = 25
-theme_override_constants/margin_bottom = 30
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 40
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-size_flags_vertical = 4
 theme_override_constants/separation = 10
 alignment = 1
 
@@ -53,7 +49,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_joayw")
 [node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/HeaderPlate"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 18
+theme = ExtResource("4_joayw")
 text = "Action"
 horizontal_alignment = 1
 
@@ -64,6 +60,7 @@ layout_mode = 2
 theme = ExtResource("4_joayw")
 bbcode_enabled = true
 text = "[i]This is a description. It describes things.[/i] "
+fit_content = true
 scroll_active = false
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -89,12 +86,14 @@ layout_mode = 2
 theme = ExtResource("4_joayw")
 bbcode_enabled = true
 text = "Adds X Psychic damage."
+fit_content = true
 scroll_active = false
 autowrap_trim_flags = 0
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="FooterRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+visible = false
 layout_mode = 2
 
 [node name="DmgPreviewLabel" type="Label" parent="MarginContainer/VBoxContainer/FooterRow"]
@@ -106,6 +105,7 @@ visible = false
 layout_mode = 2
 
 [node name="FooterSpacer" type="Control" parent="MarginContainer/VBoxContainer/FooterRow"]
+visible = false
 layout_mode = 2
 
 [node name="ChargeLabel" type="Label" parent="MarginContainer/VBoxContainer/FooterRow"]
@@ -115,19 +115,22 @@ layout_mode = 2
 horizontal_alignment = 2
 vertical_alignment = 2
 
-[node name="ChargeContainer" type="PanelContainer" parent="MarginContainer"]
+[node name="ChargeContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_sgqpl")
 
-[node name="ChargeLabel" type="RichTextLabel" parent="MarginContainer/ChargeContainer"]
+[node name="ChargeLabel" type="RichTextLabel" parent="MarginContainer/VBoxContainer/ChargeContainer"]
+clip_contents = false
 custom_minimum_size = Vector2(16, 16)
 layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 8
+theme = ExtResource("4_joayw")
 text = "X"
+fit_content = true
+scroll_active = false
 
 [node name="StrokeTexture" type="NinePatchRect" parent="."]
 layout_mode = 2
-texture = ExtResource("3_qph8m")
+texture = ExtResource("4_sgqpl")
 patch_margin_left = 15
 patch_margin_top = 15
 patch_margin_right = 15

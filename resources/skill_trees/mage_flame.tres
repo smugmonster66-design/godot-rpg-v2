@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SkillTree" load_steps=193 format=3 uid="uid://7skxlt53e4sf"]
+[gd_resource type="Resource" script_class="SkillTree" load_steps=194 format=3 uid="uid://7skxlt53e4sf"]
 
 [ext_resource type="Shader" uid="uid://bnitqsn8ayk0j" path="res://shaders/dice/fire/fire_fill.gdshader" id="1_bnh2n"]
 [ext_resource type="Script" uid="uid://cukfw0heumnic" path="res://scripts/data/skill_tree.gd" id="1_ftk5x"]
@@ -15,6 +15,7 @@
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="12_8fwrk"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="12_10ldk"]
 [ext_resource type="Resource" uid="uid://behojsm6qvxjl" path="res://resources/statuses/burn.tres" id="13_bnh2n"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="15_ea8jm"]
 [ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="15_skkmn"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_skkmn"]

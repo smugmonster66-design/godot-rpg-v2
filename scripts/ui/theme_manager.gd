@@ -169,7 +169,7 @@ func _apply_fonts_to_theme() -> void:
 	# Apply custom font and sizes to the loaded theme.
 	if font_regular:
 		theme.default_font = font_regular
-	theme.default_font_size = FONT_SIZES.normal
+	#theme.default_font_size = FONT_SIZES.normal
 
 
 func _apply_to_project():

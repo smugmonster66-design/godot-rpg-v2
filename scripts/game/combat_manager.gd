@@ -174,11 +174,9 @@ func _execute_conditional_riders(action_resource: Action,
 			_process_action_effect_results(rider_results, source)
 
 
-
 func _execute_action(action_data: Dictionary, source: Node2D, targets: Array[Combatant]):
 	var animation_set = action_data.get("animation_set") as CombatAnimationSet
 	
-	# Get positions
 	var source_pos = source.global_position
 	var target_positions: Array[Vector2] = []
 	var target_nodes: Array[Node2D] = []
@@ -187,13 +185,17 @@ func _execute_action(action_data: Dictionary, source: Node2D, targets: Array[Com
 		target_positions.append(target.global_position)
 		target_nodes.append(target)
 	
-	# Use weakrefs to avoid lambda capture errors if nodes are freed mid-animation
 	var source_ref = weakref(source)
 	var target_refs: Array = []
 	for t in targets:
 		target_refs.append(weakref(t))
 	
+	var applied = [false]
+	
 	var apply_effect_callable = func():
+		if applied[0]:
+			return
+		applied[0] = true
 		var s = source_ref.get_ref()
 		if not s or not is_instance_valid(s):
 			return
@@ -206,14 +208,12 @@ func _execute_action(action_data: Dictionary, source: Node2D, targets: Array[Com
 	
 	animation_player.apply_effect_now.connect(apply_effect_callable, CONNECT_ONE_SHOT)
 	
-	# Play animation sequence
 	await animation_player.play_action_animation(
 		animation_set,
 		source_pos,
 		target_positions,
 		target_nodes
 	)
-
 
 
 # ============================================================================
@@ -766,25 +766,20 @@ func _get_combat_animation_player():
 		return get_node("CombatAnimationPlayer")
 	return find_child("CombatAnimationPlayer", true, false)
 
-
 func _play_action_with_animation(action_data: Dictionary, targets: Array, target_index: int,
 		animation_set: CombatAnimationSet, anim_player, action_field: ActionField) -> void:
 	"""Play action animation and apply effect at the right timing"""
 	
 	combat_state = CombatState.ANIMATING
 	
-	# === GET SOURCE POSITION (Action field die slot center) ===
+	# === GET SOURCE POSITION ===
 	var source_pos: Vector2 = Vector2.ZERO
 	if action_field and action_field.die_slot_panels.size() > 0:
-		# Get center of first die slot
 		var first_slot = action_field.die_slot_panels[0]
 		source_pos = first_slot.global_position + first_slot.size / 2
 	elif player_combatant:
-		# Fallback to player combatant position
 		source_pos = player_combatant.global_position
 	
-	
-	# === DEBUG: Verify source position ===
 	print("🔍 SOURCE POS DEBUG ========================")
 	print("  action_field: %s" % (action_field.name if action_field else "NULL"))
 	if action_field:
@@ -802,13 +797,10 @@ func _play_action_with_animation(action_data: Dictionary, targets: Array, target
 	print("  Final source_pos: %s" % source_pos)
 	print("============================================")
 	
-	
-	
-	# === GET TARGET POSITIONS (Enemy portrait centers in UI) ===
+	# === GET TARGET POSITIONS ===
 	var target_positions: Array[Vector2] = []
 	var target_nodes: Array[Node2D] = []
 	
-	# Check if this is an AoE attack (targets all enemies)
 	var is_aoe = false
 	var action_resource = action_data.get("action_resource") as Action
 	if action_resource and action_resource.effects.size() > 0:
@@ -818,7 +810,6 @@ func _play_action_with_animation(action_data: Dictionary, targets: Array, target
 				break
 	
 	if is_aoe:
-		# Target ALL enemy portraits
 		for i in range(enemy_combatants.size()):
 			var enemy = enemy_combatants[i]
 			if enemy and enemy.is_alive():
@@ -827,12 +818,10 @@ func _play_action_with_animation(action_data: Dictionary, targets: Array, target
 					target_positions.append(portrait_pos)
 					target_nodes.append(enemy)
 	else:
-		# Single target - get portrait position for selected enemy
 		var portrait_pos = _get_enemy_portrait_position(target_index)
 		if portrait_pos != Vector2.ZERO:
 			target_positions.append(portrait_pos)
 		elif targets.size() > 0 and targets[0] is Combatant:
-			# Fallback to combatant position
 			target_positions.append(targets[0].global_position)
 		
 		for t in targets:
@@ -841,20 +830,18 @@ func _play_action_with_animation(action_data: Dictionary, targets: Array, target
 	
 	print("🎬 Animation: source=%s, targets=%d positions" % [source_pos, target_positions.size()])
 	
-	# Track if effect has been applied
-	var effect_applied = false
+	# Track if effect has been applied (Array so lambda captures by reference)
+	var applied = [false]
 	
-	# Create callback — use weakrefs to avoid lambda capture errors
-	# if nodes are freed before the animation callback fires
 	var player_ref = weakref(player_combatant)
 	var target_refs: Array = []
 	for t in targets:
 		target_refs.append(weakref(t))
 	
 	var apply_effect_callback = func():
-		if effect_applied:
+		if applied[0]:
 			return
-		effect_applied = true
+		applied[0] = true
 		var p = player_ref.get_ref()
 		if not p or not is_instance_valid(p):
 			return
@@ -865,22 +852,19 @@ func _play_action_with_animation(action_data: Dictionary, targets: Array, target
 				live_targets.append(t)
 		_apply_action_effect(action_data, p, live_targets)
 	
-	# Connect to apply_effect_now signal if it exists
 	if anim_player.has_signal("apply_effect_now"):
 		if not anim_player.apply_effect_now.is_connected(apply_effect_callback):
 			anim_player.apply_effect_now.connect(apply_effect_callback, CONNECT_ONE_SHOT)
 	
-	# Play the animation sequence
 	if anim_player.has_method("play_action_animation"):
 		await anim_player.play_action_animation(animation_set, source_pos, target_positions, target_nodes)
 	else:
 		push_warning("CombatAnimationPlayer missing play_action_animation method")
 		await get_tree().create_timer(0.5).timeout
 	
-	
 	# If effect wasn't applied by signal, apply now
-	if not effect_applied:
-		effect_applied = true
+	if not applied[0]:
+		applied[0] = true
 		var p = player_ref.get_ref()
 		if p and is_instance_valid(p):
 			var live_targets: Array = []
@@ -2137,13 +2121,12 @@ func _check_player_death() -> bool:
 	return false
 
 func _check_enemy_death(enemy: Combatant):
-	"""Check if enemy died and handle it"""
 	if not enemy.is_alive():
 		var index = enemy_combatants.find(enemy)
 		if combat_ui:
 			combat_ui.on_enemy_died(index)
-			
-	if event_bus:
+		
+		if event_bus:
 			var visual = _get_combatant_visual(enemy)
 			if visual:
 				event_bus.emit_enemy_died(visual, enemy.combatant_name)

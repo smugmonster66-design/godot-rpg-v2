@@ -136,8 +136,16 @@ func _discover_nodes():
 	icon_rect = find_child("IconRect", true, false) as TextureRect
 	die_slots_grid = find_child("DieSlotsGrid", true, false) as GridContainer
 	description_label = find_child("DescriptionLabel", true, false) as RichTextLabel
+	if description_label:
+		description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		description_label.fit_content = true
+	
 	_discover_and_swap_dmg_label()
+	
 	damage_formula_label = find_child("DamageFormulaLabel", true, false) as RichTextLabel
+	if damage_formula_label:
+		damage_formula_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		damage_formula_label.fit_content = true
 	charge_container = find_child("ChargeContainer", true, false) as PanelContainer
 	charge_rich_label = charge_container.find_child("ChargeLabel", true, false) as RichTextLabel if charge_container else null
 	fill_texture = find_child("FillTexture", true, false) as NinePatchRect
@@ -198,6 +206,8 @@ func _discover_and_swap_dmg_label():
 	old_label.queue_free()
 	
 	dmg_preview_label = rtl
+	dmg_preview_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	dmg_preview_label.fit_content = true
 
 func setup_drop_target():
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -245,7 +255,7 @@ func _apply_element_shader():
 		var fill_mat = config.get_fill_material(element)
 		if fill_mat:
 			fill_texture.material = fill_mat
-			fill_texture.modulate = Color(0.5, 0.5, 0.5)
+			fill_texture.modulate = Color(1, 1, 1, 0.5)
 		else:
 			fill_texture.material = null
 			fill_texture.modulate = config.get_tint_color(element) * Color(0.5, 0.5, 0.5)
@@ -299,11 +309,11 @@ func _apply_chromatic_shader():
 	if fill_texture:
 		if _chromatic_fill_material:
 			fill_texture.material = _chromatic_fill_material
-			fill_texture.modulate = Color(0.5, 0.5, 0.5)  # Darkened like normal element shaders
+			fill_texture.modulate = Color(1, 1, 1, 0.5) # Darkened like normal element shaders
 		else:
 			# Fallback: purple-ish tint to signal multi-element
 			fill_texture.material = null
-			fill_texture.modulate = Color(0.4, 0.25, 0.5)
+			fill_texture.modulate = Color(1, 1, 1, 0.5)
 	
 	if stroke_texture:
 		if _chromatic_stroke_material and _chromatic_stroke_enabled:
@@ -325,7 +335,7 @@ func _swap_to_element_shader(die_element: int):
 		var fill_mat = config.get_fill_material(elem)
 		if fill_mat:
 			fill_texture.material = fill_mat
-			fill_texture.modulate = Color(0.5, 0.5, 0.5)
+			fill_texture.modulate = Color(1, 1, 1, 0.5)
 		else:
 			fill_texture.material = null
 			fill_texture.modulate = config.get_tint_color(elem) * Color(0.5, 0.5, 0.5)
@@ -383,7 +393,7 @@ func _update_damage_preview():
 		# breakdown mode
 		var power: int = _calculate_preview_power()
 		var mult: float = _calculate_preview_mult()
-		var total: int = maxi(0, int(power * mult))
+		var total: int = maxi(0, roundi(power * mult))
 		
 		if mult > 1.001 or mult < 0.999:
 			# Full breakdown: "17 × 2.0x = 34 Fire"
@@ -441,7 +451,7 @@ func _update_damage_formula_label():
 	var parts: Array[String] = []
 	for dt_int in DamagePreviewFloater.ELEMENT_ORDER:
 		var dt = dt_int as ActionEffect.DamageType
-		var value = int(damages.get(dt, 0.0))
+		var value = roundi(damages.get(dt, 0.0))
 		if value <= 0:
 			continue
 		var elem_name = ELEMENT_NAMES.get(dt, "Unknown")
@@ -606,7 +616,7 @@ func _calculate_preview_power() -> int:
 				var action_flat = affixes.get_action_base_damage_bonus(action_resource.action_id)
 				power += action_flat
 	
-	return maxi(0, int(power))
+	return maxi(0, roundi(power))
 
 
 
@@ -678,7 +688,7 @@ func _get_heal_formula() -> String:
 
 func _calculate_preview_damage() -> int:
 	"""Legacy convenience — returns power × mult."""
-	return maxi(0, int(_calculate_preview_power() * _calculate_preview_mult()))
+	return maxi(0, roundi(_calculate_preview_power() * _calculate_preview_mult()))
 
 func _calculate_preview_heal() -> int:
 	"""Calculate heal with currently placed dice"""

@@ -6,8 +6,10 @@
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_g7aqa"]
 
 [node name="EnemyPanel" type="VBoxContainer"]
-offset_right = 388.0
+anchors_preset = 10
+anchor_right = 1.0
 offset_bottom = 234.0
+grow_horizontal = 2
 theme_override_constants/separation = 16
 alignment = 1
 script = ExtResource("1_o7t4d")
@@ -20,21 +22,36 @@ size_flags_horizontal = 3
 layout_mode = 2
 alignment = 1
 
+[node name="Control2" type="Control" parent="SlotsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
 [node name="EnemySlot1" parent="SlotsContainer" instance=ExtResource("2_g7aqa")]
 layout_mode = 2
+
+[node name="Control4" type="Control" parent="SlotsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="EnemySlot2" parent="SlotsContainer" instance=ExtResource("2_g7aqa")]
 layout_mode = 2
 
+[node name="Control3" type="Control" parent="SlotsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
 [node name="EnemySlot3" parent="SlotsContainer" instance=ExtResource("2_g7aqa")]
 layout_mode = 2
+
+[node name="Control" type="Control" parent="SlotsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="EnemyDiceHand" type="PanelContainer" parent="."]
-visible = false
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_g7aqa")
@@ -62,6 +79,7 @@ theme_override_constants/separation = 20
 alignment = 1
 
 [node name="DiceHandGrid" type="HBoxContainer" parent="EnemyDiceHand/MarginContainer/VBox/HandContainer"]
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 theme_override_constants/separation = 8
 alignment = 1

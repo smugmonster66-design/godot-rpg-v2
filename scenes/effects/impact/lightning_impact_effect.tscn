@@ -34,7 +34,6 @@ scale_curve = SubResource("CurveTexture_impact_scale")
 color_ramp = SubResource("GradientTexture1D_impact")
 
 [node name="LightningImpactEffect" type="Node2D"]
-scale = Vector2(0.5, 0.5)
 script = ExtResource("1_script")
 duration = 0.4
 

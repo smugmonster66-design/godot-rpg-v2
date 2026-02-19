@@ -63,6 +63,11 @@ func _ready():
 	_discover_slots()
 	_connect_slot_signals()
 
+
+	# Force slots to claim layout space even when empty
+	for slot in enemy_slots:
+		slot.visible = true
+
 	# Hide dice hand initially
 	if dice_hand_container:
 		dice_hand_container.modulate.a = 0.0
@@ -393,7 +398,7 @@ func show_dice_hand(enemy_combatant: Combatant):
 	if not dice_hand_container:
 		return
 
-	dice_hand_container.visible = true
+	#dice_hand_container.visible = true
 	dice_hand_container.modulate.a = 1.0
 
 	# Set label

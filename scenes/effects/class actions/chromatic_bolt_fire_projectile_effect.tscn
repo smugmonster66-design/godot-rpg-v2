@@ -118,6 +118,7 @@ color_ramp = SubResource("GradientTexture1D_ikowk")
 [node name="ProjectileEffect" type="Node2D"]
 scale = Vector2(4, 4)
 script = ExtResource("1_15eca")
+ghost_count = 24
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 material = ExtResource("2_r7wcl")
