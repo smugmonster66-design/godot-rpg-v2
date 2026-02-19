@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://ce42pr72jw6bi"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_lgec3"]
+[ext_resource type="Resource" uid="uid://t07im4pj58ml" path="res://resources/actions/enemy_base/magic_bolt.tres" id="2_6b4k8"]
+[ext_resource type="Resource" uid="uid://c8rvgwlhg87lm" path="res://resources/actions/enemy_base/ward.tres" id="3_6oupx"]
+[ext_resource type="Resource" uid="uid://c5j0k0tk343w6" path="res://resources/actions/enemy_base/ignite.tres" id="4_fi7tm"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_0iap5"]
+[ext_resource type="Resource" uid="uid://dryx3uup40h6u" path="res://resources/affixes/base_stats/enemy/enemy_health_int_caster.tres" id="6_tr7j7"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_vng34"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_g54bq"]
+[ext_resource type="Resource" uid="uid://c8hata17eoqql" path="res://resources/dice/base/d8_fire.tres" id="9_64xt7"]
+[ext_resource type="Resource" uid="uid://dayw6ar4mjdg7" path="res://resources/enemy_templates/caster_int.tres" id="10_qvivd"]
+
+[resource]
+script = ExtResource("7_vng34")
+enemy_name = "Mini-Boss Archmage"
+description = "Baseline Mini-Boss Archmage."
+template = ExtResource("10_qvivd")
+combat_role = 2
+enemy_tags = PackedStringArray()
+max_health = 17
+base_barrier = 2
+starting_dice = Array[ExtResource("8_g54bq")]([ExtResource("9_64xt7"), ExtResource("9_64xt7"), ExtResource("9_64xt7")])
+combat_actions = Array[ExtResource("1_lgec3")]([ExtResource("2_6b4k8"), ExtResource("3_6oupx"), ExtResource("4_fi7tm")])
+action_delay = 0.9
+dice_drag_duration = 0.45
+experience_reward = 75
+gold_reward_min = 25
+gold_reward_max = 75
+enemy_tier = 2
+enemy_archetype = 3
+enemy_level_floor = 5
+level_scaling_multiplier = 1.0
+health_affix = ExtResource("6_tr7j7")

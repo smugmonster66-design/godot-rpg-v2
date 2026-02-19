@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://bger25v2qqcs1"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_djber"]
+[ext_resource type="Resource" uid="uid://t07im4pj58ml" path="res://resources/actions/enemy_base/magic_bolt.tres" id="2_75mi1"]
+[ext_resource type="Resource" uid="uid://c8rvgwlhg87lm" path="res://resources/actions/enemy_base/ward.tres" id="3_65qov"]
+[ext_resource type="Resource" uid="uid://c5j0k0tk343w6" path="res://resources/actions/enemy_base/ignite.tres" id="4_rmdhb"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_kfi58"]
+[ext_resource type="Resource" uid="uid://dryx3uup40h6u" path="res://resources/affixes/base_stats/enemy/enemy_health_int_caster.tres" id="6_acx6f"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_tpsmu"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_l5ccw"]
+[ext_resource type="Resource" uid="uid://c1nehvjm5t6pu" path="res://resources/dice/base/d12_fire.tres" id="9_n5bba"]
+[ext_resource type="Resource" uid="uid://dayw6ar4mjdg7" path="res://resources/enemy_templates/caster_int.tres" id="10_0cd8o"]
+
+[resource]
+script = ExtResource("7_tpsmu")
+enemy_name = "World Boss Archmage"
+description = "Baseline World Boss Archmage."
+template = ExtResource("10_0cd8o")
+combat_role = 2
+enemy_tags = PackedStringArray()
+max_health = 42
+base_barrier = 3
+starting_dice = Array[ExtResource("8_l5ccw")]([ExtResource("9_n5bba"), ExtResource("9_n5bba"), ExtResource("9_n5bba"), ExtResource("9_n5bba")])
+combat_actions = Array[ExtResource("1_djber")]([ExtResource("2_75mi1"), ExtResource("3_65qov"), ExtResource("4_rmdhb")])
+ai_strategy = 1
+action_delay = 1.1
+dice_drag_duration = 0.5
+experience_reward = 500
+gold_reward_min = 150
+gold_reward_max = 500
+enemy_tier = 4
+enemy_archetype = 3
+enemy_level_floor = 12
+level_scaling_multiplier = 1.2
+health_affix = ExtResource("6_acx6f")

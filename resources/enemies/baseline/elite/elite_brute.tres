@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://bghvnw6v3e1t3"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_6nd8o"]
+[ext_resource type="Resource" uid="uid://begv50agccdr2" path="res://resources/actions/enemy_base/smash.tres" id="2_g4h2r"]
+[ext_resource type="Resource" uid="uid://c2o8najs6s3xh" path="res://resources/actions/enemy_base/brace.tres" id="3_7vksy"]
+[ext_resource type="Resource" uid="uid://j6lnu4bac00v" path="res://resources/actions/enemy_base/crushing_blow.tres" id="4_b8tcs"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_xfkl7"]
+[ext_resource type="Resource" uid="uid://chmejcvma7x2j" path="res://resources/affixes/base_stats/enemy/enemy_health_str_brute.tres" id="6_uyvhg"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_3hbw0"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_dwlrc"]
+[ext_resource type="Resource" uid="uid://bgdlfehv60402" path="res://resources/dice/base/d10_blunt.tres" id="9_3sdh1"]
+[ext_resource type="Resource" uid="uid://b8a0hafcgbsq3" path="res://resources/enemy_templates/brute_str.tres" id="10_unl0c"]
+
+[resource]
+script = ExtResource("7_3hbw0")
+enemy_name = "Elite Brute"
+description = "Baseline Elite Brute."
+template = ExtResource("10_unl0c")
+enemy_tags = PackedStringArray()
+max_health = 18
+base_armor = 2
+starting_dice = Array[ExtResource("8_dwlrc")]([ExtResource("9_3sdh1"), ExtResource("9_3sdh1"), ExtResource("9_3sdh1")])
+combat_actions = Array[ExtResource("1_6nd8o")]([ExtResource("2_g4h2r"), ExtResource("3_7vksy"), ExtResource("4_b8tcs")])
+ai_strategy = 0
+experience_reward = 30
+gold_reward_min = 10
+gold_reward_max = 30
+enemy_tier = 1
+enemy_archetype = 1
+enemy_level_floor = 3
+level_scaling_multiplier = 0.95
+health_affix = ExtResource("6_uyvhg")

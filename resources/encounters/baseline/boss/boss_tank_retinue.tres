@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=6 format=3 uid="uid://p3j0uf51ig0w"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_evvi5"]
+[ext_resource type="Resource" uid="uid://b8j8l7h8xyb1d" path="res://resources/enemies/baseline/boss/boss_tank.tres" id="2_8fhic"]
+[ext_resource type="Resource" uid="uid://bghvnw6v3e1t3" path="res://resources/enemies/baseline/elite/elite_brute.tres" id="3_xhq7o"]
+[ext_resource type="Resource" uid="uid://dheej4l7wyjmi" path="res://resources/enemies/baseline/elite/elite_support_mage.tres" id="4_c7ykp"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="5_fi7al"]
+
+[resource]
+script = ExtResource("5_fi7al")
+encounter_name = "Boss Tank & Retinue"
+encounter_id = "baseline_boss_tank_retinue"
+enemies = Array[ExtResource("1_evvi5")]([ExtResource("2_8fhic"), ExtResource("3_xhq7o"), ExtResource("4_c7ykp")])
+enemy_slots = Array[int]([1, 0, 2])
+difficulty_tier = 9
+level_range_min = 8
+level_range_max = 11
+is_boss_encounter = true
+disable_fleeing = true

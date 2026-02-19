@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://cv80xbdcwf54k"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_lo4qf"]
+[ext_resource type="Resource" uid="uid://begv50agccdr2" path="res://resources/actions/enemy_base/smash.tres" id="2_73ipu"]
+[ext_resource type="Resource" uid="uid://c2o8najs6s3xh" path="res://resources/actions/enemy_base/brace.tres" id="3_pgvsq"]
+[ext_resource type="Resource" uid="uid://j6lnu4bac00v" path="res://resources/actions/enemy_base/crushing_blow.tres" id="4_mwjjo"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_17d8t"]
+[ext_resource type="Resource" uid="uid://chmejcvma7x2j" path="res://resources/affixes/base_stats/enemy/enemy_health_str_brute.tres" id="6_873um"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_pm03a"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_3xyiy"]
+[ext_resource type="Resource" uid="uid://x1l67ej62snt" path="res://resources/dice/base/d12_blunt.tres" id="9_xksg6"]
+[ext_resource type="Resource" uid="uid://b8a0hafcgbsq3" path="res://resources/enemy_templates/brute_str.tres" id="10_1ut4q"]
+
+[resource]
+script = ExtResource("7_pm03a")
+enemy_name = "Boss Brute"
+description = "Baseline Boss Brute."
+template = ExtResource("10_1ut4q")
+enemy_tags = PackedStringArray()
+max_health = 48
+base_armor = 3
+starting_dice = Array[ExtResource("8_3xyiy")]([ExtResource("9_xksg6"), ExtResource("9_xksg6"), ExtResource("9_xksg6"), ExtResource("9_xksg6")])
+combat_actions = Array[ExtResource("1_lo4qf")]([ExtResource("2_73ipu"), ExtResource("3_pgvsq"), ExtResource("4_mwjjo")])
+action_delay = 1.0
+dice_drag_duration = 0.5
+experience_reward = 150
+gold_reward_min = 50
+gold_reward_max = 150
+enemy_tier = 3
+enemy_archetype = 1
+enemy_level_floor = 8
+level_scaling_multiplier = 1.1
+health_affix = ExtResource("6_873um")

@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://b8j8l7h8xyb1d"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_2ttiq"]
+[ext_resource type="Resource" uid="uid://da2uxbu8iojio" path="res://resources/actions/enemy_base/slam.tres" id="2_rlhli"]
+[ext_resource type="Resource" uid="uid://buulrmrni365a" path="res://resources/actions/enemy_base/shield_wall.tres" id="3_t4d7v"]
+[ext_resource type="Resource" uid="uid://bcrg2hhi13oh" path="res://resources/actions/enemy_base/fortify.tres" id="4_vos44"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_w5emb"]
+[ext_resource type="Resource" uid="uid://dk58bj3nm6p3k" path="res://resources/affixes/base_stats/enemy/enemy_health_str_tank.tres" id="6_ut3ku"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_cbvfu"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_orjar"]
+[ext_resource type="Resource" uid="uid://bgdlfehv60402" path="res://resources/dice/base/d10_blunt.tres" id="9_3fx78"]
+[ext_resource type="Resource" uid="uid://cxim1rxv60be5" path="res://resources/enemy_templates/tank_str.tres" id="10_ymhvl"]
+
+[resource]
+script = ExtResource("7_cbvfu")
+enemy_name = "Boss Tank"
+description = "Baseline Boss Tank."
+template = ExtResource("10_ymhvl")
+combat_role = 3
+enemy_tags = PackedStringArray()
+max_health = 60
+base_armor = 6
+base_barrier = 1
+starting_dice = Array[ExtResource("8_orjar")]([ExtResource("9_3fx78"), ExtResource("9_3fx78"), ExtResource("9_3fx78")])
+combat_actions = Array[ExtResource("1_2ttiq")]([ExtResource("2_rlhli"), ExtResource("3_t4d7v"), ExtResource("4_vos44")])
+ai_strategy = 1
+action_delay = 1.2
+dice_drag_duration = 0.55
+experience_reward = 150
+gold_reward_min = 50
+gold_reward_max = 150
+enemy_tier = 3
+enemy_archetype = 1
+enemy_level_floor = 8
+level_scaling_multiplier = 1.1
+health_affix = ExtResource("6_ut3ku")

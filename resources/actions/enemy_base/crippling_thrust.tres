@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://b1adqw72u5auw"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_vbxgj"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_yt8j6"]
+[ext_resource type="Resource" uid="uid://kilfjnbqkpbi" path="res://resources/statuses/bleed.tres" id="3_qt4vc"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_cnbnd"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="5_pwmn8"]
+
+[sub_resource type="Resource" id="Resource_48r2j"]
+script = ExtResource("1_vbxgj")
+effect_name = "Cripple Damage"
+value_source = 1
+damage_type = 2
+base_damage = 3
+damage_multiplier = 1.3
+
+[sub_resource type="Resource" id="Resource_fwmqk"]
+script = ExtResource("1_vbxgj")
+effect_name = "Cripple Bleed"
+effect_type = 2
+status_affix = ExtResource("3_qt4vc")
+stack_count = 2
+
+[resource]
+script = ExtResource("5_pwmn8")
+action_id = "crippling_thrust"
+action_name = "Crippling Thrust"
+action_description = "Piercing hit. Applies 2 Bleed."
+effects = Array[ExtResource("1_vbxgj")]([SubResource("Resource_48r2j"), SubResource("Resource_fwmqk")])
+base_damage = 3
+damage_multiplier = 1.3

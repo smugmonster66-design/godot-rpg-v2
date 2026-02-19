@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=4 format=3 uid="uid://b2jm7a2c1fqej"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_xngo1"]
+[ext_resource type="Resource" uid="uid://cv80xbdcwf54k" path="res://resources/enemies/baseline/boss/boss_brute.tres" id="2_pmkas"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="3_up1nr"]
+
+[resource]
+script = ExtResource("3_up1nr")
+encounter_name = "Boss Brute"
+encounter_id = "baseline_boss_brute_solo"
+enemies = Array[ExtResource("1_xngo1")]([ExtResource("2_pmkas")])
+enemy_slots = Array[int]([1])
+difficulty_tier = 7
+level_range_min = 6
+level_range_max = 9
+is_boss_encounter = true
+disable_fleeing = true

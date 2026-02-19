@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://mrxvd5tmgbpd"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_vitsv"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_ganrp"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_fiesr"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_518ne"]
+
+[sub_resource type="Resource" id="Resource_8b31r"]
+script = ExtResource("1_vitsv")
+effect_name = "Poke Damage"
+value_source = 1
+damage_type = 2
+damage_multiplier = 0.5
+
+[resource]
+script = ExtResource("4_518ne")
+action_id = "poke"
+action_name = "Poke"
+action_description = "Weak Piercing hit at 0.5×."
+effects = Array[ExtResource("1_vitsv")]([SubResource("Resource_8b31r")])
+damage_multiplier = 0.5

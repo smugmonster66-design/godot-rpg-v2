@@ -1,0 +1,95 @@
+[gd_resource type="Resource" script_class="EnemyTemplate" load_steps=14 format=3 uid="uid://dayw6ar4mjdg7"]
+
+[ext_resource type="Script" uid="uid://cwrg87ac6o11i" path="res://resources/data/role_tier_budget.gd" id="1_wjt34"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_4r7t0"]
+[ext_resource type="Resource" uid="uid://t07im4pj58ml" path="res://resources/actions/enemy_base/magic_bolt.tres" id="3_1xfdy"]
+[ext_resource type="Resource" uid="uid://c8rvgwlhg87lm" path="res://resources/actions/enemy_base/ward.tres" id="4_6ohww"]
+[ext_resource type="Resource" uid="uid://c5j0k0tk343w6" path="res://resources/actions/enemy_base/ignite.tres" id="5_ukxm6"]
+[ext_resource type="Resource" uid="uid://dryx3uup40h6u" path="res://resources/affixes/base_stats/enemy/enemy_health_int_caster.tres" id="6_iqkj0"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="7_hcw0r"]
+[ext_resource type="Script" uid="uid://dvo4fc8b1285h" path="res://resources/data/enemy_template.gd" id="8_qyqwc"]
+
+[sub_resource type="Resource" id="Resource_mqmhx"]
+script = ExtResource("1_wjt34")
+dice_count_min = 3
+dice_count_max = 3
+die_size_floor = 8
+die_size_ceiling = 10
+action_count = 5
+multi_die_action_budget = 1
+special_mechanic_budget = 3
+defense_scale = 1.3
+level_scaling = 1.1
+override_ai_strategy = true
+ai_strategy_override = 1
+action_delay = 1.0
+dice_drag_duration = 0.5
+
+[sub_resource type="Resource" id="Resource_47hsh"]
+script = ExtResource("1_wjt34")
+dice_count_min = 2
+die_size_floor = 6
+die_size_ceiling = 8
+action_count = 3
+special_mechanic_budget = 1
+health_scale = 0.8
+defense_scale = 0.8
+level_scaling = 0.95
+
+[sub_resource type="Resource" id="Resource_t5y4i"]
+script = ExtResource("1_wjt34")
+dice_count_min = 2
+dice_count_max = 3
+die_size_floor = 6
+die_size_ceiling = 8
+action_count = 4
+special_mechanic_budget = 2
+health_scale = 0.9
+level_scaling = 1.0
+action_delay = 0.9
+dice_drag_duration = 0.45
+
+[sub_resource type="Resource" id="Resource_ksnoh"]
+script = ExtResource("1_wjt34")
+action_count = 2
+health_scale = 0.7
+defense_scale = 0.6
+override_ai_strategy = true
+
+[sub_resource type="Resource" id="Resource_bw61d"]
+script = ExtResource("1_wjt34")
+dice_count_min = 3
+dice_count_max = 4
+die_size_floor = 8
+die_size_ceiling = 12
+action_count = 6
+multi_die_action_budget = 1
+special_mechanic_budget = 4
+health_scale = 1.3
+defense_scale = 1.5
+level_scaling = 1.2
+override_ai_strategy = true
+ai_strategy_override = 1
+action_delay = 1.1
+dice_drag_duration = 0.5
+
+[resource]
+script = ExtResource("8_qyqwc")
+template_name = "INT Caster"
+template_description = "Glass cannon with status tricks. Barrier defense. Kill it first."
+role = 2
+archetype = 3
+dice_philosophy = 2
+defense_profile = 1
+default_ai_strategy = 2
+default_actions = Array[ExtResource("2_4r7t0")]([ExtResource("3_1xfdy"), ExtResource("4_6ohww"), ExtResource("5_ukxm6")])
+health_weight = 0.7
+armor_weight = 0.0
+barrier_weight = 1.2
+damage_weight = 1.2
+trash_budget = SubResource("Resource_ksnoh")
+elite_budget = SubResource("Resource_47hsh")
+mini_boss_budget = SubResource("Resource_t5y4i")
+boss_budget = SubResource("Resource_mqmhx")
+world_boss_budget = SubResource("Resource_bw61d")
+default_health_affix = ExtResource("6_iqkj0")

@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://dpwq1uu415clt"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_cex7f"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_iq2or"]
+[ext_resource type="Resource" uid="uid://kilfjnbqkpbi" path="res://resources/statuses/bleed.tres" id="3_3kfgh"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_rxmcl"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="5_c2j41"]
+
+[sub_resource type="Resource" id="Resource_5436r"]
+script = ExtResource("1_cex7f")
+effect_name = "Fan Strikes"
+effect_type = 15
+value_source = 1
+damage_type = 2
+strike_count = 2
+
+[sub_resource type="Resource" id="Resource_2ste2"]
+script = ExtResource("1_cex7f")
+effect_name = "Fan Bleed"
+effect_type = 2
+status_affix = ExtResource("3_3kfgh")
+
+[resource]
+script = ExtResource("5_c2j41")
+action_id = "fan_of_blades"
+action_name = "Fan of Blades"
+action_description = "2 random strikes. Applies 1 Bleed."
+effects = Array[ExtResource("1_cex7f")]([SubResource("Resource_5436r"), SubResource("Resource_2ste2")])

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=5 format=3 uid="uid://8xfp6ntk1bv6"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_rgtcg"]
+[ext_resource type="Resource" uid="uid://cx6o62wf7rquf" path="res://resources/enemies/baseline/trash/duelist.tres" id="2_rdlim"]
+[ext_resource type="Resource" uid="uid://bqhrbxkhpn43l" path="res://resources/enemies/baseline/trash/trickster.tres" id="3_nu5yp"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="4_hf5a3"]
+
+[resource]
+script = ExtResource("4_hf5a3")
+encounter_name = "Duelist & Trickster"
+encounter_id = "baseline_duelist_trickster"
+enemies = Array[ExtResource("1_rgtcg")]([ExtResource("2_rdlim"), ExtResource("3_nu5yp")])
+enemy_slots = Array[int]([0, 2])
+difficulty_tier = 2
+level_range_max = 4

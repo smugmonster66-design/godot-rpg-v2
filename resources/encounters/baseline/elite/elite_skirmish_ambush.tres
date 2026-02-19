@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=6 format=3 uid="uid://i3262h3phxw0"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_qfeef"]
+[ext_resource type="Resource" uid="uid://bmupr6avsvh7j" path="res://resources/enemies/baseline/elite/elite_skirmisher.tres" id="2_qnx85"]
+[ext_resource type="Resource" uid="uid://6g2uq8q34mgc" path="res://resources/enemies/baseline/elite/elite_battle_mage.tres" id="3_32cud"]
+[ext_resource type="Resource" uid="uid://clxgm3lkqgl3m" path="res://resources/enemies/baseline/elite/elite_trickster.tres" id="4_ntvfq"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="5_qbamw"]
+
+[resource]
+script = ExtResource("5_qbamw")
+encounter_name = "Elite Skirmisher Ambush"
+encounter_id = "baseline_elite_skirmish_ambush"
+enemies = Array[ExtResource("1_qfeef")]([ExtResource("2_qnx85"), ExtResource("3_32cud"), ExtResource("4_ntvfq")])
+enemy_slots = Array[int]([0, 1, 2])
+difficulty_tier = 5
+level_range_min = 4
+level_range_max = 7

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=4 format=3 uid="uid://md3ek0lf3xjj"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_qqvo5"]
+[ext_resource type="Resource" uid="uid://ci437p2s3qr7s" path="res://resources/enemies/baseline/trash/skirmisher.tres" id="2_ea451"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="3_3fv7v"]
+
+[resource]
+script = ExtResource("3_3fv7v")
+encounter_name = "Lone Skirmisher"
+encounter_id = "baseline_lone_skirmisher"
+enemies = Array[ExtResource("1_qqvo5")]([ExtResource("2_ea451")])
+enemy_slots = Array[int]([1])
+level_range_max = 3

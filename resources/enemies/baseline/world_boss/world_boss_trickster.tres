@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://dtscc5ywxrntk"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_kvbvn"]
+[ext_resource type="Resource" uid="uid://mrxvd5tmgbpd" path="res://resources/actions/enemy_base/poke.tres" id="2_chgcq"]
+[ext_resource type="Resource" uid="uid://m6wyov0hkvoh" path="res://resources/actions/enemy_base/hamstring.tres" id="3_vm64l"]
+[ext_resource type="Resource" uid="uid://bnmecfmmy1xsb" path="res://resources/actions/enemy_base/sabotage.tres" id="4_tgo5p"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_exhjg"]
+[ext_resource type="Resource" uid="uid://dukagxso81fx" path="res://resources/affixes/base_stats/enemy/enemy_health_agi_support.tres" id="6_pbba7"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_wnoow"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_2ka6u"]
+[ext_resource type="Resource" uid="uid://b47fenhk4xnx1" path="res://resources/dice/base/d10_none.tres" id="9_qsvg8"]
+[ext_resource type="Resource" uid="uid://b5i2xbuayuem8" path="res://resources/enemy_templates/support_agi.tres" id="10_a4flj"]
+
+[resource]
+script = ExtResource("7_wnoow")
+enemy_name = "World Boss Trickster"
+description = "Baseline World Boss Trickster."
+template = ExtResource("10_a4flj")
+combat_role = 4
+enemy_tags = PackedStringArray()
+max_health = 36
+starting_dice = Array[ExtResource("8_2ka6u")]([ExtResource("9_qsvg8"), ExtResource("9_qsvg8"), ExtResource("9_qsvg8")])
+combat_actions = Array[ExtResource("1_kvbvn")]([ExtResource("2_chgcq"), ExtResource("3_vm64l"), ExtResource("4_tgo5p")])
+experience_reward = 500
+gold_reward_min = 150
+gold_reward_max = 500
+enemy_tier = 4
+enemy_archetype = 2
+enemy_level_floor = 12
+level_scaling_multiplier = 1.15
+health_affix = ExtResource("6_pbba7")

@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://b6lt6g5lbjd8p"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_m7tdd"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_godpa"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_a633r"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_ok228"]
+
+[sub_resource type="Resource" id="Resource_o80ox"]
+script = ExtResource("1_m7tdd")
+effect_name = "Absorb Shield"
+target = 0
+effect_type = 5
+value_source = 1
+shield_multiplier = 1.2
+
+[sub_resource type="Resource" id="Resource_s8w8w"]
+script = ExtResource("1_m7tdd")
+effect_name = "Absorb Heal"
+target = 0
+effect_type = 1
+value_source = 1
+heal_multiplier = 0.3
+heal_uses_dice = true
+
+[resource]
+script = ExtResource("4_ok228")
+action_id = "absorb"
+action_name = "Absorb"
+action_description = "Barrier × 1.2 + heal for die × 0.3."
+effects = Array[ExtResource("1_m7tdd")]([SubResource("Resource_o80ox"), SubResource("Resource_s8w8w")])
+action_type = 1

@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://cwrnvcyhdbgqa"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_6307u"]
+[ext_resource type="Resource" uid="uid://bbxydxonqjqr1" path="res://resources/actions/enemy_base/stab.tres" id="2_d7uky"]
+[ext_resource type="Resource" uid="uid://60vdhkqylgag" path="res://resources/actions/enemy_base/quick_slash.tres" id="3_tpb6i"]
+[ext_resource type="Resource" uid="uid://dpwq1uu415clt" path="res://resources/actions/enemy_base/fan_of_blades.tres" id="4_luq1h"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_jr58r"]
+[ext_resource type="Resource" uid="uid://cighdri7vsxve" path="res://resources/affixes/base_stats/enemy/enemy_health_agi_skirmisher.tres" id="6_usfx2"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_5mpnb"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_8l5gt"]
+[ext_resource type="Resource" uid="uid://cmh0c5ttr7v77" path="res://resources/dice/base/d10_slashing.tres" id="9_sc1ei"]
+[ext_resource type="Resource" uid="uid://cupp6q7klqtkq" path="res://resources/enemy_templates/skirmisher_agi.tres" id="10_l86o8"]
+
+[resource]
+script = ExtResource("7_5mpnb")
+enemy_name = "World Boss Skirmisher"
+description = "Baseline World Boss Skirmisher."
+template = ExtResource("10_l86o8")
+combat_role = 1
+enemy_tags = PackedStringArray()
+max_health = 48
+starting_dice = Array[ExtResource("8_8l5gt")]([ExtResource("9_sc1ei"), ExtResource("9_sc1ei"), ExtResource("9_sc1ei"), ExtResource("9_sc1ei"), ExtResource("9_sc1ei")])
+combat_actions = Array[ExtResource("1_6307u")]([ExtResource("2_d7uky"), ExtResource("3_tpb6i"), ExtResource("4_luq1h")])
+action_delay = 0.7
+dice_drag_duration = 0.35
+experience_reward = 500
+gold_reward_min = 150
+gold_reward_max = 500
+enemy_tier = 4
+enemy_archetype = 2
+enemy_level_floor = 12
+level_scaling_multiplier = 1.2
+health_affix = ExtResource("6_usfx2")

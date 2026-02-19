@@ -1,0 +1,87 @@
+[gd_resource type="Resource" script_class="EnemyTemplate" load_steps=14 format=3 uid="uid://c2p4ewafuqmuw"]
+
+[ext_resource type="Script" uid="uid://cwrg87ac6o11i" path="res://resources/data/role_tier_budget.gd" id="1_1maqn"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_25gct"]
+[ext_resource type="Resource" uid="uid://w0fglebqspt6" path="res://resources/actions/enemy_base/shove.tres" id="3_vkvb8"]
+[ext_resource type="Resource" uid="uid://dxpghbyxtxwiv" path="res://resources/actions/enemy_base/war_cry.tres" id="4_rcu63"]
+[ext_resource type="Resource" uid="uid://27ono85pw0ws" path="res://resources/actions/enemy_base/rally.tres" id="5_vr85y"]
+[ext_resource type="Resource" uid="uid://1ujkpi2fli2j" path="res://resources/affixes/base_stats/enemy/enemy_health_str_support.tres" id="6_q86vp"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="7_dlwkn"]
+[ext_resource type="Script" uid="uid://dvo4fc8b1285h" path="res://resources/data/enemy_template.gd" id="8_ol2bm"]
+
+[sub_resource type="Resource" id="Resource_wf488"]
+script = ExtResource("1_1maqn")
+dice_count_min = 2
+dice_count_max = 3
+die_size_floor = 6
+die_size_ceiling = 8
+action_count = 5
+special_mechanic_budget = 3
+defense_scale = 0.8
+level_scaling = 1.05
+action_delay = 1.0
+dice_drag_duration = 0.5
+
+[sub_resource type="Resource" id="Resource_w10rr"]
+script = ExtResource("1_1maqn")
+action_count = 3
+special_mechanic_budget = 2
+health_scale = 0.7
+defense_scale = 0.4
+level_scaling = 0.9
+
+[sub_resource type="Resource" id="Resource_50n68"]
+script = ExtResource("1_1maqn")
+dice_count_min = 2
+die_size_floor = 6
+die_size_ceiling = 8
+action_count = 4
+special_mechanic_budget = 2
+health_scale = 0.8
+defense_scale = 0.6
+level_scaling = 0.95
+action_delay = 0.9
+dice_drag_duration = 0.45
+
+[sub_resource type="Resource" id="Resource_vekw3"]
+script = ExtResource("1_1maqn")
+dice_count_max = 1
+action_count = 2
+special_mechanic_budget = 1
+health_scale = 0.6
+defense_scale = 0.3
+level_scaling = 0.8
+override_ai_strategy = true
+ai_strategy_override = 1
+
+[sub_resource type="Resource" id="Resource_pyxp8"]
+script = ExtResource("1_1maqn")
+dice_count_min = 3
+dice_count_max = 3
+die_size_floor = 8
+die_size_ceiling = 10
+action_count = 6
+special_mechanic_budget = 4
+health_scale = 1.2
+level_scaling = 1.15
+action_delay = 1.0
+dice_drag_duration = 0.5
+
+[resource]
+script = ExtResource("8_ol2bm")
+template_name = "STR Support"
+template_description = "War drummer. Buffs ally damage. Kill priority target."
+role = 4
+dice_philosophy = 2
+defense_profile = 3
+default_ai_strategy = 1
+default_actions = Array[ExtResource("2_25gct")]([ExtResource("3_vkvb8"), ExtResource("4_rcu63"), ExtResource("5_vr85y")])
+health_weight = 0.6
+armor_weight = 0.3
+damage_weight = 0.3
+trash_budget = SubResource("Resource_vekw3")
+elite_budget = SubResource("Resource_w10rr")
+mini_boss_budget = SubResource("Resource_50n68")
+boss_budget = SubResource("Resource_wf488")
+world_boss_budget = SubResource("Resource_pyxp8")
+default_health_affix = ExtResource("6_q86vp")

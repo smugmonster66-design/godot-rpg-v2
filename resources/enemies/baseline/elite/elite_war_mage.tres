@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://cjs0oo60l3ihb"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_oky45"]
+[ext_resource type="Resource" uid="uid://jpm003yl37hf" path="res://resources/actions/enemy_base/arcane_push.tres" id="2_n188r"]
+[ext_resource type="Resource" uid="uid://b0ba558tkb3uk" path="res://resources/actions/enemy_base/barrier_pulse.tres" id="3_1yhyx"]
+[ext_resource type="Resource" uid="uid://b6lt6g5lbjd8p" path="res://resources/actions/enemy_base/absorb.tres" id="4_qlkw0"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_n7xfh"]
+[ext_resource type="Resource" uid="uid://sjtscukc8qjh" path="res://resources/affixes/base_stats/enemy/enemy_health_int_tank.tres" id="6_t4e7f"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_5o8qn"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_qj6v5"]
+[ext_resource type="Resource" uid="uid://dgqr1betlrb1u" path="res://resources/dice/base/d8_shadow.tres" id="9_hixc2"]
+[ext_resource type="Resource" uid="uid://h35oxp8kc0wd" path="res://resources/enemy_templates/tank_int.tres" id="10_v6gje"]
+
+[resource]
+script = ExtResource("7_5o8qn")
+enemy_name = "Elite War Mage"
+description = "Baseline Elite War Mage."
+template = ExtResource("10_v6gje")
+combat_role = 3
+enemy_tags = PackedStringArray()
+max_health = 21
+base_barrier = 3
+starting_dice = Array[ExtResource("8_qj6v5")]([ExtResource("9_hixc2"), ExtResource("9_hixc2")])
+combat_actions = Array[ExtResource("1_oky45")]([ExtResource("2_n188r"), ExtResource("3_1yhyx"), ExtResource("4_qlkw0")])
+ai_strategy = 1
+action_delay = 1.0
+dice_drag_duration = 0.5
+experience_reward = 30
+gold_reward_min = 10
+gold_reward_max = 30
+enemy_tier = 1
+enemy_archetype = 3
+enemy_level_floor = 3
+level_scaling_multiplier = 0.95
+health_affix = ExtResource("6_t4e7f")

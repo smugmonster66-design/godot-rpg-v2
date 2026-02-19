@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://0pygaobs5j01"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_drdfc"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_t5oxp"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_xk0x6"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_dyote"]
+
+[sub_resource type="Resource" id="Resource_x0hbu"]
+script = ExtResource("1_drdfc")
+effect_name = "Precision Damage"
+value_source = 1
+damage_type = 2
+base_damage = 3
+damage_multiplier = 1.3
+
+[resource]
+script = ExtResource("4_dyote")
+action_id = "precision_strike"
+action_name = "Precision Strike"
+action_description = "Deals 1D+3 Piercing damage."
+effects = Array[ExtResource("1_drdfc")]([SubResource("Resource_x0hbu")])
+base_damage = 3
+damage_multiplier = 1.3

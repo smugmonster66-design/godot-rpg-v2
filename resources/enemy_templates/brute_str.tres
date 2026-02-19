@@ -1,0 +1,96 @@
+[gd_resource type="Resource" script_class="EnemyTemplate" load_steps=14 format=3 uid="uid://b8a0hafcgbsq3"]
+
+[ext_resource type="Script" uid="uid://cwrg87ac6o11i" path="res://resources/data/role_tier_budget.gd" id="1_mitx0"]
+[ext_resource type="Resource" uid="uid://chmejcvma7x2j" path="res://resources/affixes/base_stats/enemy/enemy_health_str_brute.tres" id="2_7os6x"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_w6vhs"]
+[ext_resource type="Resource" uid="uid://begv50agccdr2" path="res://resources/actions/enemy_base/smash.tres" id="3_43p45"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_w6vhs"]
+[ext_resource type="Script" uid="uid://dvo4fc8b1285h" path="res://resources/data/enemy_template.gd" id="4_egrtl"]
+[ext_resource type="Resource" uid="uid://c2o8najs6s3xh" path="res://resources/actions/enemy_base/brace.tres" id="4_llbec"]
+[ext_resource type="Resource" uid="uid://j6lnu4bac00v" path="res://resources/actions/enemy_base/crushing_blow.tres" id="5_eqn70"]
+
+[sub_resource type="Resource" id="Resource_j5f5a"]
+script = ExtResource("1_mitx0")
+dice_count_min = 3
+dice_count_max = 4
+die_size_floor = 8
+die_size_ceiling = 12
+action_count = 4
+multi_die_action_budget = 1
+special_mechanic_budget = 2
+health_scale = 2.0
+defense_scale = 1.5
+level_scaling = 1.1
+override_ai_strategy = true
+ai_strategy_override = 2
+action_delay = 1.0
+dice_drag_duration = 0.5
+
+[sub_resource type="Resource" id="Resource_om5cq"]
+script = ExtResource("1_mitx0")
+dice_count_min = 2
+dice_count_max = 3
+die_size_floor = 6
+die_size_ceiling = 10
+action_count = 3
+special_mechanic_budget = 1
+health_scale = 1.3
+defense_scale = 1.2
+level_scaling = 0.95
+
+[sub_resource type="Resource" id="Resource_cph77"]
+script = ExtResource("1_mitx0")
+dice_count_min = 3
+dice_count_max = 3
+die_size_floor = 8
+die_size_ceiling = 10
+action_count = 3
+special_mechanic_budget = 1
+health_scale = 1.5
+defense_scale = 1.3
+level_scaling = 1.0
+action_delay = 0.9
+dice_drag_duration = 0.45
+
+[sub_resource type="Resource" id="Resource_3auon"]
+script = ExtResource("1_mitx0")
+die_size_floor = 6
+die_size_ceiling = 8
+action_count = 2
+health_scale = 1.2
+override_ai_strategy = true
+ai_strategy_override = 0
+action_delay = 0.7
+dice_drag_duration = 0.35
+
+[sub_resource type="Resource" id="Resource_8rawt"]
+script = ExtResource("1_mitx0")
+dice_count_min = 4
+dice_count_max = 5
+die_size_floor = 10
+die_size_ceiling = 12
+action_count = 6
+multi_die_action_budget = 1
+special_mechanic_budget = 3
+health_scale = 3.0
+defense_scale = 2.0
+level_scaling = 1.2
+override_ai_strategy = true
+ai_strategy_override = 2
+action_delay = 1.1
+dice_drag_duration = 0.5
+
+[resource]
+script = ExtResource("4_egrtl")
+template_name = "STR Brute"
+template_description = "High single-target physical damage. Armor-heavy. Aggressive."
+default_actions = Array[ExtResource("2_w6vhs")]([ExtResource("3_43p45"), ExtResource("4_llbec"), ExtResource("5_eqn70")])
+health_weight = 1.2
+armor_weight = 1.3
+damage_weight = 1.3
+trash_budget = SubResource("Resource_3auon")
+elite_budget = SubResource("Resource_om5cq")
+mini_boss_budget = SubResource("Resource_cph77")
+boss_budget = SubResource("Resource_j5f5a")
+world_boss_budget = SubResource("Resource_8rawt")
+default_health_affix = ExtResource("2_7os6x")

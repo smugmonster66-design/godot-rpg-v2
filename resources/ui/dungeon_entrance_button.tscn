@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://bvb7r5rwfohfr"]
 
 [ext_resource type="Script" uid="uid://npjmm1fjaj8t" path="res://scripts/map/dungeon_entrance.gd" id="1_script"]
-[ext_resource type="Resource" uid="uid://cxorgt3nixhcs" path="res://resources/dungeon/dungeon_test.tres" id="2_0q5pq"]
+[ext_resource type="Resource" uid="uid://bgfv53lpvqk5j" path="res://resources/dungeon/baseline_test.tres" id="2_0q5pq"]
 
 [node name="DungeonEntranceButton" type="Button"]
 custom_minimum_size = Vector2(200, 60)

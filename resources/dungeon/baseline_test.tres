@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="DungeonDefinition" load_steps=26 format=3 uid="uid://bgfv53lpvqk5j"]
+
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="1_d4k1u"]
+[ext_resource type="Resource" uid="uid://b2jm7a2c1fqej" path="res://resources/encounters/baseline/boss/boss_brute_solo.tres" id="2_lh4ub"]
+[ext_resource type="Resource" uid="uid://3mwd8i6hjdyb" path="res://resources/encounters/baseline/boss/boss_archmage_guard.tres" id="3_8e1m1"]
+[ext_resource type="Resource" uid="uid://p3j0uf51ig0w" path="res://resources/encounters/baseline/boss/boss_tank_retinue.tres" id="4_78m1m"]
+[ext_resource type="Resource" uid="uid://d05qkh4y0k7g6" path="res://resources/encounters/baseline/trash/lone_brute.tres" id="5_7hygi"]
+[ext_resource type="Resource" uid="uid://dki6wgs3pobtc" path="res://resources/encounters/baseline/trash/lone_duelist.tres" id="6_p6n68"]
+[ext_resource type="Resource" uid="uid://md3ek0lf3xjj" path="res://resources/encounters/baseline/trash/lone_skirmisher.tres" id="7_uxieq"]
+[ext_resource type="Resource" uid="uid://besmfolci8eq5" path="res://resources/encounters/baseline/trash/lone_tank.tres" id="8_xse3r"]
+[ext_resource type="Resource" uid="uid://7i71ic5l077c" path="res://resources/encounters/baseline/trash/lone_archmage.tres" id="9_r8p61"]
+[ext_resource type="Resource" uid="uid://7l1to3exgwns" path="res://resources/encounters/baseline/trash/brute_skirmisher.tres" id="10_q3l3v"]
+[ext_resource type="Resource" uid="uid://8xfp6ntk1bv6" path="res://resources/encounters/baseline/trash/duelist_trickster.tres" id="11_yobtu"]
+[ext_resource type="Resource" uid="uid://b18c2dv8ph3ta" path="res://resources/encounters/baseline/trash/battlemage_archmage.tres" id="12_ksjw1"]
+[ext_resource type="Resource" uid="uid://cd8w461vppjjo" path="res://resources/encounters/baseline/trash/tank_marshal.tres" id="13_uplyx"]
+[ext_resource type="Resource" uid="uid://8a1na6imcxvq" path="res://resources/encounters/baseline/trash/brute_support.tres" id="14_1uwoi"]
+[ext_resource type="Resource" uid="uid://c62tu0t50yiya" path="res://resources/encounters/baseline/elite/elite_tank_archmage.tres" id="15_cfmnd"]
+[ext_resource type="Resource" uid="uid://bcb2i2qus8qmk" path="res://resources/encounters/baseline/elite/elite_brute_marshal.tres" id="16_ouy0e"]
+[ext_resource type="Resource" uid="uid://bgm4lbscmxjko" path="res://resources/encounters/baseline/elite/elite_warmage_duelist.tres" id="17_soejd"]
+[ext_resource type="Resource" uid="uid://i3262h3phxw0" path="res://resources/encounters/baseline/elite/elite_skirmish_ambush.tres" id="18_dkoad"]
+[ext_resource type="Resource" uid="uid://blfjbs2tm6d33" path="res://resources/encounters/baseline/elite/elite_war_party.tres" id="19_uucg6"]
+[ext_resource type="Resource" uid="uid://dfduut7xmku7e" path="res://resources/encounters/baseline/elite/elite_brute_squad.tres" id="20_a6hsr"]
+[ext_resource type="Script" uid="uid://wf1v60wcm56b" path="res://resources/data/dungeon_event.gd" id="21_28wgp"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="22_ogo33"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="23_ru3cr"]
+[ext_resource type="Script" uid="uid://bg3nj47jgiftx" path="res://resources/data/dungeon_definition.gd" id="24_s0ynn"]
+[ext_resource type="Script" uid="uid://dejkynwv48tug" path="res://resources/data/dungeon_shrine.gd" id="25_1rboc"]
+
+[resource]
+script = ExtResource("24_s0ynn")
+dungeon_name = "Baseline Test Dungeon"
+dungeon_id = "baseline_test"
+description = "Auto-generated test dungeon using all baseline enemy templates. 8 floors, balanced encounters."
+floor_count = 8
+dungeon_level = 3
+combat_encounters = Array[ExtResource("1_d4k1u")]([ExtResource("5_7hygi"), ExtResource("6_p6n68"), ExtResource("7_uxieq"), ExtResource("8_xse3r"), ExtResource("9_r8p61"), ExtResource("10_q3l3v"), ExtResource("11_yobtu"), ExtResource("12_ksjw1"), ExtResource("13_uplyx"), ExtResource("14_1uwoi")])
+elite_encounters = Array[ExtResource("1_d4k1u")]([ExtResource("15_cfmnd"), ExtResource("16_ouy0e"), ExtResource("17_soejd"), ExtResource("18_dkoad"), ExtResource("19_uucg6"), ExtResource("20_a6hsr")])
+boss_encounters = Array[ExtResource("1_d4k1u")]([ExtResource("2_lh4ub"), ExtResource("3_8e1m1"), ExtResource("4_78m1m")])

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=5 format=3 uid="uid://8a1na6imcxvq"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_cnnlg"]
+[ext_resource type="Resource" uid="uid://b7di8yda71omu" path="res://resources/enemies/baseline/trash/brute.tres" id="2_7o8qs"]
+[ext_resource type="Resource" uid="uid://b4lib6neuhxsf" path="res://resources/enemies/baseline/trash/support_mage.tres" id="3_ki5sa"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="4_uli4x"]
+
+[resource]
+script = ExtResource("4_uli4x")
+encounter_name = "Brute & Support Mage"
+encounter_id = "baseline_brute_support"
+enemies = Array[ExtResource("1_cnnlg")]([ExtResource("2_7o8qs"), ExtResource("3_ki5sa")])
+enemy_slots = Array[int]([0, 2])
+difficulty_tier = 2
+level_range_max = 4

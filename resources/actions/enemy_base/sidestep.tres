@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://b4lx64hb2j18d"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_wy5sw"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_8vndt"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_wgfql"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_rt8oq"]
+
+[sub_resource type="Resource" id="Resource_dqffg"]
+script = ExtResource("1_wy5sw")
+effect_name = "Sidestep DR"
+target = 0
+effect_type = 7
+reduction_amount = 2.0
+
+[resource]
+script = ExtResource("4_rt8oq")
+action_id = "sidestep"
+action_name = "Sidestep"
+action_description = "Reduce incoming damage by 2 for 1 turn."
+effects = Array[ExtResource("1_wy5sw")]([SubResource("Resource_dqffg")])
+action_type = 1

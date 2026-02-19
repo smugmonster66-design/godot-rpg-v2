@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://d07rwsresjeaf"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_632bv"]
+[ext_resource type="Resource" uid="uid://w0fglebqspt6" path="res://resources/actions/enemy_base/shove.tres" id="2_lvm65"]
+[ext_resource type="Resource" uid="uid://dxpghbyxtxwiv" path="res://resources/actions/enemy_base/war_cry.tres" id="3_sl0qk"]
+[ext_resource type="Resource" uid="uid://27ono85pw0ws" path="res://resources/actions/enemy_base/rally.tres" id="4_i1yaf"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_u8v22"]
+[ext_resource type="Resource" uid="uid://1ujkpi2fli2j" path="res://resources/affixes/base_stats/enemy/enemy_health_str_support.tres" id="6_4y87w"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_xiwwr"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_1rhjw"]
+[ext_resource type="Resource" uid="uid://mxojnvfwmj81" path="res://resources/dice/base/d8_none.tres" id="9_n6y0s"]
+[ext_resource type="Resource" uid="uid://c2p4ewafuqmuw" path="res://resources/enemy_templates/support_str.tres" id="10_lv3tc"]
+
+[resource]
+script = ExtResource("7_xiwwr")
+enemy_name = "Boss Marshal"
+description = "Baseline Boss Marshal."
+template = ExtResource("10_lv3tc")
+combat_role = 4
+enemy_tags = PackedStringArray()
+max_health = 24
+starting_dice = Array[ExtResource("8_1rhjw")]([ExtResource("9_n6y0s"), ExtResource("9_n6y0s"), ExtResource("9_n6y0s")])
+combat_actions = Array[ExtResource("1_632bv")]([ExtResource("2_lvm65"), ExtResource("3_sl0qk"), ExtResource("4_i1yaf")])
+ai_strategy = 1
+action_delay = 1.0
+dice_drag_duration = 0.5
+experience_reward = 150
+gold_reward_min = 50
+gold_reward_max = 150
+enemy_tier = 3
+enemy_archetype = 1
+enemy_level_floor = 8
+level_scaling_multiplier = 1.05
+health_affix = ExtResource("6_4y87w")

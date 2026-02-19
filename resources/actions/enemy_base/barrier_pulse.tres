@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://b0ba558tkb3uk"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_qkf3i"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_b18a1"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_sme57"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_nog20"]
+
+[sub_resource type="Resource" id="Resource_lvw0v"]
+script = ExtResource("1_qkf3i")
+effect_name = "Pulse Shield"
+target = 0
+effect_type = 5
+value_source = 1
+
+[resource]
+script = ExtResource("4_nog20")
+action_id = "barrier_pulse"
+action_name = "Barrier Pulse"
+action_description = "Gain barrier equal to die value."
+effects = Array[ExtResource("1_qkf3i")]([SubResource("Resource_lvw0v")])
+action_type = 1

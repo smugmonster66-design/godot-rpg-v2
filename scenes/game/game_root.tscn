@@ -15,7 +15,7 @@
 [ext_resource type="PackedScene" uid="uid://b4cwd535525ap" path="res://scenes/ui/menus/player_menu.tscn" id="11_c2lvh"]
 [ext_resource type="PackedScene" uid="uid://c8lkjoshcff88" path="res://scenes/ui/popups/post_combat_summary.tscn" id="12_a6cr8"]
 [ext_resource type="PackedScene" uid="uid://bvb7r5rwfohfr" path="res://resources/ui/dungeon_entrance_button.tscn" id="15_h5onw"]
-[ext_resource type="Resource" uid="uid://cxorgt3nixhcs" path="res://resources/dungeon/dungeon_test.tres" id="16_f3gwi"]
+[ext_resource type="Resource" uid="uid://bgfv53lpvqk5j" path="res://resources/dungeon/baseline_test.tres" id="16_kdtot"]
 [ext_resource type="PackedScene" path="res://scenes/debug/debug_loot_panel.tscn" id="17_kdtot"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_n6w2t"]
@@ -167,7 +167,7 @@ offset_left = 854.0
 offset_top = 1516.0
 offset_right = 1054.0
 offset_bottom = 1576.0
-dungeon_definition = ExtResource("16_f3gwi")
+dungeon_definition = ExtResource("16_kdtot")
 
 [node name="DebugLayer" type="CanvasLayer" parent="."]
 layer = 200

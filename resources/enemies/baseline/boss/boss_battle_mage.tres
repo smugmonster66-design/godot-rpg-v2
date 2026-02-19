@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://dncexqigx7kb3"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_1jwbo"]
+[ext_resource type="Resource" uid="uid://c63ch5dhpuvv3" path="res://resources/actions/enemy_base/spark.tres" id="2_182k1"]
+[ext_resource type="Resource" uid="uid://dkskjvqg2xh1k" path="res://resources/actions/enemy_base/frost_shard.tres" id="3_5lo23"]
+[ext_resource type="Resource" uid="uid://dq1xdlnoycvj4" path="res://resources/actions/enemy_base/chain_spark.tres" id="4_i3bjh"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_vsfxw"]
+[ext_resource type="Resource" uid="uid://cneee54ixptk" path="res://resources/affixes/base_stats/enemy/enemy_health_int_skirmisher.tres" id="6_ekg24"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_yg3pf"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_qvyev"]
+[ext_resource type="Resource" uid="uid://crc3ijiparone" path="res://resources/dice/base/d10_shock.tres" id="9_pdm66"]
+[ext_resource type="Resource" uid="uid://uaul0xfqknlx" path="res://resources/dice/base/d10_ice.tres" id="10_5mlxv"]
+[ext_resource type="Resource" uid="uid://dvrwpotgjid2c" path="res://resources/enemy_templates/skirmisher_int.tres" id="11_us1i4"]
+
+[resource]
+script = ExtResource("7_yg3pf")
+enemy_name = "Boss Battle Mage"
+description = "Baseline Boss Battle Mage."
+template = ExtResource("11_us1i4")
+combat_role = 1
+enemy_tags = PackedStringArray()
+max_health = 32
+base_barrier = 1
+starting_dice = Array[ExtResource("8_qvyev")]([ExtResource("9_pdm66"), ExtResource("10_5mlxv"), ExtResource("9_pdm66"), ExtResource("10_5mlxv")])
+combat_actions = Array[ExtResource("1_1jwbo")]([ExtResource("2_182k1"), ExtResource("3_5lo23"), ExtResource("4_i3bjh")])
+action_delay = 0.7
+dice_drag_duration = 0.35
+experience_reward = 150
+gold_reward_min = 50
+gold_reward_max = 150
+enemy_tier = 3
+enemy_archetype = 3
+enemy_level_floor = 8
+level_scaling_multiplier = 1.1
+health_affix = ExtResource("6_ekg24")

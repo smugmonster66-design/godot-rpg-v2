@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://bmupr6avsvh7j"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_pd3n0"]
+[ext_resource type="Resource" uid="uid://bbxydxonqjqr1" path="res://resources/actions/enemy_base/stab.tres" id="2_6df0u"]
+[ext_resource type="Resource" uid="uid://60vdhkqylgag" path="res://resources/actions/enemy_base/quick_slash.tres" id="3_rpbjf"]
+[ext_resource type="Resource" uid="uid://dpwq1uu415clt" path="res://resources/actions/enemy_base/fan_of_blades.tres" id="4_yu576"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_soirc"]
+[ext_resource type="Resource" uid="uid://cighdri7vsxve" path="res://resources/affixes/base_stats/enemy/enemy_health_agi_skirmisher.tres" id="6_na8u2"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_whs2n"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_bb871"]
+[ext_resource type="Resource" uid="uid://cyfnae7ocl3lt" path="res://resources/dice/base/d6_slashing.tres" id="9_c6dq3"]
+[ext_resource type="Resource" uid="uid://cupp6q7klqtkq" path="res://resources/enemy_templates/skirmisher_agi.tres" id="10_024sc"]
+
+[resource]
+script = ExtResource("7_whs2n")
+enemy_name = "Elite Skirmisher"
+description = "Baseline Elite Skirmisher."
+template = ExtResource("10_024sc")
+combat_role = 1
+max_health = 12
+starting_dice = Array[ExtResource("8_bb871")]([ExtResource("9_c6dq3"), ExtResource("9_c6dq3"), ExtResource("9_c6dq3")])
+combat_actions = Array[ExtResource("1_pd3n0")]([ExtResource("2_6df0u"), ExtResource("3_rpbjf"), ExtResource("4_yu576")])
+action_delay = 0.5
+dice_drag_duration = 0.3
+experience_reward = 30
+gold_reward_min = 10
+gold_reward_max = 30
+enemy_tier = 1
+enemy_archetype = 2
+enemy_level_floor = 3
+level_scaling_multiplier = 0.95
+health_affix = ExtResource("6_na8u2")

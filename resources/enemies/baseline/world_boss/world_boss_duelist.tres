@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://8rhgireuvj20"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_h3mhb"]
+[ext_resource type="Resource" uid="uid://0pygaobs5j01" path="res://resources/actions/enemy_base/precision_strike.tres" id="2_0g0x0"]
+[ext_resource type="Resource" uid="uid://b4lx64hb2j18d" path="res://resources/actions/enemy_base/sidestep.tres" id="3_fwpi5"]
+[ext_resource type="Resource" uid="uid://b1adqw72u5auw" path="res://resources/actions/enemy_base/crippling_thrust.tres" id="4_v0hxu"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_1nxw3"]
+[ext_resource type="Resource" uid="uid://kq714ftw81r7" path="res://resources/affixes/base_stats/enemy/enemy_health_agi_brute.tres" id="6_stwk1"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_bq7qv"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_1rk2n"]
+[ext_resource type="Resource" uid="uid://b2ia6xx7bjsoh" path="res://resources/dice/base/d12_piercing.tres" id="9_hnm2u"]
+[ext_resource type="Resource" uid="uid://chq1ry50v1nwr" path="res://resources/enemy_templates/brute_agi.tres" id="10_4mi03"]
+
+[resource]
+script = ExtResource("7_bq7qv")
+enemy_name = "World Boss Duelist"
+description = "Baseline World Boss Duelist."
+template = ExtResource("10_4mi03")
+enemy_tags = PackedStringArray()
+max_health = 54
+starting_dice = Array[ExtResource("8_1rk2n")]([ExtResource("9_hnm2u"), ExtResource("9_hnm2u"), ExtResource("9_hnm2u"), ExtResource("9_hnm2u"), ExtResource("9_hnm2u")])
+combat_actions = Array[ExtResource("1_h3mhb")]([ExtResource("2_0g0x0"), ExtResource("3_fwpi5"), ExtResource("4_v0hxu")])
+action_delay = 1.0
+dice_drag_duration = 0.5
+experience_reward = 500
+gold_reward_min = 150
+gold_reward_max = 500
+enemy_tier = 4
+enemy_archetype = 2
+enemy_level_floor = 12
+level_scaling_multiplier = 1.2
+health_affix = ExtResource("6_stwk1")

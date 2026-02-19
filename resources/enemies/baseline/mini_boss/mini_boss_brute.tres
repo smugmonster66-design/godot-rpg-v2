@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://matp0ed8qolx"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_a4qif"]
+[ext_resource type="Resource" uid="uid://begv50agccdr2" path="res://resources/actions/enemy_base/smash.tres" id="2_5o8k1"]
+[ext_resource type="Resource" uid="uid://c2o8najs6s3xh" path="res://resources/actions/enemy_base/brace.tres" id="3_427tj"]
+[ext_resource type="Resource" uid="uid://j6lnu4bac00v" path="res://resources/actions/enemy_base/crushing_blow.tres" id="4_q6ii0"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_bnthy"]
+[ext_resource type="Resource" uid="uid://chmejcvma7x2j" path="res://resources/affixes/base_stats/enemy/enemy_health_str_brute.tres" id="6_u8s13"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_v34yf"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_4dqkm"]
+[ext_resource type="Resource" uid="uid://bgdlfehv60402" path="res://resources/dice/base/d10_blunt.tres" id="9_ty6ph"]
+[ext_resource type="Resource" uid="uid://b8a0hafcgbsq3" path="res://resources/enemy_templates/brute_str.tres" id="10_pufwd"]
+
+[resource]
+script = ExtResource("7_v34yf")
+enemy_name = "Mini-Boss Brute"
+description = "Baseline Mini-Boss Brute."
+template = ExtResource("10_pufwd")
+enemy_tags = PackedStringArray()
+max_health = 30
+base_armor = 2
+starting_dice = Array[ExtResource("8_4dqkm")]([ExtResource("9_ty6ph"), ExtResource("9_ty6ph"), ExtResource("9_ty6ph")])
+combat_actions = Array[ExtResource("1_a4qif")]([ExtResource("2_5o8k1"), ExtResource("3_427tj"), ExtResource("4_q6ii0")])
+ai_strategy = 0
+action_delay = 0.9
+dice_drag_duration = 0.45
+experience_reward = 75
+gold_reward_min = 25
+gold_reward_max = 75
+enemy_tier = 2
+enemy_archetype = 1
+enemy_level_floor = 5
+level_scaling_multiplier = 1.0
+health_affix = ExtResource("6_u8s13")

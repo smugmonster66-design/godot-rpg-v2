@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://c7qg0g1cwoarb"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_luk30"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_065og"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_lgw3t"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_aetl7"]
+
+[sub_resource type="Resource" id="Resource_a2t32"]
+script = ExtResource("1_luk30")
+effect_name = "Mass Heal"
+target = 4
+effect_type = 1
+value_source = 1
+heal_multiplier = 0.6
+heal_uses_dice = true
+
+[sub_resource type="Resource" id="Resource_g2hkp"]
+script = ExtResource("1_luk30")
+effect_name = "Mass Cleanse"
+target = 4
+effect_type = 4
+cleanse_tags = Array[String](["debuff"])
+
+[resource]
+script = ExtResource("4_aetl7")
+action_id = "mass_mend"
+action_name = "Mass Mend"
+action_description = "Heal all allies for die × 0.6 + cleanse."
+effects = Array[ExtResource("1_luk30")]([SubResource("Resource_a2t32"), SubResource("Resource_g2hkp")])
+action_type = 2

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=4 format=3 uid="uid://dki6wgs3pobtc"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_moeex"]
+[ext_resource type="Resource" uid="uid://cx6o62wf7rquf" path="res://resources/enemies/baseline/trash/duelist.tres" id="2_y5qwn"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="3_1ytff"]
+
+[resource]
+script = ExtResource("3_1ytff")
+encounter_name = "Lone Duelist"
+encounter_id = "baseline_lone_duelist"
+enemies = Array[ExtResource("1_moeex")]([ExtResource("2_y5qwn")])
+enemy_slots = Array[int]([1])
+level_range_max = 3

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=4 format=3 uid="uid://d05qkh4y0k7g6"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_qm8ot"]
+[ext_resource type="Resource" uid="uid://b7di8yda71omu" path="res://resources/enemies/baseline/trash/brute.tres" id="2_fn7x1"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="3_fujr1"]
+
+[resource]
+script = ExtResource("3_fujr1")
+encounter_name = "Lone Brute"
+encounter_id = "baseline_lone_brute"
+enemies = Array[ExtResource("1_qm8ot")]([ExtResource("2_fn7x1")])
+enemy_slots = Array[int]([1])
+level_range_max = 3

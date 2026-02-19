@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=4 format=3 uid="uid://7i71ic5l077c"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_r82lt"]
+[ext_resource type="Resource" uid="uid://cy35cdenlfxfl" path="res://resources/enemies/baseline/trash/archmage.tres" id="2_ixyo4"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="3_qcape"]
+
+[resource]
+script = ExtResource("3_qcape")
+encounter_name = "Lone Archmage"
+encounter_id = "baseline_lone_archmage"
+enemies = Array[ExtResource("1_r82lt")]([ExtResource("2_ixyo4")])
+enemy_slots = Array[int]([1])
+level_range_max = 3

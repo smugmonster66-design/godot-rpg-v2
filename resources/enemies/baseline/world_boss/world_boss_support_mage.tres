@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://cegnjs48qwkwg"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_xur8c"]
+[ext_resource type="Resource" uid="uid://c7iy0ygach72r" path="res://resources/actions/enemy_base/mend.tres" id="2_5w0na"]
+[ext_resource type="Resource" uid="uid://c87rfrpoukh2" path="res://resources/actions/enemy_base/hex.tres" id="3_dxkub"]
+[ext_resource type="Resource" uid="uid://c7qg0g1cwoarb" path="res://resources/actions/enemy_base/mass_mend.tres" id="4_7grlm"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_g70pl"]
+[ext_resource type="Resource" uid="uid://bgo3yy1bl73ml" path="res://resources/affixes/base_stats/enemy/enemy_health_int_support.tres" id="6_f5k8i"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_lqs7y"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_y2bjk"]
+[ext_resource type="Resource" uid="uid://b47fenhk4xnx1" path="res://resources/dice/base/d10_none.tres" id="9_ldi48"]
+[ext_resource type="Resource" uid="uid://syra6v8npt41" path="res://resources/enemy_templates/support_int.tres" id="10_bqkf4"]
+
+[resource]
+script = ExtResource("7_lqs7y")
+enemy_name = "World Boss Support Mage"
+description = "Baseline World Boss Support Mage."
+template = ExtResource("10_bqkf4")
+combat_role = 4
+enemy_tags = PackedStringArray()
+max_health = 36
+starting_dice = Array[ExtResource("8_y2bjk")]([ExtResource("9_ldi48"), ExtResource("9_ldi48"), ExtResource("9_ldi48")])
+combat_actions = Array[ExtResource("1_xur8c")]([ExtResource("2_5w0na"), ExtResource("3_dxkub"), ExtResource("4_7grlm")])
+ai_strategy = 1
+action_delay = 1.0
+dice_drag_duration = 0.5
+experience_reward = 500
+gold_reward_min = 150
+gold_reward_max = 500
+enemy_tier = 4
+enemy_archetype = 3
+enemy_level_floor = 12
+level_scaling_multiplier = 1.15
+health_affix = ExtResource("6_f5k8i")

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=5 format=3 uid="uid://cd8w461vppjjo"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_sy826"]
+[ext_resource type="Resource" uid="uid://c32f4hcdvk2n5" path="res://resources/enemies/baseline/trash/tank.tres" id="2_uvabs"]
+[ext_resource type="Resource" uid="uid://bvghtpg258tvw" path="res://resources/enemies/baseline/trash/marshal.tres" id="3_7pqpr"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="4_b5km1"]
+
+[resource]
+script = ExtResource("4_b5km1")
+encounter_name = "Tank & Marshal"
+encounter_id = "baseline_tank_marshal"
+enemies = Array[ExtResource("1_sy826")]([ExtResource("2_uvabs"), ExtResource("3_7pqpr")])
+enemy_slots = Array[int]([0, 2])
+difficulty_tier = 2
+level_range_max = 4

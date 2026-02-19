@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://bbxydxonqjqr1"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_fih6b"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_1imlq"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_21goe"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_56k0p"]
+
+[sub_resource type="Resource" id="Resource_syex5"]
+script = ExtResource("1_fih6b")
+effect_name = "Stab Damage"
+value_source = 1
+damage_type = 2
+
+[resource]
+script = ExtResource("4_56k0p")
+action_id = "stab"
+action_name = "Stab"
+action_description = "Deals 1D Piercing damage."
+effects = Array[ExtResource("1_fih6b")]([SubResource("Resource_syex5")])

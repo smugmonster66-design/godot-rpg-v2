@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://bcrg2hhi13oh"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_g2cqx"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_jfl76"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_b44wh"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_ln810"]
+
+[sub_resource type="Resource" id="Resource_i4gxi"]
+script = ExtResource("1_g2cqx")
+effect_name = "Fortify Armor"
+target = 0
+effect_type = 6
+value_source = 1
+armor_buff_uses_dice = true
+
+[sub_resource type="Resource" id="Resource_uvhig"]
+script = ExtResource("1_g2cqx")
+effect_name = "Fortify DR"
+target = 0
+effect_type = 7
+reduction_amount = 2.0
+
+[resource]
+script = ExtResource("4_ln810")
+action_id = "fortify"
+action_name = "Fortify"
+action_description = "Armor × 1.2 + reduce damage by 2."
+effects = Array[ExtResource("1_g2cqx")]([SubResource("Resource_i4gxi"), SubResource("Resource_uvhig")])
+action_type = 1

@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://dsj31x1uc0qji"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_7qvsh"]
+[ext_resource type="Resource" uid="uid://da2uxbu8iojio" path="res://resources/actions/enemy_base/slam.tres" id="2_5txpp"]
+[ext_resource type="Resource" uid="uid://buulrmrni365a" path="res://resources/actions/enemy_base/shield_wall.tres" id="3_84lpe"]
+[ext_resource type="Resource" uid="uid://bcrg2hhi13oh" path="res://resources/actions/enemy_base/fortify.tres" id="4_4ywg1"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_28k0g"]
+[ext_resource type="Resource" uid="uid://dk58bj3nm6p3k" path="res://resources/affixes/base_stats/enemy/enemy_health_str_tank.tres" id="6_8r116"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_yxh7q"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_l8dil"]
+[ext_resource type="Resource" uid="uid://bgdlfehv60402" path="res://resources/dice/base/d10_blunt.tres" id="9_01t6l"]
+[ext_resource type="Resource" uid="uid://cxim1rxv60be5" path="res://resources/enemy_templates/tank_str.tres" id="10_6glhh"]
+
+[resource]
+script = ExtResource("7_yxh7q")
+enemy_name = "World Boss Tank"
+description = "Baseline World Boss Tank."
+template = ExtResource("10_6glhh")
+combat_role = 3
+enemy_tags = PackedStringArray()
+max_health = 90
+base_armor = 7
+base_barrier = 1
+starting_dice = Array[ExtResource("8_l8dil")]([ExtResource("9_01t6l"), ExtResource("9_01t6l"), ExtResource("9_01t6l"), ExtResource("9_01t6l")])
+combat_actions = Array[ExtResource("1_7qvsh")]([ExtResource("2_5txpp"), ExtResource("3_84lpe"), ExtResource("4_4ywg1")])
+ai_strategy = 1
+action_delay = 1.2
+dice_drag_duration = 0.55
+experience_reward = 500
+gold_reward_min = 150
+gold_reward_max = 500
+enemy_tier = 4
+enemy_archetype = 1
+enemy_level_floor = 12
+level_scaling_multiplier = 1.2
+health_affix = ExtResource("6_8r116")

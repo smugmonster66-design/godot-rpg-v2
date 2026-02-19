@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=5 format=3 uid="uid://bcb2i2qus8qmk"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_2p5as"]
+[ext_resource type="Resource" uid="uid://bghvnw6v3e1t3" path="res://resources/enemies/baseline/elite/elite_brute.tres" id="2_5480n"]
+[ext_resource type="Resource" uid="uid://wabbkdffk76d" path="res://resources/enemies/baseline/elite/elite_marshal.tres" id="3_0w426"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="4_8se5k"]
+
+[resource]
+script = ExtResource("4_8se5k")
+encounter_name = "Elite Brute & Marshal"
+encounter_id = "baseline_elite_brute_marshal"
+enemies = Array[ExtResource("1_2p5as")]([ExtResource("2_5480n"), ExtResource("3_0w426")])
+enemy_slots = Array[int]([0, 2])
+difficulty_tier = 4
+level_range_min = 3
+level_range_max = 6

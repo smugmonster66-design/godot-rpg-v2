@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://cb4hd80flc7wg"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_mlfu0"]
+[ext_resource type="Resource" uid="uid://jpm003yl37hf" path="res://resources/actions/enemy_base/arcane_push.tres" id="2_3jtlt"]
+[ext_resource type="Resource" uid="uid://b0ba558tkb3uk" path="res://resources/actions/enemy_base/barrier_pulse.tres" id="3_jrch6"]
+[ext_resource type="Resource" uid="uid://b6lt6g5lbjd8p" path="res://resources/actions/enemy_base/absorb.tres" id="4_n50v4"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_3vx81"]
+[ext_resource type="Resource" uid="uid://sjtscukc8qjh" path="res://resources/affixes/base_stats/enemy/enemy_health_int_tank.tres" id="6_v2cyl"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_ja7e7"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_kc4gd"]
+[ext_resource type="Resource" uid="uid://ca11tg3hrcvkt" path="res://resources/dice/base/d10_shadow.tres" id="9_q2ete"]
+[ext_resource type="Resource" uid="uid://h35oxp8kc0wd" path="res://resources/enemy_templates/tank_int.tres" id="10_34mac"]
+
+[resource]
+script = ExtResource("7_ja7e7")
+enemy_name = "Boss War Mage"
+description = "Baseline Boss War Mage."
+template = ExtResource("10_34mac")
+combat_role = 3
+enemy_tags = PackedStringArray()
+max_health = 56
+base_barrier = 6
+starting_dice = Array[ExtResource("8_kc4gd")]([ExtResource("9_q2ete"), ExtResource("9_q2ete"), ExtResource("9_q2ete")])
+combat_actions = Array[ExtResource("1_mlfu0")]([ExtResource("2_3jtlt"), ExtResource("3_jrch6"), ExtResource("4_n50v4")])
+ai_strategy = 1
+action_delay = 1.2
+dice_drag_duration = 0.55
+experience_reward = 150
+gold_reward_min = 50
+gold_reward_max = 150
+enemy_tier = 3
+enemy_archetype = 3
+enemy_level_floor = 8
+level_scaling_multiplier = 1.1
+health_affix = ExtResource("6_v2cyl")

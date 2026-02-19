@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=5 format=3 uid="uid://c62tu0t50yiya"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_jq02w"]
+[ext_resource type="Resource" uid="uid://dyhgfxflmv7hf" path="res://resources/enemies/baseline/elite/elite_tank.tres" id="2_0xjom"]
+[ext_resource type="Resource" uid="uid://bbs2ktie4puey" path="res://resources/enemies/baseline/elite/elite_archmage.tres" id="3_ckj62"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="4_5ebcj"]
+
+[resource]
+script = ExtResource("4_5ebcj")
+encounter_name = "Elite Tank & Archmage"
+encounter_id = "baseline_elite_tank_archmage"
+enemies = Array[ExtResource("1_jq02w")]([ExtResource("2_0xjom"), ExtResource("3_ckj62")])
+enemy_slots = Array[int]([0, 2])
+difficulty_tier = 4
+level_range_min = 3
+level_range_max = 6

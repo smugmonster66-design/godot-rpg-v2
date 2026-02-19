@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://cneee54ixptk"]
+
+[ext_resource type="Curve" path="res://resources/affixes/global_roll_curve.tres" id="1_34p1l"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_plnk4"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_ip8nb"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_hbp4r"]
+
+[resource]
+script = ExtResource("3_ip8nb")
+affix_name = "Enemy Health (INT Skirmisher)"
+description = "+{value} Health"
+category = 28
+tags = Array[String](["defense", "inherent", "health", "enemy"])
+effect_min = 4.0
+effect_max = 180.0
+effect_curve = ExtResource("1_34p1l")

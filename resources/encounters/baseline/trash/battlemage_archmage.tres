@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=5 format=3 uid="uid://b18c2dv8ph3ta"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_ei3em"]
+[ext_resource type="Resource" uid="uid://cphwelbse0n84" path="res://resources/enemies/baseline/trash/battle_mage.tres" id="2_n8pv5"]
+[ext_resource type="Resource" uid="uid://cy35cdenlfxfl" path="res://resources/enemies/baseline/trash/archmage.tres" id="3_wgtxw"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="4_anall"]
+
+[resource]
+script = ExtResource("4_anall")
+encounter_name = "Battle Mage & Archmage"
+encounter_id = "baseline_battlemage_archmage"
+enemies = Array[ExtResource("1_ei3em")]([ExtResource("2_n8pv5"), ExtResource("3_wgtxw")])
+enemy_slots = Array[int]([0, 2])
+difficulty_tier = 2
+level_range_max = 4

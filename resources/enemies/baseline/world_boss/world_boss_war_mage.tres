@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://ocdpisum4pxb"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_axurg"]
+[ext_resource type="Resource" uid="uid://jpm003yl37hf" path="res://resources/actions/enemy_base/arcane_push.tres" id="2_xwoq4"]
+[ext_resource type="Resource" uid="uid://b0ba558tkb3uk" path="res://resources/actions/enemy_base/barrier_pulse.tres" id="3_fm43q"]
+[ext_resource type="Resource" uid="uid://b6lt6g5lbjd8p" path="res://resources/actions/enemy_base/absorb.tres" id="4_2xnkw"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_lltgk"]
+[ext_resource type="Resource" uid="uid://sjtscukc8qjh" path="res://resources/affixes/base_stats/enemy/enemy_health_int_tank.tres" id="6_tkmat"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_erem3"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_cqcjc"]
+[ext_resource type="Resource" uid="uid://ca11tg3hrcvkt" path="res://resources/dice/base/d10_shadow.tres" id="9_7x7r7"]
+[ext_resource type="Resource" uid="uid://h35oxp8kc0wd" path="res://resources/enemy_templates/tank_int.tres" id="10_do8fb"]
+
+[resource]
+script = ExtResource("7_erem3")
+enemy_name = "World Boss War Mage"
+description = "Baseline World Boss War Mage."
+template = ExtResource("10_do8fb")
+combat_role = 3
+enemy_tags = PackedStringArray()
+max_health = 84
+base_armor = 1
+base_barrier = 7
+starting_dice = Array[ExtResource("8_cqcjc")]([ExtResource("9_7x7r7"), ExtResource("9_7x7r7"), ExtResource("9_7x7r7"), ExtResource("9_7x7r7")])
+combat_actions = Array[ExtResource("1_axurg")]([ExtResource("2_xwoq4"), ExtResource("3_fm43q"), ExtResource("4_2xnkw")])
+ai_strategy = 1
+action_delay = 1.2
+dice_drag_duration = 0.55
+experience_reward = 500
+gold_reward_min = 150
+gold_reward_max = 500
+enemy_tier = 4
+enemy_archetype = 3
+enemy_level_floor = 12
+level_scaling_multiplier = 1.2
+health_affix = ExtResource("6_tkmat")

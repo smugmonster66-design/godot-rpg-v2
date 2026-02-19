@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=10 format=3 uid="uid://cx6o62wf7rquf"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_qc07j"]
+[ext_resource type="Resource" uid="uid://0pygaobs5j01" path="res://resources/actions/enemy_base/precision_strike.tres" id="2_mhdhv"]
+[ext_resource type="Resource" uid="uid://b4lx64hb2j18d" path="res://resources/actions/enemy_base/sidestep.tres" id="3_op5dw"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="4_vmn4t"]
+[ext_resource type="Resource" uid="uid://kq714ftw81r7" path="res://resources/affixes/base_stats/enemy/enemy_health_agi_brute.tres" id="5_gyj30"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="6_qo2d4"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="7_gemdk"]
+[ext_resource type="Resource" uid="uid://cviu4ii5jxi58" path="res://resources/dice/base/d8_piercing.tres" id="8_he50h"]
+[ext_resource type="Resource" uid="uid://chq1ry50v1nwr" path="res://resources/enemy_templates/brute_agi.tres" id="9_x1gyw"]
+
+[resource]
+script = ExtResource("6_qo2d4")
+enemy_name = "Duelist"
+description = "Baseline Duelist."
+template = ExtResource("9_x1gyw")
+enemy_tags = PackedStringArray()
+max_health = 9
+starting_dice = Array[ExtResource("7_gemdk")]([ExtResource("8_he50h"), ExtResource("8_he50h")])
+combat_actions = Array[ExtResource("1_qc07j")]([ExtResource("2_mhdhv"), ExtResource("3_op5dw")])
+ai_strategy = 0
+action_delay = 0.6
+dice_drag_duration = 0.3
+gold_reward_min = 3
+gold_reward_max = 10
+enemy_archetype = 2
+health_affix = ExtResource("5_gyj30")

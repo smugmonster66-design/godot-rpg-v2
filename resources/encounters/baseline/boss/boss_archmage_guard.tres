@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=5 format=3 uid="uid://3mwd8i6hjdyb"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_72trk"]
+[ext_resource type="Resource" uid="uid://brdo3botr1wj6" path="res://resources/enemies/baseline/boss/boss_archmage.tres" id="2_jvg1i"]
+[ext_resource type="Resource" uid="uid://dyhgfxflmv7hf" path="res://resources/enemies/baseline/elite/elite_tank.tres" id="3_mqhlo"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="4_i3ggj"]
+
+[resource]
+script = ExtResource("4_i3ggj")
+encounter_name = "Boss Archmage & Bodyguard"
+encounter_id = "baseline_boss_archmage_guard"
+enemies = Array[ExtResource("1_72trk")]([ExtResource("2_jvg1i"), ExtResource("3_mqhlo")])
+enemy_slots = Array[int]([1, 0])
+difficulty_tier = 8
+level_range_min = 7
+level_range_max = 10
+is_boss_encounter = true
+disable_fleeing = true

@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=10 format=3 uid="uid://c32f4hcdvk2n5"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_axf2n"]
+[ext_resource type="Resource" uid="uid://da2uxbu8iojio" path="res://resources/actions/enemy_base/slam.tres" id="2_rji65"]
+[ext_resource type="Resource" uid="uid://buulrmrni365a" path="res://resources/actions/enemy_base/shield_wall.tres" id="3_h3jab"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="4_mi108"]
+[ext_resource type="Resource" uid="uid://dk58bj3nm6p3k" path="res://resources/affixes/base_stats/enemy/enemy_health_str_tank.tres" id="5_dxh62"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="6_fvpkb"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="7_ifbhw"]
+[ext_resource type="Resource" uid="uid://njy4roswqqdg" path="res://resources/dice/base/d6_blunt.tres" id="8_ign8r"]
+[ext_resource type="Resource" uid="uid://cxim1rxv60be5" path="res://resources/enemy_templates/tank_str.tres" id="9_726t0"]
+
+[resource]
+script = ExtResource("6_fvpkb")
+enemy_name = "Tank"
+description = "Baseline Tank."
+template = ExtResource("9_726t0")
+combat_role = 3
+enemy_tags = PackedStringArray()
+max_health = 15
+base_armor = 3
+starting_dice = Array[ExtResource("7_ifbhw")]([ExtResource("8_ign8r"), ExtResource("8_ign8r")])
+combat_actions = Array[ExtResource("1_axf2n")]([ExtResource("2_rji65"), ExtResource("3_h3jab")])
+ai_strategy = 1
+action_delay = 1.0
+dice_drag_duration = 0.5
+gold_reward_min = 3
+gold_reward_max = 10
+enemy_archetype = 1
+health_affix = ExtResource("5_dxh62")

@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://bnmecfmmy1xsb"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_j6ifw"]
+[ext_resource type="Resource" uid="uid://i0gx0hubkmmx" path="res://resources/statuses/slowed.tres" id="2_2ot88"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="3_a04fi"]
+[ext_resource type="Resource" uid="uid://cfgr6ee2uth1t" path="res://resources/statuses/corrode.tres" id="4_xjfjf"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="5_elelc"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="6_hqt37"]
+
+[sub_resource type="Resource" id="Resource_0dgt3"]
+script = ExtResource("1_j6ifw")
+effect_name = "Sabo Slow"
+effect_type = 2
+status_affix = ExtResource("2_2ot88")
+stack_count = 2
+
+[sub_resource type="Resource" id="Resource_cka8u"]
+script = ExtResource("1_j6ifw")
+effect_name = "Sabo Corrode"
+effect_type = 2
+status_affix = ExtResource("4_xjfjf")
+stack_count = 2
+
+[resource]
+script = ExtResource("6_hqt37")
+action_id = "sabotage"
+action_name = "Sabotage"
+action_description = "Apply 2 Slowed + 2 Corrode."
+effects = Array[ExtResource("1_j6ifw")]([SubResource("Resource_0dgt3"), SubResource("Resource_cka8u")])
+action_type = 3

@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=10 format=3 uid="uid://bvghtpg258tvw"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_g4eul"]
+[ext_resource type="Resource" uid="uid://w0fglebqspt6" path="res://resources/actions/enemy_base/shove.tres" id="2_oydot"]
+[ext_resource type="Resource" uid="uid://dxpghbyxtxwiv" path="res://resources/actions/enemy_base/war_cry.tres" id="3_h7mxh"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="4_uohqh"]
+[ext_resource type="Resource" uid="uid://1ujkpi2fli2j" path="res://resources/affixes/base_stats/enemy/enemy_health_str_support.tres" id="5_1kupj"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="6_mf43d"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="7_ipncp"]
+[ext_resource type="Resource" uid="uid://by2va8u6atvcb" path="res://resources/dice/base/d6_none.tres" id="8_iesjs"]
+[ext_resource type="Resource" uid="uid://c2p4ewafuqmuw" path="res://resources/enemy_templates/support_str.tres" id="9_f3d8t"]
+
+[resource]
+script = ExtResource("6_mf43d")
+enemy_name = "Marshal"
+description = "Baseline Marshal."
+template = ExtResource("9_f3d8t")
+combat_role = 4
+enemy_tags = PackedStringArray()
+max_health = 6
+starting_dice = Array[ExtResource("7_ipncp")]([ExtResource("8_iesjs")])
+combat_actions = Array[ExtResource("1_g4eul")]([ExtResource("2_oydot"), ExtResource("3_h7mxh")])
+ai_strategy = 1
+gold_reward_min = 3
+gold_reward_max = 10
+enemy_archetype = 1
+level_scaling_multiplier = 0.8
+health_affix = ExtResource("5_1kupj")

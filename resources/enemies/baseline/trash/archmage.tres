@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=10 format=3 uid="uid://cy35cdenlfxfl"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_uhdsm"]
+[ext_resource type="Resource" uid="uid://t07im4pj58ml" path="res://resources/actions/enemy_base/magic_bolt.tres" id="2_l1mvk"]
+[ext_resource type="Resource" uid="uid://c8rvgwlhg87lm" path="res://resources/actions/enemy_base/ward.tres" id="3_ll0qk"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="4_f34yi"]
+[ext_resource type="Resource" uid="uid://dryx3uup40h6u" path="res://resources/affixes/base_stats/enemy/enemy_health_int_caster.tres" id="5_xi0pn"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="6_0jden"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="7_6u8q5"]
+[ext_resource type="Resource" uid="uid://gc6akc7crfwb" path="res://resources/dice/base/d6_fire.tres" id="8_0d7he"]
+[ext_resource type="Resource" uid="uid://dayw6ar4mjdg7" path="res://resources/enemy_templates/caster_int.tres" id="9_p7r5c"]
+
+[resource]
+script = ExtResource("6_0jden")
+enemy_name = "Archmage"
+description = "Baseline Archmage."
+template = ExtResource("9_p7r5c")
+combat_role = 2
+enemy_tags = PackedStringArray()
+max_health = 7
+base_barrier = 1
+starting_dice = Array[ExtResource("7_6u8q5")]([ExtResource("8_0d7he"), ExtResource("8_0d7he")])
+combat_actions = Array[ExtResource("1_uhdsm")]([ExtResource("2_l1mvk"), ExtResource("3_ll0qk")])
+ai_strategy = 3
+gold_reward_min = 3
+gold_reward_max = 10
+enemy_archetype = 3
+health_affix = ExtResource("5_xi0pn")

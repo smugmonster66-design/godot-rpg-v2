@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://b5kb3oo27x1ky"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_xb7s0"]
+[ext_resource type="Resource" uid="uid://w0fglebqspt6" path="res://resources/actions/enemy_base/shove.tres" id="2_32lw7"]
+[ext_resource type="Resource" uid="uid://dxpghbyxtxwiv" path="res://resources/actions/enemy_base/war_cry.tres" id="3_fkrdb"]
+[ext_resource type="Resource" uid="uid://27ono85pw0ws" path="res://resources/actions/enemy_base/rally.tres" id="4_rqd4j"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_yhhed"]
+[ext_resource type="Resource" uid="uid://1ujkpi2fli2j" path="res://resources/affixes/base_stats/enemy/enemy_health_str_support.tres" id="6_l5m8v"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_o8y86"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_fog4w"]
+[ext_resource type="Resource" uid="uid://b47fenhk4xnx1" path="res://resources/dice/base/d10_none.tres" id="9_kpkwu"]
+[ext_resource type="Resource" uid="uid://c2p4ewafuqmuw" path="res://resources/enemy_templates/support_str.tres" id="10_2fkqu"]
+
+[resource]
+script = ExtResource("7_o8y86")
+enemy_name = "World Boss Marshal"
+description = "Baseline World Boss Marshal."
+template = ExtResource("10_2fkqu")
+combat_role = 4
+enemy_tags = PackedStringArray()
+max_health = 36
+starting_dice = Array[ExtResource("8_fog4w")]([ExtResource("9_kpkwu"), ExtResource("9_kpkwu"), ExtResource("9_kpkwu")])
+combat_actions = Array[ExtResource("1_xb7s0")]([ExtResource("2_32lw7"), ExtResource("3_fkrdb"), ExtResource("4_rqd4j")])
+ai_strategy = 1
+action_delay = 1.0
+dice_drag_duration = 0.5
+experience_reward = 500
+gold_reward_min = 150
+gold_reward_max = 500
+enemy_tier = 4
+enemy_archetype = 1
+enemy_level_floor = 12
+level_scaling_multiplier = 1.15
+health_affix = ExtResource("6_l5m8v")

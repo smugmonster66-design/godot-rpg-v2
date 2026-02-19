@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://clkmkkcrbfqp4"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_3cs3k"]
+[ext_resource type="Resource" uid="uid://c7iy0ygach72r" path="res://resources/actions/enemy_base/mend.tres" id="2_tirq4"]
+[ext_resource type="Resource" uid="uid://c87rfrpoukh2" path="res://resources/actions/enemy_base/hex.tres" id="3_bv4l0"]
+[ext_resource type="Resource" uid="uid://c7qg0g1cwoarb" path="res://resources/actions/enemy_base/mass_mend.tres" id="4_ckv3w"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_22gmi"]
+[ext_resource type="Resource" uid="uid://bgo3yy1bl73ml" path="res://resources/affixes/base_stats/enemy/enemy_health_int_support.tres" id="6_ihb16"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_ub6ii"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_bd58a"]
+[ext_resource type="Resource" uid="uid://mxojnvfwmj81" path="res://resources/dice/base/d8_none.tres" id="9_3yiw2"]
+[ext_resource type="Resource" uid="uid://syra6v8npt41" path="res://resources/enemy_templates/support_int.tres" id="10_1a8mg"]
+
+[resource]
+script = ExtResource("7_ub6ii")
+enemy_name = "Mini-Boss Support Mage"
+description = "Baseline Mini-Boss Support Mage."
+template = ExtResource("10_1a8mg")
+combat_role = 4
+enemy_tags = PackedStringArray()
+max_health = 15
+starting_dice = Array[ExtResource("8_bd58a")]([ExtResource("9_3yiw2"), ExtResource("9_3yiw2")])
+combat_actions = Array[ExtResource("1_3cs3k")]([ExtResource("2_tirq4"), ExtResource("3_bv4l0"), ExtResource("4_ckv3w")])
+ai_strategy = 1
+action_delay = 0.9
+dice_drag_duration = 0.45
+experience_reward = 75
+gold_reward_min = 25
+gold_reward_max = 75
+enemy_tier = 2
+enemy_archetype = 3
+enemy_level_floor = 5
+level_scaling_multiplier = 0.95
+health_affix = ExtResource("6_ihb16")

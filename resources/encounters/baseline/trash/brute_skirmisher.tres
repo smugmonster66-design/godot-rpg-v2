@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=5 format=3 uid="uid://7l1to3exgwns"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_jvxa1"]
+[ext_resource type="Resource" uid="uid://b7di8yda71omu" path="res://resources/enemies/baseline/trash/brute.tres" id="2_bbvls"]
+[ext_resource type="Resource" uid="uid://ci437p2s3qr7s" path="res://resources/enemies/baseline/trash/skirmisher.tres" id="3_6iddq"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="4_nap5d"]
+
+[resource]
+script = ExtResource("4_nap5d")
+encounter_name = "Brute & Skirmisher"
+encounter_id = "baseline_brute_skirmisher"
+enemies = Array[ExtResource("1_jvxa1")]([ExtResource("2_bbvls"), ExtResource("3_6iddq")])
+enemy_slots = Array[int]([0, 2])
+difficulty_tier = 2
+level_range_max = 4

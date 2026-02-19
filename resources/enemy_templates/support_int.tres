@@ -1,0 +1,89 @@
+[gd_resource type="Resource" script_class="EnemyTemplate" load_steps=14 format=3 uid="uid://syra6v8npt41"]
+
+[ext_resource type="Script" uid="uid://cwrg87ac6o11i" path="res://resources/data/role_tier_budget.gd" id="1_wwv4n"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_rusn7"]
+[ext_resource type="Resource" uid="uid://c7iy0ygach72r" path="res://resources/actions/enemy_base/mend.tres" id="3_o5hyx"]
+[ext_resource type="Resource" uid="uid://c87rfrpoukh2" path="res://resources/actions/enemy_base/hex.tres" id="4_u3jtl"]
+[ext_resource type="Resource" uid="uid://c7qg0g1cwoarb" path="res://resources/actions/enemy_base/mass_mend.tres" id="5_y1g2w"]
+[ext_resource type="Resource" uid="uid://bgo3yy1bl73ml" path="res://resources/affixes/base_stats/enemy/enemy_health_int_support.tres" id="6_bgsf7"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="7_b1htk"]
+[ext_resource type="Script" uid="uid://dvo4fc8b1285h" path="res://resources/data/enemy_template.gd" id="8_wlwrg"]
+
+[sub_resource type="Resource" id="Resource_esfbf"]
+script = ExtResource("1_wwv4n")
+dice_count_min = 2
+dice_count_max = 3
+die_size_floor = 6
+die_size_ceiling = 8
+action_count = 5
+special_mechanic_budget = 4
+defense_scale = 0.8
+level_scaling = 1.05
+action_delay = 1.0
+dice_drag_duration = 0.5
+
+[sub_resource type="Resource" id="Resource_332er"]
+script = ExtResource("1_wwv4n")
+action_count = 3
+special_mechanic_budget = 2
+health_scale = 0.7
+defense_scale = 0.4
+level_scaling = 0.9
+
+[sub_resource type="Resource" id="Resource_40jqv"]
+script = ExtResource("1_wwv4n")
+dice_count_min = 2
+die_size_floor = 6
+die_size_ceiling = 8
+action_count = 4
+special_mechanic_budget = 3
+health_scale = 0.8
+defense_scale = 0.6
+level_scaling = 0.95
+action_delay = 0.9
+dice_drag_duration = 0.45
+
+[sub_resource type="Resource" id="Resource_7bqxq"]
+script = ExtResource("1_wwv4n")
+dice_count_max = 1
+action_count = 2
+special_mechanic_budget = 1
+health_scale = 0.6
+defense_scale = 0.3
+level_scaling = 0.8
+override_ai_strategy = true
+ai_strategy_override = 1
+
+[sub_resource type="Resource" id="Resource_c5rvd"]
+script = ExtResource("1_wwv4n")
+dice_count_min = 3
+dice_count_max = 3
+die_size_floor = 8
+die_size_ceiling = 10
+action_count = 6
+special_mechanic_budget = 5
+health_scale = 1.2
+level_scaling = 1.15
+action_delay = 1.0
+dice_drag_duration = 0.5
+
+[resource]
+script = ExtResource("8_wlwrg")
+template_name = "INT Support"
+template_description = "Healer and debuffer. Undoes player damage, applies slowed."
+role = 4
+archetype = 3
+dice_philosophy = 2
+defense_profile = 3
+default_ai_strategy = 1
+default_actions = Array[ExtResource("2_rusn7")]([ExtResource("3_o5hyx"), ExtResource("4_u3jtl"), ExtResource("5_y1g2w")])
+health_weight = 0.6
+armor_weight = 0.0
+barrier_weight = 0.3
+damage_weight = 0.2
+trash_budget = SubResource("Resource_7bqxq")
+elite_budget = SubResource("Resource_332er")
+mini_boss_budget = SubResource("Resource_40jqv")
+boss_budget = SubResource("Resource_esfbf")
+world_boss_budget = SubResource("Resource_c5rvd")
+default_health_affix = ExtResource("6_bgsf7")

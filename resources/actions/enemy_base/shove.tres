@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://w0fglebqspt6"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_v84xm"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_kodwi"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_derc8"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_n3juv"]
+
+[sub_resource type="Resource" id="Resource_mu0kh"]
+script = ExtResource("1_v84xm")
+effect_name = "Shove Damage"
+value_source = 1
+damage_type = 1
+damage_multiplier = 0.5
+
+[resource]
+script = ExtResource("4_n3juv")
+action_id = "shove"
+action_name = "Shove"
+action_description = "Weak Blunt hit at 0.5×."
+effects = Array[ExtResource("1_v84xm")]([SubResource("Resource_mu0kh")])
+damage_multiplier = 0.5

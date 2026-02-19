@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://m6wyov0hkvoh"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_6kl2o"]
+[ext_resource type="Resource" uid="uid://i0gx0hubkmmx" path="res://resources/statuses/slowed.tres" id="2_s1o4v"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="3_khcll"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_v8siv"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="5_sp6a7"]
+
+[sub_resource type="Resource" id="Resource_fiwgy"]
+script = ExtResource("1_6kl2o")
+effect_name = "Hamstring Slow"
+effect_type = 2
+status_affix = ExtResource("2_s1o4v")
+stack_count = 2
+
+[resource]
+script = ExtResource("5_sp6a7")
+action_id = "hamstring"
+action_name = "Hamstring"
+action_description = "Apply 2 Slowed to player."
+effects = Array[ExtResource("1_6kl2o")]([SubResource("Resource_fiwgy")])
+action_type = 3

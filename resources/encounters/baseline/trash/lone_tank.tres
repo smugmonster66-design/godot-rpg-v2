@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=4 format=3 uid="uid://besmfolci8eq5"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_r6gbg"]
+[ext_resource type="Resource" uid="uid://c32f4hcdvk2n5" path="res://resources/enemies/baseline/trash/tank.tres" id="2_gx2h3"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="3_co4p4"]
+
+[resource]
+script = ExtResource("3_co4p4")
+encounter_name = "Lone Tank"
+encounter_id = "baseline_lone_tank"
+enemies = Array[ExtResource("1_r6gbg")]([ExtResource("2_gx2h3")])
+enemy_slots = Array[int]([1])
+level_range_max = 3

@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=10 format=3 uid="uid://ci437p2s3qr7s"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_t1pgy"]
+[ext_resource type="Resource" uid="uid://bbxydxonqjqr1" path="res://resources/actions/enemy_base/stab.tres" id="2_0ommf"]
+[ext_resource type="Resource" uid="uid://60vdhkqylgag" path="res://resources/actions/enemy_base/quick_slash.tres" id="3_lpbk2"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="4_jwegv"]
+[ext_resource type="Resource" uid="uid://cighdri7vsxve" path="res://resources/affixes/base_stats/enemy/enemy_health_agi_skirmisher.tres" id="5_i44hj"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="6_x6s5g"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="7_j8jwm"]
+[ext_resource type="Resource" uid="uid://cyfnae7ocl3lt" path="res://resources/dice/base/d6_slashing.tres" id="8_nujq4"]
+[ext_resource type="Resource" uid="uid://cupp6q7klqtkq" path="res://resources/enemy_templates/skirmisher_agi.tres" id="9_uhnye"]
+
+[resource]
+script = ExtResource("6_x6s5g")
+enemy_name = "Skirmisher"
+description = "Baseline Skirmisher."
+template = ExtResource("9_uhnye")
+combat_role = 1
+enemy_tags = PackedStringArray()
+max_health = 8
+starting_dice = Array[ExtResource("7_j8jwm")]([ExtResource("8_nujq4"), ExtResource("8_nujq4"), ExtResource("8_nujq4")])
+combat_actions = Array[ExtResource("1_t1pgy")]([ExtResource("2_0ommf"), ExtResource("3_lpbk2")])
+action_delay = 0.5
+dice_drag_duration = 0.25
+gold_reward_min = 3
+gold_reward_max = 10
+enemy_archetype = 2
+health_affix = ExtResource("5_i44hj")

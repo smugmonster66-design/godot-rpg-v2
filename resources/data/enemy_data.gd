@@ -12,6 +12,43 @@ class_name EnemyData
 @export var portrait: Texture2D = null
 @export var sprite_texture: Texture2D = null
 
+
+
+# ============================================================================
+# TEMPLATE — Classification and inheritance from EnemyTemplate.
+# ============================================================================
+# ENEMY DATA MODIFICATIONS — Add to enemy_data.gd
+#
+# Add this export group anywhere in the file (recommended: after Identity,
+# before Stats, so it's the second thing you see in Inspector).
+#
+# These three fields are the ONLY changes to enemy_data.gd.
+
+# ============================================================================
+# TEMPLATE — Classification and inheritance from EnemyTemplate.
+# ============================================================================
+@export_group("Template")
+
+## Optional reference to the template this enemy was built from.
+## Design-time tool — the template's budget guided this enemy's creation.
+## At runtime, only the baked EnemyData values matter.
+@export var template: EnemyTemplate = null
+
+## Tactical combat role. Set when built from a template, but always
+## queryable — even on hand-crafted enemies without a template.
+@export var combat_role: EnemyTemplate.CombatRole = EnemyTemplate.CombatRole.BRUTE
+
+## Narrative/faction tags. Freeform — an enemy can belong to multiple groups.
+## Examples:
+##   ["naval", "humanoid"]
+##   ["wildlife", "griffin", "corrupted"]
+##   ["criminal", "humanoid", "smuggler"]
+##   ["construct", "magitech"]
+##   ["undead", "othersea"]
+## Used for filtering, encounter table validation, and future loot features.
+## NOT used by combat or AI at runtime (yet).
+@export var enemy_tags: PackedStringArray = []
+
 # ============================================================================
 # STATS
 # ============================================================================

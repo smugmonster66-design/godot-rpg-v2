@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://d1wtwajyqh8vw"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_vlm7l"]
+[ext_resource type="Resource" uid="uid://bbxydxonqjqr1" path="res://resources/actions/enemy_base/stab.tres" id="2_0x24n"]
+[ext_resource type="Resource" uid="uid://60vdhkqylgag" path="res://resources/actions/enemy_base/quick_slash.tres" id="3_0sqm3"]
+[ext_resource type="Resource" uid="uid://dpwq1uu415clt" path="res://resources/actions/enemy_base/fan_of_blades.tres" id="4_c25av"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_4n338"]
+[ext_resource type="Resource" uid="uid://cighdri7vsxve" path="res://resources/affixes/base_stats/enemy/enemy_health_agi_skirmisher.tres" id="6_ycmp3"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_e7uyd"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_qqwtk"]
+[ext_resource type="Resource" uid="uid://cd5t4lgwe543g" path="res://resources/dice/base/d8_slashing.tres" id="9_oiyew"]
+[ext_resource type="Resource" uid="uid://cupp6q7klqtkq" path="res://resources/enemy_templates/skirmisher_agi.tres" id="10_vajdd"]
+
+[resource]
+script = ExtResource("7_e7uyd")
+enemy_name = "Mini-Boss Skirmisher"
+description = "Baseline Mini-Boss Skirmisher."
+template = ExtResource("10_vajdd")
+combat_role = 1
+enemy_tags = PackedStringArray()
+max_health = 20
+starting_dice = Array[ExtResource("8_qqwtk")]([ExtResource("9_oiyew"), ExtResource("9_oiyew"), ExtResource("9_oiyew"), ExtResource("9_oiyew")])
+combat_actions = Array[ExtResource("1_vlm7l")]([ExtResource("2_0x24n"), ExtResource("3_0sqm3"), ExtResource("4_c25av")])
+action_delay = 0.6
+dice_drag_duration = 0.3
+experience_reward = 75
+gold_reward_min = 25
+gold_reward_max = 75
+enemy_tier = 2
+enemy_archetype = 2
+enemy_level_floor = 5
+level_scaling_multiplier = 1.0
+health_affix = ExtResource("6_ycmp3")

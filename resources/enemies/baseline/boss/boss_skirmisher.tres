@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://byqdgd4cxdilq"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_amlgr"]
+[ext_resource type="Resource" uid="uid://bbxydxonqjqr1" path="res://resources/actions/enemy_base/stab.tres" id="2_8y47x"]
+[ext_resource type="Resource" uid="uid://60vdhkqylgag" path="res://resources/actions/enemy_base/quick_slash.tres" id="3_fqjn8"]
+[ext_resource type="Resource" uid="uid://dpwq1uu415clt" path="res://resources/actions/enemy_base/fan_of_blades.tres" id="4_5ajd0"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_ggvxb"]
+[ext_resource type="Resource" uid="uid://cighdri7vsxve" path="res://resources/affixes/base_stats/enemy/enemy_health_agi_skirmisher.tres" id="6_ncxi6"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_xsw47"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_dmce0"]
+[ext_resource type="Resource" uid="uid://cd5t4lgwe543g" path="res://resources/dice/base/d8_slashing.tres" id="9_exhjr"]
+[ext_resource type="Resource" uid="uid://cupp6q7klqtkq" path="res://resources/enemy_templates/skirmisher_agi.tres" id="10_qdrvu"]
+
+[resource]
+script = ExtResource("7_xsw47")
+enemy_name = "Boss Skirmisher"
+description = "Baseline Boss Skirmisher."
+template = ExtResource("10_qdrvu")
+combat_role = 1
+enemy_tags = PackedStringArray()
+max_health = 32
+starting_dice = Array[ExtResource("8_dmce0")]([ExtResource("9_exhjr"), ExtResource("9_exhjr"), ExtResource("9_exhjr"), ExtResource("9_exhjr")])
+combat_actions = Array[ExtResource("1_amlgr")]([ExtResource("2_8y47x"), ExtResource("3_fqjn8"), ExtResource("4_5ajd0")])
+action_delay = 0.7
+dice_drag_duration = 0.35
+experience_reward = 150
+gold_reward_min = 50
+gold_reward_max = 150
+enemy_tier = 3
+enemy_archetype = 2
+enemy_level_floor = 8
+level_scaling_multiplier = 1.1
+health_affix = ExtResource("6_ncxi6")

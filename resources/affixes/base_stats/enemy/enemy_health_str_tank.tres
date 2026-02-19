@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://dk58bj3nm6p3k"]
+
+[ext_resource type="Curve" path="res://resources/affixes/global_roll_curve.tres" id="1_d3p6o"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_utxoc"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_1jsk5"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_fje02"]
+
+[resource]
+script = ExtResource("3_1jsk5")
+affix_name = "Enemy Health (STR Tank)"
+description = "+{value} Health"
+category = 28
+tags = Array[String](["defense", "inherent", "health", "enemy"])
+effect_min = 12.0
+effect_max = 400.0
+effect_curve = ExtResource("1_d3p6o")

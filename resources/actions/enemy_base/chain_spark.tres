@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://dq1xdlnoycvj4"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_8xk2l"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_j1uyv"]
+[ext_resource type="Resource" uid="uid://dwjgco21ai57h" path="res://resources/statuses/chill.tres" id="3_k5rsm"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_x50t6"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="5_1w5pp"]
+
+[sub_resource type="Resource" id="Resource_nc607"]
+script = ExtResource("1_8xk2l")
+effect_name = "Chain Damage"
+target = 2
+effect_type = 14
+value_source = 1
+damage_type = 5
+
+[sub_resource type="Resource" id="Resource_jwjvj"]
+script = ExtResource("1_8xk2l")
+effect_name = "Chain Chill"
+effect_type = 2
+status_affix = ExtResource("3_k5rsm")
+
+[resource]
+script = ExtResource("5_1w5pp")
+action_id = "chain_spark"
+action_name = "Chain Spark"
+action_description = "Chain Shock to 2 targets. Applies 1 Chill."
+effects = Array[ExtResource("1_8xk2l")]([SubResource("Resource_nc607"), SubResource("Resource_jwjvj")])

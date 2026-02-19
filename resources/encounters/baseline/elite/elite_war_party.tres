@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=6 format=3 uid="uid://blfjbs2tm6d33"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_vr8yy"]
+[ext_resource type="Resource" uid="uid://dyhgfxflmv7hf" path="res://resources/enemies/baseline/elite/elite_tank.tres" id="2_as426"]
+[ext_resource type="Resource" uid="uid://dw161lc77mnoi" path="res://resources/enemies/baseline/elite/elite_duelist.tres" id="3_082bl"]
+[ext_resource type="Resource" uid="uid://dheej4l7wyjmi" path="res://resources/enemies/baseline/elite/elite_support_mage.tres" id="4_tff5y"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="5_583pd"]
+
+[resource]
+script = ExtResource("5_583pd")
+encounter_name = "Elite War Party"
+encounter_id = "baseline_elite_war_party"
+enemies = Array[ExtResource("1_vr8yy")]([ExtResource("2_as426"), ExtResource("3_082bl"), ExtResource("4_tff5y")])
+enemy_slots = Array[int]([0, 1, 2])
+difficulty_tier = 5
+level_range_min = 4
+level_range_max = 7

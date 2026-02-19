@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://6g2uq8q34mgc"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_6m54l"]
+[ext_resource type="Resource" uid="uid://c63ch5dhpuvv3" path="res://resources/actions/enemy_base/spark.tres" id="2_axwha"]
+[ext_resource type="Resource" uid="uid://dkskjvqg2xh1k" path="res://resources/actions/enemy_base/frost_shard.tres" id="3_67dym"]
+[ext_resource type="Resource" uid="uid://dq1xdlnoycvj4" path="res://resources/actions/enemy_base/chain_spark.tres" id="4_snaa4"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_2fycw"]
+[ext_resource type="Resource" uid="uid://cneee54ixptk" path="res://resources/affixes/base_stats/enemy/enemy_health_int_skirmisher.tres" id="6_8mlfs"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="7_f1f7u"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_swfmg"]
+[ext_resource type="Resource" uid="uid://wxul364fieh8" path="res://resources/dice/base/d8_shock.tres" id="9_2hqn8"]
+[ext_resource type="Resource" uid="uid://ctcw5orsjo0nr" path="res://resources/dice/base/d8_ice.tres" id="10_m5en0"]
+[ext_resource type="Resource" uid="uid://dvrwpotgjid2c" path="res://resources/enemy_templates/skirmisher_int.tres" id="11_xhgrh"]
+
+[resource]
+script = ExtResource("7_f1f7u")
+enemy_name = "Elite Battle Mage"
+description = "Baseline Elite Battle Mage."
+template = ExtResource("11_xhgrh")
+combat_role = 1
+enemy_tags = PackedStringArray()
+max_health = 12
+starting_dice = Array[ExtResource("8_swfmg")]([ExtResource("9_2hqn8"), ExtResource("10_m5en0"), ExtResource("9_2hqn8")])
+combat_actions = Array[ExtResource("1_6m54l")]([ExtResource("2_axwha"), ExtResource("3_67dym"), ExtResource("4_snaa4")])
+action_delay = 0.6
+dice_drag_duration = 0.3
+experience_reward = 30
+gold_reward_min = 10
+gold_reward_max = 30
+enemy_tier = 1
+enemy_archetype = 3
+enemy_level_floor = 3
+level_scaling_multiplier = 0.95
+health_affix = ExtResource("6_8mlfs")
