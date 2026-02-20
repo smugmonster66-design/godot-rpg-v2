@@ -243,6 +243,9 @@ func initialize_ui(p_player: Player, p_enemies):
 	
 	print("  Enemies: %d" % enemies.size())
 	
+	
+	
+	
 	# Initialize enemy panel with slot-aware positioning
 	if enemy_panel:
 		var encounter: CombatEncounter = null
@@ -253,6 +256,9 @@ func initialize_ui(p_player: Player, p_enemies):
 		# No need to hide — panel starts hidden from _ready()
 		enemy_panel.initialize_enemies_with_slots(enemies, encounter)
 		print("  ✅ Enemy panel initialized (slot-aware)")
+	
+	
+	visible = true
 	
 	# Create ActionManager if needed
 	if not action_manager:

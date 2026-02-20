@@ -91,10 +91,10 @@ func _create_item_display(item: EquippableItem) -> PanelContainer:
 	vbox.add_child(type_label)
 
 	# Affix count hint
-	if item.affixes.size() > 0:
+	if item.item_affixes.size() > 0:
 		var affix_label = Label.new()
-		affix_label.text = "%d affix%s" % [item.affixes.size(),
-			"es" if item.affixes.size() != 1 else ""]
+		affix_label.text = "%d affix%s" % [item.item_affixes.size(),
+			"es" if item.item_affixes.size() != 1 else ""]
 		affix_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		affix_label.add_theme_font_size_override("font_size", 11)
 		affix_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))

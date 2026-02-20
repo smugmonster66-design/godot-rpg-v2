@@ -339,42 +339,50 @@ layout_mode = 2
 script = ExtResource("2_f0r6v")
 metadata/tab_name = "Character"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Character"]
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/VBoxContainer/ContentArea/Character"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+horizontal_scroll_mode = 0
 
-[node name="ClassLabel" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer" groups=["character_tab_ui"]]
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/ContentArea/Character/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Character/ScrollContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="ClassLabel" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Character/ScrollContainer/MarginContainer/VBoxContainer" groups=["character_tab_ui"]]
 layout_mode = 2
 text = "Class: X"
 metadata/ui_role = "class_label"
 
-[node name="LevelLabel" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer" groups=["character_tab_ui"]]
+[node name="LevelLabel" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Character/ScrollContainer/MarginContainer/VBoxContainer" groups=["character_tab_ui"]]
 layout_mode = 2
 text = "Lvl: X"
 metadata/ui_role = "level_label"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Character/ScrollContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="ExpLabel" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer/HBoxContainer" groups=["character_tab_ui"]]
+[node name="ExpLabel" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Character/ScrollContainer/MarginContainer/VBoxContainer/HBoxContainer" groups=["character_tab_ui"]]
 layout_mode = 2
 text = "Exp:"
 metadata/ui_role = "exp_label"
 
-[node name="Control" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer/HBoxContainer"]
+[node name="Control" type="Control" parent="PanelContainer/VBoxContainer/ContentArea/Character/ScrollContainer/MarginContainer/VBoxContainer/HBoxContainer"]
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="ExpBar" type="ProgressBar" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer/HBoxContainer" groups=["character_tab_ui"]]
+[node name="ExpBar" type="ProgressBar" parent="PanelContainer/VBoxContainer/ContentArea/Character/ScrollContainer/MarginContainer/VBoxContainer/HBoxContainer" groups=["character_tab_ui"]]
 layout_mode = 2
 value = 50.0
 metadata/ui_role = "exp_bar"
 
-[node name="StatsContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Character/VBoxContainer" groups=["character_tab_ui"]]
+[node name="StatsContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Character/ScrollContainer/MarginContainer/VBoxContainer" groups=["character_tab_ui"]]
 layout_mode = 2
 metadata/ui_role = "stats_container"
 

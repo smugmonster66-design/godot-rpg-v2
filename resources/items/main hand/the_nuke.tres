@@ -14,6 +14,5 @@ description = "Debug one-tapper."
 rarity = 4
 elemental_identity = 3
 base_stat_affixes = Array[ExtResource("1_sl74o")]([ExtResource("2_rwc2v")])
-manual_first_affix = ExtResource("2_rwc2v")
 grants_dice = Array[ExtResource("2_5xgtd")]([ExtResource("4_rwc2v")])
 metadata/_custom_type_script = "uid://gax4pbuq25uv"

@@ -51,6 +51,7 @@ texture = ExtResource("6_0krdv")
 [node name="GameRoot" type="Node"]
 script = ExtResource("1_pevc5")
 dev_mode = true
+dev_level = 1
 dev_items = Array[ExtResource("2_reamk")]([ExtResource("3_vvhw6"), ExtResource("4_vvhw6")])
 dev_item_level = 1
 

@@ -2296,6 +2296,10 @@ func _on_combat_ended(player_won: bool):
 
 
 func reset_combat():
+	# Hide the CombatUI CanvasLayer (parent layer hide doesn't cascade to child CanvasLayers)
+	if combat_ui:
+		combat_ui.visible = false
+	
 	"""Clean up all combat state for next encounter.
 	Called by GameRoot.end_combat() before hiding the combat layer."""
 	print("🔄 CombatManager: reset_combat")
