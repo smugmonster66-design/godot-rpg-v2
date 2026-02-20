@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://b2w217jydc2gl"]
+[gd_scene load_steps=26 format=3 uid="uid://b2w217jydc2gl"]
 
 [ext_resource type="Script" uid="uid://c2ftibv05ag52" path="res://scripts/game/game_root.gd" id="1_pevc5"]
 [ext_resource type="Script" uid="uid://buljuod5rywxy" path="res://scripts/shared/game_camera.gd" id="2_i88f8"]
@@ -8,6 +8,7 @@
 [ext_resource type="Resource" uid="uid://dm6jge56hb5y3" path="res://resources/items/gloves/gloves_of_flaming_fingers.tres" id="3_vvhw6"]
 [ext_resource type="PackedScene" uid="uid://cx781vq4omutw" path="res://scenes/game/map_scene.tscn" id="4_0krdv"]
 [ext_resource type="Texture2D" uid="uid://b5idgxy5pjm63" path="res://assets/ui/panels/9patch_bones.png" id="4_n6w2t"]
+[ext_resource type="Resource" uid="uid://dqvjoyvbna53o" path="res://resources/items/main hand/the_nuke.tres" id="4_vvhw6"]
 [ext_resource type="PackedScene" uid="uid://c0w3t10mfnowo" path="res://scenes/ui/bottom_ui_panel.tscn" id="5_n6w2t"]
 [ext_resource type="Texture2D" uid="uid://bk7srh475afct" path="res://assets/ui/portrait frames/placeholder/placeholder_frame_front.png" id="6_0krdv"]
 [ext_resource type="Script" uid="uid://dfridktvwqyau" path="res://scripts/ui/portrait_controller.gd" id="6_elccf"]
@@ -50,7 +51,7 @@ texture = ExtResource("6_0krdv")
 [node name="GameRoot" type="Node"]
 script = ExtResource("1_pevc5")
 dev_mode = true
-dev_items = Array[ExtResource("2_reamk")]([ExtResource("3_vvhw6")])
+dev_items = Array[ExtResource("2_reamk")]([ExtResource("3_vvhw6"), ExtResource("4_vvhw6")])
 dev_item_level = 1
 
 [node name="GameCamera" type="Camera2D" parent="."]
@@ -164,14 +165,16 @@ offset_bottom = 23.0
 [node name="PlayerMenu" parent="PersistentUILayer" instance=ExtResource("11_c2lvh")]
 visible = false
 
-[node name="PostCombatSummary" parent="PersistentUILayer" instance=ExtResource("12_a6cr8")]
-
 [node name="DungeonEntranceButton" parent="PersistentUILayer" instance=ExtResource("15_h5onw")]
 offset_left = 854.0
 offset_top = 1516.0
 offset_right = 1054.0
 offset_bottom = 1576.0
 dungeon_definition = ExtResource("16_kdtot")
+
+[node name="PostCombatSummary" parent="PersistentUILayer" instance=ExtResource("12_a6cr8")]
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="DebugLayer" type="CanvasLayer" parent="."]
 layer = 200

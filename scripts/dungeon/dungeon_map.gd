@@ -84,12 +84,13 @@ func build_map(run: DungeonRun):
 	_setup_fog()
 	_init_player_token()
 	_set_initial_states()
-
-	# Apply theme overrides from definition
 	_apply_theme(run.definition)
+
+	_fit_camera_zoom()    # ← ADD THIS
 
 	_play_intro()
 	print("🗺️ Map built: %d nodes, %d floors" % [_map_nodes.size(), run.definition.floor_count])
+
 
 func clear_map():
 	for n in _map_nodes.values():
@@ -439,6 +440,16 @@ func _apply_theme(definition: DungeonDefinition):
 # ============================================================================
 # HELPERS
 # ============================================================================
+
+func _fit_camera_zoom():
+	"""Set camera zoom so the map width fills the viewport with a margin."""
+	if not camera: return
+	var viewport_w = get_viewport_rect().size.x
+	# Fit map_width into viewport, with 10% margin on each side
+	var ideal_zoom = viewport_w / (map_width * 1.2)
+	ideal_zoom = clampf(ideal_zoom, camera.zoom_min, camera.zoom_max)
+	camera.zoom = Vector2(ideal_zoom, ideal_zoom)
+
 
 func get_current_node_id() -> int:
 	return _current_node_id

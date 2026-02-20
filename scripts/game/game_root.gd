@@ -38,7 +38,7 @@ var _combat_intro_done: bool = false
 
 var is_in_dungeon: bool = false
 
-
+var _pending_post_combat: Dictionary = {}
 
 # Persistent UI elements (direct children of PersistentUILayer)
 var player_menu: Control = null
@@ -105,6 +105,7 @@ func _ready():
 		if not dungeon_scene.dungeon_failed.is_connected(_on_dungeon_failed):
 			dungeon_scene.dungeon_failed.connect(_on_dungeon_failed)
 		print("  ✅ DungeonScene signals connected")
+	
 	
 	
 	
@@ -285,26 +286,89 @@ func end_combat(player_won: bool = true):
 	print("⚔️ GameRoot: Ending combat (won=%s, dungeon=%s)" % [player_won, is_in_dungeon])
 	is_in_combat = false
 
+	# Hide combat layer
 	combat_layer.visible = false
 	combat_layer.process_mode = Node.PROCESS_MODE_DISABLED
 	if combat_scene and combat_scene.has_method("reset_combat"):
 		combat_scene.reset_combat()
-	
+
 	ui_layer.layer = 100
 
+	# Store context for post-summary transition
+	_pending_post_combat = {
+		"player_won": player_won,
+		"was_dungeon": is_in_dungeon,
+	}
+
+	# Bottom UI updates immediately (underneath the summary overlay)
+	if bottom_ui and bottom_ui.has_method("on_combat_ended"):
+		bottom_ui.on_combat_ended(player_won)
+
 	if is_in_dungeon:
-		# Return to dungeon — SKIP GameManager.on_combat_ended (dungeon owns rewards)
-		dungeon_scene.process_mode = Node.PROCESS_MODE_INHERIT
-		dungeon_scene.on_combat_ended(player_won)
-		if bottom_ui and bottom_ui.has_method("on_combat_ended"):
-			bottom_ui.on_combat_ended(player_won)
+		# Dungeon owns rewards — let it apply them, then show summary
+		_handle_dungeon_post_combat(player_won)
 	else:
-		# Return to map — normal flow
+		# Map path — GameManager handles rewards + shows summary
 		map_scene.process_mode = Node.PROCESS_MODE_INHERIT
-		if bottom_ui and bottom_ui.has_method("on_combat_ended"):
-			bottom_ui.on_combat_ended(player_won)
 		if GameManager:
 			GameManager.on_combat_ended(player_won)
+
+
+
+func _handle_dungeon_post_combat(player_won: bool) -> void:
+	"""Let dungeon apply its run-tracked rewards, then show a summary."""
+	# Snapshot pre-combat XP for animated bar
+	var pre_level: int = 1
+	var pre_xp: int = 0
+	var pre_xp_needed: int = 100
+	if GameManager and GameManager.player and GameManager.player.active_class:
+		var pc = GameManager.player.active_class
+		pre_level = pc.level
+		pre_xp = pc.experience
+		pre_xp_needed = pc.get_exp_for_next_level()
+
+	# Snapshot gold/items before dungeon applies rewards
+	var gold_before: int = GameManager.player.gold if GameManager and GameManager.player else 0
+	var inv_before: int = GameManager.player.inventory.size() if GameManager and GameManager.player else 0
+
+	# Dungeon applies its own run-tracked rewards
+	dungeon_scene.process_mode = Node.PROCESS_MODE_INHERIT
+	dungeon_scene.on_combat_ended(player_won)
+	# Pause dungeon again — resume after summary closes
+	dungeon_scene.process_mode = Node.PROCESS_MODE_DISABLED
+
+	# Build summary from what changed
+	var gold_earned: int = 0
+	var new_items: Array[Dictionary] = []
+	if GameManager and GameManager.player:
+		gold_earned = GameManager.player.gold - gold_before
+		# Items added since snapshot
+		if GameManager.player.inventory.size() > inv_before:
+			for i in range(inv_before, GameManager.player.inventory.size()):
+				new_items.append({"item": GameManager.player.inventory[i]})
+
+	var xp_earned: int = 0
+	if GameManager and GameManager.player and GameManager.player.active_class:
+		# Calculate XP earned by comparing states
+		var pc = GameManager.player.active_class
+		if pc.level == pre_level:
+			xp_earned = pc.experience - pre_xp
+		else:
+			# Crossed level boundary — reconstruct
+			xp_earned = (pre_xp_needed - pre_xp)  # remainder of old level
+			for lv in range(pre_level + 1, pc.level):
+				xp_earned += lv * 100  # intermediate levels
+			xp_earned += pc.experience  # current partial
+
+	show_post_combat_summary({
+		"victory": player_won,
+		"xp_gained": xp_earned,
+		"gold_gained": gold_earned,
+		"loot": new_items,
+		"pre_level": pre_level,
+		"pre_xp": pre_xp,
+		"pre_xp_needed": pre_xp_needed,
+	})
 
 func _show_map():
 	"""Ensure map is visible and running"""
@@ -420,5 +484,12 @@ func get_dice_panel() -> Control:
 # ============================================================================
 
 func _on_summary_closed():
-	"""Post-combat summary closed"""
-	print("📊 Summary closed")
+	"""Post-combat summary closed — resume the correct scene."""
+	print("📊 Summary closed — transitioning back")
+	var info = _pending_post_combat
+	_pending_post_combat = {}
+
+	if info.get("was_dungeon", false):
+		# Re-enable dungeon — floor advancement already happened
+		dungeon_scene.process_mode = Node.PROCESS_MODE_INHERIT
+	# Map path already re-enabled in end_combat()

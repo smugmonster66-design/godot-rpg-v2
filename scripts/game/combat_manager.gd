@@ -2000,8 +2000,9 @@ func _calculate_damage(action_data: Dictionary, attacker, defender) -> int:
 	
 	# Get attacker's affix manager (players have one, enemies might not)
 	var attacker_affixes: AffixPoolManager = null
-	if attacker is Player:
-		attacker_affixes = attacker.affix_manager
+	if attacker == player_combatant and player:
+		# Player's equipment affixes live on the Player resource, not the Combatant node
+		attacker_affixes = player.affix_manager
 	elif attacker is Combatant and attacker.has_method("get_affix_manager"):
 		attacker_affixes = attacker.get_affix_manager()
 	
@@ -2463,6 +2464,9 @@ func _apply_proc_results(results: Dictionary) -> void:
 	
 	# --- Status Effects ---
 	for status_data in results.status_effects:
+		if status_data is not Dictionary:
+			push_warning("⚙️ Unexpected status_data type: %s" % type_string(typeof(status_data)))
+			continue
 		# Status effects from procs target enemies by default
 		var status_target = status_data.get("target", "enemy")
 		if status_target == "self" and player and player.status_tracker:

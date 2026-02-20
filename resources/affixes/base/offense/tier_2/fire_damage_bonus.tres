@@ -10,5 +10,4 @@ affix_name = "Fire Damage Bonus"
 description = "+N Fire damage"
 category = 22
 tags = Array[String](["damage", "elemental", "fire"])
-effect_min = 1.0
-effect_max = 30.0
+effect_number = 40.0

@@ -1,13 +1,13 @@
-[gd_scene load_steps=4 format=3 uid="uid://c8lkjoshcff88"]
+[gd_scene load_steps=4 format=3 uid="uid://dij32j0wvxvx1"]
 
-[ext_resource type="Script" uid="uid://cmngrutsjny1t" path="res://scripts/ui/combat/post_combat_summary.gd" id="1_5wxcm"]
+[ext_resource type="Script" uid="uid://cmngrutsjny1t" path="res://scripts/ui/combat/post_combat_summary.gd" id="1_ehtwm"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qc58u"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o7a6a"]
 content_margin_left = 0.0
 content_margin_top = 0.0
 content_margin_right = 0.0
 content_margin_bottom = 0.0
-bg_color = Color(0.14, 0.12, 0.2, 0.95)
+bg_color = Color(0.08, 0.07, 0.12, 0.95)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
@@ -18,17 +18,17 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_li8on"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_i37du"]
 content_margin_left = 0.0
 content_margin_top = 0.0
 content_margin_right = 0.0
 content_margin_bottom = 0.0
-bg_color = Color(0.18, 0.16, 0.26, 0.95)
+bg_color = Color(0.12, 0.1, 0.18, 0.9)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.3, 0.3, 0.4, 1)
+border_color = Color(0.35, 0.3, 0.5, 1)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
@@ -40,7 +40,7 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-script = ExtResource("1_5wxcm")
+script = ExtResource("1_ehtwm")
 
 [node name="Overlay" type="ColorRect" parent="."]
 layout_mode = 0
@@ -58,7 +58,7 @@ mouse_filter = 2
 custom_minimum_size = Vector2(650, 0)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_styles/panel = SubResource("StyleBoxFlat_qc58u")
+theme_override_styles/panel = SubResource("StyleBoxFlat_o7a6a")
 
 [node name="MarginContainer" type="MarginContainer" parent="CenterContainer/Panel"]
 layout_mode = 2
@@ -73,7 +73,8 @@ theme_override_constants/separation = 16
 
 [node name="TitleLabel" type="Label" parent="CenterContainer/Panel/MarginContainer/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.75, 0.35, 1)
+theme_override_colors/font_color = Color(0.3, 1, 0.3, 1)
+theme_override_font_sizes/font_size = 32
 text = "VICTORY!"
 horizontal_alignment = 1
 
@@ -90,11 +91,13 @@ theme_override_constants/separation = 8
 
 [node name="XPIconLabel" type="Label" parent="CenterContainer/Panel/MarginContainer/VBox/RewardsSection/XPRow"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 18
 text = "⚔️ XP:"
 
 [node name="XPValueLabel" type="Label" parent="CenterContainer/Panel/MarginContainer/VBox/RewardsSection/XPRow"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.8, 0.2, 1)
+theme_override_colors/font_color = Color(1, 1, 0.3, 1)
+theme_override_font_sizes/font_size = 18
 text = "+0"
 
 [node name="XPBarRow" type="HBoxContainer" parent="CenterContainer/Panel/MarginContainer/VBox/RewardsSection"]
@@ -104,6 +107,7 @@ theme_override_constants/separation = 8
 [node name="LevelLabel" type="Label" parent="CenterContainer/Panel/MarginContainer/VBox/RewardsSection/XPBarRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.55, 0.85, 1)
+theme_override_font_sizes/font_size = 14
 text = "Lv 1"
 
 [node name="XPBar" type="ProgressBar" parent="CenterContainer/Panel/MarginContainer/VBox/RewardsSection/XPBarRow"]
@@ -115,12 +119,14 @@ show_percentage = false
 [node name="NextLevelLabel" type="Label" parent="CenterContainer/Panel/MarginContainer/VBox/RewardsSection/XPBarRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.55, 0.85, 1)
+theme_override_font_sizes/font_size = 14
 text = "Lv 2"
 
 [node name="LevelUpLabel" type="Label" parent="CenterContainer/Panel/MarginContainer/VBox/RewardsSection"]
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 20
 text = "✨ LEVEL UP! ✨"
 horizontal_alignment = 1
 
@@ -130,11 +136,13 @@ theme_override_constants/separation = 8
 
 [node name="GoldIconLabel" type="Label" parent="CenterContainer/Panel/MarginContainer/VBox/RewardsSection/GoldRow"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 18
 text = "💰 Gold:"
 
 [node name="GoldValueLabel" type="Label" parent="CenterContainer/Panel/MarginContainer/VBox/RewardsSection/GoldRow"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.8, 0.2, 1)
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 18
 text = "+0"
 
 [node name="Sep2" type="HSeparator" parent="CenterContainer/Panel/MarginContainer/VBox"]
@@ -146,6 +154,7 @@ theme_override_constants/separation = 8
 
 [node name="LootHeader" type="Label" parent="CenterContainer/Panel/MarginContainer/VBox/LootSection"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 18
 text = "Items Found"
 horizontal_alignment = 1
 
@@ -164,7 +173,7 @@ columns = 3
 [node name="ItemDetailPanel" type="PanelContainer" parent="CenterContainer/Panel/MarginContainer/VBox"]
 visible = false
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_li8on")
+theme_override_styles/panel = SubResource("StyleBoxFlat_i37du")
 
 [node name="DetailMargin" type="MarginContainer" parent="CenterContainer/Panel/MarginContainer/VBox/ItemDetailPanel"]
 layout_mode = 2
@@ -193,11 +202,13 @@ size_flags_horizontal = 3
 
 [node name="DetailNameLabel" type="Label" parent="CenterContainer/Panel/MarginContainer/VBox/ItemDetailPanel/DetailMargin/DetailVBox/DetailHeader/DetailNameVBox"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 18
 text = "Item Name"
 
 [node name="DetailSlotLabel" type="Label" parent="CenterContainer/Panel/MarginContainer/VBox/ItemDetailPanel/DetailMargin/DetailVBox/DetailHeader/DetailNameVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.78, 0.78, 0.82, 1)
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 13
 text = "Slot — Rarity"
 
 [node name="DetailAffixList" type="VBoxContainer" parent="CenterContainer/Panel/MarginContainer/VBox/ItemDetailPanel/DetailMargin/DetailVBox"]

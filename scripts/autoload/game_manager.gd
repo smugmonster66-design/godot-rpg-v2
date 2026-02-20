@@ -273,8 +273,17 @@ func on_combat_ended(player_won: bool):
 	if player_won and pending_encounter:
 		mark_encounter_completed(pending_encounter)
 
-		# ── XP (unchanged) ──
+		# ── XP ──
 		var exp: int = pending_encounter.get_total_experience()
+
+		# Capture pre-combat XP state for animated bar
+		var pre_level: int = 1
+		var pre_xp: int = 0
+		var pre_xp_needed: int = 100
+		if player and player.active_class:
+			pre_level = player.active_class.level
+			pre_xp = player.active_class.experience
+			pre_xp_needed = player.active_class.get_exp_for_next_level()
 
 		# ── Loot: roll per-enemy ──
 		var all_loot: Array[Dictionary] = []
@@ -342,6 +351,9 @@ func on_combat_ended(player_won: bool):
 				"xp_gained": exp,
 				"gold_gained": total_gold,
 				"loot": all_loot,
+				"pre_level": pre_level,
+				"pre_xp": pre_xp,
+				"pre_xp_needed": pre_xp_needed,
 			})
 
 	clear_pending_encounter()

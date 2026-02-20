@@ -1011,6 +1011,8 @@ func _ensure_details_scroll():
 
 func _lock_die_preview(die_visual, die_scale: float):
 	"""Deferred: lock down die preview after _ready() has finished."""
+	if not is_instance_valid(die_visual):
+		return
 	die_visual.draggable = false
 	die_visual.pivot_offset = Vector2.ZERO  # Scale from top-left, not center
 	die_visual.scale = Vector2(die_scale, die_scale)

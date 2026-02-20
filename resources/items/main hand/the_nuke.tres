@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=7 format=3 uid="uid://dqvjoyvbna53o"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_sl74o"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_5xgtd"]
+[ext_resource type="Resource" uid="uid://cf2m0frl6pkug" path="res://resources/affixes/base/offense/tier_2/fire_damage_bonus.tres" id="2_rwc2v"]
+[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="3_rwc2v"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="4_hyf2u"]
+[ext_resource type="Resource" uid="uid://cu5kd6qx3t5bq" path="res://resources/dice/base/d20_fire.tres" id="4_rwc2v"]
+
+[resource]
+script = ExtResource("4_hyf2u")
+item_name = "The Nuke"
+description = "Debug one-tapper."
+rarity = 4
+elemental_identity = 3
+base_stat_affixes = Array[ExtResource("1_sl74o")]([ExtResource("2_rwc2v")])
+manual_first_affix = ExtResource("2_rwc2v")
+grants_dice = Array[ExtResource("2_5xgtd")]([ExtResource("4_rwc2v")])
+metadata/_custom_type_script = "uid://gax4pbuq25uv"
