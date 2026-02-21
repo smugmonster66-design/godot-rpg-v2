@@ -49,6 +49,12 @@ var selected_action_field: ActionField = null
 # Target selection
 var selected_target_index: int = 0
 var target_selection_active: bool = false
+var current_targeting_mode: int = 0  # TargetingMode.Mode.NONE
+
+## Companion panel — null until companion system is built.
+var companion_panel = null  # Future: CompanionPanel
+
+
 
 var temp_action_fields: Array[Dictionary] = []
 
@@ -414,26 +420,67 @@ func update_enemy_health(enemy_index: int, current: int, maximum: int):
 # TARGET SELECTION SYSTEM
 # ============================================================================
 
-func enable_target_selection():
-	"""Enable target selection mode"""
-	target_selection_active = true
+func _activate_targeting(mode: int) -> void:
+	"""Activate target selection with the given mode."""
+	current_targeting_mode = mode
+	target_selection_active = (mode != TargetingMode.Mode.NONE)
 	
+	var side := TargetingMode.get_target_side(mode)
+	
+	# Enemy panel
 	if enemy_panel:
-		enemy_panel.set_selection_enabled(true)
+		var enemy_active := (side == TargetingMode.TargetSide.ENEMY or \
+			side == TargetingMode.TargetSide.BOTH)
+		enemy_panel.set_selection_enabled(enemy_active and \
+			TargetingMode.allows_enemy_click(mode))
+		enemy_panel.set_targeting_mode(mode)
+		
+		if enemy_active:
+			if TargetingMode.needs_primary_target(mode):
+				if selected_target_index < 0 or \
+					selected_target_index >= enemy_panel.enemy_slots.size() or \
+					enemy_panel.enemy_slots[selected_target_index].is_empty or \
+					not enemy_panel.enemy_slots[selected_target_index].is_alive():
+					enemy_panel.select_first_living_enemy()
+					selected_target_index = enemy_panel.get_selected_slot_index()
+			enemy_panel.update_target_highlights(selected_target_index)
+		else:
+			enemy_panel.clear_all_highlights()
 	
-	_update_enemy_selection_visuals()
+	# Companion panel (future)
+	if companion_panel:
+		var ally_active := (side == TargetingMode.TargetSide.ALLY or \
+			side == TargetingMode.TargetSide.BOTH)
+		if companion_panel.has_method("set_selection_enabled"):
+			companion_panel.set_selection_enabled(ally_active and \
+				TargetingMode.allows_ally_click(mode))
+		if companion_panel.has_method("set_targeting_mode"):
+			companion_panel.set_targeting_mode(mode)
+		if ally_active and companion_panel.has_method("update_target_highlights"):
+			companion_panel.update_target_highlights(-1)
+		elif companion_panel.has_method("clear_all_highlights"):
+			companion_panel.clear_all_highlights()
 
-func disable_target_selection():
-	"""Disable target selection mode"""
+func _deactivate_targeting() -> void:
+	"""Disable all targeting overlays and panel interactivity."""
+	current_targeting_mode = TargetingMode.Mode.NONE
 	target_selection_active = false
 	
 	if enemy_panel:
 		enemy_panel.set_selection_enabled(false)
+		enemy_panel.clear_all_highlights()
 	
-	# Remove selection shader from all enemies
-	for e in enemies:
-		if e and e.has_method("set_target_selected"):
-			e.set_target_selected(false)
+	if companion_panel and companion_panel.has_method("clear_all_highlights"):
+		companion_panel.set_selection_enabled(false)
+		companion_panel.clear_all_highlights()
+
+func enable_target_selection():
+	"""Legacy wrapper — activates SINGLE_ENEMY mode."""
+	_activate_targeting(TargetingMode.Mode.SINGLE_ENEMY)
+
+func disable_target_selection():
+	"""Legacy wrapper — deactivates all targeting."""
+	_deactivate_targeting()
 
 func get_selected_target() -> Combatant:
 	"""Get the currently selected target enemy"""
@@ -448,20 +495,20 @@ func get_selected_target_index() -> int:
 	return 0
 
 func _update_enemy_selection_visuals():
-	"""Update visual selection on enemies"""
-	if not target_selection_active:
+	"""Update visual highlights based on current targeting mode and primary target."""
+	if not target_selection_active or not enemy_panel:
 		return
 	
-	var selected_index = get_selected_target_index()
-	
-	for i in range(enemies.size()):
-		var e = enemies[i]
-		if e and e.has_method("set_target_selected"):
-			e.set_target_selected(i == selected_index)
+	enemy_panel.update_target_highlights(selected_target_index)
 
 func _on_enemy_panel_selection(enemy_combatant: Combatant, slot_index: int):
-	"""Handle enemy selection from panel"""
-	print("🎯 Target selected: %s (slot %d)" % [enemy_combatant.combatant_name, slot_index])
+	"""Handle enemy selection from panel click."""
+	if not TargetingMode.allows_enemy_click(current_targeting_mode):
+		return
+	
+	print("🎯 Target selected: %s (slot %d) [mode: %s]" % [
+		enemy_combatant.combatant_name, slot_index,
+		TargetingMode.get_label(current_targeting_mode)])
 	selected_target_index = slot_index
 	
 	_update_enemy_selection_visuals()
@@ -719,7 +766,8 @@ func _on_dice_return_complete():
 
 
 func _on_action_field_selected(field: ActionField):
-	"""Action field was clicked or had die dropped"""
+	"""Action field was selected (die placed). Derive targeting mode from
+	the Action resource and activate the appropriate overlay."""
 	if is_enemy_turn:
 		return
 
@@ -727,11 +775,22 @@ func _on_action_field_selected(field: ActionField):
 
 	selected_action_field = field
 
-	var action_type = field.action_type
-	if action_type == ActionField.ActionType.ATTACK:
-		enable_target_selection()
+	# Derive targeting mode from the Action resource
+	var mode := TargetingMode.Mode.NONE
+	if field.action_resource:
+		mode = field.action_resource.get_targeting_mode()
 	else:
-		disable_target_selection()
+		# Legacy fallback: use action_type enum
+		match field.action_type:
+			ActionField.ActionType.ATTACK:
+				mode = TargetingMode.Mode.SINGLE_ENEMY
+			ActionField.ActionType.HEAL:
+				mode = TargetingMode.Mode.SELF_ONLY
+			_:
+				mode = TargetingMode.Mode.SINGLE_ENEMY
+
+	print("  📐 Targeting mode: %s" % TargetingMode.get_label(mode))
+	_activate_targeting(mode)
 
 	# Show confirm/cancel via BottomUIPanel
 	if _bottom_ui:
@@ -1044,7 +1103,9 @@ func _on_confirm_pressed():
 		"source": selected_action_field.source,
 		"action_resource": selected_action_field.action_resource,
 		"target": get_selected_target(),
-		"target_index": get_selected_target_index()
+		"target_index": get_selected_target_index(),
+		"target_side": _get_target_side_string(),
+		"targeting_mode": current_targeting_mode
 	}
 
 	print("✅ Confirming action: %s with %d dice" % [action_data.name, placed_dice_copy.size()])
@@ -1059,6 +1120,23 @@ func _on_confirm_pressed():
 	disable_target_selection()
 	selected_action_field = null
 	action_confirmed.emit(action_data)
+
+
+func _get_target_side_string() -> String:
+	"""Get string identifier for which panel side the target is on."""
+	var side := TargetingMode.get_target_side(current_targeting_mode)
+	match side:
+		TargetingMode.TargetSide.ENEMY:
+			return "enemy"
+		TargetingMode.TargetSide.ALLY:
+			return "ally"
+		TargetingMode.TargetSide.BOTH:
+			var target = get_selected_target()
+			if target and target.has_method("is_player_ally") and target.is_player_ally():
+				return "ally"
+			return "enemy"
+	return "none"
+
 
 func _consume_placed_dice(dice: Array):
 	refresh_dice_pool()

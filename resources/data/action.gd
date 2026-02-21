@@ -292,5 +292,69 @@ func validate() -> Array[String]:
 	
 	return warnings
 
+
+
+
+# ============================================================================
+# TARGETING MODE
+# ============================================================================
+
+func get_targeting_mode() -> TargetingMode.Mode:
+	"""Inspect effects to determine what targeting overlay the UI should show.
+	
+	Priority: Multi-target types (SPLASH/CHAIN) > ALL_ENEMIES >
+	SINGLE_ENEMY > ALL_ALLIES > SINGLE_ALLY > SELF_ONLY > NONE."""
+	
+	if effects.is_empty():
+		return TargetingMode.Mode.NONE
+	
+	var has_single_enemy := false
+	var has_all_enemies := false
+	var has_splash := false
+	var has_chain := false
+	var has_single_ally := false
+	var has_all_allies := false
+	var has_self := false
+	
+	for effect in effects:
+		if not effect:
+			continue
+		
+		match effect.effect_type:
+			ActionEffect.EffectType.SPLASH:
+				has_splash = true
+			ActionEffect.EffectType.CHAIN:
+				has_chain = true
+		
+		match effect.target:
+			ActionEffect.TargetType.SELF:
+				has_self = true
+			ActionEffect.TargetType.SINGLE_ENEMY:
+				has_single_enemy = true
+			ActionEffect.TargetType.ALL_ENEMIES:
+				has_all_enemies = true
+			ActionEffect.TargetType.SINGLE_ALLY:
+				has_single_ally = true
+			ActionEffect.TargetType.ALL_ALLIES:
+				has_all_allies = true
+	
+	# Priority: most specific multi-target mode wins
+	if has_splash:
+		return TargetingMode.Mode.SPLASH_ENEMY
+	if has_chain:
+		return TargetingMode.Mode.CHAIN_ENEMY
+	if has_all_enemies:
+		return TargetingMode.Mode.ALL_ENEMIES
+	if has_single_enemy:
+		return TargetingMode.Mode.SINGLE_ENEMY
+	if has_all_allies:
+		return TargetingMode.Mode.ALL_ALLIES
+	if has_single_ally:
+		return TargetingMode.Mode.SINGLE_ALLY
+	if has_self:
+		return TargetingMode.Mode.SELF_ONLY
+	
+	return TargetingMode.Mode.NONE
+
 func _to_string() -> String:
 	return "Action<%s: %d effects, %d dice>" % [action_name, effects.size(), die_slots]

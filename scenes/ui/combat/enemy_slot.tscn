@@ -1,23 +1,15 @@
-[gd_scene load_steps=11 format=3 uid="uid://c1kmjpwav45is"]
+[gd_scene load_steps=10 format=3 uid="uid://c1kmjpwav45is"]
 
 [ext_resource type="Script" uid="uid://c6e0qeqjwtccy" path="res://scripts/ui/combat/enemy_slot.gd" id="1_8vtss"]
 [ext_resource type="Texture2D" uid="uid://dc5foqfr0fuu4" path="res://assets/ui/panels/enemy_panels/enemy_portrait_bg.png" id="2_d82ij"]
 [ext_resource type="Texture2D" uid="uid://bacrlq8i11ylv" path="res://assets/characters/enemies/test_dummy_512.png" id="2_gfm45"]
-[ext_resource type="Material" uid="uid://bwfd8np5fyexg" path="res://resources/materials/turn_indicator_material.tres" id="2_uy3ip"]
 [ext_resource type="Texture2D" uid="uid://c6sqtdxnbp2ab" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_bg.png" id="4_gbqgq"]
 [ext_resource type="Texture2D" uid="uid://bhdufq5sfxngf" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_stroke_basic.png" id="5_eor83"]
 [ext_resource type="Texture2D" uid="uid://g0ilrcqtng8h" path="res://assets/ui/panels/enemy_panels/enemy_portrait_frame.png" id="5_f8sju"]
 [ext_resource type="Texture2D" uid="uid://bgqcm8i82101" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_hp.png" id="6_d82ij"]
+[ext_resource type="Material" uid="uid://ds1pontd84jdi" path="res://resources/materials/crosshair_reticle_material.tres" id="8_d82ij"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_fsuwb"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8vtss"]
-bg_color = Color(0.6, 0.6, 0.6, 0)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.9853031, 0.7671745, 0, 1)
 
 [node name="EnemySlot" type="PanelContainer"]
 offset_right = 40.0
@@ -40,6 +32,7 @@ layout_mode = 2
 [node name="PortraitSection" type="Control" parent="MarginContainer/VBox"]
 custom_minimum_size = Vector2(180, 196)
 layout_mode = 2
+mouse_filter = 1
 
 [node name="BackgroundFrame" type="NinePatchRect" parent="MarginContainer/VBox/PortraitSection"]
 layout_mode = 1
@@ -66,38 +59,6 @@ grow_vertical = 0
 texture = ExtResource("2_gfm45")
 expand_mode = 5
 stretch_mode = 5
-
-[node name="SelectionIndicator" type="Panel" parent="MarginContainer/VBox/PortraitSection/Portrait"]
-visible = false
-custom_minimum_size = Vector2(100, 80)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_8vtss")
-
-[node name="TurnIndicatorRect" type="Control" parent="MarginContainer/VBox/PortraitSection/Portrait"]
-visible = false
-material = ExtResource("2_uy3ip")
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="ColorRect" type="ColorRect" parent="MarginContainer/VBox/PortraitSection/Portrait/TurnIndicatorRect"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(1, 1, 0.7372549, 0.62352943)
 
 [node name="ForegroundFrame" type="NinePatchRect" parent="MarginContainer/VBox/PortraitSection"]
 layout_mode = 1
@@ -141,6 +102,21 @@ grow_horizontal = 2
 theme_override_font_sizes/font_size = 55
 text = "<Name>"
 horizontal_alignment = 1
+
+[node name="ReticleRect" type="ColorRect" parent="MarginContainer/VBox/PortraitSection"]
+visible = false
+material = ExtResource("8_d82ij")
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="Control" type="Control" parent="MarginContainer/VBox"]
 custom_minimum_size = Vector2(0, 10)

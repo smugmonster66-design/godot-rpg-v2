@@ -3,6 +3,20 @@
 extends PanelContainer
 class_name EnemySlot
 
+
+# ============================================================================
+# RETICLE MODE
+# ============================================================================
+enum ReticleMode {
+	NONE,              ## Hidden
+	SELECTED,          ## Subtle — enemy is the current target pick
+	TARGET_PRIMARY,    ## Active — this is the primary target of a loaded action
+	TARGET_SECONDARY,  ## Dim — splash/chain secondary target
+	TARGET_AOE,        ## Medium — AoE will hit this enemy
+	ENEMY_TURN,        ## White/slow — this enemy is acting
+}
+
+
 # ============================================================================
 # SIGNALS
 # ============================================================================
@@ -30,6 +44,18 @@ signal slot_unhovered(slot: EnemySlot)
 # NOTE: These are enemy-specific tints (red-shifted), intentionally different
 # from generic PALETTE values. Keep as exports for designer tuning.
 
+@export_group("Reticle Colors")
+## Primary target — red crosshair
+@export var reticle_primary_color: Color = Color(0.9, 0.15, 0.1, 0.85)
+## Secondary target — dim amber
+@export var reticle_secondary_color: Color = Color(0.75, 0.5, 0.15, 0.55)
+## AoE — orange
+@export var reticle_aoe_color: Color = Color(1.0, 0.5, 0.15, 0.8)
+## Enemy turn — pale gold
+@export var reticle_turn_color: Color = Color(1.0, 0.9, 0.6, 0.7)
+## Selected (no action loaded yet) — subtle red
+@export var reticle_selected_color: Color = Color(0.7, 0.2, 0.15, 0.45)
+
 # ============================================================================
 # NODE REFERENCES - Found from scene
 # ============================================================================
@@ -39,7 +65,7 @@ signal slot_unhovered(slot: EnemySlot)
 #@onready var turn_indicator: ColorRect = $MarginContainer/VBox/TurnIndicatorRect
 
 @onready var portrait_rect: TextureRect = $MarginContainer/VBox/PortraitSection/Portrait
-@onready var selection_indicator: Panel = $MarginContainer/VBox/PortraitSection/Portrait/SelectionIndicator
+@onready var reticle_rect: ColorRect = $MarginContainer/VBox/PortraitSection/ReticleRect
 @onready var health_bar: TextureProgressBar = $MarginContainer/VBox/PortraitSection/HealthBar
 
 
@@ -52,9 +78,9 @@ var is_selected: bool = false
 var is_empty: bool = true
 var style_box: StyleBoxFlat = null
 var dice_icons: Array[Control] = []
-var turn_indicator_material: ShaderMaterial = null
-var turn_indicator: Control = null
 var status_display: StatusEffectDisplay = null
+var reticle_material: ShaderMaterial = null
+var _reticle_mode: ReticleMode = ReticleMode.NONE
 
 func _slot_color(custom: Color, palette_fallback: Color) -> Color:
 	return custom if use_custom_slot_colors else palette_fallback
@@ -64,16 +90,15 @@ func _slot_color(custom: Color, palette_fallback: Color) -> Color:
 
 func _ready():
 	_setup_style()
-	turn_indicator = find_child("TurnIndicatorRect", true, false)
 	var portrait_section = $MarginContainer/VBox/PortraitSection
 	portrait_section.custom_minimum_size = Vector2(portrait_size.x, portrait_size.y + health_overlap)
 	portrait_rect.custom_minimum_size = portrait_size
-	
+
 	if health_bar:
 		health_bar.offset_left = -portrait_size.x / 2.0
 		health_bar.offset_right = portrait_size.x / 2.0
-	
-	_setup_turn_indicator()
+
+	_setup_reticle()
 	_connect_signals()
 	set_empty()
 	_create_status_display()
@@ -109,41 +134,68 @@ func _connect_signals():
 	if not mouse_exited.is_connected(_on_mouse_exited):
 		mouse_exited.connect(_on_mouse_exited)
 
-# Add new function
-func _setup_turn_indicator():
-	# Find or create the node
-	if not turn_indicator:
-		turn_indicator = ColorRect.new()
-		turn_indicator.name = "TurnIndicatorRect"
-		turn_indicator.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		turn_indicator.visible = false
-		turn_indicator.color = Color.WHITE
-		
-		portrait_rect.add_child(turn_indicator)
-		portrait_rect.move_child(turn_indicator, 0)
-		
-		turn_indicator.set_anchors_preset(Control.PRESET_FULL_RECT)
-		turn_indicator.offset_left = -8
-		turn_indicator.offset_top = -8
-		turn_indicator.offset_right = 8
-		turn_indicator.offset_bottom = 8
-	
-	# ALWAYS apply material (even if node existed)
-	var shader_path = "res://resources/materials/turn_indicator_material.tres"
-	if ResourceLoader.exists(shader_path):
-		var base_material = load(shader_path) as ShaderMaterial
-		if base_material:
-			turn_indicator_material = base_material.duplicate()
-			turn_indicator.material = turn_indicator_material
-			print("✅ Turn indicator material applied")
-		else:
-			print("❌ Failed to load as ShaderMaterial")
-	else:
-		print("❌ Shader path doesn't exist: ", shader_path)
-	print("Turn indicator created: ", turn_indicator)
-	print("  Parent: ", turn_indicator.get_parent())
-	print("  Material: ", turn_indicator.material)
-	print("  Visible: ", turn_indicator.visible)
+
+func _setup_reticle():
+	"""Grab the shader material from the scene-placed ReticleRect."""
+	if reticle_rect and reticle_rect.material is ShaderMaterial:
+		reticle_material = reticle_rect.material.duplicate()
+		reticle_rect.material = reticle_material
+		reticle_rect.visible = false
+	elif reticle_rect:
+		push_warning("EnemySlot[%d]: ReticleRect has no ShaderMaterial" % slot_index)
+
+
+# ============================================================================
+# RETICLE — SINGLE VISUAL OVERLAY FOR ALL MODES
+# ============================================================================
+
+func _set_reticle(mode: ReticleMode) -> void:
+	"""Set the reticle mode. Handles visibility, color, rotation, pulse."""
+	_reticle_mode = mode
+
+	if not reticle_rect or not reticle_material:
+		return
+
+	if mode == ReticleMode.NONE:
+		reticle_rect.visible = false
+		return
+
+	# Config per mode: [color, rotation_speed, pulse_speed, pulse_min, ring_radius]
+	var cfg: Dictionary
+	match mode:
+		ReticleMode.SELECTED:
+			cfg = {
+				"color": reticle_selected_color,
+				"rotation": 0.3, "pulse": 1.5, "pulse_min": 0.4, "radius": 0.32,
+			}
+		ReticleMode.TARGET_PRIMARY:
+			cfg = {
+				"color": reticle_primary_color,
+				"rotation": 0.8, "pulse": 2.5, "pulse_min": 0.6, "radius": 0.35,
+			}
+		ReticleMode.TARGET_SECONDARY:
+			cfg = {
+				"color": reticle_secondary_color,
+				"rotation": 0.4, "pulse": 1.5, "pulse_min": 0.3, "radius": 0.30,
+			}
+		ReticleMode.TARGET_AOE:
+			cfg = {
+				"color": reticle_aoe_color,
+				"rotation": 0.6, "pulse": 2.0, "pulse_min": 0.5, "radius": 0.33,
+			}
+		ReticleMode.ENEMY_TURN:
+			cfg = {
+				"color": reticle_turn_color,
+				"rotation": 0.3, "pulse": 1.0, "pulse_min": 0.5, "radius": 0.30,
+			}
+
+	reticle_material.set_shader_parameter("reticle_color", cfg.color)
+	reticle_material.set_shader_parameter("rotation_speed", cfg.rotation)
+	reticle_material.set_shader_parameter("pulse_speed", cfg.pulse)
+	reticle_material.set_shader_parameter("pulse_min", cfg.pulse_min)
+	reticle_material.set_shader_parameter("ring_radius", cfg.radius)
+	reticle_rect.visible = true
+
 
 # ============================================================================
 # PUBLIC METHODS
@@ -194,8 +246,7 @@ func set_empty():
 		style_box.bg_color = _slot_color(empty_slot_color, ThemeManager.PALETTE.bg_panel)
 		style_box.border_color = ThemeManager.PALETTE.border_subtle
 	
-	if selection_indicator:
-		selection_indicator.hide()
+	_set_reticle(ReticleMode.NONE)
 		
 		
 		
@@ -204,13 +255,13 @@ func set_empty():
 	if status_display:
 		status_display.disconnect_tracker()
 
+
+
 func set_selected(selected: bool):
-	"""Set selection state"""
+	"""Set selection state — shows subtle reticle when no stronger mode is active."""
 	is_selected = selected
-	
-	if selection_indicator:
-		selection_indicator.visible = selected and not is_empty and is_alive()
-	
+
+	# Style box background tint (kept for panel coloring)
 	if style_box:
 		if selected and not is_empty and is_alive():
 			style_box.bg_color = _slot_color(selected_slot_color, ThemeManager.PALETTE.bg_elevated)
@@ -218,6 +269,54 @@ func set_selected(selected: bool):
 		elif not is_empty and is_alive():
 			style_box.bg_color = _slot_color(filled_slot_color, ThemeManager.PALETTE.bg_hover)
 			style_box.border_color = ThemeManager.PALETTE.danger
+
+	
+
+
+
+
+func set_target_highlight(highlight_type: int) -> void:
+	"""Set targeting overlay. Uses TargetingMode.HighlightType enum.
+	Takes priority over selection reticle."""
+	if is_empty or not is_alive():
+		_clear_target_highlight()
+		return
+
+	match highlight_type:
+		TargetingMode.HighlightType.NONE:
+			_clear_target_highlight()
+		TargetingMode.HighlightType.PRIMARY:
+			_set_reticle(ReticleMode.TARGET_PRIMARY)
+		TargetingMode.HighlightType.SECONDARY:
+			_set_reticle(ReticleMode.TARGET_SECONDARY)
+		TargetingMode.HighlightType.AOE:
+			_set_reticle(ReticleMode.TARGET_AOE)
+
+	# Border color mirrors the mode
+	if style_box and highlight_type != TargetingMode.HighlightType.NONE:
+		match highlight_type:
+			TargetingMode.HighlightType.PRIMARY:
+				style_box.border_color = reticle_primary_color
+			TargetingMode.HighlightType.SECONDARY:
+				style_box.border_color = reticle_secondary_color
+			TargetingMode.HighlightType.AOE:
+				style_box.border_color = reticle_aoe_color
+
+
+func _clear_target_highlight() -> void:
+	"""Remove targeting highlight — always hides reticle."""
+	_set_reticle(ReticleMode.NONE)
+
+	if style_box:
+		if is_selected:
+			style_box.border_color = ThemeManager.PALETTE.maxed
+		elif not is_empty and is_alive():
+			style_box.border_color = ThemeManager.PALETTE.danger
+		else:
+			style_box.border_color = ThemeManager.PALETTE.border_subtle
+
+
+
 
 func update_health(current: int, maximum: int):
 	"""Update health display"""
@@ -243,29 +342,21 @@ func is_alive() -> bool:
 	"""Check if enemy is alive"""
 	return enemy != null and enemy.is_alive()
 
-# Add public methods
+
 func show_turn_indicator():
-	print("show_turn_indicator called")
-	print("  turn_indicator: ", turn_indicator)
-	"""Show the turn indicator for this enemy's turn"""
-	if turn_indicator:
-		print("  material: ", turn_indicator.material)
-		# Check if we have a portrait
-		var has_portrait = portrait_rect and portrait_rect.texture != null
-		if turn_indicator_material:
-			turn_indicator_material.set_shader_parameter("is_circle", not has_portrait)
-		turn_indicator.visible = true
+	"""Show crosshair in enemy-turn mode."""
+	_set_reticle(ReticleMode.ENEMY_TURN)
+
 
 func hide_turn_indicator():
-	"""Hide the turn indicator"""
-	if turn_indicator:
-		turn_indicator.visible = false
+	"""Hide turn indicator."""
+	_set_reticle(ReticleMode.NONE)
+
 
 func set_turn_indicator_color(color: Color):
-	"""Change the turn indicator color"""
-	if turn_indicator_material:
-		turn_indicator_material.set_shader_parameter("glow_color", color)
-
+	"""Override the turn indicator reticle color."""
+	if _reticle_mode == ReticleMode.ENEMY_TURN and reticle_material:
+		reticle_material.set_shader_parameter("reticle_color", color)
 
 # ============================================================================
 # DICE POOL DISPLAY
@@ -414,6 +505,9 @@ func _update_display():
 # ============================================================================
 
 func _on_gui_input(event: InputEvent):
+	if event is InputEventMouseButton and event.pressed:
+		print("🔍 SLOT %d gui_input: button=%d, is_empty=%s, alive=%s, mouse_filter=%d" % [
+			slot_index, event.button_index, is_empty, is_alive(), mouse_filter])
 	"""Handle input on the slot"""
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
@@ -453,8 +547,7 @@ func _on_enemy_died():
 		style_box.bg_color = _slot_color(dead_slot_color, ThemeManager.PALETTE.bg_darkest)
 		style_box.border_color = Color(ThemeManager.PALETTE.danger.darkened(0.5))
 	
-	if selection_indicator:
-		selection_indicator.hide()
+	_set_reticle(ReticleMode.NONE)
 		
 	
 	
@@ -465,3 +558,4 @@ func _on_enemy_died():
 		dice_pool_bar.modulate = Color(0.5, 0.5, 0.5, 0.5)
 	
 	is_selected = false
+	_reticle_mode = ReticleMode.NONE

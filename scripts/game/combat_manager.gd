@@ -714,17 +714,19 @@ func _on_action_confirmed(action_data: Dictionary):
 	var action_name = action_data.get("name", "Unknown")
 	var action_type = action_data.get("action_type", 0)
 	
-	# Get target for damage calculation
 	var target = action_data.get("target", null) as Combatant
 	var target_index = action_data.get("target_index", 0)
-	
+
 	# Fallback to first living enemy if no target specified
 	if not target or not target.is_alive():
 		target = _get_first_living_enemy()
-		target_index = enemy_combatants.find(target)
+
+	# ALWAYS derive index from the combatant reference — UI may pass slot index
+	target_index = enemy_combatants.find(target) if target else 0
 	
-	# Build targets array for _apply_action_effect
+	
 	var targets: Array = [target] if target else []
+	
 	
 	print("⚔️ Player uses %s (type=%d)" % [action_name, action_type])
 	
@@ -801,13 +803,19 @@ func _play_action_with_animation(action_data: Dictionary, targets: Array, target
 	var target_positions: Array[Vector2] = []
 	var target_nodes: Array[Node2D] = []
 	
-	var is_aoe = false
-	var action_resource = action_data.get("action_resource") as Action
-	if action_resource and action_resource.effects.size() > 0:
-		for effect in action_resource.effects:
-			if effect and effect.target == ActionEffect.TargetType.ALL_ENEMIES:
-				is_aoe = true
-				break
+	# Check if this is an AoE attack using targeting_mode from UI
+	var is_aoe := false
+	var targeting_mode = action_data.get("targeting_mode", -1)
+	if targeting_mode == TargetingMode.Mode.ALL_ENEMIES:
+		is_aoe = true
+	else:
+		# Fallback: inspect action_resource if targeting_mode wasn't set
+		var action_resource = action_data.get("action_resource") as Action
+		if action_resource and action_resource.effects.size() > 0:
+			for effect in action_resource.effects:
+				if effect and effect.target == ActionEffect.TargetType.ALL_ENEMIES:
+					is_aoe = true
+					break
 	
 	if is_aoe:
 		for i in range(enemy_combatants.size()):

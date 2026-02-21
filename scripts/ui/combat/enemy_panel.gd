@@ -40,6 +40,10 @@ var enemy_slots: Array[EnemySlot] = []
 var selected_slot_index: int = 0
 var selection_enabled: bool = false
 
+## Current targeting mode — drives how highlights are distributed
+var current_targeting_mode: int = 0  # TargetingMode.Mode.NONE
+
+
 # Enemy turn state
 var current_enemy: Combatant = null
 var hand_dice_visuals: Array[Control] = []
@@ -373,8 +377,15 @@ func get_selected_slot_index() -> int:
 # ============================================================================
 
 func _on_slot_clicked(slot: EnemySlot):
-	"""Handle slot click"""
+	print("🔍 SLOT CLICKED: slot=%d, selection_enabled=%s, targeting_mode=%d, allows_click=%s" % [
+		slot.slot_index, selection_enabled, current_targeting_mode,
+		TargetingMode.allows_enemy_click(current_targeting_mode)])
+	"""Handle slot click — respects current targeting mode."""
 	if not selection_enabled:
+		return
+	
+	# Check if clicks are allowed in current mode
+	if not TargetingMode.allows_enemy_click(current_targeting_mode):
 		return
 
 	select_slot(slot.slot_index)
@@ -386,6 +397,105 @@ func _on_slot_clicked(slot: EnemySlot):
 func _on_slot_hovered(slot: EnemySlot):
 	"""Handle slot hover"""
 	pass  # Could show tooltip or preview
+
+# ============================================================================
+# TARGETING HIGHLIGHT SYSTEM
+# ============================================================================
+
+func set_targeting_mode(mode: int) -> void:
+	"""Set the current targeting mode. Uses TargetingMode.Mode enum."""
+	current_targeting_mode = mode
+
+func update_target_highlights(primary_slot_index: int) -> void:
+	"""Refresh all slot highlights based on current targeting mode and primary target."""
+	match current_targeting_mode:
+		TargetingMode.Mode.NONE, TargetingMode.Mode.SELF_ONLY:
+			_highlight_none()
+		TargetingMode.Mode.SINGLE_ENEMY:
+			_highlight_single(primary_slot_index)
+		TargetingMode.Mode.ALL_ENEMIES:
+			_highlight_all_aoe()
+		TargetingMode.Mode.SPLASH_ENEMY:
+			_highlight_splash(primary_slot_index)
+		TargetingMode.Mode.CHAIN_ENEMY:
+			_highlight_chain(primary_slot_index)
+		TargetingMode.Mode.PIERCE_ENEMY:
+			_highlight_pierce(primary_slot_index)
+		_:
+			_highlight_none()
+
+func clear_all_highlights() -> void:
+	"""Remove all targeting highlights from all slots."""
+	current_targeting_mode = TargetingMode.Mode.NONE
+	for slot in enemy_slots:
+		slot.set_target_highlight(TargetingMode.HighlightType.NONE)
+
+func _highlight_none() -> void:
+	for slot in enemy_slots:
+		slot.set_target_highlight(TargetingMode.HighlightType.NONE)
+
+func _highlight_single(primary_index: int) -> void:
+	for slot in enemy_slots:
+		if slot.slot_index == primary_index and not slot.is_empty and slot.is_alive():
+			slot.set_target_highlight(TargetingMode.HighlightType.PRIMARY)
+		else:
+			slot.set_target_highlight(TargetingMode.HighlightType.NONE)
+
+func _highlight_all_aoe() -> void:
+	for slot in enemy_slots:
+		if not slot.is_empty and slot.is_alive():
+			slot.set_target_highlight(TargetingMode.HighlightType.AOE)
+		else:
+			slot.set_target_highlight(TargetingMode.HighlightType.NONE)
+
+func _highlight_splash(primary_index: int) -> void:
+	"""Primary target + adjacent living enemies as secondary."""
+	for slot in enemy_slots:
+		if slot.is_empty or not slot.is_alive():
+			slot.set_target_highlight(TargetingMode.HighlightType.NONE)
+			continue
+		if slot.slot_index == primary_index:
+			slot.set_target_highlight(TargetingMode.HighlightType.PRIMARY)
+		elif _is_adjacent_living(slot.slot_index, primary_index):
+			slot.set_target_highlight(TargetingMode.HighlightType.SECONDARY)
+		else:
+			slot.set_target_highlight(TargetingMode.HighlightType.NONE)
+
+func _highlight_chain(primary_index: int) -> void:
+	"""Primary target + all other living enemies as secondary (bounce targets)."""
+	for slot in enemy_slots:
+		if slot.is_empty or not slot.is_alive():
+			slot.set_target_highlight(TargetingMode.HighlightType.NONE)
+			continue
+		if slot.slot_index == primary_index:
+			slot.set_target_highlight(TargetingMode.HighlightType.PRIMARY)
+		else:
+			slot.set_target_highlight(TargetingMode.HighlightType.SECONDARY)
+
+func _highlight_pierce(primary_index: int) -> void:
+	"""Primary target + enemies behind (higher index) as secondary."""
+	for slot in enemy_slots:
+		if slot.is_empty or not slot.is_alive():
+			slot.set_target_highlight(TargetingMode.HighlightType.NONE)
+			continue
+		if slot.slot_index == primary_index:
+			slot.set_target_highlight(TargetingMode.HighlightType.PRIMARY)
+		elif slot.slot_index > primary_index:
+			slot.set_target_highlight(TargetingMode.HighlightType.SECONDARY)
+		else:
+			slot.set_target_highlight(TargetingMode.HighlightType.NONE)
+
+func _is_adjacent_living(slot_a: int, slot_b: int) -> bool:
+	"""Check adjacency using live slot positions (handles centered layouts)."""
+	var living_indices: Array[int] = []
+	for slot in enemy_slots:
+		if not slot.is_empty and slot.is_alive():
+			living_indices.append(slot.slot_index)
+	var pos_a = living_indices.find(slot_a)
+	var pos_b = living_indices.find(slot_b)
+	if pos_a < 0 or pos_b < 0:
+		return false
+	return absi(pos_a - pos_b) == 1
 
 # ============================================================================
 # ENEMY DICE HAND DISPLAY
