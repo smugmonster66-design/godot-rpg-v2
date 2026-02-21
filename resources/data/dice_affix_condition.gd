@@ -55,6 +55,11 @@ enum Type {
 	# --- Target status (v4 — requires combat context) ---
 	TARGET_HAS_STATUS,           ## context.target_statuses has condition_status_id active
 	TARGET_STATUS_STACKS_ABOVE,  ## context.target_statuses[condition_status_id].stacks >= threshold
+	
+	# --- Die-type gates (v5 — Item→Dice bridge) ---
+	SELF_DIE_TYPE_IS,            ## source_die.die_type == int(threshold). E.g. threshold=4 → D4 only
+	SELF_DIE_TYPE_ABOVE,         ## source_die.die_type >= int(threshold). E.g. threshold=8 → D8, D10, D12, D20
+	
 }
 
 # ============================================================================
@@ -197,6 +202,15 @@ func evaluate(source_die, dice_array: Array, source_index: int, context: Diction
 		Type.TARGET_HAS_STATUS:
 			var target_statuses: Dictionary = context.get("target_statuses", {})
 			raw_pass = target_statuses.has(condition_status_id)
+		
+		
+		# --- Die-type gates (v5) ---
+		Type.SELF_DIE_TYPE_IS:
+			raw_pass = source_die.die_type == int(threshold)
+		
+		Type.SELF_DIE_TYPE_ABOVE:
+			raw_pass = source_die.die_type >= int(threshold)
+		
 		
 		Type.TARGET_STATUS_STACKS_ABOVE:
 			var target_statuses2: Dictionary = context.get("target_statuses", {})
@@ -367,6 +381,10 @@ func get_description() -> String:
 			return "if target has %s" % condition_status_id
 		Type.TARGET_STATUS_STACKS_ABOVE:
 			return "if target %s stacks ≥ %d" % [condition_status_id, int(threshold)]
+		Type.SELF_DIE_TYPE_IS:
+			return "if D%d" % int(threshold)
+		Type.SELF_DIE_TYPE_ABOVE:
+			return "if D%d or higher" % int(threshold)
 	return ""
 # ============================================================================
 # SERIALIZATION

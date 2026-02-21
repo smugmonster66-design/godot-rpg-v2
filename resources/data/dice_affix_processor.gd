@@ -376,6 +376,18 @@ func _resolve_value(affix: DiceAffix, source_die: DieResource,
 			return float(elem_counts.get(elem_enum, 0)) * affix.effect_value
 		DiceAffix.ValueSource.CONTEXT_DICE_PLACED:
 			return float(context.get("used_count", 0)) * affix.effect_value
+		# Guard: compound-only ValueSources on non-compound affix
+		DiceAffix.ValueSource.PARENT_TARGET_VALUE:
+			push_warning("DiceAffixProcessor: compound-only ValueSource on '%s'" % affix.affix_name)
+			return affix.effect_value
+		DiceAffix.ValueSource.PARENT_TARGET_PERCENT:
+			push_warning("DiceAffixProcessor: compound-only ValueSource on '%s'" % affix.affix_name)
+			return affix.effect_value
+		DiceAffix.ValueSource.SNAPSHOT_TARGET_VALUE:
+			push_warning("DiceAffixProcessor: compound-only ValueSource on '%s'" % affix.affix_name)
+			return affix.effect_value
+		DiceAffix.ValueSource.SNAPSHOT_TARGET_PERCENT:
+			push_warning("DiceAffixProcessor: compound-only ValueSource on '%s'" % affix.affix_name)
 	return affix.effect_value
 
 func _resolve_value_for_sub(sub: DiceAffixSubEffect, source_die: DieResource,

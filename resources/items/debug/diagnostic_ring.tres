@@ -1,0 +1,106 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=15 format=3 uid="uid://ddjuebhrjj3fm"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_l6ibn"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_xptqx"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_jn7f5"]
+[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="4_dfu50"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="5_sjd3u"]
+[ext_resource type="Resource" uid="uid://baxp7h1tamq4" path="res://resources/slot_definitions/accessory_slot.tres" id="6_ohavk"]
+
+[sub_resource type="Resource" id="Resource_x4423"]
+script = ExtResource("1_l6ibn")
+affix_name = "DiagRing: +77 Bonus Dmg on Hit"
+description = "Debug: ON_DEAL_DAMAGE → bonus_damage_flat 77"
+category = 35
+effect_number = 2.0
+effect_data = {
+"proc_effect": "bonus_damage_flat"
+}
+proc_trigger = 1
+
+[sub_resource type="Resource" id="Resource_iydfv"]
+script = ExtResource("1_l6ibn")
+affix_name = "DiagRing: Heal 11 on Hit"
+description = "Debug: ON_DEAL_DAMAGE → heal_flat 11"
+category = 35
+effect_number = 11.0
+effect_data = {
+"proc_effect": "heal_flat"
+}
+proc_trigger = 1
+
+[sub_resource type="Resource" id="Resource_3xvs6"]
+script = ExtResource("1_l6ibn")
+affix_name = "DiagRing: Heal 22 on Kill"
+description = "Debug: ON_KILL → heal_flat 22"
+category = 35
+effect_number = 22.0
+effect_data = {
+"proc_effect": "heal_flat"
+}
+proc_trigger = 9
+
+[sub_resource type="Resource" id="Resource_vdq6f"]
+script = ExtResource("1_l6ibn")
+affix_name = "DiagRing: Heal 33 on Defend"
+description = "Debug: ON_DEFEND → heal_flat 33"
+category = 35
+effect_number = 33.0
+effect_data = {
+"proc_effect": "heal_flat"
+}
+proc_trigger = 10
+
+[sub_resource type="Resource" id="Resource_e67ps"]
+script = ExtResource("1_l6ibn")
+affix_name = "DiagRing: Heal 44 per Action"
+description = "Debug: ON_ACTION_USED → heal_flat 44"
+category = 35
+effect_number = 44.0
+effect_data = {
+"proc_effect": "heal_flat"
+}
+proc_trigger = 8
+
+[sub_resource type="Resource" id="Resource_spysa"]
+script = ExtResource("1_l6ibn")
+affix_name = "DiagRing: Heal 55 per Die"
+description = "Debug: ON_DIE_USED → heal_flat 55"
+category = 35
+effect_number = 55.0
+effect_data = {
+"proc_effect": "heal_flat"
+}
+proc_trigger = 7
+
+[sub_resource type="Resource" id="Resource_j4ulr"]
+script = ExtResource("1_l6ibn")
+affix_name = "DiagRing: Heal 66 on Turn End"
+description = "Debug: ON_TURN_END → heal_flat 66"
+category = 35
+effect_number = 66.0
+effect_data = {
+"proc_effect": "heal_flat"
+}
+proc_trigger = 4
+
+[sub_resource type="Resource" id="Resource_riojm"]
+script = ExtResource("1_l6ibn")
+affix_name = "DiagRing: Heal 77 on Combat End"
+description = "Debug: ON_COMBAT_END → heal_flat 77"
+category = 35
+effect_number = 77.0
+effect_data = {
+"proc_effect": "heal_flat"
+}
+proc_trigger = 6
+
+[resource]
+script = ExtResource("5_sjd3u")
+item_name = "Bones's Diagnostic Ring"
+description = "Debug ring. Each proc heals a unique amount to identify which combat hooks fire."
+flavor_text = "The bones remember everything."
+rarity = 4
+equip_slot = 7
+slot_definition = ExtResource("6_ohavk")
+base_stat_affixes = Array[ExtResource("1_l6ibn")]([SubResource("Resource_x4423"), SubResource("Resource_iydfv"), SubResource("Resource_3xvs6"), SubResource("Resource_vdq6f"), SubResource("Resource_e67ps"), SubResource("Resource_spysa"), SubResource("Resource_j4ulr"), SubResource("Resource_riojm")])

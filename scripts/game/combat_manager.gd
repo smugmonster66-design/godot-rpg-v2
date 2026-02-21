@@ -21,6 +21,15 @@ var event_bus: CombatEventBus = null
 var player: Player = null
 var current_encounter: CombatEncounter = null
 var _combat_initialized: bool = false  # Add this line
+## When true, _check_combat_end() records the result but does NOT call
+## end_combat(). Set at the start of action resolution, cleared at the end.
+var _defer_combat_end: bool = false
+
+## Tracks the deferred result: -1 = no pending end, 0 = player lost, 1 = player won.
+var _deferred_combat_end_result: int = -1
+
+
+
 
 enum CombatState {
 	INITIALIZING,
@@ -520,8 +529,13 @@ func _end_round():
 	_start_round()
 
 func _check_combat_end() -> bool:
-	"""Check if combat should end"""
+	"""Check if combat should end. If _defer_combat_end is true, records the
+	result without calling end_combat() — the caller must call
+	_flush_deferred_combat_end() when the action sequence finishes."""
 	if not player_combatant.is_alive():
+		if _defer_combat_end:
+			_deferred_combat_end_result = 0  # player lost
+			return true
 		end_combat(false)
 		return true
 	
@@ -532,12 +546,26 @@ func _check_combat_end() -> bool:
 			break
 	
 	if all_dead:
+		if _defer_combat_end:
+			_deferred_combat_end_result = 1  # player won
+			return true
 		end_combat(true)
 		return true
 	
 	return false
 
-
+func _flush_deferred_combat_end() -> void:
+	_defer_combat_end = false
+	if _deferred_combat_end_result < 0:
+		return
+	# Safety: re-check player alive in case of mutual kill
+	var player_won: bool
+	if not player_combatant.is_alive():
+		player_won = false
+	else:
+		player_won = _deferred_combat_end_result == 1
+	_deferred_combat_end_result = -1
+	end_combat(player_won)
 
 
 
@@ -1155,6 +1183,13 @@ func _on_combatant_turn_completed(_combatant: Combatant):
 
 func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: Array):
 	"""Apply the actual game effect (damage, heal, etc.) from an action"""
+	# Guard: defer combat end checks until the full sequence completes.
+	# This prevents proc bonus damage / splash / chain kills from ending
+	# combat before ON_KILL, ON_ACTION_USED, ON_DIE_USED hooks fire.
+	var was_already_deferred := _defer_combat_end  # support nested calls
+	_defer_combat_end = true
+	_deferred_combat_end_result = -1
+	
 	var action_type = action_data.get("action_type", 0)
 	
 	match action_type:
@@ -1196,7 +1231,7 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 							"action_resource": action_data.get("action_resource"),
 							"placed_dice": action_data.get("placed_dice", []),
 						}))
-					_apply_proc_results(hit_results)
+					_apply_proc_results(hit_results, target)
 				# --- END PROC ---
 				
 				# Update appropriate health display
@@ -1208,9 +1243,35 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 					if enemy_index >= 0:
 						_update_enemy_health(enemy_index)
 						_check_enemy_death(target)
+						
+						# --- PROC: On-kill procs ---
+						if not target.is_alive() and source == player_combatant:
+							if player and player.affix_manager and proc_processor:
+								var kill_results = proc_processor.process_procs(
+									player.affix_manager,
+									Affix.ProcTrigger.ON_KILL,
+									_build_proc_context({
+										"target": target,
+										"action_resource": action_data.get("action_resource"),
+										"placed_dice": action_data.get("placed_dice", []),
+									}))
+								_apply_proc_results(kill_results, target)
+						# --- END ON_KILL ---
 		
 		1:  # DEFEND
 			print("  🛡️ %s defends" % source.combatant_name)
+			
+			# --- PROC: On-defend procs ---
+			if source == player_combatant and player and player.affix_manager and proc_processor:
+				var defend_results = proc_processor.process_procs(
+					player.affix_manager,
+					Affix.ProcTrigger.ON_DEFEND,
+					_build_proc_context({
+						"action_resource": action_data.get("action_resource"),
+						"placed_dice": action_data.get("placed_dice", []),
+					}))
+				_apply_proc_results(defend_results)
+			# --- END ON_DEFEND ---
 		
 		2:  # HEAL
 			var heal_amount = _calculate_heal(action_data, source)
@@ -1294,12 +1355,53 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 		player.dice_pool.finalize_dice_consumption(placed_dice)
 	# --- END FINALIZE ---
 	
+	# --- PROC: On-action-used procs (fires once per action) ---
+	if source == player_combatant and player and player.affix_manager and proc_processor:
+		var primary = targets[0] if targets.size() > 0 else null
+		var action_used_results = proc_processor.process_procs(
+			player.affix_manager,
+			Affix.ProcTrigger.ON_ACTION_USED,
+			_build_proc_context({
+				"target": primary,
+				"action_resource": action_data.get("action_resource"),
+				"action_name": action_data.get("name", ""),
+				"placed_dice": action_data.get("placed_dice", []),
+			}))
+		_apply_proc_results(action_used_results, primary)
+	# --- END ON_ACTION_USED ---
+	
+	# --- PROC: On-die-used procs (fires once per die consumed) ---
+	if source == player_combatant and player and player.affix_manager and proc_processor:
+		var placed_dice: Array = action_data.get("placed_dice", [])
+		var primary = targets[0] if targets.size() > 0 else null
+		for die in placed_dice:
+			if die is DieResource:
+				var die_used_results = proc_processor.process_procs(
+					player.affix_manager,
+					Affix.ProcTrigger.ON_DIE_USED,
+					_build_proc_context({
+						"target": primary,
+						"die_used": die,
+						"die_value": die.get_total_value(),
+						"die_element": die.get_effective_element(),
+						"action_resource": action_data.get("action_resource"),
+					}))
+				_apply_proc_results(die_used_results, primary)
+	# --- END ON_DIE_USED ---
+	
 	# --- v6: CLASS ACTION CONDITIONAL RIDERS ---
 	if action_data.get("is_class_action", false):
 		var class_action_resource = action_data.get("action_resource") as Action
 		if class_action_resource:
 			_execute_conditional_riders(class_action_resource, source, targets)
 	# --- END CLASS ACTION ---
+	
+	# --- DEFERRED COMBAT END ---
+	# Now that all procs, death checks, ON_KILL, finalize, ON_ACTION_USED,
+	# and ON_DIE_USED have fired, flush any pending combat end.
+	if not was_already_deferred:
+		_flush_deferred_combat_end()
+	# --- END DEFERRED COMBAT END ---
 
 
 
@@ -2164,8 +2266,11 @@ func _update_enemy_health(enemy_index: int):
 		combat_ui.update_enemy_health(enemy_index, enemy.current_health, enemy.max_health)
 
 func _check_player_death() -> bool:
-	"""Check if player died"""
+	"""Check if player died. Respects _defer_combat_end guard."""
 	if not player_combatant.is_alive():
+		if _defer_combat_end:
+			_deferred_combat_end_result = 0
+			return true
 		end_combat(false)
 		return true
 	return false
@@ -2278,6 +2383,15 @@ func end_combat(player_won: bool):
 		battlefield_tracker.clear_all()
 	# --- END BATTLEFIELD ---
 	
+	# --- PROC: Combat-end procs (heal after combat, etc.) ---
+	if proc_processor and player and player.affix_manager:
+		var combat_end_results = proc_processor.process_procs(
+			player.affix_manager,
+			Affix.ProcTrigger.ON_COMBAT_END,
+			_build_proc_context())
+		_apply_proc_results(combat_end_results)
+	# --- END COMBAT_END PROCS ---
+	
 	# --- PROC: Reset per-combat proc state ---
 	if proc_processor and player and player.affix_manager:
 		proc_processor.on_combat_end(player.affix_manager)
@@ -2342,6 +2456,8 @@ func reset_combat():
 	# Reset state
 	enemy_combatants.clear()
 	combat_state = CombatState.INITIALIZING
+	_defer_combat_end = false
+	_deferred_combat_end_result = -1
 	turn_phase = TurnPhase.NONE
 	current_round = 0
 	current_turn_index = 0
@@ -2432,9 +2548,15 @@ func _build_combat_context(source: Combatant, targets: Array) -> Dictionary:
 
 
 
-func _apply_proc_results(results: Dictionary) -> void:
+func _apply_proc_results(results: Dictionary, proc_target: Combatant = null) -> void:
 	"""Apply aggregated proc results to game state.
-	Handles all result types from AffixProcProcessor.process_procs()."""
+	Handles all result types from AffixProcProcessor.process_procs().
+	
+	Args:
+		proc_target: The enemy target for bonus damage and status effects.
+					 Pass the primary attack target for ON_DEAL_DAMAGE/ON_KILL,
+					 or null for turn-based triggers (will auto-pick first alive enemy).
+	"""
 	if results.activated.is_empty():
 		return
 	
@@ -2449,10 +2571,15 @@ func _apply_proc_results(results: Dictionary) -> void:
 		print("  💚 Proc heal: %d" % int(results.healing))
 	
 	# --- Bonus Damage ---
-	# NOTE: Bonus damage from procs is logged for now. To integrate fully,
-	# pass results.bonus_damage into CombatCalculator during the damage step.
 	if results.bonus_damage > 0:
-		print("  ⚡ Proc bonus damage: %d (logged — wire into damage calc)" % int(results.bonus_damage))
+		var dmg_target = proc_target if proc_target and proc_target.is_alive() else _get_first_living_enemy()
+		if dmg_target and dmg_target.has_method("take_damage"):
+			var dmg = int(results.bonus_damage)
+			dmg_target.take_damage(dmg)
+			print("  ⚡ Proc bonus damage: %d → %s" % [dmg, dmg_target.combatant_name])
+			_update_and_check_target(dmg_target)
+		else:
+			print("  ⚡ Proc bonus damage: %d (no valid target)" % int(results.bonus_damage))
 	
 	# --- Temp Affixes ---
 	if player and player.affix_manager:
@@ -2476,18 +2603,32 @@ func _apply_proc_results(results: Dictionary) -> void:
 	
 	# --- Status Effects ---
 	for status_data in results.status_effects:
-		if status_data is not Dictionary:
-			push_warning("⚙️ Unexpected status_data type: %s" % type_string(typeof(status_data)))
+		if not status_data is Dictionary:
+			push_warning("⚠️ Skipping non-dict status_data: %s" % str(status_data))
 			continue
-		# Status effects from procs target enemies by default
-		var status_target = status_data.get("target", "enemy")
-		if status_target == "self" and player and player.status_tracker:
-			var sa = status_data.get("status_affix")
-			if sa:
-				player.status_tracker.apply_status(sa, 1, "proc")
-		# Enemy targeting requires knowing which enemy — log for now
+		var status_target_type = status_data.get("target", "enemy")
+		var sa = status_data.get("status_affix")
+		var stacks: int = status_data.get("stacks", 1)
+		var source_name: String = status_data.get("source", "proc")
+		if not sa:
+			continue
+		
+		if status_target_type == "self":
+			if player and player.status_tracker:
+				player.status_tracker.apply_status(sa, stacks, source_name)
+				print("  🎯 Proc status → self: %s x%d" % [sa.affix_name if sa.get("affix_name") else sa.status_id, stacks])
 		else:
-			print("  🎯 Status effect queued for %s (wire target selection)" % status_target)
+			# Target the proc_target or first living enemy
+			var enemy_target = proc_target if proc_target and proc_target.is_alive() else _get_first_living_enemy()
+			if enemy_target:
+				var tracker: StatusTracker = _get_status_tracker(enemy_target)
+				if tracker:
+					tracker.apply_status(sa, stacks, source_name)
+					print("  🎯 Proc status → %s: %s x%d" % [enemy_target.combatant_name, sa.affix_name if sa.get("affix_name") else sa.status_id, stacks])
+				else:
+					print("  ⚠️ No StatusTracker on %s" % enemy_target.combatant_name)
+			else:
+				print("  ⚠️ No valid enemy target for proc status")
 	
 	# --- Special Effects (armor, barrier, stacking buffs, retriggering, custom) ---
 	for se in results.special_effects:

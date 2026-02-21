@@ -344,8 +344,24 @@ func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 		# ── Status Effects ──
 		"apply_status":
 			effect.type = "status_effect"
-			effect["status"] = affix.effect_data.get("status", {})
+			var raw = affix.effect_data.get("status", null)
+			if raw is StatusAffix:
+				effect["status"] = raw
+			elif raw is String and raw != "":
+				# Try to load status resource by convention path
+				var path = "res://resources/statuses/%s.tres" % raw
+				var loaded = load(path)
+				if loaded is StatusAffix:
+					effect["status"] = loaded
+				else:
+					push_warning("⚠️ Could not load StatusAffix at '%s' for proc '%s'" % [path, affix.affix_name])
+					effect["status"] = {}
+			elif raw is Dictionary:
+				effect["status"] = raw
+			else:
+				effect["status"] = {}
 			effect["target"] = affix.effect_data.get("status_target", "enemy")
+			effect["stacks"] = int(affix.effect_data.get("status_stacks", 1))
 		
 		# ── Dice Manipulation ──
 		"grant_temp_dice_affix":
@@ -478,7 +494,26 @@ func _merge_effect_result(result: Dictionary, effect: Dictionary):
 				result.temp_affixes.append(affix)
 		
 		"status_effect":
-			result.status_effects.append(effect.get("status", {}))
+			var raw_status = effect.get("status", {})
+			var entry: Dictionary = {}
+			if raw_status is StatusAffix:
+				entry = {
+					"status_affix": raw_status,
+					"target": effect.get("target", "enemy"),
+					"stacks": int(effect.get("stacks", 1)),
+					"source": effect.get("affix_name", "proc"),
+				}
+			elif raw_status is Dictionary:
+				entry = raw_status.duplicate()
+				if not entry.has("target"):
+					entry["target"] = effect.get("target", "enemy")
+				if not entry.has("source"):
+					entry["source"] = effect.get("affix_name", "proc")
+			else:
+				push_warning("⚠️ AffixProcProcessor: Skipping non-dict status: %s (from %s)" % [
+					str(raw_status), effect.get("affix_name", "?")])
+			if not entry.is_empty():
+				result.status_effects.append(entry)
 		
 		"temp_dice_affix":
 			var dice_affix = effect.get("dice_affix", null)

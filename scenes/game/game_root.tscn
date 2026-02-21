@@ -5,8 +5,8 @@
 [ext_resource type="PackedScene" uid="uid://dg4shmm2jhcnd" path="res://scenes/game/combat_scene.tscn" id="2_n6w2t"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="2_reamk"]
 [ext_resource type="PackedScene" uid="uid://b3hskvtstgnbh" path="res://scenes/dungeon/dungeon_scene.tscn" id="3_a6cr8"]
-[ext_resource type="Resource" uid="uid://dm6jge56hb5y3" path="res://resources/items/gloves/gloves_of_flaming_fingers.tres" id="3_vvhw6"]
 [ext_resource type="PackedScene" uid="uid://cx781vq4omutw" path="res://scenes/game/map_scene.tscn" id="4_0krdv"]
+[ext_resource type="Resource" uid="uid://ddjuebhrjj3fm" path="res://resources/items/debug/diagnostic_ring.tres" id="4_ax1hr"]
 [ext_resource type="Texture2D" uid="uid://b5idgxy5pjm63" path="res://assets/ui/panels/9patch_bones.png" id="4_n6w2t"]
 [ext_resource type="Resource" uid="uid://dqvjoyvbna53o" path="res://resources/items/main hand/the_nuke.tres" id="4_vvhw6"]
 [ext_resource type="PackedScene" uid="uid://c0w3t10mfnowo" path="res://scenes/ui/bottom_ui_panel.tscn" id="5_n6w2t"]
@@ -52,7 +52,7 @@ texture = ExtResource("6_0krdv")
 script = ExtResource("1_pevc5")
 dev_mode = true
 dev_level = 1
-dev_items = Array[ExtResource("2_reamk")]([ExtResource("3_vvhw6"), ExtResource("4_vvhw6")])
+dev_items = Array[ExtResource("2_reamk")]([ExtResource("4_vvhw6"), ExtResource("4_ax1hr")])
 dev_item_level = 1
 
 [node name="GameCamera" type="Camera2D" parent="."]
