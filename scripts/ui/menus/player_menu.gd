@@ -140,6 +140,8 @@ func close_menu():
 
 func refresh_all_tabs():
 	"""Request all tabs to refresh their displays"""
+	if not visible:
+		return  # Menu is closed — skip tab updates
 	for tab in active_tabs:
 		if tab.has_method("refresh"):
 			tab.refresh()
@@ -219,6 +221,8 @@ func _on_tab_data_changed(tab: Control):
 func _on_skill_learned(skill: SkillResource, new_rank: int):
 	"""A skill was learned - notify other tabs"""
 	print("📋 PlayerMenu: Skill learned - %s rank %d" % [skill.skill_name, new_rank])
+	if not visible:
+		return  # Menu is closed — skip tab updates
 	for tab in active_tabs:
 		if tab.has_method("on_external_data_change"):
 			tab.on_external_data_change()

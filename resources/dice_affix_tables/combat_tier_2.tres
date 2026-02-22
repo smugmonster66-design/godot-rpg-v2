@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="DiceAffixTable" load_steps=8 format=3 uid="uid://c6px52ums5532"]
+
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_2d51s"]
+[ext_resource type="Resource" uid="uid://c4qrtxvbwx2xp" path="res://resources/dice_affixes/rollable/combat/tier_2/grant_burn_status.tres" id="2_xyewq"]
+[ext_resource type="Resource" uid="uid://c6prsmg1yp7q3" path="res://resources/dice_affixes/rollable/combat/tier_2/grant_chill_status.tres" id="3_45ib2"]
+[ext_resource type="Resource" uid="uid://cqxjdutooyjtr" path="res://resources/dice_affixes/rollable/combat/tier_2/grant_shock_status.tres" id="4_jqlwa"]
+[ext_resource type="Script" uid="uid://dx30aajrgj64m" path="res://resources/data/dice_affix_table.gd" id="4_xyewq"]
+[ext_resource type="Resource" uid="uid://b36t4gccd1hco" path="res://resources/dice_affixes/rollable/combat/tier_2/heal_on_use_flat.tres" id="5_qohrs"]
+[ext_resource type="Resource" uid="uid://bmcodx2rxorw5" path="res://resources/dice_affixes/rollable/combat/tier_2/splash_damage_flat.tres" id="6_f423j"]
+
+[resource]
+script = ExtResource("4_xyewq")
+table_name = "Combat Tier 2"
+description = "Rollable dice affixes — combat family, tier 2."
+available_affixes = Array[ExtResource("1_2d51s")]([ExtResource("2_xyewq"), ExtResource("3_45ib2"), ExtResource("4_jqlwa"), ExtResource("5_qohrs"), ExtResource("6_f423j")])

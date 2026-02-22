@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://c4qrtxvbwx2xp"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_03r4r"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_m1an0"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_y5l2o"]
+
+[resource]
+script = ExtResource("2_m1an0")
+affix_name = "Igniting"
+description = "Apply Burn on use"
+affix_tier = 2
+trigger = 1
+effect_type = 16
+effect_value = 1.0
+effect_data = {
+"duration": 2,
+"stacks": 1,
+"status": "burn"
+}

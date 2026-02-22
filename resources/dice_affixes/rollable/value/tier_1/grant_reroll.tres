@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://b2ag3beu1a3gs"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_tmekk"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_w2fdm"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_s48vi"]
+
+[resource]
+script = ExtResource("2_w2fdm")
+affix_name = "Lucky"
+description = "Grants a reroll"
+affix_tier = 1
+effect_type = 9
+effect_value = 1.0

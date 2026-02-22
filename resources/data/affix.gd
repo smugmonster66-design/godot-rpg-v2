@@ -182,10 +182,16 @@ enum RoundMode {
 # SOURCE TRACKING
 # ============================================================================
 @export_group("Source")
-## Name of the item/skill/set that granted this affix
-var source: String = ""
-## Type of source: "item", "skill", "set", "proc", "proc_temp", "proc_stack"
-var source_type: String = ""
+@export var source: String = ""
+@export var source_type: String = ""
+
+## Item level of the source item (stamped at equip/init time).
+## Used by DieGenerator to scale dice affixes. 0 = not stamped.
+@export var source_item_level: int = 0
+
+## Rarity enum of the source item (stamped at equip/init time).
+## Used by DieGenerator to determine dice affix tier access. 0 = COMMON.
+@export var source_rarity: int = 0
 
 # ============================================================================
 # CONDITION (v2) — Checked before effect application

@@ -74,8 +74,16 @@ func refresh():
 	_build_skill_grid()
 
 func on_external_data_change():
-	"""Called when other tabs modify player data"""
-	refresh()
+	"""Called when other tabs modify player data - OPTIMIZED.
+	Uses efficient state update if canvas is built, otherwise full refresh."""
+	if not skill_canvas or skill_canvas.skill_buttons.is_empty():
+		# Canvas not built yet - do full refresh
+		refresh()
+		return
+	
+	# Canvas exists - just update states without rebuild
+	_update_header()
+	_update_all_skill_buttons()
 
 
 func has_active_popup() -> bool:
@@ -331,6 +339,7 @@ func _log_missing_requirements(skill: SkillResource, tree_points: int):
 			prereq_data.current
 		])
 
+
 func _learn_skill(skill: SkillResource):
 	"""Actually learn/rank up a skill"""
 	var skill_id = skill.skill_id
@@ -372,15 +381,17 @@ func _learn_skill(skill: SkillResource):
 	
 	print("🌳 Learned %s rank %d!" % [skill.skill_name, new_rank])
 	
-	
 	# Gear bonuses may now apply to the newly learned skill
 	if player.active_class:
 		player.active_class.recalculate_effective_ranks()
 	
-	
-	skill_learned.emit(skill, new_rank)
+	# Refresh THIS tab directly (not via signal)
 	refresh()
 	
+	# THEN emit signal for OTHER tabs (after our refresh is complete)
+	skill_learned.emit(skill, new_rank)
+	
+	# Update popup if still visible
 	if skill_popup and skill_popup.visible:
 		var updated_rank = _get_skill_rank(skill_id)
 		var updated_effective = _get_effective_skill_rank(skill)

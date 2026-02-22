@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="DiceAffixTable" load_steps=8 format=3 uid="uid://5onnhskw3dvx"]
+
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_ijjtw"]
+[ext_resource type="Resource" uid="uid://d3yaxp5jiliw7" path="res://resources/dice_affixes/rollable/positional/tier_1/boost_right_neighbor.tres" id="2_wltfs"]
+[ext_resource type="Resource" uid="uid://bxnxn140iamu2" path="res://resources/dice_affixes/rollable/positional/tier_1/boost_left_neighbor.tres" id="3_2wqho"]
+[ext_resource type="Resource" uid="uid://bnhae30vvxbek" path="res://resources/dice_affixes/rollable/positional/tier_1/even_slot_bonus.tres" id="4_vjocc"]
+[ext_resource type="Script" uid="uid://dx30aajrgj64m" path="res://resources/data/dice_affix_table.gd" id="4_wltfs"]
+[ext_resource type="Resource" uid="uid://dog8vl6cfh57f" path="res://resources/dice_affixes/rollable/positional/tier_1/odd_slot_bonus.tres" id="5_kghld"]
+[ext_resource type="Resource" uid="uid://djqw7ljsaj5in" path="res://resources/dice_affixes/rollable/positional/tier_1/combat_start_boost.tres" id="6_mklg7"]
+
+[resource]
+script = ExtResource("4_wltfs")
+table_name = "Positional Tier 1"
+description = "Rollable dice affixes — positional family, tier 1."
+available_affixes = Array[ExtResource("1_ijjtw")]([ExtResource("2_wltfs"), ExtResource("3_2wqho"), ExtResource("4_vjocc"), ExtResource("5_kghld"), ExtResource("6_mklg7")])

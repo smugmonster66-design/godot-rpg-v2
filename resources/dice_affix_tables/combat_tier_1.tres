@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="DiceAffixTable" load_steps=8 format=3 uid="uid://d3vmrm5co62rh"]
+
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_xi7wc"]
+[ext_resource type="Resource" uid="uid://d1x6rcru7hhty" path="res://resources/dice_affixes/rollable/combat/tier_1/add_fire_damage_flat.tres" id="2_qi5hl"]
+[ext_resource type="Resource" uid="uid://ca52dixtyw1lt" path="res://resources/dice_affixes/rollable/combat/tier_1/add_ice_damage_flat.tres" id="3_8i078"]
+[ext_resource type="Resource" uid="uid://da8mq0bxukqcd" path="res://resources/dice_affixes/rollable/combat/tier_1/add_shock_damage_flat.tres" id="4_og81x"]
+[ext_resource type="Script" uid="uid://dx30aajrgj64m" path="res://resources/data/dice_affix_table.gd" id="4_qi5hl"]
+[ext_resource type="Resource" uid="uid://b5vifyfida4j3" path="res://resources/dice_affixes/rollable/combat/tier_1/add_poison_damage_flat.tres" id="5_l06b0"]
+[ext_resource type="Resource" uid="uid://c032xglqwa6to" path="res://resources/dice_affixes/rollable/combat/tier_1/bonus_damage_flat.tres" id="6_g128k"]
+
+[resource]
+script = ExtResource("4_qi5hl")
+table_name = "Combat Tier 1"
+description = "Rollable dice affixes — combat family, tier 1."
+available_affixes = Array[ExtResource("1_xi7wc")]([ExtResource("2_qi5hl"), ExtResource("3_8i078"), ExtResource("4_og81x"), ExtResource("5_l06b0"), ExtResource("6_g128k")])

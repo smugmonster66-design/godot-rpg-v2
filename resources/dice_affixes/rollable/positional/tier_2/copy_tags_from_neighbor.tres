@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://dxxitle4i65ma"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_8xvx4"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_pgkow"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_ypyc2"]
+
+[resource]
+script = ExtResource("2_pgkow")
+affix_name = "Absorbent"
+description = "Copy tags from left neighbor"
+affix_tier = 2
+position_requirement = 3
+neighbor_target = 1
+effect_type = 7
+effect_value = 1.0
+value_source = 6

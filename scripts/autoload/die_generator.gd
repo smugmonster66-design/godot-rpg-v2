@@ -209,7 +209,9 @@ func _generate_from_template_internal(template: DieResource,
 
 	# Step 3: Determine affix count and tiers
 	var affix_count: int = get_affix_count(rarity)
-	var tiers: Array = get_tiers_for_rarity(rarity)
+	var tiers_raw: Array = get_tiers_for_rarity(rarity)
+	var tiers: Array[int] = []
+	tiers.assign(tiers_raw)
 
 	if affix_count == 0 or tiers.is_empty():
 		# Common die — no rolled affixes, just the base template
@@ -228,7 +230,7 @@ func _generate_from_template_internal(template: DieResource,
 	var scaling_config := _get_scaling_config()
 
 	# Step 6: Roll DiceAffixes
-	var rolled_affixes := registry.roll_multiple(
+	var rolled_affixes = registry.roll_multiple(
 		affix_count, tiers, item_level, die.element, scaling_config)
 
 	# Step 7: Apply rolled affixes to the die's applied_affixes array
@@ -238,6 +240,9 @@ func _generate_from_template_internal(template: DieResource,
 		affix.rolled_on_rarity = rarity
 		die.applied_affixes.append(affix)
 
+	# Step 7.5: Stamp rarity name for visual glow (RarityGlowHelper uses this)
+	die.rarity_name = RARITY_NAMES.get(rarity, "")
+
 	# Step 8: Update display name to reflect rarity
 	if rarity > EquippableItem.Rarity.COMMON:
 		die.display_name = "%s %s" % [RARITY_NAMES.get(rarity, ""), die.display_name]
@@ -246,7 +251,7 @@ func _generate_from_template_internal(template: DieResource,
 		print("🎲 Generated %s (Lv.%d, %d affixes):" % [
 			die.display_name, item_level, rolled_affixes.size()])
 		for affix in rolled_affixes:
-			var val_str := affix.get_rolled_value_string() if affix.has_scaling() else str(affix.effect_value)
+			var val_str = affix.get_rolled_value_string() if affix.has_scaling() else str(affix.effect_value)
 			print("   🔹 %s: %s [%s]" % [affix.affix_name, val_str,
 				affix.get_value_range_string() if affix.has_scaling() else "static"])
 

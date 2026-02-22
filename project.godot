@@ -23,6 +23,8 @@ GameManager="*res://scripts/autoload/game_manager.gd"
 AffixPool="*res://scripts/autoload/affix_pool.gd"
 LootManager="*res://scripts/autoload/loot_manager.gd"
 AffixTableRegistry="*res://scripts/autoload/affix_table_registry.gd"
+DiceAffixTableRegistry="*res://scripts/autoload/dice_affix_table_registry.gd"
+DieGenerator="*res://scripts/autoload/die_generator.gd"
 
 [display]
 

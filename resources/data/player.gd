@@ -499,6 +499,8 @@ func _add_item_affixes(item: EquippableItem):
 
 
 
+
+
 func _apply_affix_dice(affix: Affix, source_name: String):
 	"""Add dice granted by an affix to the player's pool."""
 	if not dice_pool:
@@ -511,6 +513,8 @@ func _apply_affix_dice(affix: Affix, source_name: String):
 				die_copy.add_affix(affix.dice_visual_affix)
 			dice_pool.add_die(die_copy)
 			print("  🎲 Affix granted die: %s (from %s)" % [die_copy.display_name, source_name])
+
+
 
 func _remove_item_affixes(item: EquippableItem):
 	"""Remove all affixes sourced from this item."""

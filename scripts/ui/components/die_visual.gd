@@ -6,6 +6,7 @@ class_name DieVisual
 # DIE FACE SCENES - Lazy loaded
 # ============================================================================
 static var _die_face_cache: Dictionary = {}
+static var _dice_glow_config: RarityGlowConfig = null
 
 static func _get_die_face_scene(die_type: DieResource.DieType) -> PackedScene:
 	if _die_face_cache.has(die_type):
@@ -239,8 +240,23 @@ func _apply_affix_visual_effects():
 	for affix in all_affixes:
 		print("  Processing affix: ", affix.affix_name, ", visual_type: ", affix.visual_effect_type)
 		_apply_single_affix_effect(affix)
+	
+	# Rarity glow behind the die (same system as inventory items)
+	if die_data.rarity_name != "" and die_data.rarity_name != "Common":
+		if not _dice_glow_config:
+			_dice_glow_config = load("res://resources/ui/default_rarity_glow.tres")
+		# apply_glow needs any non-null texture as a guard — fill_texture works
+		var tex = die_data.fill_texture if die_data.fill_texture else texture_rect.texture if texture_rect else null
+		if tex:
+			RarityGlowHelper.apply_glow(self, tex, die_data.rarity_name, _dice_glow_config)
+		
+	
+	
 
 func _clear_visual_effects():
+	# Clear rarity glow
+	RarityGlowHelper.clear_glow(self)
+	self.material = null
 	# Clear overlays
 	for overlay in active_overlays:
 		if is_instance_valid(overlay):
@@ -704,6 +720,15 @@ func _apply_preview_affix_effects(wrapper: Control, face: Control, tex: TextureR
 			
 			DiceAffix.VisualEffectType.PARTICLE:
 				pass
+				
+		# Rarity glow on drag preview
+	if die_data.rarity_name != "" and die_data.rarity_name != "Common":
+		if not _dice_glow_config:
+			_dice_glow_config = load("res://resources/ui/default_rarity_glow.tres")
+		var glow_tex = die_data.fill_texture if die_data.fill_texture else null
+		if glow_tex:
+			RarityGlowHelper.apply_glow(wrapper, glow_tex, die_data.rarity_name, _dice_glow_config)
+	
 
 func _apply_single_preview_effect(effect: PreviewEffect, tex: TextureRect, stroke_tex: TextureRect, label: Label, wrapper: Control, face: Control, face_size: Vector2):
 	"""Apply a single preview effect to the drag preview"""

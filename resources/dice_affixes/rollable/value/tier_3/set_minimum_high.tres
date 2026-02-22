@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://cejh58ghvx0s"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_2u8ha"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_86tym"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_ch4q5"]
+
+[resource]
+script = ExtResource("2_86tym")
+affix_name = "Ironclad"
+description = "Always rolls at least N"
+affix_tier = 3
+effect_type = 2
+effect_value = 6.0
+effect_value_min = 4.0
+effect_value_max = 8.0

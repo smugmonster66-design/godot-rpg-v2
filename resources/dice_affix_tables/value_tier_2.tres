@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="DiceAffixTable" load_steps=8 format=3 uid="uid://ufg8o5ad0022"]
+
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_g01vr"]
+[ext_resource type="Resource" uid="uid://c04reovte4lud" path="res://resources/dice_affixes/rollable/value/tier_2/flat_value_bonus_medium.tres" id="2_4wm8o"]
+[ext_resource type="Resource" uid="uid://h6pt2707bi1g" path="res://resources/dice_affixes/rollable/value/tier_2/auto_reroll_low.tres" id="3_cdlvx"]
+[ext_resource type="Script" uid="uid://dx30aajrgj64m" path="res://resources/data/dice_affix_table.gd" id="4_4wm8o"]
+[ext_resource type="Resource" uid="uid://bg04axojr7n11" path="res://resources/dice_affixes/rollable/value/tier_2/neighbor_value_boost.tres" id="4_7dld1"]
+[ext_resource type="Resource" uid="uid://bo5guoyh3fr6x" path="res://resources/dice_affixes/rollable/value/tier_2/roll_keep_highest.tres" id="5_yfymv"]
+[ext_resource type="Resource" uid="uid://dqsyer3mcijg7" path="res://resources/dice_affixes/rollable/value/tier_2/copy_neighbor_value_flat.tres" id="6_pl156"]
+
+[resource]
+script = ExtResource("4_4wm8o")
+table_name = "Value Tier 2"
+description = "Rollable dice affixes — value family, tier 2."
+available_affixes = Array[ExtResource("1_g01vr")]([ExtResource("2_4wm8o"), ExtResource("3_cdlvx"), ExtResource("4_7dld1"), ExtResource("5_yfymv"), ExtResource("6_pl156")])

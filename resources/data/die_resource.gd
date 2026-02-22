@@ -41,7 +41,9 @@ enum Element {
 @export var die_type: DieType = DieType.D6
 @export var color: Color = Color.WHITE
 @export var is_mana_die: bool = false
-
+## Rarity name for visual glow. Set by DieGenerator at creation time.
+## Not exported — runtime only. Used by RarityGlowHelper in visual systems.
+var rarity_name: String = ""
 
 @export_group("Element")
 ## The element of this die - applies default visual effects
@@ -348,7 +350,7 @@ func get_affix_summary() -> String:
 	
 	var lines: Array[String] = []
 	for affix in all_affixes:
-		if affix:
+		if affix and affix.show_in_summary:
 			lines.append("• " + affix.get_formatted_description())
 	return "\n".join(lines)
 
@@ -460,6 +462,9 @@ func duplicate_die() -> DieResource:
 	for affix in applied_affixes:
 		if affix:
 			copy.applied_affixes.append(affix.duplicate(true))
+	
+	# Copy rarity name
+	copy.rarity_name = rarity_name
 	
 	return copy
 

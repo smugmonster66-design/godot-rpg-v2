@@ -158,6 +158,19 @@ enum ValueEffectType {
 ## Whether this affix appears in die summary tooltips
 @export var show_in_summary: bool = true
 
+# ============================================================================
+# RARITY METADATA
+# ============================================================================
+@export_group("Rarity Metadata")
+
+## Which rarity tier this affix belongs to (for table organization / UI).
+## 0 = untiered (inherent/element affixes), 1-3 = rollable tiers.
+@export_range(0, 3) var affix_tier: int = 0
+
+## Die rarity this affix was rolled on (stamped at generation time).
+## -1 = not yet stamped (template). Runtime only, not saved on templates.
+var rolled_on_rarity: int = -1
+
 ## When true, fill/stroke/value materials are pulled from GameManager.ELEMENT_VISUALS
 ## instead of this affix's own material fields. Set the element_type below.
 @export var use_global_element_visuals: bool = false
@@ -199,6 +212,20 @@ enum ValueEffectType {
 @export_group("Effect")
 @export var effect_type: EffectType = EffectType.MODIFY_VALUE_FLAT
 @export var effect_value: float = 0.0
+
+## Minimum effect value across the full item level range (level 1 item).
+## Set both min and max to 0.0 to disable scaling (uses static effect_value).
+@export var effect_value_min: float = 0.0
+
+## Maximum effect value across the full item level range (level 100 item).
+@export var effect_value_max: float = 0.0
+
+## Optional per-affix scaling curve override. Leave null to use linear.
+@export var effect_curve: Curve = null
+
+## Per-affix fuzz override. -1.0 = use global default from AffixScalingConfig.
+## 0.0 = deterministic, 0.15 = ±15% spread.
+@export_range(-1.0, 1.0) var roll_fuzz: float = -1.0
 
 ## Where does the effect magnitude come from? (v2)
 ## STATIC = use effect_value literally. Others derive at runtime.
@@ -612,6 +639,103 @@ func get_display_text() -> String:
 # SERIALIZATION
 # ============================================================================
 
+# ============================================================================
+# SCALING
+# ============================================================================
+
+func has_scaling() -> bool:
+	"""Check if this dice affix uses level-based scaling."""
+	return not (effect_value_min == 0.0 and effect_value_max == 0.0)
+
+
+func roll_scaled_value(power_position: float = -1.0,
+		scaling_config: AffixScalingConfig = null) -> float:
+	"""Roll effect_value based on item level, mirroring Affix.roll_value().
+
+	Args:
+		power_position: 0.0 (weakest) to 1.0 (strongest).
+		scaling_config: Global config for fuzz. Can be null.
+
+	Returns:
+		The rolled value (also stored in effect_value).
+	"""
+	if not has_scaling():
+		return effect_value
+
+	# Legacy: no power_position → pure random
+	if power_position < 0.0:
+		var t: float = randf()
+		if effect_curve:
+			t = effect_curve.sample(t)
+		effect_value = _round_dice_value(lerpf(effect_value_min, effect_value_max, t))
+		return effect_value
+
+	# Step 1: Apply curve
+	var t_curved: float = power_position
+	if effect_curve:
+		t_curved = effect_curve.sample(power_position)
+
+	# Step 2: Center value
+	var center: float = lerpf(effect_value_min, effect_value_max, t_curved)
+
+	# Step 3: Fuzz range
+	var roll_min_v: float = center
+	var roll_max_v: float = center
+
+	if scaling_config:
+		var fuzz_range = scaling_config.compute_fuzz_range(
+			center, effect_value_min, effect_value_max, roll_fuzz)
+		roll_min_v = fuzz_range.min
+		roll_max_v = fuzz_range.max
+	elif roll_fuzz > 0.0:
+		var total_range: float = effect_value_max - effect_value_min
+		var fuzz_amount: float = maxf(total_range * roll_fuzz, 0.5)
+		roll_min_v = maxf(effect_value_min, center - fuzz_amount)
+		roll_max_v = minf(effect_value_max, center + fuzz_amount)
+
+	# Step 4: Roll
+	effect_value = _round_dice_value(randf_range(roll_min_v, roll_max_v))
+	return effect_value
+
+
+func _round_dice_value(value: float) -> float:
+	"""Round a dice affix value appropriately.
+
+	Percent-style effects (0.0-1.0 range) get 2 decimal places.
+	Everything else rounds to nearest 0.5 (for nice die math).
+	"""
+	if effect_value_max <= 1.0 and effect_value_min >= 0.0:
+		return snappedf(value, 0.01)
+	elif effect_value_max <= 5.0:
+		return snappedf(value, 0.5)
+	else:
+		return roundf(value)
+
+
+func get_value_range_string() -> String:
+	"""Human-readable value range for tooltips."""
+	if not has_scaling():
+		return _format_dice_value(effect_value)
+
+	return "%s–%s" % [_format_dice_value(effect_value_min),
+					   _format_dice_value(effect_value_max)]
+
+
+func get_rolled_value_string() -> String:
+	"""Current rolled value as display string."""
+	return _format_dice_value(effect_value)
+
+
+func _format_dice_value(val: float) -> String:
+	"""Format a value for display."""
+	if effect_value_max <= 1.0 and effect_value_min >= 0.0 and effect_value_max > 0.0:
+		return "%d%%" % int(val * 100)
+	elif val == int(val):
+		return "+%d" % int(val)
+	else:
+		return "+%.1f" % val
+
+
 func to_dict() -> Dictionary:
 	"""Serialize to dictionary"""
 	var data := {
@@ -628,6 +752,10 @@ func to_dict() -> Dictionary:
 		"effect_data": effect_data,
 		"source": source,
 		"source_type": source_type,
+		"effect_value_min": effect_value_min,
+		"effect_value_max": effect_value_max,
+		"affix_tier": affix_tier,
+		"rolled_on_rarity": rolled_on_rarity,
 		# Legacy visual
 		"visual_effect_type": visual_effect_type,
 		"visual_priority": visual_priority,
@@ -662,6 +790,10 @@ static func from_dict(data: Dictionary) -> DiceAffix:
 	affix.effect_data = data.get("effect_data", {})
 	affix.source = data.get("source", "")
 	affix.source_type = data.get("source_type", "")
+	affix.effect_value_min = data.get("effect_value_min", 0.0)
+	affix.effect_value_max = data.get("effect_value_max", 0.0)
+	affix.affix_tier = data.get("affix_tier", 0)
+	affix.rolled_on_rarity = data.get("rolled_on_rarity", -1)
 	# Legacy visual
 	affix.visual_effect_type = data.get("visual_effect_type", VisualEffectType.NONE)
 	affix.visual_priority = data.get("visual_priority", 0)

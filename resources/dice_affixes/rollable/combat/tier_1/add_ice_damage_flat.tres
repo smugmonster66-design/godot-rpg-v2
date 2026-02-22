@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://ca52dixtyw1lt"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_0ebur"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_vgno3"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_hd10b"]
+
+[resource]
+script = ExtResource("2_vgno3")
+affix_name = "Chilling"
+description = "+N flat ice damage on use"
+affix_tier = 1
+trigger = 1
+effect_type = 15
+effect_value = 2.0
+effect_value_min = 1.0
+effect_value_max = 3.0
+effect_data = {
+"type": "ice"
+}

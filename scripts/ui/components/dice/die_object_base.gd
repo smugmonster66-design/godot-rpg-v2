@@ -47,7 +47,7 @@ var _original_scale: Vector2 = Vector2.ONE
 
 var _manual_preview: Control = null
 var _active_touches: Dictionary = {}  # touch_index -> true, tracked during drag
-
+static var _dice_glow_config: RarityGlowConfig = null
 
 # ============================================================================
 # INITIALIZATION
@@ -101,6 +101,19 @@ func _apply_all_visuals():
 	_apply_affixes()
 	_setup_preview_effects()
 	_update_value_display()
+	_apply_rarity_glow()
+
+func _apply_rarity_glow():
+	"""Apply rarity glow behind the die using RarityGlowHelper."""
+	RarityGlowHelper.clear_glow(self)
+	if not die_resource or die_resource.rarity_name == "" or die_resource.rarity_name == "Common":
+		return
+	if not _dice_glow_config:
+		_dice_glow_config = load("res://resources/ui/default_rarity_glow.tres")
+	var tex = die_resource.fill_texture
+	if tex:
+		RarityGlowHelper.apply_glow(self, tex, die_resource.rarity_name, _dice_glow_config)
+
 
 func _apply_textures():
 	"""Apply fill and stroke textures from the DieResource"""

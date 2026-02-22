@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://bfitk7070bmp4"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_g0emk"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_ew2n4"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_qgmof"]
+
+[resource]
+script = ExtResource("2_ew2n4")
+affix_name = "Persistent"
+description = "This die is not consumed on use"
+affix_tier = 3
+trigger = 2
+effect_type = 12
+effect_value = 1.0

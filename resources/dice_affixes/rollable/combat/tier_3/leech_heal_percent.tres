@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://8kkp1oaksvrb"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_lf028"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_vu5df"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_mxq3u"]
+
+[resource]
+script = ExtResource("2_vu5df")
+affix_name = "Vampiric"
+description = "Heal N% of damage dealt"
+affix_tier = 3
+trigger = 1
+effect_type = 19
+effect_value = 0.44999999999999996
+effect_value_min = 0.3
+effect_value_max = 0.6
+effect_data = {
+"mode": "percent"
+}

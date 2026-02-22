@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=6 format=3 uid="uid://dygjc3ot55or7"]
+
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="1_bec3m"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_vbgdn"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_faaw5"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_hqa8e"]
+
+[sub_resource type="Resource" id="Resource_bec3m"]
+script = ExtResource("1_bec3m")
+type = 15
+condition_element = "MATCH_SELF"
+
+[resource]
+script = ExtResource("3_faaw5")
+affix_name = "Harmonized"
+description = "+N if neighbor shares element"
+affix_tier = 2
+condition = SubResource("Resource_bec3m")
+effect_value = 3.5
+effect_value_min = 2.0
+effect_value_max = 5.0

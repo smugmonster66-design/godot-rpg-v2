@@ -241,6 +241,10 @@ func initialize_affixes(affix_pool = null):
 	
 	# Combine into item_affixes for backwards compatibility
 	_rebuild_combined_affixes()
+	
+	_generate_affix_dice()
+	# Generate inherent dice (grants_dice) with DiceAffixes too
+	_generate_inherent_dice()
 
 # ============================================================================
 # BASE STAT AFFIXES (v3)
@@ -391,6 +395,7 @@ func _roll_from_slot_definition() -> void:
 			continue
 		
 		var rolled: Affix = base_affix.duplicate_with_source(item_name, "item")
+		_stamp_source_metadata(rolled)
 		
 		if rolled.has_scaling():
 			rolled.roll_value(power_pos, scaling_config)
@@ -457,6 +462,7 @@ func _use_manual_affixes():
 	
 	if manual_first_affix:
 		var copy = manual_first_affix.duplicate_with_source(item_name, "item")
+		_stamp_source_metadata(copy)
 		if copy.has_scaling():
 			copy.roll_value(power_pos, scaling_config)
 		copy.roll_proc_chance(power_pos, scaling_config)  # NEW
@@ -465,6 +471,7 @@ func _use_manual_affixes():
 	
 	if manual_second_affix:
 		var copy = manual_second_affix.duplicate_with_source(item_name, "item")
+		_stamp_source_metadata(copy)
 		if copy.has_scaling():
 			copy.roll_value(power_pos, scaling_config)
 		copy.roll_proc_chance(power_pos, scaling_config)  # NEW
@@ -473,6 +480,7 @@ func _use_manual_affixes():
 	
 	if manual_third_affix:
 		var copy = manual_third_affix.duplicate_with_source(item_name, "item")
+		_stamp_source_metadata(copy)
 		if copy.has_scaling():
 			copy.roll_value(power_pos, scaling_config)
 		copy.roll_proc_chance(power_pos, scaling_config)  # NEW
@@ -513,6 +521,7 @@ func _roll_from_table(table: AffixTable, tier_name: String):
 	var affix = table.get_random_affix()
 	if affix:
 		var affix_copy = affix.duplicate_with_source(item_name, "item")
+		_stamp_source_metadata(affix_copy)
 		# Scale the value if this affix has min/max ranges
 		if affix_copy.has_scaling():
 			var power_pos := clampf(float(item_level - 1) / 99.0, 0.0, 1.0)
@@ -537,6 +546,7 @@ func _add_unique_affix():
 		return
 	
 	var copy = unique_affix.duplicate_with_source(item_name, "item")
+	_stamp_source_metadata(copy)
 	
 	# Scale unique affix too if it has ranges
 	if copy.has_scaling():
@@ -578,6 +588,14 @@ func _rebuild_combined_affixes() -> void:
 		item_affixes.append(a)
 	for a in rolled_affixes:
 		item_affixes.append(a)
+
+
+func _stamp_source_metadata(affix: Affix) -> void:
+	"""Stamp this item's level and rarity onto an affix copy.
+	Called after duplicate_with_source() so DieGenerator can read
+	the source item's properties when generating dice."""
+	affix.source_item_level = item_level
+	affix.source_rarity = rarity
 
 # ============================================================================
 # EQUIP REQUIREMENT CHECKS
@@ -748,7 +766,91 @@ func to_dict() -> Dictionary:
 	
 	return dict
 
-# Add these to equippable_item.gd
+func _generate_affix_dice() -> void:
+	"""For DICE-category affixes, generate dice with DiceAffixes
+	based on item rarity and level. Replaces base templates on the
+	affix copy with enriched versions. Common items skip this
+	(they get plain dice). Called after _rebuild_combined_affixes().
+	"""
+	if rarity == Rarity.COMMON:
+		return
+
+	var gen = _get_die_generator()
+	if not gen:
+		return
+
+	for affix in item_affixes:
+		if not affix or affix.category != Affix.Category.DICE:
+			continue
+		if affix.granted_dice.is_empty():
+			continue
+
+		var generated: Array[DieResource] = []
+		for die_template in affix.granted_dice:
+			if die_template is DieResource:
+				var die = gen.generate_from_template(
+					die_template, rarity, item_level, item_name)
+				if die:
+					generated.append(die)
+					if OS.is_debug_build():
+						var da_count = die.applied_affixes.size()
+						if da_count > 0:
+							print("  🎲 Generated %s with %d dice affixes (%s Lv.%d)" % [
+								die.display_name, da_count,
+								get_rarity_name(), item_level])
+							for da in die.applied_affixes:
+								print("     🔹 %s (T%d)" % [da.affix_name, da.affix_tier])
+						else:
+							print("  🎲 Generated %s (no dice affixes)" % die.display_name)
+				else:
+					generated.append(die_template)
+		affix.granted_dice.assign(generated)
+
+func _get_die_generator():
+	"""Get the DieGenerator autoload. Returns null if not available."""
+	var tree := Engine.get_main_loop()
+	if tree is SceneTree:
+		var root = tree.root
+		if root and root.has_node("DieGenerator"):
+			return root.get_node("DieGenerator")
+	return null
+
+func _generate_inherent_dice() -> void:
+	"""Run inherent grants_dice through DieGenerator for non-Common items.
+	Replaces the template dice on this instance with generated copies that
+	carry rolled DiceAffixes and rarity visuals. Safe because this instance
+	is already a duplicate from the loot system.
+	Common items skip this (they get plain dice).
+	"""
+	if rarity == Rarity.COMMON:
+		return
+	if grants_dice.is_empty():
+		return
+
+	var gen = _get_die_generator()
+	if not gen:
+		return
+
+	var generated: Array[DieResource] = []
+	for die_template in grants_dice:
+		if die_template is DieResource:
+			var die = gen.generate_from_template(
+				die_template, rarity, item_level, item_name)
+			if die:
+				generated.append(die)
+				if OS.is_debug_build():
+					var da_count = die.applied_affixes.size()
+					print("  🎲 Generated inherent %s with %d dice affixes (%s Lv.%d)" % [
+						die.display_name, da_count, get_rarity_name(), item_level])
+					for da in die.applied_affixes:
+						if da.show_in_summary:
+							print("     🔹 %s (T%d)" % [da.affix_name, da.affix_tier])
+			else:
+				generated.append(die_template)
+		else:
+			generated.append(die_template)
+
+	grants_dice.assign(generated)
 
 # ============================================================================
 # DICE PERSISTENCE

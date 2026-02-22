@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://ekw26asr5w6d"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_jh5id"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_12l2d"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_41ri8"]
+
+[resource]
+script = ExtResource("2_12l2d")
+affix_name = "Sturdy"
+description = "+N to rolled value"
+affix_tier = 1
+effect_value = 2.0
+effect_value_min = 1.0
+effect_value_max = 3.0

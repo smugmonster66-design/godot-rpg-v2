@@ -536,8 +536,10 @@ func resolve_all_effects(affix_manager: AffixPoolManager, context: Dictionary) -
 					
 					if entry.granted_action:
 						granted_actions.append(entry.granted_action)
-					for die in entry.granted_dice:
-						if die:
+					if entry.granted_dice.size() > 0:
+						var generated := _generate_dice_from_affix_templates(
+							entry.granted_dice)
+						for die in generated:
 							granted_dice.append(die)
 			else:
 				# Simple affix
@@ -558,9 +560,9 @@ func resolve_all_effects(affix_manager: AffixPoolManager, context: Dictionary) -
 				
 				if category == Affix.Category.DICE:
 					if affix.check_condition(context):
-						for die in affix.granted_dice:
-							if die:
-								granted_dice.append(die)
+						var generated := _generate_dice_from_affix(affix)
+						for die in generated:
+							granted_dice.append(die)
 	
 	totals["_granted_actions"] = granted_actions
 	totals["_granted_dice"] = granted_dice
@@ -632,3 +634,64 @@ func damage_type_to_element_string(damage_type) -> String:
 		1: return "piercing"  # PIERCING
 		2: return "blunt"     # BLUNT
 		_: return ""
+
+# ============================================================================
+# DICE GENERATION (Phase 3 — Dynamic dice from DieGenerator)
+# ============================================================================
+
+func _generate_dice_from_affix(affix: Affix) -> Array[DieResource]:
+	"""Generate rolled dice from a DICE-category affix.
+
+	Reads item_level and rarity from the affix's stamped source metadata
+	(set by EquippableItem._stamp_source_metadata at init time).
+	Falls back to template copies if DieGenerator isn't loaded.
+	"""
+	return _generate_dice_from_templates(
+		affix.granted_dice, affix.source_item_level,
+		affix.source_rarity, affix.source)
+
+
+func _generate_dice_from_affix_templates(
+		templates: Array[DieResource]) -> Array[DieResource]:
+	"""Generate rolled dice from a compound sub-effect's granted_dice.
+
+	Sub-effects don't carry source metadata — defaults to level 1, Common.
+	"""
+	return _generate_dice_from_templates(templates, 1, 0, "")
+
+
+func _generate_dice_from_templates(templates: Array[DieResource],
+		item_level: int, item_rarity: int,
+		item_name: String) -> Array[DieResource]:
+	"""Core implementation: generate rolled dice from template array."""
+	var results: Array[DieResource] = []
+
+	var generator = _get_die_generator()
+	if not generator:
+		# Fallback: return template copies (pre-Phase 2 behavior)
+		for die in templates:
+			if die:
+				results.append(die.duplicate_die())
+		return results
+
+	for template in templates:
+		if not template:
+			continue
+		var die: DieResource = generator.generate_from_template(
+			template, item_rarity, item_level, item_name)
+		if die:
+			results.append(die)
+		else:
+			results.append(template.duplicate_die())
+
+	return results
+
+
+func _get_die_generator():
+	"""Get the DieGenerator autoload. Returns null if not available."""
+	var tree := Engine.get_main_loop()
+	if tree is SceneTree:
+		var root = tree.root
+		if root and root.has_node("DieGenerator"):
+			return root.get_node("DieGenerator")
+	return null
