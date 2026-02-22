@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=12 format=3 uid="uid://cvaptd3rg4lsg"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=13 format=3 uid="uid://cvaptd3rg4lsg"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_8db64"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_a1tb1"]
@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="6_0mf5p"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="7_i7xfq"]
 [ext_resource type="Resource" uid="uid://hnmjxghaf5mm" path="res://resources/slot_definitions/main_hand_slot.tres" id="8_g4b4v"]
+[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="9_n12cx"]
 
 [sub_resource type="Resource" id="Resource_8db64"]
 script = ExtResource("2_a1tb1")

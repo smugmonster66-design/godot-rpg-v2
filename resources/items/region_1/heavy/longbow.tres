@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=13 format=3 uid="uid://bi1upc4nqq26l"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=14 format=3 uid="uid://bi1upc4nqq26l"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_qlr4h"]
 [ext_resource type="Resource" uid="uid://dlfux8drlkb3t" path="res://resources/affixes/base_stats/inherent_agility.tres" id="2_dq1qn"]
@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="6_l1b02"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="7_mfubg"]
 [ext_resource type="Resource" uid="uid://dmbm1ao1pu7q4" path="res://resources/slot_definitions/heavy_slot.tres" id="8_fbby6"]
+[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="9_jjthk"]
 
 [sub_resource type="Resource" id="Resource_qlr4h"]
 script = ExtResource("2_ur0jj")

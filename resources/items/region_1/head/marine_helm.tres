@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://raoa2tbik26r"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=9 format=3 uid="uid://raoa2tbik26r"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_5x2la"]
 [ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_2ds66"]
@@ -7,12 +7,13 @@
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_xdpfw"]
 [ext_resource type="Resource" uid="uid://l4haca2jhusf" path="res://resources/slot_definitions/head_slot.tres" id="4_2ds66"]
 [ext_resource type="Resource" uid="uid://bo60aqpcko6p6" path="res://resources/affixes/base_stats/inherent_barrier_hybrid.tres" id="4_we8wg"]
+[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="6_awixx"]
 
 [resource]
 script = ExtResource("3_xdpfw")
 item_name = "Marine Helm"
 description = "Regulation naval armor balancing physical and magical protection. Designed by committee, which explains the color."
-flavor_text = "Regulation 4.2.1: All marine helms must be polished on Tuesdays. Compliance is... variable."
+flavor_text = "Regulation 4.2.1: All Marine armor must be polished on Tuesdays. "
 rarity = 1
 equip_slot = 0
 slot_definition = ExtResource("4_2ds66")

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=13 format=3 uid="uid://bs2egaqy2fmij"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=14 format=3 uid="uid://bs2egaqy2fmij"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_h1wbq"]
 [ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_hmfib"]
@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="6_qqo26"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="7_2bi5e"]
 [ext_resource type="Resource" uid="uid://dmbm1ao1pu7q4" path="res://resources/slot_definitions/heavy_slot.tres" id="8_bg8u3"]
+[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="9_4ywql"]
 
 [sub_resource type="Resource" id="Resource_h1wbq"]
 script = ExtResource("2_y7i1r")
@@ -31,7 +32,7 @@ stroke_texture = ExtResource("6_qqo26")
 script = ExtResource("7_2bi5e")
 item_name = "Frost Staff"
 description = "Perpetually cold, occasionally frosted. Leaving it near beverages is considered a perk, not a malfunction."
-flavor_text = "The Academy's cooling budget dropped significantly after issuing these. Coincidence, surely."
+flavor_text = "The Academy's cooling budget dropped significantly after issuing these. "
 rarity = 1
 equip_slot = 6
 has_elemental_identity = true

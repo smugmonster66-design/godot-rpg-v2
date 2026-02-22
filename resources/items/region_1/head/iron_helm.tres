@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://bqm3b5p4lxeof"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=9 format=3 uid="uid://bqm3b5p4lxeof"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_v13k8"]
 [ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_2vcy5"]
@@ -7,12 +7,13 @@
 [ext_resource type="Resource" uid="uid://by212c4j0x5gp" path="res://resources/affixes/base_stats/inherent_health.tres" id="3_vbexk"]
 [ext_resource type="Resource" uid="uid://l4haca2jhusf" path="res://resources/slot_definitions/head_slot.tres" id="4_2vcy5"]
 [ext_resource type="Resource" uid="uid://bvlqcx16ejx" path="res://resources/affixes/base_stats/inherent_armor.tres" id="4_5chid"]
+[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="6_vbexk"]
 
 [resource]
 script = ExtResource("3_8iyj2")
 item_name = "Iron Helm"
 description = "Solid iron construction, built to absorb punishment. Standard issue for Sanctum's front-line infantry."
-flavor_text = "The dent in the front is either battle damage or quality control. Nobody's sure."
+flavor_text = "The dent in the front is either battle damage or quality control."
 rarity = 1
 equip_slot = 0
 slot_definition = ExtResource("4_2vcy5")

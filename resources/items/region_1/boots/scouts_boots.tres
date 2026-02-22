@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://c2bcj2dx5nci5"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=9 format=3 uid="uid://c2bcj2dx5nci5"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_3hvvd"]
 [ext_resource type="Resource" uid="uid://dlfux8drlkb3t" path="res://resources/affixes/base_stats/inherent_agility.tres" id="2_8jpqw"]
@@ -7,12 +7,13 @@
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_yr172"]
 [ext_resource type="Resource" uid="uid://b650s5tyjtg6r" path="res://resources/slot_definitions/boots_slot.tres" id="4_8jpqw"]
 [ext_resource type="Resource" uid="uid://bo60aqpcko6p6" path="res://resources/affixes/base_stats/inherent_barrier_hybrid.tres" id="4_ql1s3"]
+[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="6_2jwss"]
 
 [resource]
 script = ExtResource("3_yr172")
 item_name = "Scout's Boots"
 description = "Scout-issue gear combining leather and light enchantment. Keeps you alive and fast, in that order."
-flavor_text = "Scout-issue boots. The sole pattern is classified, which seems excessive for footwear."
+flavor_text = "The sole pattern is classified, which seems excessive."
 rarity = 1
 equip_slot = 3
 slot_definition = ExtResource("4_8jpqw")

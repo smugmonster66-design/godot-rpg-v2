@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=10 format=3 uid="uid://dab6uqulv8s3q"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=11 format=3 uid="uid://dab6uqulv8s3q"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_2b680"]
 [ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_20n3h"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="4_gddo5"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="5_h4qp8"]
 [ext_resource type="Resource" uid="uid://dmbm1ao1pu7q4" path="res://resources/slot_definitions/heavy_slot.tres" id="6_gclur"]
+[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="7_gddo5"]
 
 [sub_resource type="Resource" id="Resource_2b680"]
 script = ExtResource("2_hce4c")

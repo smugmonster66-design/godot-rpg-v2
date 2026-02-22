@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=13 format=3 uid="uid://coxryhl4iqj3"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=14 format=3 uid="uid://coxryhl4iqj3"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_1llio"]
 [ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_gy7r3"]
@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="6_uv2q1"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="7_nfso5"]
 [ext_resource type="Resource" uid="uid://dmbm1ao1pu7q4" path="res://resources/slot_definitions/heavy_slot.tres" id="8_ggubi"]
+[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="9_myqu7"]
 
 [sub_resource type="Resource" id="Resource_1llio"]
 script = ExtResource("2_tpf51")

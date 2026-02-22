@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=10 format=3 uid="uid://cygp3r3gwfpf1"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=11 format=3 uid="uid://cygp3r3gwfpf1"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_85pki"]
 [ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_hy1s5"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="4_vk7r2"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="5_d63rm"]
 [ext_resource type="Resource" uid="uid://hnmjxghaf5mm" path="res://resources/slot_definitions/main_hand_slot.tres" id="6_feyf7"]
+[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="7_vk7r2"]
 
 [sub_resource type="Resource" id="Resource_85pki"]
 script = ExtResource("2_irykh")
@@ -20,7 +21,7 @@ element_affix = ExtResource("3_hy1s5")
 script = ExtResource("5_d63rm")
 item_name = "Cinder Wand"
 description = "A slender wand that smells faintly of smoke. Academy-standard for pyromantic exercises."
-flavor_text = "Warranty void if used to light cigars. (It will be used to light cigars.)"
+flavor_text = "Warranty void if used to light cigars."
 rarity = 1
 has_elemental_identity = true
 elemental_identity = 3
