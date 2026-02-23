@@ -19,7 +19,7 @@ var _selected_index: int = -1
 # ============================================================================
 @onready var title_label: Label = $CenterContainer/Panel/VBox/TitleLabel
 @onready var subtitle_label: Label = $CenterContainer/Panel/VBox/SubtitleLabel
-@onready var card_container: VBoxContainer = $CenterContainer/Panel/VBox/ScrollContainer/CardContainer
+@onready var card_container: VBoxContainer = $CenterContainer/Panel/VBox/HBoxContainer/ScrollContainer/CardContainer
 @onready var confirm_button: Button = $CenterContainer/Panel/VBox/ButtonRow/ConfirmButton
 @onready var skip_button: Button = $CenterContainer/Panel/VBox/ButtonRow/SkipButton
 var _trigger: String = ""

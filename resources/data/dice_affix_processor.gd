@@ -238,10 +238,43 @@ func _dispatch_effect(dice: Array[DieResource], source_die: DieResource,
 	match etype:
 		# --- Value modifications ---
 		DiceAffix.EffectType.MODIFY_VALUE_FLAT:
-			_apply_value_flat(target_die, target_index, resolved_value, affix_or_parent, result)
+			# ON_COMBAT_START value mods must persist as CombatModifiers,
+			# otherwise roll_hand() overwrites them every turn.
+			if affix_or_parent.trigger == DiceAffix.Trigger.ON_COMBAT_START:
+				var mod = CombatModifier.new()
+				mod.mod_type = CombatModifier.ModType.FLAT_BONUS
+				mod.value = resolved_value
+				mod.duration = CombatModifier.Duration.COMBAT
+				mod.target_filter = CombatModifier.TargetFilter.SPECIFIC_SLOT
+				mod.source_slot_index = target_index
+				mod.source_name = affix_or_parent.affix_name
+				result.special_effects.append({
+					"type": "create_combat_modifier",
+					"modifier": mod
+				})
+				print("    🛡️ %s: ON_COMBAT_START flat +%.0f → persistent modifier (slot %d)" % [
+					affix_or_parent.affix_name, resolved_value, target_index])
+			else:
+				_apply_value_flat(target_die, target_index, resolved_value, affix_or_parent, result)
+		
 		
 		DiceAffix.EffectType.MODIFY_VALUE_PERCENT:
-			_apply_value_percent(target_die, target_index, resolved_value, affix_or_parent, result)
+			if affix_or_parent.trigger == DiceAffix.Trigger.ON_COMBAT_START:
+				var mod = CombatModifier.new()
+				mod.mod_type = CombatModifier.ModType.PERCENT_BONUS
+				mod.value = resolved_value
+				mod.duration = CombatModifier.Duration.COMBAT
+				mod.target_filter = CombatModifier.TargetFilter.SPECIFIC_SLOT
+				mod.source_slot_index = target_index
+				mod.source_name = affix_or_parent.affix_name
+				result.special_effects.append({
+					"type": "create_combat_modifier",
+					"modifier": mod
+				})
+				print("    🛡️ %s: ON_COMBAT_START percent x%.2f → persistent modifier (slot %d)" % [
+					affix_or_parent.affix_name, resolved_value, target_index])
+			else:
+				_apply_value_percent(target_die, target_index, resolved_value, affix_or_parent, result)
 		
 		DiceAffix.EffectType.SET_MINIMUM_VALUE:
 			_apply_set_minimum(target_die, target_index, resolved_value, result)
@@ -269,7 +302,7 @@ func _dispatch_effect(dice: Array[DieResource], source_die: DieResource,
 			_apply_grant_reroll(target_die, target_index, affix_or_parent, result)
 		
 		DiceAffix.EffectType.AUTO_REROLL_LOW:
-			var threshold = edata.get("threshold", 0)
+			var threshold = edata.get("threshold", int(resolved_value))
 			_apply_auto_reroll(target_die, target_index, threshold, affix_or_parent, result)
 		
 		# --- Special effects ---
@@ -280,8 +313,17 @@ func _dispatch_effect(dice: Array[DieResource], source_die: DieResource,
 			_apply_lock_die(target_die, target_index, result)
 		
 		DiceAffix.EffectType.CHANGE_DIE_TYPE:
-			var new_type = int(edata.get("new_type", 6))
-			_apply_change_type(target_die, target_index, new_type, result)
+			var upgrade_steps = int(edata.get("upgrade_steps", 0))
+			if upgrade_steps != 0:
+				var die_sizes := [4, 6, 8, 10, 12]
+				var current_idx := die_sizes.find(target_die.die_type)
+				if current_idx < 0:
+					current_idx = 0
+				var new_idx := clampi(current_idx + upgrade_steps, 0, die_sizes.size() - 1)
+				_apply_change_type(target_die, target_index, die_sizes[new_idx], result)
+			else:
+				var new_type = int(edata.get("new_type", target_die.die_type))
+				_apply_change_type(target_die, target_index, new_type, result)
 		
 		DiceAffix.EffectType.COPY_NEIGHBOR_VALUE:
 			_apply_copy_value(dice, source_die, target_die, target_index, affix_or_parent, result)
@@ -289,6 +331,10 @@ func _dispatch_effect(dice: Array[DieResource], source_die: DieResource,
 		# --- Combat effects ---
 		DiceAffix.EffectType.ADD_DAMAGE_TYPE:
 			_apply_damage_type(target_die, target_index, edata, result)
+			# v4.1: If scaled value exists, also emit flat bonus damage of that element
+			if resolved_value > 0.0:
+				var bonus_edata := {"element": edata.get("type", "NONE").to_upper()}
+				_apply_emit_bonus_damage(source_die, target_index, resolved_value, bonus_edata, result)
 		
 		DiceAffix.EffectType.GRANT_STATUS_EFFECT:
 			_apply_status_effect(target_die, target_index, edata, result)
@@ -491,9 +537,17 @@ func _apply_value_flat(die: DieResource, index: int, value: float, affix: DiceAf
 		])
 
 func _apply_value_percent(die: DieResource, index: int, value: float, affix: DiceAffix, result: Dictionary):
-	"""Apply percentage value modification"""
+	"""Apply percentage value modification.
+	Guarantees at least +1/-1 change when value != 1.0 to prevent
+	truncation zeroing out small-die bonuses (e.g. D4 roll 1 × 1.65 = 1)."""
 	var old_value = die.modified_value
 	die.apply_percent_modifier(value)
+	# Floor: if the multiplier should change the value but truncation ate it
+	if die.modified_value == old_value and value != 1.0 and old_value > 0:
+		if value > 1.0:
+			die.modified_value = old_value + 1
+		elif value < 1.0:
+			die.modified_value = maxi(old_value - 1, 0)
 	
 	if old_value != die.modified_value:
 		_record_value_change(result, index, old_value, die.modified_value)
@@ -608,8 +662,10 @@ func _apply_lock_die(die: DieResource, index: int, result: Dictionary):
 	})
 
 func _apply_change_type(die: DieResource, index: int, new_type: int, result: Dictionary):
-	"""Change die type"""
+	"""Change die type (absolute). Caller resolves relative upgrades."""
 	var old_type = die.die_type
+	if new_type == old_type:
+		return  # No change needed (already at cap or same type)
 	die.die_type = new_type
 	result.special_effects.append({
 		"type": "change_type",
@@ -617,6 +673,7 @@ func _apply_change_type(die: DieResource, index: int, new_type: int, result: Dic
 		"old_type": old_type,
 		"new_type": new_type
 	})
+	print("    🎲 %s: D%d → D%d" % [die.display_name, old_type, new_type])
 
 func _apply_copy_value(dice: Array[DieResource], source: DieResource, target: DieResource,
 		index: int, affix: DiceAffix, result: Dictionary):
@@ -768,18 +825,34 @@ func _apply_create_combat_modifier(source_die: DieResource, modifier: CombatModi
 func _apply_emit_splash(source_die: DieResource, index: int,
 		resolved_value: float, edata: Dictionary, result: Dictionary):
 	"""Emit a splash damage event for CombatManager to resolve post-attack.
-	Splash hits enemies adjacent to the primary target."""
-	var event = {
+	Splash hits enemies adjacent to the primary target.
+	Supports two modes:
+	  - percent (default): resolved_value is ignored, percent of primary damage used
+	  - flat: resolved_value IS the splash damage dealt to each adjacent enemy
+	"""
+	var mode: String = edata.get("mode", "percent")
+	var event := {
 		"type": "splash",
 		"source_die": source_die.display_name,
 		"die_index": index,
-		"damage": resolved_value,
 		"element": edata.get("element", ""),
-		"percent": edata.get("percent", 0.0),
+		"mode": mode,
 	}
+	if mode == "flat":
+		event["flat_damage"] = resolved_value
+		event["percent"] = 0.0
+	else:
+		event["damage"] = resolved_value
+		event["percent"] = edata.get("percent", 0.5)
 	result.combat_events.append(event)
-	print("    💥 %s queued splash: %.0f %s" % [
-		source_die.display_name, resolved_value, edata.get("element", "?")])
+	if mode == "flat":
+		print("    💥 %s queued flat splash: %.0f %s" % [
+			source_die.display_name, resolved_value, edata.get("element", "?")])
+	else:
+		print("    💥 %s queued splash: %.0f%% %s" % [
+			source_die.display_name, edata.get("percent", 0.5) * 100, edata.get("element", "?")])
+
+
 
 func _apply_emit_chain(source_die: DieResource, index: int,
 		resolved_value: float, edata: Dictionary, result: Dictionary):

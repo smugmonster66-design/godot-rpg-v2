@@ -1,15 +1,12 @@
-[gd_resource type="Resource" script_class="DiceAffixTable" load_steps=8 format=3 uid="uid://dfsv1qjernjoy"]
+[gd_resource type="Resource" script_class="DiceAffixTable" load_steps=5 format=3 uid="uid://dfsv1qjernjoy"]
 
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_3gqyr"]
 [ext_resource type="Resource" uid="uid://cx5dvkmlfi00i" path="res://resources/dice_affixes/rollable/positional/tier_3/boost_both_neighbors_percent.tres" id="2_8inf6"]
 [ext_resource type="Resource" uid="uid://dep2nwsdnmofw" path="res://resources/dice_affixes/rollable/positional/tier_3/change_die_type_up.tres" id="3_wfooq"]
 [ext_resource type="Script" uid="uid://dx30aajrgj64m" path="res://resources/data/dice_affix_table.gd" id="4_8inf6"]
-[ext_resource type="Resource" uid="uid://bg265rry05oeu" path="res://resources/dice_affixes/rollable/positional/tier_3/destroy_for_power.tres" id="4_cxm1o"]
-[ext_resource type="Resource" uid="uid://bfitk7070bmp4" path="res://resources/dice_affixes/rollable/positional/tier_3/lock_die.tres" id="5_ueatr"]
-[ext_resource type="Resource" uid="uid://cuwt3uuh3bo1n" path="res://resources/dice_affixes/rollable/positional/tier_3/lock_die_and_boost.tres" id="6_471na"]
 
 [resource]
 script = ExtResource("4_8inf6")
 table_name = "Positional Tier 3"
 description = "Rollable dice affixes — positional family, tier 3."
-available_affixes = Array[ExtResource("1_3gqyr")]([ExtResource("2_8inf6"), ExtResource("3_wfooq"), ExtResource("4_cxm1o"), ExtResource("5_ueatr"), ExtResource("6_471na")])
+available_affixes = Array[ExtResource("1_3gqyr")]([ExtResource("2_8inf6"), ExtResource("3_wfooq")])

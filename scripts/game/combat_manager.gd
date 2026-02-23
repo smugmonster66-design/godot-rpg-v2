@@ -1435,10 +1435,16 @@ func _resolve_combat_events(events: Array[Dictionary], primary_target) -> void:
 				print("    ⚠️ Unknown combat event type: %s" % event.get("type", "?"))
 
 func _resolve_splash(event: Dictionary, primary_target) -> void:
-	"""Splash damage to enemies adjacent to the primary target in formation."""
-	var damage = int(event.get("damage", 0))
-	var percent = event.get("percent", 0.5)
-	var splash_damage = int(damage * percent)
+	"""Splash damage to enemies adjacent to the primary target in formation.
+	Supports mode=flat (fixed damage) and mode=percent (% of primary damage)."""
+	var splash_damage: int
+	var mode: String = event.get("mode", "percent")
+	if mode == "flat":
+		splash_damage = int(event.get("flat_damage", 0))
+	else:
+		var damage = int(event.get("damage", 0))
+		var percent = event.get("percent", 0.5)
+		splash_damage = int(damage * percent)
 	
 	if splash_damage <= 0:
 		return

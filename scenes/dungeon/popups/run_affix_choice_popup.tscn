@@ -1,13 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://dng_run_affix_popup"]
+[gd_scene load_steps=3 format=3 uid="uid://cfb8423b3t1nn"]
 
-[ext_resource type="Script" path="res://scripts/dungeon/popups/run_affix_choice_popup.gd" id="1_script"]
-[ext_resource type="Theme" path="res://resources/themes/base_theme.tres" id="2_theme"]
-
-; ===========================================================================
-; RunAffixChoicePopup — blessing picker after dungeon entry / elite kill
-; Extends DungeonPopupBase. Cards built at runtime in script.
-; Emits: { chosen: RunAffixEntry or null, skipped: bool }
-; ===========================================================================
+[ext_resource type="Script" uid="uid://dnesfo6kdct38" path="res://scripts/dungeon/popups/run_affix_choice_popup.gd" id="1_script"]
+[ext_resource type="Theme" uid="uid://b87llggw1n1df" path="res://resources/themes/base_theme.tres" id="2_theme"]
 
 [node name="RunAffixChoicePopup" type="Control"]
 visible = false
@@ -20,8 +14,6 @@ grow_vertical = 2
 theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
-; --- dark overlay ---
-
 [node name="PanelBG" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -30,8 +22,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.75)
-
-; --- centered panel ---
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -49,14 +39,10 @@ layout_mode = 2
 layout_mode = 2
 theme_override_constants/separation = 12
 
-; --- title ---
-
 [node name="TitleLabel" type="Label" parent="CenterContainer/Panel/VBox"]
 layout_mode = 2
 text = "Dungeon Blessing"
 horizontal_alignment = 1
-
-; --- subtitle ---
 
 [node name="SubtitleLabel" type="Label" parent="CenterContainer/Panel/VBox"]
 layout_mode = 2
@@ -66,25 +52,24 @@ horizontal_alignment = 1
 [node name="HSeparator" type="HSeparator" parent="CenterContainer/Panel/VBox"]
 layout_mode = 2
 
-; --- scrollable card area (cards built at runtime) ---
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
 
-[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/Panel/VBox"]
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/Panel/VBox/HBoxContainer"]
 custom_minimum_size = Vector2(0, 350)
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="CardContainer" type="VBoxContainer" parent="CenterContainer/Panel/VBox/ScrollContainer"]
+[node name="CardContainer" type="VBoxContainer" parent="CenterContainer/Panel/VBox/HBoxContainer/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
-; --- button row ---
-
 [node name="ButtonRow" type="HBoxContainer" parent="CenterContainer/Panel/VBox"]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 16
+alignment = 1
 
 [node name="SkipButton" type="Button" parent="CenterContainer/Panel/VBox/ButtonRow"]
 custom_minimum_size = Vector2(120, 44)
