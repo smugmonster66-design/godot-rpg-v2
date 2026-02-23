@@ -80,7 +80,7 @@ var current_category: String = "All"
 # Shader resources
 var rarity_shader: Shader = null
 
-var _active_die_tooltip: PanelContainer = null
+var _active_die_tooltip: DieTooltipPopup = null
 
 # Add to STATE section
 var _selected_button: TextureButton = null
@@ -1029,72 +1029,26 @@ func _lock_die_preview(die_visual, die_scale: float):
 
 func _on_granted_die_pressed(source: Control, die_res: DieResource):
 	"""Toggle a floating popup tooltip on button press."""
-	# Close existing tooltip (same die = toggle off, different die = swap)
 	if _active_die_tooltip and is_instance_valid(_active_die_tooltip):
-		var is_same = _active_die_tooltip.get_meta("source_die", null) == source
+		var is_same = _active_die_tooltip.is_for_source(source)
 		_close_die_tooltip()
 		if is_same:
 			return
 	
-	_active_die_tooltip = _build_die_tooltip(die_res)
-	_active_die_tooltip.set_meta("source_die", source)
-	
-	# Create a temporary CanvasLayer above everything
-	var overlay_layer = CanvasLayer.new()
-	overlay_layer.name = "DieTooltipLayer"
-	overlay_layer.layer = 200  # Above all other UI layers
-	get_tree().root.add_child(overlay_layer)
-	overlay_layer.add_child(_active_die_tooltip)
-	
-	# Convert source position to screen space
-	var anchor_screen_pos = source.get_screen_position() + source.size / 2.0
-	_position_die_tooltip.call_deferred(anchor_screen_pos)
+	var anchor_pos = source.get_screen_position() + source.size / 2.0
+	_active_die_tooltip = DieTooltipPopup.show_die(die_res, anchor_pos, get_tree().root, source)
+	_active_die_tooltip.dismissed.connect(_on_die_tooltip_dismissed)
 
-func _position_die_tooltip(anchor_pos: Vector2):
-	"""Position the floating tooltip near the anchor point, clamped to screen."""
-	if not _active_die_tooltip or not is_instance_valid(_active_die_tooltip):
-		return
-	
-	var tooltip_size = _active_die_tooltip.size
-	var viewport_size = get_viewport_rect().size
-	
-	# Center above the anchor
-	var pos = Vector2(
-		anchor_pos.x - tooltip_size.x / 2.0,
-		anchor_pos.y - tooltip_size.y - 12.0
-	)
-	# If it would go above screen, put it below instead
-	if pos.y < 8.0:
-		pos.y = anchor_pos.y + 20.0
-	# Clamp horizontally
-	pos.x = clampf(pos.x, 8.0, viewport_size.x - tooltip_size.x - 8.0)
-	
-	_active_die_tooltip.position = pos
-	
-	# Close when tapped
-	_active_die_tooltip.gui_input.connect(_on_die_tooltip_input)
-
-
-func _on_die_tooltip_input(event: InputEvent):
-	"""Close tooltip when tapped."""
-	if event is InputEventMouseButton and event.pressed:
-		_close_die_tooltip()
-
-
-func _close_die_tooltip():
-	"""Clean up tooltip and its CanvasLayer."""
-	if _active_die_tooltip and is_instance_valid(_active_die_tooltip):
-		var layer = _active_die_tooltip.get_parent()
-		_active_die_tooltip.queue_free()
-		if layer is CanvasLayer and layer.name == "DieTooltipLayer":
-			layer.queue_free()
+func _on_die_tooltip_dismissed():
+	"""Called when DieTooltipPopup dismisses itself."""
 	_active_die_tooltip = null
 
 
-func _build_die_tooltip(die_res: DieResource) -> PanelContainer:
-	"""Build tooltip using shared helper."""
-	return DieTooltipHelper.build_tooltip(die_res)
-
+func _close_die_tooltip():
+	"""Dismiss active tooltip if any."""
+	if _active_die_tooltip and is_instance_valid(_active_die_tooltip):
+		_active_die_tooltip.dismiss()
+	_active_die_tooltip = null
 
 func _update_category_button_visuals():
 	"""Dim unselected category buttons to 50%"""

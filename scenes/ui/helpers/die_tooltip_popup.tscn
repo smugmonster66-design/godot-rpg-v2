@@ -1,0 +1,53 @@
+[gd_scene load_steps=2 format=3 uid="uid://cqniavi0f2lx0"]
+
+[ext_resource type="Script" uid="uid://cr5xkx4rw61jf" path="res://scripts/ui/helpers/die_tooltip_popup.gd" id="1_script"]
+
+[node name="DieTooltipPopup" type="CanvasLayer"]
+layer = 200
+script = ExtResource("1_script")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 4
+color = Color(0, 0, 0, 0)
+
+[node name="TooltipPanel" type="PanelContainer" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"TooltipPanel"
+
+[node name="VBox" type="VBoxContainer" parent="TooltipPanel"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 4
+
+[node name="HeaderLabel" type="Label" parent="TooltipPanel/VBox"]
+layout_mode = 2
+theme_type_variation = &"TooltipLabel"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="SubtitleLabel" type="Label" parent="TooltipPanel/VBox"]
+visible = false
+layout_mode = 2
+theme_type_variation = &"TooltipLabel"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="FlavorLabel" type="Label" parent="TooltipPanel/VBox"]
+visible = false
+layout_mode = 2
+theme_type_variation = &"TooltipLabel"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="AffixContainer" type="VBoxContainer" parent="TooltipPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4

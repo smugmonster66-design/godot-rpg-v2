@@ -8,6 +8,7 @@ static func build_tooltip(die_res: DieResource) -> PanelContainer:
 	"""Build a compact tooltip showing die name and any dice affixes."""
 	var panel = PanelContainer.new()
 	panel.theme_type_variation = "TooltipPanel"
+	panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	
 	var vbox = VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 4)
