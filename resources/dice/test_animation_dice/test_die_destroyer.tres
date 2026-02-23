@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=11 format=3 uid="uid://cvw1wm0jklf5w"]
+
+[ext_resource type="PackedScene" uid="uid://de8q4axqsu2ki" path="res://scenes/ui/components/dice/combat/combat_die_d6.tscn" id="1_42un1"]
+[ext_resource type="Resource" uid="uid://7voejwf2ow1m" path="res://resources/affixes/elements/fire_element.tres" id="1_rm652"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_w7uxr"]
+[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="2_8pv82"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_rm652"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_2qtwx"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_qv754"]
+[ext_resource type="PackedScene" uid="uid://bxqtkedv2ygd3" path="res://scenes/ui/components/dice/pool/pool_die_d6.tscn" id="6_fs8fn"]
+[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="8_tgpxo"]
+
+[sub_resource type="Resource" id="Resource_42un1"]
+script = ExtResource("1_w7uxr")
+affix_name = "Test Destroy"
+description = "Permanently destroys this die when used (for animation test)"
+trigger = 1
+effect_type = 20
+
+[resource]
+script = ExtResource("4_qv754")
+display_name = "Test Die: Destroyer"
+color = Color(0.8, 0.2, 0.2, 1)
+element = 4
+element_affix = ExtResource("1_rm652")
+fill_texture = ExtResource("2_8pv82")
+stroke_texture = ExtResource("8_tgpxo")
+combat_die_scene = ExtResource("1_42un1")
+pool_die_scene = ExtResource("6_fs8fn")
+inherent_affixes = Array[ExtResource("1_w7uxr")]([SubResource("Resource_42un1")])

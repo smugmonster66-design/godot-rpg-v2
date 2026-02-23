@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MicroAnimationPreset" load_steps=2 format=3 uid="uid://2n3caovvwy71"]
+
+[ext_resource type="Script" uid="uid://bucj7x6x47uy5" path="res://resources/data/micro_animation_preset.gd" id="1_hal51"]
+
+[resource]
+script = ExtResource("1_hal51")
+scale_enabled = true
+scale_peak = Vector2(0, 0)
+scale_out_duration = 0.0
+scale_in_duration = 0.35
+scale_ease = 0
+flash_enabled = true
+flash_color = Color(0, 0, 0, 0)
+flash_in_duration = 0.35
+screen_shake_enabled = true
+screen_shake_intensity = 2.0

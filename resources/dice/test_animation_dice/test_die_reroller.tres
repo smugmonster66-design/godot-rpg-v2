@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=10 format=3 uid="uid://kc36gwm0k44h"]
+
+[ext_resource type="PackedScene" uid="uid://de8q4axqsu2ki" path="res://scenes/ui/components/dice/combat/combat_die_d6.tscn" id="1_dwl34"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_vu0u5"]
+[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="2_byg11"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_xtxr8"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_vy4xc"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_5eoq6"]
+[ext_resource type="PackedScene" uid="uid://bxqtkedv2ygd3" path="res://scenes/ui/components/dice/pool/pool_die_d6.tscn" id="6_x1ohm"]
+[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="8_15re0"]
+
+[sub_resource type="Resource" id="Resource_dwl34"]
+script = ExtResource("1_vu0u5")
+affix_name = "Test Reroll"
+description = "Rerolls if 1-3 (for animation test)"
+effect_type = 10
+effect_data = {
+"threshold": 3
+}
+
+[resource]
+script = ExtResource("4_5eoq6")
+display_name = "Test Die: Reroller"
+color = Color(1.2, 1.2, 1.5, 1)
+fill_texture = ExtResource("2_byg11")
+stroke_texture = ExtResource("8_15re0")
+combat_die_scene = ExtResource("1_dwl34")
+pool_die_scene = ExtResource("6_x1ohm")
+inherent_affixes = Array[ExtResource("1_vu0u5")]([SubResource("Resource_dwl34")])

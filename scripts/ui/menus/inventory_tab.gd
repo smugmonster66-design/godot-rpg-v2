@@ -1090,65 +1090,11 @@ func _close_die_tooltip():
 			layer.queue_free()
 	_active_die_tooltip = null
 
+
 func _build_die_tooltip(die_res: DieResource) -> PanelContainer:
-	"""Build a compact tooltip showing die name and any dice affixes.
-	Standard dice (e.g. 'Ice D6') just show name + affixes.
-	Unique dice with custom names show full details."""
-	var panel = PanelContainer.new()
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.12, 0.12, 0.18, 0.95)
-	style.border_color = Color(1, 1, 1, 0.2)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(4)
-	style.set_content_margin_all(8)
-	panel.add_theme_stylebox_override("panel", style)
-	
-	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 4)
-	panel.add_child(vbox)
-	
-	# Check if this is a standard die (name contains "D{size}") or unique
-	var size_tag = "D%d" % die_res.die_type
-	var is_unique = size_tag not in die_res.display_name
-	
-	# Die name
-	var header = Label.new()
-	header.text = die_res.display_name
-	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	header.add_theme_color_override("font_color", Color(1, 1, 1))
-	vbox.add_child(header)
-	
-	# Unique dice: show size + element beneath the name
-	if is_unique:
-		var subtitle = Label.new()
-		var elem_name = die_res.get_element_name() if die_res.has_element() else ""
-		subtitle.text = "%s %s" % [elem_name, size_tag] if elem_name else size_tag
-		subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		subtitle.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
-		vbox.add_child(subtitle)
-		
-		# Flavor text if present
-		if die_res.has_method("get_flavor_text"):
-			var flavor = die_res.get_flavor_text()
-			if flavor and flavor != "":
-				var flavor_label = Label.new()
-				flavor_label.text = flavor
-				flavor_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-				flavor_label.add_theme_color_override("font_color", Color(0.85, 0.2, 0.2))
-				flavor_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-				vbox.add_child(flavor_label)
-	
-	# Dice affixes
-	var all_affixes = die_res.get_all_affixes()
-	for dice_affix in all_affixes:
-		if not dice_affix:
-			continue
-		var affix_label = Label.new()
-		affix_label.text = dice_affix.get_description() if dice_affix.has_method("get_description") else dice_affix.affix_name
-		affix_label.add_theme_color_override("font_color", Color(0.7, 0.9, 0.7))
-		vbox.add_child(affix_label)
-	
-	return panel
+	"""Build tooltip using shared helper."""
+	return DieTooltipHelper.build_tooltip(die_res)
+
 
 func _update_category_button_visuals():
 	"""Dim unselected category buttons to 50%"""

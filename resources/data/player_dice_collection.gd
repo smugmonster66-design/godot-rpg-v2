@@ -729,6 +729,17 @@ func _process_pending_destructions():
 		if pool_idx >= 0 and pool_idx < dice.size():
 			var destroyed_die = dice[pool_idx]
 			print("💀 Permanently destroying %s from pool slot %d" % [destroyed_die.display_name, pool_idx])
+			
+			# Emit DIE_DESTROYED event BEFORE removal (so visual can still be found)
+			var bus: CombatEventBus = _get_event_bus()
+			if bus:
+				var display: DicePoolDisplay = _get_dice_display()
+				if display:
+					var visual = display.get_die_visual_at(pool_idx)
+					if visual:
+						bus.emit_die_destroyed(visual)
+						print("  📡 Emitted DIE_DESTROYED for pool[%d]" % pool_idx)
+			
 			dice.remove_at(pool_idx)
 			die_destroyed.emit(destroyed_die)
 	
@@ -862,10 +873,16 @@ func _handle_affix_results(result: Dictionary):
 				add_die(new_die)
 				print("    ✨ Created duplicate die!")
 			
-			"auto_reroll":
-				pass  # Already handled in processor
+			"lock":
+				# Die is already locked by DiceAffixProcessor._apply_lock_die()
+				# Just emit the event for animation
+				call_deferred("_emit_die_locked_event", effect.die_index)
 			
-			# --- v2 special effects ---
+			"auto_reroll":
+				# Die is already rerolled by DiceAffixProcessor._apply_auto_reroll()
+				# Just emit the event for animation
+				call_deferred("_emit_die_rolled_event", effect)
+			
 			"destroy_from_pool":
 				var pool_idx: int = effect.pool_slot_index
 				_pending_destructions.append(pool_idx)
@@ -1031,3 +1048,82 @@ func add_die_to_hand(die: DieResource) -> void:
 		die.display_name, die.slot_index, die.get_total_value()])
 
 	hand_changed.emit()
+
+
+# ============================================================================
+# REACTIVE ANIMATION EVENT EMITTERS
+# ============================================================================
+
+func _emit_die_locked_event(die_index: int):
+	"""Emit DIE_LOCKED event for reactive animation system.
+	Called deferred so die visuals exist when event fires."""
+	if die_index < 0 or die_index >= hand.size():
+		return
+	
+	var bus: CombatEventBus = _get_event_bus()
+	if not bus:
+		return
+	
+	var display: DicePoolDisplay = _get_dice_display()
+	if not display:
+		return
+	
+	var visual = display.get_die_visual_at(die_index)
+	if visual:
+		bus.emit_die_locked(visual)
+		print("  📡 Emitted DIE_LOCKED for hand[%d]" % die_index)
+
+
+func _emit_die_rolled_event(effect: Dictionary):
+	"""Emit DIE_ROLLED event for reactive animation system.
+	Called deferred so die visuals exist when event fires."""
+	var die_index: int = effect.get("die_index", -1)
+	if die_index < 0 or die_index >= hand.size():
+		return
+	
+	var bus: CombatEventBus = _get_event_bus()
+	if not bus:
+		return
+	
+	var display: DicePoolDisplay = _get_dice_display()
+	if not display:
+		return
+	
+	var visual = display.get_die_visual_at(die_index)
+	if visual:
+		# DIE_ROLLED doesn't have a static constructor yet, create manually
+		var evt = CombatEvent.new()
+		evt.type = CombatEvent.Type.DIE_ROLLED
+		evt.target_node = visual
+		evt.source_tag = "auto_reroll"
+		evt.values = {
+			"old_value": effect.get("old_value", 0),
+			"new_value": effect.get("new_value", 0)
+		}
+		bus.emit_event(evt)
+		print("  📡 Emitted DIE_ROLLED for hand[%d]: %d → %d" % [
+			die_index, effect.get("old_value", 0), effect.get("new_value", 0)])
+
+
+func _get_event_bus() -> CombatEventBus:
+	"""Get the CombatEventBus from CombatManager."""
+	if not is_inside_tree():
+		return null
+	
+	var managers = get_tree().get_nodes_in_group("combat_manager")
+	for m in managers:
+		if "event_bus" in m and m.event_bus:
+			return m.event_bus
+	return null
+
+
+func _get_dice_display() -> DicePoolDisplay:
+	"""Get the DicePoolDisplay for finding die visuals."""
+	if not is_inside_tree():
+		return null
+	
+	var displays = get_tree().get_nodes_in_group("dice_pool_display")
+	for d in displays:
+		if d is DicePoolDisplay:
+			return d
+	return null

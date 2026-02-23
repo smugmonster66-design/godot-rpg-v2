@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="AnimationReaction" load_steps=5 format=3 uid="uid://bdmkjvht42bbc"]
+
+[ext_resource type="Script" uid="uid://bucj7x6x47uy5" path="res://resources/data/micro_animation_preset.gd" id="1_21o01"]
+[ext_resource type="Script" uid="uid://ccjdw1pfc320o" path="res://resources/data/reaction_condition.gd" id="2_b6pns"]
+[ext_resource type="Script" uid="uid://d31vp50po1w5e" path="res://resources/data/animation_reaction.gd" id="3_1ulfs"]
+
+[sub_resource type="Resource" id="Resource_ngyw1"]
+script = ExtResource("1_21o01")
+scale_enabled = true
+scale_peak = Vector2(0.95, 0.95)
+flash_enabled = true
+flash_color = Color(1, 0.9, 0.3, 1)
+flash_out_duration = 0.25
+
+[resource]
+script = ExtResource("3_1ulfs")
+event_type = 3
+animation_preset = SubResource("Resource_ngyw1")
+priority = 10

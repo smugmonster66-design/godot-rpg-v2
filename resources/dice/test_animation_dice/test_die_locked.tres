@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=10 format=3 uid="uid://dhe0bewac6wjl"]
+
+[ext_resource type="PackedScene" uid="uid://de8q4axqsu2ki" path="res://scenes/ui/components/dice/combat/combat_die_d6.tscn" id="1_20eit"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_g8b3s"]
+[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="2_2w3s4"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_vmrd6"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_3vu1i"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_fb04f"]
+[ext_resource type="PackedScene" uid="uid://bxqtkedv2ygd3" path="res://scenes/ui/components/dice/pool/pool_die_d6.tscn" id="6_8jfe7"]
+[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="8_20qoy"]
+
+[sub_resource type="Resource" id="Resource_20eit"]
+script = ExtResource("1_g8b3s")
+affix_name = "Test Lock"
+description = "Locks this die when rolled (for animation test)"
+trigger = 2
+effect_type = 12
+
+[resource]
+script = ExtResource("4_fb04f")
+display_name = "Test Die: Locked"
+color = Color(1, 0.9, 0.3, 1)
+fill_texture = ExtResource("2_2w3s4")
+stroke_texture = ExtResource("8_20qoy")
+combat_die_scene = ExtResource("1_20eit")
+pool_die_scene = ExtResource("6_8jfe7")
+inherent_affixes = Array[ExtResource("1_g8b3s")]([SubResource("Resource_20eit")])
