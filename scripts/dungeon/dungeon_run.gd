@@ -18,9 +18,17 @@ var temp_affixes_applied: Array[DiceAffix] = []
 var shrine_affixes_applied: Array[Affix] = []
 var events_seen: Array[String] = []
 
+# ── Roguelite Run Affix State ──
+var run_affixes_chosen: Array[RunAffixEntry] = []
+var affix_offers_given: int = 0
+
 var is_complete: bool = false
 var is_failed: bool = false
 var floors_cleared: int = 0
+
+func _init():
+	# Force fresh array instance — breaks shared-default-array link
+	run_affixes_chosen = []
 
 func start(def: DungeonDefinition, player_gold: int):
 	definition = def
@@ -68,3 +76,33 @@ func track_temp_affix(affix: DiceAffix): temp_affixes_applied.append(affix)
 func track_shrine_affix(affix: Affix): shrine_affixes_applied.append(affix)
 func track_event(event_id: String): events_seen.append(event_id)
 func was_event_seen(event_id: String) -> bool: return events_seen.has(event_id)
+
+# ── Roguelite Run Affix Tracking ──
+
+func track_run_affix(entry: RunAffixEntry):
+	run_affixes_chosen.append(entry)
+	affix_offers_given += 1
+
+func get_run_affix_stack_count(entry: RunAffixEntry) -> int:
+	var count: int = 0
+	for chosen in run_affixes_chosen:
+		if chosen == entry or (chosen.affix_id != "" and chosen.affix_id == entry.affix_id):
+			count += 1
+	return count
+
+func has_run_affix_tag(tag: String) -> bool:
+	for entry in run_affixes_chosen:
+		if tag in entry.tags:
+			return true
+	return false
+
+func get_all_run_affix_tags() -> Array[String]:
+	var result: Array[String] = []
+	for entry in run_affixes_chosen:
+		for tag in entry.tags:
+			if tag not in result:
+				result.append(tag)
+	return result
+
+func skip_affix_offer():
+	affix_offers_given += 1

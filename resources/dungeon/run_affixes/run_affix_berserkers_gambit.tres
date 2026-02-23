@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="RunAffixEntry" load_steps=10 format=3 uid="uid://frkvrw435713"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_qj72v"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_wr610"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_ir58o"]
+[ext_resource type="Script" uid="uid://dw1ljcj5l3pre" path="res://resources/data/run_affix_entry.gd" id="4_88x34"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="5_ldt6f"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="6_omb0m"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="7_bpmwx"]
+
+[sub_resource type="Resource" id="Resource_rygu7"]
+script = ExtResource("2_wr610")
+affix_name = "berserkers_gambit_dice"
+description = "+3 to all dice rolls, but -15 max health."
+effect_value = 3.0
+
+[sub_resource type="Resource" id="Resource_dex3w"]
+script = ExtResource("6_omb0m")
+affix_name = "Berserker's Gambit (Stat)"
+description = "+3 to all dice rolls, but -15 max health."
+category = 28
+tags = Array[String](["offense", "risk"])
+source_type = "dungeon_temp"
+effect_number = -15.0
+
+[resource]
+script = ExtResource("4_88x34")
+display_name = "Berserker's Gambit"
+description = "+3 to all dice rolls, but -15 max health."
+affix_id = "berserkers_gambit"
+affix_type = 2
+rarity = 2
+dice_affix = SubResource("Resource_rygu7")
+stat_affix = SubResource("Resource_dex3w")
+tags = Array[String](["offense", "risk"])

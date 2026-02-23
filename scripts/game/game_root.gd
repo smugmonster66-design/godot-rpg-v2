@@ -43,6 +43,7 @@ var _pending_post_combat: Dictionary = {}
 # Persistent UI elements (direct children of PersistentUILayer)
 var player_menu: Control = null
 var post_combat_summary: Control = null
+var dungeon_selection: Control = null
 
 # Add to node references section
 var portrait_controller: Control = null
@@ -153,6 +154,21 @@ func _setup_persistent_ui():
 	else:
 		print("  ⚠️ PostCombatSummary not found in PersistentUILayer")
 	
+	# PortraitController — click-to-open menu
+	# DungeonSelectionScreen
+	dungeon_selection = ui_layer.find_child("DungeonSelectionScreen", true, false)
+	if dungeon_selection:
+		dungeon_selection.hide()
+		if dungeon_selection.has_signal("dungeon_selected"):
+			if not dungeon_selection.dungeon_selected.is_connected(_on_dungeon_selection_made):
+				dungeon_selection.dungeon_selected.connect(_on_dungeon_selection_made)
+		if dungeon_selection.has_signal("selection_closed"):
+			if not dungeon_selection.selection_closed.is_connected(_on_dungeon_selection_closed):
+				dungeon_selection.selection_closed.connect(_on_dungeon_selection_closed)
+		print("  ✅ DungeonSelectionScreen found")
+	else:
+		print("  ⚠️ DungeonSelectionScreen not found in PersistentUILayer")
+
 	# PortraitController — click-to-open menu
 	portrait_controller = ui_layer.find_child("PortraitContainer", true, false)
 	if portrait_controller and portrait_controller.has_signal("portrait_clicked"):
@@ -456,6 +472,23 @@ func _on_dungeon_completed(run: DungeonRun):
 func _on_dungeon_failed(run: DungeonRun):
 	print("💀 Failed. Gold rolled back to %d" % run.gold_snapshot_on_entry)
 	exit_dungeon()
+
+func show_dungeon_selection():
+	"""Open the dungeon selection screen. Called from map UI."""
+	if is_in_dungeon or is_in_combat:
+		push_warning("GameRoot: Can't open dungeon selection now")
+		return
+	if dungeon_selection and dungeon_selection.has_method("open"):
+		dungeon_selection.open(GameManager.player)
+
+func _on_dungeon_selection_made(definition: DungeonDefinition):
+	"""Player picked a dungeon from the selection screen."""
+	print("🏰 GameRoot: Dungeon selected from list — '%s'" % definition.dungeon_name)
+	enter_dungeon(definition)
+
+func _on_dungeon_selection_closed():
+	"""Player backed out of the selection screen."""
+	print("🏰 GameRoot: Dungeon selection closed")
 
 
 

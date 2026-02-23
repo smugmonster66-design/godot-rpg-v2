@@ -53,6 +53,17 @@ class_name DungeonDefinition
 @export var first_clear_exp: int = 200
 
 # ============================================================================
+# ROGUELITE RUN AFFIXES
+# ============================================================================
+@export_group("Run Affixes")
+@export var run_affix_pool: Array[RunAffixEntry] = []
+@export_range(2, 5) var affix_choices_per_offer: int = 3
+@export var offer_on_entry: bool = true
+@export var offer_after_elite: bool = true
+@export var offer_after_boss: bool = false
+@export var affix_skip_gold_bonus: int = 0
+
+# ============================================================================
 # THEMING (corridor visuals — textures dragged in Inspector)
 # ============================================================================
 @export_group("Theme")
@@ -142,3 +153,7 @@ func validate() -> Array[String]:
 	if boss_encounters.size() == 0: warnings.append("No boss encounters")
 	if floor_count < 6: warnings.append("Floor count below minimum (6)")
 	return warnings
+	
+
+func has_run_affix_pool() -> bool:
+	return run_affix_pool.size() > 0

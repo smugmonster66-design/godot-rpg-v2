@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://b3hskvtstgnbh"]
+[gd_scene load_steps=12 format=3 uid="uid://b3hskvtstgnbh"]
 
 [ext_resource type="Script" uid="uid://bbgslbrlnwdxk" path="res://scripts/dungeon/dungeon_scene.gd" id="1_scene"]
 [ext_resource type="PackedScene" uid="uid://dfgmt7r8x8n88" path="res://scenes/dungeon/dungeon_map.tscn" id="2_4nx0w"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://scenes/dungeon/popups/dungeon_shrine_popup.tscn" id="7_shrine"]
 [ext_resource type="PackedScene" path="res://scenes/dungeon/popups/dungeon_treasure_popup.tscn" id="8_treasure"]
 [ext_resource type="PackedScene" path="res://scenes/dungeon/popups/dungeon_complete_popup.tscn" id="9_complete"]
+[ext_resource type="PackedScene" path="res://scenes/dungeon/popups/run_affix_choice_popup.tscn" id="9_o7j0w"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_floor"]
 font_size = 18
@@ -102,3 +103,5 @@ color = Color(0, 0, 0, 1)
 [node name="TreasurePopup" parent="PopupLayer" instance=ExtResource("8_treasure")]
 
 [node name="CompletePopup" parent="PopupLayer" instance=ExtResource("9_complete")]
+
+[node name="RunAffixChoicePopup" parent="PopupLayer" instance=ExtResource("9_o7j0w")]

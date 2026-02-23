@@ -1,0 +1,122 @@
+[gd_scene load_steps=3 format=3 uid="uid://dungeon_select_screen"]
+
+[ext_resource type="Script" path="res://scripts/ui/menus/dungeon_selection_screen.gd" id="1_script"]
+[ext_resource type="Theme" path="res://resources/themes/base_theme.tres" id="2_theme"]
+
+; ===========================================================================
+; DungeonSelectionScreen — pick a dungeon to enter
+; Lives in PersistentUILayer. GameRoot discovers and wires it.
+; ===========================================================================
+
+[node name="DungeonSelectionScreen" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+; --- dark overlay ---
+
+[node name="BGOverlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.8)
+
+; --- centered panel ---
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(480, 500)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+; --- title ---
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+text = "Choose a Dungeon"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+
+; --- scrollable dungeon card list (cards built at runtime) ---
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/Panel/VBox"]
+custom_minimum_size = Vector2(0, 300)
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="CardList" type="VBoxContainer" parent="CenterContainer/Panel/VBox/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+; --- detail section (shown when a dungeon is selected) ---
+
+[node name="DetailSection" type="VBoxContainer" parent="CenterContainer/Panel/VBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="DetailSep" type="HSeparator" parent="CenterContainer/Panel/VBox/DetailSection"]
+layout_mode = 2
+
+[node name="DetailName" type="Label" parent="CenterContainer/Panel/VBox/DetailSection"]
+layout_mode = 2
+text = "Dungeon Name"
+horizontal_alignment = 1
+
+[node name="DetailDesc" type="Label" parent="CenterContainer/Panel/VBox/DetailSection"]
+layout_mode = 2
+text = "Description goes here..."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="DetailStats" type="Label" parent="CenterContainer/Panel/VBox/DetailSection"]
+layout_mode = 2
+text = "Level 10  •  8 Floors  •  Region 1"
+horizontal_alignment = 1
+
+[node name="DetailRewards" type="Label" parent="CenterContainer/Panel/VBox/DetailSection"]
+visible = false
+layout_mode = 2
+text = "Rewards: Gold, Equipment"
+horizontal_alignment = 1
+
+; --- button row ---
+
+[node name="ButtonRow" type="HBoxContainer" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 16
+
+[node name="CloseButton" type="Button" parent="CenterContainer/Panel/VBox/ButtonRow"]
+custom_minimum_size = Vector2(120, 48)
+layout_mode = 2
+text = "Back"
+
+[node name="BeginButton" type="Button" parent="CenterContainer/Panel/VBox/ButtonRow"]
+custom_minimum_size = Vector2(220, 48)
+layout_mode = 2
+disabled = true
+text = "Select a Dungeon"

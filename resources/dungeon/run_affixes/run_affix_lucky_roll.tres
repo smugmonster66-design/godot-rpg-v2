@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="RunAffixEntry" load_steps=6 format=3 uid="uid://by1u7nl8j2vo4"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_os7sa"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_5fi8b"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_2kths"]
+[ext_resource type="Script" uid="uid://dw1ljcj5l3pre" path="res://resources/data/run_affix_entry.gd" id="4_jiujo"]
+
+[sub_resource type="Resource" id="Resource_jowyx"]
+script = ExtResource("2_5fi8b")
+affix_name = "lucky_roll"
+description = "+1 to all dice rolls."
+effect_value = 1.0
+
+[resource]
+script = ExtResource("4_jiujo")
+display_name = "Lucky Roll"
+description = "+1 to all dice rolls."
+affix_id = "lucky_roll"
+dice_affix = SubResource("Resource_jowyx")
+tags = Array[String](["offense", "utility"])
+max_stacks = 2

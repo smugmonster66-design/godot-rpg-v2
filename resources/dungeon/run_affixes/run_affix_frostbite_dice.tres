@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="RunAffixEntry" load_steps=6 format=3 uid="uid://dwc46siw8skr4"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_0h2jg"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_eglwk"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_cm5py"]
+[ext_resource type="Script" uid="uid://dw1ljcj5l3pre" path="res://resources/data/run_affix_entry.gd" id="4_jb3dj"]
+
+[sub_resource type="Resource" id="Resource_hl3di"]
+script = ExtResource("2_eglwk")
+affix_name = "frostbite_dice"
+description = "Each die deals +2 ice damage when used."
+trigger = 1
+effect_type = 26
+effect_value = 2.0
+effect_data = {
+"element": "ICE"
+}
+
+[resource]
+script = ExtResource("4_jb3dj")
+display_name = "Frostbite Dice"
+description = "Each die deals +2 ice damage when used."
+affix_id = "frostbite_dice"
+dice_affix = SubResource("Resource_hl3di")
+tags = Array[String](["ice", "offense"])
+max_stacks = 3

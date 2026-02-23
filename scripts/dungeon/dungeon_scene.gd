@@ -23,6 +23,11 @@ var _player: Player = null
 var _awaiting_combat: bool = false
 var _combat_node: DungeonNodeData = null
 
+# ── Roguelite affix choice state ──
+var _awaiting_affix_choice: bool = false
+var _pending_advance_node: DungeonNodeData = null
+var _pending_boss_complete: bool = false
+
 # ============================================================================
 # NODE REFERENCES — all discovered from scene tree, never code-created
 # ============================================================================
@@ -42,6 +47,7 @@ var rest_popup = null
 var shrine_popup = null
 var treasure_popup = null
 var complete_popup = null
+var run_affix_popup = null
 
 # ============================================================================
 # INITIALIZATION — node-based discovery (matches PlayerMenu/CombatUI pattern)
@@ -77,6 +83,7 @@ func _discover_nodes():
 		shrine_popup = popup_layer.find_child("ShrinePopup", true, false)
 		treasure_popup = popup_layer.find_child("TreasurePopup", true, false)
 		complete_popup = popup_layer.find_child("CompletePopup", true, false)
+		run_affix_popup = popup_layer.find_child("RunAffixChoicePopup", true, false)
 
 	# Hide all popups on startup
 	_hide_all_popups()
@@ -90,14 +97,14 @@ func _connect_signals():
 
 	# Popup result signals — each popup emits popup_closed(result: Dictionary)
 	for popup in [event_popup, shop_popup, rest_popup, shrine_popup,
-				  treasure_popup, complete_popup]:
+				  treasure_popup, complete_popup, run_affix_popup]:
 		if popup and popup.has_signal("popup_closed"):
 			if not popup.popup_closed.is_connected(_on_popup_closed):
 				popup.popup_closed.connect(_on_popup_closed)
 
 func _hide_all_popups():
 	for popup in [event_popup, shop_popup, rest_popup, shrine_popup,
-				  treasure_popup, complete_popup]:
+				  treasure_popup, complete_popup, run_affix_popup]:
 		if popup: popup.hide()
 
 # ============================================================================
@@ -126,10 +133,17 @@ func enter_dungeon(definition: DungeonDefinition, player: Player):
 
 	dungeon_started.emit(definition)
 
-	# Visit start node
+	# ── Roguelite: offer entry affix before first node ──
+	if definition.has_run_affix_pool() and definition.offer_on_entry:
+		_pending_advance_node = null
+		_pending_boss_complete = false
+		_show_run_affix_choice("entry")
+	else:
+		_enter_start_node()
+
+func _enter_start_node():
+	"""Enter the first node on floor 0. Deferred by entry affix popup."""
 	_enter_node(current_run.floors[0][0])
-	
-	# Auto-enter start node
 	var start_nodes = current_run.get_floor_nodes(0)
 	if start_nodes.size() > 0:
 		_enter_node(start_nodes[0].id)
@@ -146,7 +160,7 @@ func exit_dungeon():
 # ============================================================================
 
 func _on_node_selected(node_id: int):
-	if _awaiting_combat: return
+	if _awaiting_combat or _awaiting_affix_choice: return
 	_enter_node(node_id)
 
 func _enter_node(node_id: int):
@@ -272,9 +286,28 @@ func on_combat_ended(player_won: bool):
 			_player.add_experience(exp)
 			current_run.track_exp(exp)
 
-		_complete_and_advance(node)
-		if node.node_type == DungeonEnums.NodeType.BOSS:
-			_on_dungeon_complete()
+		# ── Roguelite: offer affix after elite or boss ──
+		var _should_offer_affix: bool = false
+		var _affix_trigger: String = ""
+
+		if current_run and current_run.definition.has_run_affix_pool():
+			if node.node_type == DungeonEnums.NodeType.ELITE \
+					and current_run.definition.offer_after_elite:
+				_should_offer_affix = true
+				_affix_trigger = "elite"
+			elif node.node_type == DungeonEnums.NodeType.BOSS \
+					and current_run.definition.offer_after_boss:
+				_should_offer_affix = true
+				_affix_trigger = "boss"
+
+		if _should_offer_affix:
+			_pending_advance_node = node
+			_pending_boss_complete = (node.node_type == DungeonEnums.NodeType.BOSS)
+			_show_run_affix_choice(_affix_trigger)
+		else:
+			_complete_and_advance(node)
+			if node.node_type == DungeonEnums.NodeType.BOSS:
+				_on_dungeon_complete()
 	else:
 		_on_player_died()
 
@@ -348,7 +381,38 @@ func _on_popup_closed(result: Dictionary):
 		"treasure", "complete":
 			pass  # rewards already applied before popup opened
 
-	if node_id >= 0:
+		"run_affix":
+			_awaiting_affix_choice = false
+			var chosen: RunAffixEntry = result.get("chosen")
+			var skipped: bool = result.get("skipped", false)
+
+			if chosen:
+				_apply_run_affix(chosen)
+				current_run.track_run_affix(chosen)
+				print("🎲 Run affix chosen: %s" % chosen.display_name)
+			elif skipped:
+				current_run.skip_affix_offer()
+				var skip_gold: int = current_run.definition.affix_skip_gold_bonus
+				if skip_gold > 0 and _player:
+					_player.add_gold(skip_gold)
+					current_run.track_gold(skip_gold)
+					print("🎲 Affix skipped (+%d gold)" % skip_gold)
+				else:
+					print("🎲 Affix skipped")
+
+			# Resume deferred flow
+			if _pending_advance_node:
+				var advance_node = _pending_advance_node
+				var boss_complete = _pending_boss_complete
+				_pending_advance_node = null
+				_pending_boss_complete = false
+				_complete_and_advance(advance_node)
+				if boss_complete:
+					_on_dungeon_complete()
+			elif result.get("trigger", "") == "entry":
+				_enter_start_node()
+
+	if node_id >= 0 and popup_type != "run_affix":
 		_complete_and_advance(current_run.get_node(node_id))
 
 func _apply_event_rewards(node_id: int, choice: DungeonEventChoice, succeeded: bool):
@@ -444,6 +508,76 @@ func _on_player_died():
 # ============================================================================
 # TEMP EFFECTS
 # ============================================================================
+
+# ============================================================================
+# ROGUELITE RUN AFFIX FLOW
+# ============================================================================
+
+func _show_run_affix_choice(trigger: String):
+	"""Roll offers from the dungeon's affix pool and show the choice popup."""
+	if not current_run or not current_run.definition.has_run_affix_pool():
+		_resume_after_affix_skip(trigger)
+		return
+
+	var offers: Array[RunAffixEntry] = RunAffixRoller.new().roll_offers(
+		current_run.definition.run_affix_pool,
+		current_run,
+		current_run.definition.affix_choices_per_offer
+	)
+
+	if offers.size() == 0:
+		print("🎲 No affix offers available (pool exhausted)")
+		_resume_after_affix_skip(trigger)
+		return
+
+	_awaiting_affix_choice = true
+
+	if run_affix_popup and run_affix_popup.has_method("show_popup"):
+		run_affix_popup.show_popup({
+			"run": current_run,
+			"offers": offers,
+			"trigger": trigger,
+			"skip_gold": current_run.definition.affix_skip_gold_bonus,
+		})
+	else:
+		push_warning("DungeonScene: RunAffixChoicePopup not found!")
+		_awaiting_affix_choice = false
+		_resume_after_affix_skip(trigger)
+
+func _resume_after_affix_skip(trigger: String):
+	"""Resume the deferred flow when no popup is shown."""
+	if _pending_advance_node:
+		var advance_node = _pending_advance_node
+		var boss_complete = _pending_boss_complete
+		_pending_advance_node = null
+		_pending_boss_complete = false
+		_complete_and_advance(advance_node)
+		if boss_complete:
+			_on_dungeon_complete()
+	elif trigger == "entry":
+		_enter_start_node()
+
+func _apply_run_affix(entry: RunAffixEntry):
+	"""Apply a chosen run affix to the player. Uses existing temp systems."""
+	if not entry or not _player:
+		return
+
+	match entry.affix_type:
+		RunAffixEntry.AffixType.DICE:
+			if entry.dice_affix:
+				_apply_temp_affix(entry.dice_affix)
+		RunAffixEntry.AffixType.STAT:
+			if entry.stat_affix:
+				var copy = entry.stat_affix.duplicate(true)
+				_player.affix_manager.add_affix(copy)
+				current_run.track_shrine_affix(copy)
+		RunAffixEntry.AffixType.HYBRID:
+			if entry.dice_affix:
+				_apply_temp_affix(entry.dice_affix)
+			if entry.stat_affix:
+				var copy = entry.stat_affix.duplicate(true)
+				_player.affix_manager.add_affix(copy)
+				current_run.track_shrine_affix(copy)
 
 func _apply_temp_affix(affix: DiceAffix):
 	if not _player: return

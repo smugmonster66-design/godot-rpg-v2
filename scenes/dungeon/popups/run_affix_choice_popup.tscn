@@ -1,0 +1,98 @@
+[gd_scene load_steps=3 format=3 uid="uid://dng_run_affix_popup"]
+
+[ext_resource type="Script" path="res://scripts/dungeon/popups/run_affix_choice_popup.gd" id="1_script"]
+[ext_resource type="Theme" path="res://resources/themes/base_theme.tres" id="2_theme"]
+
+; ===========================================================================
+; RunAffixChoicePopup — blessing picker after dungeon entry / elite kill
+; Extends DungeonPopupBase. Cards built at runtime in script.
+; Emits: { chosen: RunAffixEntry or null, skipped: bool }
+; ===========================================================================
+
+[node name="RunAffixChoicePopup" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+; --- dark overlay ---
+
+[node name="PanelBG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.75)
+
+; --- centered panel ---
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(420, 300)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+; --- title ---
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+text = "Dungeon Blessing"
+horizontal_alignment = 1
+
+; --- subtitle ---
+
+[node name="SubtitleLabel" type="Label" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+text = "Choose one to empower your run"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+
+; --- scrollable card area (cards built at runtime) ---
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/Panel/VBox"]
+custom_minimum_size = Vector2(0, 350)
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="CardContainer" type="VBoxContainer" parent="CenterContainer/Panel/VBox/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+; --- button row ---
+
+[node name="ButtonRow" type="HBoxContainer" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 16
+
+[node name="SkipButton" type="Button" parent="CenterContainer/Panel/VBox/ButtonRow"]
+custom_minimum_size = Vector2(120, 44)
+layout_mode = 2
+text = "Skip"
+
+[node name="ConfirmButton" type="Button" parent="CenterContainer/Panel/VBox/ButtonRow"]
+custom_minimum_size = Vector2(200, 44)
+layout_mode = 2
+disabled = true
+text = "Confirm"

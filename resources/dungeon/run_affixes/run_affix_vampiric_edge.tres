@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="RunAffixEntry" load_steps=6 format=3 uid="uid://bmi10otjnvk7v"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_hs8af"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_tldu5"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_g4cid"]
+[ext_resource type="Script" uid="uid://dw1ljcj5l3pre" path="res://resources/data/run_affix_entry.gd" id="4_656wg"]
+
+[sub_resource type="Resource" id="Resource_fga7l"]
+script = ExtResource("2_tldu5")
+affix_name = "vampiric_edge"
+description = "Heal for 10% of damage dealt when a die is used."
+trigger = 1
+effect_type = 19
+effect_value = 0.1
+effect_data = {
+"percent": 0.1
+}
+
+[resource]
+script = ExtResource("4_656wg")
+display_name = "Vampiric Edge"
+description = "Heal for 10% of damage dealt when a die is used."
+affix_id = "vampiric_edge"
+dice_affix = SubResource("Resource_fga7l")
+tags = Array[String](["sustain"])

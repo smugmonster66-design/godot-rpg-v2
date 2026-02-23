@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="RunAffixEntry" load_steps=6 format=3 uid="uid://dah3bg3mss0pf"]
+
+[ext_resource type="Script" uid="uid://dw1ljcj5l3pre" path="res://resources/data/run_affix_entry.gd" id="1_7ufvs"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_6rxvy"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_yia28"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_swyby"]
+
+[sub_resource type="Resource" id="Resource_7ufvs"]
+script = ExtResource("3_yia28")
+affix_name = "Sharpened Blade"
+description = "+4 flat damage bonus for the run."
+category = 9
+tags = Array[String](["offense"])
+source_type = "dungeon_temp"
+effect_number = 4.0
+
+[resource]
+script = ExtResource("1_7ufvs")
+display_name = "Sharpened Blade"
+description = "+4 flat damage bonus for the run."
+affix_id = "sharpened_blade"
+affix_type = 1
+rarity = 1
+stat_affix = SubResource("Resource_7ufvs")
+tags = Array[String](["offense"])
+max_stacks = 2

@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="RunAffixEntry" load_steps=6 format=3 uid="uid://fw5qhec1s2tv"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_1k7mj"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_6gcg8"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_c4rto"]
+[ext_resource type="Script" uid="uid://dw1ljcj5l3pre" path="res://resources/data/run_affix_entry.gd" id="4_hoxv1"]
+
+[sub_resource type="Resource" id="Resource_1ognr"]
+script = ExtResource("2_6gcg8")
+affix_name = "searing_dice"
+description = "Each die deals +2 fire damage when used."
+trigger = 1
+effect_type = 26
+effect_value = 2.0
+effect_data = {
+"element": "FIRE"
+}
+
+[resource]
+script = ExtResource("4_hoxv1")
+display_name = "Searing Dice"
+description = "Each die deals +2 fire damage when used."
+affix_id = "searing_dice"
+dice_affix = SubResource("Resource_1ognr")
+tags = Array[String](["fire", "offense"])
+max_stacks = 3

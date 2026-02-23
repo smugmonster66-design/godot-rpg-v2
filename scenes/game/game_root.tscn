@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://b2w217jydc2gl"]
+[gd_scene load_steps=27 format=3 uid="uid://b2w217jydc2gl"]
 
 [ext_resource type="Script" uid="uid://c2ftibv05ag52" path="res://scripts/game/game_root.gd" id="1_pevc5"]
 [ext_resource type="Script" uid="uid://buljuod5rywxy" path="res://scripts/shared/game_camera.gd" id="2_i88f8"]
@@ -20,6 +20,7 @@
 [ext_resource type="PackedScene" uid="uid://bvb7r5rwfohfr" path="res://resources/ui/dungeon_entrance_button.tscn" id="15_h5onw"]
 [ext_resource type="Resource" uid="uid://bgfv53lpvqk5j" path="res://resources/dungeon/baseline_test.tres" id="16_kdtot"]
 [ext_resource type="PackedScene" path="res://scenes/debug/debug_loot_panel.tscn" id="17_kdtot"]
+[ext_resource type="PackedScene" uid="uid://b3sw6blomfe2l" path="res://scenes/ui/menus/dungeon_selection_screen.tscn" id="20_ax1hr"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_n6w2t"]
 
@@ -176,6 +177,8 @@ dungeon_definition = ExtResource("16_kdtot")
 [node name="PostCombatSummary" parent="PersistentUILayer" instance=ExtResource("12_a6cr8")]
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="DungeonSelectionScreen" parent="PersistentUILayer" instance=ExtResource("20_ax1hr")]
 
 [node name="DebugLayer" type="CanvasLayer" parent="."]
 layer = 200

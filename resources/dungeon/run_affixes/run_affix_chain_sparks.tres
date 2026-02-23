@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="RunAffixEntry" load_steps=6 format=3 uid="uid://h6whu7jbgdrx"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_6cjje"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_gdgql"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_h8hs4"]
+[ext_resource type="Script" uid="uid://dw1ljcj5l3pre" path="res://resources/data/run_affix_entry.gd" id="4_t7idc"]
+
+[sub_resource type="Resource" id="Resource_ndl2x"]
+script = ExtResource("2_gdgql")
+affix_name = "chain_sparks"
+description = "Dice chain 1 shock damage to a second enemy on use."
+trigger = 1
+effect_type = 24
+effect_value = 1.0
+effect_data = {
+"chains": 1,
+"decay": 0.5,
+"element": "SHOCK"
+}
+
+[resource]
+script = ExtResource("4_t7idc")
+display_name = "Chain Sparks"
+description = "Dice chain 1 shock damage to a second enemy on use."
+affix_id = "chain_sparks"
+dice_affix = SubResource("Resource_ndl2x")
+tags = Array[String](["shock", "offense"])
+max_stacks = 2

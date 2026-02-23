@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="DungeonDefinition" load_steps=26 format=3 uid="uid://bgfv53lpvqk5j"]
+[gd_resource type="Resource" script_class="DungeonDefinition" load_steps=39 format=3 uid="uid://bgfv53lpvqk5j"]
 
 [ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="1_d4k1u"]
 [ext_resource type="Resource" uid="uid://b2jm7a2c1fqej" path="res://resources/encounters/baseline/boss/boss_brute_solo.tres" id="2_lh4ub"]
@@ -23,8 +23,21 @@
 [ext_resource type="Script" uid="uid://wf1v60wcm56b" path="res://resources/data/dungeon_event.gd" id="21_28wgp"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="22_ogo33"]
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="23_ru3cr"]
+[ext_resource type="Script" uid="uid://dw1ljcj5l3pre" path="res://resources/data/run_affix_entry.gd" id="24_lh4ub"]
 [ext_resource type="Script" uid="uid://bg3nj47jgiftx" path="res://resources/data/dungeon_definition.gd" id="24_s0ynn"]
 [ext_resource type="Script" uid="uid://dejkynwv48tug" path="res://resources/data/dungeon_shrine.gd" id="25_1rboc"]
+[ext_resource type="Resource" uid="uid://b84hikmv3771h" path="res://resources/dungeon/run_affixes/run_affix_battle_hardened.tres" id="25_1uwoi"]
+[ext_resource type="Resource" uid="uid://frkvrw435713" path="res://resources/dungeon/run_affixes/run_affix_berserkers_gambit.tres" id="26_cfmnd"]
+[ext_resource type="Resource" uid="uid://h6whu7jbgdrx" path="res://resources/dungeon/run_affixes/run_affix_chain_sparks.tres" id="27_ouy0e"]
+[ext_resource type="Resource" uid="uid://bi6gjgs651hjl" path="res://resources/dungeon/run_affixes/run_affix_flame_mastery.tres" id="28_soejd"]
+[ext_resource type="Resource" uid="uid://dwc46siw8skr4" path="res://resources/dungeon/run_affixes/run_affix_frostbite_dice.tres" id="29_dkoad"]
+[ext_resource type="Resource" uid="uid://moyi3gxccy0g" path="res://resources/dungeon/run_affixes/run_affix_frost_mastery.tres" id="30_uucg6"]
+[ext_resource type="Resource" uid="uid://bmp2yl5au55hk" path="res://resources/dungeon/run_affixes/run_affix_iron_constitution.tres" id="31_a6hsr"]
+[ext_resource type="Resource" uid="uid://by1u7nl8j2vo4" path="res://resources/dungeon/run_affixes/run_affix_lucky_roll.tres" id="32_28wgp"]
+[ext_resource type="Resource" uid="uid://fw5qhec1s2tv" path="res://resources/dungeon/run_affixes/run_affix_searing_dice.tres" id="33_ogo33"]
+[ext_resource type="Resource" uid="uid://dah3bg3mss0pf" path="res://resources/dungeon/run_affixes/run_affix_sharpened_blade.tres" id="34_ru3cr"]
+[ext_resource type="Resource" uid="uid://tepsy1mlcgbw" path="res://resources/dungeon/run_affixes/run_affix_steady_hand.tres" id="35_s0ynn"]
+[ext_resource type="Resource" uid="uid://bmi10otjnvk7v" path="res://resources/dungeon/run_affixes/run_affix_vampiric_edge.tres" id="36_1rboc"]
 
 [resource]
 script = ExtResource("24_s0ynn")
@@ -36,3 +49,4 @@ dungeon_level = 3
 combat_encounters = Array[ExtResource("1_d4k1u")]([ExtResource("5_7hygi"), ExtResource("6_p6n68"), ExtResource("7_uxieq"), ExtResource("8_xse3r"), ExtResource("9_r8p61"), ExtResource("10_q3l3v"), ExtResource("11_yobtu"), ExtResource("12_ksjw1"), ExtResource("13_uplyx"), ExtResource("14_1uwoi")])
 elite_encounters = Array[ExtResource("1_d4k1u")]([ExtResource("15_cfmnd"), ExtResource("16_ouy0e"), ExtResource("17_soejd"), ExtResource("18_dkoad"), ExtResource("19_uucg6"), ExtResource("20_a6hsr")])
 boss_encounters = Array[ExtResource("1_d4k1u")]([ExtResource("2_lh4ub"), ExtResource("3_8e1m1"), ExtResource("4_78m1m")])
+run_affix_pool = Array[ExtResource("24_lh4ub")]([ExtResource("25_1uwoi"), ExtResource("26_cfmnd"), ExtResource("27_ouy0e"), ExtResource("28_soejd"), ExtResource("29_dkoad"), ExtResource("30_uucg6"), ExtResource("31_a6hsr"), ExtResource("32_28wgp"), ExtResource("33_ogo33"), ExtResource("34_ru3cr"), ExtResource("35_s0ynn"), ExtResource("36_1rboc")])

@@ -331,8 +331,8 @@ func _make_generator():
 	We set meta("_test_registry") on the generator instance.
 
 	IMPORTANT: die_generator.gd's _get_registry() must check for this:
-	    if has_meta("_test_registry"):
-	        return get_meta("_test_registry")
+		if has_meta("_test_registry"):
+			return get_meta("_test_registry")
 	Without that line, this returns null and tests 4-6 are skipped.
 	"""
 	var registry = _make_registry()

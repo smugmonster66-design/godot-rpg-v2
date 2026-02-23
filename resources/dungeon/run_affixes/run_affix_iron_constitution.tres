@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="RunAffixEntry" load_steps=6 format=3 uid="uid://bmp2yl5au55hk"]
+
+[ext_resource type="Script" uid="uid://dw1ljcj5l3pre" path="res://resources/data/run_affix_entry.gd" id="1_kkmuk"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_157fs"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_qiidg"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_r2agn"]
+
+[sub_resource type="Resource" id="Resource_kkmuk"]
+script = ExtResource("3_qiidg")
+affix_name = "Iron Constitution"
+description = "+25 maximum health for the run."
+category = 28
+tags = Array[String](["defense", "health"])
+source_type = "dungeon_temp"
+effect_number = 25.0
+
+[resource]
+script = ExtResource("1_kkmuk")
+display_name = "Iron Constitution"
+description = "+25 maximum health for the run."
+affix_id = "iron_constitution"
+affix_type = 1
+rarity = 1
+stat_affix = SubResource("Resource_kkmuk")
+tags = Array[String](["defense", "health"])
+max_stacks = 2

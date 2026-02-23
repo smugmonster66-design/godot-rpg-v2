@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="RunAffixEntry" load_steps=6 format=3 uid="uid://b84hikmv3771h"]
+
+[ext_resource type="Script" uid="uid://dw1ljcj5l3pre" path="res://resources/data/run_affix_entry.gd" id="1_on1fj"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_jx0ph"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_ytc8b"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_1wlw6"]
+
+[sub_resource type="Resource" id="Resource_on1fj"]
+script = ExtResource("3_ytc8b")
+affix_name = "Battle Hardened"
+description = "+5 armor for the run."
+category = 13
+tags = Array[String](["defense", "armor"])
+source_type = "dungeon_temp"
+effect_number = 5.0
+
+[resource]
+script = ExtResource("1_on1fj")
+display_name = "Battle Hardened"
+description = "+5 armor for the run."
+affix_id = "battle_hardened"
+affix_type = 1
+rarity = 1
+stat_affix = SubResource("Resource_on1fj")
+tags = Array[String](["defense", "armor"])
+max_stacks = 2

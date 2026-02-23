@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="RunAffixEntry" load_steps=6 format=3 uid="uid://bi6gjgs651hjl"]
+
+[ext_resource type="Script" uid="uid://dw1ljcj5l3pre" path="res://resources/data/run_affix_entry.gd" id="1_kmuee"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_m0ti7"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_1pqv1"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_iiv03"]
+
+[sub_resource type="Resource" id="Resource_kmuee"]
+script = ExtResource("3_1pqv1")
+affix_name = "Flame Mastery"
+description = "1.25x fire damage for the run."
+category = 41
+tags = Array[String](["fire", "offense", "mastery"])
+source_type = "dungeon_temp"
+effect_number = 1.25
+effect_data = {
+"element": "FIRE"
+}
+
+[resource]
+script = ExtResource("1_kmuee")
+display_name = "Flame Mastery"
+description = "1.25x fire damage for the run."
+affix_id = "flame_mastery"
+affix_type = 1
+rarity = 2
+stat_affix = SubResource("Resource_kmuee")
+tags = Array[String](["fire", "offense", "mastery"])
+mutually_exclusive_tags = Array[String](["frost_mastery", "shock_mastery"])

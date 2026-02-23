@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="RunAffixEntry" load_steps=6 format=3 uid="uid://tepsy1mlcgbw"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_kr6j1"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_b42it"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_fcsxb"]
+[ext_resource type="Script" uid="uid://dw1ljcj5l3pre" path="res://resources/data/run_affix_entry.gd" id="4_lrge7"]
+
+[sub_resource type="Resource" id="Resource_dvd31"]
+script = ExtResource("2_b42it")
+affix_name = "steady_hand"
+description = "Dice minimum roll value is 2."
+effect_type = 2
+effect_value = 2.0
+
+[resource]
+script = ExtResource("4_lrge7")
+display_name = "Steady Hand"
+description = "Dice minimum roll value is 2."
+affix_id = "steady_hand"
+dice_affix = SubResource("Resource_dvd31")
+tags = Array[String](["utility"])
