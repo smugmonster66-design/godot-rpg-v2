@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_uj1j0")
 affix_name = "Inspiring"
-description = "+N to both neighbors' values"
+description = "+N to neighbors"
 affix_tier = 2
 neighbor_target = 3
 effect_value = 2.0

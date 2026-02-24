@@ -553,9 +553,7 @@ func get_formatted_description() -> String:
 	text = text.replace("{tag}", get_effect_tag())
 	text = text.replace("{slot}", str(required_slot + 1))  # 1-indexed for display
 	
-	# Add position info if not ANY
-	if position_requirement != PositionRequirement.ANY:
-		text += " [" + _get_position_text() + "]"
+	
 	
 	# Add condition info if present (v2)
 	if has_condition():

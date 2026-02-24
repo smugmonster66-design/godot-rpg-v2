@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_tk0yd")
 affix_name = "Volatile"
-description = "Randomize element each roll"
+description = "Set element on roll"
 affix_tier = 2
 effect_type = 18
 effect_value = 1.0

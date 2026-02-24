@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_bob6i")
 affix_name = "Syncopated"
-description = "+N value in odd-numbered slots"
+description = "+N in odd slots"
 affix_tier = 1
 position_requirement = 7
 effect_value = 3.0

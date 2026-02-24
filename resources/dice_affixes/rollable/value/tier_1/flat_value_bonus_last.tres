@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_blv5c")
 affix_name = "Anchor"
-description = "+N value when in last slot"
+description = "+N in last slot"
 affix_tier = 1
 position_requirement = 2
 effect_value = 3.5

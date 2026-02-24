@@ -13,7 +13,7 @@ condition_element = "MATCH_SELF"
 [resource]
 script = ExtResource("3_faaw5")
 affix_name = "Harmonized"
-description = "+N if neighbor shares element"
+description = "+N if neighbor matches element"
 affix_tier = 2
 condition = SubResource("Resource_bec3m")
 effect_value = 3.5

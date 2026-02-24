@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_r2uvg")
 affix_name = "Vanguard"
-description = "+N value when in first slot"
+description = "+N in first slot"
 affix_tier = 1
 position_requirement = 1
 effect_value = 3.5

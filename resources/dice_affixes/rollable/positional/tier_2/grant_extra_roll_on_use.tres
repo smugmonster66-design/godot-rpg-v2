@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_rdxpo")
 affix_name = "Echoing"
-description = "Grant extra roll on use"
+description = "Reroll on use"
 affix_tier = 2
 trigger = 1
 effect_type = 30

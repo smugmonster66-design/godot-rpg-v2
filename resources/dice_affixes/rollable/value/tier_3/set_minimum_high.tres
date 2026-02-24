@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_86tym")
 affix_name = "Ironclad"
-description = "Always rolls at least N"
+description = "Min roll N"
 affix_tier = 3
 effect_type = 2
 effect_value = 6.0

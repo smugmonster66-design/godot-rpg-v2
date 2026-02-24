@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_h5pv6")
 affix_name = "Resolute"
-description = "Auto-reroll if below N"
+description = "Reroll if below N"
 affix_tier = 2
 effect_type = 10
 effect_value = 3.0

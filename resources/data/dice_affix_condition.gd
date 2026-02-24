@@ -366,8 +366,12 @@ func get_description() -> String:
 		Type.SELF_ELEMENT_NOT:
 			return "if not %s element" % condition_element
 		Type.NEIGHBOR_HAS_ELEMENT:
+			if condition_element == "MATCH_SELF":
+				return "if neighbor shares element"
 			return "if neighbor is %s" % condition_element
 		Type.ALL_NEIGHBORS_HAVE_ELEMENT:
+			if condition_element == "MATCH_SELF":
+				return "if all neighbors share element"
 			return "if all neighbors %s" % condition_element
 		Type.NEIGHBOR_ELEMENT_DIFFERS:
 			return "if neighbor differs in element"

@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_g8nm5")
 affix_name = "Ascendant"
-description = "On combat start, upgrade die type"
+description = "Upgrade die size"
 affix_tier = 3
 trigger = 4
 effect_type = 13

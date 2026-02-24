@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_pgkow")
 affix_name = "Absorbent"
-description = "Copy tags from left neighbor"
+description = "Copy left die's tags"
 affix_tier = 2
 position_requirement = 3
 neighbor_target = 1

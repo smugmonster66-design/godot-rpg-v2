@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_yomem")
 affix_name = "Supporting"
-description = "+N to left neighbor's value"
+description = "+N to left die"
 affix_tier = 1
 position_requirement = 3
 neighbor_target = 1

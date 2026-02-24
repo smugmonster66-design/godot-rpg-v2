@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_6d0um")
 affix_name = "Rallying"
-description = "+N to ALL other dice on roll"
+description = "+N to all dice"
 affix_tier = 3
 neighbor_target = 6
 effect_value = 2.0

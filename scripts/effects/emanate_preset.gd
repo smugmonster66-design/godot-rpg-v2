@@ -34,6 +34,14 @@ class_name EmanatePreset
 ## Additive blend for ethereal look
 @export var additive_blend: bool = true
 
+# In EmanatePreset:
+@export_group("Custom Textures")
+## Custom ring texture. Null = auto-generated ring.
+@export var custom_ring_texture: Texture2D = null
+## Custom burst particle texture. Null = auto-generated soft circle.
+@export var custom_burst_texture: Texture2D = null
+
+
 @export_group("Timing")
 ## Total effect duration (should be >= ring_duration + stagger * ring_count)
 @export_range(0.2, 2.0) var total_duration: float = 0.6

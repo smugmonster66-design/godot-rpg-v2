@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_e6u5v")
 affix_name = "Bolstered"
-description = "+N to rolled value"
+description = "+N"
 affix_tier = 2
 effect_value = 3.5
 effect_value_min = 2.0

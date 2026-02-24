@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_77xu2")
 affix_name = "Steadfast"
-description = "+N value at combat start"
+description = "+N on turn 1"
 affix_tier = 1
 trigger = 4
 effect_value = 2.0

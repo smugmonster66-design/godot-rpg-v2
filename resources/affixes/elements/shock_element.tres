@@ -1,14 +1,16 @@
-[gd_resource type="Resource" script_class="DiceAffix" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=7 format=3 uid="uid://bgw24wqldi0fd"]
 
-[ext_resource type="Script" path="res://resources/data/dice_affix.gd" id="1_script"]
-[ext_resource type="ShaderMaterial" path="res://resources/materials/dice/shock_fill.tres" id="2_fill"]
-[ext_resource type="ShaderMaterial" path="res://resources/materials/dice/shock_stroke.tres" id="3_stroke"]
-[ext_resource type="ShaderMaterial" path="res://resources/materials/dice/shock_value.tres" id="4_value"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_script"]
+[ext_resource type="Material" uid="uid://cho64cxndlk0r" path="res://resources/materials/dice/shock_fill.tres" id="2_fill"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_fipoc"]
+[ext_resource type="Material" uid="uid://ck8h17wmlys24" path="res://resources/materials/dice/shock_stroke.tres" id="3_stroke"]
+[ext_resource type="Material" uid="uid://cddplmsf7bjeo" path="res://resources/materials/dice/shock_value.tres" id="4_value"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="5_641eb"]
 
 [resource]
 script = ExtResource("1_script")
 affix_name = "Shock Element"
-description = "Crackling electric energy"
+description = "Shock"
 show_in_summary = false
 fill_effect_type = 4
 fill_shader_material = ExtResource("2_fill")

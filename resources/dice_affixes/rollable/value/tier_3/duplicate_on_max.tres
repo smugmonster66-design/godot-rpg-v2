@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_ls5de")
 affix_name = "Fracturing"
-description = "If max value rolled, duplicate this die"
+description = "Max roll: duplicate die"
 affix_tier = 3
 effect_type = 11
 effect_value = 1.0

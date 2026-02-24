@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("1_script")
 affix_name = "Fire Element"
-description = "Burning flames engulf this die"
+description = "Fire"
 show_in_summary = false
 use_global_element_visuals = true
 global_element_type = 3

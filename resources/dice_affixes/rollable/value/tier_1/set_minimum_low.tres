@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_g7bgx")
 affix_name = "Dependable"
-description = "Always rolls at least N"
+description = "Min roll N"
 affix_tier = 1
 effect_type = 2
 effect_value = 2.5

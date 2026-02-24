@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_s6l3v")
 affix_name = "Leading"
-description = "+N to right neighbor's value"
+description = "+N to right die"
 affix_tier = 1
 position_requirement = 4
 neighbor_target = 2

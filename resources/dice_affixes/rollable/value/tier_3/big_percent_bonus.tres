@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_khkid")
 affix_name = "Titanic"
-description = "+N% to rolled value"
+description = "+N%"
 affix_tier = 3
 effect_type = 1
 effect_value = 0.75

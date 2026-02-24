@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("1_script")
 affix_name = "Poison Element"
-description = "Toxic venom corrodes all"
+description = "Poison"
 show_in_summary = false
 use_global_element_visuals = true
 global_element_type = 6

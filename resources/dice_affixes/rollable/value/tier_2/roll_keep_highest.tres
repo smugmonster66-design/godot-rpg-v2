@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_5xtvh")
 affix_name = "Fortunate"
-description = "Roll extra, keep highest"
+description = "Roll twice, keep best"
 affix_tier = 2
 effect_type = 29
 effect_value = 1.0

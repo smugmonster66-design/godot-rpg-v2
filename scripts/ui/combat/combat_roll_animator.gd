@@ -25,13 +25,6 @@ class_name CombatRollAnimator
 @export var projectile_size: Vector2 = Vector2(48, 48)
 
 
-@export_group("Scatter Converge")
-## Preset for the scatter-converge burst during roll reveals
-@export var roll_scatter_preset: ScatterConvergePreset = null
-## Optional base particle texture (soft circle). Null = auto-generated.
-@export var scatter_base_texture: Texture2D = null
-## Enable scatter-converge instead of plain projectile
-@export var use_scatter_converge: bool = true
 
 @export_group("Entry Emanate")
 ## Emanate preset to play when a die appears in hand. Null = no emanate.
@@ -64,7 +57,7 @@ var pool_dice_grid = null  # DiceGrid
 # ============================================================================
 var _projectile_container: Control = null
 var _is_animating: bool = false
-
+var _emanate_container: Control = null
 var _effects_layer: CanvasLayer = null
 
 # ============================================================================
@@ -78,13 +71,24 @@ signal roll_animation_complete
 # ============================================================================
 
 func _ready():
-	# Create an overlay CanvasLayer so projectiles render above all UI
+	# Emanate layer — renders BELOW CombatUILayer(5) so emanates appear behind dice
+	var emanate_layer = CanvasLayer.new()
+	emanate_layer.name = "EmanateLayer"
+	emanate_layer.layer = 4
+	add_child(emanate_layer)
+	
+	_emanate_container = Control.new()
+	_emanate_container.name = "EmanateContainer"
+	_emanate_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_emanate_container.set_anchors_preset(Control.PRESET_FULL_RECT)
+	emanate_layer.add_child(_emanate_container)
+	
+	# Projectile overlay — renders above all UI
 	var canvas_layer = CanvasLayer.new()
 	canvas_layer.name = "ProjectileOverlay"
 	canvas_layer.layer = 100
 	add_child(canvas_layer)
 	
-	# Container for projectile instances
 	_projectile_container = Control.new()
 	_projectile_container.name = "ProjectileContainer"
 	_projectile_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -222,6 +226,9 @@ func play_roll_sequence() -> void:
 		print("🎬 DicePoolDisplay was hidden — forcing visible for roll animation")
 		dice_pool_display.visible = true
 	
+	dice_pool_display.modulate.a = 1.0
+	
+	
 	# Wait two frames for layout propagation (needs visible container)
 	await get_tree().process_frame
 	await get_tree().process_frame
@@ -329,6 +336,8 @@ func _animate_single_die_delayed(index: int, hand_visual: Control, target_center
 	else:
 		_do_animate_die(index, hand_visual, target_center)
 
+
+
 func _do_animate_die(index: int, hand_visual: Control, target_center: Vector2):
 	if not is_instance_valid(hand_visual):
 		return
@@ -340,57 +349,35 @@ func _do_animate_die(index: int, hand_visual: Control, target_center: Vector2):
 	_flash_pool_die(source_info)
 	await get_tree().create_timer(flash_duration).timeout
 
-	# ── Phase 2: Travel (scatter-converge or plain projectile) ──
-	if use_scatter_converge and roll_scatter_preset:
-		# Build die_info dict with element data
-		var die_info = {
-			"fill_texture": source_info.get("fill_texture", null),
-			"fill_material": source_info.get("fill_material", null),
-			"tint": source_info.get("tint", Color.WHITE),
-			"element": source_info.get("element", 0),
-		}
+	# ── Phase 2: Projectile travel ──
+	var projectile = _spawn_projectile(source_info)
+	projectile.global_position = source_center - projectile_size / 2
+	projectile.start_emitting()
 
-		var effect = ScatterConvergeEffect.new()
-		_projectile_container.add_child(effect)
-		effect.configure(roll_scatter_preset, source_center, target_center, die_info, scatter_base_texture)
+	var travel_tween = create_tween()
+	travel_tween.tween_property(
+		projectile, "global_position",
+		target_center - projectile_size / 2,
+		travel_duration
+	).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC)
+	await travel_tween.finished
 
-		var visual_ref = weakref(hand_visual)
-		effect.impact.connect(func():
-			var v = visual_ref.get_ref()
-			if v and is_instance_valid(v):
-				_reveal_hand_die(v)
-		, CONNECT_ONE_SHOT)
+	projectile.stop_emitting()
+	if projectile.visual:
+		projectile.visual.visible = false
 
-		await effect.finished
-	else:
-		# Original projectile path
-		var projectile = _spawn_projectile(source_info)
-		projectile.global_position = source_center - projectile_size / 2
-		projectile.start_emitting()
+	var proj_ref = weakref(projectile)
+	get_tree().create_timer(0.3).timeout.connect(
+		func():
+			var p = proj_ref.get_ref()
+			if p and is_instance_valid(p):
+				p.queue_free(),
+		CONNECT_ONE_SHOT
+	)
 
-		var travel_tween = create_tween()
-		travel_tween.tween_property(
-			projectile, "global_position",
-			target_center - projectile_size / 2,
-			travel_duration
-		).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC)
-		await travel_tween.finished
-
-		projectile.stop_emitting()
-		if projectile.visual:
-			projectile.visual.visible = false
-
-		var proj_ref = weakref(projectile)
-		get_tree().create_timer(0.3).timeout.connect(
-			func():
-				var p = proj_ref.get_ref()
-				if p and is_instance_valid(p):
-					p.queue_free(),
-			CONNECT_ONE_SHOT
-		)
-
-		if is_instance_valid(hand_visual):
-			_reveal_hand_die(hand_visual)
+	# ── Phase 3: Reveal ──
+	if is_instance_valid(hand_visual):
+		_reveal_hand_die(hand_visual)
 
 # ============================================================================
 # PHASE 1: POOL DIE FLASH
@@ -430,6 +417,7 @@ func _spawn_projectile(source_info: Dictionary) -> RollProjectile:
 # ============================================================================
 
 func _reveal_hand_die(hand_visual: Control):
+	print("REVEAL: frame=%d visual=%s" % [Engine.get_process_frames(), hand_visual.name])
 	hand_visual.modulate = Color.WHITE
 
 	if "draggable" in hand_visual:
@@ -450,7 +438,7 @@ func _reveal_hand_die(hand_visual: Control):
 
 
 func _play_entry_emanate(hand_visual: Control, center: Vector2):
-	if not entry_emanate_preset or not _projectile_container:
+	if not entry_emanate_preset or not _emanate_container:
 		return
 
 	var element: int = DieResource.Element.NONE
@@ -461,10 +449,11 @@ func _play_entry_emanate(hand_visual: Control, center: Vector2):
 	preset.emanate_color = _get_emanate_color_for_element(element)
 
 	var effect = EmanateEffect.new()
-	_projectile_container.add_child(effect)
+	_emanate_container.add_child(effect)
 	effect.configure(preset, center)
 	effect.play()
-	
+
+
 
 func _get_emanate_color_for_element(die_element: int) -> Color:
 	"""Pull element color from global config, with hardcoded fallback."""

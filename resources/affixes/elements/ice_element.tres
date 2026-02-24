@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("1_script")
 affix_name = "Ice Element"
-description = "Frozen crystalline chill"
+description = "Ice"
 show_in_summary = false
 use_global_element_visuals = true
 global_element_type = 4

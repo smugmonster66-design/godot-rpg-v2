@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_20vtf")
 affix_name = "Mirrored"
-description = "+N equal to half of left neighbor's value"
+description = "+50% of left die's value"
 affix_tier = 2
 position_requirement = 3
 neighbor_target = 1

@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_8v3wn")
 affix_name = "Rhythmic"
-description = "+N value in even-numbered slots"
+description = "+N in even slots"
 affix_tier = 1
 position_requirement = 6
 effect_value = 3.0

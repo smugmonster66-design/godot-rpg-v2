@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("1_script")
 affix_name = "Shadow Element"
-description = "Void darkness consumes all"
+description = "Shadow"
 show_in_summary = false
 use_global_element_visuals = true
 global_element_type = 7

@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_w2fdm")
 affix_name = "Lucky"
-description = "Grants a reroll"
+description = "1 reroll"
 affix_tier = 1
 effect_type = 9
 effect_value = 1.0

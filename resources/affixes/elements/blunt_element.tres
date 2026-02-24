@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("1_script")
 affix_name = "Blunt Element"
-description = "Heavy iron crushing force"
+description = "Blunt"
 show_in_summary = false
 use_global_element_visuals = true
 global_element_type = 1

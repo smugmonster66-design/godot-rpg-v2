@@ -12,7 +12,7 @@ extends CombatEffect
 class_name EmanateEffect
 
 var _emanate_preset: EmanatePreset = null
-var _ring_texture: ImageTexture = null
+var _ring_texture: Texture2D = null
 
 func configure(preset: EmanatePreset, source: Vector2, target: Vector2 = Vector2.ZERO):
 	"""Configure the emanate effect. Target defaults to source for self-centered effects."""
@@ -20,8 +20,8 @@ func configure(preset: EmanatePreset, source: Vector2, target: Vector2 = Vector2
 	configure_base(preset, source, target if target != Vector2.ZERO else source)
 
 func _execute_node_track() -> void:
-	_ring_texture = _generate_ring_texture()
-	var soft_circle = _generate_soft_circle()
+	_ring_texture = _emanate_preset.custom_ring_texture if _emanate_preset.custom_ring_texture else _generate_ring_texture()
+	var soft_circle = _emanate_preset.custom_burst_texture if _emanate_preset.custom_burst_texture else _generate_soft_circle()
 
 	# Spawn rings with stagger
 	for i in _emanate_preset.ring_count:
@@ -83,7 +83,7 @@ func _spawn_ring(ring_index: int):
 	# Cleanup
 	tween.chain().tween_callback(ring.queue_free)
 
-func _spawn_burst(soft_circle: ImageTexture):
+func _spawn_burst(soft_circle: Texture2D):
 	"""Spawn radial burst particles."""
 	var count = _emanate_preset.burst_particle_count
 	for i in count:
