@@ -1,12 +1,18 @@
-[gd_scene load_steps=8 format=3 uid="uid://0uycurmcavjg"]
+[gd_scene load_steps=13 format=3 uid="uid://0uycurmcavjg"]
 
 [ext_resource type="PackedScene" uid="uid://dofeq3txtonis" path="res://scenes/ui/combat/enemy_panel.tscn" id="2_8bf5m"]
 [ext_resource type="PackedScene" uid="uid://bb07mxj58qxpy" path="res://scenes/ui/combat/dice_pool_display.tscn" id="2_bo0no"]
 [ext_resource type="PackedScene" uid="uid://ctpamire6rmbu" path="res://scenes/ui/components/die_visual.tscn" id="4_l84v8"]
+[ext_resource type="Theme" uid="uid://b87llggw1n1df" path="res://resources/themes/base_theme.tres" id="4_u72jj"]
+[ext_resource type="Texture2D" uid="uid://c6sqtdxnbp2ab" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_bg.png" id="5_1r7sg"]
 [ext_resource type="PackedScene" uid="uid://cmdae6knaxo5a" path="res://scenes/ui/combat/mana_die_selector.tscn" id="5_5ykqc"]
 [ext_resource type="Script" uid="uid://ct2t4rul0p5uv" path="res://scripts/ui/combat/combat_roll_animator.gd" id="5_8bf5m"]
 [ext_resource type="Script" uid="uid://m2g4t6rqu5p8" path="res://scripts/ui/combat/affix_visual_animator.gd" id="6_kesfj"]
+[ext_resource type="Texture2D" uid="uid://bhdufq5sfxngf" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_stroke_basic.png" id="6_mrx6l"]
+[ext_resource type="Texture2D" uid="uid://bgqcm8i82101" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_hp.png" id="7_egfcb"]
 [ext_resource type="Resource" uid="uid://lt80ceegbap4" path="res://resources/effects/die_entry_emanate_preset.tres" id="7_u72jj"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_jmysc"]
 
 [node name="CombatUILayer" type="CanvasLayer"]
 
@@ -106,6 +112,222 @@ layout_mode = 2
 [node name="Spacer4" type="Control" parent="MarginContainer/VBox/VBoxContainer"]
 custom_minimum_size = Vector2(0, 370)
 layout_mode = 2
+
+[node name="CombatCompanionVBox" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme = ExtResource("4_u72jj")
+
+[node name="Control" type="Control" parent="MarginContainer/CombatCompanionVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CombatCompanionPanelVBox" type="VBoxContainer" parent="MarginContainer/CombatCompanionVBox"]
+custom_minimum_size = Vector2(140, 128)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 10
+theme_override_constants/separation = 10
+
+[node name="SummonSlot2" type="PanelContainer" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+theme = ExtResource("4_u72jj")
+
+[node name="CompanionFrameBG" type="TextureRect" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/SummonSlot2"]
+layout_mode = 2
+
+[node name="CompanionPortrait" type="TextureRect" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/SummonSlot2"]
+layout_mode = 2
+
+[node name="CompanionFrameFG" type="TextureRect" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/SummonSlot2"]
+layout_mode = 2
+
+[node name="HPBar" type="TextureProgressBar" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/SummonSlot2/CompanionFrameFG"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+value = 100.0
+nine_patch_stretch = true
+texture_under = ExtResource("5_1r7sg")
+texture_over = ExtResource("6_mrx6l")
+texture_progress = ExtResource("7_egfcb")
+
+[node name="NamePanel" type="PanelContainer" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/SummonSlot2/CompanionFrameFG"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -61.0
+grow_horizontal = 2
+grow_vertical = 0
+theme = ExtResource("4_u72jj")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_jmysc")
+
+[node name="NameLabel" type="Label" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/SummonSlot2/CompanionFrameFG/NamePanel"]
+layout_mode = 2
+size_flags_vertical = 8
+text = "Name"
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="SummonSlot1" type="PanelContainer" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+theme = ExtResource("4_u72jj")
+
+[node name="CompanionFrameBG" type="TextureRect" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/SummonSlot1"]
+layout_mode = 2
+
+[node name="CompanionPortrait" type="TextureRect" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/SummonSlot1"]
+layout_mode = 2
+
+[node name="CompanionFrameFG" type="TextureRect" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/SummonSlot1"]
+layout_mode = 2
+
+[node name="HPBar" type="TextureProgressBar" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/SummonSlot1/CompanionFrameFG"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+value = 100.0
+nine_patch_stretch = true
+texture_under = ExtResource("5_1r7sg")
+texture_over = ExtResource("6_mrx6l")
+texture_progress = ExtResource("7_egfcb")
+
+[node name="NamePanel" type="PanelContainer" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/SummonSlot1/CompanionFrameFG"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -61.0
+grow_horizontal = 2
+grow_vertical = 0
+theme = ExtResource("4_u72jj")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_jmysc")
+
+[node name="NameLabel" type="Label" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/SummonSlot1/CompanionFrameFG/NamePanel"]
+layout_mode = 2
+size_flags_vertical = 8
+text = "Name"
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="CompanionSlot2" type="PanelContainer" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+theme = ExtResource("4_u72jj")
+
+[node name="CompanionFrameBG" type="TextureRect" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/CompanionSlot2"]
+layout_mode = 2
+
+[node name="CompanionPortrait" type="TextureRect" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/CompanionSlot2"]
+layout_mode = 2
+
+[node name="CompanionFrameFG" type="TextureRect" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/CompanionSlot2"]
+layout_mode = 2
+
+[node name="HPBar" type="TextureProgressBar" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/CompanionSlot2/CompanionFrameFG"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+value = 100.0
+nine_patch_stretch = true
+texture_under = ExtResource("5_1r7sg")
+texture_over = ExtResource("6_mrx6l")
+texture_progress = ExtResource("7_egfcb")
+
+[node name="NamePanel" type="PanelContainer" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/CompanionSlot2/CompanionFrameFG"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -61.0
+grow_horizontal = 2
+grow_vertical = 0
+theme = ExtResource("4_u72jj")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_jmysc")
+
+[node name="NameLabel" type="Label" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/CompanionSlot2/CompanionFrameFG/NamePanel"]
+layout_mode = 2
+size_flags_vertical = 8
+text = "Name"
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="CompanionSlot1" type="PanelContainer" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+theme = ExtResource("4_u72jj")
+
+[node name="CompanionFrameBG" type="TextureRect" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/CompanionSlot1"]
+layout_mode = 2
+
+[node name="CompanionPortrait" type="TextureRect" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/CompanionSlot1"]
+layout_mode = 2
+
+[node name="CompanionFrameFG" type="TextureRect" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/CompanionSlot1"]
+layout_mode = 2
+
+[node name="HPBar" type="TextureProgressBar" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/CompanionSlot1/CompanionFrameFG"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+value = 100.0
+nine_patch_stretch = true
+texture_under = ExtResource("5_1r7sg")
+texture_over = ExtResource("6_mrx6l")
+texture_progress = ExtResource("7_egfcb")
+
+[node name="NamePanel" type="PanelContainer" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/CompanionSlot1/CompanionFrameFG"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -61.0
+grow_horizontal = 2
+grow_vertical = 0
+theme = ExtResource("4_u72jj")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_jmysc")
+
+[node name="NameLabel" type="Label" parent="MarginContainer/CombatCompanionVBox/CombatCompanionPanelVBox/CompanionSlot1/CompanionFrameFG/NamePanel"]
+layout_mode = 2
+size_flags_vertical = 8
+text = "Name"
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="Control2" type="Control" parent="MarginContainer/CombatCompanionVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.5
 
 [node name="ManaDieSelector" parent="." instance=ExtResource("5_5ykqc")]
 offset_left = 973.0
