@@ -63,6 +63,14 @@ var status_tracker: StatusTracker = null
 var dice_pool: PlayerDiceCollection = null
 
 # ============================================================================
+# COMPANIONS
+# ============================================================================
+## Active NPC companions (max 2). Persist across combats.
+var active_companions: Array[CompanionInstance] = []
+## All recruited NPCs including inactive ones at camp.
+var companion_roster: Array[CompanionInstance] = []
+
+# ============================================================================
 # MANA POOL (v4 — Mage System)
 # ============================================================================
 ## Mana pool for caster classes. Null for non-caster classes (warrior, rogue).

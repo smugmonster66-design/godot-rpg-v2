@@ -45,9 +45,9 @@ var _effective_level: int = 1
 # ============================================================================
 # NODE REFERENCES
 # ============================================================================
-@onready var sprite: Sprite2D = $Sprite2D
-@onready var health_label: Label = $HealthLabel
-@onready var name_label: Label = $NameLabel
+@onready var sprite: Sprite2D = get_node_or_null("Sprite2D")
+@onready var health_label: Label = get_node_or_null("HealthLabel")
+@onready var name_label: Label = get_node_or_null("NameLabel")
 
 # ============================================================================
 # SIGNALS

@@ -20,6 +20,17 @@ class_name ActionEffectSubEffect
 ## How the value scales (uses ActionEffect.ValueSource enum).
 @export var value_source: ActionEffect.ValueSource = ActionEffect.ValueSource.STATIC
 
+## SOURCE_STAT: which primary stat to scale from (dropdown).
+@export_enum("strength", "agility", "intellect", "luck")
+var value_source_stat: String = "strength"
+
+## TARGET_STATUS_STACKS: which status to count stacks of.
+@export var value_source_status_id: String = ""
+
+## SOURCE_DEFENSE_STAT: which defense stat to scale from (dropdown).
+@export_enum("armor", "barrier")
+var value_source_defense: String = "armor"
+
 ## Optional condition that gates this sub-effect independently.
 @export var condition: ActionEffectCondition = null
 

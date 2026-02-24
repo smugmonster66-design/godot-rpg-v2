@@ -15,6 +15,12 @@ var combat_ui = null
 var battlefield_tracker: BattlefieldTracker = null
 var proc_processor: AffixProcProcessor = null
 var event_bus: CombatEventBus = null
+var companion_manager: CompanionManager = null
+var trigger_processor: CompanionTriggerProcessor = null
+
+
+
+
 # ============================================================================
 # STATE
 # ============================================================================
@@ -69,6 +75,7 @@ var current_round: int = 0
 # ============================================================================
 signal combat_ended(player_won: bool)
 signal turn_started(combatant: Combatant, is_player: bool)
+signal player_turn_ended()
 signal round_started(round_number: int)
 signal turn_phase_changed(phase: TurnPhase)
 
@@ -124,6 +131,13 @@ func find_combat_nodes():
 	if not combat_ui:
 		combat_ui = find_child("CombatUI", true, false)
 	print("  CombatUI: %s" % ("✓" if combat_ui else "✗"))
+
+	# Create CompanionManager
+	if not companion_manager:
+		companion_manager = CompanionManager.new()
+		companion_manager.name = "CompanionManager"
+		add_child(companion_manager)
+		print("  [OK] CompanionManager created")
 
 func setup_encounter_spawner():
 	"""Setup encounter spawner signals"""
@@ -319,7 +333,15 @@ func _finalize_combat_init(p_player: Player):
 	# Initialize UI
 	if combat_ui:
 		combat_ui.initialize_ui(player, enemy_combatants)
-	
+
+	# Initialize companions
+	if companion_manager:
+		companion_manager.initialize(player, self)
+		trigger_processor = CompanionTriggerProcessor.new()
+		trigger_processor._companion_manager = companion_manager
+		trigger_processor._combat_manager = self
+		print("  [OK] CompanionTriggerProcessor initialized")
+
 	# Connect cleanup
 	if not combat_ended.is_connected(_on_combat_ended):
 		combat_ended.connect(_on_combat_ended)
@@ -471,8 +493,16 @@ func _start_round():
 	"""Start a new round"""
 	current_round += 1
 	current_turn_index = 0
-	
-	print("\n⚔️ === ROUND %d ===" % current_round)
+
+	print("\n[Combat] === ROUND %d ===" % current_round)
+
+	# --- COMPANIONS: Tick cooldowns and durations ---
+	if companion_manager:
+		var expired_slots = companion_manager.tick_round()
+		# TODO Phase 2: animate summon dissolve-out for expired slots
+		for slot_idx in expired_slots:
+			companion_manager.remove_summon(slot_idx)
+	# --- END COMPANIONS ---
 	
 	# Check turn limit
 	if current_encounter and current_encounter.turn_limit > 0:
@@ -599,7 +629,12 @@ func _start_player_turn():
 	if event_bus:
 			event_bus.emit_round_started(current_round)
 
-
+	# --- COMPANIONS: Player turn start triggers ---
+	if trigger_processor:
+		var comp_results = trigger_processor.process_trigger(
+			CompanionData.CompanionTrigger.PLAYER_TURN_START, {})
+		_process_companion_results(comp_results)
+	# --- END COMPANIONS ---
 
 	# --- PROC: Turn-start procs ---
 	if player and player.affix_manager and proc_processor:
@@ -702,7 +737,7 @@ func _on_player_end_turn():
 	
 	turn_phase = TurnPhase.NONE
 	turn_phase_changed.emit(TurnPhase.NONE)
-	
+	player_turn_ended.emit()
 	
 	if combat_ui and combat_ui.has_method("set_mana_drag_enabled"):
 		combat_ui.set_mana_drag_enabled(false)
@@ -725,6 +760,13 @@ func _on_player_end_turn():
 			player.affix_manager, _build_proc_context())
 		_apply_proc_results(turn_end_results)
 	# --- END PROC ---
+
+	# --- COMPANIONS: Player turn end triggers ---
+	if trigger_processor:
+		var comp_results = trigger_processor.process_trigger(
+			CompanionData.CompanionTrigger.PLAYER_TURN_END, {})
+		_process_companion_results(comp_results)
+	# --- END COMPANIONS ---
 	
 	# Tick temp action field durations
 	if combat_ui and combat_ui.has_method("tick_temp_action_fields"):
@@ -1093,6 +1135,14 @@ func _animate_enemy_action(enemy: Combatant, decision: EnemyAI.Decision):
 			if player_combatant:
 				player_combatant.take_damage(damage)
 				_update_player_health()
+
+				# --- COMPANIONS: Player damaged trigger ---
+				if trigger_processor:
+					var comp_results = trigger_processor.process_trigger(
+						CompanionData.CompanionTrigger.PLAYER_DAMAGED,
+						{"damage_amount": damage, "attacker": enemy})
+					_process_companion_results(comp_results)
+				# --- END COMPANIONS ---
 				
 				# --- PROC: On-take-damage procs ---
 				if player and player.affix_manager and proc_processor:
@@ -2292,6 +2342,15 @@ func _check_enemy_death(enemy: Combatant):
 			if visual:
 				event_bus.emit_enemy_died(visual, enemy.combatant_name)
 
+		# --- COMPANIONS: Enemy killed trigger ---
+		if trigger_processor:
+			var comp_results = trigger_processor.process_trigger(
+				CompanionData.CompanionTrigger.ENEMY_KILLED,
+				{"killed_enemy": enemy})
+			_process_companion_results(comp_results)
+		# --- END COMPANIONS ---
+
+
 func _on_enemy_died(enemy: Combatant):
 	"""Handle enemy death"""
 	print("☠️ %s defeated!" % enemy.combatant_name)
@@ -2402,7 +2461,13 @@ func end_combat(player_won: bool):
 	if proc_processor and player and player.affix_manager:
 		proc_processor.on_combat_end(player.affix_manager)
 	# --- END PROC ---
-	
+
+	# --- COMPANIONS: Sync NPC state, clear summons ---
+	if companion_manager:
+		companion_manager.on_combat_end()
+	trigger_processor = null
+	# --- END COMPANIONS ---
+
 	combat_ended.emit(player_won)
 
 
@@ -2459,6 +2524,10 @@ func reset_combat():
 		combat_ui.mana_die_selector.cleanup()
 	
 	
+	# Reset companions
+	if companion_manager:
+		companion_manager._clear_all_slots()
+
 	# Reset state
 	enemy_combatants.clear()
 	combat_state = CombatState.INITIALIZING
@@ -2525,6 +2594,11 @@ func _build_proc_context(extra: Dictionary = {}) -> Dictionary:
 	if player and player.dice_pool:
 		ctx["element_use_counts"] = player.dice_pool.get_element_use_counts()
 		ctx["dice_pool"] = player.dice_pool.dice  # for Infinite Curriculum
+	
+	
+	# Combat-state context for ValueSource resolution
+	ctx["alive_enemies"] = enemy_combatants.filter(func(e): return e.is_alive()).size()
+	ctx["alive_companions"] = companion_manager.get_alive_companions().size() if companion_manager else 0
 	
 	# Merge caller-specific keys (damage_dealt, target, etc.)
 	ctx.merge(extra, true)
@@ -2747,6 +2821,43 @@ func _get_combatant_visual(combatant: Combatant) -> Node:
 		return combat_ui.enemy_panel.get_enemy_visual(idx)
 	return null
 
+
+func _process_companion_results(results: Array[Dictionary]) -> void:
+	"""Process results from CompanionTriggerProcessor.fire_trigger()."""
+	if results.is_empty():
+		return
+	print("  [Companion] Processing %d effect results" % results.size())
+	for result in results:
+		var effect_type = result.get("effect_type", -1)
+		var target = result.get("target", null)
+		match effect_type:
+			ActionEffect.EffectType.DAMAGE:
+				var dmg: int = maxi(result.get("damage", 0), 1)
+				if target and target.has_method("take_damage"):
+					target.take_damage(dmg)
+					print("  [Companion] %d damage -> %s" % [dmg, target.combatant_name])
+					_update_and_check_target(target)
+			ActionEffect.EffectType.HEAL:
+				var heal: int = result.get("heal", 0)
+				if heal > 0 and target:
+					if target == player_combatant and player:
+						player.heal(heal)
+						_sync_player_health()
+						_update_player_health()
+					elif target.has_method("heal"):
+						target.heal(heal)
+					print("  [Companion] healed %d -> %s" % [heal, target.combatant_name if target else "?"])
+			ActionEffect.EffectType.ADD_STATUS:
+				var sa: StatusAffix = result.get("status_affix")
+				var stacks: int = result.get("stacks_to_add", 1)
+				if sa and target:
+					var tracker = _get_status_tracker(target)
+					if tracker:
+						tracker.apply_status(sa, stacks, "companion")
+			ActionEffect.EffectType.SHIELD:
+				var amount: int = result.get("shield_amount", 0)
+				if amount > 0 and target and target.has_method("add_shield"):
+					target.add_shield(amount, result.get("shield_duration", -1))
 
 func _get_bottom_ui() -> Control:
 	return get_tree().get_first_node_in_group("bottom_ui")

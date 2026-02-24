@@ -17,6 +17,8 @@ extends Node
 @export_range(1, 100) var dev_item_level: int = 15
 @export_range(1, 6) var dev_item_region: int = 1
 @export_range(1, 6) var debug_region: int = 1
+@export var dev_companions: Array[CompanionData] = []   
+
 
 signal combat_intro_ready
 var _combat_intro_done: bool = false
@@ -47,7 +49,7 @@ var dungeon_selection: Control = null
 
 # Add to node references section
 var portrait_controller: Control = null
-
+var companion_panel: CompanionPanel = null
 # ============================================================================
 # STATE
 # ============================================================================
@@ -169,6 +171,13 @@ func _setup_persistent_ui():
 	else:
 		print("  ⚠️ DungeonSelectionScreen not found in PersistentUILayer")
 
+	# Companion panel — persistent display above portrait
+	companion_panel = ui_layer.find_child("CombatCompanionPanelVBox", true, false) as CompanionPanel
+	if companion_panel:
+		print("  ✅ CompanionPanel found (%d slots)" % companion_panel.companion_slots.size())
+	else:
+		print("  ⚠️ CompanionPanel not found in PersistentUILayer")
+
 	# PortraitController — click-to-open menu
 	portrait_controller = ui_layer.find_child("PortraitContainer", true, false)
 	if portrait_controller and portrait_controller.has_signal("portrait_clicked"):
@@ -225,8 +234,21 @@ func _on_player_created(player: Resource):
 					player.add_to_inventory(item)
 					print("  🧪 Dev item: %s (Lv.%d)" % [item.item_name, item.item_level])
 		
-		print("🧪 Dev mode — Lv.%d, %d SP, +%d dice, +%d items" % [
-			dev_level, dev_skill_points, dev_dice.size(), dev_items.size()])
+		for comp_data in dev_companions:
+			if comp_data:
+				var instance = CompanionInstance.new()
+				instance.companion_data = comp_data
+				player.active_companions.append(instance)
+				print("  [Dev] Companion: %s" % comp_data.companion_name)
+		
+		
+		print("[Dev] Dev mode — Lv.%d, %d SP, +%d dice, +%d items, +%d companions" % [
+			dev_level, dev_skill_points, dev_dice.size(), dev_items.size(),
+			dev_companions.size()])
+	
+	# Populate companion panel (after dev companions are added)
+	if companion_panel and player:
+		companion_panel.refresh_from_player(player)
 	
 	
 

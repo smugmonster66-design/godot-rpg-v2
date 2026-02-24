@@ -29,9 +29,28 @@ enum EffectType {
 enum DamageType { SLASHING, BLUNT, PIERCING, FIRE, ICE, SHOCK, POISON, SHADOW }
 
 enum ValueSource {
-	STATIC, DICE_TOTAL, DICE_COUNT, SOURCE_STAT, SOURCE_HP_PERCENT,
-	SOURCE_MISSING_HP, TARGET_HP_PERCENT, TARGET_MISSING_HP,
-	TARGET_STATUS_STACKS, TURN_NUMBER, ACTIVE_STATUS_COUNT, MANA_PERCENT,
+	# --- Original 12 (unchanged integer values 0–11) ---
+	STATIC,                 ##  0
+	DICE_TOTAL,             ##  1
+	DICE_COUNT,             ##  2
+	SOURCE_STAT,            ##  3
+	SOURCE_HP_PERCENT,      ##  4
+	SOURCE_MISSING_HP,      ##  5
+	TARGET_HP_PERCENT,      ##  6
+	TARGET_MISSING_HP,      ##  7
+	TARGET_STATUS_STACKS,   ##  8
+	TURN_NUMBER,            ##  9
+	ACTIVE_STATUS_COUNT,    ## 10
+	MANA_PERCENT,           ## 11
+	# --- New (appended, 12–19) ---
+	SOURCE_CURRENT_HP,      ## 12  current_hp × (base_value / 100)
+	SOURCE_MAX_HP,          ## 13  max_hp × (base_value / 100)
+	SOURCE_DEFENSE_STAT,    ## 14  armor or barrier × base_value
+	TARGET_CURRENT_HP,      ## 15  current_hp × (base_value / 100)
+	TARGET_MAX_HP,          ## 16  max_hp × (base_value / 100)
+	ALIVE_ENEMY_COUNT,      ## 17  living enemies × base_value
+	ALIVE_COMPANION_COUNT,  ## 18  living companions × base_value
+	TRIGGER_DAMAGE_AMOUNT,  ## 19  trigger damage × (base_value / 100)
 }
 
 
@@ -49,6 +68,19 @@ enum ValueSource {
 
 @export_group("Value Source")
 @export var value_source: ValueSource = ValueSource.STATIC
+
+## SOURCE_STAT: which primary stat to scale from (dropdown).
+@export_enum("strength", "agility", "intellect", "luck")
+var value_source_stat: String = "strength"
+
+## TARGET_STATUS_STACKS: which status to count stacks of.
+@export var value_source_status_id: String = ""
+
+## SOURCE_DEFENSE_STAT: which defense stat to scale from (dropdown).
+@export_enum("armor", "barrier")
+var value_source_defense: String = "armor"
+
+## DEPRECATED — use the typed fields above. Kept for old .tres compatibility.
 @export var value_source_data: Dictionary = {}
 
 @export var effect_data: Dictionary = {}
@@ -461,35 +493,84 @@ func _resolve_value(sv: int, ctx: Dictionary, cm: float = 1.0) -> int:
 	if value_source == ValueSource.STATIC: return int(float(sv) * cm)
 	var dv := float(sv)
 	match value_source:
+		# --- Dice ---
 		ValueSource.DICE_TOTAL: dv = float(ctx.get("dice_total", 0))
 		ValueSource.DICE_COUNT: dv = float(ctx.get("dice_count", 0)) * float(sv)
+		# --- Source / Caster ---
 		ValueSource.SOURCE_STAT:
 			var s = ctx.get("source")
-			var sn = value_source_data.get("stat_name", "strength")
+			var sn = value_source_stat if value_source_stat != "" \
+				else value_source_data.get("stat_name", "strength")
 			if s and s.has_method("get_stat"): dv = float(s.get_stat(sn)) * float(sv)
 			elif s and "stats" in s: dv = float(s.stats.get(sn, 0)) * float(sv)
 		ValueSource.SOURCE_HP_PERCENT: dv = ctx.get("source_hp_percent", 1.0) * float(sv)
 		ValueSource.SOURCE_MISSING_HP: dv = (1.0 - ctx.get("source_hp_percent", 1.0)) * float(sv)
+		ValueSource.SOURCE_CURRENT_HP:
+			dv = float(ctx.get("source_current_hp", 0)) * float(sv) / 100.0
+		ValueSource.SOURCE_MAX_HP:
+			dv = float(ctx.get("source_max_hp", 0)) * float(sv) / 100.0
+		ValueSource.SOURCE_DEFENSE_STAT:
+			var s = ctx.get("source")
+			var stat = value_source_defense if value_source_defense != "" else "armor"
+			if s and s.has_method("get_stat"): dv = float(s.get_stat(stat)) * float(sv)
+			elif s and stat in s: dv = float(s.get(stat)) * float(sv)
+			else: dv = 0.0
+		# --- Target ---
 		ValueSource.TARGET_HP_PERCENT: dv = ctx.get("target_hp_percent", 1.0) * float(sv)
 		ValueSource.TARGET_MISSING_HP: dv = (1.0 - ctx.get("target_hp_percent", 1.0)) * float(sv)
+		ValueSource.TARGET_CURRENT_HP:
+			dv = float(ctx.get("target_current_hp", 0)) * float(sv) / 100.0
+		ValueSource.TARGET_MAX_HP:
+			dv = float(ctx.get("target_max_hp", 0)) * float(sv) / 100.0
 		ValueSource.TARGET_STATUS_STACKS:
 			var t = ctx.get("target_tracker")
-			dv = float(t.get_stacks(value_source_data.get("status_id", "")) if t else 0) * float(sv)
-		ValueSource.TURN_NUMBER: dv = float(ctx.get("turn_number", 1)) * float(sv)
+			var sid = value_source_status_id if value_source_status_id != "" \
+				else value_source_data.get("status_id", "")
+			dv = float(t.get_stacks(sid) if t else 0) * float(sv)
 		ValueSource.ACTIVE_STATUS_COUNT:
 			var t = ctx.get("target_tracker")
 			dv = float(t.get_all_active().size() if t else 0) * float(sv)
+		# --- Combat State ---
+		ValueSource.TURN_NUMBER: dv = float(ctx.get("turn_number", 1)) * float(sv)
 		ValueSource.MANA_PERCENT:
 			dv = (float(ctx.get("current_mana", 0)) / maxf(float(ctx.get("max_mana", 1)), 1.0)) * float(sv)
-	return int(dv * cm)
+		ValueSource.ALIVE_ENEMY_COUNT:
+			dv = float(ctx.get("alive_enemies", 0)) * float(sv)
+		ValueSource.ALIVE_COMPANION_COUNT:
+			dv = float(ctx.get("alive_companions", 0)) * float(sv)
+		ValueSource.TRIGGER_DAMAGE_AMOUNT:
+			dv = float(ctx.get("trigger_damage", 0)) * float(sv) / 100.0
+	# Enforce minimum 1 for percent-of-HP sources when sv > 0 and target has HP
+	var final := int(dv * cm)
+	match value_source:
+		ValueSource.SOURCE_CURRENT_HP, ValueSource.SOURCE_MAX_HP, \
+		ValueSource.TARGET_CURRENT_HP, ValueSource.TARGET_MAX_HP, \
+		ValueSource.TRIGGER_DAMAGE_AMOUNT:
+			if final == 0 and sv > 0:
+				final = 1
+	return maxi(final, 0)
 
 func _resolve_sub_value(sub: ActionEffectSubEffect, bv: float, ctx: Dictionary, cm: float) -> float:
 	if sub.value_source == ValueSource.STATIC: return bv * cm
+	# Save parent state
 	var os = value_source; var od = value_source_data
-	value_source = sub.value_source as ValueSource; value_source_data = sub.effect_data
+	var o_stat = value_source_stat; var o_sid = value_source_status_id; var o_def = value_source_defense
+	# Swap to sub-effect's config
+	value_source = sub.value_source as ValueSource
+	value_source_data = sub.effect_data
+	# Prefer sub-effect's typed exports, fall back to effect_data dict
+	value_source_stat = sub.value_source_stat if sub.value_source_stat != "" \
+		else sub.effect_data.get("value_source_stat", "strength")
+	value_source_status_id = sub.value_source_status_id if sub.value_source_status_id != "" \
+		else sub.effect_data.get("value_source_status_id", "")
+	value_source_defense = sub.value_source_defense if sub.value_source_defense != "" \
+		else sub.effect_data.get("value_source_defense", "armor")
 	var r = _resolve_value(int(bv), ctx, cm)
+	# Restore parent state
 	value_source = os; value_source_data = od
+	value_source_stat = o_stat; value_source_status_id = o_sid; value_source_defense = o_def
 	return float(r)
+
 
 # ============================================================================
 # CONTEXT
@@ -505,22 +586,41 @@ func _ensure_context(p: Dictionary, source, te, dv: Array) -> Dictionary:
 		for v in dv: t += int(v)
 		c["dice_total"] = t
 	if not c.has("dice_count"): c["dice_count"] = dv.size()
-	if not c.has("source_hp_percent") and source:
-		if source.has_method("get_hp_percent"): c["source_hp_percent"] = source.get_hp_percent()
-		elif "current_health" in source and "max_health" in source: c["source_hp_percent"] = float(source.current_health) / maxf(float(source.max_health), 1.0)
-		else: c["source_hp_percent"] = 1.0
-	if not c.has("target_hp_percent") and te:
-		if te.has_method("get_hp_percent"): c["target_hp_percent"] = te.get_hp_percent()
-		elif "current_health" in te and "max_health" in te: c["target_hp_percent"] = float(te.current_health) / maxf(float(te.max_health), 1.0)
-		else: c["target_hp_percent"] = 1.0
+	# --- Source HP (percent + raw) ---
+	if source:
+		if not c.has("source_hp_percent"):
+			if source.has_method("get_hp_percent"): c["source_hp_percent"] = source.get_hp_percent()
+			elif "current_health" in source and "max_health" in source: c["source_hp_percent"] = float(source.current_health) / maxf(float(source.max_health), 1.0)
+			else: c["source_hp_percent"] = 1.0
+		if not c.has("source_current_hp"):
+			c["source_current_hp"] = source.current_health if "current_health" in source else 0
+		if not c.has("source_max_hp"):
+			c["source_max_hp"] = source.max_health if "max_health" in source else 0
+	# --- Target HP (percent + raw) ---
+	if te:
+		if not c.has("target_hp_percent"):
+			if te.has_method("get_hp_percent"): c["target_hp_percent"] = te.get_hp_percent()
+			elif "current_health" in te and "max_health" in te: c["target_hp_percent"] = float(te.current_health) / maxf(float(te.max_health), 1.0)
+			else: c["target_hp_percent"] = 1.0
+		if not c.has("target_current_hp"):
+			c["target_current_hp"] = te.current_health if "current_health" in te else 0
+		if not c.has("target_max_hp"):
+			c["target_max_hp"] = te.max_health if "max_health" in te else 0
 	elif not c.has("target_hp_percent"): c["target_hp_percent"] = -1.0
+	# --- Status trackers ---
 	if not c.has("source_tracker") and source: c["source_tracker"] = source.get_node("StatusTracker") if source.has_node("StatusTracker") else null
 	if not c.has("target_tracker") and te: c["target_tracker"] = te.get_node("StatusTracker") if te.has_node("StatusTracker") else null
 	elif not c.has("target_tracker"): c["target_tracker"] = null
+	# --- Combat state ---
 	if not c.has("turn_number"): c["turn_number"] = 1
 	if not c.has("current_mana"): c["current_mana"] = 0
 	if not c.has("max_mana"): c["max_mana"] = 0
+	# Defaults for new combat-state sources (callers inject real values)
+	if not c.has("alive_enemies"): c["alive_enemies"] = 0
+	if not c.has("alive_companions"): c["alive_companions"] = 0
+	# trigger_damage is only injected by companion trigger processor
 	return c
+
 
 func has_condition() -> bool: return condition != null and condition.condition_type != ActionEffectCondition.ConditionType.NONE
 func is_compound() -> bool: return sub_effects.size() > 0

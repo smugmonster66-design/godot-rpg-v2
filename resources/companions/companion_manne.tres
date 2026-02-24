@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="CompanionData" load_steps=6 format=3 uid="uid://cyj2w70dyw4v2"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_gcl3b"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_2ayxl"]
+[ext_resource type="Script" uid="uid://pc0eo2522dpe" path="res://resources/data/companion_data.gd" id="2_micht"]
+[ext_resource type="Texture2D" uid="uid://cxhxycueqqbp0" path="res://assets/characters/companions/manne_placeholder_bust.png" id="3_2ayxl"]
+
+[sub_resource type="Resource" id="Resource_ff43j"]
+script = ExtResource("1_gcl3b")
+effect_name = "Manneslaughter"
+value_source = 15
+dice_count = 0
+metadata/_custom_type_script = "uid://dqmfu54osidoc"
+
+[resource]
+script = ExtResource("2_micht")
+companion_name = "Manne"
+companion_id = &"manne"
+description = "And Mouse. Never forget Mouse."
+portrait = ExtResource("3_2ayxl")
+hp_scaling = 1
+hp_scaling_value = 0.3
+trigger = 1
+action_effects = Array[ExtResource("1_gcl3b")]([SubResource("Resource_ff43j")])
+metadata/_custom_type_script = "uid://pc0eo2522dpe"
