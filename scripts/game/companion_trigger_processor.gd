@@ -23,42 +23,36 @@ const FIRING_ORDER: Array[int] = [0, 1, 2, 3]
 signal companion_fired(companion: CompanionCombatant, slot_index: int)
 
 # ============================================================================
-# MAIN ENTRY POINT
+# EVALUATE (returns fire entries WITHOUT executing effects)
 # ============================================================================
 
-func process_trigger(trigger_type: CompanionData.CompanionTrigger,
+func evaluate_trigger(trigger_type: CompanionData.CompanionTrigger,
 		context: Dictionary = {}) -> Array[Dictionary]:
 	"""Evaluate all companions for a specific trigger type.
+	Returns an array of fire entries -- one per companion that should fire.
+	Does NOT execute effects or mark companions as fired.
 	
-	Args:
-		trigger_type: The trigger event that occurred.
-		context: Extra data for the trigger. Possible keys:
-			- "damage_amount": int (for PLAYER_DAMAGED, ALLY_DAMAGED, etc.)
-			- "damaged_target": Combatant (who got hit)
-			- "killed_enemy": Combatant (for ENEMY_KILLED)
-			- "killed_companion": CompanionCombatant (for COMPANION_KILLED)
-			- "source_companion": CompanionCombatant (for OTHER_COMPANION_DAMAGED)
-			- "trigger_source": Combatant (entity that caused the event)
+	Each entry: {
+		"companion": CompanionCombatant,
+		"slot_index": int,
+		"targets": Array[Combatant],
+		"context": Dictionary,
+	}
 	
-	Returns:
-		Array of result dictionaries from ActionEffect.execute() calls.
-	"""
-	var all_results: Array[Dictionary] = []
+	CombatManager uses these entries to orchestrate animated execution."""
+	var fire_entries: Array[Dictionary] = []
 
 	for slot_idx in FIRING_ORDER:
 		var companion = _companion_manager.get_slot(slot_idx)
 		if not companion or not companion.is_alive():
 			continue
 
-		# Does this companion's trigger match?
 		if companion.companion_data.trigger != trigger_type:
 			continue
 
-		# Can it fire? (cooldown, uses)
 		if not companion.can_fire():
 			continue
 
-		# First-turn gate
 		if not companion.companion_data.fires_on_first_turn and companion.turns_active == 0:
 			continue
 
@@ -69,32 +63,75 @@ func process_trigger(trigger_type: CompanionData.CompanionTrigger,
 			if player_hp_pct > threshold:
 				continue
 
-		# OTHER_COMPANION_DAMAGED — skip if the damaged companion is self
+		# OTHER_COMPANION_DAMAGED -- skip if the damaged companion is self
 		if trigger_type == CompanionData.CompanionTrigger.OTHER_COMPANION_DAMAGED:
 			var source = context.get("source_companion")
 			if source == companion:
 				continue
 
-		# Condition gate (uses existing AffixCondition system)
+		# Condition gate
 		if companion.companion_data.condition:
 			var cond_context = _build_condition_context(companion, context)
 			var cond_result = companion.companion_data.condition.evaluate(cond_context)
 			if cond_result.blocked:
 				continue
 
-		# --- FIRE! ---
+		# Resolve targets
 		var targets = _resolve_targets(companion, context)
 		if targets.is_empty():
 			print("  [Companion] %s trigger matched but no valid targets -- skipped" % companion.combatant_name)
 			continue
 
-		var results = _execute_effects(companion, targets, context)
-		all_results.append_array(results)
+		fire_entries.append({
+			"companion": companion,
+			"slot_index": slot_idx,
+			"targets": targets,
+			"context": context,
+		})
 
-		# Record firing
-		companion.on_fired()
-		companion_fired.emit(companion, slot_idx)
-		print("  [Companion] %s FIRED (slot %d, %d results)" % [companion.combatant_name, slot_idx, results.size()])
+	return fire_entries
+
+# ============================================================================
+# EXECUTE EFFECTS (called by CombatManager per fire entry)
+# ============================================================================
+
+func execute_fire(fire_entry: Dictionary) -> Array[Dictionary]:
+	"""Execute effects for a single fire entry and mark the companion as fired.
+	Called by CombatManager after the animation reaches apply_effect timing.
+	
+	Returns the ActionEffect result dictionaries for the fire."""
+	var companion: CompanionCombatant = fire_entry["companion"]
+	var slot_idx: int = fire_entry["slot_index"]
+	var targets: Array[Combatant] = []
+	targets.assign(fire_entry["targets"])
+	var context: Dictionary = fire_entry["context"]
+
+	var results = _execute_effects(companion, targets, context)
+
+	# Record firing
+	companion.on_fired()
+	companion_fired.emit(companion, slot_idx)
+	print("  [Companion] %s FIRED (slot %d, %d results)" % [
+		companion.combatant_name, slot_idx, results.size()])
+
+	return results
+
+# ============================================================================
+# LEGACY ENTRY POINT (backwards compatibility)
+# ============================================================================
+
+func process_trigger(trigger_type: CompanionData.CompanionTrigger,
+		context: Dictionary = {}) -> Array[Dictionary]:
+	"""Evaluate AND immediately execute all matching companions.
+	Legacy path -- used when no animation is needed (or caller handles
+	animation externally). Prefer evaluate_trigger() + execute_fire() for
+	animated companion actions."""
+	var all_results: Array[Dictionary] = []
+	var fire_entries = evaluate_trigger(trigger_type, context)
+
+	for entry in fire_entries:
+		var results = execute_fire(entry)
+		all_results.append_array(results)
 
 	return all_results
 
@@ -134,15 +171,13 @@ func _resolve_targets(companion: CompanionCombatant, context: Dictionary) -> Arr
 			targets.append(companion)
 
 		CompanionData.CompanionTarget.OTHER_COMPANION:
-			# Find another alive companion (prefer the other NPC, then summons)
 			for slot_idx in FIRING_ORDER:
 				var other = _companion_manager.get_slot(slot_idx)
 				if other and other != companion and other.is_alive():
 					targets.append(other)
-					break  # Target first found
+					break
 
 		CompanionData.CompanionTarget.LOWEST_HP_ALLY:
-			# Pool = player + all alive companions
 			var candidates: Array[Combatant] = []
 			var pc = _get_player_combatant()
 			if pc:
@@ -168,7 +203,6 @@ func _resolve_targets(companion: CompanionCombatant, context: Dictionary) -> Arr
 			if source and source is Combatant and source.is_alive():
 				targets.append(source)
 			else:
-				# Fallback: random enemy
 				var enemies = _get_alive_enemies()
 				if enemies.size() > 0:
 					targets.append(enemies.pick_random())
@@ -178,7 +212,6 @@ func _resolve_targets(companion: CompanionCombatant, context: Dictionary) -> Arr
 			if damaged and damaged is Combatant and damaged.is_alive():
 				targets.append(damaged)
 			else:
-				# Fallback: lowest HP ally
 				targets = _resolve_targets_fallback_lowest_hp(companion)
 
 	return targets

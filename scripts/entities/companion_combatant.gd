@@ -23,7 +23,6 @@ var is_summon: bool = false
 var cooldown_remaining: int = 0
 var uses_remaining: int = -1  # -1 = unlimited
 var turns_active: int = 0     # for duration tracking (summons)
-var taunt_turns_remaining: int = -1  # -1 = not taunting or permanent
 
 # ============================================================================
 # INITIALIZATION
@@ -59,12 +58,7 @@ func initialize_from_data(data: CompanionData, p_slot_index: int,
 	cooldown_remaining = 0
 	turns_active = 0
 
-	# Taunt
-	if data.has_taunt:
-		if data.taunt_duration > 0:
-			taunt_turns_remaining = data.taunt_duration
-		else:
-			taunt_turns_remaining = -1  # permanent
+	
 
 	update_display()
 	print("  [Companion] CompanionCombatant initialized: %s (slot %d, HP %d/%d, %s)" % [
@@ -76,20 +70,17 @@ func initialize_from_data(data: CompanionData, p_slot_index: int,
 # ============================================================================
 
 func is_taunting() -> bool:
-	"""Check if this companion is currently taunting."""
-	if not companion_data or not companion_data.has_taunt:
-		return false
+	"""Check if this companion is currently taunting via StatusTracker."""
 	if not is_alive():
 		return false
-	# Permanent taunt or time remaining
-	return taunt_turns_remaining != 0
+	
+	# Check StatusTracker for active taunt status
+	if has_node("StatusTracker"):
+		var tracker: StatusTracker = get_node("StatusTracker")
+		return tracker.has_status("taunt")
+	
+	return false
 
-func tick_taunt() -> void:
-	"""Reduce taunt duration by 1 turn. Called at turn end."""
-	if taunt_turns_remaining > 0:
-		taunt_turns_remaining -= 1
-		if taunt_turns_remaining == 0:
-			print("  [Defense] %s taunt expired" % combatant_name)
 
 # ============================================================================
 # COOLDOWN & USAGE

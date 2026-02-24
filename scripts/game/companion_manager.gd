@@ -264,7 +264,7 @@ func get_companion_by_combatant(combatant: Combatant) -> CompanionCombatant:
 # ============================================================================
 
 func tick_round() -> Array[int]:
-	"""Tick cooldowns, durations, and taunt timers. Returns array of expired summon slot indices."""
+	"""Tick cooldowns and durations. Returns array of expired summon slot indices."""
 	var expired: Array[int] = []
 	for i in range(TOTAL_SLOTS):
 		var companion = _slots[i] as CompanionCombatant
@@ -272,12 +272,11 @@ func tick_round() -> Array[int]:
 			continue
 
 		companion.tick_cooldown()
-		companion.tick_taunt()
+		# REMOVED: companion.tick_taunt()  # Now handled by StatusTracker
 
 		# Summon duration
 		if companion.tick_duration():
 			print("  [Companion] %s duration expired (slot %d)" % [companion.combatant_name, i])
 			expired.append(i)
 
-	# Remove expired summons (caller handles animation)
 	return expired

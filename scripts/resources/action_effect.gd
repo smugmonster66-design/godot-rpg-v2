@@ -23,7 +23,7 @@ enum EffectType {
 	LIFESTEAL, EXECUTE, COMBO_MARK, ECHO,
 	SPLASH, CHAIN, RANDOM_STRIKES,
 	MANA_MANIPULATE, MODIFY_COOLDOWN, REFUND_CHARGES, GRANT_TEMP_ACTION,
-	CHANNEL, COUNTER_SETUP,
+	CHANNEL, COUNTER_SETUP, SUMMON_COMPANION,
 }
 
 enum DamageType { SLASHING, BLUNT, PIERCING, FIRE, ICE, SHOCK, POISON, SHADOW }
@@ -232,6 +232,15 @@ var value_source_defense: String = "armor"
 ## Minimum damage to trigger (0 = any).
 @export var counter_damage_threshold: int = 0
 
+
+# ============================================================================
+# SUMMON COMPANION
+# ============================================================================
+@export_group("Summon Settings")
+## CompanionData resource to summon. Required when effect_type == SUMMON_COMPANION.
+@export var companion_data: CompanionData = null
+
+
 # ============================================================================
 # SUB-EFFECTS
 # ============================================================================
@@ -286,6 +295,8 @@ func _execute_on_target(source, target_entity, dice_values: Array, context: Dict
 		EffectType.GRANT_TEMP_ACTION: result.merge(_calculate_grant_action(context, condition_mult))
 		EffectType.CHANNEL: result.merge(_calculate_channel())
 		EffectType.COUNTER_SETUP: result.merge(_calculate_counter())
+		EffectType.SUMMON_COMPANION:
+			result["companion_data"] = companion_data
 	return result
 
 # ============================================================================
@@ -664,7 +675,7 @@ func get_effect_type_name() -> String:
 		"Lifesteal", "Execute", "Combo Mark", "Echo",
 		"Splash", "Chain", "Random Strikes",
 		"Mana Manipulate", "Modify Cooldown", "Refund Charges", "Grant Temp Action",
-		"Channel", "Counter Setup"]
+		"Channel", "Counter Setup", "Summon Companion"]
 	return names[effect_type] if effect_type < names.size() else "Unknown"
 
 func get_damage_type_name() -> String:
@@ -711,6 +722,8 @@ func get_summary() -> String:
 			EffectType.GRANT_TEMP_ACTION: parts.append("Grant '%s' %dt" % [granted_action.action_name if granted_action else "None", grant_duration])
 			EffectType.CHANNEL: parts.append("Channel %dt (+%.0f%%/t) → %s" % [channel_max_turns, channel_growth_per_turn * 100, channel_release_effect.get_summary() if channel_release_effect else "none"])
 			EffectType.COUNTER_SETUP: parts.append("Counter (x%d, >%d) → %s" % [counter_charges, counter_damage_threshold, counter_effect.get_summary() if counter_effect else "none"])
+			EffectType.SUMMON_COMPANION:
+				parts.append("Summon %s" % (companion_data.companion_name if companion_data else "None"))
 	return " ".join(parts)
 
 func _to_string() -> String:

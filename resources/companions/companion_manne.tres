@@ -1,15 +1,26 @@
-[gd_resource type="Resource" script_class="CompanionData" load_steps=6 format=3 uid="uid://cyj2w70dyw4v2"]
+[gd_resource type="Resource" script_class="CompanionData" load_steps=8 format=3 uid="uid://cyj2w70dyw4v2"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_gcl3b"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_2ayxl"]
 [ext_resource type="Script" uid="uid://pc0eo2522dpe" path="res://resources/data/companion_data.gd" id="2_micht"]
 [ext_resource type="Texture2D" uid="uid://cxhxycueqqbp0" path="res://assets/characters/companions/manne_placeholder_bust.png" id="3_2ayxl"]
+[ext_resource type="Resource" uid="uid://c5h8lam3n4p5q" path="res://resources/statuses/taunt.tres" id="4_aribs"]
 
 [sub_resource type="Resource" id="Resource_ff43j"]
 script = ExtResource("1_gcl3b")
 effect_name = "Manneslaughter"
 value_source = 15
+base_damage = 20
 dice_count = 0
+metadata/_custom_type_script = "uid://dqmfu54osidoc"
+
+[sub_resource type="Resource" id="Resource_7via1"]
+script = ExtResource("1_gcl3b")
+effect_name = "Taunt All!"
+target = 0
+effect_type = 2
+status_affix = ExtResource("4_aribs")
+stack_count = 2
 metadata/_custom_type_script = "uid://dqmfu54osidoc"
 
 [resource]
@@ -21,5 +32,6 @@ portrait = ExtResource("3_2ayxl")
 hp_scaling = 1
 hp_scaling_value = 0.3
 trigger = 1
-action_effects = Array[ExtResource("1_gcl3b")]([SubResource("Resource_ff43j")])
+action_effects = Array[ExtResource("1_gcl3b")]([SubResource("Resource_ff43j"), SubResource("Resource_7via1")])
+target_rule = 1
 metadata/_custom_type_script = "uid://pc0eo2522dpe"

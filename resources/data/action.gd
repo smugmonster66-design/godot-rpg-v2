@@ -43,7 +43,6 @@ var current_cooldown: int = 0
 
 
 
-
 # ============================================================================
 # COSTS
 # ============================================================================
@@ -325,6 +324,8 @@ func get_targeting_mode() -> TargetingMode.Mode:
 				has_splash = true
 			ActionEffect.EffectType.CHAIN:
 				has_chain = true
+			ActionEffect.EffectType.SUMMON_COMPANION:
+				has_self = true
 		
 		match effect.target:
 			ActionEffect.TargetType.SELF:

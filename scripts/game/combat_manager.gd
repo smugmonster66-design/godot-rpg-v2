@@ -17,9 +17,11 @@ var proc_processor: AffixProcProcessor = null
 var event_bus: CombatEventBus = null
 var companion_manager: CompanionManager = null
 var trigger_processor: CompanionTriggerProcessor = null
+var companion_panel: CompanionPanel = null
+# Threat tracking - one per enemy
+var enemy_threat_trackers: Array = []  # Array of ThreatTracker instances
 
-
-
+var _pending_summon_data: CompanionData = null
 
 # ============================================================================
 # STATE
@@ -342,6 +344,11 @@ func _finalize_combat_init(p_player: Player):
 		trigger_processor._combat_manager = self
 		print("  [OK] CompanionTriggerProcessor initialized")
 
+	# Acquire companion panel for animation source positions
+	if GameManager and GameManager.game_root and GameManager.game_root.companion_panel:
+		companion_panel = GameManager.game_root.companion_panel
+		print("  [OK] CompanionPanel linked for companion animations")
+
 	# Connect cleanup
 	if not combat_ended.is_connected(_on_combat_ended):
 		combat_ended.connect(_on_combat_ended)
@@ -411,6 +418,29 @@ func _finalize_combat_init(p_player: Player):
 		print("🔍 RETURNED from play_drop_in_animation()")
 	else:
 		print("🔍 SKIPPED drop-in — condition failed")
+
+	# Initialize threat trackers for each enemy
+	enemy_threat_trackers.clear()
+	for enemy in enemy_combatants:
+		var tracker = ThreatTracker.new()
+		
+		# Build list of all allies
+		var allies: Array[Combatant] = [player_combatant]
+		if companion_manager:
+			for companion in companion_manager.get_alive_companions():
+				allies.append(companion)
+		
+		tracker.initialize(allies)
+		enemy_threat_trackers.append(tracker)
+		print("  [Threat] Initialized tracker for %s" % enemy.combatant_name)
+	
+	# Connect companion manager signals for threat updates
+	if companion_manager:
+		if not companion_manager.companion_died.is_connected(_on_companion_died_threat_update):
+			companion_manager.companion_died.connect(_on_companion_died_threat_update)
+		if not companion_manager.companion_spawned.is_connected(_on_companion_spawned_threat_update):
+			companion_manager.companion_spawned.connect(_on_companion_spawned_threat_update)
+
 
 	print("🔍 CALLING _start_round()")
 	_start_round()
@@ -553,6 +583,11 @@ func _end_round():
 	"""End round and check for combat end or start new round"""
 	print("\n⚔️ === ROUND %d ENDED ===" % current_round)
 	
+	# --- THREAT: Apply decay to all enemies ---
+	for tracker in enemy_threat_trackers:
+		tracker.apply_decay()
+	# --- END THREAT ---
+	
 	if _check_combat_end():
 		return
 	
@@ -630,10 +665,7 @@ func _start_player_turn():
 			event_bus.emit_round_started(current_round)
 
 	# --- COMPANIONS: Player turn start triggers ---
-	if trigger_processor:
-		var comp_results = trigger_processor.process_trigger(
-			CompanionData.CompanionTrigger.PLAYER_TURN_START, {})
-		_process_companion_results(comp_results)
+	await _fire_companions_animated(CompanionData.CompanionTrigger.PLAYER_TURN_START)
 	# --- END COMPANIONS ---
 
 	# --- PROC: Turn-start procs ---
@@ -762,10 +794,7 @@ func _on_player_end_turn():
 	# --- END PROC ---
 
 	# --- COMPANIONS: Player turn end triggers ---
-	if trigger_processor:
-		var comp_results = trigger_processor.process_trigger(
-			CompanionData.CompanionTrigger.PLAYER_TURN_END, {})
-		_process_companion_results(comp_results)
+	await _fire_companions_animated(CompanionData.CompanionTrigger.PLAYER_TURN_END)
 	# --- END COMPANIONS ---
 	
 	# Tick temp action field durations
@@ -1031,7 +1060,7 @@ func _start_enemy_turn(enemy: Combatant):
 
 
 func _process_enemy_turn(enemy: Combatant):
-	"""Process enemy AI decisions"""
+	"""Process enemy AI decisions with threat-based targeting"""
 	if not enemy.is_alive():
 		_finish_enemy_turn(enemy)
 		return
@@ -1041,6 +1070,31 @@ func _process_enemy_turn(enemy: Combatant):
 		_finish_enemy_turn(enemy)
 		return
 	
+	# Get threat tracker for this enemy
+	var enemy_index = enemy_combatants.find(enemy)
+	if enemy_index < 0 or enemy_index >= enemy_threat_trackers.size():
+		print("  ⚠️ No threat tracker for %s" % enemy.combatant_name)
+		_finish_enemy_turn(enemy)
+		return
+	
+	var threat_tracker: ThreatTracker = enemy_threat_trackers[enemy_index]
+	
+	# --- TARGET SELECTION ---
+	var target = TargetSelector.select_target(
+		enemy,
+		threat_tracker,
+		companion_manager,
+		player_combatant
+	)
+	
+	if not target or not target.is_alive():
+		print("  ⚠️ %s has no valid target" % enemy.combatant_name)
+		_finish_enemy_turn(enemy)
+		return
+	
+	print("  🎯 %s targeting: %s" % [enemy.combatant_name, target.combatant_name])
+	
+	# --- AI DECISION ---
 	var decision = EnemyAI.decide(
 		enemy.actions,
 		enemy.get_available_dice(),
@@ -1057,6 +1111,9 @@ func _process_enemy_turn(enemy: Combatant):
 		decision.action.get("name", "?"),
 		decision.dice.size()
 	])
+	
+	# Store selected target for execution
+	decision.action["selected_target"] = target
 	
 	_animate_enemy_action(enemy, decision)
 
@@ -1128,20 +1185,41 @@ func _animate_enemy_action(enemy: Combatant, decision: EnemyAI.Decision):
 	
 	var action_type = decision.action.get("action_type", 0)
 	
+	# Get selected target from AI decision
+	var target: Combatant = action_data.get("selected_target", player_combatant)
+	
+	if not target or not target.is_alive():
+		target = player_combatant  # Fallback
+	
 	match action_type:
 		0:  # ATTACK
-			var damage = _calculate_damage(action_data, enemy, player)
-			print("  💥 %s attacks player for %d!" % [enemy.combatant_name, damage])
-			if player_combatant:
-				player_combatant.take_damage(damage)
+			var damage = _calculate_damage(action_data, enemy, target)
+			print("  💥 %s attacks %s for %d!" % [
+				enemy.combatant_name, target.combatant_name, damage])
+			
+			target.take_damage(damage)
+			
+			# --- TAUNT: Consume taunt stack if target was the taunter ---
+			if enemy.has_node("StatusTracker"):
+				var enemy_tracker: StatusTracker = enemy.get_node("StatusTracker")
+				if enemy_tracker.has_status("taunt"):
+					var taunt_inst = enemy_tracker.get_instance("taunt")
+					var taunter = taunt_inst.get("source_combatant") if taunt_inst else null
+					if taunter == target:
+						# Enemy attacked the taunter - consume 1 stack
+						enemy_tracker.remove_stacks("taunt", 1)
+						var remaining = enemy_tracker.get_stacks("taunt")
+						print("  🎯 Taunt intercepted! (%d stacks remain)" % remaining)
+			# --- END TAUNT ---
+			
+			# Update appropriate health display
+			if target == player_combatant:
 				_update_player_health()
 
 				# --- COMPANIONS: Player damaged trigger ---
-				if trigger_processor:
-					var comp_results = trigger_processor.process_trigger(
-						CompanionData.CompanionTrigger.PLAYER_DAMAGED,
-						{"damage_amount": damage, "attacker": enemy})
-					_process_companion_results(comp_results)
+				await _fire_companions_animated(
+					CompanionData.CompanionTrigger.PLAYER_DAMAGED,
+					{"damage_amount": damage, "attacker": enemy})
 				# --- END COMPANIONS ---
 				
 				# --- PROC: On-take-damage procs ---
@@ -1165,6 +1243,30 @@ func _animate_enemy_action(enemy: Combatant, decision: EnemyAI.Decision):
 					for r in counter_results:
 						_process_single_battlefield_result(r)
 				# --- END BATTLEFIELD ---
+			
+			else:
+				# Companion was hit
+				var companion_index = -1
+				if companion_manager:
+					# Find which slot this companion is in
+					for i in range(companion_manager.TOTAL_SLOTS):
+						if companion_manager.get_slot(i) == target:
+							companion_index = i
+							break
+				
+				if companion_index >= 0:
+					if companion_panel:
+						companion_panel.update_health(
+							companion_index,
+							target.current_health,
+							target.max_health
+						)
+					
+					# Companion damaged triggers
+					if trigger_processor:
+						await _fire_companions_animated(
+							CompanionData.CompanionTrigger.COMPANION_DAMAGED,
+							{"damage_amount": damage, "damaged_target": target, "attacker": enemy})
 		1:  # DEFEND
 			print("  🛡️ %s defends" % enemy.combatant_name)
 			# Apply armor/barrier buff
@@ -1193,13 +1295,20 @@ func _animate_enemy_action(enemy: Combatant, decision: EnemyAI.Decision):
 	# handles full cleanup)
 	_process_enemy_turn(enemy)
 
-
 func _finish_enemy_turn(enemy: Combatant):
 	"""Finish enemy's turn"""
 	print("  %s's turn complete" % enemy.combatant_name)
 	
 	if combat_ui and combat_ui.has_method("hide_enemy_hand"):
 		combat_ui.hide_enemy_hand()
+	
+	# --- TAUNT: Clear all taunt stacks at turn end ---
+	if enemy.has_node("StatusTracker"):
+		var enemy_tracker: StatusTracker = enemy.get_node("StatusTracker")
+		if enemy_tracker.has_status("taunt"):
+			enemy_tracker.remove_status("taunt")
+			print("  🎯 All taunt stacks cleared (turn end)")
+	# --- END TAUNT ---
 	
 	# --- STATUS: Enemy end-of-turn processing ---
 	if enemy.has_node("StatusTracker"):
@@ -1248,6 +1357,12 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 				var damage = _calculate_damage(action_data, source, target)
 				print("  💥 %s deals %d damage to %s" % [source.combatant_name, damage, target.combatant_name])
 				target.take_damage(damage)
+
+				# --- THREAT: Add damage threat to all enemies ---
+				if source == player_combatant or _is_companion(source):
+					_add_threat_to_all_enemies(source, "damage", damage)
+				# --- END THREAT ---
+		
 
 				# Emit reactive animation event
 				if event_bus:
@@ -1328,6 +1443,12 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 			print("  💚 %s heals for %d" % [source.combatant_name, heal_amount])
 			source.heal(heal_amount)
 			
+			# --- THREAT: Add healing threat ---
+			if source == player_combatant or _is_companion(source):
+				_add_threat_to_all_enemies(source, "healing", heal_amount)
+			# --- END THREAT ---
+	
+			
 			if source == player_combatant:
 				_update_player_health()
 			else:
@@ -1364,6 +1485,7 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 				ActionEffect.EffectType.GRANT_TEMP_ACTION,
 				ActionEffect.EffectType.CHANNEL,
 				ActionEffect.EffectType.COUNTER_SETUP,
+				ActionEffect.EffectType.SUMMON_COMPANION,
 			]:
 				has_processable_effects = true
 				break
@@ -1815,7 +1937,15 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 				var status_affix: StatusAffix = result.get("status_affix")
 				var stacks: int = result.get("stacks_to_add", 1)
 				if status_affix:
-					tracker.apply_status(status_affix, stacks, source_name)
+					tracker.apply_status(status_affix, stacks, source_name, 0, 1.0, source)
+					
+					# --- THREAT: Add status threat ---
+					if source == player_combatant or _is_companion(source):
+						var status_type = _classify_status_for_threat(status_affix)
+						if status_type:
+							for threat_tracker in enemy_threat_trackers:
+								threat_tracker.add_status_threat(source, status_type, stacks)
+					# --- END THREAT ---
 			
 			ActionEffect.EffectType.REMOVE_STATUS:
 				var tracker: StatusTracker = _get_status_tracker(target)
@@ -2072,6 +2202,68 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 							result.get("counter_damage_threshold", 0), source)
 						battlefield_tracker.add_counter(counter)
 
+			ActionEffect.EffectType.SUMMON_COMPANION:
+				var comp_data: CompanionData = result.get("companion_data")
+				if comp_data and companion_manager:
+					# Query player affixes tagged "storm_sprite_upgrade" to modify
+					var sprite_data: CompanionData = comp_data
+					if player and player.affix_manager:
+						sprite_data = _build_modified_companion(comp_data, player.affix_manager)
+					var spawned = companion_manager.summon(sprite_data)
+					if spawned:
+						print("  Summoned %s into slot %d" % [sprite_data.companion_name, spawned.slot_index])
+					else:
+						# Both summon slots full — prompt replacement
+						_pending_summon_data = sprite_data
+						_prompt_summon_replacement(sprite_data)
+				elif comp_data:
+					print("  Summon queued (CompanionManager pending)")
+
+
+func _build_modified_companion(base: CompanionData, affix_mgr) -> CompanionData:
+	"""Apply storm_sprite_upgrade affixes to a base CompanionData before summoning."""
+	var upgrades: Array = affix_mgr.get_affixes_by_tag("storm_sprite_upgrade")
+	if upgrades.is_empty():
+		return base
+	
+	var modified: CompanionData = base.duplicate(true)
+	var has_voltaic := false
+	var has_tempest := false
+	var has_conduit := false
+	
+	for upgrade in upgrades:
+		var mod_type: String = upgrade.effect_data.get("sprite_mod_type", "")
+		match mod_type:
+			"voltaic":
+				has_voltaic = true
+				var ae: ActionEffect = upgrade.effect_data.get("action_effect")
+				if ae:
+					modified.action_effects.append(ae)
+				if upgrade.effect_data.get("dual_trigger", false):
+					modified.trigger_data["dual_trigger"] = true
+			"tempest":
+				has_tempest = true
+				var ae: ActionEffect = upgrade.effect_data.get("action_effect")
+				if ae:
+					modified.action_effects.append(ae)
+				if upgrade.effect_data.get("on_death_aoe", false):
+					var death_ae: ActionEffect = upgrade.effect_data.get("death_effect")
+					if death_ae:
+						if not modified.has_meta("on_death_effects"):
+							modified.set_meta("on_death_effects", [])
+						modified.get_meta("on_death_effects").append(death_ae)
+			"conduit":
+				has_conduit = true
+				var ae: ActionEffect = upgrade.effect_data.get("action_effect")
+				if ae:
+					if not has_voltaic and not has_tempest:
+						# Solo conduit: replace base damage with mana
+						modified.action_effects.clear()
+					modified.action_effects.append(ae)
+				if upgrade.effect_data.get("free_die_interval", 0) > 0:
+					modified.trigger_data["free_die_interval"] = upgrade.effect_data["free_die_interval"]
+	
+	return modified
 
 # ============================================================================
 # BATTLEFIELD RESULT PROCESSING
@@ -2342,12 +2534,21 @@ func _check_enemy_death(enemy: Combatant):
 			if visual:
 				event_bus.emit_enemy_died(visual, enemy.combatant_name)
 
-		# --- COMPANIONS: Enemy killed trigger ---
+		# # --- COMPANIONS: Enemy killed trigger ---
+		# NOTE: _check_enemy_death is synchronous and called from many
+		# non-async contexts. Uses evaluate + execute_fire directly so
+		# the slot flash plays but we skip the full animation await.
+		# Full async animation can be added when _check_enemy_death
+		# is refactored to async.
 		if trigger_processor:
-			var comp_results = trigger_processor.process_trigger(
+			var fire_entries = trigger_processor.evaluate_trigger(
 				CompanionData.CompanionTrigger.ENEMY_KILLED,
 				{"killed_enemy": enemy})
-			_process_companion_results(comp_results)
+			for entry in fire_entries:
+				if companion_panel:
+					companion_panel.play_slot_fire(entry["slot_index"])
+				var results = trigger_processor.execute_fire(entry)
+				_process_companion_results(results)
 		# --- END COMPANIONS ---
 
 
@@ -2466,6 +2667,7 @@ func end_combat(player_won: bool):
 	if companion_manager:
 		companion_manager.on_combat_end()
 	trigger_processor = null
+	companion_panel = null
 	# --- END COMPANIONS ---
 
 	combat_ended.emit(player_won)
@@ -2657,6 +2859,11 @@ func _apply_proc_results(results: Dictionary, proc_target: Combatant = null) -> 
 			var dmg = int(results.bonus_damage)
 			dmg_target.take_damage(dmg)
 			print("  ⚡ Proc bonus damage: %d → %s" % [dmg, dmg_target.combatant_name])
+			
+			# --- THREAT: Add proc threat ---
+			_add_threat_to_all_enemies(player_combatant, "proc", dmg)
+			# --- END THREAT ---
+			
 			_update_and_check_target(dmg_target)
 		else:
 			print("  ⚡ Proc bonus damage: %d (no valid target)" % int(results.bonus_damage))
@@ -2810,15 +3017,43 @@ func _on_enemy_threshold_triggered(status_id: String, data: Dictionary, source_e
 					tracker.apply_status(burn_res, 3, "Pyroclastic Flow")
 
 
+func _prompt_summon_replacement(comp_data: CompanionData) -> void:
+	"""Both summon slots are full. Ask the player which to replace.
+	For now, auto-replace slot 2 (oldest). TODO: show a UI picker."""
+	_pending_summon_data = null
+	if not companion_manager:
+		return
+	# Auto-replace slot 2 (first summon slot) as a sensible default.
+	# Phase 2: Replace this with a UI dialog that shows both summons
+	# and lets the player tap one to replace, or cancel.
+	var replaced: CompanionCombatant = companion_manager.replace_summon(2, comp_data)
+	if replaced:
+		print("  [Summon] Auto-replaced slot 2 with %s" % comp_data.companion_name)
+		# Animate if companion panel exists
+		if combat_ui and combat_ui.has_node("CompanionPanel"):
+			var panel = combat_ui.get_node("CompanionPanel")
+			if panel.has_method("play_summon_replace"):
+				panel.play_summon_replace(2, replaced)
+
+
 func _get_combatant_visual(combatant: Combatant) -> Node:
-	"""Get the visual node for a combatant (for reactive animation events)."""
+	"""Get the visual node for a combatant (for reactive animation events).
+	Supports player, enemies, and companion combatants."""
+	# Player
 	if combatant == player_combatant:
 		if combat_ui and combat_ui.player_health_display:
 			return combat_ui.player_health_display
 		return null
+	# Enemies
 	var idx = enemy_combatants.find(combatant)
 	if idx >= 0 and combat_ui and combat_ui.enemy_panel:
 		return combat_ui.enemy_panel.get_enemy_visual(idx)
+	# Companions
+	if combatant is CompanionCombatant and companion_panel:
+		var comp: CompanionCombatant = combatant as CompanionCombatant
+		var slot: CompanionSlot = companion_panel.get_slot(comp.slot_index)
+		if slot:
+			return slot
 	return null
 
 
@@ -2853,11 +3088,149 @@ func _process_companion_results(results: Array[Dictionary]) -> void:
 				if sa and target:
 					var tracker = _get_status_tracker(target)
 					if tracker:
-						tracker.apply_status(sa, stacks, "companion")
+						var source = result.get("source", null)
+						tracker.apply_status(sa, stacks, "companion", 0, 1.0, source)
 			ActionEffect.EffectType.SHIELD:
 				var amount: int = result.get("shield_amount", 0)
 				if amount > 0 and target and target.has_method("add_shield"):
 					target.add_shield(amount, result.get("shield_duration", -1))
+
+func _fire_companions_animated(trigger_type: CompanionData.CompanionTrigger,
+		context: Dictionary = {}) -> void:
+	"""Evaluate companion triggers and execute each with full animation.
+	Companions fire sequentially in slot order. Each awaits its animation
+	before the next fires. Falls back to instant execution if no
+	animation_set is assigned."""
+	if not trigger_processor:
+		return
+
+	var fire_entries = trigger_processor.evaluate_trigger(trigger_type, context)
+	if fire_entries.is_empty():
+		return
+
+	for entry in fire_entries:
+		var companion: CompanionCombatant = entry["companion"]
+		var slot_idx: int = entry["slot_index"]
+
+		# Slot flash (always plays, even without animation_set)
+		if companion_panel:
+			companion_panel.play_slot_fire(slot_idx)
+
+		var anim_set: CombatAnimationSet = companion.companion_data.animation_set
+		if anim_set:
+			await _execute_companion_action(entry, anim_set)
+		else:
+			# No animation -- instant fire (legacy behavior)
+			var results = trigger_processor.execute_fire(entry)
+			_process_companion_results(results)
+
+
+func _execute_companion_action(fire_entry: Dictionary,
+		anim_set: CombatAnimationSet) -> void:
+	"""Play a companion's CombatAnimationSet and apply effects at the
+	configured timing (ON_CAST / ON_TRAVEL_END / ON_IMPACT).
+	Mirrors the player/enemy _execute_action() pattern."""
+	var companion: CompanionCombatant = fire_entry["companion"]
+	var slot_idx: int = fire_entry["slot_index"]
+	var targets: Array[Combatant] = []
+	targets.assign(fire_entry["targets"])
+
+	# Source position: companion slot in the UI
+	var source_pos: Vector2 = _get_companion_source_position(slot_idx)
+
+	# Target positions and nodes
+	var target_positions: Array[Vector2] = []
+	var target_nodes: Array[Node2D] = []
+	for target in targets:
+		var visual = _get_combatant_visual(target)
+		if visual:
+			target_positions.append(visual.global_position)
+			target_nodes.append(visual)
+		elif target is Node2D:
+			target_positions.append(target.global_position)
+			target_nodes.append(target)
+
+	# Weak references for deferred effect application
+	var companion_ref = weakref(companion)
+	var applied = [false]
+
+	var apply_effect_callable = func():
+		if applied[0]:
+			return
+		applied[0] = true
+		var c = companion_ref.get_ref()
+		if not c or not is_instance_valid(c):
+			return
+		var results = trigger_processor.execute_fire(fire_entry)
+		_process_companion_results(results)
+
+	# Connect and play
+	animation_player.apply_effect_now.connect(apply_effect_callable, CONNECT_ONE_SHOT)
+
+	print("  [Companion] Playing animation for %s (slot %d) -> %d target(s)" % [
+		companion.combatant_name, slot_idx, target_positions.size()])
+
+	await animation_player.play_action_animation(
+		anim_set,
+		source_pos,
+		target_positions,
+		target_nodes
+	)
+
+	# Safety: if animation finished without emitting apply_effect_now
+	if not applied[0]:
+		applied[0] = true
+		var results = trigger_processor.execute_fire(fire_entry)
+		_process_companion_results(results)
+
+
+func _get_companion_source_position(slot_index: int) -> Vector2:
+	"""Get the global center of a companion's UI slot for animation origin."""
+	if companion_panel:
+		return companion_panel.get_slot_center_global(slot_index)
+	# Fallback: bottom-left of screen (companion panel area)
+	return Vector2(80, 1400)
+
+
+func _is_companion(combatant: Combatant) -> bool:
+	"""Check if a combatant is a companion."""
+	return combatant.has("is_companion") and combatant.is_companion
+
+func _classify_status_for_threat(status_affix: StatusAffix) -> String:
+	"""Classify a status for threat calculation."""
+	if status_affix.status_id == "taunt":
+		return "control"  # Taunt is high-threat crowd control
+	if status_affix.tick_damage > 0:
+		return "dot"  # Damage over time
+	if status_affix.cleanse_tags.has("control"):
+		return "control"  # Stun, freeze, root
+	if status_affix.is_debuff:
+		return "debuff"  # Weakness, vulnerable
+	if status_affix.is_buff:
+		return "buff"  # Strength, barrier
+	return ""  # Not threat-generating
+
+func _add_threat_to_all_enemies(source: Combatant, threat_type: String, value: int) -> void:
+	"""Add threat to all enemy threat trackers."""
+	for tracker in enemy_threat_trackers:
+		match threat_type:
+			"damage":
+				tracker.add_damage_threat(source, value)
+			"healing":
+				tracker.add_healing_threat(source, value)
+			"proc":
+				tracker.add_proc_threat(source, value)
+
+
+func _on_companion_died_threat_update(companion: CompanionCombatant, _slot: int) -> void:
+	"""Remove dead companion from all threat trackers."""
+	for tracker in enemy_threat_trackers:
+		tracker.remove_combatant(companion)
+
+func _on_companion_spawned_threat_update(companion: CompanionCombatant, _slot: int) -> void:
+	"""Add new companion to all threat trackers."""
+	for tracker in enemy_threat_trackers:
+		tracker.add_combatant(companion, 0.0)
 
 func _get_bottom_ui() -> Control:
 	return get_tree().get_first_node_in_group("bottom_ui")

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=5 format=3 uid="uid://c5h8lam3n4p5q"]
+
+[ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="1_taunt"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_ypiu3"]
+[ext_resource type="Texture2D" uid="uid://d4aqg56uk5ktt" path="res://assets/status_effects/taunted_status.png" id="2_gpxh7"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_gpxh7"]
+
+[resource]
+resource_name = "Taunt"
+script = ExtResource("1_taunt")
+status_id = &"taunt"
+tick_timing = 1
+cleanse_tags = Array[String](["taunt", "debuff", "crowd_control"])
+affix_name = "Taunted"
+description = "Taunted"
+icon = ExtResource("2_gpxh7")

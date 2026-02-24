@@ -58,7 +58,7 @@ enum CompanionTrigger {
 # ACTION
 # ============================================================================
 @export_group("Action")
-## Reuses the existing ActionEffect system — all 21 effect types work.
+## Reuses the existing ActionEffect system -- all 21 effect types work.
 @export var action_effects: Array[ActionEffect] = []
 
 # ============================================================================
@@ -108,8 +108,11 @@ enum CompanionTarget {
 # VISUALS
 # ============================================================================
 @export_group("Visuals")
-@export var action_animation: StringName = &""
-@export var action_sfx: AudioStream = null
+## Full cast -> travel -> impact animation sequence.
+## Uses the same CombatAnimationSet system as player/enemy actions.
+## If null, companion fires with just the slot flash (legacy behavior).
+@export var animation_set: CombatAnimationSet = null
+## Idle sprite for overworld/persistent display.
 @export var idle_animation: SpriteFrames = null
 
 # ============================================================================

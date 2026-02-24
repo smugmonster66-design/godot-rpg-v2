@@ -45,7 +45,7 @@ func set_source_affix_manager(manager: AffixPoolManager) -> void:
 
 func apply_status(status_affix: StatusAffix, stacks: int = 1,
 		source_name: String = "", duration_bonus: int = 0,
-		damage_mult: float = 1.0) -> void:
+		damage_mult: float = 1.0, source_combatant: Combatant = null) -> void:
 	"""Apply a status to this combatant. Stacks additively if already present.
 	
 	Args:
@@ -54,6 +54,7 @@ func apply_status(status_affix: StatusAffix, stacks: int = 1,
 		source_name: Who/what applied it (for combat log).
 		duration_bonus: Extra turns added to base duration (from skills/affixes).
 		damage_mult: Multiplier on tick damage (from skills/affixes).
+		source_combatant: The combatant who applied this status (for taunt tracking).
 	"""
 	if not status_affix:
 		push_warning("StatusTracker: Attempted to apply null StatusAffix")
@@ -77,6 +78,7 @@ func apply_status(status_affix: StatusAffix, stacks: int = 1,
 		# New application — pass through duration_bonus and damage_mult
 		var instance: Dictionary = status_affix.create_instance(
 			stacks, source_name, duration_bonus, damage_mult)
+		instance["source_combatant"] = source_combatant  # Track who applied it (for taunt)
 		active_statuses[sid] = instance
 		status_applied.emit(sid, instance)
 		print("  ✨ Applied %s (%d stacks, +%d turns, ×%.1f dmg) from %s" % [
@@ -93,6 +95,10 @@ func apply_status(status_affix: StatusAffix, stacks: int = 1,
 
 func remove_status(status_id: String) -> void:
 	"""Fully remove a status by ID."""
+	if status_id == "taunt":
+		print("  [DEBUG TAUNT] remove_status() called! Stack trace:")
+		print(get_stack())
+	
 	if active_statuses.has(status_id):
 		var instance: Dictionary = active_statuses[status_id]
 		var affix: StatusAffix = instance["status_affix"]
@@ -222,6 +228,12 @@ func _process_timing(timing: StatusAffix.TickTiming) -> Array[Dictionary]:
 		if affix.tick_timing != timing:
 			continue
 		
+		# ADD THIS:
+		if sid == "taunt":
+			print("  [DEBUG TAUNT] _process_timing: Processing taunt! tick_timing=%s, timing=%s, stacks=%s" % [
+				affix.tick_timing, timing, instance.get("current_stacks", -1)
+			])
+		
 		# Tick the status (damage, heal, stat mods)
 		var tick_result: Dictionary = affix.apply_tick(instance)
 		results.append(tick_result)
@@ -235,6 +247,9 @@ func _process_timing(timing: StatusAffix.TickTiming) -> Array[Dictionary]:
 		
 		# Check if expired from decay
 		if affix.is_expired(instance):
+			# ADD THIS:
+			if sid == "taunt":
+				print("  [DEBUG TAUNT] _process_timing: Taunt expired! stacks=%s" % instance.get("current_stacks", -1))
 			to_remove.append(sid)
 		else:
 			# Stacks may have changed from decay
@@ -253,6 +268,11 @@ func _decrement_and_expire(timing: StatusAffix.TickTiming) -> void:
 	for sid in active_statuses:
 		var instance: Dictionary = active_statuses[sid]
 		var affix: StatusAffix = instance["status_affix"]
+		
+		if sid == "taunt":
+			print("  [DEBUG TAUNT] _decrement_and_expire: timing=%s, expire_timing=%s, duration_type=%s, remaining_turns=%s" % [
+				timing, affix.expire_timing, affix.duration_type, instance.get("remaining_turns", -1)
+			])
 		
 		if affix.expire_timing != timing:
 			continue
@@ -274,6 +294,8 @@ func _remove_falling_off_statuses() -> void:
 	for sid in active_statuses:
 		var instance: Dictionary = active_statuses[sid]
 		var affix: StatusAffix = instance["status_affix"]
+		if sid == "taunt":
+			print("  [DEBUG TAUNT] falls_off_between_turns=%s" % affix.falls_off_between_turns)
 		if affix.falls_off_between_turns:
 			to_remove.append(sid)
 	
@@ -457,6 +479,32 @@ func consume_overhealth(damage: int) -> int:
 	var absorbed: int = mini(damage, oh)
 	remove_stacks("overhealth", absorbed)
 	return damage - absorbed
+
+func get_taunting_combatant() -> Combatant:
+	"""Get the combatant who applied taunt to this target.
+	Returns null if no taunt active or taunter is dead."""
+	if not has_status("taunt"):
+		return null
+	
+	var taunt_instance = active_statuses.get("taunt")
+	if not taunt_instance:
+		return null
+	
+	var taunter = taunt_instance.get("source_combatant")
+	
+	# ADD THIS DEBUG:
+	print("  [DEBUG TAUNT] get_taunting_combatant:")
+	print("    taunter exists: %s" % (taunter != null))
+	print("    taunter type: %s" % (taunter.get_class() if taunter else "null"))
+	print("    is Combatant: %s" % (taunter is Combatant if taunter else "N/A"))
+	print("    is_alive: %s" % (taunter.is_alive() if taunter and taunter.has_method("is_alive") else "N/A"))
+	
+	if taunter and taunter is Combatant and taunter.is_alive():
+		return taunter
+	
+	# Taunter died - clear the taunt
+	remove_status("taunt")
+	return null
 
 # ============================================================================
 # COMBAT RESET

@@ -78,7 +78,7 @@ func get_summary() -> String:
 		"Lifesteal", "Execute", "Combo Mark", "Echo",
 		"Splash", "Chain", "Random Strikes",
 		"Mana Manipulate", "Modify Cooldown", "Refund Charges", "Grant Temp Action",
-		"Create Zone", "Deploy Trap", "Channel", "Counter Setup",
+		"Create Zone", "Deploy Trap", "Channel", "Counter Setup", "Summon Companion",
 	]
 	var tn: String = type_names[effect_type] if effect_type < type_names.size() else "Unknown"
 
