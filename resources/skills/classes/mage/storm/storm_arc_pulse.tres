@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=14 format=3 uid="uid://w7dxubkuj5v"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_bum1y"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_xxb36"]
+[ext_resource type="Resource" uid="uid://b4xf2ov4c143a" path="res://resources/affixes/classes/mage/storm/spark/spark_element_unlock.tres" id="3_fhxr0"]
+[ext_resource type="Resource" uid="uid://xul6geic6ic7" path="res://resources/affixes/classes/mage/storm/arc_pulse/arc_pulse_r1_affix.tres" id="3_fxyel"]
+[ext_resource type="Resource" uid="uid://dg5rgufp75vi1" path="res://resources/affixes/classes/mage/storm/spark/spark_size_unlock.tres" id="4_gpxic"]
+[ext_resource type="Resource" uid="uid://c3gm4vr2txv7f" path="res://resources/affixes/classes/mage/storm/arc_pulse/arc_pulse_r2_affix.tres" id="4_rk7g7"]
+[ext_resource type="Resource" uid="uid://bdf1nbal6xnma" path="res://resources/affixes/classes/mage/storm/arc_pulse/arc_pulse_r3_affix.tres" id="5_gwqxq"]
+[ext_resource type="Resource" uid="uid://bxw4trwiat2cq" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r1_affix.tres" id="5_hpmgv"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="6_fhxr0"]
+[ext_resource type="Resource" uid="uid://c87vlxexpp16r" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r2_affix.tres" id="6_idtkr"]
+[ext_resource type="Resource" uid="uid://cs8flo2oc50ge" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r3_affix.tres" id="7_d34ry"]
+
+[sub_resource type="Resource" id="Resource_15ods"]
+script = ExtResource("6_fhxr0")
+skill_id = "storm_spark"
+skill_name = "Spark"
+description = "Unlock [color=yellow]Shock[/color] mana. Chromatic Bolt applies [color=yellow]1/2/3[/color] [color=cyan]Static[/color] on hit (requires shock die)."
+column = 3
+rank_1_affixes = Array[ExtResource("2_xxb36")]([ExtResource("3_fhxr0"), ExtResource("4_gpxic"), ExtResource("5_hpmgv")])
+rank_2_affixes = Array[ExtResource("2_xxb36")]([ExtResource("3_fhxr0"), ExtResource("4_gpxic"), ExtResource("6_idtkr")])
+rank_3_affixes = Array[ExtResource("2_xxb36")]([ExtResource("3_fhxr0"), ExtResource("4_gpxic"), ExtResource("7_d34ry")])
+
+[sub_resource type="Resource" id="Resource_jgg6u"]
+script = ExtResource("1_bum1y")
+required_skill = SubResource("Resource_15ods")
+
+[resource]
+script = ExtResource("6_fhxr0")
+skill_id = "storm_arc_pulse"
+skill_name = "Arc Pulse"
+description = "Shock mana dice apply [color=yellow]1/2/3[/color] [color=cyan]Static[/color] on use."
+tier = 2
+column = 1
+prerequisites = Array[ExtResource("1_bum1y")]([SubResource("Resource_jgg6u")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_xxb36")]([ExtResource("3_fxyel")])
+rank_2_affixes = Array[ExtResource("2_xxb36")]([ExtResource("4_rk7g7")])
+rank_3_affixes = Array[ExtResource("2_xxb36")]([ExtResource("5_gwqxq")])

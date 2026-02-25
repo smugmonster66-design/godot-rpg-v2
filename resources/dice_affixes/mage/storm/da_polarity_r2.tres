@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=5 format=3 uid="uid://bykahaf4ssber"]
+
+[ext_resource type="Resource" uid="uid://c4j1gxk3fyujj" path="res://resources/dice_affixes/mage/storm/conditions/cond_neighbor_not_shock.tres" id="1_gdrxb"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_ia4j5"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_axijd"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_pdrfw"]
+
+[resource]
+script = ExtResource("3_axijd")
+affix_name = "Polarity II: Spacing Bonus"
+description = "+2 if no adjacent shock die."
+use_global_element_visuals = true
+global_element_type = 5
+condition = ExtResource("1_gdrxb")
+effect_value = 2.0

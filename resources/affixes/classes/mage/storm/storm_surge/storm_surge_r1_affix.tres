@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://ckc6evskojftd"]
+
+[ext_resource type="Resource" uid="uid://l1afpio0hics" path="res://resources/actions/mage/storm/storm_surge_action.tres" id="1_wbowk"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_3y3r2"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_owe4v"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_t6gqy"]
+
+[resource]
+script = ExtResource("3_owe4v")
+affix_name = "Storm Surge: Grant Action"
+description = "Grants Storm Surge action."
+category = 31
+tags = Array[String](["mage", "storm", "tempest", "granted_action", "aoe"])
+effect_data = {
+"action_id": "storm_storm_surge"
+}
+granted_action = ExtResource("1_wbowk")

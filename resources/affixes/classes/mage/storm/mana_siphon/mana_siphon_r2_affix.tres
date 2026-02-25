@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://wd4kgjes4fos"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_cjybn"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_6tbfd"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_3jod7"]
+
+[resource]
+script = ExtResource("2_6tbfd")
+affix_name = "Mana Siphon II"
+description = "On shock kill, restore 5 mana."
+category = 35
+tags = Array[String](["mage", "storm", "conduit", "mana_restore", "on_kill"])
+effect_number = 5.0
+effect_data = {
+"amount": 5,
+"element_condition": "SHOCK",
+"proc_effect": "mana_restore",
+"proc_trigger": "ON_KILL"
+}
+proc_trigger = 9

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://b7tljppxvkt7v"]
+
+[ext_resource type="Resource" uid="uid://2b48phhusns5" path="res://resources/actions/mage/storm/overcharge_action.tres" id="1_k624n"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_nwtll"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_bstal"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_axt5w"]
+
+[resource]
+script = ExtResource("3_bstal")
+affix_name = "Overcharge: Grant Action"
+description = "Grants Overcharge action."
+category = 31
+tags = Array[String](["mage", "storm", "voltaic", "granted_action", "static_payoff"])
+effect_data = {
+"action_id": "storm_overcharge"
+}
+granted_action = ExtResource("1_k624n")

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://bmiv5xolc51jc"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_fbh2e"]
+[ext_resource type="Resource" uid="uid://bdot01xt6nsct" path="res://resources/actions/mage/storm/effects/chain_lightning_damage.tres" id="2_n4dkh"]
+[ext_resource type="Resource" uid="uid://cmme2lxctpvwq" path="res://resources/actions/mage/storm/effects/chain_lightning_chain.tres" id="3_ldy7e"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_7te8k"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="5_4x8h0"]
+
+[resource]
+script = ExtResource("5_4x8h0")
+action_id = "storm_chain_lightning"
+action_name = "Chain Lightning"
+action_description = "Full shock damage, chains to 2 enemies for 60%."
+die_slots = 2
+min_dice_required = 2
+accepted_elements = Array[int]([6])
+charge_type = 2
+effects = Array[ExtResource("1_fbh2e")]([ExtResource("2_n4dkh"), ExtResource("3_ldy7e")])

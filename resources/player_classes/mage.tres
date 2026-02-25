@@ -1,10 +1,11 @@
-[gd_resource type="Resource" script_class="PlayerClass" load_steps=7 format=3 uid="uid://bbmtj5gxw0e46"]
+[gd_resource type="Resource" script_class="PlayerClass" load_steps=8 format=3 uid="uid://bbmtj5gxw0e46"]
 
 [ext_resource type="Script" uid="uid://cb1vpfg1uc223" path="res://resources/data/mana_pool.gd" id="1_3l5dt"]
 [ext_resource type="Resource" uid="uid://7frg7sa8wjlc" path="res://resources/actions/class-based/mage/chromatic_bolt.tres" id="1_q2xiw"]
 [ext_resource type="Script" uid="uid://n4huc4i0nhvn" path="res://resources/data/player_class.gd" id="1_wvk7n"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_3l5dt"]
 [ext_resource type="Resource" uid="uid://7skxlt53e4sf" path="res://resources/skill_trees/mage_flame.tres" id="3_ugu8v"]
+[ext_resource type="Resource" uid="uid://cygsyc3mjcqon" path="res://resources/skill_trees/mage_storm.tres" id="5_pdhme"]
 
 [sub_resource type="Resource" id="Resource_ugu8v"]
 script = ExtResource("1_3l5dt")
@@ -27,6 +28,7 @@ strength_per_level = 0.5
 agility_per_level = 0.5
 intelligence_per_level = 2.5
 skill_tree_1 = ExtResource("3_ugu8v")
+skill_tree_2 = ExtResource("5_pdhme")
 class_action = ExtResource("1_q2xiw")
 class_action_tag = "mage_class_action"
 mana_pool_template = SubResource("Resource_ugu8v")

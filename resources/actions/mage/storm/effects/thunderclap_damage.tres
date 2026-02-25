@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://c38aqwjfdkr14"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_tlwi0"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_u1til"]
+
+[resource]
+script = ExtResource("1_tlwi0")
+effect_name = "Thunderclap: Damage"
+damage_type = 5
+damage_multiplier = 1.2
+dice_count = 2

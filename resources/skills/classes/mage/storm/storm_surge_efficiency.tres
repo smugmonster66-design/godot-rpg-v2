@@ -1,0 +1,60 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=19 format=3 uid="uid://vmkjycun30o8"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_gb7y2"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_5uby3"]
+[ext_resource type="Resource" uid="uid://b4xf2ov4c143a" path="res://resources/affixes/classes/mage/storm/spark/spark_element_unlock.tres" id="3_ea6bg"]
+[ext_resource type="Resource" uid="uid://bd6qhdj4hinjb" path="res://resources/affixes/classes/mage/storm/surge_efficiency/surge_efficiency_r1_affix.tres" id="3_xiyqi"]
+[ext_resource type="Resource" uid="uid://dg5rgufp75vi1" path="res://resources/affixes/classes/mage/storm/spark/spark_size_unlock.tres" id="4_b2gb6"]
+[ext_resource type="Resource" uid="uid://xqe5w4cx4vxr" path="res://resources/affixes/classes/mage/storm/surge_efficiency/surge_efficiency_r2_affix.tres" id="4_ylutj"]
+[ext_resource type="Resource" uid="uid://bxw4trwiat2cq" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r1_affix.tres" id="5_dfktp"]
+[ext_resource type="Resource" uid="uid://dgr48ge64bnsq" path="res://resources/affixes/classes/mage/storm/surge_efficiency/surge_efficiency_r3_affix.tres" id="5_jh0ev"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="6_c7l01"]
+[ext_resource type="Resource" uid="uid://c87vlxexpp16r" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r2_affix.tres" id="6_g4ofs"]
+[ext_resource type="Resource" uid="uid://cs8flo2oc50ge" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r3_affix.tres" id="7_jlcow"]
+[ext_resource type="Resource" uid="uid://ct6a6uauwjc3e" path="res://resources/affixes/classes/mage/storm/capacitance/capacitance_r1_affix.tres" id="9_sk5my"]
+[ext_resource type="Resource" uid="uid://c7j4f1af0tuks" path="res://resources/affixes/classes/mage/storm/capacitance/capacitance_r2_affix.tres" id="10_2g6is"]
+[ext_resource type="Resource" uid="uid://b376727f2sguy" path="res://resources/affixes/classes/mage/storm/capacitance/capacitance_r3_affix.tres" id="11_0x3kt"]
+
+[sub_resource type="Resource" id="Resource_15ods"]
+script = ExtResource("6_c7l01")
+skill_id = "storm_spark"
+skill_name = "Spark"
+description = "Unlock [color=yellow]Shock[/color] mana. Chromatic Bolt applies [color=yellow]1/2/3[/color] [color=cyan]Static[/color] on hit (requires shock die)."
+column = 3
+rank_1_affixes = Array[ExtResource("2_5uby3")]([ExtResource("3_ea6bg"), ExtResource("4_b2gb6"), ExtResource("5_dfktp")])
+rank_2_affixes = Array[ExtResource("2_5uby3")]([ExtResource("3_ea6bg"), ExtResource("4_b2gb6"), ExtResource("6_g4ofs")])
+rank_3_affixes = Array[ExtResource("2_5uby3")]([ExtResource("3_ea6bg"), ExtResource("4_b2gb6"), ExtResource("7_jlcow")])
+
+[sub_resource type="Resource" id="Resource_ce7rh"]
+script = ExtResource("1_gb7y2")
+required_skill = SubResource("Resource_15ods")
+
+[sub_resource type="Resource" id="Resource_ay17w"]
+script = ExtResource("6_c7l01")
+skill_id = "storm_capacitance"
+skill_name = "Capacitance"
+description = "+[color=yellow]2/4/6[/color] Intellect."
+tier = 2
+column = 5
+prerequisites = Array[ExtResource("1_gb7y2")]([SubResource("Resource_ce7rh")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_5uby3")]([ExtResource("9_sk5my")])
+rank_2_affixes = Array[ExtResource("2_5uby3")]([ExtResource("10_2g6is")])
+rank_3_affixes = Array[ExtResource("2_5uby3")]([ExtResource("11_0x3kt")])
+
+[sub_resource type="Resource" id="Resource_3tmex"]
+script = ExtResource("1_gb7y2")
+required_skill = SubResource("Resource_ay17w")
+
+[resource]
+script = ExtResource("6_c7l01")
+skill_id = "storm_surge_efficiency"
+skill_name = "Surge Efficiency"
+description = "Shock mana die pull cost -[color=yellow]1/2/3[/color]."
+tier = 3
+column = 4
+prerequisites = Array[ExtResource("1_gb7y2")]([SubResource("Resource_3tmex")])
+tree_points_required = 3
+rank_1_affixes = Array[ExtResource("2_5uby3")]([ExtResource("3_xiyqi")])
+rank_2_affixes = Array[ExtResource("2_5uby3")]([ExtResource("4_ylutj")])
+rank_3_affixes = Array[ExtResource("2_5uby3")]([ExtResource("5_jh0ev")])

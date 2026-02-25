@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=5 format=3 uid="uid://bl538u2nwjmyc"]
+
+[ext_resource type="Resource" uid="uid://ecbbgw1l2u2g" path="res://resources/dice_affixes/mage/storm/conditions/cond_target_has_static.tres" id="1_ri6hm"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_htq50"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_8wp1k"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_3qh34"]
+
+[resource]
+script = ExtResource("3_8wp1k")
+affix_name = "Live Wire II: Bonus Static"
+description = "+2 Static if target has Static."
+use_global_element_visuals = true
+global_element_type = 5
+trigger = 1
+condition = ExtResource("1_ri6hm")
+effect_type = 16
+effect_value = 1.0
+effect_data = {
+"element_condition": "SHOCK",
+"stacks": 2,
+"status_id": "static"
+}

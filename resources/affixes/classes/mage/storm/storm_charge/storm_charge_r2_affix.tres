@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://lkx5ejgeb3ok"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_welpv"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_pg1s0"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_uu4vs"]
+
+[resource]
+script = ExtResource("2_pg1s0")
+affix_name = "Storm Charge II"
+description = "Applying Static to 10+ target spreads 2 to others."
+category = 35
+tags = Array[String](["mage", "storm", "voltaic", "static_spread"])
+effect_number = 2.0
+effect_data = {
+"proc_effect": "spread_static",
+"proc_trigger": "ON_STATUS_APPLIED",
+"stacks": 2,
+"status_id": "static",
+"target": "all_other_enemies",
+"threshold": 10
+}

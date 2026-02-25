@@ -1,0 +1,60 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=19 format=3 uid="uid://dxhocbandjawg"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_fpwtt"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_bffds"]
+[ext_resource type="Resource" uid="uid://nkd5ne63i4wo" path="res://resources/affixes/classes/mage/storm/polarity/polarity_r1_affix.tres" id="3_qat2g"]
+[ext_resource type="Resource" uid="uid://b4xf2ov4c143a" path="res://resources/affixes/classes/mage/storm/spark/spark_element_unlock.tres" id="3_uduwa"]
+[ext_resource type="Resource" uid="uid://ctbur3bmf2m6e" path="res://resources/affixes/classes/mage/storm/polarity/polarity_r2_affix.tres" id="4_iepv5"]
+[ext_resource type="Resource" uid="uid://dg5rgufp75vi1" path="res://resources/affixes/classes/mage/storm/spark/spark_size_unlock.tres" id="4_ybxca"]
+[ext_resource type="Resource" uid="uid://bxw4trwiat2cq" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r1_affix.tres" id="5_88b7l"]
+[ext_resource type="Resource" uid="uid://bwnmfmtb5ox41" path="res://resources/affixes/classes/mage/storm/polarity/polarity_r3_affix.tres" id="5_741y3"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="6_lsrfy"]
+[ext_resource type="Resource" uid="uid://c87vlxexpp16r" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r2_affix.tres" id="6_rwwcw"]
+[ext_resource type="Resource" uid="uid://cs8flo2oc50ge" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r3_affix.tres" id="7_j8h88"]
+[ext_resource type="Resource" uid="uid://ct6a6uauwjc3e" path="res://resources/affixes/classes/mage/storm/capacitance/capacitance_r1_affix.tres" id="9_n8875"]
+[ext_resource type="Resource" uid="uid://c7j4f1af0tuks" path="res://resources/affixes/classes/mage/storm/capacitance/capacitance_r2_affix.tres" id="10_d4pgf"]
+[ext_resource type="Resource" uid="uid://b376727f2sguy" path="res://resources/affixes/classes/mage/storm/capacitance/capacitance_r3_affix.tres" id="11_4m1tg"]
+
+[sub_resource type="Resource" id="Resource_15ods"]
+script = ExtResource("6_lsrfy")
+skill_id = "storm_spark"
+skill_name = "Spark"
+description = "Unlock [color=yellow]Shock[/color] mana. Chromatic Bolt applies [color=yellow]1/2/3[/color] [color=cyan]Static[/color] on hit (requires shock die)."
+column = 3
+rank_1_affixes = Array[ExtResource("2_bffds")]([ExtResource("3_uduwa"), ExtResource("4_ybxca"), ExtResource("5_88b7l")])
+rank_2_affixes = Array[ExtResource("2_bffds")]([ExtResource("3_uduwa"), ExtResource("4_ybxca"), ExtResource("6_rwwcw")])
+rank_3_affixes = Array[ExtResource("2_bffds")]([ExtResource("3_uduwa"), ExtResource("4_ybxca"), ExtResource("7_j8h88")])
+
+[sub_resource type="Resource" id="Resource_ce7rh"]
+script = ExtResource("1_fpwtt")
+required_skill = SubResource("Resource_15ods")
+
+[sub_resource type="Resource" id="Resource_ay17w"]
+script = ExtResource("6_lsrfy")
+skill_id = "storm_capacitance"
+skill_name = "Capacitance"
+description = "+[color=yellow]2/4/6[/color] Intellect."
+tier = 2
+column = 5
+prerequisites = Array[ExtResource("1_fpwtt")]([SubResource("Resource_ce7rh")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_bffds")]([ExtResource("9_n8875")])
+rank_2_affixes = Array[ExtResource("2_bffds")]([ExtResource("10_d4pgf")])
+rank_3_affixes = Array[ExtResource("2_bffds")]([ExtResource("11_4m1tg")])
+
+[sub_resource type="Resource" id="Resource_pbgq6"]
+script = ExtResource("1_fpwtt")
+required_skill = SubResource("Resource_ay17w")
+
+[resource]
+script = ExtResource("6_lsrfy")
+skill_id = "storm_polarity"
+skill_name = "Polarity"
+description = "Shock dice gain +[color=yellow]1/2/3[/color] value if no adjacent die is also Shock."
+tier = 3
+column = 6
+prerequisites = Array[ExtResource("1_fpwtt")]([SubResource("Resource_pbgq6")])
+tree_points_required = 3
+rank_1_affixes = Array[ExtResource("2_bffds")]([ExtResource("3_qat2g")])
+rank_2_affixes = Array[ExtResource("2_bffds")]([ExtResource("4_iepv5")])
+rank_3_affixes = Array[ExtResource("2_bffds")]([ExtResource("5_741y3")])

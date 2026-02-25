@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://dqe2bgc38hm18"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_4imib"]
+[ext_resource type="Resource" uid="uid://c38aqwjfdkr14" path="res://resources/actions/mage/storm/effects/thunderclap_damage.tres" id="2_4l21d"]
+[ext_resource type="Resource" uid="uid://brdv4j6iel2xc" path="res://resources/actions/mage/storm/effects/thunderclap_static.tres" id="3_420op"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_cx17k"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="5_hlu03"]
+
+[resource]
+script = ExtResource("5_hlu03")
+action_id = "storm_thunderclap"
+action_name = "Thunderclap"
+action_description = "Shock strike for x1.2 damage and apply 3 Static."
+die_slots = 2
+min_dice_required = 2
+accepted_elements = Array[int]([6])
+charge_type = 1
+effects = Array[ExtResource("1_4imib")]([ExtResource("2_4l21d"), ExtResource("3_420op")])

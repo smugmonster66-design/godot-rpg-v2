@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://ber7cm7f2853h"]
+
+[ext_resource type="Resource" uid="uid://2dbo7doalxhs" path="res://resources/actions/mage/storm/effects/tempest_strike_chain_r2.tres" id="1_q2e4d"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_tdx1e"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_6vi11"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_eat5c"]
+
+[resource]
+script = ExtResource("3_6vi11")
+affix_name = "Tempest Strike: Chain II"
+description = "Chromatic Bolt chains to 1 enemy for 60% (shock die)."
+category = 54
+tags = Array[String](["mage", "storm", "tempest", "class_action_mod", "chain"])
+effect_data = {
+"action_effect": ExtResource("1_q2e4d"),
+"shock_die_condition": true
+}

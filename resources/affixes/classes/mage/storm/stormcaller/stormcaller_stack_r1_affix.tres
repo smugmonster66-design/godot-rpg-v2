@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://qr4fbagy7hni"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_k1d0q"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_oadcf"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_swqme"]
+
+[resource]
+script = ExtResource("2_oadcf")
+affix_name = "Stormcaller I: Stack Bonus"
+description = "Static per-stack bonus increased to +2."
+category = 36
+tags = Array[String](["mage", "storm", "static_per_stack"])
+effect_number = 2.0
+effect_data = {
+"static_per_stack_bonus_override": 2
+}

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://c7j4f1af0tuks"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_eovim"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_hgbh6"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_3a27u"]
+
+[resource]
+script = ExtResource("2_hgbh6")
+affix_name = "Capacitance II"
+description = "+4 Intellect."
+category = 3
+tags = Array[String](["mage", "storm", "conduit", "stat"])
+effect_number = 4.0

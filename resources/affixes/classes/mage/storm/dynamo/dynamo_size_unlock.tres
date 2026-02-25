@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://jrvui0num58g"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_3ajj7"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_gwqfx"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_3xkp2"]
+
+[resource]
+script = ExtResource("2_gwqfx")
+affix_name = "Dynamo: D8 Unlock"
+description = "Unlocks D8 shock mana die."
+category = 38
+tags = Array[String](["mage", "storm", "conduit", "size_unlock"])
+effect_data = {
+"die_size": 8
+}

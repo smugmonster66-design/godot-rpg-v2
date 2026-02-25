@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://blh4v57o0hmtp"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_jkls6"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_lpt0v"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_0kj0f"]
+
+[resource]
+script = ExtResource("2_lpt0v")
+affix_name = "Galvanic Renewal II"
+description = "On shock kill, gain a free shock mana die. 2/turn."
+category = 35
+tags = Array[String](["mage", "storm", "conduit", "die_grant", "on_kill"])
+effect_number = 2.0
+effect_data = {
+"element": "SHOCK",
+"element_condition": "SHOCK",
+"proc_effect": "grant_mana_die",
+"proc_trigger": "ON_KILL",
+"uses_per_turn": 2
+}
+proc_trigger = 9

@@ -18,6 +18,9 @@ class_name SummonPreset
 @export_group("Particles")
 @export var particle_size: Vector2 = Vector2(16, 16)
 @export var particle_color: Color = Color(0.8, 0.9, 1.0, 0.7)
+## Optional particle texture. If null, a procedural soft-circle is generated.
+## Drag any Texture2D here (spark, rune, wisp, etc.) for custom particles.
+@export var particle_texture: Texture2D = null
 ## Stagger particle start times (0 = all start simultaneously)
 @export_range(0.0, 0.3) var start_stagger: float = 0.15
 

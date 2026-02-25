@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://c28kt5lf6fbyr"]
+
+[ext_resource type="Resource" uid="uid://ry74fbjkp446" path="res://resources/actions/mage/storm/effects/conduit_sprite_mana_r2.tres" id="1_5j4t6"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_nuunv"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_n7i0d"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_bjonx"]
+
+[resource]
+script = ExtResource("3_n7i0d")
+affix_name = "Conduit Sprite II"
+description = "Storm Sprite restores 3 mana per trigger. Grants free shock die every 2 turns."
+category = 36
+tags = Array[String](["mage", "storm", "conduit", "storm_sprite_upgrade"])
+effect_data = {
+"action_effect": ExtResource("1_5j4t6"),
+"free_die_interval": 2,
+"sprite_mod_type": "conduit"
+}

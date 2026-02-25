@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://cmme2lxctpvwq"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_xlqka"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_nwbmn"]
+
+[resource]
+script = ExtResource("1_xlqka")
+effect_name = "Chain Lightning: Chain"
+effect_type = 14
+damage_type = 5
+chain_decay = 0.6

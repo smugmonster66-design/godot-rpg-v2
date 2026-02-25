@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://72tpxyrcown3"]
+
+[ext_resource type="Resource" uid="uid://dupv2qthqy5ax" path="res://resources/actions/mage/storm/lightning_bolt_action.tres" id="1_4062p"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_hcsex"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_e0b81"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_1uv7t"]
+
+[resource]
+script = ExtResource("3_e0b81")
+affix_name = "Lightning Bolt: Grant Action"
+description = "Grants Lightning Bolt action."
+category = 31
+tags = Array[String](["mage", "storm", "tempest", "granted_action", "chain"])
+effect_data = {
+"action_id": "storm_lightning_bolt"
+}
+granted_action = ExtResource("1_4062p")

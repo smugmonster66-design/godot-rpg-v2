@@ -13,11 +13,12 @@ func configure(preset: SummonPreset, target: Vector2, _source: Vector2 = Vector2
 
 func _execute_node_track() -> void:
 	print("🔮 SummonEffect._execute_node_track: _source_pos=%s _target_pos=%s global_pos=%s is_inside_tree=%s" % [_source_pos, _target_pos, global_position, is_inside_tree()])
-	var soft_circle = _generate_soft_circle()
+	# Use designer-provided texture, fall back to procedural soft circle
+	var particle_tex: Texture2D = _summon_preset.particle_texture if _summon_preset.particle_texture else _generate_soft_circle()
 
 	# Pre-glow at target
 	if _summon_preset.pre_glow_enabled:
-		_play_pre_glow(soft_circle)
+		_play_pre_glow(particle_tex)
 		await get_tree().create_timer(_summon_preset.pre_glow_duration * 0.5).timeout
 
 	# Spawn and converge particles
@@ -26,7 +27,7 @@ func _execute_node_track() -> void:
 
 	for i in total:
 		var delay = randf() * _summon_preset.start_stagger
-		_spawn_converge_particle(soft_circle, delay, func():
+		_spawn_converge_particle(particle_tex, delay, func():
 			arrived_count += 1
 		)
 
@@ -38,17 +39,17 @@ func _execute_node_track() -> void:
 	# Arrival flash and peak
 	_emit_peak()
 	if _summon_preset.arrival_flash_enabled:
-		_play_arrival_flash(soft_circle)
+		_play_arrival_flash(particle_tex)
 		await get_tree().create_timer(_summon_preset.arrival_flash_duration).timeout
 
-func _spawn_converge_particle(soft_circle: ImageTexture, delay: float, on_arrive: Callable):
+func _spawn_converge_particle(tex: Texture2D, delay: float, on_arrive: Callable):
 	"""Spawn a particle at a random position that converges to target."""
 	var angle = randf_range(0, TAU)
 	var radius = randf_range(_summon_preset.spawn_radius * 0.5, _summon_preset.spawn_radius)
 	var start_pos = _target_pos + Vector2(cos(angle), sin(angle)) * radius
 
 	var particle = _create_particle_sprite(
-		_summon_preset.particle_size, soft_circle,
+		_summon_preset.particle_size, tex,
 		_summon_preset.particle_color
 	)
 	particle.global_position = start_pos - particle.pivot_offset
@@ -90,10 +91,10 @@ func _spawn_converge_particle(soft_circle: ImageTexture, delay: float, on_arrive
 		particle.queue_free()
 	)
 
-func _play_pre_glow(soft_circle: ImageTexture):
+func _play_pre_glow(tex: Texture2D):
 	"""Subtle glow at target before particles arrive."""
 	var glow = _create_particle_sprite(
-		_summon_preset.particle_size * 3, soft_circle,
+		_summon_preset.particle_size * 3, tex,
 		Color(_summon_preset.particle_color, _summon_preset.pre_glow_intensity)
 	)
 	glow.global_position = _target_pos - glow.pivot_offset
@@ -105,11 +106,11 @@ func _play_pre_glow(soft_circle: ImageTexture):
 	tween.tween_property(glow, "modulate:a", 0.0, _summon_preset.pre_glow_duration * 0.5)
 	tween.tween_callback(glow.queue_free)
 
-func _play_arrival_flash(soft_circle: ImageTexture):
+func _play_arrival_flash(tex: Texture2D):
 	"""Bright flash at center when formation completes."""
 	var flash = _create_particle_sprite(
 		_summon_preset.particle_size * _summon_preset.arrival_flash_scale,
-		soft_circle, _summon_preset.arrival_flash_color
+		tex, _summon_preset.arrival_flash_color
 	)
 	flash.global_position = _target_pos - flash.pivot_offset
 	flash.scale = Vector2.ONE * 0.5

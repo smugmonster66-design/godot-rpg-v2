@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=4 format=3 uid="uid://d14pxd5ttw82x"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_qet6s"]
+[ext_resource type="Resource" uid="uid://chncx582mqst7" path="res://resources/statuses/static.tres" id="2_r4ksy"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="3_vswew"]
+
+[resource]
+script = ExtResource("1_qet6s")
+effect_name = "Sprite: Apply Static (Voltaic II)"
+effect_type = 2
+damage_type = 5
+dice_count = 0
+status_affix = ExtResource("2_r4ksy")
+stack_count = 3

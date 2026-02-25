@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://cs8flo2oc50ge"]
+
+[ext_resource type="Resource" uid="uid://cnuyl0ow67fdl" path="res://resources/actions/mage/storm/effects/spark_apply_static_r3.tres" id="1_0137p"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_nrl2f"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_37pgw"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_5vh0b"]
+
+[resource]
+script = ExtResource("3_37pgw")
+affix_name = "Spark: Chromatic Bolt Static III"
+description = "Chromatic Bolt applies 3 Static (shock die)."
+category = 54
+tags = Array[String](["mage", "storm", "class_action_mod", "static_apply"])
+effect_data = {
+"action_effect": ExtResource("1_0137p"),
+"shock_die_condition": true
+}

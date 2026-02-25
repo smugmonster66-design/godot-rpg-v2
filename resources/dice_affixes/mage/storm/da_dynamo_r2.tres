@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=5 format=3 uid="uid://rvxff01xum1s"]
+
+[ext_resource type="Resource" uid="uid://cgolvkcnwype3" path="res://resources/dice_affixes/mage/storm/conditions/cond_self_element_shock.tres" id="1_ubwnt"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_x0fsp"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_yfdeo"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_daevb"]
+
+[resource]
+script = ExtResource("3_yfdeo")
+affix_name = "Dynamo II: Value Bonus"
+description = "Shock dice +2 on roll."
+use_global_element_visuals = true
+global_element_type = 5
+condition = ExtResource("1_ubwnt")
+effect_value = 2.0

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://bre2drp8b7gw"]
+
+[ext_resource type="Resource" uid="uid://bmiv5xolc51jc" path="res://resources/actions/mage/storm/chain_lightning_action.tres" id="1_gqken"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_bnw32"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_ciqru"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_dlvwr"]
+
+[resource]
+script = ExtResource("3_ciqru")
+affix_name = "Chain Lightning: Grant Action"
+description = "Grants Chain Lightning action."
+category = 31
+tags = Array[String](["mage", "storm", "tempest", "granted_action", "chain"])
+effect_data = {
+"action_id": "storm_chain_lightning"
+}
+granted_action = ExtResource("1_gqken")

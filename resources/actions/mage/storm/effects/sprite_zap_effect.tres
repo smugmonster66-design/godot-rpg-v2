@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://boole027i20w6"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_ta0cp"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_ql3tb"]
+
+[resource]
+script = ExtResource("1_ta0cp")
+effect_name = "Sprite: Zap"
+damage_type = 5
+base_damage = 4
+dice_count = 0

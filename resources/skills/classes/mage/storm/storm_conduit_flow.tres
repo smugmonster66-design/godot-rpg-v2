@@ -1,0 +1,101 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=30 format=3 uid="uid://c2jlb6mwu5jq5"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_h686r"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_my31a"]
+[ext_resource type="Resource" uid="uid://b4xf2ov4c143a" path="res://resources/affixes/classes/mage/storm/spark/spark_element_unlock.tres" id="3_4fk0y"]
+[ext_resource type="Resource" uid="uid://dy28wthhnuy0f" path="res://resources/affixes/classes/mage/storm/conduit_flow/conduit_flow_size_unlock.tres" id="3_dbfup"]
+[ext_resource type="Resource" uid="uid://dg5rgufp75vi1" path="res://resources/affixes/classes/mage/storm/spark/spark_size_unlock.tres" id="4_dhbuq"]
+[ext_resource type="Resource" uid="uid://due8wed6hnsc7" path="res://resources/affixes/classes/mage/storm/conduit_flow/conduit_flow_r1_regen_affix.tres" id="4_gsjpm"]
+[ext_resource type="Resource" uid="uid://bxw4trwiat2cq" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r1_affix.tres" id="5_1qsw6"]
+[ext_resource type="Resource" uid="uid://b45oihvwx6c11" path="res://resources/affixes/classes/mage/storm/conduit_flow/conduit_flow_r2_regen_affix.tres" id="5_yajqm"]
+[ext_resource type="Resource" uid="uid://c87vlxexpp16r" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r2_affix.tres" id="6_chu8e"]
+[ext_resource type="Resource" uid="uid://c40o8tasp7jpv" path="res://resources/affixes/classes/mage/storm/conduit_flow/conduit_flow_r3_regen_affix.tres" id="6_sbmeq"]
+[ext_resource type="Resource" uid="uid://cs8flo2oc50ge" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r3_affix.tres" id="7_ispoy"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="7_qmrtp"]
+[ext_resource type="Resource" uid="uid://ct6a6uauwjc3e" path="res://resources/affixes/classes/mage/storm/capacitance/capacitance_r1_affix.tres" id="9_v4ytk"]
+[ext_resource type="Resource" uid="uid://c7j4f1af0tuks" path="res://resources/affixes/classes/mage/storm/capacitance/capacitance_r2_affix.tres" id="10_emjpf"]
+[ext_resource type="Resource" uid="uid://b376727f2sguy" path="res://resources/affixes/classes/mage/storm/capacitance/capacitance_r3_affix.tres" id="11_hnqlu"]
+[ext_resource type="Resource" uid="uid://bd6qhdj4hinjb" path="res://resources/affixes/classes/mage/storm/surge_efficiency/surge_efficiency_r1_affix.tres" id="12_110t1"]
+[ext_resource type="Resource" uid="uid://xqe5w4cx4vxr" path="res://resources/affixes/classes/mage/storm/surge_efficiency/surge_efficiency_r2_affix.tres" id="13_tscon"]
+[ext_resource type="Resource" uid="uid://dgr48ge64bnsq" path="res://resources/affixes/classes/mage/storm/surge_efficiency/surge_efficiency_r3_affix.tres" id="14_8vd0k"]
+[ext_resource type="Resource" uid="uid://g7seds07bxud" path="res://resources/affixes/classes/mage/storm/mana_siphon/mana_siphon_r1_affix.tres" id="15_tqopa"]
+[ext_resource type="Resource" uid="uid://wd4kgjes4fos" path="res://resources/affixes/classes/mage/storm/mana_siphon/mana_siphon_r2_affix.tres" id="16_rlrly"]
+[ext_resource type="Resource" uid="uid://cwvlo5qk3nqoo" path="res://resources/affixes/classes/mage/storm/mana_siphon/mana_siphon_r3_affix.tres" id="17_p75bt"]
+
+[sub_resource type="Resource" id="Resource_15ods"]
+script = ExtResource("7_qmrtp")
+skill_id = "storm_spark"
+skill_name = "Spark"
+description = "Unlock [color=yellow]Shock[/color] mana. Chromatic Bolt applies [color=yellow]1/2/3[/color] [color=cyan]Static[/color] on hit (requires shock die)."
+column = 3
+rank_1_affixes = Array[ExtResource("2_my31a")]([ExtResource("3_4fk0y"), ExtResource("4_dhbuq"), ExtResource("5_1qsw6")])
+rank_2_affixes = Array[ExtResource("2_my31a")]([ExtResource("3_4fk0y"), ExtResource("4_dhbuq"), ExtResource("6_chu8e")])
+rank_3_affixes = Array[ExtResource("2_my31a")]([ExtResource("3_4fk0y"), ExtResource("4_dhbuq"), ExtResource("7_ispoy")])
+
+[sub_resource type="Resource" id="Resource_ce7rh"]
+script = ExtResource("1_h686r")
+required_skill = SubResource("Resource_15ods")
+
+[sub_resource type="Resource" id="Resource_ay17w"]
+script = ExtResource("7_qmrtp")
+skill_id = "storm_capacitance"
+skill_name = "Capacitance"
+description = "+[color=yellow]2/4/6[/color] Intellect."
+tier = 2
+column = 5
+prerequisites = Array[ExtResource("1_h686r")]([SubResource("Resource_ce7rh")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_my31a")]([ExtResource("9_v4ytk")])
+rank_2_affixes = Array[ExtResource("2_my31a")]([ExtResource("10_emjpf")])
+rank_3_affixes = Array[ExtResource("2_my31a")]([ExtResource("11_hnqlu")])
+
+[sub_resource type="Resource" id="Resource_3tmex"]
+script = ExtResource("1_h686r")
+required_skill = SubResource("Resource_ay17w")
+
+[sub_resource type="Resource" id="Resource_7wq35"]
+script = ExtResource("7_qmrtp")
+skill_id = "storm_surge_efficiency"
+skill_name = "Surge Efficiency"
+description = "Shock mana die pull cost -[color=yellow]1/2/3[/color]."
+tier = 3
+column = 4
+prerequisites = Array[ExtResource("1_h686r")]([SubResource("Resource_3tmex")])
+tree_points_required = 3
+rank_1_affixes = Array[ExtResource("2_my31a")]([ExtResource("12_110t1")])
+rank_2_affixes = Array[ExtResource("2_my31a")]([ExtResource("13_tscon")])
+rank_3_affixes = Array[ExtResource("2_my31a")]([ExtResource("14_8vd0k")])
+
+[sub_resource type="Resource" id="Resource_p48ia"]
+script = ExtResource("1_h686r")
+required_skill = SubResource("Resource_7wq35")
+
+[sub_resource type="Resource" id="Resource_pjxui"]
+script = ExtResource("7_qmrtp")
+skill_id = "storm_mana_siphon"
+skill_name = "Mana Siphon"
+description = "On shock kill, restore [color=yellow]3/5/7[/color] mana."
+tier = 4
+column = 5
+prerequisites = Array[ExtResource("1_h686r")]([SubResource("Resource_p48ia")])
+tree_points_required = 5
+rank_1_affixes = Array[ExtResource("2_my31a")]([ExtResource("15_tqopa")])
+rank_2_affixes = Array[ExtResource("2_my31a")]([ExtResource("16_rlrly")])
+rank_3_affixes = Array[ExtResource("2_my31a")]([ExtResource("17_p75bt")])
+
+[sub_resource type="Resource" id="Resource_ul2lo"]
+script = ExtResource("1_h686r")
+required_skill = SubResource("Resource_pjxui")
+
+[resource]
+script = ExtResource("7_qmrtp")
+skill_id = "storm_conduit_flow"
+skill_name = "Conduit Flow"
+description = "Unlock D6 shock mana die. +[color=yellow]1/2/3[/color] mana regen per turn."
+tier = 5
+column = 5
+prerequisites = Array[ExtResource("1_h686r")]([SubResource("Resource_ul2lo")])
+tree_points_required = 8
+rank_1_affixes = Array[ExtResource("2_my31a")]([ExtResource("3_dbfup"), ExtResource("4_gsjpm")])
+rank_2_affixes = Array[ExtResource("2_my31a")]([ExtResource("3_dbfup"), ExtResource("5_yajqm")])
+rank_3_affixes = Array[ExtResource("2_my31a")]([ExtResource("3_dbfup"), ExtResource("6_sbmeq")])

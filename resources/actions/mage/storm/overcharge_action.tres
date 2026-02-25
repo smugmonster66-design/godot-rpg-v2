@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Action" load_steps=5 format=3 uid="uid://2b48phhusns5"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_liixg"]
+[ext_resource type="Resource" uid="uid://c3s1to1cmtrd7" path="res://resources/actions/mage/storm/effects/overcharge_damage.tres" id="2_dfd47"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_ubxt7"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_hx5h0"]
+
+[resource]
+script = ExtResource("4_hx5h0")
+action_id = "storm_overcharge"
+action_name = "Overcharge"
+action_description = "Deal damage equal to target's Static stacks x3. Does not consume stacks."
+min_dice_required = 1
+accepted_elements = Array[int]([6])
+charge_type = 1
+effects = Array[ExtResource("1_liixg")]([ExtResource("2_dfd47")])

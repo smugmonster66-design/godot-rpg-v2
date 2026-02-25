@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Action" load_steps=5 format=3 uid="uid://bg7yq6cv4cw0w"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_jyonr"]
+[ext_resource type="Resource" uid="uid://cnhflmcihttna" path="res://resources/actions/mage/storm/effects/conjure_storm_sprite_effect.tres" id="2_41jir"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_qnq67"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_tk3fr"]
+
+[resource]
+script = ExtResource("4_tk3fr")
+action_id = "storm_conjure_storm_sprite"
+action_name = "Conjure Storm Sprite"
+action_description = "Summon a Storm Sprite that zaps enemies each turn."
+min_dice_required = 1
+accepted_elements = Array[int]([6])
+charge_type = 2
+effects = Array[ExtResource("1_jyonr")]([ExtResource("2_41jir")])

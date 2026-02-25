@@ -103,6 +103,8 @@ func set_companion_data(data: CompanionData) -> void:
 	companion = null
 	is_empty = false
 	visible = true
+	modulate.a = 1.0
+	mouse_filter = Control.MOUSE_FILTER_STOP
 
 	if portrait_rect:
 		portrait_rect.texture = data.portrait if data and data.portrait else null
@@ -133,12 +135,17 @@ func set_companion(p_companion: CompanionCombatant) -> void:
 	companion_data = p_companion.companion_data if p_companion else null
 	is_empty = false
 	visible = true
+	modulate.a = 1.0
+	mouse_filter = Control.MOUSE_FILTER_STOP
 
 	if portrait_rect:
 		if p_companion.companion_data and p_companion.companion_data.portrait:
 			portrait_rect.texture = p_companion.companion_data.portrait
 		else:
 			portrait_rect.texture = null
+			push_warning("CompanionSlot: No portrait on %s (path: %s)" % [
+				p_companion.combatant_name,
+				p_companion.companion_data.resource_path if p_companion.companion_data else "null"])
 		portrait_rect.modulate = Color.WHITE
 		portrait_rect.visible = true
 
@@ -212,13 +219,16 @@ func show_taunt_indicator(visible_flag: bool) -> void:
 # ============================================================================
 
 func play_summon_enter() -> void:
-	modulate = Color(1, 1, 1, 0)
-	scale = Vector2(0.3, 0.3)
 	pivot_offset = size / 2.0
-	var tween = create_tween().set_parallel(true)
-	tween.tween_property(self, "modulate:a", 1.0, 0.4).set_ease(Tween.EASE_OUT)
-	tween.tween_property(self, "scale", Vector2.ONE, 0.5).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-	tween.tween_property(self, "rotation", 0.0, 0.5).from(0.3)
+	scale = Vector2.ONE
+	rotation = 0.0
+	modulate = Color(2.5, 2.5, 2.5, 1.0)  # Bright white flash
+	var tween = create_tween()
+	# Flash fade: bright white → normal color
+	tween.tween_property(self, "modulate", Color.WHITE, 0.25).set_ease(Tween.EASE_OUT)
+	# Quick scale punch overlapping the flash
+	tween.parallel().tween_property(self, "scale", Vector2(1.15, 1.15), 0.08).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "scale", Vector2.ONE, 0.15).set_ease(Tween.EASE_IN_OUT)
 	await tween.finished
 
 func play_summon_exit() -> void:
@@ -242,7 +252,11 @@ func _show_empty() -> void:
 		hp_bar.visible = false
 	death_overlay.visible = false
 	skull_label.visible = false
+	# Keep visible=true so VBoxContainer always reserves layout space.
+	# Use modulate alpha to hide instead.
 	visible = false
+	modulate = Color(1, 1, 1, 0)
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 func _update_hp(current: int, maximum: int) -> void:
 	if hp_bar:

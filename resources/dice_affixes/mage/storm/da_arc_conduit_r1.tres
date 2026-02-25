@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=5 format=3 uid="uid://6a0ysd106nwv"]
+
+[ext_resource type="Resource" uid="uid://cgolvkcnwype3" path="res://resources/dice_affixes/mage/storm/conditions/cond_self_element_shock.tres" id="1_8h5x3"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_0unpr"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_nrsf4"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_5ros7"]
+
+[resource]
+script = ExtResource("3_nrsf4")
+affix_name = "Arc Conduit I: Chain on Use"
+description = "Shock die chains 40% on use."
+use_global_element_visuals = true
+global_element_type = 5
+trigger = 1
+condition = ExtResource("1_8h5x3")
+effect_type = 24
+effect_value = 0.4
+effect_data = {
+"chains": 1,
+"decay": 1.0,
+"element": "SHOCK"
+}

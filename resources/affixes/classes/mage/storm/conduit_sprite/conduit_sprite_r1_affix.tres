@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://bym7lka72xu3k"]
+
+[ext_resource type="Resource" uid="uid://d3037oplkhfy2" path="res://resources/actions/mage/storm/effects/conduit_sprite_mana_r1.tres" id="1_2ysmj"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_1aa7i"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_uh4s2"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_ll6kf"]
+
+[resource]
+script = ExtResource("3_uh4s2")
+affix_name = "Conduit Sprite I"
+description = "Storm Sprite restores 2 mana per trigger instead of dealing damage."
+category = 36
+tags = Array[String](["mage", "storm", "conduit", "storm_sprite_upgrade"])
+effect_data = {
+"action_effect": ExtResource("1_2ysmj"),
+"free_die_interval": 0,
+"sprite_mod_type": "conduit"
+}

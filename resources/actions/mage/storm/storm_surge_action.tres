@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://l1afpio0hics"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_idm8a"]
+[ext_resource type="Resource" uid="uid://bfgwdkjas7s4b" path="res://resources/actions/mage/storm/effects/storm_surge_damage.tres" id="2_vnavl"]
+[ext_resource type="Resource" uid="uid://2l5vkwnyh51f" path="res://resources/actions/mage/storm/effects/storm_surge_static.tres" id="3_hkcgg"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_ydohq"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="5_or614"]
+
+[resource]
+script = ExtResource("5_or614")
+action_id = "storm_storm_surge"
+action_name = "Storm Surge"
+action_description = "Shock barrage: x0.8 damage to all enemies and apply 3 Static to each."
+die_slots = 3
+min_dice_required = 3
+accepted_elements = Array[int]([6])
+charge_type = 2
+effects = Array[ExtResource("1_idm8a")]([ExtResource("2_vnavl"), ExtResource("3_hkcgg")])

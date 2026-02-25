@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://0ng0jaopfw1p"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_eivg6"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_fkn2r"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_20qk6"]
+
+[resource]
+script = ExtResource("2_fkn2r")
+affix_name = "Grounded Circuit II"
+description = "Shock damage to Static targets restores 2 mana."
+category = 35
+tags = Array[String](["mage", "storm", "crossover", "mana_restore", "static_synergy"])
+effect_number = 2.0
+effect_data = {
+"amount": 2,
+"condition": "target_has_static",
+"element_condition": "SHOCK",
+"proc_effect": "mana_restore",
+"proc_trigger": "ON_DEAL_DAMAGE"
+}
+proc_trigger = 1

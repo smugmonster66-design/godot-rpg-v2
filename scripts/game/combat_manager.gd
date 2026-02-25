@@ -2212,12 +2212,69 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 					var spawned = companion_manager.summon(sprite_data)
 					if spawned:
 						print("  Summoned %s into slot %d" % [sprite_data.companion_name, spawned.slot_index])
+						# Update companion panel visual + play summon VFX
+						if companion_panel:
+							_play_summon_visual(spawned, sprite_data)
 					else:
 						# Both summon slots full — prompt replacement
 						_pending_summon_data = sprite_data
 						_prompt_summon_replacement(sprite_data)
 				elif comp_data:
 					print("  Summon queued (CompanionManager pending)")
+
+
+func _play_summon_visual(spawned: CompanionCombatant, data: CompanionData) -> void:
+	"""Play SummonPreset VFX at the companion slot, then reveal the companion.
+	Fire-and-forget — does not block _process_action_effect_results."""
+	var slot_idx: int = spawned.slot_index
+
+	# 1. Populate the slot so it has real content and claims correct layout
+	#    space. Then immediately hide it — no flicker because Godot doesn't
+	#    render mid-function (both calls happen before the next draw).
+	companion_panel.set_companion(slot_idx, spawned)
+	var slot_node: CompanionSlot = companion_panel.get_slot(slot_idx)
+	if slot_node:
+		slot_node.modulate.a = 0.0
+	# Wait one frame so VBoxContainer recalculates with the new slot
+	# Force VBox to recalculate, then wait for layout propagation
+	companion_panel.queue_sort()
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	# DEBUG: Compare slot positions
+	var panel_node = companion_panel as Control
+	print("  [Summon] DEBUG VBox: size=%s, pos=%s, gpos=%s" % [
+		panel_node.size, panel_node.position, panel_node.global_position])
+	for i in range(4):
+		var s = companion_panel.get_slot(i)
+		if s:
+			print("  [Summon] DEBUG Slot %d: vis=%s, alpha=%.1f, size=%s, gpos=%s" % [
+				i, s.visible, s.modulate.a, s.size, s.global_position])
+
+
+	# 2. Resolve position — slot now has correct content-driven size and pos
+	var slot_pos: Vector2 = companion_panel.get_slot_center_global(slot_idx)
+	print("  [Summon] Slot %d target position: %s" % [slot_idx, slot_pos])
+
+	# 3. Play SummonPreset particle convergence (if configured)
+	var preset: SummonPreset = data.summon_enter_preset
+	if preset and combat_ui and combat_ui.effect_player:
+		var effect := SummonEffect.new()
+		effect.configure(preset, slot_pos)
+		var target := CombatEffectTarget.position(slot_pos)
+		combat_ui.effect_player.play_combat_effect(effect, target, target, preset)
+		if effect.has_signal("finished"):
+			await effect.finished
+		elif effect.has_signal("effect_finished"):
+			await effect.effect_finished
+		else:
+			await get_tree().create_timer(
+				preset.converge_duration + preset.start_stagger + 0.1).timeout
+		print("  [Summon] VFX complete for slot %d" % slot_idx)
+
+	# 4. Play the slot swirl-in entrance animation (tweens alpha 0 → 1)
+	await companion_panel.play_summon_enter(slot_idx)
+	print("  [Summon] Panel enter complete for %s (slot %d)" % [data.companion_name, slot_idx])
 
 
 func _build_modified_companion(base: CompanionData, affix_mgr) -> CompanionData:
@@ -3026,14 +3083,12 @@ func _prompt_summon_replacement(comp_data: CompanionData) -> void:
 	# Auto-replace slot 2 (first summon slot) as a sensible default.
 	# Phase 2: Replace this with a UI dialog that shows both summons
 	# and lets the player tap one to replace, or cancel.
-	var replaced: CompanionCombatant = companion_manager.replace_summon(2, comp_data)
-	if replaced:
+	var new_spawned: CompanionCombatant = companion_manager.replace_summon(2, comp_data)
+	if new_spawned:
 		print("  [Summon] Auto-replaced slot 2 with %s" % comp_data.companion_name)
-		# Animate if companion panel exists
-		if combat_ui and combat_ui.has_node("CompanionPanel"):
-			var panel = combat_ui.get_node("CompanionPanel")
-			if panel.has_method("play_summon_replace"):
-				panel.play_summon_replace(2, replaced)
+		# Animate replacement via companion panel (exit old, enter new)
+		if companion_panel:
+			_play_summon_visual(new_spawned, comp_data)
 
 
 func _get_combatant_visual(combatant: Combatant) -> Node:
@@ -3199,16 +3254,16 @@ func _is_companion(combatant: Combatant) -> bool:
 func _classify_status_for_threat(status_affix: StatusAffix) -> String:
 	"""Classify a status for threat calculation."""
 	if status_affix.status_id == "taunt":
-		return "control"  # Taunt is high-threat crowd control
-	if status_affix.tick_damage > 0:
-		return "dot"  # Damage over time
-	if status_affix.cleanse_tags.has("control"):
-		return "control"  # Stun, freeze, root
+		return "control"
+	if status_affix.cleanse_tags.has("cc") or status_affix.cleanse_tags.has("control"):
+		return "control"
+	if status_affix.damage_per_stack > 0:
+		return "dot"
 	if status_affix.is_debuff:
-		return "debuff"  # Weakness, vulnerable
-	if status_affix.is_buff:
-		return "buff"  # Strength, barrier
-	return ""  # Not threat-generating
+		return "debuff"
+	if not status_affix.is_debuff:
+		return "buff"
+	return ""
 
 func _add_threat_to_all_enemies(source: Combatant, threat_type: String, value: int) -> void:
 	"""Add threat to all enemy threat trackers."""

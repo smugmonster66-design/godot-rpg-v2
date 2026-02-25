@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://clciysxlkjpa4"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_2r70u"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_hw0yk"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_iu82g"]
+
+[resource]
+script = ExtResource("2_hw0yk")
+affix_name = "Eye of the Storm: Double Stacks"
+description = "Double max Static stacks."
+category = 36
+tags = Array[String](["mage", "storm", "capstone", "static_max_stacks"])
+effect_number = 2.0
+effect_data = {
+"static_max_stacks_multiplier": 2
+}

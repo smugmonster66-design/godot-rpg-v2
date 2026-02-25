@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://bvifuoq26yxfq"]
+
+[ext_resource type="Resource" uid="uid://dud1ur2gouvvw" path="res://resources/actions/mage/storm/effects/voltaic_sprite_static_r1.tres" id="1_271gr"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_mka35"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_41h4r"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_jtw0e"]
+
+[resource]
+script = ExtResource("3_41h4r")
+affix_name = "Voltaic Sprite I"
+description = "Storm Sprite applies 2 Static per trigger."
+category = 36
+tags = Array[String](["mage", "storm", "voltaic", "storm_sprite_upgrade"])
+effect_data = {
+"action_effect": ExtResource("1_271gr"),
+"dual_trigger": false,
+"sprite_mod_type": "voltaic"
+}

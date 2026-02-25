@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://ca7c8n6dajsx3"]
+
+[ext_resource type="Resource" uid="uid://cd21pfvtfjt1y" path="res://resources/dice_affixes/mage/storm/da_arc_conduit_r2.tres" id="1_6anjk"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_tech0"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_6sa4y"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_ssm8t"]
+
+[resource]
+script = ExtResource("3_6sa4y")
+affix_name = "Arc Conduit II"
+description = "Shock dice chain 60% damage to 1 enemy on use."
+category = 39
+tags = Array[String](["mage", "storm", "crossover", "mana_die_affix", "chain"])
+effect_data = {
+"dice_affix": ExtResource("1_6anjk")
+}

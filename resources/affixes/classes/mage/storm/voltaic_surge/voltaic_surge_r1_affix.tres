@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://dbf76ngs7w4ow"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_lqg65"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_d3fo8"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_ku0qy"]
+
+[resource]
+script = ExtResource("2_d3fo8")
+affix_name = "Voltaic Surge I"
+description = "Shock x1.01 per Static stack."
+category = 42
+tags = Array[String](["mage", "storm", "tempest", "static_synergy"])
+effect_number = 1.01
+effect_data = {
+"element": "SHOCK",
+"per_stack": true,
+"status_id": "static"
+}

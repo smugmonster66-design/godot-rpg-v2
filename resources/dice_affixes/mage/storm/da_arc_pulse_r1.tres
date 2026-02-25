@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=5 format=3 uid="uid://dwkc6qa52yyqb"]
+
+[ext_resource type="Resource" uid="uid://cgolvkcnwype3" path="res://resources/dice_affixes/mage/storm/conditions/cond_self_element_shock.tres" id="1_ymxvq"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_apvak"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_ypj4q"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_2dm3h"]
+
+[resource]
+script = ExtResource("3_ypj4q")
+affix_name = "Arc Pulse I: Static on Use"
+description = "Apply 1 Static on use."
+use_global_element_visuals = true
+global_element_type = 5
+trigger = 1
+condition = ExtResource("1_ymxvq")
+effect_type = 16
+effect_value = 1.0
+effect_data = {
+"stacks": 1,
+"status_id": "static"
+}

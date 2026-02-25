@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://33bandwla7m2"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_gwnbb"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_6o81u"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_cnixi"]
+
+[resource]
+script = ExtResource("2_6o81u")
+affix_name = "Charged Strikes II"
+description = "+4 shock damage."
+category = 24
+tags = Array[String](["mage", "storm", "tempest", "shock_flat"])
+effect_number = 4.0

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://bn5x7g141ef4o"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_3trdj"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_7gxdt"]
+
+[resource]
+script = ExtResource("1_3trdj")
+effect_name = "Tempest Strike: Chain I"
+effect_type = 14
+effect_data = {
+"condition": "shock_die_used"
+}
+damage_type = 5
+chain_count = 1
+chain_decay = 0.4

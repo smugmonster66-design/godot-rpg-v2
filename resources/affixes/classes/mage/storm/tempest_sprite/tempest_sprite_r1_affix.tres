@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://dfkq62qbd6ivq"]
+
+[ext_resource type="Resource" uid="uid://1v8xgec3b8rh" path="res://resources/actions/mage/storm/effects/tempest_sprite_chain_r1.tres" id="1_h8nlg"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_j61vg"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_a5mkf"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_qotxi"]
+
+[resource]
+script = ExtResource("3_a5mkf")
+affix_name = "Tempest Sprite I"
+description = "Storm Sprite's damage chains to 1 enemy."
+category = 36
+tags = Array[String](["mage", "storm", "tempest", "storm_sprite_upgrade"])
+effect_data = {
+"action_effect": ExtResource("1_h8nlg"),
+"on_death_aoe": false,
+"sprite_mod_type": "tempest"
+}

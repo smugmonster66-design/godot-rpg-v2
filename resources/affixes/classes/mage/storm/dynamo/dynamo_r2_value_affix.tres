@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://gh4arpq8l6c2"]
+
+[ext_resource type="Resource" uid="uid://rvxff01xum1s" path="res://resources/dice_affixes/mage/storm/da_dynamo_r2.tres" id="1_5atbq"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_btqch"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_dmhqn"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_m1kmd"]
+
+[resource]
+script = ExtResource("3_dmhqn")
+affix_name = "Dynamo II"
+description = "Shock mana dice +2 to rolled value."
+category = 39
+tags = Array[String](["mage", "storm", "conduit", "mana_die_affix", "value_bonus"])
+effect_data = {
+"dice_affix": ExtResource("1_5atbq")
+}

@@ -114,7 +114,7 @@ enum CompanionTarget {
 @export var animation_set: CombatAnimationSet = null
 ## Idle sprite for overworld/persistent display.
 @export var idle_animation: SpriteFrames = null
-
+@export var summon_enter_preset: SummonPreset = null
 # ============================================================================
 # DURATION (summons only)
 # ============================================================================

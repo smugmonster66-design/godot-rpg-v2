@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=6 format=3 uid="uid://skq68hehehmw"]
+
+[ext_resource type="Resource" uid="uid://d27fw8f7fbs2w" path="res://resources/actions/mage/storm/effects/tempest_sprite_chain_r2.tres" id="1_bwh2b"]
+[ext_resource type="Resource" uid="uid://e2ydni4a7bwe" path="res://resources/actions/mage/storm/effects/tempest_sprite_death_burst.tres" id="2_jje43"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="3_u8tlc"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="4_e88w7"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="5_k57c3"]
+
+[resource]
+script = ExtResource("4_e88w7")
+affix_name = "Tempest Sprite II"
+description = "Storm Sprite chains to 2 enemies. Explodes on death for AoE shock."
+category = 36
+tags = Array[String](["mage", "storm", "tempest", "storm_sprite_upgrade"])
+effect_data = {
+"action_effect": ExtResource("1_bwh2b"),
+"death_effect": ExtResource("2_jje43"),
+"on_death_aoe": true,
+"sprite_mod_type": "tempest"
+}

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://cyliqe7yjmr3g"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_0ki3f"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_vas2y"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_m30ar"]
+
+[resource]
+script = ExtResource("2_vas2y")
+affix_name = "Ionize III"
+description = "Pulling shock die applies 3 Static."
+category = 35
+tags = Array[String](["mage", "storm", "voltaic", "static_apply", "on_pull"])
+effect_number = 1.0
+effect_data = {
+"element_condition": "SHOCK",
+"proc_effect": "apply_status",
+"proc_trigger": "ON_MANA_PULL",
+"stacks": 3,
+"status_id": "static",
+"target": "random_enemy"
+}

@@ -187,7 +187,7 @@ func get_highest_threat_target() -> Combatant:
 	var highest_threat: float = -1.0
 	
 	for combatant in threat_table:
-		if not combatant.is_alive():
+		if not combatant or not is_instance_valid(combatant) or not combatant.is_alive():
 			continue
 		
 		var threat = threat_table[combatant]
@@ -203,7 +203,7 @@ func get_all_targets_sorted() -> Array[Combatant]:
 	var alive: Array[Combatant] = []
 	
 	for combatant in threat_table:
-		if combatant.is_alive():
+		if combatant and is_instance_valid(combatant) and combatant.is_alive():
 			alive.append(combatant)
 	
 	alive.sort_custom(func(a, b): return get_threat(a) > get_threat(b))

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://xul6geic6ic7"]
+
+[ext_resource type="Resource" uid="uid://dwkc6qa52yyqb" path="res://resources/dice_affixes/mage/storm/da_arc_pulse_r1.tres" id="1_u5wfm"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_e3b32"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_1iukh"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_x4epf"]
+
+[resource]
+script = ExtResource("3_1iukh")
+affix_name = "Arc Pulse I"
+description = "Shock dice apply 1 Static on use."
+category = 39
+tags = Array[String](["mage", "storm", "mana_die_affix", "static_apply", "voltaic"])
+effect_data = {
+"dice_affix": ExtResource("1_u5wfm")
+}

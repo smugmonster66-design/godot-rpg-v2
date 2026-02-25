@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://bpp7w7ksrfn2a"]
+
+[ext_resource type="Resource" uid="uid://clur3y5dkqoj" path="res://resources/dice_affixes/mage/storm/da_live_wire_r1.tres" id="1_ijuql"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_ic4hf"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_3sd4u"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_mpuyc"]
+
+[resource]
+script = ExtResource("3_3sd4u")
+affix_name = "Live Wire I"
+description = "+1 bonus Static if target already has Static."
+category = 39
+tags = Array[String](["mage", "storm", "voltaic", "mana_die_affix", "static_apply", "snowball"])
+effect_data = {
+"dice_affix": ExtResource("1_ijuql")
+}

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://dwcuexvplrcig"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_wtqnr"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_t5g3s"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_fafo5"]
+
+[resource]
+script = ExtResource("2_t5g3s")
+affix_name = "Thunderhead I"
+description = "At start of each turn, apply 2 Static to all enemies."
+category = 35
+tags = Array[String](["mage", "storm", "voltaic", "static_apply", "passive"])
+effect_number = 2.0
+effect_data = {
+"proc_effect": "apply_status",
+"proc_trigger": "ON_TURN_START",
+"stacks": 2,
+"status_id": "static",
+"target": "all_enemies"
+}
+proc_trigger = 3

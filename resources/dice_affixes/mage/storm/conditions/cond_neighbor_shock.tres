@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DiceAffixCondition" load_steps=2 format=3 uid="uid://ckisgouyjjyt5"]
+
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="1_bmoxs"]
+
+[resource]
+script = ExtResource("1_bmoxs")
+type = 15
+condition_element = "SHOCK"

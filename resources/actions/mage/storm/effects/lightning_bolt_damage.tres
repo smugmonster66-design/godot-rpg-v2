@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://cygmvrxjg3rv0"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_cdaw6"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_ijeot"]
+
+[resource]
+script = ExtResource("1_cdaw6")
+effect_name = "Lightning Bolt: Damage"
+damage_type = 5
+damage_multiplier = 1.5
+dice_count = 2

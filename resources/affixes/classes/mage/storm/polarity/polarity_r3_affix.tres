@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://bwnmfmtb5ox41"]
+
+[ext_resource type="Resource" uid="uid://xhko5oq56ieu" path="res://resources/dice_affixes/mage/storm/da_polarity_r3.tres" id="1_o30os"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_f4wwy"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_lglon"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_6alo5"]
+
+[resource]
+script = ExtResource("3_lglon")
+affix_name = "Polarity III"
+description = "+3 value if no adjacent shock die."
+category = 39
+tags = Array[String](["mage", "storm", "conduit", "mana_die_affix", "positional", "spacing"])
+effect_data = {
+"dice_affix": ExtResource("1_o30os")
+}

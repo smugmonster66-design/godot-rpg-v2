@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://bdot01xt6nsct"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_wy0h3"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_wbyqe"]
+
+[resource]
+script = ExtResource("1_wy0h3")
+effect_name = "Chain Lightning: Damage"
+damage_type = 5
+dice_count = 2

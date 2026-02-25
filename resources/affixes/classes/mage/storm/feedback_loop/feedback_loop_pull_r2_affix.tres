@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://dochh2725bnla"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_ioy4r"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_lqloa"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_rn43e"]
+
+[resource]
+script = ExtResource("2_lqloa")
+affix_name = "Feedback Loop II: Pull Bonus"
+description = "Pulling shock die grants +6 bonus shock damage this turn."
+category = 35
+tags = Array[String](["mage", "storm", "crossover", "conduit", "on_pull", "temp_buff"])
+effect_number = 6.0
+effect_data = {
+"amount": 6,
+"duration": "this_turn",
+"element_condition": "SHOCK",
+"proc_effect": "temp_shock_damage_bonus",
+"proc_trigger": "ON_MANA_PULL"
+}

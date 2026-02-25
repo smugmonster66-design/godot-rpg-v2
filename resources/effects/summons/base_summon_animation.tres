@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SummonPreset" load_steps=4 format=3 uid="uid://d2jcvq6yrecoj"]
+
+[ext_resource type="Texture2D" uid="uid://c6hfpnookob8g" path="res://assets/particles/star_09.png" id="1_27dd2"]
+[ext_resource type="Script" uid="uid://bxft1vftskx0t" path="res://scripts/effects/foundation/shader_param_animation.gd" id="1_bwsli"]
+[ext_resource type="Script" uid="uid://c0xi788dtl2ux" path="res://scripts/effects/summon_preset.gd" id="2_27dd2"]
+
+[resource]
+script = ExtResource("2_27dd2")
+particle_count = 24
+converge_duration = 0.30000000000000004
+particle_size = Vector2(64, 64)
+particle_color = Color(0.46845925, 0.7470902, 1, 0.91800004)
+particle_texture = ExtResource("1_27dd2")
+metadata/_custom_type_script = "uid://c0xi788dtl2ux"

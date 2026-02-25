@@ -197,7 +197,7 @@ grow_vertical = 2
 [node name="DungeonSelectionScreen" parent="PersistentUILayer" instance=ExtResource("20_ax1hr")]
 
 [node name="CombatCompanionVBox" type="VBoxContainer" parent="PersistentUILayer"]
-anchors_preset = -1
+anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 20.0

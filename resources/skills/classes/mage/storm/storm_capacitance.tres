@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=14 format=3 uid="uid://b6akylg7yh8er"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_pq8i3"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_02shj"]
+[ext_resource type="Resource" uid="uid://b4xf2ov4c143a" path="res://resources/affixes/classes/mage/storm/spark/spark_element_unlock.tres" id="3_2vy2p"]
+[ext_resource type="Resource" uid="uid://ct6a6uauwjc3e" path="res://resources/affixes/classes/mage/storm/capacitance/capacitance_r1_affix.tres" id="3_msry0"]
+[ext_resource type="Resource" uid="uid://dg5rgufp75vi1" path="res://resources/affixes/classes/mage/storm/spark/spark_size_unlock.tres" id="4_h4pk6"]
+[ext_resource type="Resource" uid="uid://c7j4f1af0tuks" path="res://resources/affixes/classes/mage/storm/capacitance/capacitance_r2_affix.tres" id="4_nj1lg"]
+[ext_resource type="Resource" uid="uid://bxw4trwiat2cq" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r1_affix.tres" id="5_1jy6q"]
+[ext_resource type="Resource" uid="uid://b376727f2sguy" path="res://resources/affixes/classes/mage/storm/capacitance/capacitance_r3_affix.tres" id="5_xtpu0"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="6_2vy2p"]
+[ext_resource type="Resource" uid="uid://c87vlxexpp16r" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r2_affix.tres" id="6_uqiy4"]
+[ext_resource type="Resource" uid="uid://cs8flo2oc50ge" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r3_affix.tres" id="7_qqk8i"]
+
+[sub_resource type="Resource" id="Resource_15ods"]
+script = ExtResource("6_2vy2p")
+skill_id = "storm_spark"
+skill_name = "Spark"
+description = "Unlock [color=yellow]Shock[/color] mana. Chromatic Bolt applies [color=yellow]1/2/3[/color] [color=cyan]Static[/color] on hit (requires shock die)."
+column = 3
+rank_1_affixes = Array[ExtResource("2_02shj")]([ExtResource("3_2vy2p"), ExtResource("4_h4pk6"), ExtResource("5_1jy6q")])
+rank_2_affixes = Array[ExtResource("2_02shj")]([ExtResource("3_2vy2p"), ExtResource("4_h4pk6"), ExtResource("6_uqiy4")])
+rank_3_affixes = Array[ExtResource("2_02shj")]([ExtResource("3_2vy2p"), ExtResource("4_h4pk6"), ExtResource("7_qqk8i")])
+
+[sub_resource type="Resource" id="Resource_ce7rh"]
+script = ExtResource("1_pq8i3")
+required_skill = SubResource("Resource_15ods")
+
+[resource]
+script = ExtResource("6_2vy2p")
+skill_id = "storm_capacitance"
+skill_name = "Capacitance"
+description = "+[color=yellow]2/4/6[/color] Intellect."
+tier = 2
+column = 5
+prerequisites = Array[ExtResource("1_pq8i3")]([SubResource("Resource_ce7rh")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_02shj")]([ExtResource("3_msry0")])
+rank_2_affixes = Array[ExtResource("2_02shj")]([ExtResource("4_nj1lg")])
+rank_3_affixes = Array[ExtResource("2_02shj")]([ExtResource("5_xtpu0")])

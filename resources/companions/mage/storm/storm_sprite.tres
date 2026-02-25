@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CompanionData" load_steps=6 format=3 uid="uid://do7tfwgkdokyd"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_deusr"]
+[ext_resource type="Resource" uid="uid://boole027i20w6" path="res://resources/actions/mage/storm/effects/sprite_zap_effect.tres" id="2_cfhsq"]
+[ext_resource type="Texture2D" uid="uid://co0exon8m1uc0" path="res://assets/characters/enemies/test_dummy_128.png" id="3_acgb3"]
+[ext_resource type="Script" uid="uid://pc0eo2522dpe" path="res://resources/data/companion_data.gd" id="3_c7lgy"]
+[ext_resource type="Resource" uid="uid://d2jcvq6yrecoj" path="res://resources/effects/summons/base_summon_animation.tres" id="5_4rxov"]
+
+[resource]
+script = ExtResource("3_c7lgy")
+companion_name = "Storm Sprite"
+companion_id = &"storm_sprite"
+description = "A crackling orb of lightning that zaps a random enemy each turn."
+portrait = ExtResource("3_acgb3")
+companion_type = 1
+base_max_hp = 15
+hp_scaling = 2
+hp_scaling_value = 2.0
+trigger = 1
+action_effects = Array[ExtResource("1_deusr")]([ExtResource("2_cfhsq")])
+summon_enter_preset = ExtResource("5_4rxov")

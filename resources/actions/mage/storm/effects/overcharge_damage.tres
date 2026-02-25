@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://c3s1to1cmtrd7"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_i34un"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_3138m"]
+
+[resource]
+script = ExtResource("1_i34un")
+effect_name = "Overcharge: Stack Damage"
+value_source = 8
+value_source_status_id = "static"
+effect_data = {
+"consume_stacks": false
+}
+damage_type = 5
+damage_multiplier = 3.0
+dice_count = 0
