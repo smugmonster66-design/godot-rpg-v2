@@ -29,8 +29,8 @@ var _refresh_pending: bool = false
 ## When true, newly created visuals start invisible + non-draggable.
 ## CombatRollAnimator sets this before refresh and clears it after animation.
 var hide_for_roll_animation: bool = false
-
-
+var _roll_animator: CombatRollAnimator = null
+var _animating_mana_die: bool = false 
 # ── Insertion gap indicator (mana die drag) ──
 var _gap_spacer: Control = null
 var _gap_index: int = -1
@@ -52,7 +52,6 @@ func _ready():
 
 
 func initialize(pool):
-	"""Initialize with player's dice collection"""
 	print("🎲 DicePoolDisplay.initialize()")
 	dice_pool = pool
 	
@@ -78,13 +77,50 @@ func initialize(pool):
 			dice_pool.dice_shattered.connect(_on_dice_shattered)
 			print("  ✅ Connected dice_shattered")
 	
-	
-	
+	# NEW: Connect mana die signal
+	if dice_pool.has_signal("mana_die_added"):
+		if not dice_pool.mana_die_added.is_connected(_on_mana_die_added):
+			dice_pool.mana_die_added.connect(_on_mana_die_added)
+			print("  ✅ Connected mana_die_added")
 	
 	refresh()
 	
 	print("🎲 DPD after init: size=%s, global_pos=%s, visible=%s" % [size, global_position, visible])
 
+
+
+# NEW: Set roll animator reference
+func set_roll_animator(animator: CombatRollAnimator):
+	_roll_animator = animator
+	print("🎲 DicePoolDisplay: Roll animator set")
+
+func _on_mana_die_added(hand_index: int):
+	"""Play entry animation for newly added mana die.
+	hand_index is the position in the hand array."""
+	print("🎲 DicePoolDisplay: Mana die added at hand index %d" % hand_index)
+	
+	# Wait for refresh to complete
+	await get_tree().process_frame
+	
+	# Find the visual with matching slot_index
+	var visual_index = -1
+	for i in range(die_visuals.size()):
+		var v = die_visuals[i]
+		if is_instance_valid(v) and "slot_index" in v and v.slot_index == hand_index:
+			visual_index = i
+			print("  ✅ Found visual at index %d for hand slot %d" % [i, hand_index])
+			break
+	
+	if visual_index < 0:
+		print("  ⚠️ Could not find visual for hand index %d" % hand_index)
+		return
+	
+	# Animate it
+	if _roll_animator:
+		print("  🎬 Triggering animation")
+		await _roll_animator.play_single_die_entry(visual_index)
+	else:
+		print("  ⚠️ No roll animator")
 
 
 # ============================================================================

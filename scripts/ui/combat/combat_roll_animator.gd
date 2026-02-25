@@ -453,6 +453,82 @@ func _play_entry_emanate(hand_visual: Control, center: Vector2):
 	effect.configure(preset, center)
 	effect.play()
 
+func play_single_die_entry(die_index: int) -> void:
+	"""Play roll entry animation for a single die at the given index.
+	Used when mana dice are added mid-combat.
+	
+	Args:
+		die_index: Index in die_visuals array (NOT hand array - already resolved by caller)
+	"""
+	if not dice_pool_display:
+		print("⚠️ CombatRollAnimator: No dice_pool_display")
+		return
+	
+	var hand_visuals = _get_hand_visuals()
+	if die_index < 0 or die_index >= hand_visuals.size():
+		print("⚠️ CombatRollAnimator: Invalid visual index %d (size: %d)" % [die_index, hand_visuals.size()])
+		return
+	
+	var visual = hand_visuals[die_index]
+	if not is_instance_valid(visual):
+		print("⚠️ CombatRollAnimator: Invalid visual")
+		return
+	
+	print("🎬 CombatRollAnimator: Animating mana die at visual index %d" % die_index)
+	
+	# Wait one frame for layout
+	await get_tree().process_frame
+	
+	# Get positions
+	var source_info = _get_source_info(die_index)
+	var source_center = source_info.get("global_center", Vector2.ZERO)
+	var target_center = visual.global_position + visual.size / 2.0
+	
+	# Already visible from refresh - hide it
+	visual.modulate = Color(1, 1, 1, 0)
+	if "draggable" in visual:
+		visual.draggable = false
+	
+	print("  🎬 Launching projectile from %s to %s" % [source_center, target_center])
+	
+	# Create and animate projectile
+	var projectile = _spawn_projectile(source_info)
+	projectile.global_position = source_center - projectile_size / 2
+	projectile.start_emitting()
+	
+	var travel_tween = create_tween()
+	travel_tween.tween_property(
+		projectile, "global_position",
+		target_center - projectile_size / 2,
+		travel_duration
+	).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC)
+	
+	await travel_tween.finished
+	
+	projectile.stop_emitting()
+	if projectile.visual:
+		projectile.visual.visible = false
+	
+	# Clean up projectile
+	var proj_ref = weakref(projectile)
+	get_tree().create_timer(0.3).timeout.connect(
+		func():
+			var p = proj_ref.get_ref()
+			if p and is_instance_valid(p):
+				p.queue_free(),
+		CONNECT_ONE_SHOT
+	)
+	
+	# Reveal with pop + emanate
+	print("  🎬 Revealing die")
+	_reveal_hand_die(visual)
+	
+	# Apply roll settle shader
+	if visual is DieObjectBase:
+		_apply_roll_settle(visual)
+	
+	print("  ✅ Mana die animation complete")
+
 
 
 func _get_emanate_color_for_element(die_element: int) -> Color:

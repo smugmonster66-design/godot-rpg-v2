@@ -27,6 +27,8 @@ signal affix_triggered(die: DieResource, affix: DiceAffix)
 signal combat_modifier_added(modifier: CombatModifier)   # v2
 signal die_destroyed(die: DieResource)                   # v2 — permanent pool removal
 signal die_shattered(die: DieResource) 
+signal mana_die_added(die_index: int)
+
 
 var pending_shatters: Dictionary = {}
 
@@ -452,9 +454,6 @@ func clear_hand():
 # ============================================================================
 
 func insert_into_hand(index: int, die: DieResource):
-	"""Insert a die at a specific position in the hand.
-	Used by the mana system to place a pulled die where the player dropped it.
-	Updates all slot indices, processes neighbor-aware affixes, and emits hand_changed."""
 	index = clampi(index, 0, hand.size())
 	hand.insert(index, die)
 	# Update slot indices for stable position tracking
@@ -470,7 +469,6 @@ func insert_into_hand(index: int, die: DieResource):
 		pre_values[i] = hand[i].modified_value
 
 	# Process ON_ROLL affixes for the new die AND adjacent dice
-	# against the full hand so neighbor conditions can resolve
 	if affix_processor:
 		_process_insertion_affixes(index)
 
@@ -490,9 +488,19 @@ func insert_into_hand(index: int, die: DieResource):
 	hand_changed.emit()
 
 	# Emit value change events AFTER hand_changed triggers display refresh
-	# call_deferred ensures visuals exist when ReactiveAnimator receives the events
 	if not insertion_changes.is_empty():
 		call_deferred("_emit_insertion_value_events", insertion_changes)
+	
+	# NEW: Emit mana die signal for animation (deferred so visual exists)
+	if die.is_mana_die:
+		call_deferred("_emit_mana_die_added", index)
+
+
+func _emit_mana_die_added(die_index: int):
+	"""Emit mana_die_added after hand_changed so visuals exist."""
+	if die_index >= 0 and die_index < hand.size():
+		print("🔮 Emitting mana_die_added for index %d" % die_index)
+		mana_die_added.emit(die_index)
 
 
 func _emit_insertion_value_events(changes: Dictionary):
@@ -1016,19 +1024,6 @@ func _make_affix_result() -> Dictionary:
 
 
 func add_die_to_hand(die: DieResource) -> void:
-	"""Add a die directly to the hand mid-combat.
-
-	Used by the mana system to insert pulled mana dice. The die is NOT
-	added to the permanent pool — it exists only for this combat turn.
-	ON_ROLL affixes are processed on the new die only, and combat
-	modifiers are applied.
-
-	The die should already be rolled before calling this (ManaPool.pull_mana_die()
-	handles rolling).
-
-	Args:
-		die: The DieResource to insert into the hand.
-	"""
 	die.slot_index = hand.size()
 	die.is_consumed = false
 	hand.append(die)
@@ -1048,6 +1043,10 @@ func add_die_to_hand(die: DieResource) -> void:
 		die.display_name, die.slot_index, die.get_total_value()])
 
 	hand_changed.emit()
+	
+	# NEW: Emit mana die signal for animation (deferred so visual exists)
+	if die.is_mana_die:
+		call_deferred("_emit_mana_die_added", die.slot_index)
 
 
 # ============================================================================

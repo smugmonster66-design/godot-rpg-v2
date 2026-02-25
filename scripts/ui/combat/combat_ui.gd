@@ -367,7 +367,6 @@ func _setup_health_display():
 		player_health_display.initialize("Player", player.current_hp, player.max_hp, Color.RED)
 
 func _setup_dice_pool():
-	"""Setup dice pool display (HAND mode for combat)"""
 	if not dice_pool_display:
 		return
 	
@@ -377,7 +376,11 @@ func _setup_dice_pool():
 	
 	if dice_pool_display.has_method("initialize") and player and player.dice_pool:
 		dice_pool_display.initialize(player.dice_pool)
-
+		
+		# NEW: Pass roll animator reference
+		if roll_animator and dice_pool_display.has_method("set_roll_animator"):
+			dice_pool_display.set_roll_animator(roll_animator)
+			print("  ✅ Roll animator linked to dice pool display")
 
 func _setup_mana_die_selector():
 	"""Initialize ManaDieSelector for casters, hide for non-casters."""
