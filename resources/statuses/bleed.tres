@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="StatusAffix" load_steps=4 format=3 uid="uid://kilfjnbqkpbi"]
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=5 format=3 uid="uid://kilfjnbqkpbi"]
 
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_wfeu7"]
+[ext_resource type="Texture2D" uid="uid://dbde7eab0ivfh" path="res://assets/status_effects/bleeding_status.png" id="2_l1ul7"]
 [ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_lp4ev"]
 [ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_lp4ev"]
 
@@ -13,5 +14,6 @@ damage_per_stack = 1
 tick_damage_type = 1
 affix_name = "Bleed"
 description = "Deals physical damage at the start of each turn. Loses 1 stack per tick."
+icon = ExtResource("2_l1ul7")
 show_in_summary = false
 category = 33

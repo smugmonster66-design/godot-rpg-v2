@@ -370,7 +370,43 @@ func _on_popup_closed(result: Dictionary):
 				current_run.track_item(item)
 		"rest":
 			var heal: int = result.get("heal_amount", 0)
-			if heal > 0 and _player: _player.heal(heal)
+			
+			# --- Companion heal ratio (compute BEFORE healing player) ---
+			var heal_ratio: float = 1.0  # full rest if player already at max HP
+			if _player:
+				var player_missing: int = _player.max_hp - _player.current_hp
+				if player_missing > 0 and heal > 0:
+					heal_ratio = clampf(float(heal) / float(player_missing), 0.0, 1.0)
+				elif player_missing > 0 and heal == 0:
+					heal_ratio = 0.0
+				# Player at full HP → ratio stays 1.0 (companions still benefit)
+			
+			# --- Heal player ---
+			if heal > 0 and _player:
+				_player.heal(heal)
+			
+			# --- Heal companions proportionally ---
+			if _player and heal_ratio > 0.0:
+				for instance in _player.active_companions:
+					if not instance or not instance.companion_data:
+						continue
+					var comp_max: int = instance.get_max_hp(_player.max_hp, _player.level)
+					if instance.is_dead:
+						# Revive at proportional HP
+						instance.is_dead = false
+						instance.current_hp = maxi(int(comp_max * heal_ratio), 1)
+						print("  [Rest] Revived %s at %d/%d HP" % [
+							instance.get_display_name(), instance.current_hp, comp_max])
+					else:
+						if instance.current_hp < 0:
+							instance.initialize_hp(_player.max_hp, _player.level)
+						var comp_missing: int = comp_max - instance.current_hp
+						if comp_missing > 0:
+							var comp_heal: int = maxi(int(comp_missing * heal_ratio), 1)
+							instance.current_hp = mini(instance.current_hp + comp_heal, comp_max)
+							print("  [Rest] Healed %s for %d → %d/%d HP" % [
+								instance.get_display_name(), comp_heal, instance.current_hp, comp_max])
+			
 			var affix: DiceAffix = result.get("chosen_affix")
 			if affix: _apply_temp_affix(affix)
 		"shrine":

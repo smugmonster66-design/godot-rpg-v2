@@ -53,12 +53,9 @@ func _discover_slots() -> void:
 # ============================================================================
 
 func refresh_from_player(player) -> void:
-	"""Populate slots from player.active_companions (CompanionInstance array).
-	Called by GameRoot after player creation and whenever companions change."""
 	clear_all()
 	if not player or not "active_companions" in player:
 		return
-	# Fill NPC slots first (index 0, 1), then summon slots (2, 3)
 	var slot_idx := 0
 	for instance in player.active_companions:
 		if slot_idx >= companion_slots.size():
@@ -67,7 +64,17 @@ func refresh_from_player(player) -> void:
 			var slot = _get_slot(slot_idx)
 			if slot:
 				slot.set_companion_data(instance.companion_data)
-				print("  [Companion] Panel slot %d <- %s" % [slot_idx, instance.companion_data.companion_name])
+				# Sync persisted HP state from instance
+				if instance.is_dead:
+					slot.update_health(0, instance.get_max_hp(player.max_hp, player.level))
+					slot.show_dead()
+				elif instance.current_hp > 0:
+					slot.update_health(
+						instance.current_hp,
+						instance.get_max_hp(player.max_hp, player.level))
+				print("  [Companion] Panel slot %d <- %s (HP: %d, dead: %s)" % [
+					slot_idx, instance.companion_data.companion_name,
+					instance.current_hp, instance.is_dead])
 			slot_idx += 1
 
 # ============================================================================

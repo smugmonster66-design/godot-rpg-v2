@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="StatusAffix" load_steps=4 format=3 uid="uid://cvib7utqprgwq"]
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=5 format=3 uid="uid://cvib7utqprgwq"]
 
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_syxx6"]
+[ext_resource type="Texture2D" uid="uid://cofpbiyybjks7" path="res://assets/status_effects/block_status.png" id="2_6abml"]
 [ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_cqfne"]
 [ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_6abml"]
 
@@ -13,5 +14,6 @@ is_debuff = false
 cleanse_tags = Array[String](["buff", "block", "defensive"])
 affix_name = "Block"
 description = "Reduces incoming damage by stack amount. Falls off at the start of your next turn."
+icon = ExtResource("2_6abml")
 show_in_summary = false
 category = 11

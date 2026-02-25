@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="StatusAffix" load_steps=4 format=3 uid="uid://dryvh1auub4o8"]
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=5 format=3 uid="uid://dryvh1auub4o8"]
 
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_awqak"]
+[ext_resource type="Texture2D" uid="uid://cafxnynxk34xf" path="res://assets/status_effects/empowered_status.png" id="2_llpd0"]
 [ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_nf48v"]
 [ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_llpd0"]
 
@@ -14,5 +15,6 @@ is_debuff = false
 cleanse_tags = Array[String](["buff", "empower", "offensive_buff"])
 affix_name = "Empowered"
 description = "Increases damage dealt. Stacks up to 5 times."
+icon = ExtResource("2_llpd0")
 show_in_summary = false
 category = 36

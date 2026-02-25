@@ -570,6 +570,8 @@ func _start_current_turn():
 		_start_enemy_turn(combatant)
 
 func _end_current_turn():
+	if combat_state == CombatState.ENDED:
+		return
 	"""Move to next turn"""
 	# --- BATTLEFIELD: Clean up expired counters at turn end ---
 	if battlefield_tracker:
@@ -594,6 +596,8 @@ func _end_round():
 	_start_round()
 
 func _check_combat_end() -> bool:
+	if combat_state == CombatState.ENDED:
+		return true
 	"""Check if combat should end. If _defer_combat_end is true, records the
 	result without calling end_combat() — the caller must call
 	_flush_deferred_combat_end() when the action sequence finishes."""
@@ -2675,6 +2679,8 @@ func is_in_prep_phase() -> bool:
 # ============================================================================
 
 func end_combat(player_won: bool):
+	if combat_state == CombatState.ENDED:
+		return
 	print("\n=== COMBAT ENDED ===")
 	
 	# v4: Disable mana die dragging
@@ -2720,9 +2726,16 @@ func end_combat(player_won: bool):
 		proc_processor.on_combat_end(player.affix_manager)
 	# --- END PROC ---
 
-	# --- COMPANIONS: Sync NPC state, clear summons ---
+	# --- COMPANIONS: Sync NPC state, clear summons, update panel ---
 	if companion_manager:
 		companion_manager.on_combat_end()
+	if companion_panel:
+		# Clear summon slots visually (2 and 3). NPC slots refresh from player data.
+		companion_panel.clear_slot(2)
+		companion_panel.clear_slot(3)
+		# Refresh NPC companion display with post-combat HP
+		if player:
+			companion_panel.refresh_from_player(player)
 	trigger_processor = null
 	companion_panel = null
 	# --- END COMPANIONS ---
@@ -3193,14 +3206,21 @@ func _execute_companion_action(fire_entry: Dictionary,
 	# Source position: companion slot in the UI
 	var source_pos: Vector2 = _get_companion_source_position(slot_idx)
 
-	# Target positions and nodes
+	# Target positions (from UI visuals) and nodes (for animation system)
 	var target_positions: Array[Vector2] = []
 	var target_nodes: Array[Node2D] = []
 	for target in targets:
 		var visual = _get_combatant_visual(target)
 		if visual:
-			target_positions.append(visual.global_position)
-			target_nodes.append(visual)
+			var center: Vector2 = visual.global_position
+			if visual is Control:
+				center += visual.size / 2.0
+			target_positions.append(center)
+			# Visual may be a Control (e.g. CompanionSlot PanelContainer),
+			# which can't go into Array[Node2D]. Pass the Combatant node
+			# itself for animation targeting — positions drive the aim.
+			if target is Node2D:
+				target_nodes.append(target)
 		elif target is Node2D:
 			target_positions.append(target.global_position)
 			target_nodes.append(target)
