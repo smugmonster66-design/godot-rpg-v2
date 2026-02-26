@@ -152,7 +152,7 @@ func _build_ui() -> void:
 	# -- Tabs --
 	_tab_container = TabContainer.new()
 	_tab_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_tab_container.add_theme_font_size_override("font_size", _font_size(ThemeManager.FONT_SIZES.caption))
+	_tab_container.theme_type_variation = &"caption"
 	root_vbox.add_child(_tab_container)
 
 	_build_table_tab()

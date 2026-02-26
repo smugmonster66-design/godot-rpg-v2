@@ -26,16 +26,12 @@ extends Node
 # ============================================================================
 
 const BASE_THEME_PATH := "res://resources/themes/base_theme.tres"
-const CUSTOM_FONT_PATH := ""        # e.g. "res://assets/fonts/your_font.ttf"
-const CUSTOM_FONT_BOLD_PATH := ""   # Optional bold variant
 
 # ============================================================================
 # THEME RESOURCE
 # ============================================================================
 
 var theme: Theme
-var font_regular: Font = null
-var font_bold: Font = null
 
 # ============================================================================
 # SEMANTIC PALETTE
@@ -116,20 +112,7 @@ const PALETTE := {
 	"cate_annoyed": Color(0.80, 0.50, 0.30),
 }
 
-# ============================================================================
-# FONT SIZES
-# ============================================================================
 
-const FONT_SIZES := {
-	"tiny": 10,
-	"small": 12,
-	"caption": 13,
-	"normal": 16,
-	"large": 20,
-	"title": 24,
-	"header": 28,
-	"display": 36,
-}
 
 
 # ============================================================================
@@ -137,39 +120,21 @@ const FONT_SIZES := {
 # ============================================================================
 
 func _ready() -> void:
-	print("🎨 ThemeManager initializing...")
-	_load_fonts()
+	print("ThemeManager initializing...")
 	_load_base_theme()
-	_apply_fonts_to_theme()
 	_apply_to_project()
-	print("🎨 ThemeManager ready")
-
-
-func _load_fonts() -> void:
-	if CUSTOM_FONT_PATH != "" and ResourceLoader.exists(CUSTOM_FONT_PATH):
-		font_regular = load(CUSTOM_FONT_PATH) as Font
-		print("  🔤 Loaded custom font: %s" % CUSTOM_FONT_PATH)
-	if CUSTOM_FONT_BOLD_PATH != "" and ResourceLoader.exists(CUSTOM_FONT_BOLD_PATH):
-		font_bold = load(CUSTOM_FONT_BOLD_PATH) as Font
-		print("  🔤 Loaded bold font: %s" % CUSTOM_FONT_BOLD_PATH)
+	print("ThemeManager ready")
 
 
 func _load_base_theme() -> void:
-	# Load the .tres base theme. Falls back to an empty theme if missing.
 	if ResourceLoader.exists(BASE_THEME_PATH):
-		theme = load(BASE_THEME_PATH).duplicate()
-		print("  🎨 Loaded base theme: %s" % BASE_THEME_PATH)
+		theme = load(BASE_THEME_PATH)
+		print("  Loaded base theme: %s" % BASE_THEME_PATH)
 	else:
-		push_warning("ThemeManager: base_theme.tres not found at %s — using empty theme" % BASE_THEME_PATH)
-		push_warning("  Run editor_scripts/generate_base_theme.gd to create it.")
+		push_warning("ThemeManager: base_theme.tres not found — using empty theme")
 		theme = Theme.new()
 
 
-func _apply_fonts_to_theme() -> void:
-	# Apply custom font and sizes to the loaded theme.
-	if font_regular:
-		theme.default_font = font_regular
-	#theme.default_font_size = FONT_SIZES.normal
 
 
 func _apply_to_project():
@@ -277,10 +242,6 @@ func get_status_color(status_name: String) -> Color:
 # PUBLIC API — FONT SIZES
 # ============================================================================
 
-func get_font_size(size_name: String) -> int:
-	# Get a named font size. Returns normal if name not found.
-	return FONT_SIZES.get(size_name, FONT_SIZES.normal)
-
 
 # ============================================================================
 # PUBLIC API — SEMANTIC HELPERS
@@ -321,10 +282,6 @@ func get_element_panel(element_string: String, alpha: float = 0.15) -> StyleBoxF
 # PUBLIC API — BACKWARD COMPATIBILITY
 # ============================================================================
 
-func apply_theme_to_control(control: Control) -> void:
-	# Apply theme to a specific control subtree.
-	# NOTE: With project-level theme, this is usually unnecessary.
-	control.theme = theme
 
 
 func get_theme() -> Theme:

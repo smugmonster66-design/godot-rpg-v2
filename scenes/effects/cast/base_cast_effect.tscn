@@ -166,7 +166,7 @@ animations = [{
 
 [node name="BaseCastEffect" type="Node2D"]
 material = ExtResource("1_75rc5")
-scale = Vector2(4, 4)
+scale = Vector2(5, 5)
 script = ExtResource("1_bdj8d")
 duration = 0.3
 
@@ -179,6 +179,7 @@ explosiveness = 0.8
 process_material = SubResource("ParticleProcessMaterial_charge")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+material = ExtResource("1_75rc5")
 sprite_frames = SubResource("SpriteFrames_orkhm")
 frame = 16
 frame_progress = 1.0

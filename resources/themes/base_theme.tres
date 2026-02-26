@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=44 format=3 uid="uid://b87llggw1n1df"]
+[gd_resource type="Theme" load_steps=45 format=3 uid="uid://b87llggw1n1df"]
 
 [ext_resource type="Texture2D" uid="uid://hwffuipvgxdx" path="res://assets/ui/panels/9patch fill basic.png" id="1_0u5ek"]
 [ext_resource type="FontFile" uid="uid://mccqdptsfq8k" path="res://assets/fonts/Oregano.otf" id="1_p7nge"]
@@ -592,6 +592,19 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m48fx"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(1, 0.365, 0.365, 1)
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_detail = 1
+
 [resource]
 default_font = ExtResource("1_p7nge")
 default_font_size = 40
@@ -671,11 +684,29 @@ TooltipPanel/styles/panel = SubResource("StyleBoxFlat_fq2up")
 VScrollBar/styles/grabber = SubResource("StyleBoxFlat_a575i")
 VScrollBar/styles/grabber_highlight = SubResource("StyleBoxFlat_k16lf")
 VScrollBar/styles/scroll = SubResource("StyleBoxFlat_rlewp")
+caption/base_type = &"Label"
 caption/font_sizes/font_size = 24
+display/base_type = &"Label"
+display/colors/font_color = Color(0, 0, 0, 1)
+display/colors/font_outline_color = Color(0, 0, 0, 1)
+display/colors/font_shadow_color = Color(0, 0, 0, 1)
+display/constants/line_spacing = 0
+display/constants/outline_size = 0
+display/constants/shadow_offset_x = 0
+display/constants/shadow_offset_y = 0
+display/constants/shadow_outline_size = 0
 display/font_sizes/font_size = 36
+display/styles/focus = SubResource("StyleBoxFlat_m48fx")
+display/styles/normal = SubResource("StyleBoxFlat_m48fx")
+header/base_type = &"Label"
 header/font_sizes/font_size = 40
+large/base_type = &"Label"
 large/font_sizes/font_size = 30
+normal/base_type = &"Label"
 normal/font_sizes/font_size = 24
+small/base_type = &"Label"
 small/font_sizes/font_size = 30
+tiny/base_type = &"Label"
 tiny/font_sizes/font_size = 16
+title/base_type = &"Label"
 title/font_sizes/font_size = 44

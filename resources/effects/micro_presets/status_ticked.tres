@@ -10,5 +10,6 @@ flash_in_duration = 0.08
 label_enabled = true
 label_color = Color(1, 0.5, 0.2, 1)
 label_font_size = 18
+label_theme_type = &"display"
 label_rise_distance = 25.0
 label_duration = 0.5

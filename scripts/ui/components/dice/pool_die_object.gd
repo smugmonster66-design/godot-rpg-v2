@@ -72,7 +72,7 @@ func show_affix_count():
 		if not indicator:
 			indicator = Label.new()
 			indicator.name = "AffixIndicator"
-			indicator.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.caption)
+			indicator.theme_type_variation = &"caption"
 			indicator.add_theme_color_override("font_color", ThemeManager.PALETTE.maxed)
 			indicator.position = Vector2(base_size.x - 20, 2)
 			add_child(indicator)
@@ -97,7 +97,7 @@ func show_source_badge():
 	if not badge:
 		badge = Label.new()
 		badge.name = "SourceBadge"
-		badge.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.tiny)
+		badge.theme_type_variation = &"caption"
 		badge.add_theme_color_override("font_color", ThemeManager.PALETTE.text_secondary)
 		badge.position = Vector2(2, base_size.y - 14)
 		add_child(badge)

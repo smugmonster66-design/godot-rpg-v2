@@ -1,28 +1,26 @@
 shader_type canvas_item;
 
-// Cartoon Smooth - Gaussian blur to round out pixel edges
-// Use WITH texture_filter = Linear on the node for best results
-
-// Blur radius in pixels (0.0 = off, 1.0 = subtle, 2.0+ = very smooth)
-uniform float blur_radius : hint_range(0.0, 4.0) = 1.0;
+uniform float smoothness : hint_range(0.0, 1.0) = 0.9;
+uniform float blur_passes : hint_range(1.0, 3.0) = 2.0;
 
 void fragment() {
-	vec2 ps = TEXTURE_PIXEL_SIZE;
-	vec2 offset = ps * blur_radius;
-
-	// 9-tap Gaussian kernel (approximation)
-	// Weights: center = 4, edges = 2, corners = 1, total = 16
-	vec4 color = texture(TEXTURE, UV) * 4.0;
-
-	color += texture(TEXTURE, UV + vec2(-offset.x, 0.0)) * 2.0;
-	color += texture(TEXTURE, UV + vec2( offset.x, 0.0)) * 2.0;
-	color += texture(TEXTURE, UV + vec2(0.0, -offset.y)) * 2.0;
-	color += texture(TEXTURE, UV + vec2(0.0,  offset.y)) * 2.0;
-
-	color += texture(TEXTURE, UV + vec2(-offset.x, -offset.y));
-	color += texture(TEXTURE, UV + vec2( offset.x, -offset.y));
-	color += texture(TEXTURE, UV + vec2(-offset.x,  offset.y));
-	color += texture(TEXTURE, UV + vec2( offset.x,  offset.y));
-
-	COLOR = color / 16.0;
+    vec2 texel_size = 1.0 / vec2(textureSize(TEXTURE, 0));
+    vec4 original = texture(TEXTURE, UV);
+    
+    // Multi-pass blur for maximum smoothness
+    vec4 blurred = vec4(0.0);
+    int radius = int(blur_passes);
+    int samples = 0;
+    
+    for(int x = -radius; x <= radius; x++) {
+        for(int y = -radius; y <= radius; y++) {
+            vec2 offset = vec2(float(x), float(y)) * texel_size;
+            blurred += texture(TEXTURE, UV + offset);
+            samples++;
+        }
+    }
+    blurred /= float(samples);
+    
+    // Mix between original and blurred
+    COLOR = mix(original, blurred, smoothness);
 }

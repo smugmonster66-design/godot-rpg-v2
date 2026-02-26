@@ -107,7 +107,7 @@ animations = [{
 
 [node name="BaseImpactEffect" type="Node2D"]
 material = ExtResource("1_k7jvi")
-scale = Vector2(4, 4)
+scale = Vector2(6, 6)
 script = ExtResource("1_adpbe")
 duration = 0.4
 
@@ -120,6 +120,7 @@ explosiveness = 0.95
 process_material = SubResource("ParticleProcessMaterial_impact")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+material = ExtResource("1_k7jvi")
 sprite_frames = SubResource("SpriteFrames_adpbe")
 frame = 8
 frame_progress = 1.0

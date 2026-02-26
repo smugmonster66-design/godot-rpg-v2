@@ -197,7 +197,7 @@ func _add_affix_label(container: VBoxContainer, affix: Affix, color: Color):
 	
 	var desc_label = Label.new()
 	desc_label.text = affix.get_resolved_description()
-	desc_label.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.caption)
+	desc_label.theme_type_variation = &"caption"
 	desc_label.add_theme_color_override("font_color", color)
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	affix_panel.add_child(desc_label)

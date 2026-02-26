@@ -82,6 +82,11 @@ func _ready():
 	_effects_container.name = "ReactiveEffectsContainer"
 	_effects_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_effects_container.set_anchors_preset(Control.PRESET_FULL_RECT)
+
+	# Assign theme so floating labels can resolve theme_type_variation
+	if ThemeManager and ThemeManager.theme:
+		_effects_container.theme = ThemeManager.theme
+
 	_effects_layer.add_child(_effects_container)
 
 	# Sort reactions by priority (highest first) for correct evaluation order
@@ -429,9 +434,13 @@ func _spawn_floating_label(target: Node, preset: MicroAnimationPreset, event: Co
 	var label = Label.new()
 	label.text = text
 	label.add_theme_color_override("font_color", color)
-	label.add_theme_font_size_override("font_size", preset.label_font_size)
-	if preset.label_bold:
-		# Use default bold font if available, otherwise just size up
+	if preset.label_theme_type != &"":
+		label.theme_type_variation = preset.label_theme_type
+	else:
+		label.add_theme_font_size_override("font_size", preset.label_font_size)
+
+	if preset.label_bold and preset.label_theme_type == &"":
+		# Only manual bump when not using theme type (theme handles bold via font)
 		label.add_theme_font_size_override("font_size", preset.label_font_size + 2)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER

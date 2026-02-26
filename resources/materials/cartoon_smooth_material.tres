@@ -4,4 +4,5 @@
 
 [resource]
 shader = ExtResource("1")
-shader_parameter/blur_radius = 0.50000002375
+shader_parameter/smoothness = 0.70000003325
+shader_parameter/blur_passes = 1.50000002375
