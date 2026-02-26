@@ -119,6 +119,13 @@ func _discover_all_nodes():
 		dice_pool_area.mouse_filter = Control.MOUSE_FILTER_PASS
 		print("    🔧 DicePoolArea mouse_filter → PASS (drag-drop fix)")
 	
+	# Fix DicePoolScroll — ScrollContainer wrapping DicePoolDisplay
+	var dice_pool_scroll = find_child("DicePoolScroll", true, false)
+	if dice_pool_scroll and dice_pool_scroll is ScrollContainer:
+		dice_pool_scroll.mouse_filter = Control.MOUSE_FILTER_PASS
+		print("    🔧 DicePoolScroll mouse_filter → PASS (drag-drop fix)")
+	
+	
 	# Bottom UI panel — owns combat buttons
 	_bottom_ui = get_tree().get_first_node_in_group("bottom_ui") as BottomUIPanel
 	print("    BottomUI: %s" % ("✓" if _bottom_ui else "✗"))

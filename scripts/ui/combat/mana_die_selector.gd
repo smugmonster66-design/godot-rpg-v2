@@ -217,8 +217,9 @@ func _update_insertion_gap(mouse_pos: Vector2) -> void:
 	var displays = get_tree().get_nodes_in_group("dice_pool_display")
 	for node in displays:
 		if node is DicePoolDisplay and node.visible:
-			# Show gap if cursor is above the bottom panel (same logic as _is_over_hand_area)
-			if mouse_pos.y < global_position.y:
+			# Show gap if cursor is over the hand display (use the same check as drop detection)
+			var rect = node.get_global_rect().grow(60)  # Match the padding from _is_over_hand_area
+			if rect.has_point(mouse_pos):
 				var idx = node.get_insertion_index_at_position(mouse_pos)
 				node.show_insertion_gap(idx)
 			else:

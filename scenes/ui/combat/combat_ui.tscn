@@ -94,14 +94,19 @@ layout_mode = 2
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 
-[node name="DicePoolDisplay" parent="MarginContainer/VBox/VBoxContainer/DicePoolArea" instance=ExtResource("2_bo0no")]
-custom_minimum_size = Vector2(180, 180)
+[node name="DicePoolLabel" type="Label" parent="MarginContainer/VBox/VBoxContainer/DicePoolArea"]
+layout_mode = 2
+
+[node name="DicePoolScroll" type="ScrollContainer" parent="MarginContainer/VBox/VBoxContainer/DicePoolArea"]
+custom_minimum_size = Vector2(700, 180)
+layout_mode = 2
+vertical_scroll_mode = 0
+
+[node name="DicePoolDisplay" parent="MarginContainer/VBox/VBoxContainer/DicePoolArea/DicePoolScroll" instance=ExtResource("2_bo0no")]
+custom_minimum_size = Vector2(0, 180)
 layout_mode = 2
 mouse_filter = 0
 die_visual_scene = ExtResource("4_l84v8")
-
-[node name="DicePoolLabel" type="Label" parent="MarginContainer/VBox/VBoxContainer/DicePoolArea"]
-layout_mode = 2
 
 [node name="Spacer4" type="Control" parent="MarginContainer/VBox/VBoxContainer"]
 custom_minimum_size = Vector2(0, 370)

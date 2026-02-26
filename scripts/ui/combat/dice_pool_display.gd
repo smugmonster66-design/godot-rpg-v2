@@ -158,13 +158,8 @@ func refresh():
 	
 	for i in range(hand.size()):
 		var die = hand[i]
-		# Consumed dice are kept in the array for stable indexing but not shown
+		# Skip consumed dice - they shouldn't take up visual space
 		if die.is_consumed:
-			var spacer = Control.new()
-			spacer.name = "ConsumedSpacer_%d" % i
-			spacer.custom_minimum_size = Vector2(124, 124)  # Match die visual size
-			spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			add_child(spacer)
 			continue
 		var visual = _create_die_visual(die, i)
 		if visual:
@@ -550,6 +545,7 @@ func show_insertion_gap(index: int) -> void:
 	_gap_index = index
 
 	# Animate width open
+	print("  🎯 Showing insertion gap at index %d (child_idx %d)" % [index, child_idx])
 	_gap_tween = create_tween()
 	_gap_tween.tween_property(
 		_gap_spacer, "custom_minimum_size",

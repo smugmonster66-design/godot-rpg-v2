@@ -222,6 +222,14 @@ func play_roll_sequence() -> void:
 	# The dice are already modulate alpha 0 so nothing shows prematurely,
 	# but the container must be visible for layout to propagate AND for
 	# the projectile → reveal animation to actually be seen by the player.
+	# NEW: Also ensure ScrollContainer parent is visible if it exists
+	var scroll_parent = dice_pool_display.get_parent()
+	if scroll_parent and scroll_parent is ScrollContainer:
+		if not scroll_parent.visible:
+			print("🎬 ScrollContainer parent was hidden — forcing visible for roll animation")
+			scroll_parent.visible = true
+		scroll_parent.modulate.a = 1.0
+	
 	if not dice_pool_display.visible:
 		print("🎬 DicePoolDisplay was hidden — forcing visible for roll animation")
 		dice_pool_display.visible = true
