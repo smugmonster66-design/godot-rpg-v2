@@ -180,29 +180,13 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 
-[node name="PlayerMenu" parent="PersistentUILayer" instance=ExtResource("11_c2lvh")]
-visible = false
-
-[node name="DungeonEntranceButton" parent="PersistentUILayer" instance=ExtResource("15_h5onw")]
-offset_left = 854.0
-offset_top = 1516.0
-offset_right = 1054.0
-offset_bottom = 1576.0
-dungeon_definition = ExtResource("16_kdtot")
-
-[node name="PostCombatSummary" parent="PersistentUILayer" instance=ExtResource("12_a6cr8")]
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="DungeonSelectionScreen" parent="PersistentUILayer" instance=ExtResource("20_ax1hr")]
-
 [node name="CombatCompanionVBox" type="VBoxContainer" parent="PersistentUILayer"]
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 20.0
-offset_top = -440.0
-offset_right = 140.0
+offset_top = -970.0
+offset_right = 160.0
 offset_bottom = -420.0
 grow_vertical = 0
 theme = ExtResource("27_xi4na")
@@ -423,6 +407,22 @@ vertical_alignment = 2
 layout_mode = 2
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.5
+
+[node name="PlayerMenu" parent="PersistentUILayer" instance=ExtResource("11_c2lvh")]
+visible = false
+
+[node name="DungeonEntranceButton" parent="PersistentUILayer" instance=ExtResource("15_h5onw")]
+offset_left = 854.0
+offset_top = 1516.0
+offset_right = 1054.0
+offset_bottom = 1576.0
+dungeon_definition = ExtResource("16_kdtot")
+
+[node name="PostCombatSummary" parent="PersistentUILayer" instance=ExtResource("12_a6cr8")]
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DungeonSelectionScreen" parent="PersistentUILayer" instance=ExtResource("20_ax1hr")]
 
 [node name="DebugLayer" type="CanvasLayer" parent="."]
 layer = 200

@@ -86,7 +86,9 @@ func _ready():
 	# Assign theme so floating labels can resolve theme_type_variation
 	if ThemeManager and ThemeManager.theme:
 		_effects_container.theme = ThemeManager.theme
-
+		print("  ✅ ReactiveAnimator: theme assigned (%s)" % ThemeManager.theme)
+	else:
+		push_warning("  ⚠️ ReactiveAnimator: ThemeManager.theme is null at _ready!")
 	_effects_layer.add_child(_effects_container)
 
 	# Sort reactions by priority (highest first) for correct evaluation order
@@ -448,6 +450,17 @@ func _spawn_floating_label(target: Node, preset: MicroAnimationPreset, event: Co
 
 	# Position at target center with optional scatter
 	_effects_container.add_child(label)
+	
+	
+	# TEMP DEBUG — remove after verifying
+	print("  🏷️ Floating label: text='%s' theme_type='%s' font_size=%d container_theme=%s" % [
+		label.text,
+		label.theme_type_variation,
+		label.get_theme_font_size("font_size"),
+		_effects_container.theme
+	])
+	
+	
 	var center = _get_global_center(target)
 	var scatter = randf_range(-preset.label_scatter_x, preset.label_scatter_x)
 	label.global_position = center + Vector2(scatter, 0) - label.size / 2

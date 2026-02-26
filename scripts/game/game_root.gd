@@ -131,7 +131,7 @@ func _setup_persistent_ui():
 	player_menu = ui_layer.find_child("PlayerMenu", true, false)
 	if player_menu:
 		player_menu.hide()
-		player_menu.z_index = -1
+		#player_menu.z_index = -1
 		
 		# Position menu above the bottom panel
 		if bottom_panel:

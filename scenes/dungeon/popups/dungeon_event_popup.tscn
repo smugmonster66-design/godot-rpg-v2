@@ -1,16 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://dc037xsdbse2w"]
+[gd_scene load_steps=2 format=3 uid="uid://dc037xsdbse2w"]
 
 [ext_resource type="Script" uid="uid://cpwakqeoanjli" path="res://scripts/dungeon/popups/dungeon_event_popup.gd" id="1_script"]
-
-[sub_resource type="LabelSettings" id="LabelSettings_title"]
-font_size = 24
-font_color = Color(1, 0.95, 0.8, 1)
-outline_size = 4
-outline_color = Color(0, 0, 0, 0.9)
-shadow_size = 3
-shadow_color = Color(0, 0, 0, 0.6)
-shadow_offset = Vector2(2, 3)
-
 [node name="EventPopup" type="Control"]
 visible = false
 layout_mode = 3
@@ -49,7 +39,13 @@ theme_override_constants/separation = 12
 [node name="TitleLabel" type="Label" parent="CenterContainer/Panel/VBox"]
 layout_mode = 2
 text = "Event Title"
-label_settings = SubResource("LabelSettings_title")
+theme_type_variation = &"title"
+theme_override_colors/font_color = Color(1, 0.95, 0.8, 1)
+theme_override_constants/outline_size = 4
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.6)
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="CenterContainer/Panel/VBox"]

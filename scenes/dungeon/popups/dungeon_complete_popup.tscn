@@ -1,21 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://dng_complete_popup"]
+[gd_scene load_steps=2 format=3 uid="uid://dng_complete_popup"]
 
 [ext_resource type="Script" path="res://scripts/dungeon/popups/dungeon_complete_popup.gd" id="1_script"]
-
-[sub_resource type="LabelSettings" id="LabelSettings_title"]
-font_size = 28
-font_color = Color(1.0, 0.95, 0.6, 1)
-outline_size = 5
-outline_color = Color(0, 0, 0, 0.9)
-shadow_size = 4
-shadow_color = Color(0, 0, 0, 0.6)
-shadow_offset = Vector2(2, 4)
-
-; ===========================================================================
-; CompletePopup — dungeon run summary (gold, exp, items earned)
-; Emits: {}
-; ===========================================================================
-
 [node name="CompletePopup" type="Control"]
 visible = false
 layout_mode = 3
@@ -61,7 +46,13 @@ theme_override_constants/separation = 12
 layout_mode = 2
 text = "Dungeon Complete!"
 horizontal_alignment = 1
-label_settings = SubResource("LabelSettings_title")
+theme_type_variation = &"header"
+theme_override_colors/font_color = Color(1, 0.95, 0.6, 1)
+theme_override_constants/outline_size = 5
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 4
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.6)
 
 [node name="HSeparator" type="HSeparator" parent="CenterContainer/Panel/VBox"]
 layout_mode = 2

@@ -103,9 +103,6 @@ func _s(val: int) -> int:
 func _sf(val: float) -> float:
 	return val * UI_SCALE
 
-func _font_size(base: int) -> int:
-	return base * UI_SCALE
-
 
 # ============================================================================
 # UI CONSTRUCTION
@@ -134,13 +131,12 @@ func _build_ui() -> void:
 
 	var title := Label.new()
 	title.text = "Loot Debug (=)"
-	title.add_theme_font_size_override("font_size", _font_size(ThemeManager.FONT_SIZES.normal))
+	title.theme_type_variation = &"normal"
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_hbox.add_child(title)
 
 	var close_btn := Button.new()
 	close_btn.text = "X"
-	close_btn.add_theme_font_size_override("font_size", _font_size(ThemeManager.FONT_SIZES.normal))
 	close_btn.pressed.connect(func():
 		_shown = false
 		_home_position = position
@@ -152,7 +148,6 @@ func _build_ui() -> void:
 	# -- Tabs --
 	_tab_container = TabContainer.new()
 	_tab_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_tab_container.theme_type_variation = &"caption"
 	root_vbox.add_child(_tab_container)
 
 	_build_table_tab()
@@ -166,13 +161,12 @@ func _build_ui() -> void:
 
 	var results_label := Label.new()
 	results_label.text = "Results"
-	results_label.add_theme_font_size_override("font_size", _font_size(ThemeManager.FONT_SIZES.normal))
+	results_label.theme_type_variation = &"normal"
 	results_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	results_header.add_child(results_label)
 
 	_clear_button = Button.new()
 	_clear_button.text = "Clear"
-	_clear_button.add_theme_font_size_override("font_size", _font_size(ThemeManager.FONT_SIZES.caption))
 	_clear_button.pressed.connect(_clear_results)
 	results_header.add_child(_clear_button)
 
@@ -195,7 +189,6 @@ func _build_table_tab() -> void:
 
 	vbox.add_child(_label("Loot Table:"))
 	_table_dropdown = OptionButton.new()
-	_table_dropdown.add_theme_font_size_override("font_size", _font_size(ThemeManager.FONT_SIZES.caption))
 	vbox.add_child(_table_dropdown)
 
 	var level_hbox := HBoxContainer.new()
@@ -212,7 +205,7 @@ func _build_table_tab() -> void:
 	level_hbox.add_child(_table_level_slider)
 	_table_level_label = Label.new()
 	_table_level_label.text = "15"
-	_table_level_label.add_theme_font_size_override("font_size", _font_size(ThemeManager.FONT_SIZES.caption))
+	_table_level_label.theme_type_variation = &"caption"
 	_table_level_label.custom_minimum_size.x = _sf(30)
 	level_hbox.add_child(_table_level_label)
 
@@ -224,14 +217,12 @@ func _build_table_tab() -> void:
 	_table_region_spin.min_value = 1
 	_table_region_spin.max_value = 6
 	_table_region_spin.value = 1
-	_table_region_spin.add_theme_font_size_override("font_size", _font_size(ThemeManager.FONT_SIZES.caption))
 	row.add_child(_table_region_spin)
 	row.add_child(_label("Rolls:"))
 	_table_roll_count_spin = SpinBox.new()
 	_table_roll_count_spin.min_value = 1
 	_table_roll_count_spin.max_value = 50
 	_table_roll_count_spin.value = 1
-	_table_roll_count_spin.add_theme_font_size_override("font_size", _font_size(ThemeManager.FONT_SIZES.caption))
 	row.add_child(_table_roll_count_spin)
 
 	var rar_hbox := HBoxContainer.new()
@@ -239,12 +230,10 @@ func _build_table_tab() -> void:
 	rar_hbox.add_child(_label("Rarity Override:"))
 	_table_rarity_dropdown = OptionButton.new()
 	_table_rarity_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_table_rarity_dropdown.add_theme_font_size_override("font_size", _font_size(ThemeManager.FONT_SIZES.caption))
 	rar_hbox.add_child(_table_rarity_dropdown)
 
 	_table_roll_button = Button.new()
 	_table_roll_button.text = "Roll Loot Table"
-	_table_roll_button.add_theme_font_size_override("font_size", _font_size(ThemeManager.FONT_SIZES.normal))
 	_table_roll_button.pressed.connect(_on_roll_table)
 	vbox.add_child(_table_roll_button)
 
@@ -257,7 +246,6 @@ func _build_raw_tab() -> void:
 
 	vbox.add_child(_label("Equip Slot:"))
 	_raw_slot_dropdown = OptionButton.new()
-	_raw_slot_dropdown.add_theme_font_size_override("font_size", _font_size(ThemeManager.FONT_SIZES.caption))
 	vbox.add_child(_raw_slot_dropdown)
 
 	var rar_hbox := HBoxContainer.new()
@@ -265,7 +253,6 @@ func _build_raw_tab() -> void:
 	rar_hbox.add_child(_label("Rarity:"))
 	_raw_rarity_dropdown = OptionButton.new()
 	_raw_rarity_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_raw_rarity_dropdown.add_theme_font_size_override("font_size", _font_size(ThemeManager.FONT_SIZES.caption))
 	rar_hbox.add_child(_raw_rarity_dropdown)
 
 	var level_hbox := HBoxContainer.new()
@@ -282,7 +269,7 @@ func _build_raw_tab() -> void:
 	level_hbox.add_child(_raw_level_slider)
 	_raw_level_label = Label.new()
 	_raw_level_label.text = "15"
-	_raw_level_label.add_theme_font_size_override("font_size", _font_size(ThemeManager.FONT_SIZES.caption))
+	_raw_level_label.theme_type_variation = &"caption"
 	_raw_level_label.custom_minimum_size.x = _sf(30)
 	level_hbox.add_child(_raw_level_label)
 
@@ -293,12 +280,10 @@ func _build_raw_tab() -> void:
 	_raw_region_spin.min_value = 1
 	_raw_region_spin.max_value = 6
 	_raw_region_spin.value = 1
-	_raw_region_spin.add_theme_font_size_override("font_size", _font_size(ThemeManager.FONT_SIZES.caption))
 	reg_hbox.add_child(_raw_region_spin)
 
 	_raw_generate_button = Button.new()
 	_raw_generate_button.text = "Generate Item"
-	_raw_generate_button.add_theme_font_size_override("font_size", _font_size(ThemeManager.FONT_SIZES.normal))
 	_raw_generate_button.pressed.connect(_on_generate_raw)
 	vbox.add_child(_raw_generate_button)
 
@@ -477,7 +462,7 @@ func _add_result_line(bbcode_text: String) -> void:
 	rtl.scroll_active = false
 	rtl.text = bbcode_text
 	rtl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	rtl.add_theme_font_size_override("normal_font_size", _font_size(ThemeManager.FONT_SIZES.small))
+	rtl.theme_type_variation = &"small"
 	_results_vbox.add_child(rtl)
 
 	await get_tree().process_frame
@@ -496,7 +481,7 @@ func _clear_results() -> void:
 func _label(text: String) -> Label:
 	var l := Label.new()
 	l.text = text
-	l.add_theme_font_size_override("font_size", _font_size(ThemeManager.FONT_SIZES.caption))
+	l.theme_type_variation = &"caption"
 	return l
 
 

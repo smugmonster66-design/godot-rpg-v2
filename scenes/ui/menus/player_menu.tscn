@@ -28,6 +28,8 @@
 [ext_resource type="Texture2D" uid="uid://b6fxu17k1o7d7" path="res://assets/ui/icons/categories/accessory_icon.png" id="24_5igvc"]
 [ext_resource type="Texture2D" uid="uid://dxy7ijyyv0c6n" path="res://assets/ui/icons/categories/consumables_icon.png" id="25_eld08"]
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ff6ld"]
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_owa7x"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_n1b4v"]
@@ -133,9 +135,6 @@ texture_margin_bottom = 22.0
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_g3tuo"]
 
-[sub_resource type="Theme" id="Theme_t1rrh"]
-default_font_size = 30
-
 [node name="PlayerMenu" type="Control"]
 custom_minimum_size = Vector2(400, 430)
 layout_mode = 3
@@ -153,6 +152,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_ff6ld")
 
 [node name="TabButtons" type="HBoxContainer" parent="PanelContainer"]
 layout_mode = 1
@@ -642,6 +642,7 @@ text = "Unequip"
 
 [node name="ItemName" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/EquipmentDetailsPanel/DetailsVBox"]
 layout_mode = 2
+theme_type_variation = &"title"
 text = "No Item Selected"
 horizontal_alignment = 1
 
@@ -653,6 +654,7 @@ stretch_mode = 5
 [node name="ItemDescription" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/EquipmentDetailsPanel/DetailsVBox"]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
+theme_type_variation = &"large"
 autowrap_mode = 3
 
 [node name="AffixesContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Equipment/VBoxContainer/EquipmentDetailsPanel/DetailsVBox"]
@@ -818,13 +820,13 @@ layout_mode = 2
 [node name="ItemName" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 44
+theme_type_variation = &"title"
 text = "No Item Selected"
 horizontal_alignment = 1
 
 [node name="SubtitleLabel" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_type_variation = &"normal"
 
 [node name="InventoryDetailsPanel" type="PanelContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer" groups=["inventory_details_panel"]]
 layout_mode = 2
@@ -855,7 +857,7 @@ layout_mode = 2
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 size_flags_vertical = 1
-theme_override_font_sizes/font_size = 30
+theme_type_variation = &"large"
 text = "This is a description of the item in question, very nice."
 autowrap_mode = 3
 
@@ -866,7 +868,6 @@ theme_override_styles/separator = SubResource("StyleBoxLine_g3tuo")
 
 [node name="AffixesContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/InventoryDetailsPanel/DetailsVBox/PanelContainer3/VBoxContainer"]
 layout_mode = 2
-theme = SubResource("Theme_t1rrh")
 
 [node name="MainLayout" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2

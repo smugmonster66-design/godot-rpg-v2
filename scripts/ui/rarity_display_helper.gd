@@ -67,9 +67,7 @@ static func get_rarity_name(item: EquippableItem) -> String:
 # AFFIX DISPLAY
 # ============================================================================
 
-static func create_affix_label(affix: Affix, name_color: Color = Color(0.9, 0.7, 0.3),
-	name_size: int = ThemeManager.FONT_SIZES.normal,
-	desc_size: int = ThemeManager.FONT_SIZES.caption) -> PanelContainer:
+static func create_affix_label(affix: Affix, name_color: Color = Color(0.9, 0.7, 0.3)) -> PanelContainer:
 	"""Create a display panel for an Affix showing its resolved description."""
 	var panel = PanelContainer.new()
 
