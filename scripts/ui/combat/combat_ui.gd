@@ -277,15 +277,6 @@ func initialize_ui(p_player: Player, p_enemies):
 	# Initialize ActionManager with player
 	action_manager.initialize(player)
 	
-	# Setup displays
-	_setup_health_display()
-	_setup_dice_pool()
-	
-	# Initial field refresh
-	refresh_action_fields()
-	
-	# Reset all charges for combat start
-	reset_action_charges_for_combat()
 	
 	# --- Roll animator (find scene node first, fallback to code-created) ---
 	if not roll_animator:
@@ -298,6 +289,21 @@ func initialize_ui(p_player: Player, p_enemies):
 	# Initialize with hand display + optional pool grid for source positions
 	var bottom_ui_grid = _find_pool_dice_grid()
 	roll_animator.initialize(dice_pool_display, bottom_ui_grid)
+	
+	
+	# Setup displays
+	_setup_health_display()
+	_setup_dice_pool()
+	
+	# Initial field refresh
+	refresh_action_fields()
+	
+	# Reset all charges for combat start
+	reset_action_charges_for_combat()
+	
+	
+	
+	
 	
 	# --- Combat effect player (find scene node first, fallback to code-created) ---
 	if not effect_player:
@@ -356,6 +362,20 @@ func initialize_ui(p_player: Player, p_enemies):
 	# Initialize mana die selector for casters
 	_setup_mana_die_selector()
 	
+	# --- Companion panel: wire effects layer for entry emanates ---
+	# Panel lives on PersistentUILayer (GameRoot), not under CombatUI —
+	# search from scene tree root. Node is named CombatCompanionPanelVBox.
+	if not companion_panel:
+		companion_panel = get_tree().root.find_child("CombatCompanionPanelVBox", true, false)
+	if companion_panel:
+		var effects_layer = get_tree().root.find_child("EffectsLayer", true, false)
+		if effects_layer and companion_panel.has_method("set_effects_layer"):
+			companion_panel.set_effects_layer(effects_layer)
+			print("  ✅ CompanionPanel effects layer wired")
+		else:
+			push_warning("CombatUI: EffectsLayer not found for CompanionPanel")
+	else:
+		print("  ℹ️ No CompanionPanel found")
 	
 	print("🎮 CombatUI initialization complete")
 
@@ -365,6 +385,7 @@ func _setup_health_display():
 	"""Setup health display"""
 	if player_health_display and player_health_display.has_method("initialize"):
 		player_health_display.initialize("Player", player.current_hp, player.max_hp, Color.RED)
+
 
 func _setup_dice_pool():
 	if not dice_pool_display:

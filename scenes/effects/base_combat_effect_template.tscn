@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://cljdj1l4meeqh"]
+
+[ext_resource type="Script" uid="uid://s2wf44twmwso" path="res://scripts/effects/sprite_effect.gd" id="1_0lgi1"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_unkr5"]
+
+[node name="BaseCombatEffectTemplate" type="Node2D"]
+script = ExtResource("1_0lgi1")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_unkr5")

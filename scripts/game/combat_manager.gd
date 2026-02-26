@@ -278,11 +278,7 @@ func initialize_combat(p_player: Player):
 	player = p_player
 	combat_state = CombatState.INITIALIZING
 	
-	event_bus = CombatEventBus.new()
-	event_bus.name = "CombatEventBus"
-	event_bus.debug_logging = OS.is_debug_build()  # optional
-	add_child(event_bus)
-	print("  ✅ CombatEventBus initialized")
+	
 	
 	
 	# Spawn enemies from encounter if we have one

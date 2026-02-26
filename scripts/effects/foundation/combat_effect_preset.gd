@@ -10,6 +10,16 @@
 extends Resource
 class_name CombatEffectPreset
 
+
+
+@export_group("Companion Scene")
+## Optional PackedScene spawned at target alongside the procedural node track.
+## Use for sprite sheet animations (SpriteEffect), custom particle combos, etc.
+## Plays in parallel with the preset's node/shader/screen tracks.
+@export var companion_scene: PackedScene = null
+@export var companion_offset: Vector2 = Vector2.ZERO
+@export var companion_scale: Vector2 = Vector2.ONE
+
 # ============================================================================
 # TARGET SHADER TRACK
 # ============================================================================

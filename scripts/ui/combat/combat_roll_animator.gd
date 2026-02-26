@@ -437,25 +437,52 @@ func _reveal_hand_die(hand_visual: Control):
 	_play_entry_emanate(hand_visual, center)
 
 
+# In scripts/ui/combat/combat_roll_animator.gd
+# Replace the _play_entry_emanate method with this debug version:
+
 func _play_entry_emanate(hand_visual: Control, center: Vector2):
-	if not entry_emanate_preset or not _emanate_container:
+	print("🎆 _play_entry_emanate called:")
+	print("  preset: %s" % ("SET" if entry_emanate_preset else "NULL"))
+	print("  container: %s" % ("EXISTS" if _emanate_container else "NULL"))
+	print("  center: %s" % center)
+	
+	if not entry_emanate_preset:
+		print("  ❌ No entry_emanate_preset - exiting")
+		return
+	
+	if not _emanate_container:
+		print("  ❌ No _emanate_container - exiting")
 		return
 
 	var element: int = DieResource.Element.NONE
 	if hand_visual is DieObjectBase and hand_visual.die_resource:
 		element = hand_visual.die_resource.element
+		print("  element: %d" % element)
+	else:
+		print("  ⚠️ Could not get element from visual")
 
 	var preset = entry_emanate_preset.duplicate() as EmanatePreset
-	preset.emanate_color = _get_emanate_color_for_element(element)
+	if not preset:
+		print("  ❌ Failed to duplicate preset")
+		return
+	
+	var emanate_color = _get_emanate_color_for_element(element)
+	print("  emanate_color: %s" % emanate_color)
+	preset.emanate_color = emanate_color
 
+	print("  ✅ Creating EmanateEffect...")
 	var effect = EmanateEffect.new()
 	_emanate_container.add_child(effect)
+	print("  ✅ Effect added to container, configuring...")
 	effect.configure(preset, center)
+	print("  ✅ Effect configured, playing...")
 	effect.play()
+	print("  ✅ Effect.play() called")
+
 
 func play_single_die_entry(die_index: int) -> void:
-	"""Play roll entry animation for a single die at the given index.
-	Used when mana dice are added mid-combat.
+	"""Play entry animation for a single die (for mana dice added mid-turn).
+	Skips projectile phase - just reveals with pop + emanate.
 	
 	Args:
 		die_index: Index in die_visuals array (NOT hand array - already resolved by caller)
@@ -479,53 +506,17 @@ func play_single_die_entry(die_index: int) -> void:
 	# Wait one frame for layout
 	await get_tree().process_frame
 	
-	# Get positions
-	var source_info = _get_source_info(die_index)
-	var source_center = source_info.get("global_center", Vector2.ZERO)
-	var target_center = visual.global_position + visual.size / 2.0
-	
-	# Already visible from refresh - hide it
+	# Already visible from refresh - hide it momentarily
 	visual.modulate = Color(1, 1, 1, 0)
 	if "draggable" in visual:
 		visual.draggable = false
 	
-	print("  🎬 Launching projectile from %s to %s" % [source_center, target_center])
+	# Small delay to match the feel of the projectile arrival
+	await get_tree().create_timer(0.1).timeout
 	
-	# Create and animate projectile
-	var projectile = _spawn_projectile(source_info)
-	projectile.global_position = source_center - projectile_size / 2
-	projectile.start_emitting()
-	
-	var travel_tween = create_tween()
-	travel_tween.tween_property(
-		projectile, "global_position",
-		target_center - projectile_size / 2,
-		travel_duration
-	).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC)
-	
-	await travel_tween.finished
-	
-	projectile.stop_emitting()
-	if projectile.visual:
-		projectile.visual.visible = false
-	
-	# Clean up projectile
-	var proj_ref = weakref(projectile)
-	get_tree().create_timer(0.3).timeout.connect(
-		func():
-			var p = proj_ref.get_ref()
-			if p and is_instance_valid(p):
-				p.queue_free(),
-		CONNECT_ONE_SHOT
-	)
-	
-	# Reveal with pop + emanate
-	print("  🎬 Revealing die")
+	# Reveal with pop + emanate (no projectile phase)
+	print("  🎬 Revealing mana die")
 	_reveal_hand_die(visual)
-	
-	# Apply roll settle shader
-	if visual is DieObjectBase:
-		_apply_roll_settle(visual)
 	
 	print("  ✅ Mana die animation complete")
 

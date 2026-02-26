@@ -22,7 +22,6 @@ func _ready():
 		else:
 			push_warning("CombatAnimationPlayer: EffectsLayer not found!")
 
-
 func play_action_animation(
 	animation_set: CombatAnimationSet,
 	source_position: Vector2,
@@ -33,24 +32,30 @@ func play_action_animation(
 	Stages can overlap using cast_travel_overlap and travel_impact_overlap."""
 	
 	if not animation_set:
+		print("  🎬 CAP: No animation_set — emitting apply_effect_now")
 		apply_effect_now.emit()
 		return
-	
-	animation_sequence_started.emit()
 	
 	var has_cast = animation_set.cast_preset or animation_set.cast_effect
 	var has_travel = animation_set.travel_effect and target_positions.size() > 0
 	var has_impact = (animation_set.impact_preset or animation_set.impact_effect) and target_positions.size() > 0
 	
+	print("  🎬 CAP: START (cast=%s, travel=%s, impact=%s, targets=%d, effect_at=%s)" % [
+		has_cast, has_travel, has_impact, target_positions.size(),
+		CombatAnimationSet.EffectTiming.keys()[animation_set.apply_effect_at]])
+	
+	animation_sequence_started.emit()
+	
 	# 1. Cast animation (at source/action field)
 	if has_cast:
+		print("  🎬 CAP: Playing CAST...")
 		if has_travel and animation_set.cast_travel_overlap > 0.0:
-			# Fire-and-forget the cast, wait only (cast_duration - overlap) before starting travel
-			_play_cast(animation_set, source_position)  # no await — runs in background
+			_play_cast(animation_set, source_position)
 			var wait = max(animation_set.cast_duration - animation_set.cast_travel_overlap, 0.02)
 			await get_tree().create_timer(wait).timeout
 		else:
 			await _play_cast(animation_set, source_position)
+		print("  🎬 CAP: CAST done")
 	
 	if animation_set.apply_effect_at == CombatAnimationSet.EffectTiming.ON_CAST:
 		apply_effect_now.emit()
@@ -59,12 +64,14 @@ func play_action_animation(
 	
 	# 2. Travel animation (projectile to each target)
 	if has_travel:
+		print("  🎬 CAP: Playing TRAVEL...")
 		if has_impact and animation_set.travel_impact_overlap > 0.0:
 			_play_travel(animation_set, source_position, target_positions)
 			var wait = max(animation_set.travel_duration - animation_set.travel_impact_overlap, 0.02)
 			await get_tree().create_timer(wait).timeout
 		else:
 			await _play_travel(animation_set, source_position, target_positions)
+		print("  🎬 CAP: TRAVEL done")
 	
 	if animation_set.apply_effect_at == CombatAnimationSet.EffectTiming.ON_TRAVEL_END:
 		apply_effect_now.emit()
@@ -73,15 +80,20 @@ func play_action_animation(
 	
 	# 3. Impact animation (at each target)
 	if has_impact:
+		print("  🎬 CAP: Playing IMPACT...")
 		if animation_set.impact_delay > 0:
 			await get_tree().create_timer(animation_set.impact_delay).timeout
 		await _play_impact(animation_set, target_positions, target_nodes)
+		print("  🎬 CAP: IMPACT done")
 	
 	if animation_set.apply_effect_at == CombatAnimationSet.EffectTiming.ON_IMPACT:
 		apply_effect_now.emit()
 	
 	impact_finished.emit()
 	animation_sequence_finished.emit()
+	print("  🎬 CAP: FINISHED")
+
+
 
 func _play_cast(anim_set: CombatAnimationSet, position: Vector2):
 	var cast_pos = position + anim_set.cast_offset
@@ -90,7 +102,7 @@ func _play_cast(anim_set: CombatAnimationSet, position: Vector2):
 	if anim_set.cast_effect and anim_set.cast_effect is PackedScene:
 		var effect = anim_set.cast_effect.instantiate()
 		_add_effect(effect, cast_pos)
-		effect.scale = anim_set.cast_scale
+		effect.scale *= anim_set.cast_scale
 		
 		if anim_set.cast_sound:
 			_play_sound(anim_set.cast_sound, cast_pos)

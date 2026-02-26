@@ -20,7 +20,7 @@ class_name CompanionPanel
 # ============================================================================
 
 var companion_slots: Array[CompanionSlot] = []
-
+var _effects_layer: CanvasLayer = null
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
@@ -88,6 +88,9 @@ func set_companion(slot_index: int, companion: CompanionCombatant) -> void:
 		print("  [Companion] Panel slot %d (scene %s) <- %s" % [
 			slot_index, slot.name, companion.combatant_name])
 
+func set_effects_layer(layer: CanvasLayer) -> void:
+	_effects_layer = layer
+
 func clear_slot(slot_index: int) -> void:
 	"""Clear a specific slot."""
 	var slot = _get_slot(slot_index)
@@ -130,8 +133,15 @@ func show_taunt(slot_index: int, is_taunting: bool) -> void:
 func play_summon_enter(slot_index: int) -> void:
 	"""Play the swirl-in animation for a new summon."""
 	var slot = _get_slot(slot_index)
-	if slot:
-		await slot.play_summon_enter()
+	if not slot:
+		return
+
+	# Pull entry emanate preset from the companion's data
+	var entry_emanate: EmanatePreset = null
+	if slot.companion and slot.companion.companion_data:
+		entry_emanate = slot.companion.companion_data.entry_emanate_preset
+
+	await slot.play_summon_enter(entry_emanate, _effects_layer)
 
 func play_summon_exit(slot_index: int) -> void:
 	"""Play the dissolve-out animation for a departing summon."""
@@ -141,13 +151,18 @@ func play_summon_exit(slot_index: int) -> void:
 		slot.set_empty()
 
 func play_summon_replace(slot_index: int, new_companion: CompanionCombatant) -> void:
-	"""Dissolve old, swirl in new (~1s total)."""
+	"""Dissolve old → swirl in new (~1s total)."""
 	var slot = _get_slot(slot_index)
 	if not slot:
 		return
 	await slot.play_summon_exit()
 	slot.set_companion(new_companion)
-	await slot.play_summon_enter()
+
+	var entry_emanate: EmanatePreset = null
+	if new_companion and new_companion.companion_data:
+		entry_emanate = new_companion.companion_data.entry_emanate_preset
+
+	await slot.play_summon_enter(entry_emanate, _effects_layer)
 
 # ============================================================================
 # QUERIES

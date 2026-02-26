@@ -115,6 +115,7 @@ enum CompanionTarget {
 ## Idle sprite for overworld/persistent display.
 @export var idle_animation: SpriteFrames = null
 @export var summon_enter_preset: SummonPreset = null
+@export var entry_emanate_preset: EmanatePreset = null
 # ============================================================================
 # DURATION (summons only)
 # ============================================================================

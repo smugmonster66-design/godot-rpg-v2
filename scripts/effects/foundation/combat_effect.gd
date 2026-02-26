@@ -104,6 +104,16 @@ func play() -> void:
 	_start_shader_track()
 	_start_screen_track()
 
+	if _preset.companion_scene:
+		var scene_instance = _preset.companion_scene.instantiate()
+		add_child(scene_instance)
+		if scene_instance is Node2D:
+			scene_instance.global_position = _target_pos + _preset.companion_offset
+			scene_instance.scale = _preset.companion_scale
+		if scene_instance.has_method("play"):
+			scene_instance.play()
+
+
 	# Node track is the primary timeline — subclasses implement this
 	await _execute_node_track()
 

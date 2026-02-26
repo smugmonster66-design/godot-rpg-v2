@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://pc0eo2522dpe" path="res://resources/data/companion_data.gd" id="2_micht"]
 [ext_resource type="Texture2D" uid="uid://cxhxycueqqbp0" path="res://assets/characters/companions/manne_placeholder_bust.png" id="3_2ayxl"]
 [ext_resource type="Resource" uid="uid://c5h8lam3n4p5q" path="res://resources/statuses/taunt.tres" id="4_aribs"]
-[ext_resource type="Resource" uid="uid://tspwgx50bmmh" path="res://resources/animations/classes/mage/storm/chromatic bolt/chromatic_bolt_lightning_aniset.tres" id="4_bcqdx"]
+[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="4_bcqdx"]
 
 [sub_resource type="Resource" id="Resource_ff43j"]
 script = ExtResource("1_gcl3b")
