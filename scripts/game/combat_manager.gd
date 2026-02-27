@@ -981,6 +981,10 @@ func _play_action_with_animation(action_data: Dictionary, targets: Array, target
 					live_targets.append(t)
 			_apply_action_effect(action_data, p, live_targets)
 	
+	# Notify UI that action animation is complete (so it can collapse expanded field)
+	if combat_ui and combat_ui.has_method("on_action_animation_complete"):
+		await combat_ui.on_action_animation_complete()
+	
 	combat_state = CombatState.PLAYER_TURN
 
 func _get_enemy_portrait_position(enemy_index: int) -> Vector2:

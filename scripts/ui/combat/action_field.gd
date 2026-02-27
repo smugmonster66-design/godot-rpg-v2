@@ -43,6 +43,12 @@ var action_resource: Action = null
 @export_group("Rarity Glow")
 @export var badge_glow_config: RarityGlowConfig
 
+
+
+@onready var action_buttons_container: HBoxContainer = $ActionButtonsContainer
+@onready var confirm_button: Button = $ActionButtonsContainer/ConfirmButton
+@onready var cancel_button: Button = $ActionButtonsContainer/CancelButton
+
 # ============================================================================
 # SIGNALS
 # ============================================================================
@@ -81,7 +87,7 @@ var _is_chromatic_action: bool = false
 var damage_formula_label: RichTextLabel = null
 var charge_container: PanelContainer = null
 var charge_rich_label: RichTextLabel = null
-
+@export var show_action_buttons: bool = true
 
 # ============================================================================
 # STATE
@@ -128,6 +134,37 @@ func _ready():
 	_apply_element_shader()
 	_update_damage_preview()
 	_setup_source_badge()
+	# Connect action buttons
+	if confirm_button:
+		confirm_button.pressed.connect(_on_confirm_button_pressed)
+	if cancel_button:
+		cancel_button.pressed.connect(_on_cancel_button_pressed)
+	
+	# Buttons visibility based on flag
+	if action_buttons_container:
+		action_buttons_container.visible = show_action_buttons
+		if show_action_buttons:
+			_update_confirm_button_state()
+
+func _on_confirm_button_pressed():
+	"""Internal confirm button pressed"""
+	if not is_ready_to_confirm():
+		return
+	
+	# Let CombatUI handle the confirmation (it has all the logic)
+	var combat_ui = get_tree().get_first_node_in_group("combat_ui")
+	if combat_ui and combat_ui.has_method("_on_confirm_pressed"):
+		combat_ui._on_confirm_pressed()
+
+func _on_cancel_button_pressed():
+	"""Internal cancel button pressed"""
+	cancel_action()
+
+func _update_confirm_button_state():
+	"""Enable/disable confirm based on readiness"""
+	if confirm_button:
+		confirm_button.disabled = not is_ready_to_confirm()
+
 
 func _discover_nodes():
 	name_label = find_child("NameLabel", true, false) as Label
@@ -741,8 +778,7 @@ func configure_from_dict(action_data: Dictionary):
 	else:
 		element = _infer_element_from_effects(action_data)
 	
-	if action_resource:
-		action_resource.reset_charges_for_combat()
+	
 	
 	if is_node_ready():
 		refresh_ui()
@@ -1061,6 +1097,8 @@ func place_die_animated(die: DieResource, from_pos: Vector2, source_visual: Cont
 	
 	die_placed.emit(self, die)
 	
+	_update_confirm_button_state()  # Enable confirm button when die is placed
+	
 	if is_ready_to_confirm():
 		action_ready.emit(self)
 		action_selected.emit(self)
@@ -1069,6 +1107,7 @@ func place_die_animated(die: DieResource, from_pos: Vector2, source_visual: Cont
 
 func place_die(die: DieResource):
 	place_die_animated(die, global_position, null, -1)
+	_update_confirm_button_state()
 
 func _create_placed_visual(die: DieResource) -> Control:
 	# Try to use new DieObject system
@@ -1196,6 +1235,7 @@ func cancel_action():
 	_clear_placed_dice()
 	action_cancelled.emit(self)
 	dice_return_complete.emit()
+	_update_confirm_button_state()
 
 func _clear_placed_dice():
 	for obj in dice_visuals:
@@ -1210,6 +1250,7 @@ func _clear_placed_dice():
 	
 	update_icon_state()
 	_update_damage_preview()
+	_update_confirm_button_state()
 	
 	# ── NEW: Instant-clear the floater ──
 	if damage_floater:
@@ -1227,6 +1268,7 @@ func clear_dice():
 	"""Alias for consume_dice - clears placed dice from slots"""
 	_clear_placed_dice()
 	update_icon_state()
+	_update_confirm_button_state()
 
 func reset_charges():
 	if action_resource:

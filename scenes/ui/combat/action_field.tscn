@@ -24,10 +24,6 @@ metadata/_edit_vertical_guides_ = [-146.0]
 [node name="FillTexture" type="NinePatchRect" parent="."]
 layout_mode = 2
 texture = ExtResource("2_0cgqb")
-patch_margin_left = 20
-patch_margin_top = 20
-patch_margin_right = 20
-patch_margin_bottom = 20
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
@@ -135,3 +131,18 @@ patch_margin_left = 15
 patch_margin_top = 15
 patch_margin_right = 15
 patch_margin_bottom = 15
+
+[node name="ActionButtonsContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 8
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="ConfirmButton" type="Button" parent="ActionButtonsContainer"]
+layout_mode = 2
+text = "Confirm"
+
+[node name="CancelButton" type="Button" parent="ActionButtonsContainer"]
+layout_mode = 2
+text = "Cancel"

@@ -45,31 +45,53 @@ custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ActionFieldsArea" type="VBoxContainer" parent="MarginContainer/VBox"]
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 128
+theme_override_constants/margin_right = 128
+
+[node name="ActionFieldsArea" type="VBoxContainer" parent="MarginContainer/VBox/MarginContainer"]
 custom_minimum_size = Vector2(0, 400)
 layout_mode = 2
 size_flags_vertical = 3
 alignment = 1
 
-[node name="ActionFieldsScroll" type="ScrollContainer" parent="MarginContainer/VBox/ActionFieldsArea"]
+[node name="PreviewScrollContainer" type="ScrollContainer" parent="MarginContainer/VBox/MarginContainer/ActionFieldsArea"]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
+scroll_deadzone = 16
 
-[node name="FieldsMargin" type="MarginContainer" parent="MarginContainer/VBox/ActionFieldsArea/ActionFieldsScroll"]
+[node name="ActionFieldsGrid" type="GridContainer" parent="MarginContainer/VBox/MarginContainer/ActionFieldsArea/PreviewScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/margin_left = 120
-theme_override_constants/margin_right = 120
-
-[node name="ActionFieldsGrid" type="GridContainer" parent="MarginContainer/VBox/ActionFieldsArea/ActionFieldsScroll/FieldsMargin"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
+size_flags_vertical = 2
 theme_override_constants/h_separation = 120
 theme_override_constants/v_separation = 10
-columns = 2
+columns = 3
+
+[node name="ExpandedFieldOverlay" type="Control" parent="MarginContainer/VBox/MarginContainer/ActionFieldsArea"]
+layout_mode = 2
+
+[node name="DimBackground" type="ColorRect" parent="MarginContainer/VBox/MarginContainer/ActionFieldsArea/ExpandedFieldOverlay"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.63000005)
+
+[node name="ExpandedFieldContainer" type="Control" parent="MarginContainer/VBox/MarginContainer/ActionFieldsArea/ExpandedFieldOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="Spacer2" type="Control" parent="MarginContainer/VBox"]
 visible = false

@@ -38,8 +38,6 @@ var dice_grid: Control
 var dice_count_label: Label
 var right_section: VBoxContainer
 var menu_button: Button
-var confirm_button: Button
-var cancel_button: Button
 var roll_button: Button
 var end_turn_button: Button
 var button_area: CenterContainer
@@ -62,8 +60,6 @@ func _ready():
 	dice_grid = find_child("DiceGrid", true, false)
 	dice_count_label = find_child("DiceCountLabel", true, false) as Label
 	menu_button = find_child("MenuButton", true, false) as Button
-	confirm_button = find_child("ConfirmButton", true, false) as Button
-	cancel_button = find_child("CancelButton", true, false) as Button
 	roll_button = find_child("RollButton", true, false) as Button
 	end_turn_button = find_child("EndTurnButton", true, false) as Button
 	button_area = find_child("ButtonArea", true, false) as CenterContainer
@@ -82,10 +78,7 @@ func _ready():
 		roll_button.pressed.connect(func(): roll_pressed.emit())
 	if end_turn_button:
 		end_turn_button.pressed.connect(func(): end_turn_pressed.emit())
-	if confirm_button:
-		confirm_button.pressed.connect(func(): confirm_pressed.emit())
-	if cancel_button:
-		cancel_button.pressed.connect(func(): cancel_pressed.emit())
+	
 	_hide_combat_buttons()
 	
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -303,10 +296,7 @@ func enter_action_phase():
 	# Disable mana drag during prep (selector stays visible)
 
 
-func show_action_buttons(show: bool):
-	"""Show or hide Confirm/Cancel (when action field has dice placed)."""
-	if action_buttons_container:
-		action_buttons_container.visible = show
+
 
 func enter_enemy_turn():
 	"""Enemy's turn — hide all player buttons."""

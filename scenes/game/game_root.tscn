@@ -1,19 +1,15 @@
-[gd_scene load_steps=40 format=3 uid="uid://b2w217jydc2gl"]
+[gd_scene load_steps=36 format=3 uid="uid://b2w217jydc2gl"]
 
 [ext_resource type="Script" uid="uid://c2ftibv05ag52" path="res://scripts/game/game_root.gd" id="1_pevc5"]
-[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_ani7a"]
 [ext_resource type="Script" uid="uid://buljuod5rywxy" path="res://scripts/shared/game_camera.gd" id="2_i88f8"]
 [ext_resource type="PackedScene" uid="uid://dg4shmm2jhcnd" path="res://scenes/game/combat_scene.tscn" id="2_n6w2t"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="2_reamk"]
 [ext_resource type="PackedScene" uid="uid://b3hskvtstgnbh" path="res://scenes/dungeon/dungeon_scene.tscn" id="3_a6cr8"]
-[ext_resource type="Resource" uid="uid://cvw1wm0jklf5w" path="res://resources/dice/test_animation_dice/test_die_destroyer.tres" id="3_hto6r"]
 [ext_resource type="PackedScene" uid="uid://cx781vq4omutw" path="res://scenes/game/map_scene.tscn" id="4_0krdv"]
 [ext_resource type="Resource" uid="uid://ddjuebhrjj3fm" path="res://resources/items/debug/diagnostic_ring.tres" id="4_ax1hr"]
 [ext_resource type="Texture2D" uid="uid://b5idgxy5pjm63" path="res://assets/ui/panels/9patch_bones.png" id="4_n6w2t"]
-[ext_resource type="Resource" uid="uid://dhe0bewac6wjl" path="res://resources/dice/test_animation_dice/test_die_locked.tres" id="4_nmlv8"]
 [ext_resource type="Resource" uid="uid://dqvjoyvbna53o" path="res://resources/items/main hand/the_nuke.tres" id="4_vvhw6"]
 [ext_resource type="PackedScene" uid="uid://c0w3t10mfnowo" path="res://scenes/ui/bottom_ui_panel.tscn" id="5_n6w2t"]
-[ext_resource type="Resource" uid="uid://kc36gwm0k44h" path="res://resources/dice/test_animation_dice/test_die_reroller.tres" id="5_xskmf"]
 [ext_resource type="Texture2D" uid="uid://bk7srh475afct" path="res://assets/ui/portrait frames/placeholder/placeholder_frame_front.png" id="6_0krdv"]
 [ext_resource type="Script" uid="uid://dfridktvwqyau" path="res://scripts/ui/portrait_controller.gd" id="6_elccf"]
 [ext_resource type="Texture2D" uid="uid://78pjnt2x1fn1" path="res://assets/characters/Bones/portraits/bones_placeholder_portrait.png" id="7_elccf"]
@@ -67,7 +63,6 @@ texture = ExtResource("6_0krdv")
 script = ExtResource("1_pevc5")
 dev_mode = true
 dev_level = 1
-dev_dice = Array[ExtResource("2_ani7a")]([ExtResource("3_hto6r"), ExtResource("4_nmlv8"), ExtResource("5_xskmf")])
 dev_items = Array[ExtResource("2_reamk")]([ExtResource("4_vvhw6"), ExtResource("4_ax1hr")])
 dev_item_level = 1
 dev_companions = Array[ExtResource("9_nmlv8")]([ExtResource("10_xskmf")])

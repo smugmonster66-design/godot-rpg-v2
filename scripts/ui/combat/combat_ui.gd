@@ -11,9 +11,19 @@ var player_health_display = null
 var dice_pool_display = null
 var enemy_panel: EnemyPanel = null
 
+
+# Expansion overlay nodes
+var expanded_field_overlay: Control = null
+var expanded_field_container: Control = null
+var dim_background: ColorRect = null
+var current_expanded_field: ActionField = null
+var _expansion_in_progress: bool = false
+var _expansion_just_finished: bool = false
+
+
 # Action field scene for dynamic creation
 var action_field_scene: PackedScene = null
-
+var action_field_preview_scene: PackedScene = null
 # Dynamically created action fields
 var action_fields: Array[ActionField] = []
 
@@ -73,7 +83,7 @@ var _bottom_ui: BottomUIPanel = null
 signal action_confirmed(action_data: Dictionary)
 signal turn_ended()
 signal target_selected(enemy: Combatant, index: int)
-
+signal action_animation_complete()
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
@@ -81,10 +91,17 @@ signal target_selected(enemy: Combatant, index: int)
 func _ready():
 	print("🎮 CombatUI initializing...")
 	
-	# Load action field scene
+	# Add to group for access
+	add_to_group("combat_ui")
+	
+	# Load action field scenes
 	action_field_scene = load("res://scenes/ui/combat/action_field.tscn")
 	if not action_field_scene:
 		push_error("Failed to load action_field.tscn!")
+	
+	action_field_preview_scene = load("res://scenes/ui/combat/action_field_preview.tscn")
+	if not action_field_preview_scene:
+		push_error("Failed to load action_field_preview.tscn!")
 	
 	# Find all UI nodes from scene
 	_discover_all_nodes()
@@ -149,7 +166,7 @@ func _discover_all_nodes():
 	print("    ManaDieSelector: %s" % ("✓" if mana_die_selector else "✗"))
 	
 	
-	
+
 func _ensure_scrollable_grid():
 	"""Find scrollable action grid from scene"""
 	var fields_area = find_child("ActionFieldsArea", true, false)
@@ -157,10 +174,10 @@ func _ensure_scrollable_grid():
 		push_error("ActionFieldsArea not found!")
 		return
 	
-	# Find scroll container
-	action_fields_scroll = fields_area.find_child("ActionFieldsScroll", true, false) as ScrollContainer
+	# Find preview scroll container
+	action_fields_scroll = fields_area.find_child("PreviewScrollContainer", true, false) as ScrollContainer
 	if not action_fields_scroll:
-		push_error("ActionFieldsScroll not found!")
+		push_error("PreviewScrollContainer not found!")
 		return
 	
 	# =========================================================================
@@ -169,28 +186,78 @@ func _ensure_scrollable_grid():
 	# Setting to PASS lets drops fall through to the ActionFields.
 	# =========================================================================
 	action_fields_scroll.mouse_filter = Control.MOUSE_FILTER_PASS
-	print("    🔧 ActionFieldsScroll mouse_filter → PASS (drag-drop fix)")
+	print("    🔧 PreviewScrollContainer mouse_filter → PASS (drag-drop fix)")
 	
-	# Check for CenterContainer between ScrollContainer and Grid
+	# Configure scrolling for mobile
+	action_fields_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	action_fields_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	action_fields_scroll.follow_focus = false
+	
+	# Check for margin/center container between ScrollContainer and Grid
 	var center = action_fields_scroll.find_child("FieldsMargin", true, false)
 	if center and center is Control:
 		center.mouse_filter = Control.MOUSE_FILTER_PASS
-		print("    🔧 CenterContainer mouse_filter → PASS (drag-drop fix)")
+		print("    🔧 FieldsMargin mouse_filter → PASS (drag-drop fix)")
 	
-	# Find grid (inside CenterContainer)
+	# Find grid (inside scroll container)
 	action_fields_grid = action_fields_scroll.find_child("ActionFieldsGrid", true, false) as GridContainer
 	if not action_fields_grid:
 		push_error("ActionFieldsGrid not found!")
 		return
 	
-	# Grid also needs PASS so it doesn't eat the drop
+	# Grid needs PASS so previews underneath can receive clicks
 	action_fields_grid.mouse_filter = Control.MOUSE_FILTER_PASS
 	print("    🔧 ActionFieldsGrid mouse_filter → PASS (drag-drop fix)")
+	
+	# Set grid columns for preview layout
+	action_fields_grid.columns = 4  # 4 previews per row
+	
+	# Find expansion overlay nodes
+	expanded_field_overlay = fields_area.find_child("ExpandedFieldOverlay", true, false) as Control
+	expanded_field_container = fields_area.find_child("ExpandedFieldContainer", true, false) as Control
+	dim_background = fields_area.find_child("DimBackground", true, false) as ColorRect
+	
+	if not expanded_field_overlay:
+		push_warning("⚠️ ExpandedFieldOverlay not found - expansion won't work!")
+	else:
+		print("    ExpandedFieldOverlay: ✓")
+		
+		# Setup overlay to fill entire screen (CRITICAL for click detection)
+		expanded_field_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+		expanded_field_overlay.anchor_left = 0.0
+		expanded_field_overlay.anchor_top = 0.0
+		expanded_field_overlay.anchor_right = 1.0
+		expanded_field_overlay.anchor_bottom = 1.0
+		expanded_field_overlay.offset_left = 0
+		expanded_field_overlay.offset_top = 0
+		expanded_field_overlay.offset_right = 0
+		expanded_field_overlay.offset_bottom = 0
+		
+		# DEBUG: Check parent constraints
+		var parent = expanded_field_overlay.get_parent()
+		print("    🔍 Overlay parent: %s (size: %s)" % [parent.name if parent else "NULL", parent.size if parent else "N/A"])
+		
+		# Make overlay itself catch all clicks
+		expanded_field_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+		if expanded_field_overlay.gui_input.is_connected(_on_overlay_clicked):
+			expanded_field_overlay.gui_input.disconnect(_on_overlay_clicked)
+		expanded_field_overlay.gui_input.connect(_on_overlay_clicked)
+		
+		# Dim background is visual only - hidden until expansion
+		if dim_background:
+			dim_background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			dim_background.visible = false  # Hide by default
+		
+		# Container passes clicks through to overlay
+		if expanded_field_container:
+			expanded_field_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		
+		print("    🔧 Overlay click-to-collapse connected")
 	
 	# Configure scroll settings
 	_configure_scroll_container()
 	
-	print("    ActionFieldsScroll: ✓")
+	print("    PreviewScrollContainer: ✓")
 	print("    ActionFieldsGrid: ✓")
 
 
@@ -284,6 +351,23 @@ func initialize_ui(p_player: Player, p_enemies):
 	# Initialize ActionManager with player
 	action_manager.initialize(player)
 	
+	# DEBUG: Check what actions exist after initialize
+	print("🔍 ActionManager initialized, checking actions...")
+	var actions_after_init = action_manager.get_actions()
+	print("🔍 Found %d actions after initialize" % actions_after_init.size())
+	for action_data in actions_after_init:
+		var action_res = action_data.get("action_resource", null)
+		print("  - %s: has resource=%s" % [action_data.get("name", "?"), action_res != null])
+		if action_res:
+			print("    charge_type=%s, has reset method=%s" % [
+				action_res.charge_type if "charge_type" in action_res else "MISSING",
+				action_res.has_method("reset_charges_for_combat")
+			])
+	
+	
+	# Reset all charges for combat start BEFORE creating previews
+	_reset_action_manager_charges_for_combat()
+	
 	
 	# --- Roll animator (find scene node first, fallback to code-created) ---
 	if not roll_animator:
@@ -302,11 +386,14 @@ func initialize_ui(p_player: Player, p_enemies):
 	_setup_health_display()
 	_setup_dice_pool()
 	
-	# Initial field refresh
-	refresh_action_fields()
 	
 	# Reset all charges for combat start
 	reset_action_charges_for_combat()
+	
+	# Initial field refresh
+	refresh_action_fields()
+	
+	
 	
 	
 	
@@ -599,16 +686,13 @@ func enter_prep_phase():
 	is_enemy_turn = false
 
 	_set_dice_pool_visible(false)
-
-	# Clear placed dice from action fields, but keep the fields
-	for field in action_fields:
-		if is_instance_valid(field) and field.placed_dice.size() > 0:
-			field.clear_dice()
+	
+	# Disable preview interaction during prep phase
+	_set_previews_enabled(false)
 
 	hide_enemy_hand()
 
-	# Show player actions immediately (replaces enemy actions from previous turn)
-	refresh_action_fields()
+	
 
 	if _bottom_ui:
 		_bottom_ui.enter_prep_phase()
@@ -621,9 +705,11 @@ func enter_action_phase():
 
 	_set_dice_pool_visible(true)
 
-	refresh_action_fields()
 	reset_action_charges_for_turn()
 	_apply_combat_charge_state()
+	
+	# Enable preview interaction in action phase
+	_set_previews_enabled(true)
 
 	if enemy_panel:
 		enemy_panel.select_first_living_enemy()
@@ -632,11 +718,56 @@ func enter_action_phase():
 	if _bottom_ui:
 		_bottom_ui.enter_action_phase()
 
-
+func _set_previews_enabled(enabled: bool):
+	"""Enable/disable interaction with action field previews"""
+	if not action_fields_grid:
+		return
+	
+	for child in action_fields_grid.get_children():
+		if child is ActionFieldPreview:
+			if enabled:
+				child.mouse_filter = Control.MOUSE_FILTER_STOP
+			else:
+				child.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	print("  🔒 Previews %s" % ("ENABLED" if enabled else "DISABLED"))
 
 # ============================================================================
 # CHARGE MANAGEMENT
 # ============================================================================
+
+func _reset_action_manager_charges_for_combat():
+	"""Reset charges directly on ActionManager's actions before creating previews"""
+	print("🔋 _reset_action_manager_charges_for_combat() called")
+	
+	if not action_manager:
+		print("  ⚠️ No action_manager!")
+		return
+	
+	var all_actions = action_manager.get_actions()
+	print("  📋 Found %d actions to reset" % all_actions.size())
+	
+	for action_data in all_actions:
+		var action_name = action_data.get("name", "Unknown")
+		var action_res = action_data.get("action_resource", null)
+		
+		if not action_res:
+			print("  ⚠️ '%s': NO action_resource!" % action_name)
+			continue
+		
+		if not action_res.has_method("reset_charges_for_combat"):
+			print("  ⚠️ '%s': No reset_charges_for_combat() method!" % action_name)
+			continue
+		
+		print("  🔋 Resetting charges for '%s'..." % action_name)
+		action_res.reset_charges_for_combat()
+		
+		# Verify it worked
+		if action_res.has_method("has_charges"):
+			var has_charges_now = action_res.has_charges()
+			print("    ✅ After reset: has_charges=%s" % has_charges_now)
+		else:
+			print("    ⚠️ No has_charges() method to verify!")
 
 func reset_action_charges_for_combat():
 	"""Reset all action charges at combat start"""
@@ -647,10 +778,18 @@ func reset_action_charges_for_combat():
 
 func reset_action_charges_for_turn():
 	"""Reset per-turn action charges"""
-	for field in action_fields:
-		if is_instance_valid(field) and field.action_resource:
-			field.action_resource.reset_charges_for_turn()
-			field.refresh_charge_state()
+	# Reset on ActionManager's actions (for previews)
+	if action_manager:
+		var all_actions = action_manager.get_actions()
+		for action_data in all_actions:
+			var action_res = action_data.get("action_resource", null)
+			if action_res and action_res.has_method("reset_charges_for_turn"):
+				action_res.reset_charges_for_turn()
+	
+	# Also reset on any expanded field
+	if current_expanded_field and current_expanded_field.action_resource:
+		current_expanded_field.action_resource.reset_charges_for_turn()
+		current_expanded_field.refresh_charge_state()
 
 func on_action_used(field: ActionField):
 	"""Called when an action is confirmed - consume charge and track it"""
@@ -677,7 +816,7 @@ var _refreshing_action_fields: bool = false
 
 
 func refresh_action_fields():
-	"""Rebuild action fields grid from player's available actions"""
+	"""Rebuild action preview grid from player's available actions"""
 	if _refreshing_action_fields:
 		return  # Already refreshing, skip
 	
@@ -690,37 +829,52 @@ func refresh_action_fields():
 	
 	_refreshing_action_fields = true
 	
-	# Clear existing fields
+	# Collapse any expanded field first
+	if current_expanded_field:
+		await _collapse_expanded_field()
+	
+	# Clear existing previews
 	for child in action_fields_grid.get_children():
 		child.queue_free()
 	action_fields.clear()
 	
-	# Get all actions (unified list, no categories)
-	var all_actions = action_manager.get_actions()
-	
-	print("🎮 Creating %d player action fields" % all_actions.size())
-	
-	# Wait a frame for children to be freed
 	await get_tree().process_frame
 	
-	# Create action field for each action
+	# Get all actions
+	var all_actions = action_manager.get_actions()
+	
+	print("🎮 Creating %d action field previews" % all_actions.size())
+	
+	# Create preview for each action
 	for action_data in all_actions:
-		var field = _create_action_field(action_data)
-		if field:
-			action_fields_grid.add_child(field)
-			action_fields.append(field)
-			# =================================================================
-			# SAFETY: Ensure player fields are STOP (not IGNORE).
-			# configure_from_dict → update_disabled_state can set IGNORE
-			# if has_charges() returns false before action_resource is
-			# fully initialized. This forces STOP for non-disabled fields.
-			# =================================================================
-			if not field.is_disabled:
-				field.mouse_filter = Control.MOUSE_FILTER_STOP
+		var preview = _create_action_preview(action_data)
+		if preview:
+			action_fields_grid.add_child(preview)
+	
+	# Reset scroll position to top
+	if action_fields_scroll:
+		action_fields_scroll.scroll_vertical = 0
 	
 	_refreshing_action_fields = false
 
-
+func _create_action_preview(action_data: Dictionary) -> ActionFieldPreview:
+	"""Create a compact action preview"""
+	if not action_field_preview_scene:
+		push_error("ActionFieldPreview scene not loaded!")
+		return null
+	
+	var preview = action_field_preview_scene.instantiate() as ActionFieldPreview
+	if not preview:
+		push_error("Failed to instantiate ActionFieldPreview!")
+		return null
+	
+	# Configure from data
+	preview.configure_from_dict(action_data)
+	
+	# Connect tap signal
+	preview.preview_tapped.connect(_on_preview_tapped)
+	
+	return preview
 
 func _create_action_field(action_data: Dictionary) -> ActionField:
 	"""Create a single action field from data"""
@@ -797,16 +951,14 @@ func _on_dice_return_complete():
 
 
 func _on_action_field_selected(field: ActionField):
-	"""Action field was selected (die placed). Derive targeting mode from
-	the Action resource and activate the appropriate overlay."""
 	if is_enemy_turn:
 		return
 
 	print("🎯 Action field selected: %s" % field.action_name)
-
 	selected_action_field = field
-
-	# Derive targeting mode from the Action resource
+	
+	
+	# Derive targeting mode
 	var mode := TargetingMode.Mode.NONE
 	if field.action_resource:
 		mode = field.action_resource.get_targeting_mode()
@@ -823,9 +975,7 @@ func _on_action_field_selected(field: ActionField):
 	print("  📐 Targeting mode: %s" % TargetingMode.get_label(mode))
 	_activate_targeting(mode)
 
-	# Show confirm/cancel via BottomUIPanel
-	if _bottom_ui:
-		_bottom_ui.show_action_buttons(true)
+	
 
 func _on_action_field_confirmed(action_data: Dictionary):
 	"""Action was confirmed from field directly"""
@@ -838,6 +988,11 @@ func _on_action_field_confirmed(action_data: Dictionary):
 
 func show_enemy_actions(enemy_combatant: Combatant):
 	"""Display enemy's available actions in the ActionFieldsGrid"""
+	
+	# Collapse any expanded player field first
+	if current_expanded_field:
+		await _collapse_expanded_field()
+	
 	is_enemy_turn = true
 	
 	if not action_fields_grid:
@@ -887,16 +1042,27 @@ func _create_enemy_action_field(action_data: Dictionary) -> ActionField:
 	# Configure from data
 	field.configure_from_dict(action_data)
 	
-	# Disable player interaction
+	# Disable player interaction and hide buttons for enemy display
+	field.show_action_buttons = false
 	field.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	
 	return field
 
 func find_action_field_by_name(action_name: String) -> ActionField:
 	"""Find an action field by its action name"""
+	# Check expanded field first (preview system)
+	if current_expanded_field and is_instance_valid(current_expanded_field):
+		if current_expanded_field.action_name == action_name:
+			print("  🎯 Found action field: current_expanded_field ('%s')" % action_name)
+			return current_expanded_field
+	
+	# Legacy: check action_fields array (will be empty in preview mode)
 	for field in action_fields:
 		if is_instance_valid(field) and field.action_name == action_name:
+			print("  🎯 Found action field: in action_fields array ('%s')" % action_name)
 			return field
+	
+	print("  ⚠️ Action field NOT found: '%s'" % action_name)
 	return null
 
 func highlight_enemy_action(action_name: String):
@@ -1144,13 +1310,17 @@ func _on_confirm_pressed():
 	_consume_placed_dice(placed_dice_copy)
 	_clear_action_field_with_animation(selected_action_field)
 
-	# Hide confirm/cancel
-	if _bottom_ui:
-		_bottom_ui.show_action_buttons(false)
+	
 
 	disable_target_selection()
+	
 	selected_action_field = null
+	
+	# Emit action confirmation (this triggers combat manager to execute the action)
 	action_confirmed.emit(action_data)
+	
+	# DON'T collapse here - let the action animation use the field's position
+	# The field will be collapsed when we return to prep phase or when another action is selected
 
 
 func _get_target_side_string() -> String:
@@ -1219,15 +1389,11 @@ func _animate_die_consumed(visual: Control):
 
 
 func _on_cancel_pressed():
-	"""Cancel button pressed"""
+	"""Cancel button pressed (now called from ActionField)"""
 	if selected_action_field:
-		selected_action_field.cancel_action()
-
+		selected_action_field.cancel_action()  # This will hide its own buttons
+	
 	selected_action_field = null
-
-	if _bottom_ui:
-		_bottom_ui.show_action_buttons(false)
-
 	disable_target_selection()
 
 func _on_end_turn_pressed():
@@ -1237,9 +1403,6 @@ func _on_end_turn_pressed():
 	for field in action_fields:
 		if is_instance_valid(field) and field.has_method("cancel_action") and field.placed_dice.size() > 0:
 			field.cancel_action()
-
-	if _bottom_ui:
-		_bottom_ui.show_action_buttons(false)
 
 	turn_ended.emit()
 
@@ -1403,6 +1566,10 @@ func animate_enemy_die_placement(_enemy_combatant: Combatant, _die: DieResource,
 	
 	await tween.finished
 
+func on_action_animation_complete():
+	"""Called by CombatManager when action animation finishes"""
+	if current_expanded_field:
+		await _collapse_expanded_field()
 
 func _find_pool_dice_grid():
 	"""Try to find the BottomUI's DiceGrid for pool die source positions.
@@ -1472,6 +1639,302 @@ func tick_temp_action_fields() -> void:
 		action_fields.erase(entry.field)
 		if is_instance_valid(entry.field):
 			entry.field.queue_free()
+
+
+# ============================================================================
+# ACTION FIELD EXPANSION SYSTEM
+# ============================================================================
+
+func _on_preview_tapped(action_data: Dictionary, preview: ActionFieldPreview):
+	"""User tapped a preview - expand to full ActionField"""
+	
+	if _expansion_in_progress:
+		print("⚠️ Expansion already in progress, ignoring tap")
+		return  # Ignore rapid taps
+	
+	if is_enemy_turn:
+		print("⚠️ Enemy turn, ignoring tap")
+		return  # Can't interact during enemy turn
+	
+	print("🖱️ Preview tapped: %s" % action_data.get("name", "Unknown"))
+	_expansion_in_progress = true
+	
+	# Collapse previous field if any
+	if current_expanded_field:
+		await _collapse_expanded_field()
+	
+	# Create full ActionField
+	var field = _create_full_action_field(action_data)
+	if not field:
+		_expansion_in_progress = false
+		return
+	
+	expanded_field_container.add_child(field)
+	current_expanded_field = field
+	
+	# Connect field signals
+	field.action_selected.connect(_on_action_field_selected)
+	field.dice_returned.connect(_on_dice_returned)
+	field.die_placed.connect(_on_die_placed)
+	field.dice_return_complete.connect(_on_dice_return_complete)
+	field.action_cancelled.connect(_on_action_cancelled_from_field)
+	
+	# Animate expansion
+	await _animate_expansion(preview, field)
+	
+	_expansion_in_progress = false
+	_expansion_just_finished = true
+	print("✅ Expansion complete, flag cleared")
+	
+	# Ignore overlay clicks for 0.2 seconds to prevent immediate collapse
+	await get_tree().create_timer(0.2).timeout
+	_expansion_just_finished = false
+
+func _create_full_action_field(action_data: Dictionary) -> ActionField:
+	"""Create a full interactive ActionField for expansion"""
+	if not action_field_scene:
+		push_error("ActionField scene not loaded!")
+		return null
+	
+	var field = action_field_scene.instantiate() as ActionField
+	if not field:
+		push_error("Failed to instantiate ActionField!")
+		return null
+	
+	# Configure from data
+	field.configure_from_dict(action_data)
+	
+	# Ensure it's interactive
+	if not field.is_disabled:
+		field.mouse_filter = Control.MOUSE_FILTER_STOP
+	
+	return field
+
+func _animate_expansion(from_preview: ActionFieldPreview, to_field: ActionField) -> void:
+	"""Animate ActionField expanding from preview to fill overlay"""
+	
+	if not expanded_field_overlay or not expanded_field_container:
+		push_error("Expansion overlay nodes not found!")
+		return
+	
+	# Show overlay (invisible initially)
+	expanded_field_overlay.visible = true
+	expanded_field_overlay.modulate.a = 0.0
+	
+	# Disable any layout constraints on the field
+	to_field.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	to_field.anchor_left = 0
+	to_field.anchor_top = 0
+	to_field.anchor_right = 0
+	to_field.anchor_bottom = 0
+	to_field.offset_left = 0
+	to_field.offset_top = 0
+	to_field.offset_right = 0
+	to_field.offset_bottom = 0
+	to_field.grow_horizontal = Control.GROW_DIRECTION_END
+	to_field.grow_vertical = Control.GROW_DIRECTION_END
+	
+	# Verify overlay is properly configured for clicks
+	print("🔍 PRE-ANIMATION OVERLAY CHECK:")
+	print("  overlay.visible: %s" % expanded_field_overlay.visible)
+	print("  overlay.mouse_filter: %s (%s)" % [
+		expanded_field_overlay.mouse_filter,
+		"STOP" if expanded_field_overlay.mouse_filter == Control.MOUSE_FILTER_STOP else "NOT STOP!"
+	])
+	print("  overlay.size: %s" % expanded_field_overlay.size)
+	print("  container.mouse_filter: %s" % expanded_field_container.mouse_filter)
+	if dim_background:
+		print("  dim_background.mouse_filter: %s" % dim_background.mouse_filter)
+	
+	# Force overlay to STOP (in case something reset it)
+	expanded_field_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	
+	# Wait for field to be added to tree and layout to settle
+	await get_tree().process_frame
+	await get_tree().process_frame
+	
+	# Get preview's CURRENT global rect (accounts for scroll offset)
+	var preview_rect = from_preview.get_global_rect()
+	
+	# Convert preview's global position to overlay's local space (not container!)
+	# The overlay is the full-screen parent, so positions are simpler
+	var start_pos_global = preview_rect.position
+	var start_pos_local = start_pos_global - expanded_field_overlay.global_position
+	
+	# Position field at preview's VISIBLE location initially
+	to_field.position = start_pos_local
+	to_field.size = preview_rect.size
+	to_field.pivot_offset = to_field.size / 2
+	to_field.scale = Vector2.ONE
+	
+	print("🎬 Expansion start: preview_global=%s, overlay_global=%s, local=%s" % [
+		preview_rect.position, expanded_field_overlay.global_position, start_pos_local
+	])
+	print("  Field actual position after set: %s" % to_field.position)
+	print("  Field actual global_position: %s" % to_field.global_position)
+	
+	# Calculate target position (fill the preview scroll container area)
+	if not action_fields_scroll:
+		push_error("ActionFieldsScroll not found for expansion target!")
+		return
+	
+	# Get the scroll container's global rect (this is where previews are)
+	var scroll_rect = action_fields_scroll.get_global_rect()
+	
+	# Convert to overlay's local space
+	var target_pos_local = scroll_rect.position - expanded_field_overlay.global_position
+	var target_size = scroll_rect.size
+	
+	# Add some padding
+	var padding = 8
+	target_pos_local += Vector2(padding, padding)
+	target_size -= Vector2(padding * 2, padding * 2)
+	
+	var target_pos = target_pos_local
+	
+	# Show dim background
+	if dim_background:
+		dim_background.visible = true
+	
+	# Create animation
+	var tween = create_tween()
+	tween.set_parallel(true)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_BACK)
+	
+	# Fade in overlay background
+	tween.tween_property(expanded_field_overlay, "modulate:a", 1.0, 0.3)
+	
+	# Dim preview container
+	if action_fields_scroll:
+		tween.tween_property(action_fields_scroll, "modulate:a", 0.3, 0.3)
+	
+	# Expand field from visible preview position to center
+	tween.tween_property(to_field, "position", target_pos, 0.35)
+	tween.tween_property(to_field, "size", target_size, 0.35)
+	
+	# Slight scale pop for extra juice
+	var scale_tween = create_tween()
+	scale_tween.tween_property(to_field, "scale", Vector2(1.05, 1.05), 0.15)
+	scale_tween.tween_property(to_field, "scale", Vector2.ONE, 0.15)
+	
+	await tween.finished
+	
+	# Verify overlay can actually receive clicks
+	print("🔍 POST-ANIMATION OVERLAY CHECK:")
+	print("  overlay.visible: %s" % expanded_field_overlay.visible)
+	print("  overlay.modulate.a: %s" % expanded_field_overlay.modulate.a)
+	print("  overlay.size: %s" % expanded_field_overlay.size)
+	print("  overlay.mouse_filter: %s" % expanded_field_overlay.mouse_filter)
+	print("  overlay can receive clicks: %s" % (
+		expanded_field_overlay.visible and 
+		expanded_field_overlay.mouse_filter == Control.MOUSE_FILTER_STOP and
+		expanded_field_overlay.size.x > 0
+	))
+	
+	# Force layout refresh
+	await get_tree().process_frame
+	to_field.refresh_ui()
+	
+	print("✨ Expansion complete for: %s" % to_field.action_name)
+
+func _collapse_expanded_field() -> void:
+	"""Animate expanded field collapsing and hide overlay"""
+	
+	if not current_expanded_field or not is_instance_valid(current_expanded_field):
+		if expanded_field_overlay:
+			expanded_field_overlay.visible = false
+		if action_fields_scroll:
+			action_fields_scroll.modulate.a = 1.0
+		current_expanded_field = null
+		selected_action_field = null
+		return
+	
+	print("🔽 Collapsing expanded field: %s" % current_expanded_field.action_name)
+	
+	# Disconnect cancel signal BEFORE calling cancel to prevent recursion
+	if current_expanded_field.action_cancelled.is_connected(_on_action_cancelled_from_field):
+		current_expanded_field.action_cancelled.disconnect(_on_action_cancelled_from_field)
+	
+	# Return any placed dice to pool
+	current_expanded_field.cancel_action()
+	
+	# Animate collapse
+	var tween = create_tween()
+	tween.set_parallel(true)
+	tween.set_ease(Tween.EASE_IN)
+	tween.set_trans(Tween.TRANS_CUBIC)
+	
+	# Fade out overlay
+	tween.tween_property(expanded_field_overlay, "modulate:a", 0.0, 0.25)
+	
+	# Restore scroll container visibility
+	if action_fields_scroll:
+		tween.tween_property(action_fields_scroll, "modulate:a", 1.0, 0.2)
+	
+	# Shrink field
+	tween.tween_property(current_expanded_field, "scale", Vector2(0.3, 0.3), 0.25)
+	tween.tween_property(current_expanded_field, "modulate:a", 0.0, 0.2)
+	
+	await tween.finished
+	
+	# Cleanup
+	if expanded_field_overlay:
+		expanded_field_overlay.visible = false
+	if dim_background:
+		dim_background.visible = false
+	
+	if current_expanded_field and is_instance_valid(current_expanded_field):
+		current_expanded_field.queue_free()
+	
+	current_expanded_field = null
+	selected_action_field = null
+	
+	print("✅ Collapse complete")
+
+func _on_overlay_clicked(event: InputEvent):
+	"""Overlay clicked - collapse the expanded field"""
+	print("🖱️ _on_overlay_clicked received event: %s" % event)
+	
+	if not event is InputEventMouseButton:
+		print("  Not a mouse button event")
+		return
+	
+	var mouse_event = event as InputEventMouseButton
+	print("  Mouse button: %d, pressed: %s" % [mouse_event.button_index, mouse_event.pressed])
+	
+	# ONLY respond to button PRESS (ignore release events from preview clicks)
+	if not mouse_event.pressed or mouse_event.button_index != MOUSE_BUTTON_LEFT:
+		print("  Not a left click press")
+		return
+	
+	# Ignore clicks immediately after expansion
+	if _expansion_just_finished:
+		print("  ⏱️ Ignoring click - expansion just finished")
+		return
+	
+	if not current_expanded_field or not is_instance_valid(current_expanded_field):
+		print("  No expanded field active")
+		return
+	
+	print("🖱️ Overlay clicked at: %s" % mouse_event.global_position)
+	
+	# Check if click is inside the expanded field
+	var field_rect = current_expanded_field.get_global_rect()
+	var click_pos = mouse_event.global_position
+	
+	print("  Field rect: %s, contains click: %s" % [field_rect, field_rect.has_point(click_pos)])
+	
+	if field_rect.has_point(click_pos):
+		print("  🖱️ Click inside field - ignoring")
+		return
+	
+	print("  🖱️ Click outside field - collapsing")
+	_collapse_expanded_field()
+
+func _on_action_cancelled_from_field(_field: ActionField):
+	"""Field's internal cancel was triggered"""
+	_collapse_expanded_field()
 
 
 func _mf_name(mf: int) -> String:
