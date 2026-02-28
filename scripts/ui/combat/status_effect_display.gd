@@ -126,9 +126,11 @@ func _on_tooltip_requested(status_data: Dictionary, icon_global_pos: Vector2) ->
 	_dismiss_tooltip()
 
 	var tooltip := StatusTooltipPopup.new()
-	# Add to root so it's not clipped by slot bounds
+	
+	# Add directly to root (tooltip is already a CanvasLayer)
 	var root := get_tree().root
 	root.add_child(tooltip)
+	
 	tooltip.show_for_status(status_data, icon_global_pos)
 	_active_tooltip = tooltip
 
@@ -137,6 +139,8 @@ func _on_tooltip_requested(status_data: Dictionary, icon_global_pos: Vector2) ->
 		if _active_tooltip == tooltip:
 			_active_tooltip = null
 	)
+	
+	print("  🔔 Tooltip setup complete")
 
 func _dismiss_tooltip() -> void:
 	if _active_tooltip and is_instance_valid(_active_tooltip):

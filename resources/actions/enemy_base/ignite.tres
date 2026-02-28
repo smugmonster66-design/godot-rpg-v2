@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://c5j0k0tk343w6"]
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://c5j0k0tk343w6"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_2o7ue"]
+[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_c302s"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_c302s"]
 [ext_resource type="Resource" uid="uid://behojsm6qvxjl" path="res://resources/statuses/burn.tres" id="3_mjdmu"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_lngph"]
@@ -26,4 +27,5 @@ action_id = "ignite"
 action_name = "Ignite"
 action_description = "Fire hit. Applies 2 Burn."
 effects = Array[ExtResource("1_2o7ue")]([SubResource("Resource_dxc8k"), SubResource("Resource_yhr1q")])
+animation_set = ExtResource("1_c302s")
 base_damage = 1

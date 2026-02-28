@@ -188,21 +188,21 @@ func _update_tree_tabs():
 	
 	if tree_tab_1:
 		if trees.size() > 0 and trees[0]:
-			tree_tab_1.text = trees[0].tree_name
+			#tree_tab_1.text = trees[0].tree_name
 			tree_tab_1.show()
 		else:
 			tree_tab_1.hide()
 	
 	if tree_tab_2:
 		if trees.size() > 1 and trees[1]:
-			tree_tab_2.text = trees[1].tree_name
+			#tree_tab_2.text = trees[1].tree_name
 			tree_tab_2.show()
 		else:
 			tree_tab_2.hide()
 	
 	if tree_tab_3:
 		if trees.size() > 2 and trees[2]:
-			tree_tab_3.text = trees[2].tree_name
+			#tree_tab_3.text = trees[2].tree_name
 			tree_tab_3.show()
 		else:
 			tree_tab_3.hide()
@@ -235,6 +235,8 @@ func _update_tab_highlight():
 
 func _on_tree_tab_pressed(index: int):
 	"""Switch to a different skill tree"""
+	if index == current_tree_index:
+		return
 	_show_tree(index)
 
 func _show_tree(index: int):

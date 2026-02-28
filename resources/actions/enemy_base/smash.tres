@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://begv50agccdr2"]
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://begv50agccdr2"]
 
+[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_vw515"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_xl6fh"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_vw515"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_tpjk5"]
@@ -19,5 +20,6 @@ action_id = "smash"
 action_name = "Smash"
 action_description = "Deals 1D+2 Blunt damage."
 effects = Array[ExtResource("1_xl6fh")]([SubResource("Resource_j5lvu")])
+animation_set = ExtResource("1_vw515")
 base_damage = 2
 damage_multiplier = 1.2

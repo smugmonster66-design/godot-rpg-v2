@@ -77,7 +77,10 @@ const GRID_COLUMNS: int = 7
 ## How long the fill animation takes in seconds
 @export var prereq_line_fill_duration: float = 0.4
 
-
+@export_group("Icon Visuals")
+## Shader applied to skill button icons (engraving effect). Separate from line shader.
+@export var icon_shader: ShaderMaterial
+@export var icon_fill_material: ShaderMaterial
 # ============================================================================
 # SKILL ACCESS
 # ============================================================================

@@ -1,7 +1,7 @@
 [gd_resource type="Theme" load_steps=45 format=3 uid="uid://b87llggw1n1df"]
 
 [ext_resource type="Texture2D" uid="uid://hwffuipvgxdx" path="res://assets/ui/panels/9patch fill basic.png" id="1_0u5ek"]
-[ext_resource type="FontFile" uid="uid://mccqdptsfq8k" path="res://assets/fonts/Oregano.otf" id="1_p7nge"]
+[ext_resource type="FontFile" uid="uid://cs3nxhvedwvkv" path="res://assets/fonts/Stoke.otf" id="2_0u5ek"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_phtau"]
 content_margin_left = 2.0
@@ -606,8 +606,8 @@ border_width_bottom = 2
 corner_detail = 1
 
 [resource]
-default_font = ExtResource("1_p7nge")
-default_font_size = 40
+default_font = ExtResource("2_0u5ek")
+default_font_size = 32
 ActionFieldPanel/colors/font_color = Color(1, 1, 1, 1)
 ActionFieldPanel/styles/die_slot_empty = SubResource("StyleBoxFlat_phtau")
 ActionFieldPanel/styles/die_slot_hover = SubResource("StyleBoxFlat_p7nge")
@@ -635,8 +635,7 @@ DicePoolPanel/styles/panel = SubResource("StyleBoxFlat_ruoye")
 EnemyPanel/colors/font_color = Color(1, 1, 1, 1)
 EnemyPanel/styles/panel = SubResource("StyleBoxTexture_eeyjl")
 FlavorLabel/base_type = &"Label"
-FlavorLabel/font_sizes/font_size = 16
-FlavorLabel/fonts/font = ExtResource("1_p7nge")
+FlavorLabel/font_sizes/font_size = 24
 IconButton/colors/font_active_color = Color(1, 1, 1, 1)
 IconButton/colors/font_inactive_color = Color(0.5, 0.5, 0.55, 1)
 IconButton/styles/hover = SubResource("StyleBoxFlat_7ybn2")
@@ -677,9 +676,10 @@ TabContainer/styles/tab_selected = SubResource("StyleBoxFlat_1a01l")
 TabContainer/styles/tab_unselected = SubResource("StyleBoxFlat_tuxkq")
 TooltipLabel/colors/font_color = Color(1, 1, 1, 1)
 TooltipLabel/constants/minimum_width = 200
-TooltipLabel/font_sizes/font_size = 32
-TooltipPanel/constants/minimum_height = 40
-TooltipPanel/constants/minimum_width = 220
+TooltipLabel/font_sizes/font_size = 60
+TooltipPanel/constants/minimum_height = 256
+TooltipPanel/constants/minimum_width = 216
+TooltipPanel/font_sizes/title_font_size = 16
 TooltipPanel/styles/panel = SubResource("StyleBoxFlat_fq2up")
 VScrollBar/styles/grabber = SubResource("StyleBoxFlat_a575i")
 VScrollBar/styles/grabber_highlight = SubResource("StyleBoxFlat_k16lf")
@@ -698,10 +698,11 @@ display/constants/shadow_outline_size = 0
 display/font_sizes/font_size = 36
 display/styles/focus = SubResource("StyleBoxFlat_m48fx")
 display/styles/normal = SubResource("StyleBoxFlat_m48fx")
+floater/font_sizes/font_size = 60
 header/base_type = &"Label"
 header/font_sizes/font_size = 60
 large/base_type = &"Label"
-large/font_sizes/font_size = 60
+large/font_sizes/font_size = 36
 normal/base_type = &"Label"
 normal/font_sizes/font_size = 60
 small/base_type = &"Label"

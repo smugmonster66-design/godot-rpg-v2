@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=5 format=3 uid="uid://chgprsba6wfw2"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_drsrc"]
+[ext_resource type="Texture2D" uid="uid://dbb22cu8v7dmr" path="res://assets/status_effects/fortified_status.png" id="2_5gskm"]
+[ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_safxs"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_subef"]
+
+[resource]
+script = ExtResource("2_safxs")
+status_id = "fortified"
+duration_type = 1
+default_duration = 1
+max_stacks = 20
+expire_timing = 0
+is_debuff = false
+cleanse_tags = Array[String](["buff", "defensive_buff", "armor_buff"])
+stat_modifier_per_stack = {
+"armor": 1
+}
+affix_name = "Fortified"
+description = "Increases armor by 1 per stack. Expires after 1 turn."
+icon = ExtResource("2_5gskm")
+show_in_summary = false
+category = 36

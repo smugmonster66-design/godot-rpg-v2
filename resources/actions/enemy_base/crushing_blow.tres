@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://j6lnu4bac00v"]
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://j6lnu4bac00v"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_ebbh0"]
+[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_xhfi7"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_xhfi7"]
 [ext_resource type="Resource" uid="uid://cfgr6ee2uth1t" path="res://resources/statuses/corrode.tres" id="3_lsfq2"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_wuyvj"]
@@ -26,5 +27,6 @@ action_id = "crushing_blow"
 action_name = "Crushing Blow"
 action_description = "Heavy Blunt hit. Applies Corrode."
 effects = Array[ExtResource("1_ebbh0")]([SubResource("Resource_sovdt"), SubResource("Resource_j85aw")])
+animation_set = ExtResource("1_xhfi7")
 base_damage = 4
 damage_multiplier = 1.5

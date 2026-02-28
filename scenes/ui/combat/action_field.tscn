@@ -9,6 +9,10 @@
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_joayw"]
 texture = ExtResource("2_0cgqb")
+texture_margin_left = 65.0
+texture_margin_top = 100.0
+texture_margin_right = 65.0
+texture_margin_bottom = 100.0
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sgqpl"]
 
@@ -24,6 +28,10 @@ metadata/_edit_vertical_guides_ = [-146.0]
 [node name="FillTexture" type="NinePatchRect" parent="."]
 layout_mode = 2
 texture = ExtResource("2_0cgqb")
+patch_margin_left = 80
+patch_margin_top = 100
+patch_margin_right = 80
+patch_margin_bottom = 100
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
@@ -39,6 +47,7 @@ alignment = 1
 
 [node name="HeaderPlate" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 4
 size_flags_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxTexture_joayw")
 
@@ -127,10 +136,10 @@ scroll_active = false
 [node name="StrokeTexture" type="NinePatchRect" parent="."]
 layout_mode = 2
 texture = ExtResource("4_sgqpl")
-patch_margin_left = 15
-patch_margin_top = 15
-patch_margin_right = 15
-patch_margin_bottom = 15
+patch_margin_left = 80
+patch_margin_top = 100
+patch_margin_right = 80
+patch_margin_bottom = 100
 
 [node name="ActionButtonsContainer" type="HBoxContainer" parent="."]
 layout_mode = 2

@@ -22,7 +22,7 @@ var companion_panel: CompanionPanel = null
 var enemy_threat_trackers: Array = []  # Array of ThreatTracker instances
 
 var _pending_summon_data: CompanionData = null
-
+var debug_panel: CombatDebugPanel = null
 # ============================================================================
 # STATE
 # ============================================================================
@@ -314,6 +314,14 @@ func _finalize_combat_init(p_player: Player):
 	event_bus.emit_combat_started()
 	print("  ✅ CombatEventBus initialized")
 	
+		# --- DEBUG PANEL ---
+	if OS.is_debug_build():
+		debug_panel = CombatDebugPanel.new()
+		debug_panel.name = "CombatDebugPanel"
+		add_child(debug_panel)
+		debug_panel.connect_to_bus(event_bus)
+		print("  Debug Panel: initialized (F12 to toggle)")
+	# --- END DEBUG PANEL ---
 	
 	# Sync player to combatant
 	_sync_player_to_combatant()
@@ -694,6 +702,7 @@ func _start_player_turn():
 			return
 	# --- END BATTLEFIELD ---
 
+
 	# Enter prep phase — menu is accessible, hand is NOT rolled yet
 	turn_phase = TurnPhase.PREP
 	turn_phase_changed.emit(TurnPhase.PREP)
@@ -987,6 +996,129 @@ func _play_action_with_animation(action_data: Dictionary, targets: Array, target
 	
 	combat_state = CombatState.PLAYER_TURN
 
+
+func _play_enemy_action_with_animation(action_data: Dictionary, enemy: Combatant,
+		targets: Array, target_index: int, animation_set: CombatAnimationSet,
+		anim_player, action_field: ActionField) -> void:
+	"""Play enemy action animation and apply effect at configured timing.
+	Mirrors _play_action_with_animation() but with enemy-appropriate positions."""
+	
+	# === GET SOURCE POSITION (from expanded field's die slots) ===
+	var source_pos: Vector2 = Vector2.ZERO
+	if action_field and action_field.die_slot_panels.size() > 0:
+		var first_slot = action_field.die_slot_panels[0]
+		source_pos = first_slot.global_position + first_slot.size / 2
+	else:
+		# Fallback: enemy portrait position
+		var enemy_index = enemy_combatants.find(enemy)
+		source_pos = _get_enemy_portrait_position(enemy_index)
+	
+	# === GET TARGET POSITIONS ===
+	var target_positions: Array[Vector2] = []
+	var target_nodes: Array[Node2D] = []
+	
+	# Check if AoE
+	var is_aoe := false
+	var action_resource = action_data.get("action_resource") as Action
+	if action_resource and action_resource.effects.size() > 0:
+		for effect in action_resource.effects:
+			if effect and effect.target == ActionEffect.TargetType.ALL_ENEMIES:
+				is_aoe = true
+				break
+	
+	if is_aoe:
+		# AoE targets all allies (player + companions)
+		var player_pos = _get_player_portrait_position()
+		if player_pos != Vector2.ZERO:
+			target_positions.append(player_pos)
+			target_nodes.append(player_combatant)
+		# TODO: Add companion positions when AoE-vs-allies is needed
+	else:
+		for target in targets:
+			if target == player_combatant:
+				var pos = _get_player_portrait_position()
+				if pos != Vector2.ZERO:
+					target_positions.append(pos)
+					target_nodes.append(player_combatant)
+			elif _is_companion(target):
+				var comp = target as CompanionCombatant
+				var pos = _get_companion_source_position(comp.slot_index)
+				if pos != Vector2.ZERO:
+					target_positions.append(pos)
+					target_nodes.append(target)
+			else:
+				# Check if target is an enemy combatant (self-buff/heal)
+				var enemy_idx = enemy_combatants.find(target)
+				if enemy_idx >= 0:
+					var pos = _get_enemy_portrait_position(enemy_idx)
+					if pos != Vector2.ZERO:
+						target_positions.append(pos)
+						target_nodes.append(target)
+				elif target is Node2D:
+					# Fallback for truly unknown target types
+					target_positions.append(target.global_position)
+					target_nodes.append(target)
+	
+	print("🎬 Enemy animation: source=%s, targets=%d positions" % [
+		source_pos, target_positions.size()])
+	
+	# Weak references for deferred effect application
+	var enemy_ref = weakref(enemy)
+	var target_refs: Array = []
+	for t in targets:
+		target_refs.append(weakref(t))
+	var applied = [false]
+	
+	var apply_effect_callback = func():
+		if applied[0]:
+			return
+		applied[0] = true
+		var e = enemy_ref.get_ref()
+		if not e or not is_instance_valid(e):
+			return
+		var live_targets: Array = []
+		for ref in target_refs:
+			var t = ref.get_ref()
+			if t and is_instance_valid(t):
+				live_targets.append(t)
+		_apply_action_effect(action_data, e, live_targets)
+	
+	if anim_player.has_signal("apply_effect_now"):
+		if not anim_player.apply_effect_now.is_connected(apply_effect_callback):
+			anim_player.apply_effect_now.connect(apply_effect_callback, CONNECT_ONE_SHOT)
+	
+	if anim_player.has_method("play_action_animation"):
+		await anim_player.play_action_animation(
+			animation_set, source_pos, target_positions, target_nodes)
+	else:
+		push_warning("CombatAnimationPlayer missing play_action_animation method")
+		await get_tree().create_timer(0.5).timeout
+	
+	# Safety: apply if animation didn't trigger the signal
+	if not applied[0]:
+		applied[0] = true
+		var e = enemy_ref.get_ref()
+		if e and is_instance_valid(e):
+			var live_targets: Array = []
+			for ref in target_refs:
+				var t = ref.get_ref()
+				if t and is_instance_valid(t):
+					live_targets.append(t)
+			_apply_action_effect(action_data, e, live_targets)
+
+
+func _get_player_portrait_position() -> Vector2:
+	"""Get the center position of the player's portrait for targeting animations."""
+	# Use the persistent portrait in GameRoot's UI layer
+	if GameManager and GameManager.game_root:
+		var portrait = GameManager.game_root.get_node_or_null(
+			"PersistentUILayer/PortraitVBox/PortraitContainer/PortraitTexture")
+		if portrait and portrait is Control:
+			return portrait.global_position + portrait.size / 2
+	
+	# Fallback
+	return Vector2(540, 1600)
+
 func _get_enemy_portrait_position(enemy_index: int) -> Vector2:
 	"""Get the center position of an enemy's portrait in the UI.
 	Uses enemy_panel.get_enemy_visual() which translates array index → slot."""
@@ -1078,7 +1210,7 @@ func _process_enemy_turn(enemy: Combatant):
 	var enemy_index = enemy_combatants.find(enemy)
 	if enemy_index < 0 or enemy_index >= enemy_threat_trackers.size():
 		print("  ⚠️ No threat tracker for %s" % enemy.combatant_name)
-		_finish_enemy_turn(enemy)
+		await _finish_enemy_turn(enemy)
 		return
 	
 	var threat_tracker: ThreatTracker = enemy_threat_trackers[enemy_index]
@@ -1093,7 +1225,7 @@ func _process_enemy_turn(enemy: Combatant):
 	
 	if not target or not target.is_alive():
 		print("  ⚠️ %s has no valid target" % enemy.combatant_name)
-		_finish_enemy_turn(enemy)
+		await _finish_enemy_turn(enemy)
 		return
 	
 	print("  🎯 %s targeting: %s" % [enemy.combatant_name, target.combatant_name])
@@ -1107,7 +1239,7 @@ func _process_enemy_turn(enemy: Combatant):
 	
 	if not decision:
 		print("  %s couldn't decide" % enemy.combatant_name)
-		_finish_enemy_turn(enemy)
+		await _finish_enemy_turn(enemy)
 		return
 	
 	print("  🤖 %s decides: %s with %d dice" % [
@@ -1116,13 +1248,28 @@ func _process_enemy_turn(enemy: Combatant):
 		decision.dice.size()
 	])
 	
-	# Store selected target for execution
-	decision.action["selected_target"] = target
+	# Store selected target for execution — but only use the threat/taunt
+	# target for actions that actually target enemies. Self-buffs, heals,
+	# and ally-targeted actions should not be redirected by taunt.
+	var action_resource = decision.action.get("action_resource") as Action
+	if action_resource:
+		var mode = action_resource.get_targeting_mode()
+		var side = TargetingMode.get_target_side(mode)
+		if side == TargetingMode.TargetSide.ENEMY or side == TargetingMode.TargetSide.BOTH:
+			decision.action["selected_target"] = target
+		else:
+			# Self/ally action — target is the caster, not the taunter
+			decision.action["selected_target"] = enemy
+			print("  🛡️ %s uses %s (self/ally) — ignoring taunt" % [
+				enemy.combatant_name, action_resource.action_name])
+	else:
+		decision.action["selected_target"] = target
 	
 	_animate_enemy_action(enemy, decision)
 
 func _animate_enemy_action(enemy: Combatant, decision: EnemyAI.Decision):
-	"""Animate enemy placing dice and executing action"""
+	"""Animate enemy action: expand preview → place dice → execute → collapse.
+	Mirrors the player's preview-expand-confirm-animate-collapse flow."""
 	combat_state = CombatState.ANIMATING
 	var used_visuals: Array[Control] = []
 	
@@ -1130,178 +1277,175 @@ func _animate_enemy_action(enemy: Combatant, decision: EnemyAI.Decision):
 	
 	enemy.prepare_action(decision.action, decision.dice)
 	
-	# Highlight the action field being used
+	# ── Step 1: Highlight the preview briefly ──
 	if combat_ui and combat_ui.has_method("highlight_enemy_action"):
 		combat_ui.highlight_enemy_action(action_name)
+	await get_tree().create_timer(0.3).timeout
 	
-	# Animate each die being used
+	# ── Step 2: Expand the preview into a full ActionField ──
+	var expanded_field: ActionField = null
+	if combat_ui and combat_ui.has_method("expand_enemy_action"):
+		expanded_field = await combat_ui.expand_enemy_action(action_name)
+	
+	if not expanded_field:
+		push_warning("⚠️ Failed to expand enemy action: %s — falling back" % action_name)
+		# Fallback: execute without visual (same as pre-refactor timeout behavior)
+		_execute_enemy_action_immediate(enemy, decision)
+		return
+	
+	# Brief pause after expansion for readability
+	await get_tree().create_timer(0.2).timeout
+	
+	# ── Step 3: Animate dice from hand into expanded field's slots ──
 	for i in range(decision.dice.size()):
 		var die = decision.dice[i]
-		
-		print("  🎲 Looking for visual for: %s" % die.display_name)
 		
 		# Find the visual that matches THIS die
 		var die_visual: Control = null
 		if combat_ui and combat_ui.enemy_panel:
-			print("    hand_dice_visuals count: %d" % combat_ui.enemy_panel.hand_dice_visuals.size())
 			for vis in combat_ui.enemy_panel.hand_dice_visuals:
 				if vis in used_visuals:
 					continue
 				if is_instance_valid(vis) and vis.visible and vis.modulate.a > 0.0 and vis.has_method("get_die"):
 					var vis_die = vis.get_die()
-					# Match by reference OR by display_name as fallback
 					if vis_die == die or (vis_die and vis_die.display_name == die.display_name):
 						die_visual = vis
-						print("    ✅ Found matching visual")
 						break
 		
-		# Fallback: if no match, find first visible die visual
+		# Fallback: first visible die visual
 		if not die_visual and combat_ui and combat_ui.enemy_panel:
 			for vis in combat_ui.enemy_panel.hand_dice_visuals:
 				if vis in used_visuals:
 					continue
 				if is_instance_valid(vis) and vis.visible and vis.modulate.a > 0.0:
 					die_visual = vis
-					print("    ⚠️ Using fallback (first visible)")
 					break
-		
-		print("    Found visual: %s" % (die_visual != null))
 		
 		if die_visual:
 			used_visuals.append(die_visual)
 		
-		# Animate die to action field
+		# animate_die_to_action_field uses find_action_field_by_name which
+		# checks current_expanded_field first — so dice land in the expanded field
 		if combat_ui and combat_ui.has_method("animate_die_to_action_field"):
 			await combat_ui.animate_die_to_action_field(die_visual, action_name, die)
 		else:
 			await get_tree().create_timer(enemy.dice_drag_duration).timeout
 		
 		enemy.consume_action_die(die)
-		
-		
 	
 	# Brief pause before action executes
 	await get_tree().create_timer(0.3).timeout
 	
-	# Execute the action
+	# ── Step 4: Build action_data and execute via unified pipeline ──
 	var action_data = decision.action.duplicate()
 	action_data["placed_dice"] = decision.dice
 	
-	var action_type = decision.action.get("action_type", 0)
-	
 	# Get selected target from AI decision
 	var target: Combatant = action_data.get("selected_target", player_combatant)
-	
 	if not target or not target.is_alive():
-		target = player_combatant  # Fallback
+		target = player_combatant
 	
-	match action_type:
-		0:  # ATTACK
-			var damage = _calculate_damage(action_data, enemy, target)
-			print("  💥 %s attacks %s for %d!" % [
-				enemy.combatant_name, target.combatant_name, damage])
-			
-			target.take_damage(damage)
-			
-			# --- TAUNT: Consume taunt stack if target was the taunter ---
-			if enemy.has_node("StatusTracker"):
-				var enemy_tracker: StatusTracker = enemy.get_node("StatusTracker")
-				if enemy_tracker.has_status("taunt"):
-					var taunt_inst = enemy_tracker.get_instance("taunt")
-					var taunter = taunt_inst.get("source_combatant") if taunt_inst else null
-					if taunter == target:
-						# Enemy attacked the taunter - consume 1 stack
-						enemy_tracker.remove_stacks("taunt", 1)
-						var remaining = enemy_tracker.get_stacks("taunt")
-						print("  🎯 Taunt intercepted! (%d stacks remain)" % remaining)
-			# --- END TAUNT ---
-			
-			# Update appropriate health display
-			if target == player_combatant:
-				_update_player_health()
-
-				# --- COMPANIONS: Player damaged trigger ---
-				await _fire_companions_animated(
-					CompanionData.CompanionTrigger.PLAYER_DAMAGED,
-					{"damage_amount": damage, "attacker": enemy})
-				# --- END COMPANIONS ---
-				
-				# --- PROC: On-take-damage procs ---
-				if player and player.affix_manager and proc_processor:
-					var take_dmg_results = proc_processor.process_on_take_damage(
-						player.affix_manager, _build_proc_context({
-							"damage_taken": damage,
-						}))
-					_apply_proc_results(take_dmg_results)
-				# --- END PROC ---
-				
-				# --- BATTLEFIELD: Check counter-attacks when player takes damage ---
-				if battlefield_tracker and battlefield_tracker.has_pending_counters():
-					var alive_enemies: Array = []
-					for e in enemy_combatants:
-						if e.is_alive():
-							alive_enemies.append(e)
-					var counter_results = battlefield_tracker.on_damage_taken(
-						player_combatant, enemy, damage,
-						alive_enemies, [player_combatant])
-					for r in counter_results:
-						_process_single_battlefield_result(r)
-				# --- END BATTLEFIELD ---
-			
-			else:
-				# Companion was hit
-				var companion_index = -1
-				if companion_manager:
-					# Find which slot this companion is in
-					for i in range(companion_manager.TOTAL_SLOTS):
-						if companion_manager.get_slot(i) == target:
-							companion_index = i
-							break
-				
-				if companion_index >= 0:
-					if companion_panel:
-						companion_panel.update_health(
-							companion_index,
-							target.current_health,
-							target.max_health
-						)
-					
-					# Companion damaged triggers
-					if trigger_processor:
-						await _fire_companions_animated(
-							CompanionData.CompanionTrigger.COMPANION_DAMAGED,
-							{"damage_amount": damage, "damaged_target": target, "attacker": enemy})
-		1:  # DEFEND
-			print("  🛡️ %s defends" % enemy.combatant_name)
-			# Apply armor/barrier buff
-		2:  # HEAL
-			var heal_amount = _calculate_damage(action_data, enemy, null)
-			print("  💚 %s heals for %d" % [enemy.combatant_name, heal_amount])
-			enemy.heal(heal_amount)
-			if combat_ui and combat_ui.enemy_panel:
-				var enemy_index = combat_ui.enemy_panel.get_enemy_index(enemy)
-				_update_enemy_health(enemy_index)
-		3:  # SPECIAL
-			print("  ✨ %s uses special ability" % enemy.combatant_name)
+	var targets: Array = [target] if target else []
+	var target_index = enemy_combatants.find(target) if target else 0
 	
-	# Animate action confirm (clear dice from field)
-	if combat_ui and combat_ui.has_method("animate_enemy_action_confirm"):
-		await combat_ui.animate_enemy_action_confirm(action_name)
+	# Add targeting info to match player action_data format
+	action_data["target"] = target
+	action_data["target_index"] = target_index
 	
-	# Small delay before finishing turn
-	await get_tree().create_timer(0.2).timeout
 	
-	# Brief pause between actions for readability
+	# Derive targeting mode from action_resource (for AoE animation detection)
+	var action_resource = action_data.get("action_resource") as Action
+	var targeting_mode = TargetingMode.Mode.SINGLE_ENEMY  # default
+	if action_resource and action_resource.has_method("get_targeting_mode"):
+		targeting_mode = action_resource.get_targeting_mode()
+	action_data["targeting_mode"] = targeting_mode
+	
+	# --- TAUNT: Consume taunt stack if enemy attacked the taunter ---
+	if enemy.has_node("StatusTracker"):
+		var enemy_tracker: StatusTracker = enemy.get_node("StatusTracker")
+		if enemy_tracker.has_status("taunt"):
+			var taunt_inst = enemy_tracker.get_instance("taunt")
+			var taunter = taunt_inst.get("source_combatant") if taunt_inst else null
+			if taunter == target:
+				enemy_tracker.remove_stacks("taunt", 1)
+				var remaining = enemy_tracker.get_stacks("taunt")
+				print("  🎯 Taunt intercepted! (%d stacks remain)" % remaining)
+	# --- END TAUNT ---
+	
+	
+	# Get animation set from action_resource
+	var animation_set: CombatAnimationSet = null
+	if action_resource and action_resource.get("animation_set"):
+		animation_set = action_resource.animation_set
+	
+	var anim_player = _get_combat_animation_player()
+	
+	if animation_set and anim_player:
+		# ── Step 5a: Play CombatAnimationSet (mirrors player path) ──
+		await _play_enemy_action_with_animation(
+			action_data, enemy, targets, target_index,
+			animation_set, anim_player, expanded_field)
+	else:
+		# ── Step 5b: No animation — apply effect immediately ──
+		_apply_action_effect(action_data, enemy, targets)
+	
+	
+	
+	
+	# ── Step 6: Collapse the expanded field ──
+	if combat_ui and combat_ui.has_method("_collapse_enemy_action_field"):
+		await combat_ui._collapse_enemy_action_field()
+	
+	# Check if combat ended during this action
+	if combat_state == CombatState.ENDED:
+		return
+	
+	# Small delay before next action for readability
 	await get_tree().create_timer(enemy.action_delay).timeout
 	
-	# Loop back to use remaining dice (no hand refresh needed —
-	# animation already hides used die visuals, and _finish_enemy_turn
-	# handles full cleanup)
+	# ── Step 7: Loop for remaining dice ──
+	_process_enemy_turn(enemy)
+
+func _execute_enemy_action_immediate(enemy: Combatant, decision: EnemyAI.Decision):
+	"""Fallback: execute enemy action without expansion animation.
+	Used if the UI fails to expand the preview."""
+	var action_data = decision.action.duplicate()
+	action_data["placed_dice"] = decision.dice
+	
+	var target: Combatant = action_data.get("selected_target", player_combatant)
+	if not target or not target.is_alive():
+		target = player_combatant
+	
+	var targets: Array = [target] if target else []
+	
+	# Consume dice
+	for die in decision.dice:
+		enemy.consume_action_die(die)
+	
+	# Apply effect through unified pipeline
+	_apply_action_effect(action_data, enemy, targets)
+	
+	# Update health displays
+	if target == player_combatant:
+		_update_player_health()
+		_check_player_death()
+	else:
+		var idx = enemy_combatants.find(target)
+		if idx >= 0:
+			_update_enemy_health(idx)
+			_check_enemy_death(target)
+	
+	await get_tree().create_timer(enemy.action_delay).timeout
 	_process_enemy_turn(enemy)
 
 func _finish_enemy_turn(enemy: Combatant):
 	"""Finish enemy's turn"""
 	print("  %s's turn complete" % enemy.combatant_name)
+	
+	# Safety: collapse any lingering expanded field from the enemy turn
+	if combat_ui and combat_ui.current_expanded_field and combat_ui.is_enemy_turn:
+		if combat_ui.has_method("_collapse_enemy_action_field"):
+			await combat_ui._collapse_enemy_action_field()
 	
 	if combat_ui and combat_ui.has_method("hide_enemy_hand"):
 		combat_ui.hide_enemy_hand()
@@ -1349,6 +1493,27 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 	# Guard: defer combat end checks until the full sequence completes.
 	# This prevents proc bonus damage / splash / chain kills from ending
 	# combat before ON_KILL, ON_ACTION_USED, ON_DIE_USED hooks fire.
+	# --- DEBUG PANEL: Emit ACTION_EXECUTED event ---
+	if event_bus:
+		var _placed = action_data.get("placed_dice", [])
+		var _d_values: Array = []
+		for _die in _placed:
+			if _die is DieResource:
+				_d_values.append(_die.get_total_value())
+		var _t_names: Array = []
+		for _t in targets:
+			_t_names.append(_t.combatant_name if _t else "?")
+		event_bus.emit_action_executed(
+			source,
+			targets[0] if targets.size() > 0 else null,
+			action_data.get("name", "???"),
+			_t_names,
+			_d_values,
+			_placed.size()
+		)
+	# --- END DEBUG PANEL ---
+	
+	
 	var was_already_deferred := _defer_combat_end  # support nested calls
 	_defer_combat_end = true
 	_deferred_combat_end_result = -1
@@ -2740,6 +2905,14 @@ func end_combat(player_won: bool):
 	companion_panel = null
 	# --- END COMPANIONS ---
 
+
+	if debug_panel:
+		debug_panel.disconnect_from_bus()
+		debug_panel.queue_free()
+		debug_panel = null
+
+
+
 	combat_ended.emit(player_won)
 
 
@@ -3267,9 +3440,10 @@ func _get_companion_source_position(slot_index: int) -> Vector2:
 	return Vector2(80, 1400)
 
 
-func _is_companion(combatant: Combatant) -> bool:
+# Whatever the current body is, replace with:
+func _is_companion(target) -> bool:
 	"""Check if a combatant is a companion."""
-	return combatant.has("is_companion") and combatant.is_companion
+	return target is CompanionCombatant
 
 func _classify_status_for_threat(status_affix: StatusAffix) -> String:
 	"""Classify a status for threat calculation."""

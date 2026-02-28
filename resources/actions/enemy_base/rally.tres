@@ -1,10 +1,11 @@
-[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://27ono85pw0ws"]
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://27ono85pw0ws"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_ovjum"]
 [ext_resource type="Resource" uid="uid://dryvh1auub4o8" path="res://resources/statuses/empowered.tres" id="2_hude2"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="3_6x4v3"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_rbmie"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="5_ygpiq"]
+[ext_resource type="Resource" path="res://resources/statuses/fortified.tres" id="6_fort"]
 
 [sub_resource type="Resource" id="Resource_tisul"]
 script = ExtResource("1_ovjum")
@@ -15,16 +16,16 @@ status_affix = ExtResource("2_hude2")
 
 [sub_resource type="Resource" id="Resource_q6fjh"]
 script = ExtResource("1_ovjum")
-effect_name = "Rally Armor"
-target = 0
-effect_type = 6
-armor_buff_amount = 2
-armor_buff_duration = 1
+effect_name = "Rally Fortify"
+target = 4
+effect_type = 2
+status_affix = ExtResource("6_fort")
+stack_count = 2
 
 [resource]
 script = ExtResource("5_ygpiq")
 action_id = "rally"
 action_name = "Rally"
-action_description = "Empower all allies + minor armor."
+action_description = "Empower all allies + 2 Fortified to all."
 effects = Array[ExtResource("1_ovjum")]([SubResource("Resource_tisul"), SubResource("Resource_q6fjh")])
 action_type = 3

@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://c7iy0ygach72r"]
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://c7iy0ygach72r"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_2kw6d"]
+[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_81tu2"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_81tu2"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_1cva1"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_hmv4d"]
@@ -19,4 +20,5 @@ action_id = "mend"
 action_name = "Mend"
 action_description = "Heal an ally for die value."
 effects = Array[ExtResource("1_2kw6d")]([SubResource("Resource_616nk")])
+animation_set = ExtResource("1_81tu2")
 action_type = 2

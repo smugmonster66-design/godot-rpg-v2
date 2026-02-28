@@ -15,7 +15,7 @@ signal tooltip_requested(status_data: Dictionary, icon_global_pos: Vector2)
 # CONSTANTS
 # ============================================================================
 
-const ICON_SIZE := Vector2(48, 48)
+const ICON_SIZE := Vector2(64, 64)
 
 # ============================================================================
 # STATE
@@ -51,13 +51,13 @@ func _ready():
 	icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(icon_rect)
 
-	# Border tint applied directly to the icon rect
-	var border_style = StyleBoxFlat.new()
-	border_style.bg_color = Color.TRANSPARENT
-	border_style.set_border_width_all(1)
-	border_style.set_corner_radius_all(3)
-	border_style.border_color = Color(0.8, 0.2, 0.2, 0.8)
-	icon_rect.add_theme_stylebox_override("panel", border_style)
+	## Border tint applied directly to the icon rect
+	#var border_style = StyleBoxFlat.new()
+	#border_style.bg_color = Color.TRANSPARENT
+	#border_style.set_border_width_all(1)
+	#border_style.set_corner_radius_all(3)
+	#border_style.border_color = Color(0.8, 0.2, 0.2, 0.8)
+	#icon_rect.add_theme_stylebox_override("panel", border_style)
 
 	# --- Stack count label (bottom-right corner) ---
 	stack_label = Label.new()

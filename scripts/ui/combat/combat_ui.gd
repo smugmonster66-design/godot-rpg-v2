@@ -10,7 +10,8 @@ var action_fields_grid: GridContainer = null
 var player_health_display = null
 var dice_pool_display = null
 var enemy_panel: EnemyPanel = null
-
+# Enemy action data cache — keyed by action name for AI-driven expansion lookup
+var _enemy_action_data_cache: Dictionary = {}  # { "Stab": {action_data_dict}, ... }
 
 # Expansion overlay nodes
 var expanded_field_overlay: Control = null
@@ -64,14 +65,14 @@ var current_targeting_mode: int = 0  # TargetingMode.Mode.NONE
 ## Companion panel — null until companion system is built.
 var companion_panel = null  # Future: CompanionPanel
 
-
+var player_status_display: StatusEffectDisplay = null
 
 var temp_action_fields: Array[Dictionary] = []
 
 
 # Enemy turn state
 var is_enemy_turn: bool = false
-var enemy_action_fields: Array[ActionField] = []
+var enemy_action_fields: Array = []
 
 var _pending_dice_returns: Array[Dictionary] = []
 
@@ -164,6 +165,12 @@ func _discover_all_nodes():
 	if mana_die_selector:
 		mana_die_selector.visible = false  # Hidden until initialized for a caster
 	print("    ManaDieSelector: %s" % ("✓" if mana_die_selector else "✗"))
+	
+	
+	# Player status display
+	player_status_display = find_child("PlayerStatusDisplay", true, false)
+	print("    PlayerStatusDisplay: %s" % ("✓" if player_status_display else "✗"))
+	
 	
 	
 
@@ -456,6 +463,9 @@ func initialize_ui(p_player: Player, p_enemies):
 	# Initialize mana die selector for casters
 	_setup_mana_die_selector()
 	
+	
+	_connect_player_status_display()
+	
 	# --- Companion panel: wire effects layer for entry emanates ---
 	# Panel lives on PersistentUILayer (GameRoot), not under CombatUI —
 	# search from scene tree root. Node is named CombatCompanionPanelVBox.
@@ -692,7 +702,14 @@ func enter_prep_phase():
 
 	hide_enemy_hand()
 
-	
+	# Reset per-turn charges on the Action RESOURCES before fields are rebuilt
+	# (refresh_action_fields is async, so resetting fields after won't work)
+	if action_manager:
+		for action_data in action_manager.get_actions():
+			var action_res = action_data.get("action_resource") as Action
+			if action_res:
+				action_res.reset_charges_for_turn()
+
 
 	if _bottom_ui:
 		_bottom_ui.enter_prep_phase()
@@ -702,10 +719,11 @@ func enter_prep_phase():
 
 func enter_action_phase():
 	print("🎮 CombatUI: Entering ACTION phase")
-
 	_set_dice_pool_visible(true)
 
-	reset_action_charges_for_turn()
+	
+
+	refresh_action_fields()
 	_apply_combat_charge_state()
 	
 	# Enable preview interaction in action phase
@@ -987,7 +1005,8 @@ func _on_action_field_confirmed(action_data: Dictionary):
 # ============================================================================
 
 func show_enemy_actions(enemy_combatant: Combatant):
-	"""Display enemy's available actions in the ActionFieldsGrid"""
+	"""Display enemy's available actions as ActionFieldPreviews in the grid.
+	Previews are non-interactive — the AI drives expansion programmatically."""
 	
 	# Collapse any expanded player field first
 	if current_expanded_field:
@@ -998,27 +1017,31 @@ func show_enemy_actions(enemy_combatant: Combatant):
 	if not action_fields_grid:
 		return
 	
-	# Clear existing fields
+	# Clear existing previews/fields
 	for child in action_fields_grid.get_children():
 		child.queue_free()
 	action_fields.clear()
 	enemy_action_fields.clear()
+	_enemy_action_data_cache.clear()
 	
 	# Wait for children to be freed
 	await get_tree().process_frame
 	
-	# Get enemy's actions
+	# Get enemy's actions (Array[Dictionary] from Combatant.actions)
 	var actions = enemy_combatant.actions
 	
-	print("🎮 Showing %d enemy actions" % actions.size())
+	print("🎮 Showing %d enemy action previews" % actions.size())
 	
-	# Create action field for each enemy action
+	# Create preview for each enemy action (reuses player preview scene)
 	for action_data in actions:
-		var field = _create_enemy_action_field(action_data)
-		if field:
-			action_fields_grid.add_child(field)
-			action_fields.append(field)
-			enemy_action_fields.append(field)
+		var preview = _create_enemy_action_preview(action_data)
+		if preview:
+			action_fields_grid.add_child(preview)
+			enemy_action_fields.append(preview)
+			
+			# Cache data for AI-driven expansion lookup
+			var action_name = action_data.get("name", "Unknown")
+			_enemy_action_data_cache[action_name] = action_data
 	
 	# Show empty message if no actions
 	if actions.is_empty():
@@ -1027,26 +1050,36 @@ func show_enemy_actions(enemy_combatant: Combatant):
 		empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		empty_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 		action_fields_grid.add_child(empty_label)
+	
+	# Reset scroll position
+	if action_fields_scroll:
+		action_fields_scroll.scroll_vertical = 0
 
-func _create_enemy_action_field(action_data: Dictionary) -> ActionField:
-	"""Create an action field for enemy display (non-interactive)"""
-	if not action_field_scene:
-		push_error("ActionField scene not loaded!")
+
+func _create_enemy_action_preview(action_data: Dictionary) -> ActionFieldPreview:
+	"""Create a non-interactive action preview for enemy display.
+	Reuses the same ActionFieldPreview scene as the player but disables interaction."""
+	if not action_field_preview_scene:
+		push_error("ActionFieldPreview scene not loaded!")
 		return null
 	
-	var field = action_field_scene.instantiate() as ActionField
-	if not field:
-		push_error("Failed to instantiate ActionField!")
+	var preview = action_field_preview_scene.instantiate() as ActionFieldPreview
+	if not preview:
+		push_error("Failed to instantiate ActionFieldPreview!")
 		return null
 	
-	# Configure from data
-	field.configure_from_dict(action_data)
+	# Configure from data (same format — Action.to_dict() output)
+	preview.configure_from_dict(action_data)
 	
-	# Disable player interaction and hide buttons for enemy display
-	field.show_action_buttons = false
-	field.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Non-interactive — AI drives expansion, not player taps
+	preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	
-	return field
+	# Do NOT connect preview_tapped — enemy previews are never tapped by player
+	
+	return preview
+
+
+
 
 func find_action_field_by_name(action_name: String) -> ActionField:
 	"""Find an action field by its action name"""
@@ -1066,13 +1099,25 @@ func find_action_field_by_name(action_name: String) -> ActionField:
 	return null
 
 func highlight_enemy_action(action_name: String):
-	"""Highlight the action field the enemy is using"""
-	var field = find_action_field_by_name(action_name)
-	if field:
-		# Visual highlight
+	"""Highlight the enemy preview that's about to be expanded."""
+	# Find the preview in the grid by matching action name
+	for child in action_fields_grid.get_children():
+		if child is ActionFieldPreview and child.action_name == action_name:
+			var tween = create_tween()
+			tween.tween_property(child, "modulate", Color(1.3, 1.2, 0.8), 0.2)
+			return
+	
+	# Fallback: highlight expanded field if already expanded
+	if current_expanded_field and current_expanded_field.action_name == action_name:
 		var tween = create_tween()
-		tween.tween_property(field, "modulate", Color(1.3, 1.2, 0.8), 0.2)
+		tween.tween_property(current_expanded_field, "modulate", Color(1.3, 1.2, 0.8), 0.2)
 
+func find_enemy_preview_by_name(action_name: String) -> ActionFieldPreview:
+	"""Find an enemy action preview by its action name."""
+	for child in action_fields_grid.get_children():
+		if child is ActionFieldPreview and child.action_name == action_name:
+			return child
+	return null
 
 func animate_die_to_action_field(die_visual: Control, action_name: String, die: DieResource = null) -> void:
 	"""Animate a die moving from hand to action field by reparenting"""
@@ -1257,6 +1302,7 @@ func animate_enemy_action_confirm(action_name: String) -> void:
 	if is_instance_valid(field):
 		field.clear_dice()
 
+
 func clear_enemy_turn_display():
 	"""Clear enemy turn display and restore player actions"""
 	is_enemy_turn = false
@@ -1267,12 +1313,34 @@ func clear_enemy_turn_display():
 			visual.queue_free()
 	temp_animation_visuals.clear()
 	
-	# Clear dice from enemy action fields before freeing them
-	for field in enemy_action_fields:
-		if is_instance_valid(field):
-			field.clear_dice()
+	# Collapse any expanded enemy field
+	if current_expanded_field:
+		# Skip dice return — enemy dice don't go back to a pool
+		if current_expanded_field and is_instance_valid(current_expanded_field):
+			current_expanded_field.queue_free()
+		current_expanded_field = null
+		selected_action_field = null
+		if expanded_field_overlay:
+			expanded_field_overlay.visible = false
+		if dim_background:
+			dim_background.visible = false
+		if action_fields_scroll:
+			action_fields_scroll.modulate.a = 1.0
 	
+	# Clear enemy preview nodes from the grid
 	enemy_action_fields.clear()
+	_enemy_action_data_cache.clear()
+	
+	# Free all grid children (previews + any stale nodes)
+	if action_fields_grid:
+		for child in action_fields_grid.get_children():
+			child.queue_free()
+	action_fields.clear()
+	
+	
+
+
+
 
 # ============================================================================
 # ACTION BUTTONS
@@ -1569,7 +1637,10 @@ func animate_enemy_die_placement(_enemy_combatant: Combatant, _die: DieResource,
 func on_action_animation_complete():
 	"""Called by CombatManager when action animation finishes"""
 	if current_expanded_field:
-		await _collapse_expanded_field()
+		if is_enemy_turn:
+			await _collapse_enemy_action_field()
+		else:
+			await _collapse_expanded_field()
 
 func _find_pool_dice_grid():
 	"""Try to find the BottomUI's DiceGrid for pool die source positions.
@@ -1690,6 +1761,138 @@ func _on_preview_tapped(action_data: Dictionary, preview: ActionFieldPreview):
 	await get_tree().create_timer(0.2).timeout
 	_expansion_just_finished = false
 
+func expand_enemy_action(action_name: String) -> ActionField:
+	"""Programmatically expand an enemy action preview into a full ActionField.
+	Called by CombatManager during AI-driven enemy turns.
+	Returns the expanded ActionField (or null on failure).
+	Awaitable — returns after expansion animation completes."""
+	
+	if _expansion_in_progress:
+		push_warning("⚠️ Expansion already in progress, cannot expand '%s'" % action_name)
+		return null
+	
+	# Find the preview to expand from
+	var preview = find_enemy_preview_by_name(action_name)
+	if not preview:
+		push_warning("⚠️ No enemy preview found for: %s" % action_name)
+		return null
+	
+	# Get cached action data
+	var action_data = _enemy_action_data_cache.get(action_name, {})
+	if action_data.is_empty():
+		push_warning("⚠️ No cached action data for: %s" % action_name)
+		return null
+	
+	print("🤖 Enemy expanding action: %s" % action_name)
+	_expansion_in_progress = true
+	
+	# Collapse previous field if any
+	if current_expanded_field:
+		await _collapse_enemy_action_field()
+	
+	# Create full ActionField (non-interactive for enemy)
+	var field = _create_enemy_expanded_field(action_data)
+	if not field:
+		_expansion_in_progress = false
+		return null
+	
+	expanded_field_container.add_child(field)
+	current_expanded_field = field
+	
+	# Do NOT connect player interaction signals (no dice_returned, die_placed, etc.)
+	# Do NOT connect action_cancelled — enemy fields don't cancel
+	
+	# Animate expansion (reuses the same animation as player)
+	await _animate_expansion(preview, field)
+	
+	_expansion_in_progress = false
+	
+	print("✅ Enemy expansion complete: %s" % action_name)
+	return field
+
+
+func _create_enemy_expanded_field(action_data: Dictionary) -> ActionField:
+	"""Create a non-interactive ActionField for enemy turn expansion.
+	Has visible die slots (for dice placement animation) but no buttons."""
+	if not action_field_scene:
+		push_error("ActionField scene not loaded!")
+		return null
+	
+	var field = action_field_scene.instantiate() as ActionField
+	if not field:
+		push_error("Failed to instantiate ActionField!")
+		return null
+	
+	# Configure from data
+	field.configure_from_dict(action_data)
+	
+	# Non-interactive: hide confirm/cancel buttons, disable drag-drop
+	field.show_action_buttons = false
+	field.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	# Die slots should be visible (for dice flight animation targets)
+	# but not accept drops — enemy AI places dice programmatically
+	# The slots' mouse_filter will inherit IGNORE from the field
+	
+	return field
+
+
+func _collapse_enemy_action_field() -> void:
+	"""Collapse the expanded enemy action field WITHOUT returning dice to player pool.
+	Called by CombatManager after enemy action animation completes."""
+	
+	if not current_expanded_field or not is_instance_valid(current_expanded_field):
+		# Just clean up overlay state
+		if expanded_field_overlay:
+			expanded_field_overlay.visible = false
+		if dim_background:
+			dim_background.visible = false
+		if action_fields_scroll:
+			action_fields_scroll.modulate.a = 1.0
+		current_expanded_field = null
+		selected_action_field = null
+		return
+	
+	print("🔽 Collapsing enemy expanded field: %s" % current_expanded_field.action_name)
+	
+	# Do NOT call cancel_action() — enemy dice aren't returned anywhere
+	# Just clear the placed dice data so visuals don't linger
+	if current_expanded_field.has_method("clear_dice"):
+		current_expanded_field.clear_dice()
+	
+	# Animate collapse (same visual as player collapse)
+	var tween = create_tween()
+	tween.set_parallel(true)
+	tween.set_ease(Tween.EASE_IN)
+	tween.set_trans(Tween.TRANS_CUBIC)
+	
+	# Fade out overlay
+	tween.tween_property(expanded_field_overlay, "modulate:a", 0.0, 0.25)
+	
+	# Restore scroll container visibility
+	if action_fields_scroll:
+		tween.tween_property(action_fields_scroll, "modulate:a", 1.0, 0.2)
+	
+	# Shrink field
+	tween.tween_property(current_expanded_field, "scale", Vector2(0.3, 0.3), 0.25)
+	tween.tween_property(current_expanded_field, "modulate:a", 0.0, 0.2)
+	
+	await tween.finished
+	
+	# Cleanup
+	if expanded_field_overlay:
+		expanded_field_overlay.visible = false
+	if dim_background:
+		dim_background.visible = false
+	
+	if current_expanded_field and is_instance_valid(current_expanded_field):
+		current_expanded_field.queue_free()
+	
+	current_expanded_field = null
+	selected_action_field = null
+	
+	print("✅ Enemy collapse complete")
+
 func _create_full_action_field(action_data: Dictionary) -> ActionField:
 	"""Create a full interactive ActionField for expansion"""
 	if not action_field_scene:
@@ -1709,6 +1912,21 @@ func _create_full_action_field(action_data: Dictionary) -> ActionField:
 		field.mouse_filter = Control.MOUSE_FILTER_STOP
 	
 	return field
+
+
+func _connect_player_status_display():
+	"""Connect the player's StatusDisplay to their StatusTracker."""
+	if not player_status_display:
+		return
+	
+	# Player's StatusTracker is on the Player resource, not the combatant node!
+	if not player or not player.status_tracker:
+		push_warning("CombatUI: Player has no status_tracker")
+		return
+	
+	player_status_display.connect_tracker(player.status_tracker)
+	print("  ✅ Player status display connected to StatusTracker")
+
 
 func _animate_expansion(from_preview: ActionFieldPreview, to_field: ActionField) -> void:
 	"""Animate ActionField expanding from preview to fill overlay"""
@@ -1906,6 +2124,12 @@ func _on_overlay_clicked(event: InputEvent):
 	# ONLY respond to button PRESS (ignore release events from preview clicks)
 	if not mouse_event.pressed or mouse_event.button_index != MOUSE_BUTTON_LEFT:
 		print("  Not a left click press")
+		return
+	
+	
+	# Don't allow click-to-collapse during enemy turns
+	if is_enemy_turn:
+		print("  🤖 Ignoring overlay click — enemy turn")
 		return
 	
 	# Ignore clicks immediately after expansion

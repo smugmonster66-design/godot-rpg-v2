@@ -1,23 +1,25 @@
-[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://buulrmrni365a"]
+[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://buulrmrni365a"]
 
+[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_khgn5"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_ynmmn"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_khgn5"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_fu65d"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_ayg6t"]
+[ext_resource type="Resource" uid="uid://chgprsba6wfw2" path="res://resources/statuses/fortified.tres" id="5_fort"]
 
 [sub_resource type="Resource" id="Resource_rqgxh"]
 script = ExtResource("1_ynmmn")
-effect_name = "Wall Armor"
+effect_name = "Wall Fortify"
 target = 0
-effect_type = 6
-value_source = 1
-armor_buff_uses_dice = true
-armor_buff_duration = 1
+effect_type = 2
+status_affix = ExtResource("5_fort")
+stack_count = 3
 
 [resource]
 script = ExtResource("4_ayg6t")
 action_id = "shield_wall"
 action_name = "Shield Wall"
-action_description = "Gain armor equal to die value."
+action_description = "Gain 3 Fortified for 1 turn."
 effects = Array[ExtResource("1_ynmmn")]([SubResource("Resource_rqgxh")])
+animation_set = ExtResource("1_khgn5")
 action_type = 1

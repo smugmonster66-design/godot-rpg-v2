@@ -202,6 +202,7 @@ func get_actions_as_dicts() -> Array[Dictionary]:
 		if action:
 			var dict = action.to_dict()
 			dict["source"] = enemy_name
+			dict["action_resource"] = action
 			result.append(dict)
 	
 	return result

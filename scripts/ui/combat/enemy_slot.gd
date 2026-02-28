@@ -207,6 +207,8 @@ func set_enemy(p_enemy: Combatant, p_enemy_data: EnemyData = null):
 	enemy_data = p_enemy_data
 	is_empty = false
 	
+	modulate.a = 1.0
+	
 	_update_display()
 	_update_dice_pool_display()
 	
@@ -223,6 +225,9 @@ func set_empty():
 	enemy_data = null
 	is_empty = true
 	is_selected = false
+	
+	modulate.a = 0.0
+	
 	
 	if portrait_rect:
 		portrait_rect.texture = default_portrait

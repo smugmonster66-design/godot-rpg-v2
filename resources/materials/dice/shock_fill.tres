@@ -4,8 +4,8 @@
 
 [resource]
 shader = ExtResource("1_shader")
-shader_parameter/cloud_dark = Color(0.06, 0.08, 0.18, 1)
-shader_parameter/cloud_mid = Color(0.12, 0.16, 0.3, 1)
+shader_parameter/cloud_dark = Color(0.16470589, 0.2, 0.5529412, 1)
+shader_parameter/cloud_mid = Color(0.32767397, 0.41724446, 0.90178645, 1)
 shader_parameter/bolt_color = Color(0.55, 0.78, 1, 1)
 shader_parameter/bolt_core = Color(0.9, 0.95, 1, 1)
 shader_parameter/cloud_speed = 0.83100003621262

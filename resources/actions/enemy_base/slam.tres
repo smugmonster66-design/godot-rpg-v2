@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://da2uxbu8iojio"]
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://da2uxbu8iojio"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_a0stu"]
+[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_gvwqd"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_gvwqd"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_gaf6t"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_cw64w"]
@@ -19,5 +20,6 @@ action_id = "slam"
 action_name = "Slam"
 action_description = "Deals 1D+1 Blunt damage at 0.7×."
 effects = Array[ExtResource("1_a0stu")]([SubResource("Resource_cn08e")])
+animation_set = ExtResource("1_gvwqd")
 base_damage = 1
 damage_multiplier = 0.7

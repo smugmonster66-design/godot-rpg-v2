@@ -66,6 +66,7 @@ enum Type {
 	TURN_ENDED,              ## A combatant's turn ended
 	ROUND_STARTED,           ## A new combat round began
 	ACTION_CONFIRMED,        ## Player confirmed an action (dice placed, go pressed)
+	ACTION_EXECUTED,
 	COMBAT_STARTED,          ## Combat encounter began
 	COMBAT_ENDED,            ## Combat encounter resolved
 
@@ -191,6 +192,21 @@ static func status_applied(target: Node, status_name: String, stacks: int, tags:
 		"tags": tags,
 	}
 	return evt
+
+static func action_executed(source: Node, primary_target: Node, action_name: String,
+		target_names: Array, dice_values: Array, dice_count: int) -> CombatEvent:
+	var evt = CombatEvent.new()
+	evt.type = Type.ACTION_EXECUTED
+	evt.source_node = source
+	evt.target_node = primary_target
+	evt.values = {
+		"action_name": action_name,
+		"target_names": target_names,
+		"dice_values": dice_values,
+		"dice_count": dice_count,
+	}
+	return evt
+
 
 static func status_ticked(target: Node, status_name: String, tick_damage: int, element: String = "") -> CombatEvent:
 	var evt = CombatEvent.new()

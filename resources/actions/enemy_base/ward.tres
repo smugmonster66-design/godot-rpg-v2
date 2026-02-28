@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://c8rvgwlhg87lm"]
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://c8rvgwlhg87lm"]
 
+[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_4dswj"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_kdav7"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_4dswj"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_c37rb"]
@@ -19,4 +20,5 @@ action_id = "ward"
 action_name = "Ward"
 action_description = "Gain barrier equal to die × 0.8."
 effects = Array[ExtResource("1_kdav7")]([SubResource("Resource_qr6vj")])
+animation_set = ExtResource("1_4dswj")
 action_type = 1

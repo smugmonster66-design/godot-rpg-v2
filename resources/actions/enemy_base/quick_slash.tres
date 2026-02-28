@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://60vdhkqylgag"]
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://60vdhkqylgag"]
 
+[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_36333"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_dvm3q"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_36333"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_ladef"]
@@ -18,5 +19,6 @@ action_id = "quick_slash"
 action_name = "Quick Slash"
 action_description = "Deals 1D+1 Slashing damage at 0.8×."
 effects = Array[ExtResource("1_dvm3q")]([SubResource("Resource_hb12h")])
+animation_set = ExtResource("1_36333")
 base_damage = 1
 damage_multiplier = 0.8

@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://bnmecfmmy1xsb"]
+[gd_resource type="Resource" script_class="Action" load_steps=10 format=3 uid="uid://bnmecfmmy1xsb"]
 
+[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_2ot88"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_j6ifw"]
 [ext_resource type="Resource" uid="uid://i0gx0hubkmmx" path="res://resources/statuses/slowed.tres" id="2_2ot88"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="3_a04fi"]
@@ -27,4 +28,5 @@ action_id = "sabotage"
 action_name = "Sabotage"
 action_description = "Apply 2 Slowed + 2 Corrode."
 effects = Array[ExtResource("1_j6ifw")]([SubResource("Resource_0dgt3"), SubResource("Resource_cka8u")])
+animation_set = ExtResource("1_2ot88")
 action_type = 3

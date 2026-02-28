@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://b0ba558tkb3uk"]
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://b0ba558tkb3uk"]
 
+[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_b18a1"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_qkf3i"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_b18a1"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_sme57"]
@@ -18,4 +19,5 @@ action_id = "barrier_pulse"
 action_name = "Barrier Pulse"
 action_description = "Gain barrier equal to die value."
 effects = Array[ExtResource("1_qkf3i")]([SubResource("Resource_lvw0v")])
+animation_set = ExtResource("1_b18a1")
 action_type = 1

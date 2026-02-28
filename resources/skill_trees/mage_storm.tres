@@ -1,6 +1,8 @@
-[gd_resource type="Resource" script_class="SkillTree" load_steps=163 format=3 uid="uid://cygsyc3mjcqon"]
+[gd_resource type="Resource" script_class="SkillTree" load_steps=165 format=3 uid="uid://cygsyc3mjcqon"]
 
 [ext_resource type="Script" uid="uid://cukfw0heumnic" path="res://scripts/data/skill_tree.gd" id="1_8y1rk"]
+[ext_resource type="Material" uid="uid://cho64cxndlk0r" path="res://resources/materials/dice/shock_fill.tres" id="1_fyda2"]
+[ext_resource type="Material" uid="uid://cmy28n60ig7hq" path="res://resources/materials/engraved_icon_material.tres" id="1_gjebd"]
 [ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="2_fyda2"]
 [ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="3_gjebd"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="4_u62vq"]
@@ -680,3 +682,5 @@ tier_7_skills = Array[ExtResource("2_fyda2")]([SubResource("Resource_m38t0"), Su
 tier_8_skills = Array[ExtResource("2_fyda2")]([SubResource("Resource_27v42"), SubResource("Resource_h878q"), SubResource("Resource_en1r8")])
 tier_9_skills = Array[ExtResource("2_fyda2")]([SubResource("Resource_gbnd5"), SubResource("Resource_avgsk")])
 tier_10_skills = Array[ExtResource("2_fyda2")]([SubResource("Resource_h6spn")])
+prereq_line_shader = ExtResource("1_fyda2")
+icon_shader = ExtResource("1_gjebd")

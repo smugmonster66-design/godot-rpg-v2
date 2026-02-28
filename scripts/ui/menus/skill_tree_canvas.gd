@@ -63,7 +63,9 @@ var _prereq_met_state: Dictionary = {}
 var _current_tree: SkillTree = null
 
 var _player_class_ref: PlayerClass = null
-
+## SubViewport that renders the element shader for icon rank fill
+var _fill_viewport: SubViewport = null
+var _fill_rect: ColorRect = null
 
 # ============================================================================
 # INITIALIZATION
@@ -90,6 +92,7 @@ func build(tree: SkillTree, rank_getter: Callable, points_spent: int = 0, player
 	skill_rank_getter = rank_getter
 	tree_points_spent = points_spent
 	_current_tree = tree
+	_setup_fill_viewport()
 	_recycle_all_buttons()
 	_clear_prereq_lines()
 
@@ -116,6 +119,29 @@ func build(tree: SkillTree, rank_getter: Callable, points_spent: int = 0, player
 	_update_canvas_size()
 	queue_redraw()
 
+
+func _setup_fill_viewport():
+	"""Create a SubViewport that renders the element shader for icon fills."""
+	if _fill_viewport:
+		_fill_viewport.queue_free()
+		_fill_viewport = null
+		_fill_rect = null
+
+	if not _current_tree or not _current_tree.prereq_line_shader:
+		return
+
+	_fill_viewport = SubViewport.new()
+	_fill_viewport.size = Vector2i(64, 64)
+	_fill_viewport.transparent_bg = true
+	_fill_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+
+	_fill_rect = ColorRect.new()
+	_fill_rect.color = Color.BLACK
+	_fill_rect.size = Vector2(64, 64)
+	_fill_rect.material = _current_tree.prereq_line_shader.duplicate()
+
+	_fill_viewport.add_child(_fill_rect)
+	add_child(_fill_viewport)
 
 func _recycle_all_buttons():
 	"""Return all active buttons to the pool instead of freeing them."""
@@ -239,9 +265,13 @@ func _update_button_state(button: SkillButton):
 		button.set_state(SkillButton.State.LOCKED)
 	
 	
-	# Apply tree's line shader to icon (stepped by rank)
-	if _current_tree and _current_tree.prereq_line_shader:
-		button.set_icon_shader(_current_tree.prereq_line_shader)
+	# Apply icon engraving shader
+	if _current_tree and _current_tree.icon_shader:
+		button.set_icon_shader(_current_tree.icon_shader)
+
+	# Pass the element viewport texture for rank fill
+	if _fill_viewport:
+		button.set_fill_texture(_fill_viewport.get_texture())
 
 # ============================================================================
 # DRAWING - prerequisite lines + optional grid background

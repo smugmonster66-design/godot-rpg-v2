@@ -915,7 +915,6 @@ grow_horizontal = 2
 grow_vertical = 0
 size_flags_vertical = 10
 theme_override_constants/separation = 10
-alignment = 1
 
 [node name="UseButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/ActionButtons"]
 layout_mode = 2

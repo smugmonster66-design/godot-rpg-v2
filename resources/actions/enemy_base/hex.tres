@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://c87rfrpoukh2"]
+[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://c87rfrpoukh2"]
 
+[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_goaxj"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_j3d8p"]
 [ext_resource type="Resource" uid="uid://i0gx0hubkmmx" path="res://resources/statuses/slowed.tres" id="2_goaxj"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="3_p5f03"]
@@ -18,4 +19,5 @@ action_id = "hex"
 action_name = "Hex"
 action_description = "Apply 1 Slowed to player."
 effects = Array[ExtResource("1_j3d8p")]([SubResource("Resource_vpm22")])
+animation_set = ExtResource("1_goaxj")
 action_type = 3

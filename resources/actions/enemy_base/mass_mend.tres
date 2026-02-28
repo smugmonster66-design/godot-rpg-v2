@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://c7qg0g1cwoarb"]
+[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://c7qg0g1cwoarb"]
 
+[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_065og"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_luk30"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_065og"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_lgw3t"]
@@ -27,4 +28,5 @@ action_id = "mass_mend"
 action_name = "Mass Mend"
 action_description = "Heal all allies for die × 0.6 + cleanse."
 effects = Array[ExtResource("1_luk30")]([SubResource("Resource_a2t32"), SubResource("Resource_g2hkp")])
+animation_set = ExtResource("1_065og")
 action_type = 2

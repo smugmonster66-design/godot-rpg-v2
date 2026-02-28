@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://dxpghbyxtxwiv"]
+[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://dxpghbyxtxwiv"]
 
+[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_civhg"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_yp6s4"]
 [ext_resource type="Resource" uid="uid://dryvh1auub4o8" path="res://resources/statuses/empowered.tres" id="2_civhg"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="3_vgapc"]
@@ -19,4 +20,5 @@ action_id = "war_cry"
 action_name = "War Cry"
 action_description = "Empower an ally — increased damage."
 effects = Array[ExtResource("1_yp6s4")]([SubResource("Resource_skppx")])
+animation_set = ExtResource("1_civhg")
 action_type = 3

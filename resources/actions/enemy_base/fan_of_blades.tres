@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://dpwq1uu415clt"]
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://dpwq1uu415clt"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_cex7f"]
+[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_iq2or"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_iq2or"]
 [ext_resource type="Resource" uid="uid://kilfjnbqkpbi" path="res://resources/statuses/bleed.tres" id="3_3kfgh"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_rxmcl"]
@@ -26,3 +27,4 @@ action_id = "fan_of_blades"
 action_name = "Fan of Blades"
 action_description = "2 random strikes. Applies 1 Bleed."
 effects = Array[ExtResource("1_cex7f")]([SubResource("Resource_5436r"), SubResource("Resource_2ste2")])
+animation_set = ExtResource("1_iq2or")

@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://b1adqw72u5auw"]
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://b1adqw72u5auw"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_vbxgj"]
+[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_yt8j6"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_yt8j6"]
 [ext_resource type="Resource" uid="uid://kilfjnbqkpbi" path="res://resources/statuses/bleed.tres" id="3_qt4vc"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_cnbnd"]
@@ -27,5 +28,6 @@ action_id = "crippling_thrust"
 action_name = "Crippling Thrust"
 action_description = "Piercing hit. Applies 2 Bleed."
 effects = Array[ExtResource("1_vbxgj")]([SubResource("Resource_48r2j"), SubResource("Resource_fwmqk")])
+animation_set = ExtResource("1_yt8j6")
 base_damage = 3
 damage_multiplier = 1.3

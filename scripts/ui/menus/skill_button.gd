@@ -35,7 +35,7 @@ var rank_label: Label
 var lock_overlay: Control
 var highlight_panel: Panel
 var _icon_shader_template: ShaderMaterial = null
-
+var _fill_texture: Texture2D = null
 
 # ============================================================================
 # STYLING
@@ -69,25 +69,34 @@ func set_icon_shader(shader: ShaderMaterial):
 	_update_icon_shader()
 
 
+func set_fill_texture(tex: Texture2D):
+	"""Store the element viewport texture for rank fill."""
+	_fill_texture = tex
+	_update_icon_shader()
+
 func _update_icon_shader():
-	"""Apply the line shader to the icon with fill_progress stepped by rank."""
+	"""Apply engraving shader with element fill from viewport texture."""
 	if not icon_rect:
 		return
-	
+
 	if not _icon_shader_template or not skill:
 		icon_rect.material = null
 		return
-	
-	var max_rank = skill.get_max_rank()
-	if max_rank <= 0 or current_rank <= 0:
-		# No ranks invested — no shader
-		icon_rect.material = null
-		return
-	
-	var progress = clampf(float(current_rank) / float(max_rank), 0.0, 1.0)
-	
+
 	var mat = _icon_shader_template.duplicate() as ShaderMaterial
-	mat.set_shader_parameter("fill_progress", progress)
+	mat.next_pass = null
+
+	var max_rank = skill.get_max_rank()
+	if max_rank > 0 and current_rank > 0:
+		var progress = clampf(float(current_rank) / float(max_rank), 0.0, 1.0)
+		mat.set_shader_parameter("fill_progress", progress)
+		if _fill_texture:
+			mat.set_shader_parameter("fill_texture", _fill_texture)
+			mat.set_shader_parameter("has_fill_texture", true)
+	else:
+		mat.set_shader_parameter("fill_progress", 0.0)
+		mat.set_shader_parameter("has_fill_texture", false)
+
 	icon_rect.material = mat
 
 func _setup_input():

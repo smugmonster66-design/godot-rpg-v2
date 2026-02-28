@@ -208,6 +208,12 @@ func emit_action_confirmed(source: Node) -> void:
 	evt.source_node = source
 	emit_event(evt)
 
+func emit_action_executed(source: Node, primary_target: Node, action_name: String,
+		target_names: Array, dice_values: Array, dice_count: int) -> void:
+	emit_event(CombatEvent.action_executed(
+		source, primary_target, action_name, target_names, dice_values, dice_count))
+
+
 func emit_combat_started() -> void:
 	var evt = CombatEvent.new()
 	evt.type = CombatEvent.Type.COMBAT_STARTED

@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://c63ch5dhpuvv3"]
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://c63ch5dhpuvv3"]
 
+[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_ahefj"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_at0t5"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_ahefj"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_7bvt3"]
@@ -17,3 +18,4 @@ action_id = "spark"
 action_name = "Spark"
 action_description = "Deals 1D Shock damage."
 effects = Array[ExtResource("1_at0t5")]([SubResource("Resource_h7r33")])
+animation_set = ExtResource("1_ahefj")

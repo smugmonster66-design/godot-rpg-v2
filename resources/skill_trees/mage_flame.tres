@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="SkillTree" load_steps=194 format=3 uid="uid://7skxlt53e4sf"]
+[gd_resource type="Resource" script_class="SkillTree" load_steps=195 format=3 uid="uid://7skxlt53e4sf"]
 
 [ext_resource type="Shader" uid="uid://bnitqsn8ayk0j" path="res://shaders/dice/fire/fire_fill.gdshader" id="1_bnh2n"]
+[ext_resource type="Material" uid="uid://cmy28n60ig7hq" path="res://resources/materials/engraved_icon_material.tres" id="1_ea8jm"]
 [ext_resource type="Script" uid="uid://cukfw0heumnic" path="res://scripts/data/skill_tree.gd" id="1_ftk5x"]
 [ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="2_be7fa"]
 [ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="3_44xkj"]
@@ -1653,3 +1654,4 @@ tier_10_skills = Array[ExtResource("2_be7fa")]([SubResource("Resource_10ldk")])
 prereq_line_shader = SubResource("ShaderMaterial_skkmn")
 prereq_line_width = 5.0
 prereq_line_fill_duration = 0.1
+icon_shader = ExtResource("1_ea8jm")

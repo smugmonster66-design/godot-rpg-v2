@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3 uid="uid://0uycurmcavjg"]
+[gd_scene load_steps=9 format=3 uid="uid://0uycurmcavjg"]
 
 [ext_resource type="PackedScene" uid="uid://dofeq3txtonis" path="res://scenes/ui/combat/enemy_panel.tscn" id="2_8bf5m"]
 [ext_resource type="PackedScene" uid="uid://bb07mxj58qxpy" path="res://scenes/ui/combat/dice_pool_display.tscn" id="2_bo0no"]
 [ext_resource type="PackedScene" uid="uid://ctpamire6rmbu" path="res://scenes/ui/components/die_visual.tscn" id="4_l84v8"]
+[ext_resource type="Script" uid="uid://ca4g3ms73u52v" path="res://scripts/ui/combat/status_effect_display.gd" id="4_u72jj"]
 [ext_resource type="PackedScene" uid="uid://cmdae6knaxo5a" path="res://scenes/ui/combat/mana_die_selector.tscn" id="5_5ykqc"]
 [ext_resource type="Script" uid="uid://ct2t4rul0p5uv" path="res://scripts/ui/combat/combat_roll_animator.gd" id="5_8bf5m"]
 [ext_resource type="Script" uid="uid://m2g4t6rqu5p8" path="res://scripts/ui/combat/affix_visual_animator.gd" id="6_kesfj"]
@@ -130,8 +131,14 @@ layout_mode = 2
 mouse_filter = 0
 die_visual_scene = ExtResource("4_l84v8")
 
+[node name="PlayerStatusDisplay" type="HBoxContainer" parent="MarginContainer/VBox/VBoxContainer"]
+z_index = 75
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+script = ExtResource("4_u72jj")
+
 [node name="Spacer4" type="Control" parent="MarginContainer/VBox/VBoxContainer"]
-custom_minimum_size = Vector2(0, 370)
+custom_minimum_size = Vector2(0, 322)
 layout_mode = 2
 
 [node name="ManaDieSelector" parent="." instance=ExtResource("5_5ykqc")]

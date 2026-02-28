@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3 uid="uid://b2w217jydc2gl"]
+[gd_scene load_steps=37 format=3 uid="uid://b2w217jydc2gl"]
 
 [ext_resource type="Script" uid="uid://c2ftibv05ag52" path="res://scripts/game/game_root.gd" id="1_pevc5"]
 [ext_resource type="Script" uid="uid://buljuod5rywxy" path="res://scripts/shared/game_camera.gd" id="2_i88f8"]
@@ -25,6 +25,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/menus/dungeon_selection_screen.tscn" id="20_ax1hr"]
 [ext_resource type="Theme" uid="uid://b87llggw1n1df" path="res://resources/themes/base_theme.tres" id="27_xi4na"]
 [ext_resource type="Script" uid="uid://dchhavi72jukk" path="res://scripts/ui/combat/companion_panel.gd" id="28_twq2i"]
+[ext_resource type="PackedScene" path="res://scenes/debug/debug_combat_panel_enhanced.tscn" id="28_xskmf"]
 [ext_resource type="Script" uid="uid://ev7ssgd5vcgs" path="res://scripts/ui/combat/companion_slot.gd" id="29_cm22q"]
 [ext_resource type="Texture2D" uid="uid://c6sqtdxnbp2ab" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_bg.png" id="30_d0whc"]
 [ext_resource type="Texture2D" uid="uid://bhdufq5sfxngf" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_stroke_basic.png" id="31_ihw70"]
@@ -430,3 +431,5 @@ anchor_bottom = 0.5
 offset_top = -266.0
 offset_bottom = 266.0
 grow_vertical = 2
+
+[node name="DebugCombatPanelEnhanced" parent="DebugLayer" instance=ExtResource("28_xskmf")]
