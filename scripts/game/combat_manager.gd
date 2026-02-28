@@ -1383,17 +1383,7 @@ func _animate_enemy_action(enemy: Combatant, decision: EnemyAI.Decision):
 		targeting_mode = action_resource.get_targeting_mode()
 	action_data["targeting_mode"] = targeting_mode
 	
-	# --- TAUNT: Consume taunt stack if enemy attacked the taunter ---
-	if enemy.has_node("StatusTracker"):
-		var enemy_tracker: StatusTracker = enemy.get_node("StatusTracker")
-		if enemy_tracker.has_status("taunt"):
-			var taunt_inst = enemy_tracker.get_instance("taunt")
-			var taunter = taunt_inst.get("source_combatant") if taunt_inst else null
-			if taunter == target:
-				enemy_tracker.remove_stacks("taunt", 1)
-				var remaining = enemy_tracker.get_stacks("taunt")
-				print("  🎯 Taunt intercepted! (%d stacks remain)" % remaining)
-	# --- END TAUNT ---
+	
 	
 	
 	# Get animation set from action_resource
@@ -1545,77 +1535,96 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 	
 	match action_type:
 		0:  # ATTACK
-			for target in targets:
+			var target: Combatant = targets[0] if targets.size() > 0 else null
+			if not target:
+				print("  ⚠️ ATTACK: no target in targets array")
+			else:
 				var damage_result: Dictionary = _calculate_damage(action_data, source, target)
-				var damage: int = damage_result.total_damage
-				var is_crit: bool = damage_result.get("is_crit", false)
-				print("  💥 %s deals %d damage to %s%s" % [source.combatant_name, damage, target.combatant_name, " (CRIT!)" if is_crit else ""])
-				target.take_damage(damage)
-
-				# --- THREAT: Add damage threat to all enemies ---
-				if source == player_combatant or _is_companion(source):
-					_add_threat_to_all_enemies(source, "damage", damage)
-				# --- END THREAT ---
-		
-
-				# Emit reactive animation event
-				if event_bus:
-					var visual = _get_combatant_visual(target)
-					if visual:
-						var element_str = ""
-						var action_resource = action_data.get("action_resource") as Action
-						if action_resource and action_resource.effects.size() > 0:
-							element_str = ActionEffect.DamageType.keys()[action_resource.effects[0].damage_type]
-						event_bus.emit_damage_dealt(visual, damage, element_str, is_crit, _get_combatant_visual(source))
+				var raw_damage: int = damage_result.total_damage
 				
+				# --- DEFENSIVE STATUSES: Dodge, Block, Overhealth ---
+				var def_result: Dictionary = _apply_defensive_statuses(target, raw_damage)
+				var damage: int = def_result.final_damage
+				var was_dodged: bool = def_result.dodged
+				# --- END DEFENSIVE STATUSES ---
 				
-				
-				
-				
-				
-				
-				
-				
-				
-				# v5: Track unique enemies hit for Crucible's Gift
-				if source == player_combatant and target not in _enemies_hit_this_turn:
-					_enemies_hit_this_turn.append(target)
-				
-				# --- PROC: On-hit procs (player attacks only) ---
-				if source == player_combatant and player and player.affix_manager and proc_processor:
-					var hit_results = proc_processor.process_on_hit(
-						player.affix_manager, _build_proc_context({
-							"damage_dealt": damage,
-							"target": target,
-							"action_resource": action_data.get("action_resource"),
-							"placed_dice": action_data.get("placed_dice", []),
-						}))
-					_apply_proc_results(hit_results, target)
-				# --- END PROC ---
-				
-				# Update appropriate health display
-				if target == player_combatant:
-					_update_player_health()
-					_check_player_death()
+				if was_dodged:
+					print("  DODGE! %s evades %s's attack!" % [target.combatant_name, source.combatant_name])
 				else:
-					var enemy_index = enemy_combatants.find(target)
-					if enemy_index >= 0:
-						_update_enemy_health(enemy_index)
-						_check_enemy_death(target)
-						
-						# --- PROC: On-kill procs ---
-						if not target.is_alive() and source == player_combatant:
-							if player and player.affix_manager and proc_processor:
-								var kill_results = proc_processor.process_procs(
-									player.affix_manager,
-									Affix.ProcTrigger.ON_KILL,
-									_build_proc_context({
-										"target": target,
-										"action_resource": action_data.get("action_resource"),
-										"placed_dice": action_data.get("placed_dice", []),
-									}))
-								_apply_proc_results(kill_results, target)
-						# --- END ON_KILL ---
+					var is_crit: bool = damage_result.get("is_crit", false)
+					
+					print("  💥 %s deals %d damage to %s%s" % [
+						source.combatant_name, damage, target.combatant_name,
+						" (CRIT!)" if is_crit else ""])
+					if damage > 0:
+						target.take_damage(damage)
+					
+					# --- THREAT: Add damage threat to all enemies ---
+					if source == player_combatant or _is_companion(source):
+						_add_threat_to_all_enemies(source, "damage", damage)
+					# --- END THREAT ---
+					
+					# --- TAUNT: Consume taunt stack if enemy attacked the taunter ---
+					if source != player_combatant and source is Combatant and source.has_node("StatusTracker"):
+						var src_tracker: StatusTracker = source.get_node("StatusTracker")
+						if src_tracker.has_status("taunt"):
+							var taunt_inst = src_tracker.get_instance("taunt")
+							var taunter = taunt_inst.get("source_combatant") if taunt_inst else null
+							if taunter == target:
+								src_tracker.remove_stacks("taunt", 1)
+								var remaining_taunt = src_tracker.get_stacks("taunt")
+								print("  🎯 Taunt intercepted! (%d stacks remain)" % remaining_taunt)
+					# --- END TAUNT ---
+					
+					# Emit reactive animation event
+					if event_bus:
+						var visual = _get_combatant_visual(target)
+						if visual:
+							var element_str = ""
+							var action_resource = action_data.get("action_resource") as Action
+							if action_resource and action_resource.effects.size() > 0:
+								element_str = ActionEffect.DamageType.keys()[action_resource.effects[0].damage_type]
+							event_bus.emit_damage_dealt(visual, damage, element_str, is_crit, _get_combatant_visual(source))
+					
+					# v5: Track unique enemies hit for Crucible's Gift
+					if source == player_combatant and target not in _enemies_hit_this_turn:
+						_enemies_hit_this_turn.append(target)
+					
+					# --- PROC: On-hit procs (player attacks only) ---
+					if damage > 0 and source == player_combatant and player and player.affix_manager and proc_processor:
+						var hit_results = proc_processor.process_on_hit(
+							player.affix_manager, _build_proc_context({
+								"damage_dealt": damage,
+								"target": target,
+								"action_resource": action_data.get("action_resource"),
+								"placed_dice": action_data.get("placed_dice", []),
+							}))
+						_apply_proc_results(hit_results, target)
+					# --- END PROC ---
+					
+					# Update appropriate health display
+					if target == player_combatant:
+						_update_player_health()
+						_check_player_death()
+					else:
+						var enemy_index = enemy_combatants.find(target)
+						if enemy_index >= 0:
+							_update_enemy_health(enemy_index)
+							_check_enemy_death(target)
+							
+							# --- PROC: On-kill procs ---
+							if not target.is_alive() and source == player_combatant:
+								if player and player.affix_manager and proc_processor:
+									var kill_results = proc_processor.process_procs(
+										player.affix_manager,
+										Affix.ProcTrigger.ON_KILL,
+										_build_proc_context({
+											"target": target,
+											"action_resource": action_data.get("action_resource"),
+											"placed_dice": action_data.get("placed_dice", []),
+										}))
+									_apply_proc_results(kill_results, target)
+							# --- END ON_KILL ---
 		
 		1:  # DEFEND
 			print("  🛡️ %s defends" % source.combatant_name)
@@ -2582,6 +2591,54 @@ func _get_status_tracker(target) -> StatusTracker:
 	elif target is Combatant and target.has_node("StatusTracker"):
 		return target.get_node("StatusTracker")
 	return null
+
+func _apply_defensive_statuses(target: Combatant, raw_damage: int) -> Dictionary:
+	"""Apply defensive status effects before damage reaches take_damage().
+	
+	Order: Dodge → Block → Overhealth.
+	Block stacks are NOT consumed (flat DR for the turn, falls off at turn start).
+	Overhealth stacks ARE consumed (absorbs point-for-point).
+	
+	Returns:
+		{"final_damage": int, "dodged": bool, "blocked": int, "absorbed": int}
+	"""
+	var result: Dictionary = {
+		"final_damage": raw_damage,
+		"dodged": false,
+		"blocked": 0,
+		"absorbed": 0,
+	}
+	
+	var tracker: StatusTracker = _get_status_tracker(target)
+	if not tracker:
+		return result
+	
+	# 1. Dodge — 10% per stack, roll only (stacks fall off at turn start)
+	if tracker.check_dodge():
+		result.dodged = true
+		result.final_damage = 0
+		return result
+	
+	var remaining: int = raw_damage
+	
+	# 2. Block — flat DR equal to stacks (stacks NOT consumed, fall off at turn start)
+	var block_val: int = tracker.get_block_value()
+	if block_val > 0 and remaining > 0:
+		var blocked: int = mini(block_val, remaining)
+		remaining -= blocked
+		result.blocked = blocked
+		print("  Block: -%d (%d block stacks active)" % [blocked, block_val])
+	
+	# 3. Overhealth — absorbs damage point-for-point (stacks consumed)
+	if remaining > 0:
+		var before: int = remaining
+		remaining = tracker.consume_overhealth(remaining)
+		result.absorbed = before - remaining
+		if result.absorbed > 0:
+			print("  Overhealth: absorbed %d (%d remaining)" % [result.absorbed, tracker.get_overhealth()])
+	
+	result.final_damage = remaining
+	return result
 
 func _calculate_damage(action_data: Dictionary, attacker, defender) -> Dictionary:
 	"""Calculate damage using split elemental damage system.

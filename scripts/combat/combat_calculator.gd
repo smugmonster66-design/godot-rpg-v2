@@ -142,12 +142,12 @@ static func calculate_attack_damage(
 			var action_mult = attacker_affixes.get_action_damage_multiplier(action_id)
 			damage_mult *= action_mult
 	
-	# Step 3c: Enfeeble — attacker's outgoing damage reduction
+	# Step 3c: Status damage modifier (Enfeeble = negative, Empowered = positive)
 	if attacker_tracker:
-		var enfeeble_mod: float = attacker_tracker.get_total_stat_modifier("damage_multiplier")
-		if enfeeble_mod < 0.0:
-			damage_mult = maxf(0.0, damage_mult + enfeeble_mod)
-			print("  Enfeeble: damage_mult -> %.2f" % damage_mult)
+		var status_dmg_mod: float = attacker_tracker.get_total_stat_modifier("damage_multiplier")
+		if status_dmg_mod != 0.0:
+			damage_mult = maxf(0.0, damage_mult + status_dmg_mod)
+			print("  Status damage mod: %+.2f -> damage_mult %.2f" % [status_dmg_mod, damage_mult])
 	
 	if damage_mult != 1.0:
 		packet.apply_multiplier(damage_mult)
