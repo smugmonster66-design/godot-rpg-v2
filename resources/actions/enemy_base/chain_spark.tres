@@ -1,11 +1,23 @@
-[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://dq1xdlnoycvj4"]
+[gd_resource type="Resource" script_class="Action" load_steps=14 format=3 uid="uid://dq1xdlnoycvj4"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_8xk2l"]
 [ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_j1uyv"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_1w5pp"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_j1uyv"]
 [ext_resource type="Resource" uid="uid://dwjgco21ai57h" path="res://resources/statuses/chill.tres" id="3_k5rsm"]
+[ext_resource type="Resource" uid="uid://6y3aegfj5vo8" path="res://resources/action_effects/base/chain.tres" id="3_nc607"]
+[ext_resource type="Resource" uid="uid://ddf8rgtybf7i6" path="res://resources/action_effects/base/apply_chill.tres" id="4_jwjvj"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_x50t6"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="5_1w5pp"]
+
+[sub_resource type="Resource" id="Resource_ts64d"]
+script = ExtResource("2_1w5pp")
+effect = ExtResource("3_nc607")
+value_source = 1
+
+[sub_resource type="Resource" id="Resource_hmxy1"]
+script = ExtResource("2_1w5pp")
+effect = ExtResource("4_jwjvj")
 
 [sub_resource type="Resource" id="Resource_nc607"]
 script = ExtResource("1_8xk2l")

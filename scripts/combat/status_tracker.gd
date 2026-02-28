@@ -338,7 +338,48 @@ func _trigger_threshold_v5(sid: String, instance: Dictionary,
 func _trigger_threshold(sid: String, instance: Dictionary, affix: StatusAffix):
 	"""Handle stack threshold being reached. Fires the threshold effect,
 	consumes threshold stacks, and removes the status if depleted."""
-
+	var threshold: int = affix.stack_threshold
+	print("  💥 %s threshold reached (%d stacks)!" % [affix.affix_name, threshold])
+	
+	match affix.threshold_effect:
+		StatusAffix.ThresholdEffect.BURST_DAMAGE:
+			var damage: int = int(affix.damage_per_stack * threshold * affix.threshold_value)
+			var is_magical: bool = affix.tick_damage_type == StatusAffix.StatusDamageType.MAGICAL
+			var event_data: Dictionary = {
+				"effect": "burst_damage",
+				"damage": damage,
+				"damage_is_magical": is_magical,
+				"status_name": affix.affix_name,
+				"stacks_consumed": threshold,
+			}
+			status_threshold_triggered.emit(sid, event_data)
+		
+		StatusAffix.ThresholdEffect.APPLY_OTHER_STATUS:
+			if affix.threshold_status:
+				var new_stacks: int = affix.threshold_stacks if affix.threshold_stacks > 0 else 1
+				apply_status(affix.threshold_status, new_stacks, affix.affix_name)
+				print("  ❄️ %s → applied %s (%d stacks)" % [
+					affix.affix_name, affix.threshold_status.affix_name, new_stacks])
+			else:
+				push_warning("StatusTracker: %s has APPLY_OTHER_STATUS but no threshold_status set" % sid)
+		
+		StatusAffix.ThresholdEffect.CUSTOM_SIGNAL:
+			var event_data: Dictionary = {
+				"effect": "custom",
+				"value": affix.threshold_value,
+				"status_name": affix.affix_name,
+				"stacks_consumed": threshold,
+			}
+			status_threshold_triggered.emit(sid, event_data)
+	
+	# Consume threshold stacks
+	affix.remove_stacks(instance, threshold)
+	
+	# Remove if depleted
+	if affix.is_expired(instance):
+		remove_status(sid)
+	else:
+		status_stacks_changed.emit(sid, instance)
 
 # ============================================================================
 # QUERY — STAT MODIFIERS (for AffixPoolManager integration)

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://dys766psv005p"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_5gt2w"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_16vha"]
+
+[resource]
+script = ExtResource("1_5gt2w")
+effect_name = "Mana Manipulate"
+target = 0
+effect_type = 16

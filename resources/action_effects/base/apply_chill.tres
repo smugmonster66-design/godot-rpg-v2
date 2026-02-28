@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=4 format=3 uid="uid://ddf8rgtybf7i6"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_rdi4r"]
+[ext_resource type="Resource" uid="uid://dwjgco21ai57h" path="res://resources/statuses/chill.tres" id="2_qbsvj"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="3_jq2rn"]
+
+[resource]
+script = ExtResource("1_rdi4r")
+effect_name = "Apply Chill"
+effect_type = 2
+status_affix = ExtResource("2_qbsvj")

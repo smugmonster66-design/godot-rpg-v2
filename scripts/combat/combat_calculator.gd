@@ -13,6 +13,13 @@ const ELEMENT_MATCH_BONUS: float = 1.25
 ## Piercing damage ignores this fraction of armor. 0.5 = ignores half armor.
 const PIERCING_ARMOR_PENETRATION: float = 0.5
 
+## Base critical hit damage multiplier.
+const CRIT_DAMAGE_MULTIPLIER: float = 1.5
+
+## Crit chance per point of Luck (0.5 = 0.5% per Luck).
+const LUCK_CRIT_PER_POINT: float = 0.5
+
+
 # ============================================================================
 # MAIN DAMAGE CALCULATION
 # ============================================================================
@@ -23,7 +30,11 @@ static func calculate_attack_damage(
 	placed_dice: Array,  # Array of DieResource (untyped for backward compat)
 	defender_stats: Dictionary,
 	action_id: String = "",
-	accepted_elements: Array[int] = []
+	accepted_elements: Array[int] = [],
+	attacker_tracker: StatusTracker = null,
+	defender_tracker: StatusTracker = null,
+	base_crit_chance: float = 0.0,
+	base_crit_mult: float = CRIT_DAMAGE_MULTIPLIER
 ) -> Dictionary:
 	"""
 	Calculate damage from an attack using split elemental damage.
@@ -33,12 +44,21 @@ static func calculate_attack_damage(
 	Matching-element dice get a bonus multiplier.
 	Base damage always goes into the action effect's element.
 	
+	Args:
+		attacker_tracker: Attacker's StatusTracker (for Enfeeble damage reduction).
+		defender_tracker: Defender's StatusTracker (for Expose crit bonus).
+		base_crit_chance: Pre-calculated crit % from Luck + affix bonuses (0-100).
+		base_crit_mult: Base crit damage multiplier (default from tuning constant).
+	
 	Returns:
 	{
 		"total_damage": int,
 		"damage_packet": DamagePacket,
 		"damage_mult": float,
 		"defense_mult": float,
+		"is_crit": bool,
+		"crit_mult": float,
+		"pre_crit_damage": int,
 		"breakdown": Dictionary,
 		"element_breakdown": Dictionary  # Per-element pre-defense values
 	}
@@ -121,9 +141,16 @@ static func calculate_attack_damage(
 		if action_id != "":
 			var action_mult = attacker_affixes.get_action_damage_multiplier(action_id)
 			damage_mult *= action_mult
-		
-		if damage_mult != 1.0:
-			packet.apply_multiplier(damage_mult)
+	
+	# Step 3c: Enfeeble — attacker's outgoing damage reduction
+	if attacker_tracker:
+		var enfeeble_mod: float = attacker_tracker.get_total_stat_modifier("damage_multiplier")
+		if enfeeble_mod < 0.0:
+			damage_mult = maxf(0.0, damage_mult + enfeeble_mod)
+			print("  Enfeeble: damage_mult -> %.2f" % damage_mult)
+	
+	if damage_mult != 1.0:
+		packet.apply_multiplier(damage_mult)
 	
 	# Snapshot pre-defense breakdown for UI
 	var element_breakdown = packet.get_breakdown()
@@ -131,14 +158,37 @@ static func calculate_attack_damage(
 	# Step 4: Calculate defense multiplier
 	var defense_mult = _calculate_defense_multiplier(defender_stats)
 	
+	# Step 4b: Apply defender's damage-received bonuses (e.g. Static: +1 shock per stack)
+	_apply_damage_received_bonuses(packet, defender_stats)
+	
 	# Step 5: Calculate final damage after defenses
 	var total_damage = packet.calculate_final_damage(defender_stats, defense_mult)
+	
+	# Step 6: Critical hit roll
+	var is_crit: bool = false
+	var crit_mult: float = 1.0
+	var pre_crit_damage: int = total_damage
+	
+	var crit_chance: float = base_crit_chance
+	if defender_tracker:
+		crit_chance += defender_tracker.get_crit_bonus()
+	crit_chance = minf(crit_chance, 100.0)
+	
+	if crit_chance > 0.0 and total_damage > 0 and randf() * 100.0 < crit_chance:
+		is_crit = true
+		crit_mult = base_crit_mult
+		# Future: add CRIT_DAMAGE_MULTIPLIER affix pool bonuses here
+		total_damage = int(total_damage * crit_mult)
+		print("  CRITICAL HIT! %.0f%% chance, x%.1f -> %d" % [crit_chance, crit_mult, total_damage])
 	
 	return {
 		"total_damage": total_damage,
 		"damage_packet": packet,
 		"damage_mult": damage_mult,
 		"defense_mult": defense_mult,
+		"is_crit": is_crit,
+		"crit_mult": crit_mult,
+		"pre_crit_damage": pre_crit_damage,
 		"breakdown": packet.get_breakdown(),
 		"element_breakdown": element_breakdown
 	}
@@ -251,3 +301,17 @@ static func _calculate_damage_multiplier(affixes: AffixPoolManager) -> float:
 static func _calculate_defense_multiplier(defender_stats: Dictionary) -> float:
 	"""Calculate defender's defense multiplier"""
 	return defender_stats.get("defense_mult", 1.0)
+
+
+static func _apply_damage_received_bonuses(packet: DamagePacket, defender_stats: Dictionary) -> void:
+	"""Apply flat bonus damage from defender status effects (e.g. Static).
+	
+	Reads 'damage_received_bonuses' from defender_stats — a Dictionary of
+	DamageType enum → flat bonus amount. Added post-multiplier but pre-defense,
+	so armor/barrier still reduces the bonus.
+	"""
+	var bonuses: Dictionary = defender_stats.get("damage_received_bonuses", {})
+	for damage_type in bonuses:
+		var bonus: float = float(bonuses[damage_type])
+		if bonus != 0.0 and packet.damages.get(damage_type, 0.0) > 0.0:
+			packet.add_damage(damage_type, bonus)

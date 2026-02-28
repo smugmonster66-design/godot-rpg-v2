@@ -1,12 +1,28 @@
-[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://b6lt6g5lbjd8p"]
+[gd_resource type="Resource" script_class="Action" load_steps=13 format=3 uid="uid://b6lt6g5lbjd8p"]
 
 [ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_godpa"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_m7tdd"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_a633r"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_godpa"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_a633r"]
+[ext_resource type="Resource" uid="uid://c8jdh0077vcio" path="res://resources/action_effects/base/cleanse.tres" id="4_o80ox"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_ok228"]
+[ext_resource type="Resource" uid="uid://vty424b0wat2" path="res://resources/action_effects/base/heal.tres" id="4_s8w8w"]
 
-[sub_resource type="Resource" id="Resource_o80ox"]
+[sub_resource type="Resource" id="Resource_w4cin"]
+script = ExtResource("2_a633r")
+effect = ExtResource("4_s8w8w")
+override_target = true
+target = 4
+value_source = 1
+heal_uses_dice = true
+
+[sub_resource type="Resource" id="Resource_j7qir"]
+script = ExtResource("2_a633r")
+effect = ExtResource("4_o80ox")
+cleanse_tags = Array[String](["debuff"])
+
+[sub_resource type="Resource" id="Resource_godpa"]
 script = ExtResource("1_m7tdd")
 effect_name = "Absorb Shield"
 target = 0
@@ -28,6 +44,6 @@ script = ExtResource("4_ok228")
 action_id = "absorb"
 action_name = "Absorb"
 action_description = "Barrier × 1.2 + heal for die × 0.3."
-effects = Array[ExtResource("1_m7tdd")]([SubResource("Resource_o80ox"), SubResource("Resource_s8w8w")])
+effects = Array[ExtResource("1_m7tdd")]([SubResource("Resource_godpa"), SubResource("Resource_s8w8w")])
 animation_set = ExtResource("1_godpa")
 action_type = 1

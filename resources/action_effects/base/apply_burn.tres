@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=4 format=3 uid="uid://qvimjaj15up4"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_xwke3"]
+[ext_resource type="Resource" uid="uid://behojsm6qvxjl" path="res://resources/statuses/burn.tres" id="2_kijbn"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="3_1lfwb"]
+
+[resource]
+script = ExtResource("1_xwke3")
+effect_name = "Apply Burn"
+effect_type = 2
+status_affix = ExtResource("2_kijbn")

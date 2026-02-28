@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=4 format=3 uid="uid://bcv833sku167x"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_vyqb8"]
+[ext_resource type="Resource" uid="uid://cfgr6ee2uth1t" path="res://resources/statuses/corrode.tres" id="2_vtutc"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="3_baemq"]
+
+[resource]
+script = ExtResource("1_vyqb8")
+effect_name = "Apply Corrode"
+effect_type = 2
+status_affix = ExtResource("2_vtutc")

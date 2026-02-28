@@ -1,10 +1,26 @@
-[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://c7iy0ygach72r"]
+[gd_resource type="Resource" script_class="Action" load_steps=12 format=3 uid="uid://c7iy0ygach72r"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_2kw6d"]
 [ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_81tu2"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_81tu2"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_hmv4d"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_1cva1"]
+[ext_resource type="Resource" uid="uid://vty424b0wat2" path="res://resources/action_effects/base/heal.tres" id="3_616nk"]
+[ext_resource type="Resource" uid="uid://c8jdh0077vcio" path="res://resources/action_effects/base/cleanse.tres" id="4_616nk"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_hmv4d"]
+
+[sub_resource type="Resource" id="Resource_w4cin"]
+script = ExtResource("2_hmv4d")
+effect = ExtResource("3_616nk")
+override_target = true
+target = 4
+value_source = 1
+heal_uses_dice = true
+
+[sub_resource type="Resource" id="Resource_j7qir"]
+script = ExtResource("2_hmv4d")
+effect = ExtResource("4_616nk")
+cleanse_tags = Array[String](["debuff"])
 
 [sub_resource type="Resource" id="Resource_616nk"]
 script = ExtResource("1_2kw6d")

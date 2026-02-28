@@ -565,6 +565,29 @@ func _start_current_turn():
 	var combatant = turn_order[current_turn_index]
 	var is_player = (combatant == player_combatant)
 	
+	# --- FREEZE CHECK: Skip turn if frozen ---
+	var tracker: StatusTracker = _get_status_tracker(combatant)
+	if tracker and tracker.has_status("freeze"):
+		print("  ❄️ %s is FROZEN — skipping turn!" % combatant.combatant_name)
+		# Process start-of-turn ticks (so freeze duration decrements)
+		var tick_results: Array[Dictionary] = tracker.process_turn_start()
+		if is_player:
+			await _apply_status_tick_results(player, player_combatant, tick_results)
+		else:
+			await _apply_status_tick_results(null, combatant, tick_results)
+		# Process end-of-turn ticks (for other statuses)
+		var end_ticks: Array[Dictionary] = tracker.process_turn_end()
+		if is_player:
+			await _apply_status_tick_results(player, player_combatant, end_ticks)
+		else:
+			await _apply_status_tick_results(null, combatant, end_ticks)
+		# Brief visual pause
+		await get_tree().create_timer(0.5).timeout
+		# Skip to next combatant
+		_end_current_turn()
+		return
+	# --- END FREEZE ---
+	
 	print("\n🎲 %s's turn" % combatant.combatant_name)
 	turn_started.emit(combatant, is_player)
 	
@@ -1523,8 +1546,10 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 	match action_type:
 		0:  # ATTACK
 			for target in targets:
-				var damage = _calculate_damage(action_data, source, target)
-				print("  💥 %s deals %d damage to %s" % [source.combatant_name, damage, target.combatant_name])
+				var damage_result: Dictionary = _calculate_damage(action_data, source, target)
+				var damage: int = damage_result.total_damage
+				var is_crit: bool = damage_result.get("is_crit", false)
+				print("  💥 %s deals %d damage to %s%s" % [source.combatant_name, damage, target.combatant_name, " (CRIT!)" if is_crit else ""])
 				target.take_damage(damage)
 
 				# --- THREAT: Add damage threat to all enemies ---
@@ -1541,7 +1566,7 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 						var action_resource = action_data.get("action_resource") as Action
 						if action_resource and action_resource.effects.size() > 0:
 							element_str = ActionEffect.DamageType.keys()[action_resource.effects[0].damage_type]
-						event_bus.emit_damage_dealt(visual, damage, element_str, false, _get_combatant_visual(source))
+						event_bus.emit_damage_dealt(visual, damage, element_str, is_crit, _get_combatant_visual(source))
 				
 				
 				
@@ -2558,8 +2583,18 @@ func _get_status_tracker(target) -> StatusTracker:
 		return target.get_node("StatusTracker")
 	return null
 
-func _calculate_damage(action_data: Dictionary, attacker, defender) -> int:
-	"""Calculate damage using split elemental damage system"""
+func _calculate_damage(action_data: Dictionary, attacker, defender) -> Dictionary:
+	"""Calculate damage using split elemental damage system.
+	
+	Returns:
+	{
+		"total_damage": int,
+		"is_crit": bool,
+		"crit_mult": float,
+		"pre_crit_damage": int,
+		"element_breakdown": Dictionary,
+	}
+	"""
 	var placed_dice: Array = action_data.get("placed_dice", [])
 	
 	# Get action effects (from Action resource if available)
@@ -2581,11 +2616,9 @@ func _calculate_damage(action_data: Dictionary, attacker, defender) -> int:
 		legacy_effect.dice_count = placed_dice.size()
 		effects = [legacy_effect]
 	
-	
 	# Get attacker's affix manager (players have one, enemies might not)
 	var attacker_affixes: AffixPoolManager = null
 	if attacker == player_combatant and player:
-		# Player's equipment affixes live on the Player resource, not the Combatant node
 		attacker_affixes = player.affix_manager
 	elif attacker is Combatant and attacker.has_method("get_affix_manager"):
 		attacker_affixes = attacker.get_affix_manager()
@@ -2611,58 +2644,41 @@ func _calculate_damage(action_data: Dictionary, attacker, defender) -> int:
 	# Get defender stats
 	var defender_stats = _get_defender_stats(defender)
 	
-	# Use CombatCalculator with DieResource array (not int array)
-	if attacker_affixes:
-		# v6: Extract action_id for action-scoped affix lookups
-		var action_id: String = ""
-		var action_res = action_data.get("action_resource")
-		if action_res is Action:
-			action_id = action_res.action_id
-		
-		# Extract accepted_elements for multi-element synergy (e.g. Chromatic Bolt)
-		var accepted_elems: Array[int] = []
-		if action_res is Action:
-			accepted_elems = action_res.accepted_elements
-		
-		var result = CombatCalculator.calculate_attack_damage(
-			attacker_affixes,
-			effects,
-			placed_dice,  # Pass DieResource array directly — no longer extracting ints
-			defender_stats,
-			action_id,
-			accepted_elems
-		)
-		
-		# Log the element breakdown for debugging
-		if result.element_breakdown.size() > 1:
-			print("  🎯 Split damage: %s" % str(result.element_breakdown))
-		
-		return result.total_damage
+	# Extract action_id and accepted_elements
+	var action_id: String = ""
+	var accepted_elems: Array[int] = []
+	var action_res = action_data.get("action_resource")
+	if action_res is Action:
+		action_id = action_res.action_id
+		accepted_elems = action_res.accepted_elements
 	
-	# Simple fallback calculation (no affixes — still uses split damage)
-	var packet = DamagePacket.new()
-	var action_element = action_data.get("element", ActionEffect.DamageType.SLASHING)
+	# Gather status trackers for Enfeeble + Crit
+	var attacker_tracker: StatusTracker = _get_status_tracker(attacker)
+	var defender_tracker: StatusTracker = _get_status_tracker(defender)
 	
-	for die in placed_dice:
-		if die is DieResource:
-			var die_value = float(die.get_total_value())
-			var die_type = die.get_effective_damage_type(action_element)
-			if die.is_element_match(action_element):
-				die_value *= CombatCalculator.ELEMENT_MATCH_BONUS
-			packet.add_damage(die_type, die_value)
-		elif die is int:
-			packet.add_damage(action_element, float(die))
+	# Build base crit chance from Luck
+	var base_crit: float = 0.0
+	if attacker == player_combatant and player:
+		base_crit = player.get_total_stat("luck") * CombatCalculator.LUCK_CRIT_PER_POINT
 	
-	var base = action_data.get("base_damage", 0)
-	if base > 0:
-		packet.add_damage(action_element, float(base))
+	# Both paths now go through calculate_attack_damage (handles null attacker_affixes)
+	var result: Dictionary = CombatCalculator.calculate_attack_damage(
+		attacker_affixes,
+		effects,
+		placed_dice,
+		defender_stats,
+		action_id,
+		accepted_elems,
+		attacker_tracker,
+		defender_tracker,
+		base_crit
+	)
 	
-	var mult = action_data.get("damage_multiplier", 1.0)
-	if mult != 1.0:
-		packet.apply_multiplier(mult)
+	# Log element breakdown for debugging
+	if result.element_breakdown.size() > 1:
+		print("  🎯 Split damage: %s" % str(result.element_breakdown))
 	
-	var total = packet.calculate_final_damage(defender_stats)
-	return total
+	return result
 
 
 
@@ -2702,18 +2718,60 @@ func _get_defender_stats(defender) -> Dictionary:
 	"""Get defense stats from defender.
 	Returns armor, barrier, element_modifiers, and defense_mult."""
 	if defender is Player:
-		return defender.get_defense_stats()
+		var stats: Dictionary = defender.get_defense_stats()
+		stats["damage_received_bonuses"] = _get_damage_received_bonuses(defender)
+		return stats
 	elif defender is Combatant:
 		var elem_mods: Dictionary = {}
 		if defender.enemy_data and defender.enemy_data.element_modifiers.size() > 0:
 			elem_mods = defender.enemy_data.element_modifiers
+		var dmg_recv_bonuses: Dictionary = _get_damage_received_bonuses(defender)
+		
+		# Apply status modifiers (Corrode, etc.) to enemy defenses
+		var armor: int = defender.armor
+		var barrier: int = defender.barrier
+		var tracker: StatusTracker = _get_status_tracker(defender)
+		if tracker:
+			armor += int(tracker.get_total_stat_modifier("armor"))
+			barrier += int(tracker.get_total_stat_modifier("barrier"))
+		
 		return {
-			"armor": defender.armor,
-			"barrier": defender.barrier,
+			"armor": maxi(0, armor),
+			"barrier": maxi(0, barrier),
 			"element_modifiers": elem_mods,
+			"damage_received_bonuses": dmg_recv_bonuses,
 			"defense_mult": 1.0,
 		}
-	return {"armor": 0, "barrier": 0, "element_modifiers": {}, "defense_mult": 1.0}
+	return {"armor": 0, "barrier": 0, "element_modifiers": {}, "damage_received_bonuses": {}, "defense_mult": 1.0}
+
+
+func _get_damage_received_bonuses(target) -> Dictionary:
+	"""Query target's StatusTracker for {element}_damage_received_bonus modifiers.
+	Returns Dictionary of DamageType enum -> float bonus amount."""
+	var tracker: StatusTracker = _get_status_tracker(target)
+	if not tracker:
+		return {}
+	
+	var result: Dictionary = {}
+	var element_keys: Dictionary = {
+		"slashing": ActionEffect.DamageType.SLASHING,
+		"blunt": ActionEffect.DamageType.BLUNT,
+		"piercing": ActionEffect.DamageType.PIERCING,
+		"fire": ActionEffect.DamageType.FIRE,
+		"ice": ActionEffect.DamageType.ICE,
+		"shock": ActionEffect.DamageType.SHOCK,
+		"poison": ActionEffect.DamageType.POISON,
+		"shadow": ActionEffect.DamageType.SHADOW,
+	}
+	
+	for element_name: String in element_keys:
+		var key: String = "%s_damage_received_bonus" % element_name
+		var bonus: float = tracker.get_total_stat_modifier(key)
+		if bonus != 0.0:
+			var dt: int = element_keys[element_name]
+			result[dt] = bonus
+	
+	return result
 
 # ============================================================================
 # HEALTH MANAGEMENT

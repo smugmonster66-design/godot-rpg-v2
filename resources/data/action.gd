@@ -54,7 +54,13 @@ var current_cooldown: int = 0
 # EFFECTS - Executed in order
 # ============================================================================
 @export_group("Action Effects")
+## Legacy: direct ActionEffect references. Prefer effect_slots for new actions.
 @export var effects: Array[ActionEffect] = []
+
+@export_group("Effect Slots")
+## Modern: each slot pairs a shared base effect with per-action value overrides.
+## When populated, these are used instead of the legacy effects array.
+@export var effect_slots: Array[ActionEffectSlot] = []
 
 @export_group("Animation")
 @export var animation_set: CombatAnimationSet
@@ -163,6 +169,19 @@ func is_on_cooldown() -> bool:
 
 func to_dict() -> Dictionary:
 	"""Convert action to dictionary for combat system compatibility"""
+	# Build resolved effects array for consumers that read it
+	var resolved_effects: Array[ActionEffect] = []
+	if effect_slots.size() > 0:
+		for slot in effect_slots:
+			if slot and slot.effect:
+				var configured := slot.build_configured_effect()
+				if configured:
+					resolved_effects.append(configured)
+	else:
+		for effect in effects:
+			if effect:
+				resolved_effects.append(effect)
+
 	return {
 		"id": action_id,
 		"name": action_name,
@@ -173,7 +192,8 @@ func to_dict() -> Dictionary:
 		"min_dice_required": min_dice_required,
 		"mana_cost": mana_cost,
 		"cooldown": cooldown_turns,
-		"effects": effects,
+		"effects": resolved_effects,
+		"effect_slots": effect_slots,
 		"confirm_event": confirm_event,
 		"impact_event": impact_event,
 		"placement_event": placement_event,
@@ -196,22 +216,33 @@ func to_dict() -> Dictionary:
 # ============================================================================
 
 func execute(source, target_resolver: Callable, dice_values: Array = []) -> Array[Dictionary]:
-	"""Execute all effects in order"""
+	"""Execute all effects in order. Uses effect_slots if populated, else legacy effects."""
 	var all_results: Array[Dictionary] = []
-	
-	for effect in effects:
-		if not effect:
-			continue
-		
-		var targets = target_resolver.call(effect.target)
-		var results = effect.execute(source, targets, dice_values)
-		all_results.append_array(results)
-	
+
+	if effect_slots.size() > 0:
+		for slot in effect_slots:
+			if not slot or not slot.effect:
+				continue
+			var configured := slot.build_configured_effect()
+			if not configured:
+				continue
+			var targets = target_resolver.call(configured.target)
+			var results = configured.execute(source, targets, dice_values)
+			all_results.append_array(results)
+	else:
+		for effect in effects:
+			if not effect:
+				continue
+			var targets = target_resolver.call(effect.target)
+			var results = effect.execute(source, targets, dice_values)
+			all_results.append_array(results)
+
 	return all_results
 
 func execute_simple(source, primary_target, all_enemies: Array, all_allies: Array, dice_values: Array = []) -> Array[Dictionary]:
-	"""Simplified execution with pre-resolved target arrays"""
-	
+	"""Simplified execution with pre-resolved target arrays.
+	Delegates to execute(), which handles slot vs legacy routing."""
+
 	var resolver = func(target_type: ActionEffect.TargetType) -> Array:
 		match target_type:
 			ActionEffect.TargetType.SELF:
@@ -226,7 +257,7 @@ func execute_simple(source, primary_target, all_enemies: Array, all_allies: Arra
 				return all_allies
 			_:
 				return []
-	
+
 	return execute(source, resolver, dice_values)
 
 # ============================================================================
@@ -242,53 +273,86 @@ func get_animation_for_element(damage_type: int) -> CombatAnimationSet:
 
 
 func get_total_dice_needed() -> int:
-	"""Calculate total dice needed across all effects"""
-	var total = 0
-	for effect in effects:
-		if effect and effect.effect_type == ActionEffect.EffectType.DAMAGE:
-			total += effect.dice_count
-		elif effect and effect.effect_type == ActionEffect.EffectType.HEAL and effect.heal_uses_dice:
-			total += effect.dice_count
+	"""Calculate total dice needed across all effects."""
+	var total := 0
+	if effect_slots.size() > 0:
+		for slot in effect_slots:
+			if not slot or not slot.effect:
+				continue
+			var et := slot.effect.effect_type
+			if et == ActionEffect.EffectType.DAMAGE:
+				total += slot.dice_count
+			elif et == ActionEffect.EffectType.HEAL and slot.heal_uses_dice:
+				total += slot.dice_count
+	else:
+		for effect in effects:
+			if effect and effect.effect_type == ActionEffect.EffectType.DAMAGE:
+				total += effect.dice_count
+			elif effect and effect.effect_type == ActionEffect.EffectType.HEAL and effect.heal_uses_dice:
+				total += effect.dice_count
 	return maxi(total, die_slots)
 
 func get_effects_summary() -> String:
-	"""Get summary of all effects"""
+	"""Get summary of all effects."""
 	var summaries: Array[String] = []
-	for effect in effects:
-		if effect:
-			summaries.append(effect.get_summary())
+	if effect_slots.size() > 0:
+		for slot in effect_slots:
+			if slot:
+				summaries.append(slot.get_summary())
+	else:
+		for effect in effects:
+			if effect:
+				summaries.append(effect.get_summary())
 	return "\n".join(summaries) if summaries.size() > 0 else "No effects"
 
 func has_damage_effect() -> bool:
-	"""Check if action has any damage effects"""
-	for effect in effects:
-		if effect and effect.effect_type == ActionEffect.EffectType.DAMAGE:
-			return true
+	"""Check if action has any damage effects."""
+	if effect_slots.size() > 0:
+		for slot in effect_slots:
+			if slot and slot.effect and slot.effect.effect_type == ActionEffect.EffectType.DAMAGE:
+				return true
+	else:
+		for effect in effects:
+			if effect and effect.effect_type == ActionEffect.EffectType.DAMAGE:
+				return true
 	return false
 
 func has_heal_effect() -> bool:
-	"""Check if action has any heal effects"""
-	for effect in effects:
-		if effect and effect.effect_type == ActionEffect.EffectType.HEAL:
-			return true
+	"""Check if action has any heal effects."""
+	if effect_slots.size() > 0:
+		for slot in effect_slots:
+			if slot and slot.effect and slot.effect.effect_type == ActionEffect.EffectType.HEAL:
+				return true
+	else:
+		for effect in effects:
+			if effect and effect.effect_type == ActionEffect.EffectType.HEAL:
+				return true
 	return false
 
 func validate() -> Array[String]:
-	"""Validate action configuration"""
+	"""Validate action configuration."""
 	var warnings: Array[String] = []
-	
+
 	if action_id.is_empty():
 		warnings.append("Action has no ID")
-	
+
 	if action_name.is_empty():
 		warnings.append("Action has no name")
-	
-	if effects.is_empty():
-		warnings.append("Action has no effects")
-	
+
+	if effects.is_empty() and effect_slots.is_empty():
+		warnings.append("Action has no effects or effect slots")
+
+	if effect_slots.size() > 0:
+		for i in range(effect_slots.size()):
+			var slot := effect_slots[i]
+			if not slot:
+				warnings.append("Effect slot [%d] is null" % i)
+			elif not slot.effect:
+				warnings.append("Effect slot [%d] has no base effect" % i)
+
 	if charge_type != ChargeType.UNLIMITED and max_charges <= 0:
 		warnings.append("Limited action has no charges")
-	
+
 	return warnings
 
 
@@ -299,14 +363,14 @@ func validate() -> Array[String]:
 # ============================================================================
 
 func get_targeting_mode() -> TargetingMode.Mode:
-	"""Inspect effects to determine what targeting overlay the UI should show.
-	
+	"""Inspect effects/slots to determine what targeting overlay the UI should show.
+
 	Priority: Multi-target types (SPLASH/CHAIN) > ALL_ENEMIES >
 	SINGLE_ENEMY > ALL_ALLIES > SINGLE_ALLY > SELF_ONLY > NONE."""
-	
-	if effects.is_empty():
+
+	if effects.is_empty() and effect_slots.is_empty():
 		return TargetingMode.Mode.NONE
-	
+
 	var has_single_enemy := false
 	var has_all_enemies := false
 	var has_splash := false
@@ -314,32 +378,55 @@ func get_targeting_mode() -> TargetingMode.Mode:
 	var has_single_ally := false
 	var has_all_allies := false
 	var has_self := false
-	
-	for effect in effects:
-		if not effect:
-			continue
-		
-		match effect.effect_type:
-			ActionEffect.EffectType.SPLASH:
-				has_splash = true
-			ActionEffect.EffectType.CHAIN:
-				has_chain = true
-			ActionEffect.EffectType.SUMMON_COMPANION:
-				has_self = true
-		
-		match effect.target:
-			ActionEffect.TargetType.SELF:
-				has_self = true
-			ActionEffect.TargetType.SINGLE_ENEMY:
-				has_single_enemy = true
-			ActionEffect.TargetType.ALL_ENEMIES:
-				has_all_enemies = true
-			ActionEffect.TargetType.SINGLE_ALLY:
-				has_single_ally = true
-			ActionEffect.TargetType.ALL_ALLIES:
-				has_all_allies = true
-	
-	# Priority: most specific multi-target mode wins
+
+	if effect_slots.size() > 0:
+		for slot in effect_slots:
+			if not slot or not slot.effect:
+				continue
+			# Resolve effective target
+			var eff_target: ActionEffect.TargetType = slot.target if slot.override_target else slot.effect.target
+			var et := slot.effect.effect_type
+			match et:
+				ActionEffect.EffectType.SPLASH:
+					has_splash = true
+				ActionEffect.EffectType.CHAIN:
+					has_chain = true
+				ActionEffect.EffectType.SUMMON_COMPANION:
+					has_self = true
+			match eff_target:
+				ActionEffect.TargetType.SELF:
+					has_self = true
+				ActionEffect.TargetType.SINGLE_ENEMY:
+					has_single_enemy = true
+				ActionEffect.TargetType.ALL_ENEMIES:
+					has_all_enemies = true
+				ActionEffect.TargetType.SINGLE_ALLY:
+					has_single_ally = true
+				ActionEffect.TargetType.ALL_ALLIES:
+					has_all_allies = true
+	else:
+		for effect in effects:
+			if not effect:
+				continue
+			match effect.effect_type:
+				ActionEffect.EffectType.SPLASH:
+					has_splash = true
+				ActionEffect.EffectType.CHAIN:
+					has_chain = true
+				ActionEffect.EffectType.SUMMON_COMPANION:
+					has_self = true
+			match effect.target:
+				ActionEffect.TargetType.SELF:
+					has_self = true
+				ActionEffect.TargetType.SINGLE_ENEMY:
+					has_single_enemy = true
+				ActionEffect.TargetType.ALL_ENEMIES:
+					has_all_enemies = true
+				ActionEffect.TargetType.SINGLE_ALLY:
+					has_single_ally = true
+				ActionEffect.TargetType.ALL_ALLIES:
+					has_all_allies = true
+
 	if has_splash:
 		return TargetingMode.Mode.SPLASH_ENEMY
 	if has_chain:
@@ -354,7 +441,7 @@ func get_targeting_mode() -> TargetingMode.Mode:
 		return TargetingMode.Mode.SINGLE_ALLY
 	if has_self:
 		return TargetingMode.Mode.SELF_ONLY
-	
+
 	return TargetingMode.Mode.NONE
 
 func _to_string() -> String:

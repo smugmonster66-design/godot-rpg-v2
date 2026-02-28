@@ -1,11 +1,17 @@
-[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://c87rfrpoukh2"]
+[gd_resource type="Resource" script_class="Action" load_steps=11 format=3 uid="uid://c87rfrpoukh2"]
 
 [ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_goaxj"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_j3d8p"]
 [ext_resource type="Resource" uid="uid://i0gx0hubkmmx" path="res://resources/statuses/slowed.tres" id="2_goaxj"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_qnen7"]
+[ext_resource type="Resource" uid="uid://hd2ollphtksk" path="res://resources/action_effects/base/apply_slowed.tres" id="3_hsi22"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="3_p5f03"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_qnen7"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="5_hsi22"]
+
+[sub_resource type="Resource" id="Resource_a4crm"]
+script = ExtResource("2_qnen7")
+effect = ExtResource("3_hsi22")
 
 [sub_resource type="Resource" id="Resource_vpm22"]
 script = ExtResource("1_j3d8p")

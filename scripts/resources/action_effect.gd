@@ -726,5 +726,245 @@ func get_summary() -> String:
 				parts.append("Summon %s" % (companion_data.companion_name if companion_data else "None"))
 	return " ".join(parts)
 
+
 func _to_string() -> String:
 	return "ActionEffect<%s: %s>" % [effect_name, get_summary()]
+
+
+# ============================================================================
+# INSPECTOR PROPERTY GATING
+# ============================================================================
+# Hides export groups irrelevant to the current effect_type,
+# collapses value_source sub-fields when their parent enum doesn't match,
+# and suppresses single-effect fields when the effect is compound.
+# ============================================================================
+
+func _validate_property(property: Dictionary) -> void:
+	var pn: String = property.name
+
+	# ── 1. VALUE SOURCE SUB-FIELD GATING ──────────────────────────────
+	match pn:
+		"value_source_stat":
+			if value_source != ValueSource.SOURCE_STAT:
+				property.usage = 0
+			return
+		"value_source_status_id":
+			if value_source != ValueSource.TARGET_STATUS_STACKS:
+				property.usage = 0
+			return
+		"value_source_defense":
+			if value_source != ValueSource.SOURCE_DEFENSE_STAT:
+				property.usage = 0
+			return
+		"value_source_data":
+			# Deprecated dict — always hide
+			property.usage = 0
+			return
+
+	# ── 2. COMPOUND MODE ─────────────────────────────────────────────
+	# When sub_effects is populated, execution routes through them.
+	# Keep shared fields visible; hide single-effect config.
+	var _compound_always_show := [
+		"effect_name", "target", "effect_type", "condition",
+		"value_source", "value_source_stat", "value_source_status_id",
+		"value_source_defense", "sub_effects", "effect_data",
+		"dice_count", "damage_type", "damage_multiplier",
+	]
+	if sub_effects.size() > 0 and pn not in _compound_always_show:
+		if _is_type_specific_property(pn):
+			property.usage = 0
+			return
+
+	# ── 3. EFFECT-TYPE GATING ────────────────────────────────────────
+	var et := effect_type
+
+	# --- Damage group ---
+	if pn == "base_damage":
+		if et not in [
+			EffectType.DAMAGE, EffectType.SPLASH, EffectType.CHAIN,
+			EffectType.LIFESTEAL, EffectType.EXECUTE,
+			EffectType.COMBO_MARK, EffectType.ECHO,
+			EffectType.RANDOM_STRIKES,
+		]:
+			property.usage = 0
+		return
+	if pn == "damage_type":
+		if et not in [
+			EffectType.DAMAGE, EffectType.SPLASH, EffectType.CHAIN,
+			EffectType.RANDOM_STRIKES, EffectType.LIFESTEAL,
+			EffectType.EXECUTE, EffectType.ECHO,
+		]:
+			property.usage = 0
+		return
+	if pn == "damage_multiplier":
+		if et not in [
+			EffectType.DAMAGE, EffectType.SPLASH, EffectType.CHAIN,
+			EffectType.LIFESTEAL, EffectType.EXECUTE, EffectType.ECHO,
+		]:
+			property.usage = 0
+		return
+	if pn == "dice_count":
+		if et not in [
+			EffectType.DAMAGE, EffectType.HEAL, EffectType.SHIELD,
+			EffectType.ARMOR_BUFF, EffectType.SPLASH, EffectType.CHAIN,
+			EffectType.RANDOM_STRIKES, EffectType.MANA_MANIPULATE,
+			EffectType.LIFESTEAL, EffectType.EXECUTE, EffectType.ECHO,
+			EffectType.DAMAGE_REDUCTION,
+		]:
+			property.usage = 0
+		return
+
+	# --- Heal group ---
+	if pn in ["base_heal", "heal_multiplier", "heal_uses_dice"]:
+		if et != EffectType.HEAL:
+			property.usage = 0
+		return
+
+	# --- Status group ---
+	if pn in ["status_affix", "stack_count"]:
+		if et not in [EffectType.ADD_STATUS, EffectType.REMOVE_STATUS]:
+			property.usage = 0
+		return
+
+	# --- Cleanse group ---
+	if pn in ["cleanse_tags", "cleanse_max_removals"]:
+		if et != EffectType.CLEANSE:
+			property.usage = 0
+		return
+
+	# --- Shield group ---
+	if pn in ["shield_amount", "shield_uses_dice", "shield_multiplier", "shield_duration"]:
+		if et != EffectType.SHIELD:
+			property.usage = 0
+		return
+
+	# --- Armor Buff group ---
+	if pn in ["armor_buff_amount", "armor_buff_uses_dice", "armor_buff_duration"]:
+		if et != EffectType.ARMOR_BUFF:
+			property.usage = 0
+		return
+
+	# --- Damage Reduction group ---
+	if pn in ["reduction_amount", "reduction_uses_dice", "reduction_is_percent",
+			"reduction_duration", "reduction_single_use"]:
+		if et != EffectType.DAMAGE_REDUCTION:
+			property.usage = 0
+		return
+
+	# --- Reflect group ---
+	if pn in ["reflect_percent", "reflect_duration", "reflect_element"]:
+		if et != EffectType.REFLECT:
+			property.usage = 0
+		return
+
+	# --- Lifesteal group ---
+	if pn in ["lifesteal_percent", "lifesteal_deals_damage"]:
+		if et != EffectType.LIFESTEAL:
+			property.usage = 0
+		return
+
+	# --- Execute group ---
+	if pn in ["execute_threshold", "execute_bonus", "execute_instant_kill"]:
+		if et != EffectType.EXECUTE:
+			property.usage = 0
+		return
+
+	# --- Combo Mark group ---
+	if pn in ["mark_status", "mark_stacks", "mark_consume_bonus", "mark_deals_damage"]:
+		if et != EffectType.COMBO_MARK:
+			property.usage = 0
+		return
+
+	# --- Echo group ---
+	if pn in ["echo_threshold", "echo_count", "echo_multiplier", "echo_effect_type"]:
+		if et != EffectType.ECHO:
+			property.usage = 0
+		return
+
+	# --- Splash group ---
+	if pn in ["splash_percent", "splash_all"]:
+		if et != EffectType.SPLASH:
+			property.usage = 0
+		return
+
+	# --- Chain group ---
+	if pn in ["chain_count", "chain_decay", "chain_can_repeat"]:
+		if et != EffectType.CHAIN:
+			property.usage = 0
+		return
+
+	# --- Random Strikes group ---
+	if pn in ["strike_count", "strike_damage", "strikes_use_dice", "strike_multiplier"]:
+		if et != EffectType.RANDOM_STRIKES:
+			property.usage = 0
+		return
+
+	# --- Mana group ---
+	if pn in ["mana_amount", "mana_uses_dice"]:
+		if et != EffectType.MANA_MANIPULATE:
+			property.usage = 0
+		return
+
+	# --- Cooldown group ---
+	if pn in ["cooldown_reduction", "cooldown_target_action_id"]:
+		if et != EffectType.MODIFY_COOLDOWN:
+			property.usage = 0
+		return
+
+	# --- Charge Refund group ---
+	if pn in ["charges_to_refund", "refund_target_action_id"]:
+		if et != EffectType.REFUND_CHARGES:
+			property.usage = 0
+		return
+
+	# --- Grant Action group ---
+	if pn in ["granted_action", "grant_duration"]:
+		if et != EffectType.GRANT_TEMP_ACTION:
+			property.usage = 0
+		return
+
+	# --- Channel group ---
+	if pn in ["channel_max_turns", "channel_growth_per_turn", "channel_release_effect"]:
+		if et != EffectType.CHANNEL:
+			property.usage = 0
+		return
+
+	# --- Counter group ---
+	if pn in ["counter_effect", "counter_charges", "counter_damage_threshold"]:
+		if et != EffectType.COUNTER_SETUP:
+			property.usage = 0
+		return
+
+	# --- Summon group ---
+	if pn == "companion_data":
+		if et != EffectType.SUMMON_COMPANION:
+			property.usage = 0
+		return
+
+
+func _is_type_specific_property(pn: String) -> bool:
+	return pn in [
+		"base_damage", "damage_multiplier",
+		"base_heal", "heal_multiplier", "heal_uses_dice",
+		"status_affix", "stack_count",
+		"cleanse_tags", "cleanse_max_removals",
+		"shield_amount", "shield_uses_dice", "shield_multiplier", "shield_duration",
+		"armor_buff_amount", "armor_buff_uses_dice", "armor_buff_duration",
+		"reduction_amount", "reduction_uses_dice", "reduction_is_percent",
+		"reduction_duration", "reduction_single_use",
+		"reflect_percent", "reflect_duration", "reflect_element",
+		"lifesteal_percent", "lifesteal_deals_damage",
+		"execute_threshold", "execute_bonus", "execute_instant_kill",
+		"mark_status", "mark_stacks", "mark_consume_bonus", "mark_deals_damage",
+		"echo_threshold", "echo_count", "echo_multiplier", "echo_effect_type",
+		"splash_percent", "splash_all",
+		"chain_count", "chain_decay", "chain_can_repeat",
+		"strike_count", "strike_damage", "strikes_use_dice", "strike_multiplier",
+		"mana_amount", "mana_uses_dice",
+		"cooldown_reduction", "cooldown_target_action_id",
+		"charges_to_refund", "refund_target_action_id",
+		"granted_action", "grant_duration",
+		"channel_max_turns", "channel_growth_per_turn", "channel_release_effect",
+		"counter_effect", "counter_charges", "counter_damage_threshold",
+		"companion_data",
+	]

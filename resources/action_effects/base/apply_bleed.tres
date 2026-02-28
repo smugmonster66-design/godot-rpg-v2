@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=4 format=3 uid="uid://bc86mx322djir"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_x3tpg"]
+[ext_resource type="Resource" uid="uid://kilfjnbqkpbi" path="res://resources/statuses/bleed.tres" id="2_l1p82"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="3_hipsf"]
+
+[resource]
+script = ExtResource("1_x3tpg")
+effect_name = "Apply Bleed"
+effect_type = 2
+status_affix = ExtResource("2_l1p82")

@@ -1,11 +1,26 @@
-[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://b1adqw72u5auw"]
+[gd_resource type="Resource" script_class="Action" load_steps=14 format=3 uid="uid://b1adqw72u5auw"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_vbxgj"]
 [ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_yt8j6"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_pwmn8"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_yt8j6"]
+[ext_resource type="Resource" uid="uid://d1y17y8pdvwbg" path="res://resources/action_effects/base/damage_piercing.tres" id="3_48r2j"]
 [ext_resource type="Resource" uid="uid://kilfjnbqkpbi" path="res://resources/statuses/bleed.tres" id="3_qt4vc"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_cnbnd"]
+[ext_resource type="Resource" uid="uid://bc86mx322djir" path="res://resources/action_effects/base/apply_bleed.tres" id="4_fwmqk"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="5_pwmn8"]
+
+[sub_resource type="Resource" id="Resource_ado1y"]
+script = ExtResource("2_pwmn8")
+effect = ExtResource("3_48r2j")
+value_source = 1
+base_damage = 3
+damage_multiplier = 1.3
+
+[sub_resource type="Resource" id="Resource_mo2gg"]
+script = ExtResource("2_pwmn8")
+effect = ExtResource("4_fwmqk")
+stack_count = 2
 
 [sub_resource type="Resource" id="Resource_48r2j"]
 script = ExtResource("1_vbxgj")

@@ -101,5 +101,24 @@ func get_summary() -> String:
 
 	return " ".join(parts)
 
+
 func _to_string() -> String:
 	return "SubEffect<%s>" % get_summary()
+
+
+# ============================================================================
+# INSPECTOR PROPERTY GATING
+# ============================================================================
+
+func _validate_property(property: Dictionary) -> void:
+	var pn: String = property.name
+	match pn:
+		"value_source_stat":
+			if value_source != ActionEffect.ValueSource.SOURCE_STAT:
+				property.usage = 0
+		"value_source_status_id":
+			if value_source != ActionEffect.ValueSource.TARGET_STATUS_STACKS:
+				property.usage = 0
+		"value_source_defense":
+			if value_source != ActionEffect.ValueSource.SOURCE_DEFENSE_STAT:
+				property.usage = 0

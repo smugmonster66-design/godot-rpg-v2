@@ -1,11 +1,26 @@
-[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://bcrg2hhi13oh"]
+[gd_resource type="Resource" script_class="Action" load_steps=14 format=3 uid="uid://bcrg2hhi13oh"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_g2cqx"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_uvhig"]
+[ext_resource type="Resource" uid="uid://bn12yiuowfnoi" path="res://resources/action_effects/base/armor_buff.tres" id="2_50r60"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_jfl76"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_b44wh"]
+[ext_resource type="Resource" uid="uid://bofglcttwd54j" path="res://resources/action_effects/base/damage_reduction.tres" id="3_h3hfw"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_ln810"]
-[ext_resource type="Resource" path="res://resources/statuses/fortified.tres" id="5_fort"]
-[ext_resource type="Resource" path="res://resources/statuses/braced.tres" id="6_brace"]
+[ext_resource type="Resource" uid="uid://chgprsba6wfw2" path="res://resources/statuses/fortified.tres" id="5_fort"]
+[ext_resource type="Resource" uid="uid://yqkfct3e0w0w" path="res://resources/statuses/braced.tres" id="6_brace"]
+
+[sub_resource type="Resource" id="Resource_tpjhp"]
+script = ExtResource("1_uvhig")
+effect = ExtResource("2_50r60")
+value_source = 1
+armor_buff_uses_dice = true
+armor_buff_duration = 1
+
+[sub_resource type="Resource" id="Resource_xcota"]
+script = ExtResource("1_uvhig")
+effect = ExtResource("3_h3hfw")
+reduction_amount = 2.0
 
 [sub_resource type="Resource" id="Resource_i4gxi"]
 script = ExtResource("1_g2cqx")

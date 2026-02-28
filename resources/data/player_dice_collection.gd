@@ -323,6 +323,11 @@ func roll_hand():
 	# Apply persistent combat modifiers (also modifies values)
 	_apply_combat_modifiers()
 	
+	# Apply Slowed + Chill die value penalty
+	for die in hand:
+		_apply_status_die_penalty(die)
+	
+	_apply_stunned_locks()
 	
 	
 	# === Build deferred value changes and revert to base ===
@@ -359,7 +364,29 @@ func roll_hand():
 
 
 
-
+func _apply_stunned_locks() -> void:
+	"""Lock N random unconsumed dice based on Stunned stacks."""
+	var player_node = _get_player()
+	if not player_node or not player_node.status_tracker:
+		return
+	var lock_count: int = player_node.status_tracker.get_stunned_dice_count()
+	if lock_count <= 0:
+		return
+	
+	# Gather indices of unlocked, unconsumed dice
+	var available: Array[int] = []
+	for i in range(hand.size()):
+		if not hand[i].is_consumed and not hand[i].is_locked:
+			available.append(i)
+	
+	# Shuffle and lock up to lock_count
+	available.shuffle()
+	var to_lock: int = mini(lock_count, available.size())
+	for j in range(to_lock):
+		var idx: int = available[j]
+		hand[idx].is_locked = true
+		hand[idx].is_consumed = true  # Locked dice can't be placed
+		print("  🔒 Stunned: locked %s at hand[%d]" % [hand[idx].display_name, idx])
 
 
 func _create_hand_die(pool_die: DieResource, pool_index: int) -> DieResource:
@@ -476,6 +503,9 @@ func insert_into_hand(index: int, die: DieResource):
 	for modifier in combat_modifiers:
 		if modifier.applies_to_die(die, index):
 			modifier.apply_to_die(die)
+
+	# Apply Slowed + Chill die value penalty
+	_apply_status_die_penalty(die)
 
 	# Track value changes from insertion for deferred animation
 	var insertion_changes: Dictionary = {}
@@ -687,6 +717,28 @@ func restore_die(die: DieResource):
 # ============================================================================
 # COMBAT MODIFIERS (v2)
 # ============================================================================
+
+func _apply_status_die_penalty(die: DieResource) -> void:
+	"""Apply Slowed + Chill die value penalty from player's StatusTracker.
+	Called after ON_ROLL affixes and combat modifiers."""
+	var penalty: int = _get_status_die_penalty()
+	if penalty > 0:
+		die.apply_flat_modifier(-penalty)
+
+func _get_status_die_penalty() -> int:
+	"""Query the player's StatusTracker for die value penalty."""
+	var player_node = _get_player()
+	if player_node and "status_tracker" in player_node and player_node.status_tracker:
+		return player_node.status_tracker.get_die_penalty()
+	return 0
+
+func _get_player():
+	"""Get the Player resource. Tries GameManager first, then context."""
+	if GameManager and GameManager.player:
+		return GameManager.player
+	return null
+
+
 
 func _apply_combat_modifiers():
 	"""Apply all persistent combat modifiers to the current hand.
@@ -1038,6 +1090,11 @@ func add_die_to_hand(die: DieResource) -> void:
 	for modifier in combat_modifiers:
 		if modifier.applies_to_die(die, die.slot_index):
 			modifier.apply_to_die(die)
+
+	# Apply Slowed + Chill die value penalty
+	_apply_status_die_penalty(die)
+
+	_apply_stunned_locks()
 
 	print("🔮 Added %s to hand (slot %d, value %d)" % [
 		die.display_name, die.slot_index, die.get_total_value()])

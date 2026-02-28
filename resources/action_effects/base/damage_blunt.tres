@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://dws8cjw0vaugm"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_ojf0l"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_w1tco"]
+
+[resource]
+script = ExtResource("1_ojf0l")
+effect_name = "Blunt Damage"
+value_source = 1
+damage_type = 1

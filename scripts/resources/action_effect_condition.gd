@@ -214,5 +214,49 @@ func get_description() -> String:
 			return "%s%d%% chance" % [prefix, int(threshold * 100)]
 	return "Unknown"
 
+
 func _to_string() -> String:
 	return "ActionEffectCondition<%s>" % get_description()
+
+
+# ============================================================================
+# INSPECTOR PROPERTY GATING
+# ============================================================================
+
+func _validate_property(property: Dictionary) -> void:
+	var pn: String = property.name
+
+	if pn == "status_id":
+		if condition_type not in [
+			ConditionType.TARGET_HAS_STATUS,
+			ConditionType.TARGET_MISSING_STATUS,
+			ConditionType.SOURCE_HAS_STATUS,
+		]:
+			property.usage = 0
+		return
+
+	if pn == "threshold":
+		if condition_type == ConditionType.NONE:
+			property.usage = 0
+		return
+
+	if pn == "scales_on_pass":
+		if condition_type in [
+			ConditionType.NONE,
+			ConditionType.TARGET_HAS_STATUS,
+			ConditionType.TARGET_MISSING_STATUS,
+			ConditionType.SOURCE_HAS_STATUS,
+			ConditionType.RANDOM_CHANCE,
+		]:
+			property.usage = 0
+		return
+
+	if pn == "pass_multiplier":
+		if condition_type == ConditionType.NONE:
+			property.usage = 0
+		return
+
+	if pn == "invert":
+		if condition_type == ConditionType.NONE:
+			property.usage = 0
+		return
