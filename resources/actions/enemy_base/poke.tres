@@ -1,18 +1,11 @@
-[gd_resource type="Resource" script_class="Action" load_steps=10 format=3 uid="uid://mrxvd5tmgbpd"]
+[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://mrxvd5tmgbpd"]
 
 [ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_ganrp"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_vitsv"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_518ne"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_ganrp"]
-[ext_resource type="Resource" uid="uid://d1y17y8pdvwbg" path="res://resources/action_effects/base/damage_piercing.tres" id="3_8b31r"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_fiesr"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_518ne"]
-
-[sub_resource type="Resource" id="Resource_y5eoe"]
-script = ExtResource("2_518ne")
-effect = ExtResource("3_8b31r")
-value_source = 1
-damage_multiplier = 0.5
 
 [sub_resource type="Resource" id="Resource_8b31r"]
 script = ExtResource("1_vitsv")

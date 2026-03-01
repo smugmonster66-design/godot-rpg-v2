@@ -1,19 +1,12 @@
-[gd_resource type="Resource" script_class="Action" load_steps=11 format=3 uid="uid://buulrmrni365a"]
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://buulrmrni365a"]
 
 [ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_khgn5"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_ynmmn"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_khgn5"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_rqgxh"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_fu65d"]
-[ext_resource type="Resource" uid="uid://bn12yiuowfnoi" path="res://resources/action_effects/base/armor_buff.tres" id="3_yjw4t"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_ayg6t"]
 [ext_resource type="Resource" uid="uid://chgprsba6wfw2" path="res://resources/statuses/fortified.tres" id="5_fort"]
-
-[sub_resource type="Resource" id="Resource_552ov"]
-script = ExtResource("2_rqgxh")
-effect = ExtResource("3_yjw4t")
-value_source = 1
-armor_buff_uses_dice = true
 
 [sub_resource type="Resource" id="Resource_rqgxh"]
 script = ExtResource("1_ynmmn")

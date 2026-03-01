@@ -14,6 +14,6 @@ label_enabled = true
 label_text = "BROKEN!"
 label_color = Color(0.6, 0.9, 1, 1)
 label_font_size = 22
-label_theme_type = &"normal"
+label_theme_type = &"floater"
 label_bold = true
 label_duration = 0.8

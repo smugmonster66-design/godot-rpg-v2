@@ -1,17 +1,11 @@
-[gd_resource type="Resource" script_class="Action" load_steps=10 format=3 uid="uid://bbxydxonqjqr1"]
+[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://bbxydxonqjqr1"]
 
 [ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_1imlq"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_fih6b"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_1imlq"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_56k0p"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_21goe"]
-[ext_resource type="Resource" uid="uid://d1y17y8pdvwbg" path="res://resources/action_effects/base/damage_piercing.tres" id="3_syex5"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_56k0p"]
-
-[sub_resource type="Resource" id="Resource_hr7l7"]
-script = ExtResource("2_56k0p")
-effect = ExtResource("3_syex5")
-value_source = 1
 
 [sub_resource type="Resource" id="Resource_syex5"]
 script = ExtResource("1_fih6b")

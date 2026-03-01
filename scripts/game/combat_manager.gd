@@ -1605,7 +1605,15 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 					# Update appropriate health display
 					if target == player_combatant:
 						_update_player_health()
-						_check_player_death()
+					elif _is_companion(target):
+						# Companion was hit - update companion panel
+						if companion_manager and companion_panel:
+							var comp = target as CompanionCombatant
+							companion_panel.update_health(
+								comp.slot_index,
+								comp.current_health,
+								comp.max_health
+							)
 					else:
 						var enemy_index = enemy_combatants.find(target)
 						if enemy_index >= 0:

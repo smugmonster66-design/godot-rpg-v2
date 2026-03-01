@@ -179,7 +179,7 @@ enum EffectDirection { SOURCE_TO_TARGET, TARGET_TO_SOURCE }
 
 ## Theme type variation for the floating label (e.g. &"tiny", &"normal", &"display").
 ## When set, overrides label_font_size with the theme's value.
-@export var label_theme_type: StringName = &""
+@export var label_theme_type: StringName = &"caption"
 
 ## Whether to bold the label
 @export var label_bold: bool = false

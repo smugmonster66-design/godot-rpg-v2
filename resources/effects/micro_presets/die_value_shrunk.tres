@@ -12,6 +12,6 @@ flash_enabled = true
 flash_color = Color(1.5, 0.4, 0.4, 1)
 label_enabled = true
 label_color = Color(1, 0.3, 0.3, 1)
-label_theme_type = &"large"
+label_theme_type = &"floater"
 label_rise_distance = 30.0
 label_duration = 0.5

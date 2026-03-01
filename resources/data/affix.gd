@@ -133,6 +133,8 @@ enum ProcTrigger {
 	ON_ACTION_USED,     ## When any action is executed
 	ON_KILL,            ## When player kills an enemy
 	ON_DEFEND,          ## When player uses a defend action
+	ON_MANA_PULL,       ## When a mana die is pulled from the mana pool
+	ON_STATUS_APPLIED,  ## When a status effect is applied to any target
 }
 
 
@@ -252,6 +254,11 @@ enum RoundMode {
 
 ## Maximum proc chance across the full item level range (level 100).
 @export_range(0.0, 1.0) var proc_chance_max: float = 0.0
+
+## Inspector-friendly proc effect configuration. When set, the proc processor
+## reads this FIRST, falling back to effect_data for legacy .tres files.
+## Provides dropdowns for effect type, target, element filter, etc.
+@export var proc_config: ProcEffectConfig = null
 # ============================================================================
 # GRANTED ACTION (for NEW_ACTION category)
 # ============================================================================
@@ -708,6 +715,29 @@ func get_category_name() -> String:
 func is_proc_category() -> bool:
 	"""Check if this affix is in a proc-capable category."""
 	return category in [Category.PROC, Category.ON_HIT, Category.PER_TURN]
+
+func get_resolved_effect_data() -> Dictionary:
+	"""Return effect_data, merging proc_config values underneath.
+	
+	proc_config exports take priority for any keys they define.
+	Legacy effect_data keys are preserved for anything the config
+	doesn't cover (e.g. custom overrides, extra metadata).
+	"""
+	if proc_config == null:
+		return effect_data
+	
+	var merged = effect_data.duplicate()
+	var config_data = proc_config.to_effect_data()
+	for key in config_data:
+		# Config always wins — it's the inspector-authoritative source
+		merged[key] = config_data[key]
+	return merged
+
+func validate_proc_config() -> Array[String]:
+	"""Run validation on the proc_config if present. Returns warnings."""
+	if proc_config == null:
+		return []
+	return proc_config.validate()
 
 # ============================================================================
 # ELEMENTAL IDENTITY

@@ -133,48 +133,51 @@ func process_combat_start(affix_manager: AffixPoolManager, context: Dictionary =
 func _check_proc_condition(affix: Affix, context: Dictionary) -> bool:
 	"""Check if an affix's optional condition is met.
 	
-	Conditions are stored in affix.effect_data under the "condition" key.
-	If no condition is present, the proc always passes this check.
+	Checks ProcEffectConfig conditions first (element_filter, target status,
+	health gates, damage threshold, turn gate), then falls back to legacy
+	string-based conditions in effect_data.
 	"""
-	var condition = affix.effect_data.get("condition", "")
+	# v3: Check ProcEffectConfig conditions first
+	if affix.proc_config != null:
+		if not _check_proc_config_conditions(affix.proc_config, context):
+			return false
+	
+	var resolved = affix.get_resolved_effect_data()
+	var condition = resolved.get("condition", "")
 	if condition == "":
 		return true
 	
 	match condition:
 		"damage_above":
-			# Only fires if damage dealt exceeds threshold
-			var threshold = affix.effect_data.get("threshold", 0)
+			var threshold = resolved.get("threshold", 0)
 			return context.get("damage_dealt", 0) > threshold
 		
 		"damage_below":
-			var threshold = affix.effect_data.get("threshold", 0)
+			var threshold = resolved.get("threshold", 0)
 			return context.get("damage_dealt", 0) < threshold
 		
 		"health_below_percent":
-			# Fires when player health is below X% of max
 			var source = context.get("source", null)
-			var threshold = affix.effect_data.get("threshold", 0.5)
+			var threshold = resolved.get("threshold", 0.5)
 			if source and source.has_method("get_health_percent"):
 				return source.get_health_percent() < threshold
 			return false
 		
 		"health_above_percent":
 			var source = context.get("source", null)
-			var threshold = affix.effect_data.get("threshold", 0.5)
+			var threshold = resolved.get("threshold", 0.5)
 			if source and source.has_method("get_health_percent"):
 				return source.get_health_percent() > threshold
 			return false
 		
 		"damage_type_is":
-			# Only fires for a specific damage type
-			var required_type = affix.effect_data.get("required_damage_type", "")
+			var required_type = resolved.get("required_damage_type", "")
 			var actual_type = context.get("damage_type", null)
 			if actual_type != null and required_type != "":
 				return str(actual_type) == required_type
 			return false
 		
 		"has_heavy_weapon":
-			# Check if player has a two-handed weapon equipped
 			var player = context.get("player", null)
 			if player and player.equipment.has("Main Hand"):
 				var item = player.equipment.get("Main Hand")
@@ -182,7 +185,6 @@ func _check_proc_condition(affix: Affix, context: Dictionary) -> bool:
 			return false
 		
 		"has_dual_wield":
-			# Check if both weapon slots are filled
 			var player = context.get("player", null)
 			if player:
 				var main = player.equipment.get("Main Hand")
@@ -191,8 +193,7 @@ func _check_proc_condition(affix: Affix, context: Dictionary) -> bool:
 			return false
 		
 		"equipment_slots_filled":
-			# Fires if at least N equipment slots are filled
-			var required = affix.effect_data.get("required_slots", 1)
+			var required = resolved.get("required_slots", 1)
 			var player = context.get("player", null)
 			if player:
 				var filled = 0
@@ -203,12 +204,66 @@ func _check_proc_condition(affix: Affix, context: Dictionary) -> bool:
 			return false
 		
 		"turn_number_above":
-			var threshold = affix.effect_data.get("threshold", 0)
+			var threshold = resolved.get("threshold", 0)
 			return context.get("turn_number", 0) > threshold
 		
 		_:
-			print("⚠️ AffixProcProcessor: Unknown condition '%s'" % condition)
+			print("AffixProcProcessor: Unknown condition '%s'" % condition)
 			return true
+
+
+func _check_proc_config_conditions(config: ProcEffectConfig, context: Dictionary) -> bool:
+	"""Evaluate all condition fields on a ProcEffectConfig.
+	Returns false if ANY condition fails. All conditions are AND-gated.
+	Fields left at their default (ANY, 0.0, null) are skipped."""
+	
+	# Element filter
+	if config.element_filter != ProcEffectConfig.ElementFilter.ANY:
+		var required = config.get_element_filter_string()
+		var actual = context.get("damage_type", null)
+		if actual != null and str(actual) != required:
+			return false
+		var kill_element = context.get("kill_element", "")
+		if kill_element != "" and kill_element != required:
+			return false
+	
+	# Target must have status
+	if config.target_must_have_status != null:
+		var target_combatant = context.get("target", null)
+		if target_combatant == null:
+			return false
+		var status_id = ""
+		if config.target_must_have_status is StatusAffix:
+			status_id = config.target_must_have_status.status_id
+		if status_id != "" and target_combatant.has_method("has_status"):
+			if not target_combatant.has_status(status_id):
+				return false
+	
+	# Damage threshold
+	if config.damage_threshold > 0.0:
+		if context.get("damage_dealt", 0) < config.damage_threshold:
+			return false
+	
+	# Health below percent
+	if config.health_below_percent > 0.0:
+		var source = context.get("source", null)
+		if source and source.has_method("get_health_percent"):
+			if source.get_health_percent() >= config.health_below_percent:
+				return false
+	
+	# Health above percent
+	if config.health_above_percent > 0.0:
+		var source = context.get("source", null)
+		if source and source.has_method("get_health_percent"):
+			if source.get_health_percent() <= config.health_above_percent:
+				return false
+	
+	# Turn gate
+	if config.after_turn > 0:
+		if context.get("turn_number", 0) <= config.after_turn:
+			return false
+	
+	return true
 
 # ============================================================================
 # CHANCE ROLLING
@@ -229,8 +284,8 @@ func _roll_proc_chance(affix: Affix) -> bool:
 func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 	"""Apply a single affix's proc effect and return the result.
 	
-	The proc_effect field on the Affix determines what happens.
-	Falls back to category-based behavior for backwards compatibility.
+	Reads from affix.proc_config (ProcEffectConfig) first for inspector-
+	authored procs, falling back to effect_data for legacy .tres files.
 	"""
 	var effect: Dictionary = {
 		"type": "none",
@@ -238,7 +293,9 @@ func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 		"source": affix.source,
 	}
 	
-	var proc_effect = affix.effect_data.get("proc_effect", affix.effect_data.get("effect", ""))
+	# v3: Resolve effect_data from proc_config when available
+	var resolved_data: Dictionary = affix.get_resolved_effect_data()
+	var proc_effect: String = resolved_data.get("proc_effect", resolved_data.get("effect", ""))
 	
 	# If no explicit proc_effect, infer from category
 	if proc_effect == "":
@@ -291,9 +348,22 @@ func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 			effect.type = "barrier_gain"
 			effect["amount"] = amount
 		
+		# ── Mana Restoration ──
+		"mana_restore":
+			var amount = resolved_data.get("amount", affix.effect_number)
+			effect.type = "mana_restore"
+			effect["amount"] = int(amount)
+		
+		"mana_restore_percent":
+			effect.type = "mana_restore"
+			var pct = resolved_data.get("percent", affix.effect_number)
+			# Actual max_mana lookup happens in combat_manager._apply_proc_results()
+			effect["percent"] = pct
+			effect["amount"] = 0
+		
 		# ── Compound (e.g. Eternal Vigil: heal + barrier in one proc) ──
 		"compound":
-			var sub_effects = affix.effect_data.get("sub_effects", [])
+			var sub_effects = resolved_data.get("sub_effects", [])
 			for sub in sub_effects:
 				match sub.get("type", ""):
 					"heal_percent_max_hp":
@@ -306,7 +376,7 @@ func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 		
 		# ── Custom Effects ──
 		"custom":
-			var custom_id = affix.effect_data.get("custom_id", "")
+			var custom_id = resolved_data.get("custom_id", "")
 			match custom_id:
 				"nayrus_ascension":
 					var source = context.get("source", null)
@@ -314,8 +384,8 @@ func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 						var missing = source.max_health - source.current_health
 						effect.type = "barrier_gain"
 						effect["amount"] = missing
-					effect["grant_random_dice"] = affix.effect_data.get("grant_random_dice_count", 2)
-					effect["min_die_value_bonus"] = affix.effect_data.get("min_die_value_bonus", 2)
+					effect["grant_random_dice"] = resolved_data.get("grant_random_dice_count", 2)
+					effect["min_die_value_bonus"] = resolved_data.get("min_die_value_bonus", 2)
 				
 				"unique_element_combat_modifier":
 					var pool = context.get("dice_pool", [])
@@ -331,62 +401,97 @@ func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 				_:
 					effect.type = "custom"
 					effect["custom_id"] = custom_id
-					effect["custom_data"] = affix.effect_data.get("custom_data", {})
+					effect["custom_data"] = resolved_data.get("custom_data", {})
 		
 		# ── Temporary Stat Buffs ──
 		"temp_affix":
-			var temp = affix.effect_data.get("temp_affix", null)
+			var temp = resolved_data.get("temp_affix", null)
 			if temp is Affix:
 				effect.type = "temp_affix"
 				effect["affix"] = temp
-				effect["duration"] = affix.effect_data.get("duration", 1)
+				effect["duration"] = resolved_data.get("duration", 1)
 		
 		# ── Status Effects ──
 		"apply_status":
 			effect.type = "status_effect"
-			var raw = affix.effect_data.get("status", null)
+			var raw = resolved_data.get("status", null)
+			if raw == null:
+				# Fallback: try status_id convention path
+				var sid = resolved_data.get("status_id", "")
+				if sid != "":
+					var path = "res://resources/statuses/%s.tres" % sid
+					var loaded = load(path)
+					if loaded is StatusAffix:
+						raw = loaded
 			if raw is StatusAffix:
 				effect["status"] = raw
 			elif raw is String and raw != "":
-				# Try to load status resource by convention path
 				var path = "res://resources/statuses/%s.tres" % raw
 				var loaded = load(path)
 				if loaded is StatusAffix:
 					effect["status"] = loaded
 				else:
-					push_warning("⚠️ Could not load StatusAffix at '%s' for proc '%s'" % [path, affix.affix_name])
+					push_warning("Could not load StatusAffix at '%s' for proc '%s'" % [path, affix.affix_name])
 					effect["status"] = {}
 			elif raw is Dictionary:
 				effect["status"] = raw
 			else:
 				effect["status"] = {}
-			effect["target"] = affix.effect_data.get("status_target", "enemy")
-			effect["stacks"] = int(affix.effect_data.get("status_stacks", 1))
+			effect["target"] = resolved_data.get("status_target", "enemy")
+			effect["stacks"] = int(resolved_data.get("status_stacks", 1))
+		
+		# ── Status Spread (Storm: spread_static and general) ──
+		"spread_status":
+			effect.type = "status_effect"
+			var status_res = resolved_data.get("status", null)
+			if status_res == null:
+				var sid = resolved_data.get("status_id", "")
+				if sid != "":
+					var path = "res://resources/statuses/%s.tres" % sid
+					var loaded = load(path)
+					if loaded is StatusAffix:
+						status_res = loaded
+			if status_res is StatusAffix:
+				effect["status"] = status_res
+			else:
+				effect["status"] = status_res if status_res != null else {}
+			effect["target"] = resolved_data.get("target", "all_other_enemies")
+			effect["stacks"] = int(resolved_data.get("stacks", 1))
+			effect["spread"] = true
+			effect["threshold"] = int(resolved_data.get("threshold", 0))
+		
+		# ── Static Death Discharge (Storm T7) ──
+		"static_death_discharge":
+			effect.type = "static_death_discharge"
+			effect["damage_per_stack"] = resolved_data.get("damage_per_stack", 1.0)
+			effect["spread_fraction"] = resolved_data.get("spread_fraction", 0.5)
+			effect["target"] = resolved_data.get("target", "all_other_enemies")
 		
 		# ── Dice Manipulation ──
 		"grant_temp_dice_affix":
-			var dice_affix = affix.effect_data.get("dice_affix", null)
+			var dice_affix = resolved_data.get("dice_affix", null)
 			if dice_affix is DiceAffix:
 				effect.type = "temp_dice_affix"
 				effect["dice_affix"] = dice_affix
-				effect["duration"] = affix.effect_data.get("duration", 1)
+				effect["duration"] = resolved_data.get("duration", 1)
 		
 		# ── Action Grant ──
 		"grant_action":
 			if affix.granted_action:
 				effect.type = "granted_action"
 				effect["action"] = affix.granted_action
-				effect["duration"] = affix.effect_data.get("duration", 1)
+				effect["duration"] = resolved_data.get("duration", 1)
 		
 		# ── Retrigger (Overforge-style) ──
 		"retrigger_dice_affixes":
 			effect.type = "retrigger_dice_affixes"
-			effect["trigger_to_replay"] = affix.effect_data.get("trigger_to_replay", "ON_USE")
+			effect["trigger_to_replay"] = resolved_data.get("trigger_to_replay", "ON_USE")
 		
 		# ── Stacking Buff (Whetstone-style) ──
 		"stacking_buff":
+			# _current_stacks lives on the mutable effect_data, not resolved_data
 			var stacks = affix.effect_data.get("_current_stacks", 0) + 1
-			var max_stacks = affix.effect_data.get("max_stacks", 99)
+			var max_stacks = resolved_data.get("max_stacks", 99)
 			stacks = mini(stacks, max_stacks)
 			affix.effect_data["_current_stacks"] = stacks
 			
@@ -394,10 +499,10 @@ func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 			effect["stacks"] = stacks
 			effect["value_per_stack"] = affix.effect_number
 			effect["total_value"] = affix.effect_number * stacks
-			effect["buff_category"] = affix.effect_data.get("buff_category", "DAMAGE_BONUS")
+			effect["buff_category"] = resolved_data.get("buff_category", "DAMAGE_BONUS")
 		
 		_:
-			print("⚠️ AffixProcProcessor: Unknown proc_effect '%s' on '%s'" % [proc_effect, affix.affix_name])
+			print("AffixProcProcessor: Unknown proc_effect '%s' on '%s'" % [proc_effect, affix.affix_name])
 			effect.type = "unknown"
 	
 	proc_effect_applied.emit(affix, effect)
@@ -568,6 +673,23 @@ func _merge_effect_result(result: Dictionary, effect: Dictionary):
 				"type": "proc_custom",
 				"custom_id": effect.get("custom_id", ""),
 				"custom_data": effect.get("custom_data", {}),
+				"source": effect.get("affix_name", ""),
+			})
+		
+		"mana_restore":
+			result.special_effects.append({
+				"type": "proc_mana_restore",
+				"amount": effect.get("amount", 0),
+				"percent": effect.get("percent", 0.0),
+				"source": effect.get("affix_name", ""),
+			})
+		
+		"static_death_discharge":
+			result.special_effects.append({
+				"type": "proc_static_death_discharge",
+				"damage_per_stack": effect.get("damage_per_stack", 1.0),
+				"spread_fraction": effect.get("spread_fraction", 0.5),
+				"target": effect.get("target", "all_other_enemies"),
 				"source": effect.get("affix_name", ""),
 			})
 

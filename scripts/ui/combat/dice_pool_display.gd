@@ -558,8 +558,8 @@ func hide_insertion_gap(immediate: bool = false) -> void:
 	
 	Args:
 		immediate: If true, remove instantly with no animation.
-		           Use true when the hand is about to refresh (drop/cancel).
-		           Use false (default) for cursor-driven hide during drag.
+				   Use true when the hand is about to refresh (drop/cancel).
+				   Use false (default) for cursor-driven hide during drag.
 	"""
 	if not _gap_spacer or not is_instance_valid(_gap_spacer):
 		_gap_index = -1

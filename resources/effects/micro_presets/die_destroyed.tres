@@ -14,3 +14,4 @@ flash_color = Color(0, 0, 0, 0)
 flash_in_duration = 0.35
 screen_shake_enabled = true
 screen_shake_intensity = 2.0
+label_theme_type = &"floater"

@@ -15,6 +15,6 @@ flash_out_duration = 0.3
 label_enabled = true
 label_color = Color(0.5, 0.8, 1, 1)
 label_font_size = 22
-label_theme_type = &"normal"
+label_theme_type = &"floater"
 label_rise_distance = 35.0
 label_duration = 0.6

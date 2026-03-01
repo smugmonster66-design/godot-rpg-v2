@@ -698,6 +698,7 @@ display/constants/shadow_outline_size = 0
 display/font_sizes/font_size = 36
 display/styles/focus = SubResource("StyleBoxFlat_m48fx")
 display/styles/normal = SubResource("StyleBoxFlat_m48fx")
+floater/base_type = &"Label"
 floater/font_sizes/font_size = 60
 header/base_type = &"Label"
 header/font_sizes/font_size = 60

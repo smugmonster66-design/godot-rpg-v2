@@ -1,19 +1,11 @@
-[gd_resource type="Resource" script_class="Action" load_steps=10 format=3 uid="uid://da2uxbu8iojio"]
+[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://da2uxbu8iojio"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_a0stu"]
 [ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_gvwqd"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_cw64w"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_gvwqd"]
-[ext_resource type="Resource" uid="uid://dws8cjw0vaugm" path="res://resources/action_effects/base/damage_blunt.tres" id="3_cn08e"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_gaf6t"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_cw64w"]
-
-[sub_resource type="Resource" id="Resource_vtfjf"]
-script = ExtResource("2_cw64w")
-effect = ExtResource("3_cn08e")
-value_source = 1
-base_damage = 1
-damage_multiplier = 0.7
 
 [sub_resource type="Resource" id="Resource_cn08e"]
 script = ExtResource("1_a0stu")

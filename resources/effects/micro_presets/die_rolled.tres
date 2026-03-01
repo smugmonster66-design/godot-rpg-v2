@@ -11,3 +11,4 @@ scale_in_duration = 0.2
 flash_enabled = true
 flash_color = Color(1.2, 1.2, 1.5, 1)
 flash_in_duration = 0.05
+label_theme_type = &"floater"
