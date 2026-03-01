@@ -25,6 +25,10 @@ LootManager="*res://scripts/autoload/loot_manager.gd"
 AffixTableRegistry="*res://scripts/autoload/affix_table_registry.gd"
 DiceAffixTableRegistry="*res://scripts/autoload/dice_affix_table_registry.gd"
 DieGenerator="*res://scripts/autoload/die_generator.gd"
+GameState="*res://scripts/autoload/game_state.gd"
+QuestManager="*res://scripts/autoload/quest_manager.gd"
+MapManager="*res://scripts/autoload/map_manager.gd"
+DialogueManager="*res://scripts/autoload/dialogue_manager.gd"
 
 [display]
 
@@ -37,7 +41,7 @@ window/stretch/aspect="expand"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/action_effect_editor/plugin.cfg", "res://addons/affix_builder/plugin.cfg", "res://addons/auto_scene_documenter/plugin.cfg", "res://addons/dungeon_editor/plugin.cfg", "res://addons/theme_editor/plugin.cfg")
+enabled=PackedStringArray("res://addons/action_effect_editor/plugin.cfg", "res://addons/affix_builder/plugin.cfg", "res://addons/auto_scene_documenter/plugin.cfg", "res://addons/dialogue_editor/plugin.cfg", "res://addons/dungeon_editor/plugin.cfg", "res://addons/theme_editor/plugin.cfg")
 
 [gui]
 

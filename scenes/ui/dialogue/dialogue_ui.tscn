@@ -1,0 +1,166 @@
+[gd_scene load_steps=3 format=3 uid="uid://blpwt3dawinnk"]
+
+[ext_resource type="Script" uid="uid://beci4j31tqpaw" path="res://scripts/ui/dialogue/dialogue_ui.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://bd3nv8xh717o" path="res://assets/ui/dialogue/tail_main.png" id="2_tail"]
+
+[node name="DialogueUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_script")
+choice_distances = Array[float]([320.0, 320.0, 340.0, 180.0, 180.0, 180.0])
+choice_angles = Array[float]([-100.0, -30.0, -45.0, -150.0, -30.0, -90.0])
+
+[node name="DimOverlay" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ClickCatcher" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DialogueContainer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -480.0
+offset_top = 400.0
+offset_right = 480.0
+offset_bottom = 900.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="BustContainer" type="Control" parent="DialogueContainer"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = -320.0
+offset_bottom = 110.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="LeftBust" type="TextureRect" parent="DialogueContainer/BustContainer"]
+visible = false
+layout_mode = 1
+offset_right = 220.0
+offset_bottom = 400.0
+mouse_filter = 2
+
+[node name="CenterBust" type="TextureRect" parent="DialogueContainer/BustContainer"]
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -110.0
+offset_right = 110.0
+offset_bottom = 400.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="RightBust" type="TextureRect" parent="DialogueContainer/BustContainer"]
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -110.0
+offset_top = -400.0
+offset_right = 110.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="MainBubble" type="PanelContainer" parent="DialogueContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"DialogueBubble"
+
+[node name="ContentMargin" type="MarginContainer" parent="DialogueContainer/MainBubble"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 24
+
+[node name="VBox" type="VBoxContainer" parent="DialogueContainer/MainBubble/ContentMargin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="NameLabel" type="RichTextLabel" parent="DialogueContainer/MainBubble/ContentMargin/VBox"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"DialogueSpeakerName"
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+
+[node name="DialogueText" type="RichTextLabel" parent="DialogueContainer/MainBubble/ContentMargin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_type_variation = &"DialogueText"
+bbcode_enabled = true
+scroll_active = false
+
+[node name="ContinueIndicator" type="Control" parent="DialogueContainer/MainBubble"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 8
+mouse_filter = 2
+
+[node name="Arrow" type="Label" parent="DialogueContainer/MainBubble/ContinueIndicator"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "▼"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BubbleTail" type="TextureRect" parent="DialogueContainer"]
+layout_mode = 0
+offset_left = 464.0
+offset_top = 72.0
+offset_right = 496.0
+offset_bottom = 104.0
+mouse_filter = 2
+texture = ExtResource("2_tail")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ChoiceRing" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 0
+offset_left = 200.0
+offset_top = 1520.0
+offset_right = 200.0
+offset_bottom = 1520.0
+mouse_filter = 2

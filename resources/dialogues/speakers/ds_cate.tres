@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="DialogueSpeaker" load_steps=5 format=3 uid="uid://dj8tngj1dy00j"]
+
+[ext_resource type="Texture2D" uid="uid://c5tlcvm076pa6" path="res://assets/busts/cate/base.png" id="1_isvli"]
+[ext_resource type="Script" uid="uid://08ijmdrudpd1" path="res://resources/data/dialogue_speaker.gd" id="1_smf1x"]
+[ext_resource type="Script" uid="uid://ctmf0afgii6w6" path="res://resources/data/mood_texture.gd" id="2_d1v81"]
+
+[sub_resource type="Resource" id="Resource_isvli"]
+script = ExtResource("2_d1v81")
+texture = ExtResource("1_isvli")
+metadata/_custom_type_script = "uid://ctmf0afgii6w6"
+
+[resource]
+script = ExtResource("1_smf1x")
+speaker_id = &"cate"
+display_name = "Cate"
+mood_textures = Array[ExtResource("2_d1v81")]([SubResource("Resource_isvli")])
+metadata/_custom_type_script = "uid://08ijmdrudpd1"

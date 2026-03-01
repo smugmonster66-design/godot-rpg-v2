@@ -1,0 +1,126 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/dialogue_editor/nodes/line_node.gd" id="1_script"]
+
+[node name="LineNode" type="GraphNode"]
+offset_right = 380.0
+offset_bottom = 280.0
+title = "LINE"
+script = ExtResource("1_script")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="SpeakerRow" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="SpeakerLabel" type="Label" parent="VBox/SpeakerRow"]
+layout_mode = 2
+text = "Speaker:"
+
+[node name="SpeakerDropdown" type="OptionButton" parent="VBox/SpeakerRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BustRow" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="BustLabel" type="Label" parent="VBox/BustRow"]
+layout_mode = 2
+text = "Bust:"
+
+[node name="BustDropdown" type="OptionButton" parent="VBox/BustRow"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SlotLabel" type="Label" parent="VBox/BustRow"]
+layout_mode = 2
+text = "Slot:"
+
+[node name="SlotDropdown" type="OptionButton" parent="VBox/BustRow"]
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+
+[node name="BustPreview" type="TextureRect" parent="VBox/BustRow"]
+visible = false
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TextLabel" type="Label" parent="VBox"]
+layout_mode = 2
+text = "Dialogue:"
+
+[node name="TextEdit" type="TextEdit" parent="VBox"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+placeholder_text = "Enter dialogue text..."
+wrap_mode = 1
+
+[node name="SlotsToggleRow" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="SlotsToggle" type="Button" parent="VBox/SlotsToggleRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "▶ Bust Slots"
+alignment = 0
+
+[node name="BustSlotsSection" type="VBoxContainer" parent="VBox"]
+visible = false
+layout_mode = 2
+
+[node name="SlotsHeader" type="Label" parent="VBox/BustSlotsSection"]
+layout_mode = 2
+text = "Set bust slots for this line:"
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+
+[node name="LeftRow" type="HBoxContainer" parent="VBox/BustSlotsSection"]
+layout_mode = 2
+
+[node name="LeftLabel" type="Label" parent="VBox/BustSlotsSection/LeftRow"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "Left:"
+
+[node name="LeftSpeaker" type="OptionButton" parent="VBox/BustSlotsSection/LeftRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LeftBust" type="OptionButton" parent="VBox/BustSlotsSection/LeftRow"]
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+
+[node name="CenterRow" type="HBoxContainer" parent="VBox/BustSlotsSection"]
+layout_mode = 2
+
+[node name="CenterLabel" type="Label" parent="VBox/BustSlotsSection/CenterRow"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "Center:"
+
+[node name="CenterSpeaker" type="OptionButton" parent="VBox/BustSlotsSection/CenterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CenterBust" type="OptionButton" parent="VBox/BustSlotsSection/CenterRow"]
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+
+[node name="RightRow" type="HBoxContainer" parent="VBox/BustSlotsSection"]
+layout_mode = 2
+
+[node name="RightLabel" type="Label" parent="VBox/BustSlotsSection/RightRow"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "Right:"
+
+[node name="RightSpeaker" type="OptionButton" parent="VBox/BustSlotsSection/RightRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RightBust" type="OptionButton" parent="VBox/BustSlotsSection/RightRow"]
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2

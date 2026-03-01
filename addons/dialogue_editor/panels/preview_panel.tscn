@@ -1,0 +1,103 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/dialogue_editor/panels/preview_panel.gd" id="1_script"]
+
+[node name="PreviewPanel" type="Control"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_script")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HeaderLabel" type="Label" parent="VBox"]
+layout_mode = 2
+text = "Preview"
+horizontal_alignment = 1
+
+[node name="NoSelectionLabel" type="Label" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Select a node to preview"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PreviewContainer" type="PanelContainer" parent="VBox"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PreviewMargin" type="MarginContainer" parent="VBox/PreviewContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="PreviewContent" type="VBoxContainer" parent="VBox/PreviewContainer/PreviewMargin"]
+layout_mode = 2
+
+[node name="BustRow" type="HBoxContainer" parent="VBox/PreviewContainer/PreviewMargin/PreviewContent"]
+layout_mode = 2
+alignment = 1
+
+[node name="BustLeft" type="TextureRect" parent="VBox/PreviewContainer/PreviewMargin/PreviewContent/BustRow"]
+visible = false
+custom_minimum_size = Vector2(60, 80)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BustCenter" type="TextureRect" parent="VBox/PreviewContainer/PreviewMargin/PreviewContent/BustRow"]
+visible = false
+custom_minimum_size = Vector2(60, 80)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BustRight" type="TextureRect" parent="VBox/PreviewContainer/PreviewMargin/PreviewContent/BustRow"]
+visible = false
+custom_minimum_size = Vector2(60, 80)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SpeakerLabel" type="Label" parent="VBox/PreviewContainer/PreviewMargin/PreviewContent"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+
+[node name="HSeparator" type="HSeparator" parent="VBox/PreviewContainer/PreviewMargin/PreviewContent"]
+layout_mode = 2
+
+[node name="DialogueLabel" type="RichTextLabel" parent="VBox/PreviewContainer/PreviewMargin/PreviewContent"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+
+[node name="ChoicesContainer" type="VBoxContainer" parent="VBox/PreviewContainer/PreviewMargin/PreviewContent"]
+visible = false
+layout_mode = 2
+
+[node name="NavRow" type="HBoxContainer" parent="VBox"]
+visible = false
+layout_mode = 2
+
+[node name="PrevButton" type="Button" parent="VBox/NavRow"]
+layout_mode = 2
+text = "← Prev"
+
+[node name="NodeLabel" type="Label" parent="VBox/NavRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_alignment = 1
+
+[node name="NextButton" type="Button" parent="VBox/NavRow"]
+layout_mode = 2
+text = "Next →"

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DialogueEncounter" load_steps=4 format=3 uid="uid://buyjtvavernv1"]
+
+[ext_resource type="Script" uid="uid://cl31cmstv6cgu" path="res://resources/data/dialogue_encounter.gd" id="1_wep2w"]
+[ext_resource type="Script" uid="uid://08ijmdrudpd1" path="res://resources/data/dialogue_speaker.gd" id="2_ywjgd"]
+[ext_resource type="Resource" uid="uid://dj8tngj1dy00j" path="res://resources/dialogues/speakers/ds_cate.tres" id="3_lu4w1"]
+
+[resource]
+script = ExtResource("1_wep2w")
+speakers = Array[ExtResource("2_ywjgd")]([ExtResource("3_lu4w1")])

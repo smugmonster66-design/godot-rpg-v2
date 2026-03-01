@@ -37,6 +37,9 @@ var _combat_intro_done: bool = false
 @onready var dungeon_scene: DungeonScene = $DungeonLayer/DungeonScene
 @onready var camera: GameCamera = $GameCamera
 @onready var combat_ui_layer: CanvasLayer = null
+@onready var dialogue_layer: CanvasLayer = $DialogueLayer
+@onready var dialogue_ui: Control = $DialogueLayer/DialogueUI
+
 
 var is_in_dungeon: bool = false
 
@@ -548,3 +551,10 @@ func _on_summary_closed():
 		# Re-enable dungeon — floor advancement already happened
 		dungeon_scene.process_mode = Node.PROCESS_MODE_INHERIT
 	# Map path already re-enabled in end_combat()
+
+func _unhandled_input(event: InputEvent) -> void:
+	# Ctrl+Shift+= to test dialogue
+	if event is InputEventKey and event.pressed:
+		if event.keycode == KEY_BACKSPACE and event.ctrl_pressed and event.shift_pressed:
+			TestDialogue.launch_test()
+			get_viewport().set_input_as_handled()

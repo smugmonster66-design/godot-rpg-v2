@@ -1,0 +1,67 @@
+[gd_scene load_steps=3 format=3 uid="uid://b1a200dnt045m"]
+
+[ext_resource type="Script" uid="uid://wwgp425wyhtx" path="res://scripts/ui/dialogue/choice_bubble.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://bxiu2p7cbchmo" path="res://assets/ui/dialogue/tail_choice.png" id="2_tail"]
+
+[node name="ChoiceBubble" type="Control"]
+custom_minimum_size = Vector2(220, 64)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 220.0
+offset_bottom = 64.0
+pivot_offset = Vector2(110, 32)
+script = ExtResource("1_script")
+
+[node name="BubblePanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_type_variation = &"DialogueChoiceBubble"
+
+[node name="Tail" type="TextureRect" parent="BubblePanel"]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("2_tail")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="MarginContainer" type="MarginContainer" parent="BubblePanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 6
+
+[node name="HBox" type="HBoxContainer" parent="BubblePanel/MarginContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Icon" type="TextureRect" parent="BubblePanel/MarginContainer/HBox"]
+visible = false
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LockIcon" type="TextureRect" parent="BubblePanel/MarginContainer/HBox"]
+visible = false
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="BubblePanel/MarginContainer"]
+layout_mode = 2
+theme_type_variation = &"DialogueChoiceLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2

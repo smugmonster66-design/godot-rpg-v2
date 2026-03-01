@@ -1,0 +1,50 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/dialogue_editor/nodes/set_flag_node.gd" id="1_script"]
+
+[node name="SetFlagNode" type="GraphNode"]
+offset_right = 260.0
+offset_bottom = 130.0
+title = "SET FLAG"
+script = ExtResource("1_script")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="TypeRow" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="TypeLabel" type="Label" parent="VBox/TypeRow"]
+layout_mode = 2
+text = "Action:"
+
+[node name="TypeDropdown" type="OptionButton" parent="VBox/TypeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FlagRow" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="FlagLabel" type="Label" parent="VBox/FlagRow"]
+layout_mode = 2
+text = "Name:"
+
+[node name="FlagEdit" type="LineEdit" parent="VBox/FlagRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "flag_name"
+
+[node name="ValueRow" type="HBoxContainer" parent="VBox"]
+visible = false
+layout_mode = 2
+
+[node name="ValueLabel" type="Label" parent="VBox/ValueRow"]
+layout_mode = 2
+text = "Amount:"
+
+[node name="ValueSpin" type="SpinBox" parent="VBox/ValueRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = -999.0
+max_value = 9999.0
+value = 1.0

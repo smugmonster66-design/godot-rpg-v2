@@ -1,0 +1,92 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://addons/dialogue_editor/dialogue_editor_dock.gd" id="1_dock"]
+[ext_resource type="PackedScene" path="res://addons/dialogue_editor/graph/dialogue_graph_edit.tscn" id="2_graph"]
+[ext_resource type="PackedScene" path="res://addons/dialogue_editor/panels/speakers_panel.tscn" id="3_speakers"]
+[ext_resource type="PackedScene" path="res://addons/dialogue_editor/panels/preview_panel.tscn" id="4_preview"]
+[ext_resource type="PackedScene" path="res://addons/dialogue_editor/panels/validation_panel.tscn" id="5_validation"]
+
+[node name="DialogueEditorDock" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_dock")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Toolbar" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="FileMenu" type="MenuButton" parent="VBox/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "File"
+
+[node name="EditMenu" type="MenuButton" parent="VBox/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Edit"
+
+[node name="AddMenu" type="MenuButton" parent="VBox/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Add Node"
+
+[node name="Spacer" type="Control" parent="VBox/Toolbar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CurrentFileLabel" type="Label" parent="VBox/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Untitled"
+
+[node name="MainHSplit" type="HSplitContainer" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 200
+
+[node name="LeftPanel" type="PanelContainer" parent="VBox/MainHSplit"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+
+[node name="SpeakersPanel" parent="VBox/MainHSplit/LeftPanel" instance=ExtResource("3_speakers")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="CenterRightSplit" type="HSplitContainer" parent="VBox/MainHSplit"]
+layout_mode = 2
+size_flags_horizontal = 3
+split_offset = -250
+
+[node name="DialogueGraphEdit" parent="VBox/MainHSplit/CenterRightSplit" instance=ExtResource("2_graph")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RightPanel" type="PanelContainer" parent="VBox/MainHSplit/CenterRightSplit"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+
+[node name="RightTabs" type="TabContainer" parent="VBox/MainHSplit/CenterRightSplit/RightPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="PreviewPanel" parent="VBox/MainHSplit/CenterRightSplit/RightPanel/RightTabs" instance=ExtResource("4_preview")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ValidationPanel" parent="VBox/MainHSplit/CenterRightSplit/RightPanel/RightTabs" instance=ExtResource("5_validation")]
+unique_name_in_owner = true
+layout_mode = 2

@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/dialogue_editor/nodes/choice_node.gd" id="1_script"]
+
+[node name="ChoiceNode" type="GraphNode"]
+offset_right = 280.0
+offset_bottom = 100.0
+title = "CHOICES"
+script = ExtResource("1_script")

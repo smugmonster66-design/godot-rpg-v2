@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=45 format=3 uid="uid://b87llggw1n1df"]
+[gd_resource type="Theme" load_steps=47 format=3 uid="uid://b87llggw1n1df"]
 
 [ext_resource type="Texture2D" uid="uid://hwffuipvgxdx" path="res://assets/ui/panels/9patch fill basic.png" id="1_0u5ek"]
 [ext_resource type="FontFile" uid="uid://cs3nxhvedwvkv" path="res://assets/fonts/Stoke.otf" id="2_0u5ek"]
@@ -224,6 +224,34 @@ corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jiupg"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pxhl2"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ruoye"]
 content_margin_left = 6.0
@@ -631,6 +659,20 @@ CombatButton/styles/hover = SubResource("StyleBoxFlat_64ciw")
 CombatButton/styles/normal = SubResource("StyleBoxFlat_t6tis")
 CombatButton/styles/pressed = SubResource("StyleBoxFlat_u1mr8")
 Control/colors/font_color = Color(1, 1, 1, 1)
+DialogueBubble/base_type = &"PanelContainer"
+DialogueBubble/styles/panel = SubResource("StyleBoxFlat_jiupg")
+DialogueChoiceBubble/base_type = &"PanelContainer"
+DialogueChoiceBubble/styles/panel = SubResource("StyleBoxFlat_pxhl2")
+DialogueChoiceLabel/base_type = &"Label"
+DialogueChoiceLabel/colors/font_color = Color(1, 1, 1, 1)
+DialogueChoiceLabel/font_sizes/font_size = 24
+DialogueSpeakerName/base_type = &"RichTextLabel"
+DialogueSpeakerName/colors/default_color = Color(1, 0.9309246, 0.48452926, 1)
+DialogueSpeakerName/font_sizes/normal_font_size = 45
+DialogueText/base_type = &"RichTextLabel"
+DialogueText/colors/default_color = Color(0, 0, 0, 1)
+DialogueText/constants/outline_size = 0
+DialogueText/font_sizes/normal_font_size = 36
 DicePoolPanel/styles/panel = SubResource("StyleBoxFlat_ruoye")
 EnemyPanel/colors/font_color = Color(1, 1, 1, 1)
 EnemyPanel/styles/panel = SubResource("StyleBoxTexture_eeyjl")

@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="DialogueEncounter" load_steps=13 format=3 uid="uid://hibtj14gtmhb"]
+
+[ext_resource type="Script" uid="uid://cl31cmstv6cgu" path="res://resources/data/dialogue_encounter.gd" id="1_f2wor"]
+[ext_resource type="Script" uid="uid://bo4owbm81mlc6" path="res://resources/data/dialogue_choice.gd" id="1_fo7cb"]
+[ext_resource type="Script" uid="uid://bw7tg7tcax8cj" path="res://resources/data/dialogue_line.gd" id="2_gqaiy"]
+[ext_resource type="Script" uid="uid://08ijmdrudpd1" path="res://resources/data/dialogue_speaker.gd" id="2_nfp77"]
+[ext_resource type="Resource" uid="uid://dj8tngj1dy00j" path="res://resources/dialogues/speakers/ds_cate.tres" id="3_fo7cb"]
+
+[sub_resource type="Resource" id="Resource_fo7cb"]
+script = ExtResource("2_gqaiy")
+speaker_id = &"cate"
+text = "And now I'm in the middle!"
+set_center_bust = &"cate"
+
+[sub_resource type="Resource" id="Resource_gqaiy"]
+script = ExtResource("2_gqaiy")
+speaker_id = &"cate"
+text = "I should be on the left now!"
+set_left_bust = &"cate"
+next_line = SubResource("Resource_fo7cb")
+
+[sub_resource type="Resource" id="Resource_ff7ym"]
+script = ExtResource("2_gqaiy")
+speaker_id = &"cate"
+text = "Ah, the illusion of choice. Let's see if I can reposition myself!"
+set_right_bust = &"cate"
+next_line = SubResource("Resource_gqaiy")
+
+[sub_resource type="Resource" id="Resource_kagtl"]
+script = ExtResource("1_fo7cb")
+label = "Hi Cate!"
+next_line = SubResource("Resource_ff7ym")
+
+[sub_resource type="Resource" id="Resource_q2ut5"]
+script = ExtResource("1_fo7cb")
+label = "Greetings Cate!"
+
+[sub_resource type="Resource" id="Resource_ro11m"]
+script = ExtResource("1_fo7cb")
+label = "Oh great a cat."
+
+[sub_resource type="Resource" id="Resource_w2asc"]
+script = ExtResource("2_gqaiy")
+speaker_id = &"cate"
+text = "Hi! I'm Cate!"
+set_right_bust = &"cate"
+choices = Array[ExtResource("1_fo7cb")]([SubResource("Resource_kagtl"), SubResource("Resource_q2ut5"), SubResource("Resource_ro11m")])
+
+[resource]
+script = ExtResource("1_f2wor")
+speakers = Array[ExtResource("2_nfp77")]([ExtResource("3_fo7cb")])
+first_line = SubResource("Resource_w2asc")
