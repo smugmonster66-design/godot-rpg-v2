@@ -8,6 +8,13 @@ class_name DialogueDeserializer
 
 func deserialize(encounter: DialogueEncounter, graph: DialogueGraphEdit, speakers_panel: Control) -> void:
 	"""Load a DialogueEncounter into the graph editor."""
+	push_warning("[Deserializer] === STARTING DESERIALIZE ===")
+	push_warning("[Deserializer] encounter: %s" % encounter)
+	push_warning("[Deserializer] encounter.first_line: %s" % encounter.first_line)
+	if encounter.first_line:
+		push_warning("[Deserializer] first_line.text: '%s'" % encounter.first_line.text)
+		push_warning("[Deserializer] first_line.choices: %s" % encounter.first_line.choices)
+		push_warning("[Deserializer] first_line.choices.size(): %d" % encounter.first_line.choices.size())
 	
 	# Clear existing
 	graph.clear_graph()
@@ -35,6 +42,8 @@ func deserialize(encounter: DialogueEncounter, graph: DialogueGraphEdit, speaker
 	if encounter.first_line and line_to_node.has(encounter.first_line):
 		var first_node = line_to_node[encounter.first_line]
 		graph.connect_node(start_node.name, 0, first_node.name, 0)
+	
+	push_warning("[Deserializer] === DESERIALIZE COMPLETE ===")
 
 func _process_line(
 	line: DialogueLine,
@@ -44,9 +53,12 @@ func _process_line(
 	position: Vector2
 ) -> GraphNode:
 	"""Process a DialogueLine and its children recursively."""
+	push_warning("[Deserializer] _process_line: '%s'" % line.text)
+	push_warning("[Deserializer]   choices.size(): %d" % line.choices.size())
 	
 	# Avoid infinite loops
 	if line in processed_lines:
+		push_warning("[Deserializer]   Already processed, returning existing node")
 		return line_to_node.get(line)
 	processed_lines.append(line)
 	
@@ -60,7 +72,9 @@ func _process_line(
 			return _create_condition_node(line, graph, line_to_node, processed_lines, position)
 	
 	# Create the line node
+	push_warning("[Deserializer]   Creating line node...")
 	var node = graph.add_line_node(position)
+	push_warning("[Deserializer]   Line node created: %s" % node.name)
 	line_to_node[line] = node
 	
 	# Set line data
@@ -79,17 +93,21 @@ func _process_line(
 		"clear_right": line.clear_right,
 	}
 	node.set_node_data(data)
+	push_warning("[Deserializer]   Line node data set")
 	
 	# Calculate next position
 	var next_pos = position + Vector2(400, 0)
 	
-	# Handle choices
-	if line.has_choices():
+	# Handle choices - use direct property access, not method calls (methods may not work in @tool)
+	if line.choices.size() > 0:
+		push_warning("[Deserializer]   HAS CHOICES! Creating choice node...")
 		# Create a choice node
 		var choice_node = graph.add_choice_node(next_pos)
+		push_warning("[Deserializer]   Choice node created: %s" % choice_node.name)
 		
 		# Connect line to choice node
 		graph.connect_node(node.name, 0, choice_node.name, 0)
+		push_warning("[Deserializer]   Connected line to choice node")
 		
 		# Set up choices and their connections
 		var choice_data = {"choices": []}
@@ -97,34 +115,42 @@ func _process_line(
 		
 		for i in line.choices.size():
 			var choice = line.choices[i]
+			push_warning("[Deserializer]   Processing choice %d: '%s'" % [i, choice.label])
 			choice_data.choices.append({"label": choice.label})
 			
 			# Process choice's next_line
 			if choice.next_line:
+				push_warning("[Deserializer]     Choice has next_line, processing...")
 				var choice_next_pos = next_pos + Vector2(400, y_offset)
 				var next_node = _process_line(choice.next_line, graph, line_to_node, processed_lines, choice_next_pos)
 				if next_node:
-					graph.connect_node(choice_node.name, i + 1, next_node.name, 0)
+					graph.connect_node(choice_node.name, i, next_node.name, 0)
+					push_warning("[Deserializer]     Connected choice %d to node %s" % [i, next_node.name])
 			else:
 				# Choice leads to end
+				push_warning("[Deserializer]     Choice has no next_line, adding END")
 				var end_node = graph.add_end_node(next_pos + Vector2(400, y_offset))
-				graph.connect_node(choice_node.name, i + 1, end_node.name, 0)
+				graph.connect_node(choice_node.name, i, end_node.name, 0)
 			
 			y_offset += 150
 		
 		choice_node.set_node_data(choice_data)
+		push_warning("[Deserializer]   Choice node data set")
 	
 	elif line.next_line:
 		# Simple continuation
+		push_warning("[Deserializer]   Has next_line, processing continuation...")
 		var next_node = _process_line(line.next_line, graph, line_to_node, processed_lines, next_pos)
 		if next_node:
 			graph.connect_node(node.name, 0, next_node.name, 0)
 	
 	else:
 		# End of branch
+		push_warning("[Deserializer]   No choices or next_line, adding END node")
 		var end_node = graph.add_end_node(next_pos)
 		graph.connect_node(node.name, 0, end_node.name, 0)
 	
+	push_warning("[Deserializer]   _process_line complete for '%s'" % line.text)
 	return node
 
 func _create_condition_node(

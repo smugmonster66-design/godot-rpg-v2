@@ -1,52 +1,576 @@
-[gd_resource type="Resource" script_class="DialogueEncounter" load_steps=13 format=3 uid="uid://hibtj14gtmhb"]
+[gd_resource type="Resource" load_steps=16 format=3 uid="uid://hibtj14gtmhb"]
 
-[ext_resource type="Script" uid="uid://cl31cmstv6cgu" path="res://resources/data/dialogue_encounter.gd" id="1_f2wor"]
-[ext_resource type="Script" uid="uid://bo4owbm81mlc6" path="res://resources/data/dialogue_choice.gd" id="1_fo7cb"]
-[ext_resource type="Script" uid="uid://bw7tg7tcax8cj" path="res://resources/data/dialogue_line.gd" id="2_gqaiy"]
-[ext_resource type="Script" uid="uid://08ijmdrudpd1" path="res://resources/data/dialogue_speaker.gd" id="2_nfp77"]
-[ext_resource type="Resource" uid="uid://dj8tngj1dy00j" path="res://resources/dialogues/speakers/ds_cate.tres" id="3_fo7cb"]
+[sub_resource type="GDScript" id="GDScript_qay1p"]
+script/source = "# res://resources/data/dialogue_line.gd
+# A single line of dialogue - one \"beat\" in a conversation.
+# Contains text, speaker info, bust management, and branching.
+extends Resource
+class_name DialogueLine
+
+# ============================================================================
+# CONTENT
+# ============================================================================
+@export_group(\"Content\")
+## The speaker's ID (matches DialogueSpeaker.speaker_id). Empty for narration.
+@export var speaker_id: StringName = &\"\"
+## The dialogue text. Supports BBCode: [b], [i], [color], [wave], [shake], etc.
+@export_multiline var text: String = \"\"
+## Localization key for text (if empty, uses text directly)
+@export var text_key: String = \"\"
+## Speaker's mood for this line (changes bust texture if speaker has mood variants)
+@export var mood: StringName = &\"\"
+
+# ============================================================================
+# BUST MANAGEMENT
+# ============================================================================
+@export_group(\"Bust Slots\")
+## Set the left bust slot to this speaker_id (empty = no change)
+@export var set_left_bust: StringName = &\"\"
+## Set the center bust slot to this speaker_id (empty = no change)
+@export var set_center_bust: StringName = &\"\"
+## Set the right bust slot to this speaker_id (empty = no change)
+@export var set_right_bust: StringName = &\"\"
+## Clear the left bust slot
+@export var clear_left: bool = false
+## Clear the center bust slot
+@export var clear_center: bool = false
+## Clear the right bust slot
+@export var clear_right: bool = false
+
+# ============================================================================
+# FLOW CONTROL
+# ============================================================================
+@export_group(\"Flow\")
+## Next line to show (if no choices). Null = end of conversation branch.
+@export var next_line: Resource = null  # DialogueLine (circular ref workaround)
+## Player choices at this line. If non-empty, these are shown instead of auto-advancing.
+@export var choices: Array[DialogueChoice] = []
+
+# ============================================================================
+# TIMING
+# ============================================================================
+@export_group(\"Timing\")
+## Override text speed for this line (chars/sec). 0 = use default.
+@export var text_speed_override: float = 0.0
+## If true, automatically advance after text finishes (no click required)
+@export var auto_advance: bool = false
+## Delay before auto-advancing (seconds). Only used if auto_advance is true.
+@export var auto_advance_delay: float = 1.5
+
+# ============================================================================
+# EVENTS
+# ============================================================================
+@export_group(\"Events\")
+## Event tag to fire when this line is displayed
+@export var event_tag: StringName = &\"\"
+## Flags to set when this line is displayed
+@export var set_flags: Array[StringName] = []
+## Sound effect to play when this line appears
+@export var sfx: AudioStream = null
+
+# ============================================================================
+# API
+# ============================================================================
+
+func get_text() -> String:
+	\"\"\"Get the localized dialogue text.\"\"\"
+	# TODO: Hook into localization system
+	if text_key != \"\":
+		# return tr(text_key)
+		pass
+	return text
+
+func is_narration() -> bool:
+	\"\"\"Returns true if this is narrator text (no speaker).\"\"\"
+	return speaker_id == &\"\" or speaker_id == &\"narrator\"
+
+func has_choices() -> bool:
+	\"\"\"Returns true if this line has player choices.\"\"\"
+	return choices.size() > 0
+
+func get_available_choices() -> Array[DialogueChoice]:
+	\"\"\"Get choices that should be displayed (condition met or show_when_locked).\"\"\"
+	var available: Array[DialogueChoice] = []
+	for choice in choices:
+		if choice.should_display():
+			available.append(choice)
+	return available
+
+func has_bust_changes() -> bool:
+	\"\"\"Returns true if this line modifies any bust slots.\"\"\"
+	return (set_left_bust != &\"\" or set_center_bust != &\"\" or set_right_bust != &\"\"
+		or clear_left or clear_center or clear_right)
+
+func apply_effects() -> void:
+	\"\"\"Apply side effects when this line is displayed.\"\"\"
+	for flag_name in set_flags:
+		if Engine.has_singleton(\"GameState\"):
+			GameState.set_flag(flag_name, true)
+"
+
+[sub_resource type="Resource" id="Resource_hy5ex"]
+script = SubResource("GDScript_qay1p")
+speaker_id = &"cate"
+text = "Hooray!"
+mood = &"amused"
+set_right_bust = &"cate"
+
+[sub_resource type="GDScript" id="GDScript_h1lwe"]
+script/source = "# res://resources/data/dialogue_choice.gd
+# A single dialogue choice the player can select.
+# Now uses GameCondition for flexible AND/OR logic.
+extends Resource
+class_name DialogueChoice
+
+# ============================================================================
+# DISPLAY
+# ============================================================================
+@export_group(\"Display\")
+## Text shown on the choice bubble
+@export var label: String = \"\"
+## Localization key for label (if empty, uses label directly)
+@export var label_key: String = \"\"
+## Optional icon shown next to the choice
+@export var icon: Texture2D = null
+## Override bubble color for this choice (transparent = use default)
+@export var bubble_color_override: Color = Color.TRANSPARENT
+
+# ============================================================================
+# FLOW
+# ============================================================================
+@export_group(\"Flow\")
+## The dialogue line to show when this choice is selected
+@export var next_line: Resource = null  # DialogueLine (circular ref workaround)
+
+# ============================================================================
+# CONDITIONS
+# ============================================================================
+@export_group(\"Conditions\")
+## Condition that must be met for this choice to appear.
+## Uses GameCondition for AND/OR logic. Leave null for always visible.
+@export var condition: Resource = null  # GameCondition
+
+## If true, show the choice grayed out when condition fails (instead of hiding)
+@export var show_when_locked: bool = false
+## Text to show when hovering a locked choice
+@export var locked_hint: String = \"\"
+## Localization key for locked hint
+@export var locked_hint_key: String = \"\"
+
+# ============================================================================
+# EVENTS
+# ============================================================================
+@export_group(\"Events\")
+## Event tag to fire when this choice is selected (before showing next_line)
+@export var event_tag: StringName = &\"\"
+## Flags to set when this choice is selected
+@export var set_flags: Array[StringName] = []
+## Relationship changes when selected: { npc_id: delta }
+@export var relationship_changes: Dictionary = {}
+
+# ============================================================================
+# API
+# ============================================================================
+
+func get_label() -> String:
+	\"\"\"Get the localized label text.\"\"\"
+	# TODO: Hook into localization system
+	if label_key != \"\":
+		# return tr(label_key)
+		pass
+	return label
+
+func get_locked_hint() -> String:
+	\"\"\"Get the localized locked hint text.\"\"\"
+	if locked_hint_key != \"\":
+		# return tr(locked_hint_key)
+		pass
+	return locked_hint
+
+func is_available() -> bool:
+	\"\"\"Check if this choice's condition is met.\"\"\"
+	if condition == null:
+		return true
+	# Use GameState to evaluate the condition
+	if Engine.has_singleton(\"GameState\") or has_node(\"/root/GameState\"):
+		return GameState.evaluate_condition(condition)
+	# Fallback: if GameState isn't available, allow the choice
+	return true
+
+func should_display() -> bool:
+	\"\"\"Check if this choice should be shown (available OR show_when_locked).\"\"\"
+	return is_available() or show_when_locked
+
+func apply_effects() -> void:
+	\"\"\"Apply side effects when this choice is selected.\"\"\"
+	# Set flags
+	for flag_name in set_flags:
+		if Engine.has_singleton(\"GameState\") or has_node(\"/root/GameState\"):
+			GameState.set_flag(flag_name, true)
+	
+	# Apply relationship changes
+	for npc_id in relationship_changes:
+		var delta = relationship_changes[npc_id]
+		if Engine.has_singleton(\"GameState\") or has_node(\"/root/GameState\"):
+			GameState.modify_relationship(npc_id, delta)
+
+func has_node(path: String) -> bool:
+	\"\"\"Helper to check if a node exists.\"\"\"
+	var tree = Engine.get_main_loop()
+	if tree is SceneTree:
+		return tree.root.has_node(path)
+	return false
+"
+
+[sub_resource type="Resource" id="Resource_f2wor"]
+script = SubResource("GDScript_h1lwe")
+label = "Choice UNO"
+next_line = SubResource("Resource_hy5ex")
+
+[sub_resource type="Resource" id="Resource_nfp77"]
+script = SubResource("GDScript_h1lwe")
+label = "Choice DOS"
+next_line = SubResource("Resource_hy5ex")
 
 [sub_resource type="Resource" id="Resource_fo7cb"]
-script = ExtResource("2_gqaiy")
-speaker_id = &"cate"
-text = "And now I'm in the middle!"
-set_center_bust = &"cate"
+script = SubResource("GDScript_h1lwe")
+label = "Choice TRES"
+next_line = SubResource("Resource_hy5ex")
 
 [sub_resource type="Resource" id="Resource_gqaiy"]
-script = ExtResource("2_gqaiy")
+script = SubResource("GDScript_qay1p")
 speaker_id = &"cate"
-text = "I should be on the left now!"
-set_left_bust = &"cate"
-next_line = SubResource("Resource_fo7cb")
-
-[sub_resource type="Resource" id="Resource_ff7ym"]
-script = ExtResource("2_gqaiy")
-speaker_id = &"cate"
-text = "Ah, the illusion of choice. Let's see if I can reposition myself!"
+text = "Hi!"
 set_right_bust = &"cate"
-next_line = SubResource("Resource_gqaiy")
+choices = [SubResource("Resource_f2wor"), SubResource("Resource_nfp77"), SubResource("Resource_fo7cb")]
 
-[sub_resource type="Resource" id="Resource_kagtl"]
-script = ExtResource("1_fo7cb")
-label = "Hi Cate!"
-next_line = SubResource("Resource_ff7ym")
+[sub_resource type="GDScript" id="GDScript_ff7ym"]
+script/source = "# res://resources/data/dialogue_encounter.gd
+# A complete dialogue encounter - the entry point for a conversation.
+# Contains speakers, initial setup, and the first line of dialogue.
+extends Resource
+class_name DialogueEncounter
 
-[sub_resource type="Resource" id="Resource_q2ut5"]
-script = ExtResource("1_fo7cb")
-label = "Greetings Cate!"
+# ============================================================================
+# IDENTITY
+# ============================================================================
+@export_group(\"Identity\")
+## Unique identifier for this encounter
+@export var encounter_id: StringName = &\"\"
+## Display name (for editor/debug)
+@export var display_name: String = \"\"
 
-[sub_resource type="Resource" id="Resource_ro11m"]
-script = ExtResource("1_fo7cb")
-label = "Oh great a cat."
+# ============================================================================
+# SPEAKERS
+# ============================================================================
+@export_group(\"Speakers\")
+## All speakers who appear in this encounter
+@export var speakers: Array[DialogueSpeaker] = []
 
-[sub_resource type="Resource" id="Resource_w2asc"]
-script = ExtResource("2_gqaiy")
+# ============================================================================
+# INITIAL SETUP
+# ============================================================================
+@export_group(\"Initial Busts\")
+## Speaker to show in the left bust slot at start
+@export var initial_left_bust: StringName = &\"\"
+## Speaker to show in the center bust slot at start
+@export var initial_center_bust: StringName = &\"\"
+## Speaker to show in the right bust slot at start
+@export var initial_right_bust: StringName = &\"\"
+
+# ============================================================================
+# ENTRY POINT
+# ============================================================================
+@export_group(\"Dialogue\")
+## The first line of dialogue
+@export var first_line: DialogueLine = null
+
+# ============================================================================
+# SETTINGS
+# ============================================================================
+@export_group(\"Settings\")
+## If true, pause the game while dialogue is active
+@export var pause_game: bool = false
+## If true, show a dim overlay behind the dialogue UI
+@export var show_dim_overlay: bool = true
+## Intensity of the dim overlay (0-1)
+@export var dim_intensity: float = 0.4
+## If true, this encounter can only trigger once per save file
+@export var one_shot: bool = false
+## If true, player can skip this dialogue with Escape
+@export var skippable: bool = true
+
+# ============================================================================
+# EVENTS
+# ============================================================================
+@export_group(\"Events\")
+## Event tag to fire when this encounter starts
+@export var on_start_event: StringName = &\"\"
+## Event tag to fire when this encounter ends
+@export var on_end_event: StringName = &\"\"
+## Flags to set when encounter starts
+@export var set_flags_on_start: Array[StringName] = []
+## Flags to set when encounter ends
+@export var set_flags_on_end: Array[StringName] = []
+
+# ============================================================================
+# API
+# ============================================================================
+
+func get_speaker(speaker_id: StringName) -> DialogueSpeaker:
+	\"\"\"Look up a speaker by ID.\"\"\"
+	for speaker in speakers:
+		if speaker.speaker_id == speaker_id:
+			return speaker
+	return null
+
+func has_speaker(speaker_id: StringName) -> bool:
+	\"\"\"Check if a speaker is registered in this encounter.\"\"\"
+	return get_speaker(speaker_id) != null
+
+func get_speaker_ids() -> Array[StringName]:
+	\"\"\"Get list of all speaker IDs in this encounter.\"\"\"
+	var result: Array[StringName] = []
+	for speaker in speakers:
+		result.append(speaker.speaker_id)
+	return result
+
+func apply_start_effects() -> void:
+	\"\"\"Apply effects when encounter starts.\"\"\"
+	for flag_name in set_flags_on_start:
+		if Engine.has_singleton(\"GameState\"):
+			GameState.set_flag(flag_name, true)
+
+func apply_end_effects() -> void:
+	\"\"\"Apply effects when encounter ends.\"\"\"
+	for flag_name in set_flags_on_end:
+		if Engine.has_singleton(\"GameState\"):
+			GameState.set_flag(flag_name, true)
+"
+
+[sub_resource type="GDScript" id="GDScript_q2ut5"]
+script/source = "# res://resources/data/mood_texture.gd
+# Pairs a mood type with its corresponding bust texture.
+# Used in DialogueSpeaker to define available expressions.
+@tool
+extends Resource
+class_name MoodTexture
+
+## The mood/expression this texture represents
+@export var mood: MoodTypes.Mood = MoodTypes.Mood.BASE
+
+## The bust texture for this mood
+@export var texture: Texture2D = null
+
+# ============================================================================
+# HELPERS
+# ============================================================================
+
+func get_mood_name() -> String:
+	\"\"\"Get the string name of this mood.\"\"\"
+	return MoodTypes.mood_to_string(mood)
+
+func get_mood_display_name() -> String:
+	\"\"\"Get a nicely formatted display name.\"\"\"
+	return MoodTypes.get_mood_display_name(mood)
+
+func _to_string() -> String:
+	var tex_info = \"no texture\" if texture == null else \"has texture\"
+	return \"MoodTexture(%s, %s)\" % [get_mood_name(), tex_info]
+"
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_ro11m"]
+load_path = "res://.godot/imported/base.png-08e084066870bd3f62d0434e5892f425.ctex"
+
+[sub_resource type="Resource" id="Resource_isvli"]
+script = SubResource("GDScript_q2ut5")
+texture = SubResource("CompressedTexture2D_ro11m")
+metadata/_custom_type_script = "uid://ctmf0afgii6w6"
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_w2asc"]
+load_path = "res://.godot/imported/cate_yawn.png-e31358d9649ca4d299797b9ef7b4597f.ctex"
+
+[sub_resource type="Resource" id="Resource_12bxm"]
+script = SubResource("GDScript_q2ut5")
+mood = 1
+texture = SubResource("CompressedTexture2D_w2asc")
+metadata/_custom_type_script = "uid://ctmf0afgii6w6"
+
+[sub_resource type="GDScript" id="GDScript_kagtl"]
+script/source = "# res://resources/data/dialogue_speaker.gd
+# Defines a character who can speak in dialogue.
+# Contains display info, bust textures, and voice settings.
+@tool
+extends Resource
+class_name DialogueSpeaker
+
+# ============================================================================
+# IDENTITY
+# ============================================================================
+@export_group(\"Identity\")
+## Unique identifier for this speaker (e.g., \"merchant_hilda\", \"guard_marcus\")
+@export var speaker_id: StringName = &\"\"
+## Display name shown in dialogue UI
+@export var display_name: String = \"\"
+## Localization key for display_name (if empty, uses display_name directly)
+@export var name_key: String = \"\"
+## Color for the speaker's name in the dialogue box
+@export var name_color: Color = Color.WHITE
+
+# ============================================================================
+# BUST TEXTURES
+# ============================================================================
+@export_group(\"Busts\")
+## Default bust texture (used when no mood is specified or mood not found)
+@export var bust_texture: Texture2D = null
+## Mood-specific bust textures (expressions)
+@export var mood_textures: Array[MoodTexture] = []
+
+# ============================================================================
+# VOICE
+# ============================================================================
+@export_group(\"Voice\")
+## Sound effect for voice blips during text reveal
+@export var voice_blip: AudioStream = null
+## Pitch variation for voice blips
+@export var voice_pitch: float = 1.0
+## How often to play blips (characters per blip)
+@export var blip_frequency: int = 3
+
+# ============================================================================
+# BUST API
+# ============================================================================
+
+func get_display_name() -> String:
+	\"\"\"Get the localized display name.\"\"\"
+	if name_key != \"\":
+		# TODO: Hook into localization system
+		# return tr(name_key)
+		pass
+	return display_name
+
+func get_bust(mood_name: String = \"\") -> Texture2D:
+	\"\"\"Get the bust texture for a given mood name, falling back to default.\"\"\"
+	# For base/default, try bust_texture first, then check mood_textures for BASE
+	if mood_name == \"\" or mood_name == \"base\" or mood_name == \"default\":
+		if bust_texture:
+			return bust_texture
+		# Fall back to BASE mood in mood_textures array
+		for mood_tex in mood_textures:
+			if mood_tex.mood == MoodTypes.Mood.BASE and mood_tex.texture:
+				return mood_tex.texture
+		return null
+	
+	# Search mood_textures array for the specified mood
+	for mood_tex in mood_textures:
+		if mood_tex.get_mood_name() == mood_name:
+			if mood_tex.texture:
+				return mood_tex.texture
+	
+	# Fall back to bust_texture or BASE mood
+	if bust_texture:
+		return bust_texture
+	for mood_tex in mood_textures:
+		if mood_tex.mood == MoodTypes.Mood.BASE and mood_tex.texture:
+			return mood_tex.texture
+	
+	return null
+
+func get_bust_for_mood(mood: MoodTypes.Mood) -> Texture2D:
+	\"\"\"Get the bust texture for a given mood enum, falling back to default.\"\"\"
+	if mood == MoodTypes.Mood.BASE:
+		if bust_texture:
+			return bust_texture
+		# Check mood_textures for BASE
+		for mood_tex in mood_textures:
+			if mood_tex.mood == MoodTypes.Mood.BASE and mood_tex.texture:
+				return mood_tex.texture
+		return null
+	
+	for mood_tex in mood_textures:
+		if mood_tex.mood == mood:
+			if mood_tex.texture:
+				return mood_tex.texture
+	
+	# Fall back to bust_texture or BASE mood
+	if bust_texture:
+		return bust_texture
+	for mood_tex in mood_textures:
+		if mood_tex.mood == MoodTypes.Mood.BASE and mood_tex.texture:
+			return mood_tex.texture
+	return null
+
+func has_mood(mood_name: String) -> bool:
+	\"\"\"Check if this speaker has a specific mood texture.\"\"\"
+	if mood_name == \"\" or mood_name == \"base\" or mood_name == \"default\":
+		if bust_texture != null:
+			return true
+		# Check mood_textures for BASE
+		for mood_tex in mood_textures:
+			if mood_tex.mood == MoodTypes.Mood.BASE and mood_tex.texture != null:
+				return true
+		return false
+	
+	for mood_tex in mood_textures:
+		if mood_tex.get_mood_name() == mood_name and mood_tex.texture != null:
+			return true
+	return false
+
+func get_available_busts() -> Array[String]:
+	\"\"\"Get list of available bust/mood names.\"\"\"
+	var result: Array[String] = []
+	
+	# Check for base texture (either bust_texture or BASE mood in array)
+	var has_base = bust_texture != null
+	if not has_base:
+		for mood_tex in mood_textures:
+			if mood_tex.mood == MoodTypes.Mood.BASE and mood_tex.texture != null:
+				has_base = true
+				break
+	
+	if has_base:
+		result.append(\"base\")
+	
+	# Add all moods that have textures (except BASE which we already handled)
+	for mood_tex in mood_textures:
+		if mood_tex.texture != null and mood_tex.mood != MoodTypes.Mood.BASE:
+			var name = mood_tex.get_mood_name()
+			if name not in result:
+				result.append(name)
+	
+	return result
+
+func get_available_moods() -> Array[StringName]:
+	\"\"\"Get list of available mood names (legacy API compatibility).\"\"\"
+	var result: Array[StringName] = []
+	for mood_tex in mood_textures:
+		if mood_tex.texture != null:
+			result.append(StringName(mood_tex.get_mood_name()))
+	return result
+
+# ============================================================================
+# MIGRATION HELPER
+# ============================================================================
+
+func migrate_from_dictionary(old_mood_dict: Dictionary) -> void:
+	\"\"\"Helper to migrate from old Dictionary format to new Array[MoodTexture].\"\"\"
+	mood_textures.clear()
+	for key in old_mood_dict:
+		var mood_tex = MoodTexture.new()
+		mood_tex.mood = MoodTypes.string_to_mood(str(key))
+		mood_tex.texture = old_mood_dict[key]
+		mood_textures.append(mood_tex)
+	print(\"[DialogueSpeaker] Migrated %d mood textures\" % mood_textures.size())
+"
+
+[sub_resource type="Resource" id="Resource_wulpc"]
+script = SubResource("GDScript_kagtl")
 speaker_id = &"cate"
-text = "Hi! I'm Cate!"
-set_right_bust = &"cate"
-choices = Array[ExtResource("1_fo7cb")]([SubResource("Resource_kagtl"), SubResource("Resource_q2ut5"), SubResource("Resource_ro11m")])
+display_name = "Cate"
+mood_textures = [SubResource("Resource_isvli"), SubResource("Resource_12bxm")]
+metadata/_custom_type_script = "uid://08ijmdrudpd1"
 
 [resource]
-script = ExtResource("1_f2wor")
-speakers = Array[ExtResource("2_nfp77")]([ExtResource("3_fo7cb")])
-first_line = SubResource("Resource_w2asc")
+script = SubResource("GDScript_ff7ym")
+speakers = [SubResource("Resource_wulpc")]
+first_line = SubResource("Resource_gqaiy")

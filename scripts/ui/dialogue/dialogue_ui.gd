@@ -260,6 +260,11 @@ func _set_bust_slot(slot_name: String, speaker_id: StringName, mood: StringName 
 		push_warning("DialogueUI: Speaker '%s' not found" % speaker_id)
 		return
 	
+	# Clear this speaker from any OTHER slots first (prevents duplicates when moving)
+	for other_slot in ["left", "center", "right"]:
+		if other_slot != slot_name and _bust_slots[other_slot] == speaker_id:
+			_clear_bust_slot(other_slot)
+	
 	_bust_slots[slot_name] = speaker_id
 	
 	var texture = speaker.get_bust(str(mood))
@@ -373,7 +378,7 @@ func _arrange_and_show_choices(choices: Array[DialogueChoice]) -> void:
 		
 		var angle_rad = deg_to_rad(angle_deg)
 		var pos = Vector2(cos(angle_rad), sin(angle_rad)) * distance
-		bubble.position = pos - bubble.size / 2
+		bubble.position = pos - Vector2(0, bubble.size.y / 2)
 		bubble.setup(i, choice, angle_rad + PI)
 		bubble.appear(i * choice_stagger_delay)
 	

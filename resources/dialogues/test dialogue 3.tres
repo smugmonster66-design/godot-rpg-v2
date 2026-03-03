@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="DialogueEncounter" load_steps=11 format=3 uid="uid://cuvp4abo21f1c"]
+
+[ext_resource type="Script" uid="uid://bo4owbm81mlc6" path="res://resources/data/dialogue_choice.gd" id="1_rclkl"]
+[ext_resource type="Script" uid="uid://bw7tg7tcax8cj" path="res://resources/data/dialogue_line.gd" id="2_ev6nw"]
+[ext_resource type="Script" uid="uid://cl31cmstv6cgu" path="res://resources/data/dialogue_encounter.gd" id="3_56i8u"]
+[ext_resource type="Script" uid="uid://08ijmdrudpd1" path="res://resources/data/dialogue_speaker.gd" id="4_1puqc"]
+[ext_resource type="Resource" uid="uid://dj8tngj1dy00j" path="res://resources/dialogues/speakers/ds_cate.tres" id="5_0low1"]
+
+[sub_resource type="Resource" id="Resource_1oqw8"]
+script = ExtResource("2_ev6nw")
+speaker_id = &"cate"
+text = "MEOW"
+mood = &"amused"
+set_right_bust = &"cate"
+
+[sub_resource type="Resource" id="Resource_83n0n"]
+script = ExtResource("1_rclkl")
+label = "Hi Cate!"
+next_line = SubResource("Resource_1oqw8")
+
+[sub_resource type="Resource" id="Resource_sbruc"]
+script = ExtResource("1_rclkl")
+label = "Hi Kitty!"
+next_line = SubResource("Resource_1oqw8")
+
+[sub_resource type="Resource" id="Resource_ps04i"]
+script = ExtResource("1_rclkl")
+label = "Hi Catey!"
+next_line = SubResource("Resource_1oqw8")
+
+[sub_resource type="Resource" id="Resource_wrshd"]
+script = ExtResource("2_ev6nw")
+speaker_id = &"cate"
+text = "Hi!"
+set_right_bust = &"cate"
+choices = Array[ExtResource("1_rclkl")]([SubResource("Resource_83n0n"), SubResource("Resource_sbruc"), SubResource("Resource_ps04i")])
+
+[resource]
+script = ExtResource("3_56i8u")
+speakers = Array[ExtResource("4_1puqc")]([ExtResource("5_0low1")])
+first_line = SubResource("Resource_wrshd")

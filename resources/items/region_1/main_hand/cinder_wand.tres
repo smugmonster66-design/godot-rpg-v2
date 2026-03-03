@@ -8,7 +8,7 @@
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="4_vk7r2"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="5_d63rm"]
 [ext_resource type="Resource" uid="uid://hnmjxghaf5mm" path="res://resources/slot_definitions/main_hand_slot.tres" id="6_feyf7"]
-[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="7_vk7r2"]
+[ext_resource type="Texture2D" uid="uid://dr72mvwfapadh" path="res://assets/items/main hand/cinder wand.png" id="7_vk7r2"]
 
 [sub_resource type="Resource" id="Resource_85pki"]
 script = ExtResource("2_irykh")
@@ -22,6 +22,7 @@ script = ExtResource("5_d63rm")
 item_name = "Cinder Wand"
 description = "A slender wand that smells faintly of smoke. Academy-standard for pyromantic exercises."
 flavor_text = "Warranty void if used to light cigars."
+icon = ExtResource("7_vk7r2")
 rarity = 1
 has_elemental_identity = true
 elemental_identity = 3

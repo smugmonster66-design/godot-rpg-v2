@@ -62,6 +62,4 @@ stretch_mode = 5
 [node name="Label" type="Label" parent="BubblePanel/MarginContainer"]
 layout_mode = 2
 theme_type_variation = &"DialogueChoiceLabel"
-horizontal_alignment = 1
 vertical_alignment = 1
-autowrap_mode = 2

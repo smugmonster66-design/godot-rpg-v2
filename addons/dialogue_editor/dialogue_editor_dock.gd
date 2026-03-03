@@ -176,13 +176,21 @@ func _do_save(path: String) -> void:
 		_update_title()
 		print("[DialogueEditor] Saved: ", path)
 	else:
-		push_error("[DialogueEditor] Failed to save: ", path)
+		push_error("[DialogueEditor] Failed to save: ", path, " Error: ", error)
 
 func _do_load(path: String) -> void:
-	var encounter = load(path) as DialogueEncounter
+	push_warning("[DialogueEditor] _do_load called with path: %s" % path)
+	# Use CACHE_MODE_IGNORE to ensure fresh load (editor caching can cause stale data)
+	var encounter = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE) as DialogueEncounter
+	push_warning("[DialogueEditor] Loaded encounter: %s" % encounter)
 	if not encounter:
 		push_error("[DialogueEditor] Failed to load: ", path)
 		return
+	
+	push_warning("[DialogueEditor] encounter.first_line: %s" % encounter.first_line)
+	if encounter.first_line:
+		push_warning("[DialogueEditor] first_line.text: '%s'" % encounter.first_line.text)
+		push_warning("[DialogueEditor] first_line.choices.size(): %d" % encounter.first_line.choices.size())
 	
 	var deserializer = preload("res://addons/dialogue_editor/io/dialogue_deserializer.gd").new()
 	deserializer.deserialize(encounter, graph_edit, speakers_panel)

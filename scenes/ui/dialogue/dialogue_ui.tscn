@@ -12,8 +12,8 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_script")
-choice_distances = Array[float]([320.0, 320.0, 340.0, 180.0, 180.0, 180.0])
-choice_angles = Array[float]([-100.0, -30.0, -45.0, -150.0, -30.0, -90.0])
+choice_distances = Array[float]([360.0, 360.0, 360.0])
+choice_angles = Array[float]([-90.0, -45.0, -25.0])
 
 [node name="DimOverlay" type="ColorRect" parent="."]
 visible = false
@@ -57,23 +57,15 @@ mouse_filter = 2
 [node name="LeftBust" type="TextureRect" parent="DialogueContainer/BustContainer"]
 visible = false
 layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -400.0
 offset_right = 220.0
-offset_bottom = 400.0
+grow_vertical = 0
 mouse_filter = 2
 
 [node name="CenterBust" type="TextureRect" parent="DialogueContainer/BustContainer"]
-visible = false
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -110.0
-offset_right = 110.0
-offset_bottom = 400.0
-grow_horizontal = 2
-mouse_filter = 2
-
-[node name="RightBust" type="TextureRect" parent="DialogueContainer/BustContainer"]
 visible = false
 layout_mode = 1
 anchors_preset = 7
@@ -85,6 +77,20 @@ offset_left = -110.0
 offset_top = -400.0
 offset_right = 110.0
 grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="RightBust" type="TextureRect" parent="DialogueContainer/BustContainer"]
+visible = false
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -220.0
+offset_top = -400.0
+grow_horizontal = 0
 grow_vertical = 0
 mouse_filter = 2
 

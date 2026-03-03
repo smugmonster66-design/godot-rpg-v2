@@ -28,8 +28,9 @@ func _ready() -> void:
 
 func _rebuild_all() -> void:
 	"""Completely rebuild all children and slots."""
-	# Remove all children
-	for child in get_children():
+	# Remove all children - must iterate backwards or use while loop
+	while get_child_count() > 0:
+		var child = get_child(0)
 		remove_child(child)
 		child.queue_free()
 	
@@ -51,7 +52,7 @@ func _rebuild_all() -> void:
 	for i in choices.size():
 		var row = _create_choice_row(i)
 		add_child(row)
-		set_slot(i + 1, false, 0, Color.WHITE, true, 0, Color(0.9, 0.7, 0.3))
+		set_slot(i + 1, false, 0, Color.WHITE, true, 1, Color(0.9, 0.7, 0.3))
 	
 	# Last child: Add button (no slots)
 	var add_btn = Button.new()
@@ -60,6 +61,9 @@ func _rebuild_all() -> void:
 	add_child(add_btn)
 	var btn_idx = choices.size() + 1
 	set_slot(btn_idx, false, 0, Color.WHITE, false, 0, Color.WHITE)
+	
+	# Force layout update
+	queue_redraw()
 
 func _create_choice_row(index: int) -> HBoxContainer:
 	var row = HBoxContainer.new()

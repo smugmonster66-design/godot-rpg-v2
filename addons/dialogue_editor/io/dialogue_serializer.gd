@@ -93,8 +93,12 @@ func _process_node_chain(
 	processed: Array
 ) -> DialogueLine:
 	"""Recursively process a node and return the DialogueLine it represents."""
-	if not node or node in processed:
+	if not node:
 		return null
+	
+	# If already processed, return the existing line (allows multiple paths to same node)
+	if node in processed:
+		return node_to_line.get(node)
 	
 	var node_type = node.get_node_type() if node.has_method("get_node_type") else ""
 	
@@ -151,6 +155,9 @@ func _process_node_chain(
 			# No condition = always available (fallback)
 			
 			branch_line.choices.assign([true_choice, false_choice])
+			
+			# Store for potential re-use if multiple paths converge here
+			node_to_line[node] = branch_line
 			return branch_line
 		
 		"set_flag":
@@ -173,6 +180,9 @@ func _process_node_chain(
 			var action_type = node_data.get("action_type", 0)
 			var value = node_data.get("value", 1)
 			flag_line.event_tag = StringName("set_flag:%s:%d:%d" % [flag_name, action_type, value])
+			
+			# Store for potential re-use if multiple paths converge here
+			node_to_line[node] = flag_line
 			
 			# Continue to next node
 			var next_node = graph.get_connected_node(node, 0)
@@ -202,8 +212,8 @@ func _process_choice_node(
 	var choice_data_array = node_data.get("choices", [])
 	
 	for i in choices.size():
-		# Choice outputs are on ports 1, 2, 3... (port 0 is input)
-		var next_node = graph.get_connected_node(node, i + 1)
+		# Choice outputs are on ports 0, 1, 2... (output ports indexed separately)
+		var next_node = graph.get_connected_node(node, i)
 		if next_node:
 			choices[i].next_line = _process_node_chain(next_node, graph, node_to_line, node_to_choices, processed)
 	

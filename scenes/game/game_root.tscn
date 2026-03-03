@@ -12,7 +12,6 @@
 [ext_resource type="PackedScene" uid="uid://c0w3t10mfnowo" path="res://scenes/ui/bottom_ui_panel.tscn" id="5_n6w2t"]
 [ext_resource type="Texture2D" uid="uid://bk7srh475afct" path="res://assets/ui/portrait frames/placeholder/placeholder_frame_front.png" id="6_0krdv"]
 [ext_resource type="Script" uid="uid://dfridktvwqyau" path="res://scripts/ui/portrait_controller.gd" id="6_elccf"]
-[ext_resource type="Texture2D" uid="uid://78pjnt2x1fn1" path="res://assets/characters/Bones/portraits/bones_placeholder_portrait.png" id="7_elccf"]
 [ext_resource type="Shader" uid="uid://bf1gnsw38npcm" path="res://shaders/portrait_mask.gdshader" id="8_cylga"]
 [ext_resource type="Script" uid="uid://pc0eo2522dpe" path="res://resources/data/companion_data.gd" id="9_nmlv8"]
 [ext_resource type="Shader" uid="uid://c81kry17cryo0" path="res://shaders/portrait_frame_glow.gdshader" id="10_ndy65"]
@@ -21,12 +20,13 @@
 [ext_resource type="PackedScene" uid="uid://c8lkjoshcff88" path="res://scenes/ui/popups/post_combat_summary.tscn" id="12_a6cr8"]
 [ext_resource type="PackedScene" uid="uid://bvb7r5rwfohfr" path="res://resources/ui/dungeon_entrance_button.tscn" id="15_h5onw"]
 [ext_resource type="Resource" uid="uid://bgfv53lpvqk5j" path="res://resources/dungeon/baseline_test.tres" id="16_kdtot"]
+[ext_resource type="Texture2D" uid="uid://kt1dd6uwt7tf" path="res://assets/busts/bones/bones_base.png" id="16_xi4na"]
 [ext_resource type="PackedScene" path="res://scenes/debug/debug_loot_panel.tscn" id="17_kdtot"]
 [ext_resource type="PackedScene" path="res://scenes/ui/menus/dungeon_selection_screen.tscn" id="20_ax1hr"]
 [ext_resource type="Script" uid="uid://bi61p62xy3sjt" path="res://scenes/debug/dialogue_test_button.gd" id="27_rbjkh"]
 [ext_resource type="Theme" uid="uid://b87llggw1n1df" path="res://resources/themes/base_theme.tres" id="27_xi4na"]
 [ext_resource type="Script" uid="uid://dchhavi72jukk" path="res://scripts/ui/combat/companion_panel.gd" id="28_twq2i"]
-[ext_resource type="Resource" uid="uid://hibtj14gtmhb" path="res://resources/dialogues/test_dialogue_2.tres" id="28_xi4na"]
+[ext_resource type="Resource" uid="uid://cuvp4abo21f1c" path="res://resources/dialogues/test dialogue 3.tres" id="28_xi4na"]
 [ext_resource type="PackedScene" path="res://scenes/debug/debug_combat_panel_enhanced.tscn" id="28_xskmf"]
 [ext_resource type="Script" uid="uid://ev7ssgd5vcgs" path="res://scripts/ui/combat/companion_slot.gd" id="29_cm22q"]
 [ext_resource type="Texture2D" uid="uid://c6sqtdxnbp2ab" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_bg.png" id="30_d0whc"]
@@ -147,7 +147,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("7_elccf")
+texture = ExtResource("16_xi4na")
 expand_mode = 1
 stretch_mode = 5
 

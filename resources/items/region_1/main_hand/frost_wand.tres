@@ -8,7 +8,7 @@
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="4_xy0f2"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="5_7klrb"]
 [ext_resource type="Resource" uid="uid://hnmjxghaf5mm" path="res://resources/slot_definitions/main_hand_slot.tres" id="6_pgvul"]
-[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="7_xy0f2"]
+[ext_resource type="Texture2D" uid="uid://bdc6308s0mn57" path="res://assets/items/main hand/frost wand.png" id="7_xy0f2"]
 
 [sub_resource type="Resource" id="Resource_3jub3"]
 script = ExtResource("2_47n1r")
@@ -22,6 +22,7 @@ script = ExtResource("5_7klrb")
 item_name = "Frost Wand"
 description = "Cold to the touch. Standard-issue for cryomantic cadets."
 flavor_text = "Also useful for keeping drinks cold at officer's mess. Unofficially."
+icon = ExtResource("7_xy0f2")
 rarity = 1
 has_elemental_identity = true
 elemental_identity = 4
