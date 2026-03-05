@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://dng_rest_popup"]
+[gd_scene load_steps=2 format=3 uid="uid://c5g7mke7jgywq"]
 
-[ext_resource type="Script" path="res://scripts/dungeon/popups/dungeon_rest_popup.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://ci6n8gsnmrv3p" path="res://scripts/dungeon/popups/dungeon_rest_popup.gd" id="1_script"]
+
 [node name="RestPopup" type="Control"]
 visible = false
 layout_mode = 3
@@ -11,8 +12,6 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-; --- dark overlay ---
-
 [node name="PanelBG" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -21,8 +20,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.65)
-
-; --- centered panel ---
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -33,39 +30,34 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="PanelContainer" parent="CenterContainer"]
-layout_mode = 2
 custom_minimum_size = Vector2(340, 220)
+layout_mode = 2
 
 [node name="VBox" type="VBoxContainer" parent="CenterContainer/Panel"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-; --- title ---
-
 [node name="TitleLabel" type="Label" parent="CenterContainer/Panel/VBox"]
 layout_mode = 2
-text = "Rest Site"
-horizontal_alignment = 1
 theme_type_variation = &"title"
 theme_override_colors/font_color = Color(0.4, 0.85, 1, 1)
-theme_override_constants/outline_size = 4
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.6)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 3
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.6)
+theme_override_constants/outline_size = 4
+text = "Rest Site"
+horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="CenterContainer/Panel/VBox"]
 layout_mode = 2
 
-; --- flavor text ---
-
 [node name="FlavorLabel" type="Label" parent="CenterContainer/Panel/VBox"]
 layout_mode = 2
+theme_type_variation = &"FlavorLabel"
 text = "You find a quiet alcove to rest..."
 horizontal_alignment = 1
 autowrap_mode = 3
-
-; --- heal section ---
 
 [node name="HealSection" type="VBoxContainer" parent="CenterContainer/Panel/VBox"]
 layout_mode = 2
@@ -73,25 +65,22 @@ theme_override_constants/separation = 4
 
 [node name="HealLabel" type="Label" parent="CenterContainer/Panel/VBox/HealSection"]
 layout_mode = 2
+theme_type_variation = &"large"
 text = "Heal: 0 HP"
 horizontal_alignment = 1
 
 [node name="HealSlider" type="HSlider" parent="CenterContainer/Panel/VBox/HealSection"]
 layout_mode = 2
-min_value = 0.0
-max_value = 100.0
-step = 1.0
 value = 50.0
 
 [node name="HealthPreview" type="Label" parent="CenterContainer/Panel/VBox/HealSection"]
 layout_mode = 2
+theme_type_variation = &"small"
 text = "HP: 50 / 100 → 100 / 100"
 horizontal_alignment = 1
 
 [node name="HSeparator2" type="HSeparator" parent="CenterContainer/Panel/VBox"]
 layout_mode = 2
-
-; --- temp affix picker (buttons spawned at runtime, count varies) ---
 
 [node name="AffixSection" type="VBoxContainer" parent="CenterContainer/Panel/VBox"]
 layout_mode = 2
@@ -99,6 +88,7 @@ theme_override_constants/separation = 6
 
 [node name="AffixLabel" type="Label" parent="CenterContainer/Panel/VBox/AffixSection"]
 layout_mode = 2
+theme_type_variation = &"normal"
 text = "Choose a temporary blessing:"
 horizontal_alignment = 1
 
@@ -109,19 +99,17 @@ theme_override_constants/separation = 4
 [node name="HSeparator3" type="HSeparator" parent="CenterContainer/Panel/VBox"]
 layout_mode = 2
 
-; --- confirm / skip ---
-
 [node name="ButtonRow" type="HBoxContainer" parent="CenterContainer/Panel/VBox"]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 16
+alignment = 1
 
 [node name="CloseButton" type="Button" parent="CenterContainer/Panel/VBox/ButtonRow"]
-layout_mode = 2
 custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
 text = "Rest"
 
 [node name="SkipButton" type="Button" parent="CenterContainer/Panel/VBox/ButtonRow"]
-layout_mode = 2
 custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
 text = "Skip"

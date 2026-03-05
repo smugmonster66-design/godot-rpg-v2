@@ -12,7 +12,7 @@
 [resource]
 script = ExtResource("3_rom8j")
 item_name = "Marine Cuirass"
-description = "Regulation naval armor balancing physical and magical protection. Designed by committee, which explains the color."
+description = ""
 flavor_text = "Standard Marine issue. The arrogance is also standard issue."
 rarity = 1
 equip_slot = 1

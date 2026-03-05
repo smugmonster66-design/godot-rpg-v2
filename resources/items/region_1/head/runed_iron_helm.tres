@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://bgslt5aea1mn4"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=9 format=3 uid="uid://bgslt5aea1mn4"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_cs75p"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_gakun"]
@@ -7,12 +7,13 @@
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_ya5my"]
 [ext_resource type="Resource" uid="uid://l4haca2jhusf" path="res://resources/slot_definitions/head_slot.tres" id="4_xsycn"]
 [ext_resource type="Resource" uid="uid://3himbtyqcloq" path="res://resources/affixes/base_stats/inherent_barrier.tres" id="4_yl8ll"]
+[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="6_6ns8u"]
 
 [resource]
 script = ExtResource("3_ya5my")
 item_name = "Runed Iron Helm"
-description = "Iron plate inscribed with protective runes. The enchantment work isn't cheap, but neither is replacing soldiers."
-flavor_text = "The runes glow when struck. The wearer glows with satisfaction."
+description = ""
+flavor_text = "The runes glow when struck. Cadets make a game of seeing how bright they can make them glow."
 rarity = 1
 equip_slot = 0
 slot_definition = ExtResource("4_xsycn")

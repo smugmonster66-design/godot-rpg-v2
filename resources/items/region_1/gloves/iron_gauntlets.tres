@@ -12,7 +12,7 @@
 [resource]
 script = ExtResource("3_3ue6j")
 item_name = "Iron Gauntlets"
-description = "Solid iron construction, built to absorb punishment. Standard issue for Sanctum's front-line infantry."
+description = ""
 flavor_text = "The knuckles are reinforced. For protection. Definitely just for protection."
 icon = ExtResource("6_y3q5r")
 rarity = 1

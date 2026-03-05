@@ -352,8 +352,8 @@ func initialize_ui(p_player: Player, p_enemies):
 		action_manager = ActionManager.new()
 		action_manager.name = "ActionManager"
 		add_child(action_manager)
-		if action_manager.has_signal("actions_changed") and not action_manager.actions_changed.is_connected(_on_actions_changed):
-			action_manager.actions_changed.connect(_on_actions_changed)
+		
+	
 	
 	# Initialize ActionManager with player
 	action_manager.initialize(player)
@@ -401,7 +401,8 @@ func initialize_ui(p_player: Player, p_enemies):
 	refresh_action_fields()
 	
 	
-	
+	if action_manager.has_signal("actions_changed") and not action_manager.actions_changed.is_connected(_on_actions_changed):
+			action_manager.actions_changed.connect(_on_actions_changed)
 	
 	
 	
@@ -745,8 +746,10 @@ func _set_previews_enabled(enabled: bool):
 		if child is ActionFieldPreview:
 			if enabled:
 				child.mouse_filter = Control.MOUSE_FILTER_STOP
+				child.modulate.a = 1.0
 			else:
 				child.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				child.modulate.a = 1.0
 	
 	print("  🔒 Previews %s" % ("ENABLED" if enabled else "DISABLED"))
 
@@ -1305,6 +1308,7 @@ func animate_enemy_action_confirm(action_name: String) -> void:
 
 func clear_enemy_turn_display():
 	"""Clear enemy turn display and restore player actions"""
+	var was_enemy_turn = is_enemy_turn
 	is_enemy_turn = false
 	
 	# Clean up any lingering temp animation visuals
@@ -1315,7 +1319,6 @@ func clear_enemy_turn_display():
 	
 	# Collapse any expanded enemy field
 	if current_expanded_field:
-		# Skip dice return — enemy dice don't go back to a pool
 		if current_expanded_field and is_instance_valid(current_expanded_field):
 			current_expanded_field.queue_free()
 		current_expanded_field = null
@@ -1327,15 +1330,15 @@ func clear_enemy_turn_display():
 		if action_fields_scroll:
 			action_fields_scroll.modulate.a = 1.0
 	
-	# Clear enemy preview nodes from the grid
-	enemy_action_fields.clear()
-	_enemy_action_data_cache.clear()
-	
-	# Free all grid children (previews + any stale nodes)
-	if action_fields_grid:
-		for child in action_fields_grid.get_children():
-			child.queue_free()
-	action_fields.clear()
+	# Only clear grid children if we were actually showing enemy content
+	if was_enemy_turn:
+		enemy_action_fields.clear()
+		_enemy_action_data_cache.clear()
+		
+		if action_fields_grid:
+			for child in action_fields_grid.get_children():
+				child.queue_free()
+		action_fields.clear()
 	
 	
 

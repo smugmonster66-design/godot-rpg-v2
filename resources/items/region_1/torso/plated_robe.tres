@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://eaxe1e4t0mee"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=9 format=3 uid="uid://eaxe1e4t0mee"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_45vpw"]
 [ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_2g32q"]
@@ -7,12 +7,13 @@
 [ext_resource type="Resource" uid="uid://by212c4j0x5gp" path="res://resources/affixes/base_stats/inherent_health.tres" id="3_ufkeb"]
 [ext_resource type="Resource" uid="uid://cbv0pogyu7y55" path="res://resources/slot_definitions/torso_slot.tres" id="4_2g32q"]
 [ext_resource type="Resource" uid="uid://bvlqcx16ejx" path="res://resources/affixes/base_stats/inherent_armor.tres" id="4_5fkrr"]
+[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="6_ufkeb"]
 
 [resource]
 script = ExtResource("3_e0p3a")
 item_name = "Plated Robe"
-description = "Cloth reinforced with thin metal plates. The Academy compromise between 'protected' and 'able to cast without clanking.'"
-flavor_text = "The metal plates are arranged in a pattern that is technically a spell diagram. Technically."
+description = ""
+flavor_text = "The Academy compromise between 'protected' and 'able to cast without clanking.'"
 rarity = 1
 equip_slot = 1
 slot_definition = ExtResource("4_2g32q")

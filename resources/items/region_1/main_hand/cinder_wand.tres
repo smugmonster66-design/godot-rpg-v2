@@ -20,7 +20,7 @@ element_affix = ExtResource("3_hy1s5")
 [resource]
 script = ExtResource("5_d63rm")
 item_name = "Cinder Wand"
-description = "A slender wand that smells faintly of smoke. Academy-standard for pyromantic exercises."
+description = ""
 flavor_text = "Warranty void if used to light cigars."
 icon = ExtResource("7_vk7r2")
 rarity = 1

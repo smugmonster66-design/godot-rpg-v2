@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://b16dkl7r6q8c1"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=9 format=3 uid="uid://b16dkl7r6q8c1"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_grue0"]
 [ext_resource type="Resource" uid="uid://dlfux8drlkb3t" path="res://resources/affixes/base_stats/inherent_agility.tres" id="2_a17sf"]
@@ -7,11 +7,12 @@
 [ext_resource type="Resource" uid="uid://by212c4j0x5gp" path="res://resources/affixes/base_stats/inherent_health.tres" id="3_v3ufg"]
 [ext_resource type="Resource" uid="uid://cbv0pogyu7y55" path="res://resources/slot_definitions/torso_slot.tres" id="4_a17sf"]
 [ext_resource type="Resource" uid="uid://3himbtyqcloq" path="res://resources/affixes/base_stats/inherent_barrier.tres" id="4_itd4p"]
+[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="6_v3ufg"]
 
 [resource]
 script = ExtResource("3_ckkuc")
 item_name = "Warded Leather Jerkin"
-description = "Light leather infused with defensive wards. Moves like cloth, protects like it has opinions about your survival."
+description = ""
 flavor_text = "The wards are stitched into the lining. Invisible protection for those who prefer to be invisible."
 rarity = 1
 equip_slot = 1

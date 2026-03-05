@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://bxhx2ehfcvdlu"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=9 format=3 uid="uid://bxhx2ehfcvdlu"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_6t3nd"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_mtkl5"]
@@ -7,12 +7,14 @@
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_ercsa"]
 [ext_resource type="Resource" uid="uid://bo60aqpcko6p6" path="res://resources/affixes/base_stats/inherent_barrier_hybrid.tres" id="4_b1wga"]
 [ext_resource type="Resource" uid="uid://l4haca2jhusf" path="res://resources/slot_definitions/head_slot.tres" id="4_q01io"]
+[ext_resource type="Texture2D" uid="uid://be18untmhfv6t" path="res://assets/items/head/scholar's circlet.png" id="6_3bf3d"]
 
 [resource]
 script = ExtResource("3_ercsa")
 item_name = "Scholar's Circlet"
-description = "Academic-issue gear balancing mundane and magical defense. Required reading not included."
+description = ""
 flavor_text = "Scholars who venture into the field wear these. 'The field' being anywhere outside the library."
+icon = ExtResource("6_3bf3d")
 rarity = 1
 equip_slot = 0
 slot_definition = ExtResource("4_q01io")

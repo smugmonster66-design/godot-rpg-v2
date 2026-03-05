@@ -12,7 +12,7 @@
 [resource]
 script = ExtResource("3_lw1pd")
 item_name = "Leather Boots"
-description = "Hardened leather shaped for mobility. Griffin riders and scouts swear by it, though they disagree on the proper way to lace it."
+description = ""
 flavor_text = "Soft-soled for stealth. Hard-toed for when stealth fails."
 icon = ExtResource("6_diyve")
 rarity = 1

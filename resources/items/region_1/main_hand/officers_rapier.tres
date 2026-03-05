@@ -23,8 +23,8 @@ stroke_texture = ExtResource("6_6wjls")
 [resource]
 script = ExtResource("7_8ure5")
 item_name = "Officer's Rapier"
-description = "A gentleman's weapon for a gentleman's duel. Sanctum officers carry these as a matter of tradition and mild intimidation."
-flavor_text = "The Officer's Handbook, Section 7: 'Dueling is technically prohibited. Technically.'"
+description = ""
+flavor_text = "Sanctum officers carry these as a matter of tradition and mild intimidation."
 rarity = 1
 has_elemental_identity = true
 elemental_identity = 2

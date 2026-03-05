@@ -156,37 +156,50 @@ func _add_affix_granted_actions():
 	if not player or not player.affix_manager:
 		return
 	
-	var granted_actions = player.affix_manager.get_granted_actions()
-	for action_resource in granted_actions:
-		if action_resource:
-			var action_dict = action_resource.to_dict()
-			action_dict["action_resource"] = action_resource
-			
-			# v6: Apply die slot bonuses from action-scoped affixes
-			var slot_bonus = player.affix_manager.get_action_die_slot_bonus(
-				action_resource.action_id
-			)
-			if slot_bonus > 0:
-				action_dict["die_slots"] = action_dict.get("die_slots", 1) + slot_bonus
-				print("  🎲 +%d die slots to %s (from skill ranks)" % [
-					slot_bonus, action_resource.action_name
-				])
-			
-			# Try to find source item for icon/rarity/element
+	# Iterate the affix pool directly so we retain the granting affix's
+	# elemental_identity — get_granted_actions() strips this information.
+	var affix_pool = player.affix_manager.get_pool(Affix.Category.NEW_ACTION)
+	for affix in affix_pool:
+		var action_resource = affix.granted_action
+		if not action_resource:
+			continue
+		
+		var action_dict = action_resource.to_dict()
+		action_dict["action_resource"] = action_resource
+		
+		# v6: Apply die slot bonuses from action-scoped affixes
+		var slot_bonus = player.affix_manager.get_action_die_slot_bonus(
+			action_resource.action_id
+		)
+		if slot_bonus > 0:
+			action_dict["die_slots"] = action_dict.get("die_slots", 1) + slot_bonus
+			print("  🎲 +%d die slots to %s (from skill ranks)" % [
+				slot_bonus, action_resource.action_name
+			])
+		
+		# Element resolution: granting affix → source item → fallback
+		# 1. Check the granting affix's elemental identity (skill-granted actions)
+		var elem_id = affix.get_elemental_identity()
+		if elem_id >= 0:
+			action_dict["source_element"] = elem_id
+		else:
+			# 2. Try to find source item for icon/rarity/element (item-granted actions)
 			var source_name = action_dict.get("source", "")
 			if source_name and player:
 				var source_item = player.get_equipped_item_by_name(source_name)
 				if source_item:
 					action_dict["source_icon"] = source_item.icon
 					action_dict["source_rarity"] = source_item.get_rarity_name()
-					var elem_id = source_item.get_elemental_identity()
-					if elem_id >= 0:
-						action_dict["source_element"] = elem_id
-			
-			actions.append(action_dict)
-			print("  ✅ Added affix action: %s (slots: %d)" % [
-				action_dict.get("name", "?"), action_dict.get("die_slots", 1)
-			])
+					var item_elem = source_item.get_elemental_identity()
+					if item_elem >= 0:
+						action_dict["source_element"] = item_elem
+		
+		actions.append(action_dict)
+		print("  ✅ Added affix action: %s (slots: %d, element: %s)" % [
+			action_dict.get("name", "?"),
+			action_dict.get("die_slots", 1),
+			action_dict.get("source_element", "none")
+		])
 
 func _on_equipment_changed(_slot: String, _item):
 	rebuild_actions()

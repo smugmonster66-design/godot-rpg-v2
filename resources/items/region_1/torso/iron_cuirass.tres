@@ -12,7 +12,7 @@
 [resource]
 script = ExtResource("3_v66mx")
 item_name = "Iron Cuirass"
-description = "Solid iron construction, built to absorb punishment. Standard issue for Sanctum's front-line infantry."
+description = ""
 flavor_text = "They make them tough in Sanctum. The cuirass, that is."
 rarity = 1
 equip_slot = 1

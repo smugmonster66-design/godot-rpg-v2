@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://bvl4nd6i1i8hj"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=9 format=3 uid="uid://bvl4nd6i1i8hj"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_lcp2h"]
 [ext_resource type="Resource" uid="uid://dlfux8drlkb3t" path="res://resources/affixes/base_stats/inherent_agility.tres" id="2_hvix8"]
@@ -7,12 +7,13 @@
 [ext_resource type="Resource" uid="uid://ckylwdt2phbob" path="res://resources/affixes/base_stats/inherent_damage.tres" id="3_s6wng"]
 [ext_resource type="Resource" uid="uid://d0u4wgvhs8sam" path="res://resources/slot_definitions/gloves_slot.tres" id="4_hvix8"]
 [ext_resource type="Resource" uid="uid://bvlqcx16ejx" path="res://resources/affixes/base_stats/inherent_armor.tres" id="4_pntx7"]
+[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="6_s6wng"]
 
 [resource]
 script = ExtResource("3_0mpmr")
 item_name = "Leather Gloves"
-description = "Hardened leather shaped for mobility. Griffin riders and scouts swear by it, though they disagree on the proper way to lace it."
-flavor_text = "Thin enough to pick a lock. Nobody said that. These are for legitimate scouting purposes."
+description = ""
+flavor_text = "Thin enough to pick a lock. "
 rarity = 1
 equip_slot = 2
 slot_definition = ExtResource("4_hvix8")

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://coa37vlkyjoin"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=9 format=3 uid="uid://coa37vlkyjoin"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_j1a28"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_5fi6v"]
@@ -7,12 +7,14 @@
 [ext_resource type="Resource" uid="uid://dbgj0wcg21i0b" path="res://resources/affixes/base_stats/inherent_mana.tres" id="3_wma2m"]
 [ext_resource type="Resource" uid="uid://bvlqcx16ejx" path="res://resources/affixes/base_stats/inherent_armor.tres" id="4_ddeow"]
 [ext_resource type="Resource" uid="uid://l4haca2jhusf" path="res://resources/slot_definitions/head_slot.tres" id="4_jtko6"]
+[ext_resource type="Texture2D" uid="uid://dv26khsl8tp6g" path="res://assets/items/head/plated circlet.png" id="6_wma2m"]
 
 [resource]
 script = ExtResource("3_ntv5v")
 item_name = "Plated Circlet"
-description = "Cloth reinforced with thin metal plates. The Academy compromise between 'protected' and 'able to cast without clanking.'"
+description = ""
 flavor_text = "Metal plates arranged to not interfere with thinking. The Academy tested this. At length."
+icon = ExtResource("6_wma2m")
 rarity = 1
 equip_slot = 0
 slot_definition = ExtResource("4_jtko6")

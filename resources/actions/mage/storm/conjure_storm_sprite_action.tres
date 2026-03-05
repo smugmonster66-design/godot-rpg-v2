@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="Action" load_steps=5 format=3 uid="uid://bg7yq6cv4cw0w"]
+[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://bg7yq6cv4cw0w"]
 
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_41jir"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_jyonr"]
 [ext_resource type="Resource" uid="uid://cnhflmcihttna" path="res://resources/actions/mage/storm/effects/conjure_storm_sprite_effect.tres" id="2_41jir"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_qnq67"]

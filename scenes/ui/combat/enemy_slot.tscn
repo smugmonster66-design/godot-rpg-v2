@@ -99,7 +99,7 @@ offset_top = -24.0
 offset_right = 90.0
 offset_bottom = 53.0
 grow_horizontal = 2
-theme_override_font_sizes/font_size = 55
+theme_type_variation = &"normal"
 text = "<Name>"
 horizontal_alignment = 1
 
@@ -130,4 +130,5 @@ alignment = 1
 [node name="HealthLabel" type="Label" parent="MarginContainer/VBox"]
 visible = false
 layout_mode = 2
+theme_type_variation = &"small"
 horizontal_alignment = 1

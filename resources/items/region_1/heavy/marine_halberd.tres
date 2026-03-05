@@ -20,8 +20,8 @@ element_affix = ExtResource("3_8b2ys")
 [resource]
 script = ExtResource("5_2a1m5")
 item_name = "Marine Halberd"
-description = "The preferred weapon of Sanctum's marine boarding parties. Excellent reach for keeping enemies at exactly the distance you want them."
-flavor_text = "Boarding Protocol, Step 1: Point halberd at enemy. Step 2: Advance. Step 3: There is no step 3."
+description = ""
+flavor_text = "Boarding Protocol, Step 1: Point halberd at enemy. Step 2: Advance."
 rarity = 1
 equip_slot = 6
 has_elemental_identity = true

@@ -20,7 +20,7 @@ element_affix = ExtResource("3_41ntu")
 [resource]
 script = ExtResource("5_fgxe3")
 item_name = "Parrying Blade"
-description = "A long dagger designed for catching and deflecting blows. Also surprisingly good at catching and deflecting arguments."
+description = ""
 flavor_text = "The best defense is a good offense. The second best defense is a blade in the other hand."
 rarity = 1
 equip_slot = 5

@@ -12,7 +12,7 @@
 [resource]
 script = ExtResource("3_ef2um")
 item_name = "Marine Gauntlets"
-description = "Regulation naval armor balancing physical and magical protection. Designed by committee, which explains the color."
+description = ""
 flavor_text = "Grip-tested for climbing, fighting, and holding onto things in rough seas."
 rarity = 1
 equip_slot = 2

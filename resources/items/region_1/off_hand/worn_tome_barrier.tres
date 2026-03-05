@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://bd2f611ghr6cd"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=9 format=3 uid="uid://bd2f611ghr6cd"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_f18mi"]
 [ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_e6tnm"]
@@ -7,12 +7,14 @@
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_r6jlo"]
 [ext_resource type="Resource" uid="uid://3himbtyqcloq" path="res://resources/affixes/base_stats/inherent_barrier.tres" id="4_7j8or"]
 [ext_resource type="Resource" uid="uid://btsq4gakq82l7" path="res://resources/slot_definitions/off_hand_slot.tres" id="4_e6tnm"]
+[ext_resource type="Texture2D" uid="uid://bfntlq2xoc2sp" path="res://assets/items/off hand/warded tome.png" id="6_dyndb"]
 
 [resource]
 script = ExtResource("3_r6jlo")
 item_name = "Warded Worn Tome"
-description = "A thick reference manual that doubles as a focus. The marginalia is in three languages, two of which may not exist."
+description = ""
 flavor_text = "The pages themselves are warded. Try to read them too fast and they ward you off."
+icon = ExtResource("6_dyndb")
 rarity = 1
 equip_slot = 5
 slot_definition = ExtResource("4_e6tnm")

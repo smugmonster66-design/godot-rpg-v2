@@ -17,11 +17,17 @@ extends EditorScript
 # ============================================================================
 
 enum Mode { AUDIT, APPLY }
-const MODE: Mode = Mode.AUDIT  # Change to Mode.APPLY to save changes
+const MODE: Mode = Mode.APPLY  # Change to Mode.APPLY to save changes
 
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
+
+# Path patterns to EXCLUDE (labels in these paths are manually sized)
+const EXCLUDE_PATHS: Array[String] = [
+	"scenes/ui/components/dice/combat/",  # Combat dice - manually sized for textures
+	"scenes/ui/components/dice/die_face_",  # Die face variants - texture-specific
+]
 
 # Scenes to process (relative to res://)
 const SCENES: Array[String] = [
@@ -48,9 +54,30 @@ const MAPPING_RULES: Array[Dictionary] = [
 	{"pattern": "FloorLabel", "theme": "normal", "desc": "Floor progress"},
 	{"pattern": "FlavorLabel", "theme": "FlavorLabel", "desc": "Narrative text"},
 	
-	# Substring matches
+	# Numeric displays - should be prominent (large/header tier)
+	{"pattern": "DmgPreview", "theme": "large", "desc": "Damage preview numbers"},
+	{"pattern": "GoldValue", "theme": "large", "desc": "Gold value displays"},
+	{"pattern": "XPValue", "theme": "large", "desc": "XP value displays"},
+	{"pattern": "GoldLabel", "theme": "large", "desc": "Gold amounts"},
+	{"pattern": "HealLabel", "theme": "large", "desc": "Heal amounts"},
+	{"pattern": "ExpLabel", "theme": "large", "desc": "Experience points"},
+	
+	# Section headers
+	{"pattern": "DiceTitle", "theme": "header", "desc": "Dice section titles"},
 	{"pattern": "Header", "theme": "header", "desc": "Section headers"},
 	{"pattern": "Title", "theme": "title", "desc": "Titles"},
+	
+	# Secondary info (small tier)
+	{"pattern": "CountLabel", "theme": "small", "desc": "Count displays"},
+	{"pattern": "CostLabel", "theme": "small", "desc": "Cost displays"},
+	{"pattern": "ChargeLabel", "theme": "small", "desc": "Charge indicators"},
+	{"pattern": "LevelLabel", "theme": "small", "desc": "Level displays"},
+	{"pattern": "Prerequisites", "theme": "small", "desc": "Prerequisite text"},
+	
+	# Tertiary info (tiny tier)
+	{"pattern": "ModifierLabel", "theme": "tiny", "desc": "Stat modifiers (+X)"},
+	
+	# Substring matches
 	{"pattern": "Caption", "theme": "caption", "desc": "Captions"},
 	{"pattern": "Subtitle", "theme": "normal", "desc": "Subtitles"},
 	{"pattern": "Description", "theme": "large", "desc": "Item descriptions"},
@@ -59,6 +86,7 @@ const MAPPING_RULES: Array[Dictionary] = [
 	# Functional patterns
 	{"pattern": "ValueLabel", "theme": "large", "desc": "Numeric values (die faces, stats)"},
 	{"pattern": "NameLabel", "theme": "normal", "desc": "Entity names"},
+	{"pattern": "SkillName", "theme": "normal", "desc": "Skill names"},
 	{"pattern": "RankLabel", "theme": "small", "desc": "Skill ranks"},
 	{"pattern": "DescLabel", "theme": "small", "desc": "Short descriptions"},
 	{"pattern": "MultLabel", "theme": "small", "desc": "Multipliers"},
@@ -107,6 +135,12 @@ func _run():
 
 func process_scene(scene_path: String):
 	print("📄 Processing: %s" % scene_path.get_file())
+	
+	# Check exclusion patterns
+	for exclude_path in EXCLUDE_PATHS:
+		if exclude_path in scene_path:
+			print("   ⏭️  Skipped (excluded path: %s)" % exclude_path)
+			return
 	
 	var scene = load(scene_path)
 	if not scene:

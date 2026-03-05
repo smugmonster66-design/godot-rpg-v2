@@ -12,7 +12,7 @@
 [resource]
 script = ExtResource("3_enbdb")
 item_name = "Iron Boots"
-description = "Solid iron construction, built to absorb punishment. Standard issue for Sanctum's front-line infantry."
+description = ""
 flavor_text = "Heavy, loud, and built to kick doors. The infantry's favorite multitool."
 icon = ExtResource("6_qefwg")
 rarity = 1

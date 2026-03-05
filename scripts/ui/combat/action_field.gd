@@ -197,6 +197,11 @@ func _set_children_mouse_pass():
 
 func _set_mouse_pass_recursive(node: Node):
 	for child in node.get_children():
+		if child is BaseButton:
+			# Buttons need STOP to properly handle press/release input.
+			# Skip the button AND its children (label, icon, etc.)
+			child.mouse_filter = Control.MOUSE_FILTER_STOP
+			continue
 		if child is Control:
 			child.mouse_filter = Control.MOUSE_FILTER_PASS
 		_set_mouse_pass_recursive(child)

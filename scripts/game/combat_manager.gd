@@ -883,6 +883,15 @@ func _on_action_confirmed(action_data: Dictionary):
 	if combat_ui:
 		action_field = combat_ui.find_action_field_by_name(action_name)
 	
+	
+	# --- ON_USE DICE AFFIXES (fires once at confirmation, not on drop) ---
+	if player and player.dice_pool:
+		var placed_dice: Array = action_data.get("placed_dice", [])
+		player.dice_pool.process_on_use_affixes(placed_dice)
+	# --- END ON_USE ---
+	
+	
+	
 	# Check if we have animation player and animation set
 	var anim_player = _get_combat_animation_player()
 	

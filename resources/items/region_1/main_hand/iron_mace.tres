@@ -23,8 +23,8 @@ stroke_texture = ExtResource("6_gw0i5")
 [resource]
 script = ExtResource("7_e4r4o")
 item_name = "Iron Mace"
-description = "Heavy, blunt, and remarkably persuasive. Popular among dock enforcers and people who prefer their arguments concise."
-flavor_text = "Some problems can't be solved with paperwork. For everything else, there's the mace."
+description = ""
+flavor_text = "Popular among dock enforcers and people who prefer their arguments concise."
 rarity = 1
 has_elemental_identity = true
 elemental_identity = 1

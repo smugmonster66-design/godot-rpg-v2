@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://0hrlbxse7j6w"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=9 format=3 uid="uid://0hrlbxse7j6w"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_ymiih"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_4f6h5"]
@@ -7,11 +7,12 @@
 [ext_resource type="Resource" uid="uid://ckylwdt2phbob" path="res://resources/affixes/base_stats/inherent_damage.tres" id="3_t4kxn"]
 [ext_resource type="Resource" uid="uid://d0u4wgvhs8sam" path="res://resources/slot_definitions/gloves_slot.tres" id="4_riq6n"]
 [ext_resource type="Resource" uid="uid://3himbtyqcloq" path="res://resources/affixes/base_stats/inherent_barrier.tres" id="4_tohgr"]
+[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="6_t4kxn"]
 
 [resource]
 script = ExtResource("3_hudal")
 item_name = "Arcane Wraps"
-description = "Pure arcane weave that hums with protective energy. The preferred attire of those who consider armor gauche."
+description = ""
 flavor_text = "Arcane wraps that channel ambient magical energy. Also keep your wrists warm."
 rarity = 1
 equip_slot = 2

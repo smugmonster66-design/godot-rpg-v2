@@ -439,7 +439,7 @@ func _spawn_floating_label(target: Node, preset: MicroAnimationPreset, event: Co
 	if preset.label_theme_type != &"":
 		label.theme_type_variation = preset.label_theme_type
 	else:
-		label.add_theme_font_size_override("font_size", preset.label_font_size)
+		label.theme_type_variation = "normal"
 
 	if preset.label_bold and preset.label_theme_type == &"":
 		# Only manual bump when not using theme type (theme handles bold via font)

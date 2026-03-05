@@ -20,7 +20,7 @@ element_affix = ExtResource("3_267dj")
 [resource]
 script = ExtResource("5_vdd45")
 item_name = "Spark Wand"
-description = "Crackles with static even when idle. The Academy recommends rubber gloves, which no one wears."
+description = ""
 flavor_text = "Side effects may include involuntary hair styling and an inability to pet cats."
 icon = ExtResource("7_6m1ru")
 rarity = 1

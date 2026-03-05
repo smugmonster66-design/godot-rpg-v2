@@ -12,7 +12,7 @@
 [resource]
 script = ExtResource("3_sd4c4")
 item_name = "Warded Leather Boots"
-description = "Light leather infused with defensive wards. Moves like cloth, protects like it has opinions about your survival."
+description = ""
 flavor_text = "The ward cushions falls from moderate heights. 'Moderate' being the operative word."
 icon = ExtResource("6_6fvbk")
 rarity = 1

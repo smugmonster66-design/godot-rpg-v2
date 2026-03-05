@@ -20,8 +20,8 @@ element_affix = ExtResource("3_fd3o5")
 [resource]
 script = ExtResource("5_7klrb")
 item_name = "Frost Wand"
-description = "Cold to the touch. Standard-issue for cryomantic cadets."
-flavor_text = "Also useful for keeping drinks cold at officer's mess. Unofficially."
+description = ""
+flavor_text = "Useful for keeping drinks cold at officer's mess."
 icon = ExtResource("7_xy0f2")
 rarity = 1
 has_elemental_identity = true

@@ -12,7 +12,7 @@
 [resource]
 script = ExtResource("3_xdpfw")
 item_name = "Marine Helm"
-description = "Regulation naval armor balancing physical and magical protection. Designed by committee, which explains the color."
+description = ""
 flavor_text = "Regulation 4.2.1: All Marine armor must be polished on Tuesdays. "
 rarity = 1
 equip_slot = 0

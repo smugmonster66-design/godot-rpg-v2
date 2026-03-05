@@ -1,17 +1,35 @@
-[gd_scene load_steps=10 format=3 uid="uid://b3hskvtstgnbh"]
+[gd_scene load_steps=20 format=3 uid="uid://b3hskvtstgnbh"]
 
 [ext_resource type="Script" uid="uid://bbgslbrlnwdxk" path="res://scripts/dungeon/dungeon_scene.gd" id="1_scene"]
 [ext_resource type="PackedScene" uid="uid://dfgmt7r8x8n88" path="res://scenes/dungeon/dungeon_map.tscn" id="2_4nx0w"]
+[ext_resource type="Script" uid="uid://4ltoasdxehpc" path="res://scripts/dungeon/dungeon_map.gd" id="3_1kd0g"]
 [ext_resource type="PackedScene" uid="uid://dc037xsdbse2w" path="res://scenes/dungeon/popups/dungeon_event_popup.tscn" id="4_evt"]
+[ext_resource type="PackedScene" uid="uid://b8iq7qaqtsis6" path="res://scenes/dungeon/dungeon_map_node.tscn" id="4_wfih0"]
 [ext_resource type="PackedScene" path="res://scenes/dungeon/popups/dungeon_shop_popup.tscn" id="5_shop"]
+[ext_resource type="Script" uid="uid://cpwakqeoanjli" path="res://scripts/dungeon/popups/dungeon_event_popup.gd" id="6_78lj0"]
 [ext_resource type="PackedScene" path="res://scenes/dungeon/popups/dungeon_rest_popup.tscn" id="6_rest"]
 [ext_resource type="PackedScene" path="res://scenes/dungeon/popups/dungeon_shrine_popup.tscn" id="7_shrine"]
+[ext_resource type="Script" uid="uid://cfq5glrw4kkw7" path="res://scripts/dungeon/popups/dungeon_shop_popup.gd" id="8_e8hmb"]
 [ext_resource type="PackedScene" path="res://scenes/dungeon/popups/dungeon_treasure_popup.tscn" id="8_treasure"]
 [ext_resource type="PackedScene" path="res://scenes/dungeon/popups/dungeon_complete_popup.tscn" id="9_complete"]
-[ext_resource type="PackedScene" path="res://scenes/dungeon/popups/run_affix_choice_popup.tscn" id="9_o7j0w"][node name="DungeonScene" type="Node2D" groups=["dungeon_scene"]]
+[ext_resource type="PackedScene" uid="uid://cfb8423b3t1nn" path="res://scenes/dungeon/popups/run_affix_choice_popup.tscn" id="9_o7j0w"]
+[ext_resource type="Script" uid="uid://ci6n8gsnmrv3p" path="res://scripts/dungeon/popups/dungeon_rest_popup.gd" id="10_h7nsa"]
+[ext_resource type="Script" uid="uid://dctavy1wgjnqa" path="res://scripts/dungeon/popups/dungeon_shrine_popup.gd" id="12_hml5k"]
+[ext_resource type="Script" uid="uid://b8tsamgntafpy" path="res://scripts/dungeon/popups/dungeon_treasure_popup.gd" id="14_rljuu"]
+[ext_resource type="Script" uid="uid://ftycg2chfh7x" path="res://scripts/dungeon/popups/dungeon_complete_popup.gd" id="16_0uqxm"]
+[ext_resource type="Theme" uid="uid://b87llggw1n1df" path="res://resources/themes/base_theme.tres" id="18_4qjop"]
+[ext_resource type="Script" uid="uid://dnesfo6kdct38" path="res://scripts/dungeon/popups/run_affix_choice_popup.gd" id="19_ipgro"]
+
+[node name="DungeonScene" type="Node2D" groups=["dungeon_scene"]]
 script = ExtResource("1_scene")
 
-[node name="DungeonMap" parent="." instance=ExtResource("2_4nx0w")]
+[node name="DungeonMap" type="Node2D" parent="." instance=ExtResource("2_4nx0w")]
+script = ExtResource("3_1kd0g")
+node_scene = ExtResource("4_wfih0")
+row_spacing = 300.0
+column_spacing = 300.0
+jitter_x = 0.0
+jitter_y = 0.0
 camera_tween_duration = 0.3
 intro_duration = 2.0
 
@@ -34,13 +52,13 @@ offset_top = 12.0
 offset_right = -12.0
 offset_bottom = 36.0
 grow_horizontal = 0
-text = "Floor 1 / 10"
 theme_type_variation = &"normal"
-theme_override_constants/outline_size = 3
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.6)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 2
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.6)
+theme_override_constants/outline_size = 3
+text = "Floor 1 / 10"
 horizontal_alignment = 2
 
 [node name="DungeonNameLabel" type="Label" parent="ProgressUI"]
@@ -49,11 +67,11 @@ offset_left = 12.0
 offset_top = 12.0
 offset_right = 200.0
 offset_bottom = 32.0
-text = "Dungeon"
 theme_type_variation = &"caption"
-theme_override_constants/outline_size = 2
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.4)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 2
+text = "Dungeon"
 
 [node name="ProgressBar" type="TextureProgressBar" parent="ProgressUI"]
 visible = false
@@ -84,16 +102,73 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
-[node name="EventPopup" parent="PopupLayer" instance=ExtResource("4_evt")]
+[node name="EventPopup" type="Control" parent="PopupLayer" instance=ExtResource("4_evt")]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("6_78lj0")
 
-[node name="ShopPopup" parent="PopupLayer" instance=ExtResource("5_shop")]
+[node name="ShopPopup" type="Control" parent="PopupLayer" instance=ExtResource("5_shop")]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("8_e8hmb")
 
-[node name="RestPopup" parent="PopupLayer" instance=ExtResource("6_rest")]
+[node name="RestPopup" type="Control" parent="PopupLayer" instance=ExtResource("6_rest")]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("10_h7nsa")
 
-[node name="ShrinePopup" parent="PopupLayer" instance=ExtResource("7_shrine")]
+[node name="ShrinePopup" type="Control" parent="PopupLayer" instance=ExtResource("7_shrine")]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("12_hml5k")
 
-[node name="TreasurePopup" parent="PopupLayer" instance=ExtResource("8_treasure")]
+[node name="TreasurePopup" type="Control" parent="PopupLayer" instance=ExtResource("8_treasure")]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("14_rljuu")
 
-[node name="CompletePopup" parent="PopupLayer" instance=ExtResource("9_complete")]
+[node name="CompletePopup" type="Control" parent="PopupLayer" instance=ExtResource("9_complete")]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("16_0uqxm")
 
-[node name="RunAffixChoicePopup" parent="PopupLayer" instance=ExtResource("9_o7j0w")]
+[node name="RunAffixChoicePopup" type="Control" parent="PopupLayer" instance=ExtResource("9_o7j0w")]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("18_4qjop")
+script = ExtResource("19_ipgro")

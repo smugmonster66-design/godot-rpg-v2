@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://4ahxkdbgy447"]
+[gd_scene load_steps=13 format=3 uid="uid://4ahxkdbgy447"]
 
 [ext_resource type="Script" uid="uid://ckcnmmdmj10wo" path="res://scripts/ui/combat/action_field.gd" id="1_vm0q0"]
 [ext_resource type="Texture2D" uid="uid://hwffuipvgxdx" path="res://assets/ui/panels/9patch fill basic.png" id="2_0cgqb"]
 [ext_resource type="Theme" uid="uid://b87llggw1n1df" path="res://resources/themes/base_theme.tres" id="4_joayw"]
 [ext_resource type="Texture2D" uid="uid://dkib2pw8pxtxr" path="res://assets/ui/panels/9patch stroke basic.png" id="4_sgqpl"]
+[ext_resource type="Texture2D" uid="uid://b1rubriysiqha" path="res://assets/ui/menu_tabs/inv_button_base_stone.png" id="5_sgqpl"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0cgqb"]
 
@@ -15,6 +16,36 @@ texture_margin_right = 65.0
 texture_margin_bottom = 100.0
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sgqpl"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_sgqpl"]
+texture = ExtResource("5_sgqpl")
+texture_margin_left = 23.0
+texture_margin_top = 10.0
+texture_margin_right = 10.0
+texture_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_q52bj"]
+texture = ExtResource("5_sgqpl")
+texture_margin_left = 23.0
+texture_margin_top = 10.0
+texture_margin_right = 10.0
+texture_margin_bottom = 10.0
+modulate_color = Color(0.52906674, 0.5290667, 0.5290667, 1)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_pqhcn"]
+texture = ExtResource("5_sgqpl")
+texture_margin_left = 23.0
+texture_margin_top = 10.0
+texture_margin_right = 10.0
+texture_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_gexky"]
+texture = ExtResource("5_sgqpl")
+texture_margin_left = 23.0
+texture_margin_top = 10.0
+texture_margin_right = 10.0
+texture_margin_bottom = 10.0
+modulate_color = Color(0.6421665, 0.6421665, 0.6421665, 0.84000003)
 
 [node name="ActionField" type="PanelContainer"]
 offset_right = 120.0
@@ -55,6 +86,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_joayw")
 layout_mode = 2
 size_flags_horizontal = 3
 theme = ExtResource("4_joayw")
+theme_type_variation = &"normal"
 text = "Action"
 horizontal_alignment = 1
 
@@ -83,6 +115,7 @@ layout_mode = 2
 
 [node name="EmptyLabel" type="Label" parent="MarginContainer/VBoxContainer/DieSlotRow/DieSlotsGrid/SlotPanel"]
 layout_mode = 2
+theme_type_variation = &"small"
 
 [node name="DamageFormulaLabel" type="RichTextLabel" parent="MarginContainer/VBoxContainer"]
 clip_contents = false
@@ -104,10 +137,12 @@ layout_mode = 2
 [node name="DmgPreviewLabel" type="Label" parent="MarginContainer/VBoxContainer/FooterRow"]
 visible = false
 layout_mode = 2
+theme_type_variation = &"large"
 
 [node name="MultLabel" type="Label" parent="MarginContainer/VBoxContainer/FooterRow"]
 visible = false
 layout_mode = 2
+theme_type_variation = &"small"
 
 [node name="FooterSpacer" type="Control" parent="MarginContainer/VBoxContainer/FooterRow"]
 visible = false
@@ -117,6 +152,7 @@ layout_mode = 2
 visible = false
 custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
+theme_type_variation = &"small"
 horizontal_alignment = 2
 vertical_alignment = 2
 
@@ -150,8 +186,16 @@ alignment = 1
 
 [node name="ConfirmButton" type="Button" parent="ActionButtonsContainer"]
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_sgqpl")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_q52bj")
+theme_override_styles/hover = SubResource("StyleBoxTexture_pqhcn")
+theme_override_styles/disabled = SubResource("StyleBoxTexture_gexky")
 text = "Confirm"
 
 [node name="CancelButton" type="Button" parent="ActionButtonsContainer"]
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_sgqpl")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_q52bj")
+theme_override_styles/hover = SubResource("StyleBoxTexture_sgqpl")
+theme_override_styles/disabled = SubResource("StyleBoxTexture_gexky")
 text = "Cancel"

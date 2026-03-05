@@ -12,7 +12,7 @@
 [resource]
 script = ExtResource("3_8iyj2")
 item_name = "Iron Helm"
-description = "Solid iron construction, built to absorb punishment. Standard issue for Sanctum's front-line infantry."
+description = ""
 flavor_text = "The dent in the front is either battle damage or quality control."
 rarity = 1
 equip_slot = 0

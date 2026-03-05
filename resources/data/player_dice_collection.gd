@@ -418,11 +418,7 @@ func consume_from_hand(die: DieResource):
 	used_pool_indices.append(die.slot_index)
 	
 	
-	# Process ON_USE affixes against the FULL STABLE HAND
-	if affix_processor:
-		var ctx = _build_use_context(die)
-		var result = affix_processor.process_trigger(hand, DiceAffix.Trigger.ON_USE, ctx)
-		_handle_affix_results(result)
+	
 	
 	# Mark consumed AFTER affix processing so the triggering die's value
 	# is still readable during its own ON_USE effects
@@ -445,6 +441,26 @@ func finalize_dice_consumption(consumed_dice: Array) -> void:
 	if consumed_dice.size() > 0:
 		print("🎲 Finalized consumption: %d dice → element counts: %s" % [
 			consumed_dice.size(), _element_use_counts])
+
+func process_on_use_affixes(placed_dice: Array) -> void:
+	"""Process ON_USE affixes for each placed die at action confirmation.
+	
+	Called by CombatManager BEFORE _apply_action_effect so that die-state
+	mutations (ADD_DAMAGE_TYPE, etc.) are visible to damage calculation,
+	and combat/mana events are queued before drain.
+	
+	Each die is processed sequentially with the full stable hand so
+	neighbor-targeting affixes resolve correctly. The processor already
+	skips consumed dice except the triggering_die, which preserves the
+	same semantics as the old per-drop flow."""
+	if not affix_processor:
+		return
+	for die in placed_dice:
+		if not die is DieResource:
+			continue
+		var ctx = _build_use_context(die)
+		var result = affix_processor.process_trigger(hand, DiceAffix.Trigger.ON_USE, ctx)
+		_handle_affix_results(result)
 
 
 func restore_to_hand(die: DieResource):

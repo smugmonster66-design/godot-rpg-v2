@@ -20,7 +20,7 @@ element_affix = ExtResource("3_20n3h")
 [resource]
 script = ExtResource("5_h4qp8")
 item_name = "Iron Warhammer"
-description = "What it lacks in subtlety, it makes up for in everything else. Popular in the naval yards for resolving structural and interpersonal disputes."
+description = ""
 flavor_text = "Maintenance log: 'Used to repair hull breach. Also caused hull breach. Net positive.'"
 rarity = 1
 equip_slot = 6

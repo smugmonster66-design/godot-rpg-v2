@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=8 format=3 uid="uid://kf01o3feospa"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=9 format=3 uid="uid://kf01o3feospa"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_c5pyf"]
 [ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_rxas5"]
@@ -7,11 +7,12 @@
 [ext_resource type="Resource" uid="uid://dbgj0wcg21i0b" path="res://resources/affixes/base_stats/inherent_mana.tres" id="3_7e841"]
 [ext_resource type="Resource" uid="uid://b650s5tyjtg6r" path="res://resources/slot_definitions/boots_slot.tres" id="4_rxas5"]
 [ext_resource type="Resource" uid="uid://3himbtyqcloq" path="res://resources/affixes/base_stats/inherent_barrier.tres" id="4_x2ph8"]
+[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="6_7e841"]
 
 [resource]
 script = ExtResource("3_0yluv")
 item_name = "Arcane Shoes"
-description = "Pure arcane weave that hums with protective energy. The preferred attire of those who consider armor gauche."
+description = ""
 flavor_text = "They say mages draw power from the earth. These help with the signal reception."
 rarity = 1
 equip_slot = 3

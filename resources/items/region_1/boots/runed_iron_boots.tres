@@ -12,7 +12,7 @@
 [resource]
 script = ExtResource("3_xyyrd")
 item_name = "Runed Iron Boots"
-description = "Iron plate inscribed with protective runes. The enchantment work isn't cheap, but neither is replacing soldiers."
+description = ""
 flavor_text = "The runes help you stand firm against magical force. And regular force. And sergeants."
 icon = ExtResource("6_1sold")
 rarity = 1

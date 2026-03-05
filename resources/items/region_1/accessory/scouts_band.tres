@@ -11,7 +11,7 @@
 [resource]
 script = ExtResource("3_r4fms")
 item_name = "Scout's Band"
-description = "A slim ring worn by griffin riders and scouts. Enchanted to stay on during aerial maneuvers."
+description = ""
 flavor_text = "Officially classified as 'retention jewelry.' No one calls it that."
 rarity = 1
 equip_slot = 7

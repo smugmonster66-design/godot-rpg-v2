@@ -31,7 +31,7 @@ stroke_texture = ExtResource("6_l1b02")
 [resource]
 script = ExtResource("7_mfubg")
 item_name = "Longbow"
-description = "A tall bow of yew and sinew. Sanctum's watchtower sentries carry these, along with an unhealthy sense of superiority over ground troops."
+description = ""
 flavor_text = "Effective range: very far. Effective smugness: even farther."
 rarity = 1
 equip_slot = 6

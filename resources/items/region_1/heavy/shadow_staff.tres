@@ -10,7 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="6_8ndvp"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="7_m4sio"]
 [ext_resource type="Resource" uid="uid://dmbm1ao1pu7q4" path="res://resources/slot_definitions/heavy_slot.tres" id="8_ytql8"]
-[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="9_36ivq"]
+[ext_resource type="Texture2D" uid="uid://bfqefwih1gevc" path="res://assets/items/main hand/shadow staff.png" id="9_36ivq"]
 
 [sub_resource type="Resource" id="Resource_448xf"]
 script = ExtResource("2_xccfd")
@@ -31,8 +31,9 @@ stroke_texture = ExtResource("6_8ndvp")
 [resource]
 script = ExtResource("7_m4sio")
 item_name = "Shadow Staff"
-description = "The shadows around it seem slightly too deep and slightly too interested in what you're doing. The Academy keeps these under lock and key."
+description = ""
 flavor_text = "Access requires Form 91-Blackout, signed by three department heads, two of whom deny it exists."
+icon = ExtResource("9_36ivq")
 rarity = 1
 equip_slot = 6
 has_elemental_identity = true

@@ -20,7 +20,7 @@ element_affix = ExtResource("3_neadc")
 [resource]
 script = ExtResource("5_dv8h0")
 item_name = "Sanctum Stiletto"
-description = "A slim blade favored by those who solve problems quietly. Not technically listed in any naval inventory."
+description = ""
 flavor_text = "It's a letter opener. A very sharp, very concealable letter opener."
 rarity = 1
 has_elemental_identity = true
