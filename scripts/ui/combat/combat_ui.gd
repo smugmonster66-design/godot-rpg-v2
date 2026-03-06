@@ -217,7 +217,7 @@ func _ensure_scrollable_grid():
 	print("    🔧 ActionFieldsGrid mouse_filter → PASS (drag-drop fix)")
 	
 	# Set grid columns for preview layout
-	action_fields_grid.columns = 4  # 4 previews per row
+	action_fields_grid.columns = 3  # 4 previews per row
 	
 	# Find expansion overlay nodes
 	expanded_field_overlay = fields_area.find_child("ExpandedFieldOverlay", true, false) as Control

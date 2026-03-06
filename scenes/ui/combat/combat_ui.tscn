@@ -64,7 +64,12 @@ size_flags_vertical = 3
 horizontal_scroll_mode = 0
 scroll_deadzone = 16
 
-[node name="ActionFieldsGrid" type="GridContainer" parent="MarginContainer/VBox/MarginContainer/ActionFieldsArea/PreviewScrollContainer"]
+[node name="FieldsMargin" type="CenterContainer" parent="MarginContainer/VBox/MarginContainer/ActionFieldsArea/PreviewScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ActionFieldsGrid" type="GridContainer" parent="MarginContainer/VBox/MarginContainer/ActionFieldsArea/PreviewScrollContainer/FieldsMargin"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 2

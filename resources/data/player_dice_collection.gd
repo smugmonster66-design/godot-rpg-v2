@@ -396,6 +396,15 @@ func _create_hand_die(pool_die: DieResource, pool_index: int) -> DieResource:
 	hand_die.source = pool_die.source
 	return hand_die
 
+
+func emit_locked_die_events() -> void:
+	"""Emit DIE_LOCKED events for all locked dice in the current hand.
+	Call AFTER roll animation completes so visuals exist."""
+	for i in range(hand.size()):
+		if hand[i].is_locked:
+			_emit_die_locked_event(i)
+
+
 func consume_from_hand(die: DieResource):
 	"""Mark a die as consumed from the HAND (used in combat action).
 	
@@ -952,7 +961,8 @@ func _handle_affix_results(result: Dictionary):
 			"lock":
 				# Die is already locked by DiceAffixProcessor._apply_lock_die()
 				# Just emit the event for animation
-				call_deferred("_emit_die_locked_event", effect.die_index)
+				#call_deferred("_emit_die_locked_event", effect.die_index)
+				pass
 			
 			"auto_reroll":
 				# Die is already rerolled by DiceAffixProcessor._apply_auto_reroll()

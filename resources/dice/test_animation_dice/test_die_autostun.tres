@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=11 format=3 uid="uid://cgr5jnuyua814"]
+
+[ext_resource type="PackedScene" uid="uid://b4wyrmm8bfq20" path="res://scenes/ui/components/dice/combat/combat_die_d8.tscn" id="1_djbye"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_fvhyb"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_o31r3"]
+[ext_resource type="Resource" uid="uid://c2pgrap71kn5v" path="res://resources/affixes/elements/shadow_element.tres" id="2_pm31n"]
+[ext_resource type="Texture2D" uid="uid://der0rcr1m1pb2" path="res://assets/dice/d8s/d8-fill-basic.png" id="3_7ekiu"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="5_knniy"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="6_pwfhh"]
+[ext_resource type="PackedScene" uid="uid://lx27hjqny6b8" path="res://scenes/ui/components/dice/pool/pool_die_d8.tscn" id="7_1pfhi"]
+[ext_resource type="Texture2D" uid="uid://ccv17kswol4os" path="res://assets/dice/d8s/d8-stroke-basic.png" id="9_i1tf8"]
+
+[sub_resource type="Resource" id="Resource_q1u55"]
+script = ExtResource("1_fvhyb")
+affix_name = "Testing Self-Stun"
+trigger = 2
+effect_type = 12
+metadata/_custom_type_script = "uid://s6ivem1wgjrx"
+
+[resource]
+script = ExtResource("2_o31r3")
+die_type = 8
+element = 8
+element_affix = ExtResource("2_pm31n")
+fill_texture = ExtResource("3_7ekiu")
+stroke_texture = ExtResource("9_i1tf8")
+combat_die_scene = ExtResource("1_djbye")
+pool_die_scene = ExtResource("7_1pfhi")
+inherent_affixes = Array[ExtResource("1_fvhyb")]([SubResource("Resource_q1u55")])
+metadata/_custom_type_script = "uid://d3l85pyscg85h"

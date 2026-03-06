@@ -1,10 +1,12 @@
-[gd_scene load_steps=52 format=3 uid="uid://b2w217jydc2gl"]
+[gd_scene load_steps=43 format=3 uid="uid://b2w217jydc2gl"]
 
 [ext_resource type="Script" uid="uid://c2ftibv05ag52" path="res://scripts/game/game_root.gd" id="1_pevc5"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_cm22q"]
 [ext_resource type="Script" uid="uid://buljuod5rywxy" path="res://scripts/shared/game_camera.gd" id="2_i88f8"]
 [ext_resource type="PackedScene" uid="uid://dg4shmm2jhcnd" path="res://scenes/game/combat_scene.tscn" id="2_n6w2t"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="2_reamk"]
 [ext_resource type="PackedScene" uid="uid://b3hskvtstgnbh" path="res://scenes/dungeon/dungeon_scene.tscn" id="3_a6cr8"]
+[ext_resource type="Resource" uid="uid://cgr5jnuyua814" path="res://resources/dice/test_animation_dice/test_die_autostun.tres" id="3_d0whc"]
 [ext_resource type="PackedScene" uid="uid://cx781vq4omutw" path="res://scenes/game/map_scene.tscn" id="4_0krdv"]
 [ext_resource type="Resource" uid="uid://ddjuebhrjj3fm" path="res://resources/items/debug/diagnostic_ring.tres" id="4_ax1hr"]
 [ext_resource type="Texture2D" uid="uid://b5idgxy5pjm63" path="res://assets/ui/panels/9patch_bones.png" id="4_n6w2t"]
@@ -13,16 +15,12 @@
 [ext_resource type="Texture2D" uid="uid://bk7srh475afct" path="res://assets/ui/portrait frames/placeholder/placeholder_frame_front.png" id="6_0krdv"]
 [ext_resource type="Script" uid="uid://dfridktvwqyau" path="res://scripts/ui/portrait_controller.gd" id="6_elccf"]
 [ext_resource type="Shader" uid="uid://bf1gnsw38npcm" path="res://shaders/portrait_mask.gdshader" id="8_cylga"]
-[ext_resource type="Script" uid="uid://ex7lxpkjwyaa" path="res://scripts/game/map_manager.gd" id="9_jhgyd"]
 [ext_resource type="Script" uid="uid://pc0eo2522dpe" path="res://resources/data/companion_data.gd" id="9_nmlv8"]
 [ext_resource type="Shader" uid="uid://c81kry17cryo0" path="res://shaders/portrait_frame_glow.gdshader" id="10_ndy65"]
 [ext_resource type="Resource" uid="uid://cyj2w70dyw4v2" path="res://resources/companions/companion_manne.tres" id="10_xskmf"]
 [ext_resource type="PackedScene" uid="uid://b4cwd535525ap" path="res://scenes/ui/menus/player_menu.tscn" id="11_c2lvh"]
-[ext_resource type="Script" uid="uid://bbgslbrlnwdxk" path="res://scripts/dungeon/dungeon_scene.gd" id="11_q6bgw"]
 [ext_resource type="PackedScene" uid="uid://c8lkjoshcff88" path="res://scenes/ui/popups/post_combat_summary.tscn" id="12_a6cr8"]
-[ext_resource type="Script" uid="uid://0iq7cbeuaa3f" path="res://scripts/game/combat_manager.gd" id="13_5rqx6"]
 [ext_resource type="PackedScene" uid="uid://bvb7r5rwfohfr" path="res://resources/ui/dungeon_entrance_button.tscn" id="15_h5onw"]
-[ext_resource type="Script" uid="uid://cs3ncaepru3rn" path="res://scripts/ui/bottom_ui_panel.gd" id="16_d7u7w"]
 [ext_resource type="Resource" uid="uid://bgfv53lpvqk5j" path="res://resources/dungeon/baseline_test.tres" id="16_kdtot"]
 [ext_resource type="Texture2D" uid="uid://kt1dd6uwt7tf" path="res://assets/busts/bones/bones_base.png" id="16_xi4na"]
 [ext_resource type="PackedScene" path="res://scenes/debug/debug_loot_panel.tscn" id="17_kdtot"]
@@ -33,17 +31,10 @@
 [ext_resource type="Resource" uid="uid://cuvp4abo21f1c" path="res://resources/dialogues/test dialogue 3.tres" id="28_xi4na"]
 [ext_resource type="PackedScene" path="res://scenes/debug/debug_combat_panel_enhanced.tscn" id="28_xskmf"]
 [ext_resource type="Script" uid="uid://ev7ssgd5vcgs" path="res://scripts/ui/combat/companion_slot.gd" id="29_cm22q"]
-[ext_resource type="Script" uid="uid://dp3d3aduyrmtn" path="res://scripts/ui/menus/player_menu.gd" id="29_vjy5q"]
 [ext_resource type="Texture2D" uid="uid://c6sqtdxnbp2ab" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_bg.png" id="30_d0whc"]
-[ext_resource type="Script" uid="uid://npjmm1fjaj8t" path="res://scripts/map/dungeon_entrance.gd" id="31_ctngu"]
 [ext_resource type="Texture2D" uid="uid://bhdufq5sfxngf" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_stroke_basic.png" id="31_ihw70"]
 [ext_resource type="PackedScene" uid="uid://blpwt3dawinnk" path="res://scenes/ui/dialogue/dialogue_ui.tscn" id="31_pwgrr"]
 [ext_resource type="Texture2D" uid="uid://bgqcm8i82101" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_hp.png" id="32_f7kbw"]
-[ext_resource type="Script" uid="uid://cmngrutsjny1t" path="res://scripts/ui/combat/post_combat_summary.gd" id="36_5inbw"]
-[ext_resource type="Script" uid="uid://h2862ddwpfhe" path="res://scripts/ui/menus/dungeon_selection_screen.gd" id="38_voyyl"]
-[ext_resource type="Script" uid="uid://caj7m5ux0vdu6" path="res://scripts/debug/debug_loot_panel.gd" id="40_mp7mb"]
-[ext_resource type="Script" uid="uid://d0jt32r5bieyk" path="res://scripts/debug/debug_combat_panel_enhanced.gd" id="42_cxbx5"]
-[ext_resource type="Script" uid="uid://beci4j31tqpaw" path="res://scripts/ui/dialogue/dialogue_ui.gd" id="44_n7mpy"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_n6w2t"]
 
@@ -80,6 +71,7 @@ texture = ExtResource("6_0krdv")
 script = ExtResource("1_pevc5")
 dev_mode = true
 dev_level = 1
+dev_dice = Array[ExtResource("2_cm22q")]([ExtResource("3_d0whc")])
 dev_items = Array[ExtResource("2_reamk")]([ExtResource("4_vvhw6"), ExtResource("4_ax1hr")])
 dev_item_level = 1
 dev_companions = Array[ExtResource("9_nmlv8")]([ExtResource("10_xskmf")])
@@ -90,19 +82,16 @@ extra_offset_y = -200.0
 
 [node name="MapLayer" type="CanvasLayer" parent="."]
 
-[node name="MapScene" type="Node2D" parent="MapLayer" instance=ExtResource("4_0krdv")]
-script = ExtResource("9_jhgyd")
+[node name="MapScene" parent="MapLayer" instance=ExtResource("4_0krdv")]
 
 [node name="DungeonLayer" type="Node2D" parent="."]
 
-[node name="DungeonScene" type="Node2D" parent="DungeonLayer" groups=["dungeon_scene"] instance=ExtResource("3_a6cr8")]
-script = ExtResource("11_q6bgw")
+[node name="DungeonScene" parent="DungeonLayer" instance=ExtResource("3_a6cr8")]
 
 [node name="CombatLayer" type="CanvasLayer" parent="."]
 visible = false
 
-[node name="CombatScene" type="Node2D" parent="CombatLayer" instance=ExtResource("2_n6w2t")]
-script = ExtResource("13_5rqx6")
+[node name="CombatScene" parent="CombatLayer" instance=ExtResource("2_n6w2t")]
 
 [node name="PersistentUILayer" type="CanvasLayer" parent="."]
 layer = 99
@@ -125,18 +114,10 @@ patch_margin_top = 75
 patch_margin_right = 75
 patch_margin_bottom = 75
 
-[node name="BottomUIPanel" type="PanelContainer" parent="PersistentUILayer" groups=["bottom_ui"] instance=ExtResource("5_n6w2t")]
-custom_minimum_size = Vector2(342, 342)
+[node name="BottomUIPanel" parent="PersistentUILayer" instance=ExtResource("5_n6w2t")]
 anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
 offset_top = -342.0
-grow_horizontal = 2
-grow_vertical = 0
-size_flags_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxEmpty_smlgd")
-script = ExtResource("16_d7u7w")
 
 [node name="PortraitVBox" type="VBoxContainer" parent="PersistentUILayer"]
 anchors_preset = 2
@@ -438,25 +419,14 @@ layout_mode = 2
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.5
 
-[node name="PlayerMenu" type="Control" parent="PersistentUILayer" instance=ExtResource("11_c2lvh")]
+[node name="PlayerMenu" parent="PersistentUILayer" instance=ExtResource("11_c2lvh")]
 visible = false
-custom_minimum_size = Vector2(400, 430)
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("29_vjy5q")
 
-[node name="DungeonEntranceButton" type="Button" parent="PersistentUILayer" instance=ExtResource("15_h5onw")]
-custom_minimum_size = Vector2(200, 60)
+[node name="DungeonEntranceButton" parent="PersistentUILayer" instance=ExtResource("15_h5onw")]
 offset_left = 854.0
 offset_top = 1516.0
 offset_right = 1054.0
 offset_bottom = 1576.0
-text = "Enter Dungeon"
-script = ExtResource("31_ctngu")
 dungeon_definition = ExtResource("16_kdtot")
 
 [node name="DialogueTestButton" type="Button" parent="PersistentUILayer"]
@@ -474,65 +444,27 @@ text = "Test Dialogue"
 script = ExtResource("27_rbjkh")
 test_dialogue = ExtResource("28_xi4na")
 
-[node name="PostCombatSummary" type="Control" parent="PersistentUILayer" instance=ExtResource("12_a6cr8")]
-visible = false
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+[node name="PostCombatSummary" parent="PersistentUILayer" instance=ExtResource("12_a6cr8")]
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("36_5inbw")
 
-[node name="DungeonSelectionScreen" type="Control" parent="PersistentUILayer" instance=ExtResource("20_ax1hr")]
-visible = false
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme = ExtResource("27_xi4na")
-script = ExtResource("38_voyyl")
+[node name="DungeonSelectionScreen" parent="PersistentUILayer" instance=ExtResource("20_ax1hr")]
 
 [node name="DebugLayer" type="CanvasLayer" parent="."]
 layer = 200
 
-[node name="DebugLootPanel" type="Control" parent="DebugLayer" instance=ExtResource("17_kdtot")]
+[node name="DebugLootPanel" parent="DebugLayer" instance=ExtResource("17_kdtot")]
 layout_mode = 3
 anchors_preset = 6
-anchor_left = 1.0
 anchor_top = 0.5
-anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -972.0
 offset_top = -266.0
 offset_bottom = 266.0
-grow_horizontal = 0
 grow_vertical = 2
-script = ExtResource("40_mp7mb")
 
-[node name="DebugCombatPanelEnhanced" type="Control" parent="DebugLayer" instance=ExtResource("28_xskmf")]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-script = ExtResource("42_cxbx5")
+[node name="DebugCombatPanelEnhanced" parent="DebugLayer" instance=ExtResource("28_xskmf")]
 
 [node name="DialogueLayer" type="CanvasLayer" parent="."]
 layer = 110
 
-[node name="DialogueUI" type="Control" parent="DialogueLayer" instance=ExtResource("31_pwgrr")]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-script = ExtResource("44_n7mpy")
-choice_distances = Array[float]([360.0, 360.0, 360.0])
-choice_angles = Array[float]([-90.0, -45.0, -25.0])
+[node name="DialogueUI" parent="DialogueLayer" instance=ExtResource("31_pwgrr")]

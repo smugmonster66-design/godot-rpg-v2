@@ -7,10 +7,23 @@
 [sub_resource type="Resource" id="Resource_ngyw1"]
 script = ExtResource("1_21o01")
 scale_enabled = true
-scale_peak = Vector2(0.95, 0.95)
+scale_peak = Vector2(0.88, 0.88)
+scale_out_duration = 0.12
+scale_in_duration = 0.2
+scale_trans = 2
 flash_enabled = true
-flash_color = Color(1, 0.9, 0.3, 1)
-flash_out_duration = 0.25
+flash_color = Color(0.6, 0.8, 1.5, 1)
+flash_in_duration = 0.05
+flash_out_duration = 0.3
+shake_enabled = true
+shake_intensity = 5.0
+shake_count = 5
+label_enabled = true
+label_text = "Locked"
+label_color = Color(0.6, 0.85, 1, 1)
+label_font_size = 18
+label_theme_type = &"normal"
+label_rise_distance = 30.0
 
 [resource]
 script = ExtResource("3_1ulfs")

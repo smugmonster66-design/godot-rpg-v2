@@ -782,6 +782,11 @@ func _on_roll_pressed():
 		var animation_duration = dice_count * 0.08 + 0.25
 		await get_tree().create_timer(animation_duration).timeout
 
+	# Fire locked die animations now that visuals exist
+	await get_tree().process_frame
+	if player and player.dice_pool:
+		player.dice_pool.emit_locked_die_events()
+
 	if combat_ui:
 		combat_ui.enter_action_phase()
 		

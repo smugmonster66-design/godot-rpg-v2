@@ -1,18 +1,8 @@
-[gd_resource type="Resource" script_class="AffixTable" load_steps=18 format=3 uid="uid://bepi7jvks8fx"]
+[gd_resource type="Resource" script_class="AffixTable" load_steps=8 format=3 uid="uid://bepi7jvks8fx"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_lnsfg"]
 [ext_resource type="Resource" uid="uid://uepy3yv4hje8" path="res://resources/affixes/base/utility/tier_1/mana_bonus.tres" id="2_1f7m7"]
-[ext_resource type="Resource" uid="uid://csngh34e2ya2k" path="res://resources/affixes/base/utility/tier_1/grant_d4_neutral.tres" id="3_qkd0h"]
-[ext_resource type="Resource" uid="uid://v1rp0uo6exn8" path="res://resources/affixes/base/utility/tier_1/grant_d6_neutral.tres" id="4_5y3yx"]
 [ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="4_g0mpf"]
-[ext_resource type="Resource" uid="uid://dphxx414qx7tr" path="res://resources/affixes/base/utility/tier_1/grant_fire_d4.tres" id="5_la24x"]
-[ext_resource type="Resource" uid="uid://bnxky85kf0ivn" path="res://resources/affixes/base/utility/tier_1/grant_ice_d4.tres" id="6_r2kar"]
-[ext_resource type="Resource" uid="uid://cx05iu0qi0spx" path="res://resources/affixes/base/utility/tier_1/grant_shock_d4.tres" id="7_eeqhl"]
-[ext_resource type="Resource" uid="uid://cfu5c2su2hhud" path="res://resources/affixes/base/utility/tier_1/grant_poison_d4.tres" id="8_cyfuy"]
-[ext_resource type="Resource" uid="uid://b2eq2ha0yu8as" path="res://resources/affixes/base/utility/tier_1/grant_shadow_d4.tres" id="9_u52yn"]
-[ext_resource type="Resource" uid="uid://c1ho1wm6gj7v6" path="res://resources/affixes/base/utility/tier_1/grant_slashing_d4.tres" id="10_gthhx"]
-[ext_resource type="Resource" uid="uid://ddthi41avsh3o" path="res://resources/affixes/base/utility/tier_1/grant_blunt_d4.tres" id="11_x8fic"]
-[ext_resource type="Resource" uid="uid://dke7ooh6a6c1y" path="res://resources/affixes/base/utility/tier_1/grant_piercing_d4.tres" id="12_kheih"]
 [ext_resource type="Resource" uid="uid://d0s5k4opj6q62" path="res://resources/affixes/base/utility/tier_1/gold_find_bonus.tres" id="13_0mb3q"]
 [ext_resource type="Resource" uid="uid://c4ltqtbmtniul" path="res://resources/affixes/base/utility/tier_1/xp_find_bonus.tres" id="14_2jgev"]
 [ext_resource type="Resource" uid="uid://b4j4kr3cdawbf" path="res://resources/affixes/base/utility/tier_1/loot_find_bonus.tres" id="15_ra7nf"]
@@ -22,4 +12,4 @@
 script = ExtResource("4_g0mpf")
 table_name = "Utility Tier 1"
 description = "Base utility affixes, tier 1. Auto-generated."
-available_affixes = Array[ExtResource("1_lnsfg")]([ExtResource("2_1f7m7"), ExtResource("3_qkd0h"), ExtResource("4_5y3yx"), ExtResource("5_la24x"), ExtResource("6_r2kar"), ExtResource("7_eeqhl"), ExtResource("8_cyfuy"), ExtResource("9_u52yn"), ExtResource("10_gthhx"), ExtResource("11_x8fic"), ExtResource("12_kheih"), ExtResource("13_0mb3q"), ExtResource("14_2jgev"), ExtResource("15_ra7nf"), ExtResource("16_sbfn6")])
+available_affixes = Array[ExtResource("1_lnsfg")]([ExtResource("2_1f7m7"), ExtResource("13_0mb3q"), ExtResource("14_2jgev"), ExtResource("15_ra7nf"), ExtResource("16_sbfn6")])
