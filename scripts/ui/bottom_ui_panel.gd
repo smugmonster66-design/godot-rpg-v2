@@ -45,6 +45,8 @@ var action_buttons_container: HBoxContainer
 
 var mana_pool_ref: ManaPool = null
 
+var _active_die_tooltip: DieTooltipPopup = null
+
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
@@ -119,6 +121,11 @@ func initialize(p_player: Resource):
 					if not dice_collection.dice_changed.is_connected(_update_dice_count):
 						dice_collection.dice_changed.connect(_update_dice_count)
 				_update_dice_count()
+			
+			# Wire die tooltip (same pattern as InventoryTab)
+			if dice_grid.has_signal("die_selected"):
+				if not dice_grid.die_selected.is_connected(_on_die_selected_for_tooltip):
+					dice_grid.die_selected.connect(_on_die_selected_for_tooltip)
 			else:
 				print("  ⚠️ Player has no dice_pool")
 		else:
@@ -325,3 +332,25 @@ func refresh_dice():
 func refresh_stats():
 	"""Refresh the stats display"""
 	_update_stats_display()
+
+# ============================================================================
+# DIE TOOLTIP
+# ============================================================================
+
+func _on_die_selected_for_tooltip(slot: DieSlot, die: DieResource):
+	if _active_die_tooltip and is_instance_valid(_active_die_tooltip):
+		var is_same = _active_die_tooltip.is_for_source(slot)
+		_close_die_tooltip()
+		if is_same:
+			return
+	var anchor_pos = slot.get_screen_position() + slot.size / 2.0
+	_active_die_tooltip = DieTooltipPopup.show_die(die, anchor_pos, get_tree().root, slot)
+	_active_die_tooltip.dismissed.connect(_on_die_tooltip_dismissed)
+
+func _on_die_tooltip_dismissed():
+	_active_die_tooltip = null
+
+func _close_die_tooltip():
+	if _active_die_tooltip and is_instance_valid(_active_die_tooltip):
+		_active_die_tooltip.dismiss()
+	_active_die_tooltip = null

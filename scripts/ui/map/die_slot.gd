@@ -274,19 +274,4 @@ func _make_custom_tooltip(_for_text: String) -> Object:
 	return DieTooltipHelper.build_tooltip(die)
 
 func _get_tooltip(_at_position: Vector2) -> String:
-	if not die:
-		return "Empty slot"
-	
-	var lines: Array[String] = [die.get_display_name()]
-	lines.append("Slot %d" % (slot_index + 1))
-	lines.append("Max: %d" % die.get_max_value())
-	
-	var affixes = die.get_all_affixes()
-	if affixes.size() > 0:
-		lines.append("")
-		lines.append("Affixes:")
-		for affix in affixes:
-			if affix.has_method("get_formatted_description"):
-				lines.append("  • " + affix.get_formatted_description())
-	
-	return "\n".join(lines)
+	return "" 
