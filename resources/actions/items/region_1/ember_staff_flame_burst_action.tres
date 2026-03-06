@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://fmrtl5a5tuip"]
+
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_j0747"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_6xvo7"]
+[ext_resource type="Resource" uid="uid://cum5ghieodr17" path="res://resources/actions/items/region_1/effects/ember_staff_damage_effect.tres" id="3_pkypx"]
+[ext_resource type="Resource" uid="uid://crrtvo2xirhlr" path="res://resources/actions/items/region_1/effects/ember_staff_burn_effect.tres" id="4_1fnro"]
+[ext_resource type="Resource" uid="uid://cj7gstcne3aqv" path="res://resources/actions/items/region_1/effects/ember_staff_echo_effect.tres" id="5_wm1kv"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_yru5b"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_voy44"]
+
+[resource]
+script = ExtResource("7_voy44")
+action_id = "weapon_ember_staff_flame_burst"
+action_name = "Flame Burst"
+action_description = "Applies 3 Burn. Echoes at 40% if dice total is 10 or more."
+die_slots = 2
+min_dice_required = 1
+effects = Array[ExtResource("2_6xvo7")]([ExtResource("3_pkypx"), ExtResource("4_1fnro"), ExtResource("5_wm1kv")])

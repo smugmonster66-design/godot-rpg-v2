@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://cs0d0ajplc5df"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_f1ol3"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_xojun"]
+
+[resource]
+script = ExtResource("1_f1ol3")
+effect_name = "Zap: Damage"
+damage_type = 5

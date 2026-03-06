@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://d4nbte26cf2tt"]
+
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_ruuxe"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_35lce"]
+[ext_resource type="Resource" uid="uid://bjn7r8bcnclim" path="res://resources/actions/items/region_1/effects/naval_greatsword_sweep_effect.tres" id="3_p1hjf"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_35lce"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_ycgqj"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="5_i17ck"]
+
+[sub_resource type="Resource" id="Resource_p1hjf"]
+script = ExtResource("2_35lce")
+effect_type = 13
+splash_percent = 0.75
+metadata/_custom_type_script = "uid://dqmfu54osidoc"
+
+[resource]
+script = ExtResource("5_i17ck")
+action_id = "weapon_naval_greatsword_grand_sweep"
+action_name = "Grand Sweep"
+action_description = "Deals 75% damage to adjacent enemies."
+min_dice_required = 1
+effects = Array[ExtResource("2_35lce")]([ExtResource("3_p1hjf"), SubResource("Resource_p1hjf")])

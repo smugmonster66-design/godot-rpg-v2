@@ -98,7 +98,7 @@ func _populate(die_res: DieResource):
 			continue
 
 		var affix_label = Label.new()
-		affix_label.theme_type_variation = "TooltipLabel"
+		affix_label.theme_type_variation = "DieTooltipDetails"
 		affix_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 		# Get description text
@@ -119,27 +119,36 @@ func _populate(die_res: DieResource):
 
 func _replace_placeholders(text: String, dice_affix: DiceAffix) -> String:
 	"""Replace N / N% placeholders with formatted affix values."""
-	if "N%" in text:
-		var val = dice_affix.effect_value
-		if dice_affix.effect_value_max <= 1.0 and dice_affix.effect_value_min >= 0.0 and dice_affix.effect_value_max > 0.0:
-			var rounded = snappedf(val, 0.01)
-			text = text.replace("N%", "%d%%" % int(rounded * 100))
-		else:
-			text = text.replace("N%", "%d%%" % int(val))
-	elif "N" in text:
-		var val = dice_affix.effect_value
-		var val_min = dice_affix.effect_value_min
-		var val_max = dice_affix.effect_value_max
+	var val = dice_affix.effect_value
+	var val_min = dice_affix.effect_value_min
+	var val_max = dice_affix.effect_value_max
+	var is_percent := val_max <= 1.0 and val_min >= 0.0 and val_max > 0.0
 
+	# Handle percent variants first
+	if "+N%" in text or "N%" in text:
+		var pct_val: int
+		if is_percent:
+			pct_val = int(snappedf(val, 0.01) * 100)
+		else:
+			pct_val = int(val)
+		text = text.replace("+N%", "+%d%%" % pct_val)
+		text = text.replace("N%", "%d%%" % pct_val)
+		return text
+
+	# Handle flat value variants
+	if "+N" in text or "N" in text:
 		var formatted: String
-		if val_max <= 1.0 and val_min >= 0.0 and val_max > 0.0:
+		if is_percent:
 			formatted = "%d%%" % int(snappedf(val, 0.01) * 100)
 		elif val_max <= 5.0:
 			var rounded = snappedf(val, 0.5)
 			formatted = "+%d" % int(rounded) if rounded == int(rounded) else "+%.1f" % rounded
 		else:
 			formatted = "+%d" % int(roundf(val))
+		# "+N" → e.g. "+5" (replace whole token so template + sign is consumed)
+		text = text.replace("+N", formatted)
 		text = text.replace("N", formatted)
+
 	return text
 
 # ============================================================================

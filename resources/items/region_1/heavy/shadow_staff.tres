@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=14 format=3 uid="uid://c1popobltweg6"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=15 format=3 uid="uid://c1popobltweg6"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_448xf"]
+[ext_resource type="Resource" uid="uid://lfewhwpmvcyu" path="res://resources/actions/items/region_1/shadow_staff_shadow_bolt_action.tres" id="1_gveej"]
 [ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_sufn8"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_xccfd"]
 [ext_resource type="Resource" uid="uid://dbgj0wcg21i0b" path="res://resources/affixes/base_stats/inherent_mana.tres" id="3_36ivq"]
@@ -41,4 +42,6 @@ elemental_identity = 7
 slot_definition = ExtResource("8_ytql8")
 base_stat_affixes = Array[ExtResource("1_448xf")]([ExtResource("2_sufn8"), ExtResource("3_36ivq")])
 grants_dice = Array[ExtResource("2_xccfd")]([SubResource("Resource_448xf"), SubResource("Resource_xccfd")])
+grants_action = true
+action = ExtResource("1_gveej")
 base_value = 25

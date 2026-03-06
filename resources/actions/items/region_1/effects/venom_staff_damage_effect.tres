@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://cei5nonoyoq3a"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_d30pl"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_2t62l"]
+
+[resource]
+script = ExtResource("1_d30pl")
+effect_name = "Venom Lance: Damage"
+damage_type = 6
+dice_count = 2

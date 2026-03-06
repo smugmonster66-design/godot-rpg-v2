@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=11 format=3 uid="uid://bsik173yxjwnj"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=12 format=3 uid="uid://bsik173yxjwnj"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_e6poo"]
+[ext_resource type="Resource" uid="uid://c16ue6hpnwlnb" path="res://resources/actions/items/region_1/parrying_blade_parry_action.tres" id="1_fgxe3"]
 [ext_resource type="Resource" uid="uid://dlfux8drlkb3t" path="res://resources/affixes/base_stats/inherent_agility.tres" id="2_41ntu"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_pgo5v"]
 [ext_resource type="Resource" uid="uid://dc86xxo6gws3l" path="res://resources/affixes/elements/piercing_element.tres" id="3_41ntu"]
@@ -29,4 +30,6 @@ elemental_identity = 2
 slot_definition = ExtResource("6_phf52")
 base_stat_affixes = Array[ExtResource("1_e6poo")]([ExtResource("2_41ntu"), ExtResource("3_qpl2g")])
 grants_dice = Array[ExtResource("2_pgo5v")]([SubResource("Resource_e6poo")])
+grants_action = true
+action = ExtResource("1_fgxe3")
 base_value = 12

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://2npuvj6x2qqn"]
+
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_mng8w"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_7dhh7"]
+[ext_resource type="Resource" uid="uid://bsywhswtaolcl" path="res://resources/actions/items/region_1/effects/frost_staff_damage_effect.tres" id="3_fwggt"]
+[ext_resource type="Resource" uid="uid://clpm8dssb57cn" path="res://resources/actions/items/region_1/effects/frost_staff_chill_effect.tres" id="4_yoo4r"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="5_pc23f"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="6_if0nm"]
+
+[resource]
+script = ExtResource("6_if0nm")
+action_id = "weapon_frost_staff_frost_bolt"
+action_name = "Frost Bolt"
+action_description = "Applies 5 Chill."
+die_slots = 2
+min_dice_required = 1
+effects = Array[ExtResource("2_7dhh7")]([ExtResource("3_fwggt"), ExtResource("4_yoo4r")])

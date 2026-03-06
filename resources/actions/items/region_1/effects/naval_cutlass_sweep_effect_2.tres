@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://dsajt2qgvh2db"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_ak5iq"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_0n6li"]
+
+[resource]
+script = ExtResource("1_ak5iq")
+effect_name = "Cutlass Sweep: Splash"
+effect_type = 13
+metadata/_custom_type_script = "uid://dqmfu54osidoc"

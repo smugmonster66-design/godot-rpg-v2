@@ -404,22 +404,17 @@ func _calculate_grant_action(context: Dictionary, _cm: float) -> Dictionary:
 # MULTI-TARGET CALCULATIONS
 # ============================================================================
 
-func _calculate_splash(dv: Array, ctx: Dictionary, cm: float) -> Dictionary:
-	var d = _calculate_damage_custom(dv, _resolve_value(base_damage, ctx, cm), damage_multiplier, dice_count)
-	var pd: int = d.get("damage", 0)
-	d.merge({"splash_percent": splash_percent, "splash_damage": int(pd * splash_percent), "splash_all": splash_all, "primary_damage": pd})
-	return d
+func _calculate_splash(_dv: Array, _ctx: Dictionary, _cm: float) -> Dictionary:
+	return {"splash_percent": splash_percent, "splash_all": splash_all}
 
-func _calculate_chain(dv: Array, ctx: Dictionary, cm: float) -> Dictionary:
-	var d = _calculate_damage_custom(dv, _resolve_value(base_damage, ctx, cm), damage_multiplier, dice_count)
-	var pd: int = d.get("damage", 0)
-	var cds: Array[int] = []; var cd = float(pd)
+func _calculate_chain(_dv: Array, _ctx: Dictionary, _cm: float) -> Dictionary:
+	var multipliers: Array[float] = []
+	var m := chain_decay
 	for i in range(chain_count):
-		cd *= chain_decay
-		if int(cd) <= 0: break
-		cds.append(int(cd))
-	d.merge({"chain_count": chain_count, "chain_decay": chain_decay, "chain_can_repeat": chain_can_repeat, "chain_damages": cds, "primary_damage": pd})
-	return d
+		if m <= 0.0: break
+		multipliers.append(m)
+		m *= chain_decay
+	return {"chain_count": chain_count, "chain_decay": chain_decay, "chain_can_repeat": chain_can_repeat, "chain_multipliers": multipliers}
 
 func _calculate_random_strikes(dv: Array, ctx: Dictionary, cm: float) -> Dictionary:
 	var psb = strike_damage if strike_damage > 0 else base_damage

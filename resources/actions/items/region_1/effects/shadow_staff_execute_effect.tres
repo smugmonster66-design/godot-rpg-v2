@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://dfxm8bnwxl7uh"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_fa8ob"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_36twe"]
+
+[resource]
+script = ExtResource("1_fa8ob")
+effect_name = "Shadow Bolt: Execute"
+effect_type = 10
+damage_type = 7
+dice_count = 2
+execute_threshold = 0.2
+execute_bonus = 0.5

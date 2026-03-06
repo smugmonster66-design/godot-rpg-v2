@@ -874,6 +874,9 @@ func _on_action_confirmed(action_data: Dictionary):
 				var dt = DieResource.ELEMENT_TO_DAMAGE_TYPE.get(die_elem, -1)
 				if dt >= 0:
 					animation_set = action_resource.get_animation_for_element(dt)
+		# Fallback to base animation set if action defines none
+		if not animation_set:
+			animation_set = load("res://resources/animations/baseline animations/base_combat_animation_set.tres")
 		# Fallback to default animation_set
 		if not animation_set and action_resource.get("animation_set"):
 			animation_set = action_resource.animation_set
@@ -1549,6 +1552,7 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 				print("  ⚠️ ATTACK: no target in targets array")
 			else:
 				var damage_result: Dictionary = _calculate_damage(action_data, source, target)
+				action_data["_last_damage_result"] = damage_result
 				var raw_damage: int = damage_result.total_damage
 				
 				# --- DEFENSIVE STATUSES: Dodge, Block, Overhealth ---
@@ -1567,6 +1571,7 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 						" (CRIT!)" if is_crit else ""])
 					if damage > 0:
 						target.take_damage(damage)
+						
 					
 					# --- THREAT: Add damage threat to all enemies ---
 					if source == player_combatant or _is_companion(source):
@@ -1728,7 +1733,12 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 				source, primary_target, all_enemies_alive, all_allies, dice_values
 			)
 			
-			_process_action_effect_results(results, source)
+			var primary_dmg: int = 0
+			if targets.size() > 0:
+				if action_data.has("_last_damage_result"):
+					var dmg_result: Dictionary = action_data["_last_damage_result"]
+					primary_dmg = dmg_result.get("total_damage", 0)
+			_process_action_effect_results(results, source, primary_dmg)
 	# --- END STATUS ---
 	
 	# --- v4 MANA SYSTEM: Resolve queued combat and mana events ---
@@ -2134,7 +2144,7 @@ func _sync_player_health():
 # ACTION EFFECT RESULT PROCESSING (v3.1 — 21 EffectTypes)
 # ============================================================================
 
-func _process_action_effect_results(results: Array[Dictionary], source: Combatant) -> void:
+func _process_action_effect_results(results: Array[Dictionary], source: Combatant, primary_damage: int = 0) -> void:
 	"""Process ActionEffect execution results for all 21 effect types.
 	Called after Action.execute_simple() returns results.
 	
@@ -2143,6 +2153,7 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 		source: The Combatant that used the action (needed for self-targeting effects).
 	"""
 	var source_name: String = source.combatant_name if source else "Unknown"
+	var last_primary_damage: int = primary_damage
 	
 	for result in results:
 		var effect_type = result.get("effect_type", -1)
@@ -2264,11 +2275,11 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 					elif target_node == player_combatant and player and player.status_tracker:
 						mark_tracker = player.status_tracker
 					if mark_tracker:
-						var existing = mark_tracker.get_stacks(ms.affix_id)
+						var existing = mark_tracker.get_stacks(ms.status_id)
 						if existing > 0:
 							var bonus = result.get("mark_consume_bonus", 5)
 							var combo_dmg = existing * bonus
-							mark_tracker.remove_stacks(ms.affix_id, existing)
+							mark_tracker.remove_stacks(ms.status_id, existing)
 							if target_node.has_method("take_damage"):
 								target_node.take_damage(combo_dmg)
 							print("  🔥 Combo: %d marks × %d = %d" % [existing, bonus, combo_dmg])
@@ -2296,11 +2307,8 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 			# ── Multi-Target ──
 			ActionEffect.EffectType.SPLASH:
 				var primary_dmg: int = result.get("primary_damage", result.get("damage", 0))
-				var splash_dmg: int = result.get("splash_damage", 0)
+				var splash_dmg: int = int(primary_dmg * result.get("splash_percent", 0.5))
 				var target_node = result.get("target")
-				if primary_dmg > 0 and target_node and target_node.has_method("take_damage"):
-					target_node.take_damage(primary_dmg)
-					_update_and_check_target(target_node)
 				if splash_dmg > 0:
 					for st in _get_splash_targets(target_node, result.get("splash_all", false)):
 						if st.has_method("take_damage"):
@@ -2309,19 +2317,16 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 							_update_and_check_target(st)
 
 			ActionEffect.EffectType.CHAIN:
-				var primary_dmg: int = result.get("primary_damage", result.get("damage", 0))
-				var chain_damages: Array = result.get("chain_damages", [])
+				var multipliers: Array = result.get("chain_multipliers", [])
 				var target_node = result.get("target")
-				if primary_dmg > 0 and target_node and target_node.has_method("take_damage"):
-					target_node.take_damage(primary_dmg)
-					_update_and_check_target(target_node)
 				var chain_tgts = _get_chain_targets(
 					target_node, result.get("chain_can_repeat", false))
-				for i in range(mini(chain_damages.size(), chain_tgts.size())):
+				for i in range(mini(multipliers.size(), chain_tgts.size())):
 					var ct = chain_tgts[i]
-					if ct.is_alive() and ct.has_method("take_damage"):
-						ct.take_damage(chain_damages[i])
-						print("  ⚡ Chain %d: %d → %s" % [i + 1, chain_damages[i], ct.combatant_name])
+					var chain_dmg: int = int(last_primary_damage * multipliers[i])
+					if chain_dmg > 0 and ct.is_alive() and ct.has_method("take_damage"):
+						ct.take_damage(chain_dmg)
+						print("  ⚡ Chain %d: %d → %s" % [i + 1, chain_dmg, ct.combatant_name])
 						_update_and_check_target(ct)
 
 			ActionEffect.EffectType.RANDOM_STRIKES:

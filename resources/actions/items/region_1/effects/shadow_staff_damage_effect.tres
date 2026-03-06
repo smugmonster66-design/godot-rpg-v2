@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://bfv6gqfqh6vj7"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_hf3vo"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_lol53"]
+
+[resource]
+script = ExtResource("1_hf3vo")
+effect_name = "Shadow Bolt: Damage"
+damage_type = 7
+dice_count = 2

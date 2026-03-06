@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://bscp3ltixgo1x"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_slcbi"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_8exm7"]
+
+[resource]
+script = ExtResource("1_slcbi")
+effect_name = "Ember Shot: Damage"
+damage_type = 3

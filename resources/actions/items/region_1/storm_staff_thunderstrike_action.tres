@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://erq27l03lphc"]
+
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_rdvr3"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_s20om"]
+[ext_resource type="Resource" uid="uid://dxa6mfwjjgli" path="res://resources/actions/items/region_1/effects/storm_staff_static_effect.tres" id="3_lbndf"]
+[ext_resource type="Resource" uid="uid://4a37xahjxw2h" path="res://resources/actions/items/region_1/effects/storm_staff_chain_effect.tres" id="4_3uuln"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="5_ijtst"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="6_sfvla"]
+
+[resource]
+script = ExtResource("6_sfvla")
+action_id = "weapon_storm_staff_thunderstrike"
+action_name = "Thunderstrike"
+action_description = "Applies 3 Static. Chains to a second target for half damage."
+die_slots = 2
+min_dice_required = 1
+effects = Array[ExtResource("2_s20om")]([ExtResource("3_lbndf"), ExtResource("4_3uuln")])

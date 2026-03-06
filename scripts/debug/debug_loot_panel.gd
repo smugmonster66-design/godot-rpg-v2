@@ -9,6 +9,7 @@ extends Control
 
 const TOGGLE_KEY := KEY_EQUAL
 const UI_SCALE := 2  # Multiplier for all sizes
+const ITEM_BASE_PATH := "res://resources/items/"
 
 ## If true, panel starts hidden.
 @export var start_hidden: bool = true
@@ -29,17 +30,21 @@ var _table_roll_button: Button
 var _table_roll_count_spin: SpinBox
 
 # -- Tab 2: Raw Item --
+var _raw_region_spin: SpinBox
 var _raw_slot_dropdown: OptionButton
+var _raw_item_dropdown: OptionButton
 var _raw_rarity_dropdown: OptionButton
 var _raw_level_slider: HSlider
 var _raw_level_label: Label
-var _raw_region_spin: SpinBox
 var _raw_generate_button: Button
 
 # -- Shared --
 var _results_scroll: ScrollContainer
 var _results_vbox: VBoxContainer
 var _clear_button: Button
+
+# Populated by _scan_region(). slot_name -> Array of {name, path}
+var _items_by_slot: Dictionary = {}
 
 # ============================================================================
 # LIFECYCLE
@@ -197,14 +202,14 @@ func _build_table_tab() -> void:
 	_table_level_slider = HSlider.new()
 	_table_level_slider.min_value = 1
 	_table_level_slider.max_value = 100
-	_table_level_slider.value = 15
+	_table_level_slider.value = 1
 	_table_level_slider.step = 1
 	_table_level_slider.custom_minimum_size.y = _sf(16)
 	_table_level_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_table_level_slider.value_changed.connect(func(v): _table_level_label.text = str(int(v)))
 	level_hbox.add_child(_table_level_slider)
 	_table_level_label = Label.new()
-	_table_level_label.text = "15"
+	_table_level_label.text = "1"
 	_table_level_label.theme_type_variation = &"caption"
 	_table_level_label.custom_minimum_size.x = _sf(30)
 	level_hbox.add_child(_table_level_label)
@@ -244,35 +249,7 @@ func _build_raw_tab() -> void:
 	vbox.add_theme_constant_override("separation", _s(6))
 	_tab_container.add_child(vbox)
 
-	vbox.add_child(_label("Equip Slot:"))
-	_raw_slot_dropdown = OptionButton.new()
-	vbox.add_child(_raw_slot_dropdown)
-
-	var rar_hbox := HBoxContainer.new()
-	vbox.add_child(rar_hbox)
-	rar_hbox.add_child(_label("Rarity:"))
-	_raw_rarity_dropdown = OptionButton.new()
-	_raw_rarity_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	rar_hbox.add_child(_raw_rarity_dropdown)
-
-	var level_hbox := HBoxContainer.new()
-	vbox.add_child(level_hbox)
-	level_hbox.add_child(_label("Level:"))
-	_raw_level_slider = HSlider.new()
-	_raw_level_slider.min_value = 1
-	_raw_level_slider.max_value = 100
-	_raw_level_slider.value = 15
-	_raw_level_slider.step = 1
-	_raw_level_slider.custom_minimum_size.y = _sf(16)
-	_raw_level_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_raw_level_slider.value_changed.connect(func(v): _raw_level_label.text = str(int(v)))
-	level_hbox.add_child(_raw_level_slider)
-	_raw_level_label = Label.new()
-	_raw_level_label.text = "15"
-	_raw_level_label.theme_type_variation = &"caption"
-	_raw_level_label.custom_minimum_size.x = _sf(30)
-	level_hbox.add_child(_raw_level_label)
-
+	# Region spinner — drives which region_N folder to scan
 	var reg_hbox := HBoxContainer.new()
 	vbox.add_child(reg_hbox)
 	reg_hbox.add_child(_label("Region:"))
@@ -280,12 +257,95 @@ func _build_raw_tab() -> void:
 	_raw_region_spin.min_value = 1
 	_raw_region_spin.max_value = 6
 	_raw_region_spin.value = 1
+	_raw_region_spin.value_changed.connect(_on_raw_region_changed)
 	reg_hbox.add_child(_raw_region_spin)
+
+	vbox.add_child(_label("Slot:"))
+	_raw_slot_dropdown = OptionButton.new()
+	_raw_slot_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_raw_slot_dropdown.item_selected.connect(_on_raw_slot_selected)
+	vbox.add_child(_raw_slot_dropdown)
+
+	vbox.add_child(_label("Item:"))
+	_raw_item_dropdown = OptionButton.new()
+	_raw_item_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_child(_raw_item_dropdown)
+
+	vbox.add_child(_label("Rarity:"))
+	_raw_rarity_dropdown = OptionButton.new()
+	_raw_rarity_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_child(_raw_rarity_dropdown)
+
+	var level_hbox := HBoxContainer.new()
+	vbox.add_child(level_hbox)
+	level_hbox.add_child(_label("Level:"))
+	_raw_level_slider = HSlider.new()
+	_raw_level_slider.min_value = 1
+	_raw_level_slider.max_value = 100
+	_raw_level_slider.value = 1
+	_raw_level_slider.step = 1
+	_raw_level_slider.custom_minimum_size.y = _sf(16)
+	_raw_level_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_raw_level_slider.value_changed.connect(func(v): _raw_level_label.text = str(int(v)))
+	level_hbox.add_child(_raw_level_slider)
+	_raw_level_label = Label.new()
+	_raw_level_label.text = "1"
+	_raw_level_label.theme_type_variation = &"caption"
+	_raw_level_label.custom_minimum_size.x = _sf(30)
+	level_hbox.add_child(_raw_level_label)
 
 	_raw_generate_button = Button.new()
 	_raw_generate_button.text = "Generate Item"
 	_raw_generate_button.pressed.connect(_on_generate_raw)
 	vbox.add_child(_raw_generate_button)
+
+
+# ============================================================================
+# ITEM SCANNING
+# ============================================================================
+
+# Scans res://resources/items/region_N/ and builds _items_by_slot.
+# Each slot folder name becomes a key; .tres files within are the items.
+func _scan_region(region: int) -> void:
+	_items_by_slot.clear()
+	var region_path := ITEM_BASE_PATH + "region_%d/" % region
+	var dir := DirAccess.open(region_path)
+	if not dir:
+		push_warning("DebugLootPanel: could not open %s" % region_path)
+		return
+
+	dir.list_dir_begin()
+	var slot_folder := dir.get_next()
+	while slot_folder != "":
+		if dir.current_is_dir():
+			var slot_path := region_path + slot_folder + "/"
+			var slot_items := _scan_slot_folder(slot_path)
+			if not slot_items.is_empty():
+				_items_by_slot[slot_folder] = slot_items
+		slot_folder = dir.get_next()
+	dir.list_dir_end()
+
+	if _items_by_slot.is_empty():
+		push_warning("DebugLootPanel: no items found in %s" % region_path)
+
+
+func _scan_slot_folder(path: String) -> Array:
+	var results: Array = []
+	var dir := DirAccess.open(path)
+	if not dir:
+		return results
+	dir.list_dir_begin()
+	var fname := dir.get_next()
+	while fname != "":
+		if not dir.current_is_dir() and fname.ends_with(".tres"):
+			var full_path := path + fname
+			var res := ResourceLoader.load(full_path, "", ResourceLoader.CACHE_MODE_IGNORE)
+			if res != null and res.has_method("get_slot_name") and res.get("item_name") != null:
+				results.append({ "name": (res as EquippableItem).item_name, "path": full_path })
+		fname = dir.get_next()
+	dir.list_dir_end()
+	results.sort_custom(func(a, b): return a["name"] < b["name"])
+	return results
 
 
 # ============================================================================
@@ -302,10 +362,37 @@ func _populate_dropdowns() -> void:
 			dropdown.add_item(rarity_names[i], i)
 	_raw_rarity_dropdown.selected = 3
 
+	_refresh_raw_slots()
+
+
+func _refresh_raw_slots() -> void:
+	_scan_region(int(_raw_region_spin.value))
 	_raw_slot_dropdown.clear()
-	var slot_names := ["Head", "Torso", "Gloves", "Boots", "Main Hand", "Off Hand", "Heavy", "Accessory"]
-	for i in slot_names.size():
-		_raw_slot_dropdown.add_item(slot_names[i], i)
+	var slot_names: Array = _items_by_slot.keys()
+	slot_names.sort()
+	for slot_name in slot_names:
+		_raw_slot_dropdown.add_item(slot_name)
+	if not slot_names.is_empty():
+		_populate_raw_items_for_slot(slot_names[0])
+	else:
+		_raw_item_dropdown.clear()
+		_raw_item_dropdown.disabled = true
+
+
+func _populate_raw_items_for_slot(slot_name: String) -> void:
+	_raw_item_dropdown.clear()
+	var items: Array = _items_by_slot.get(slot_name, [])
+	for entry in items:
+		_raw_item_dropdown.add_item(entry["name"])
+	_raw_item_dropdown.disabled = items.is_empty()
+
+
+func _on_raw_region_changed(_value: float) -> void:
+	_refresh_raw_slots()
+
+
+func _on_raw_slot_selected(idx: int) -> void:
+	_populate_raw_items_for_slot(_raw_slot_dropdown.get_item_text(idx))
 
 
 func _refresh_table_list() -> void:
@@ -383,40 +470,47 @@ func _on_roll_table() -> void:
 
 
 func _on_generate_raw() -> void:
-	var slot_idx: int = _raw_slot_dropdown.selected
+	var slot_name: String = _raw_slot_dropdown.get_item_text(_raw_slot_dropdown.selected)
+	var item_idx: int = _raw_item_dropdown.selected
 	var rarity_idx: int = _raw_rarity_dropdown.selected
 	var level: int = int(_raw_level_slider.value)
 	var region: int = int(_raw_region_spin.value)
 
-	var template := EquippableItem.new()
-	template.item_name = _generate_item_name(slot_idx, rarity_idx)
-	template.equip_slot = slot_idx as EquippableItem.EquipSlot
-	template.rarity = (rarity_idx - 1) if rarity_idx > 0 else EquippableItem.Rarity.RARE
-	template.item_level = level
-	template.region = region
+	var items: Array = _items_by_slot.get(slot_name, [])
+	if item_idx < 0 or item_idx >= items.size():
+		_add_result_line("[color=red]No item selected[/color]")
+		return
 
-	_add_result_line("[color=gray]-- Generating %s (Lv.%d R%d %s) --[/color]" % [
-		template.item_name, level, region,
-		EquippableItem.Rarity.keys()[template.rarity]])
+	var entry: Dictionary = items[item_idx]
+	var loaded := ResourceLoader.load(entry["path"], "", ResourceLoader.CACHE_MODE_IGNORE)
+	if not loaded:
+		_add_result_line("[color=red]Failed to load: %s[/color]" % entry["path"])
+		return
 
-	if _has_loot_manager():
-		var result := LootManager.generate_drop(template, level, region)
-		var item: EquippableItem = result.get("item")
-		if item:
-			_add_item_result(item)
-			var player := _get_player()
-			if player:
-				player.add_to_inventory(item)
-				_add_result_line("[color=green]Added to inventory[/color]")
-			return
+	var item: EquippableItem = loaded.duplicate()
+	item.item_level = level
+	item.region = region
 
-	template.initialize_affixes()
-	_add_item_result(template)
+	if rarity_idx > 0:
+		item.rarity = rarity_idx - 1
+
+	item.item_affixes.clear()
+	item.inherent_affixes.clear()
+	item.rolled_affixes.clear()
+	item.initialize_affixes()
+
+	var rarity_name: String = EquippableItem.Rarity.keys()[item.rarity]
+	_add_result_line("[color=gray]-- Spawning %s (Lv.%d R%d %s) --[/color]" % [
+		entry["name"], level, region, rarity_name])
+
+	_add_item_result(item)
 
 	var player := _get_player()
 	if player:
-		player.add_to_inventory(template)
+		player.add_to_inventory(item)
 		_add_result_line("[color=green]Added to inventory[/color]")
+	else:
+		_add_result_line("[color=yellow]No player - displayed only[/color]")
 
 
 # ============================================================================
@@ -513,17 +607,6 @@ func _get_rarity_hex(rarity: int) -> String:
 		3: return "cc55ff"
 		4: return "ffaa33"
 		_: return "ffffff"
-
-
-func _generate_item_name(slot_idx: int, rarity_idx: int) -> String:
-	var slot_names := ["Helm", "Chestpiece", "Gauntlets", "Greaves",
-					   "Blade", "Shield", "Greatsword", "Ring"]
-	var prefixes := ["", "Sturdy", "Fine", "Runed", "Mythic"]
-	var slot_name: String = slot_names[slot_idx] if slot_idx < slot_names.size() else "Item"
-	var prefix: String = prefixes[rarity_idx] if rarity_idx < prefixes.size() else "Debug"
-	if prefix.is_empty():
-		return "Debug %s" % slot_name
-	return "%s %s" % [prefix, slot_name]
 
 
 # ============================================================================

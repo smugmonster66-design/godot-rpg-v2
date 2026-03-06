@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=13 format=3 uid="uid://cvaptd3rg4lsg"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=14 format=3 uid="uid://cvaptd3rg4lsg"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_8db64"]
+[ext_resource type="Resource" uid="uid://b2lr4vrn2kmlb" path="res://resources/actions/items/region_1/naval_cutlass_sweep_action.tres" id="1_n5rm6"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_a1tb1"]
 [ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_kbm27"]
 [ext_resource type="Resource" uid="uid://bdq7d6do7p3vo" path="res://resources/affixes/elements/slashing_element.tres" id="3_kbm27"]
@@ -30,4 +31,6 @@ has_elemental_identity = true
 slot_definition = ExtResource("8_g4b4v")
 base_stat_affixes = Array[ExtResource("1_8db64")]([ExtResource("2_kbm27"), ExtResource("3_n12cx")])
 grants_dice = Array[ExtResource("2_a1tb1")]([SubResource("Resource_8db64")])
+grants_action = true
+action = ExtResource("1_n5rm6")
 base_value = 15

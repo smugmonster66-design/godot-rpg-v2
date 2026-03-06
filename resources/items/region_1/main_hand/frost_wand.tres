@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=11 format=3 uid="uid://ce0egc5uw63cw"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=12 format=3 uid="uid://ce0egc5uw63cw"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_3jub3"]
+[ext_resource type="Resource" uid="uid://cbtal54g3lfd1" path="res://resources/actions/items/region_1/frost_wand_ice_shard_action.tres" id="1_7klrb"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_47n1r"]
 [ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_fd3o5"]
 [ext_resource type="Resource" uid="uid://6rsbaoccvjqc" path="res://resources/affixes/elements/ice_element.tres" id="3_fd3o5"]
@@ -29,3 +30,5 @@ elemental_identity = 4
 slot_definition = ExtResource("6_pgvul")
 base_stat_affixes = Array[ExtResource("1_3jub3")]([ExtResource("2_fd3o5"), ExtResource("3_xy0f2")])
 grants_dice = Array[ExtResource("2_47n1r")]([SubResource("Resource_3jub3")])
+grants_action = true
+action = ExtResource("1_7klrb")

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://c16ue6hpnwlnb"]
+
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_1o8tc"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_10hj1"]
+[ext_resource type="Resource" uid="uid://cm6281dwrdmwu" path="res://resources/actions/items/region_1/effects/parrying_blade_dmg_reduction_effect.tres" id="3_j1x4y"]
+[ext_resource type="Resource" uid="uid://xjyihuqke7k6" path="res://resources/actions/items/region_1/effects/parrying_blade_counter_setup_effect.tres" id="4_wl7ag"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="5_l387t"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="6_au70i"]
+
+[resource]
+script = ExtResource("6_au70i")
+action_id = "weapon_parrying_blade_parry"
+action_name = "Parry"
+action_description = "50% damage reduction on the next hit taken. Counters immediately with a piercing strike."
+min_dice_required = 1
+cooldown_turns = 2
+effects = Array[ExtResource("2_10hj1")]([ExtResource("3_j1x4y"), ExtResource("4_wl7ag")])

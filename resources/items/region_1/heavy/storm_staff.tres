@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=14 format=3 uid="uid://coxryhl4iqj3"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=15 format=3 uid="uid://coxryhl4iqj3"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_1llio"]
+[ext_resource type="Resource" uid="uid://erq27l03lphc" path="res://resources/actions/items/region_1/storm_staff_thunderstrike_action.tres" id="1_2cuef"]
 [ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_gy7r3"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_tpf51"]
 [ext_resource type="Resource" uid="uid://bgw24wqldi0fd" path="res://resources/affixes/elements/shock_element.tres" id="3_gy7r3"]
@@ -41,4 +42,6 @@ elemental_identity = 5
 slot_definition = ExtResource("8_ggubi")
 base_stat_affixes = Array[ExtResource("1_1llio")]([ExtResource("2_gy7r3"), ExtResource("3_myqu7")])
 grants_dice = Array[ExtResource("2_tpf51")]([SubResource("Resource_1llio"), SubResource("Resource_tpf51")])
+grants_action = true
+action = ExtResource("1_2cuef")
 base_value = 25

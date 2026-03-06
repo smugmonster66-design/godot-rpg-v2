@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=11 format=3 uid="uid://dab6uqulv8s3q"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=12 format=3 uid="uid://dab6uqulv8s3q"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_2b680"]
+[ext_resource type="Resource" uid="uid://cwkicw4lt0li6" path="res://resources/actions/items/region_1/iron_warhammer_pulverize_action.tres" id="1_h4qp8"]
 [ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_20n3h"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_hce4c"]
 [ext_resource type="Resource" uid="uid://2a7ntncvy5ij" path="res://resources/affixes/elements/blunt_element.tres" id="3_20n3h"]
@@ -29,4 +30,6 @@ elemental_identity = 1
 slot_definition = ExtResource("6_gclur")
 base_stat_affixes = Array[ExtResource("1_2b680")]([ExtResource("2_20n3h"), ExtResource("3_gddo5")])
 grants_dice = Array[ExtResource("2_hce4c")]([SubResource("Resource_2b680")])
+grants_action = true
+action = ExtResource("1_h4qp8")
 base_value = 25

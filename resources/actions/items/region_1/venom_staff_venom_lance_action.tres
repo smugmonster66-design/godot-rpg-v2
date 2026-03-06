@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://1ahb8svt4h4y"]
+
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_fxfnp"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_ksmcg"]
+[ext_resource type="Resource" uid="uid://cei5nonoyoq3a" path="res://resources/actions/items/region_1/effects/venom_staff_damage_effect.tres" id="3_8gxq2"]
+[ext_resource type="Resource" uid="uid://cfs1ss7v3vvsh" path="res://resources/actions/items/region_1/effects/venom_staff_poison_effect.tres" id="4_lale5"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="5_fmp6x"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="6_v8wqv"]
+
+[resource]
+script = ExtResource("6_v8wqv")
+action_id = "weapon_venom_staff_venom_lance"
+action_name = "Venom Lance"
+action_description = "Applies 4 Poison."
+die_slots = 2
+min_dice_required = 1
+effects = Array[ExtResource("2_ksmcg")]([ExtResource("3_8gxq2"), ExtResource("4_lale5")])

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://b78ugw6eyfk6i"]
+
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_kdpj1"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_0c2bq"]
+[ext_resource type="Resource" uid="uid://ksj3m7jx6qbl" path="res://resources/actions/items/region_1/effects/longbow_volley_effect.tres" id="3_n1g16"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_0e5ln"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="5_usdyo"]
+
+[resource]
+script = ExtResource("5_usdyo")
+action_id = "weapon_longbow_volley"
+action_name = "Volley"
+action_description = "Fire two arrows at random targets."
+die_slots = 2
+min_dice_required = 1
+effects = Array[ExtResource("2_0c2bq")]([ExtResource("3_n1g16")])

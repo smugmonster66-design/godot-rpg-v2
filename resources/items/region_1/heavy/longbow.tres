@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=14 format=3 uid="uid://bi1upc4nqq26l"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=15 format=3 uid="uid://bi1upc4nqq26l"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_qlr4h"]
+[ext_resource type="Resource" uid="uid://b78ugw6eyfk6i" path="res://resources/actions/items/region_1/longbow_volley_action.tres" id="1_t68ls"]
 [ext_resource type="Resource" uid="uid://dlfux8drlkb3t" path="res://resources/affixes/base_stats/inherent_agility.tres" id="2_dq1qn"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_ur0jj"]
 [ext_resource type="Resource" uid="uid://dc86xxo6gws3l" path="res://resources/affixes/elements/piercing_element.tres" id="3_dq1qn"]
@@ -40,4 +41,6 @@ elemental_identity = 2
 slot_definition = ExtResource("8_fbby6")
 base_stat_affixes = Array[ExtResource("1_qlr4h")]([ExtResource("2_dq1qn"), ExtResource("3_jjthk")])
 grants_dice = Array[ExtResource("2_ur0jj")]([SubResource("Resource_qlr4h"), SubResource("Resource_ur0jj")])
+grants_action = true
+action = ExtResource("1_t68ls")
 base_value = 25

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=4 format=3 uid="uid://xjyihuqke7k6"]
+
+[ext_resource type="Resource" uid="uid://325nolyrftl2" path="res://resources/actions/items/region_1/effects/parrying_blade_counter_damage_effect.tres" id="1_y126v"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_als3p"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="3_pdirn"]
+
+[resource]
+script = ExtResource("2_als3p")
+effect_name = "Parry: Counter Setup"
+target = 0
+effect_type = 21
+counter_effect = ExtResource("1_y126v")

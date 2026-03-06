@@ -1,24 +1,35 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=13 format=3 uid="uid://daj3cqcqxs5q6"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=15 format=3 uid="uid://daj3cqcqxs5q6"]
 
+[ext_resource type="Resource" uid="uid://ch7t77sn76x28" path="res://resources/actions/items/region_1/officers_rapier_lunge_action.tres" id="1_0u1kv"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_hohyo"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_ci4m0"]
 [ext_resource type="Resource" uid="uid://dlfux8drlkb3t" path="res://resources/affixes/base_stats/inherent_agility.tres" id="2_lqycb"]
 [ext_resource type="Resource" uid="uid://dc86xxo6gws3l" path="res://resources/affixes/elements/piercing_element.tres" id="3_lqycb"]
 [ext_resource type="Resource" uid="uid://ckylwdt2phbob" path="res://resources/affixes/base_stats/inherent_damage.tres" id="3_xw4cf"]
-[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="4_xw4cf"]
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="5_0u1kv"]
-[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="6_6wjls"]
+[ext_resource type="Texture2D" uid="uid://b0vo6kryy0h8k" path="res://assets/dice/d4s/d4-fill-basic.png" id="7_0u1kv"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="7_8ure5"]
 [ext_resource type="Resource" uid="uid://hnmjxghaf5mm" path="res://resources/slot_definitions/main_hand_slot.tres" id="8_42jnh"]
+[ext_resource type="Texture2D" uid="uid://chvsl8icqe00h" path="res://assets/dice/d4s/d4-stroke-basic.png" id="9_6wjls"]
 [ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="9_xw4cf"]
 
 [sub_resource type="Resource" id="Resource_hohyo"]
 script = ExtResource("2_ci4m0")
-display_name = "D6"
+display_name = "D4"
+die_type = 4
 element = 3
 element_affix = ExtResource("3_lqycb")
-fill_texture = ExtResource("4_xw4cf")
-stroke_texture = ExtResource("6_6wjls")
+fill_texture = ExtResource("7_0u1kv")
+stroke_texture = ExtResource("9_6wjls")
+
+[sub_resource type="Resource" id="Resource_8ure5"]
+script = ExtResource("2_ci4m0")
+die_type = 4
+element = 3
+element_affix = ExtResource("3_lqycb")
+fill_texture = ExtResource("7_0u1kv")
+stroke_texture = ExtResource("9_6wjls")
+metadata/_custom_type_script = "uid://d3l85pyscg85h"
 
 [resource]
 script = ExtResource("7_8ure5")
@@ -30,5 +41,7 @@ has_elemental_identity = true
 elemental_identity = 2
 slot_definition = ExtResource("8_42jnh")
 base_stat_affixes = Array[ExtResource("1_hohyo")]([ExtResource("2_lqycb"), ExtResource("3_xw4cf")])
-grants_dice = Array[ExtResource("2_ci4m0")]([SubResource("Resource_hohyo")])
+grants_dice = Array[ExtResource("2_ci4m0")]([SubResource("Resource_hohyo"), SubResource("Resource_8ure5")])
+grants_action = true
+action = ExtResource("1_0u1kv")
 base_value = 15

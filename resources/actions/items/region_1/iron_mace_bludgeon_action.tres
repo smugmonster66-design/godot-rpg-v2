@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://du8dsjx0ygnhu"]
+
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_asfhs"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_v1xp8"]
+[ext_resource type="Resource" uid="uid://2ee81u7vmobh" path="res://resources/actions/items/region_1/effects/iron_mace_damage_effect.tres" id="3_mtgj2"]
+[ext_resource type="Resource" uid="uid://capevh6d4uab5" path="res://resources/actions/items/region_1/effects/iron_mace_stunned_effect.tres" id="4_2sxsc"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="5_vy5kt"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="6_sme15"]
+
+[resource]
+script = ExtResource("6_sme15")
+action_id = "weapon_iron_mace_bludgeon"
+action_name = "Bludgeon"
+action_description = "Applies Stun."
+min_dice_required = 1
+effects = Array[ExtResource("2_v1xp8")]([ExtResource("3_mtgj2"), ExtResource("4_2sxsc")])

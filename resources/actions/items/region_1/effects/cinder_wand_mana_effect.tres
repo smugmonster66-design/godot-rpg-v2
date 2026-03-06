@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://8s7bqwqyrxa2"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_bg14b"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_5jnsy"]
+
+[resource]
+script = ExtResource("1_bg14b")
+effect_name = "Ember Shot: Mana Restore"
+target = 0
+effect_type = 16
+mana_amount = 1

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://b2lr4vrn2kmlb"]
+
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_0t6sf"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_bfsg3"]
+[ext_resource type="Resource" uid="uid://bqhxcok5rj5tm" path="res://resources/actions/items/region_1/effects/naval_cutlass_sweep_effect.tres" id="3_2hami"]
+[ext_resource type="Resource" uid="uid://dsajt2qgvh2db" path="res://resources/actions/items/region_1/effects/naval_cutlass_sweep_effect_2.tres" id="4_bfsg3"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_p27fs"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="5_xtsmk"]
+
+[resource]
+script = ExtResource("5_xtsmk")
+action_id = "weapon_naval_cutlass_sweep"
+action_name = "Cutlass Sweep"
+action_description = "Deals 50% damage to an adjacent enemy. "
+damage_formula = "+50% splash damage."
+min_dice_required = 1
+effects = Array[ExtResource("2_bfsg3")]([ExtResource("3_2hami"), ExtResource("4_bfsg3")])

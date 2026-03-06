@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://dmjl1yoyotvlh"]
+
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_eevfk"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_ooxfb"]
+[ext_resource type="Resource" uid="uid://bscp3ltixgo1x" path="res://resources/actions/items/region_1/effects/cinder_wand_damage_effect.tres" id="3_m5twt"]
+[ext_resource type="Resource" uid="uid://cr8nh4uonp718" path="res://resources/actions/items/region_1/effects/cinder_wand_burn_effect.tres" id="4_yjdyh"]
+[ext_resource type="Resource" uid="uid://8s7bqwqyrxa2" path="res://resources/actions/items/region_1/effects/cinder_wand_mana_effect.tres" id="5_kmkdh"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_s88r5"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_bi4wc"]
+
+[resource]
+script = ExtResource("7_bi4wc")
+action_id = "weapon_cinder_wand_ember_shot"
+action_name = "Ember Shot"
+action_description = "Applies 1 Burn. Restores 1 mana."
+min_dice_required = 1
+effects = Array[ExtResource("2_ooxfb")]([ExtResource("3_m5twt"), ExtResource("4_yjdyh"), ExtResource("5_kmkdh")])

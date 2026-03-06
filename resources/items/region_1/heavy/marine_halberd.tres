@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=11 format=3 uid="uid://4c56rt5hegkx"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=12 format=3 uid="uid://4c56rt5hegkx"]
 
+[ext_resource type="Resource" uid="uid://dunfmoxxyheng" path="res://resources/actions/items/region_1/marine_halberd_formation_thrust_action.tres" id="1_2a1m5"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_umq3p"]
 [ext_resource type="Resource" uid="uid://mag5wcqjwga2" path="res://resources/affixes/base_stats/inherent_strength.tres" id="2_8b2ys"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_me3us"]
@@ -29,4 +30,6 @@ elemental_identity = 2
 slot_definition = ExtResource("6_pyjeo")
 base_stat_affixes = Array[ExtResource("1_umq3p")]([ExtResource("2_8b2ys"), ExtResource("3_3v7db")])
 grants_dice = Array[ExtResource("2_me3us")]([SubResource("Resource_umq3p")])
+grants_action = true
+action = ExtResource("1_2a1m5")
 base_value = 25

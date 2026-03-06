@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://bgg8ko7ytyol5"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_wsr68"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_btqnr"]
+
+[resource]
+script = ExtResource("1_wsr68")
+effect_name = "Ice Shard: Mana Restore"
+target = 0
+effect_type = 16
+mana_amount = 1

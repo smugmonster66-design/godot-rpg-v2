@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=11 format=3 uid="uid://csvossjigmmmn"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=12 format=3 uid="uid://csvossjigmmmn"]
 
+[ext_resource type="Resource" uid="uid://lo6bwt0jpmmv" path="res://resources/actions/items/region_1/sanctum_stiletto_puncture_action.tres" id="1_dv8h0"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_pfnoe"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_ahuen"]
 [ext_resource type="Resource" uid="uid://dlfux8drlkb3t" path="res://resources/affixes/base_stats/inherent_agility.tres" id="2_neadc"]
@@ -28,3 +29,5 @@ elemental_identity = 2
 slot_definition = ExtResource("6_dog6j")
 base_stat_affixes = Array[ExtResource("1_pfnoe")]([ExtResource("2_neadc"), ExtResource("3_6748y")])
 grants_dice = Array[ExtResource("2_ahuen")]([SubResource("Resource_pfnoe")])
+grants_action = true
+action = ExtResource("1_dv8h0")

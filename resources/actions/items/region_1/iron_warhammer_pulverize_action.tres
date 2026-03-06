@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://cwkicw4lt0li6"]
+
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_ik5ci"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_lirm1"]
+[ext_resource type="Resource" uid="uid://brn5m512ewrol" path="res://resources/actions/items/region_1/effects/iron_warhammer_damage_effect.tres" id="3_yld7f"]
+[ext_resource type="Resource" uid="uid://d1uf27torvou5" path="res://resources/actions/items/region_1/effects/iron_warhammer_corrode_effect.tres" id="4_qffne"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="5_576na"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="6_7i2iu"]
+
+[resource]
+script = ExtResource("6_7i2iu")
+action_id = "weapon_iron_warhammer_pulverize"
+action_name = "Pulverize"
+action_description = "Applies 3 Corrode. "
+min_dice_required = 1
+effects = Array[ExtResource("2_lirm1")]([ExtResource("3_yld7f"), ExtResource("4_qffne")])

@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=14 format=3 uid="uid://bhyr02fejrmnu"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=15 format=3 uid="uid://bhyr02fejrmnu"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_vco7a"]
+[ext_resource type="Resource" uid="uid://1ahb8svt4h4y" path="res://resources/actions/items/region_1/venom_staff_venom_lance_action.tres" id="1_ytueq"]
 [ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="2_56gle"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_ulkoh"]
 [ext_resource type="Resource" uid="uid://d30mnsg7qdo5r" path="res://resources/affixes/elements/poison_element.tres" id="3_56gle"]
@@ -41,4 +42,6 @@ elemental_identity = 6
 slot_definition = ExtResource("8_4kjcn")
 base_stat_affixes = Array[ExtResource("1_vco7a")]([ExtResource("2_56gle"), ExtResource("3_wtm60")])
 grants_dice = Array[ExtResource("2_ulkoh")]([SubResource("Resource_vco7a"), SubResource("Resource_ulkoh")])
+grants_action = true
+action = ExtResource("1_ytueq")
 base_value = 25

@@ -269,7 +269,9 @@ func set_selected(selected: bool):
 # ============================================================================
 
 func _make_custom_tooltip(_for_text: String) -> Object:
-	return null  # Use default
+	if not die:
+		return null
+	return DieTooltipHelper.build_tooltip(die)
 
 func _get_tooltip(_at_position: Vector2) -> String:
 	if not die:

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://dunfmoxxyheng"]
+
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_rb0qq"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_4sr31"]
+[ext_resource type="Resource" uid="uid://7maw5ehxhcrh" path="res://resources/actions/items/region_1/effects/marine_halberd_damage_effect.tres" id="3_aftey"]
+[ext_resource type="Resource" uid="uid://ogupamh3cxbq" path="res://resources/actions/items/region_1/effects/marine_halberd_expose_effect.tres" id="4_fb322"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="5_h8ubu"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="6_7fm7h"]
+
+[resource]
+script = ExtResource("6_7fm7h")
+action_id = "weapon_marine_halberd_formation_thrust"
+action_name = "Formation Thrust"
+action_description = "Applies 2 Expose."
+min_dice_required = 1
+effects = Array[ExtResource("2_4sr31")]([ExtResource("3_aftey"), ExtResource("4_fb322")])

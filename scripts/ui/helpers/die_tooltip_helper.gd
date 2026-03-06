@@ -8,6 +8,10 @@ static func build_tooltip(die_res: DieResource) -> PanelContainer:
 	"""Build a compact tooltip showing die name and any dice affixes."""
 	var panel = PanelContainer.new()
 	panel.theme_type_variation = "TooltipPanel"
+	# Explicitly assign theme so variations resolve when panel lands
+	# inside Godot's internal tooltip popup (outside normal ThemeDB chain)
+	if ThemeManager and ThemeManager.theme:
+		panel.theme = ThemeManager.theme
 	panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	
 	var vbox = VBoxContainer.new()
@@ -21,7 +25,7 @@ static func build_tooltip(die_res: DieResource) -> PanelContainer:
 	
 	# Die name
 	var header = Label.new()
-	header.theme_type_variation = "TooltipLabel"
+	header.theme_type_variation = "DieTooltipDetails"
 	header.text = die_res.display_name
 	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	header.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -57,35 +61,19 @@ static func build_tooltip(die_res: DieResource) -> PanelContainer:
 			continue
 		
 		var affix_label = Label.new()
-		affix_label.theme_type_variation = "TooltipLabel"
+		affix_label.theme_type_variation = "DieTooltipDetails"
 		
 		# Use formatted description with actual stamped values
 		if dice_affix.has_method("get_formatted_description"):
 			affix_label.text = dice_affix.get_formatted_description()
 			
 			# Replace "N" placeholder with properly rounded value
-			if "N%" in affix_label.text:
-				var val = dice_affix.effect_value
-				if dice_affix.effect_value_max <= 1.0:
-					var rounded = snappedf(val, 0.01)
-					affix_label.text = affix_label.text.replace("N%", "%d%%" % int(rounded * 100))
-				else:
-					affix_label.text = affix_label.text.replace("N%", "%d%%" % int(val))
-			
-			elif "N" in affix_label.text:
-				var formatted_value = _format_affix_value(dice_affix)
-				affix_label.text = affix_label.text.replace("N", formatted_value)
+			affix_label.text = _replace_n_placeholder(affix_label.text, dice_affix)
 		
 		elif dice_affix.has_method("get_description"):
 			affix_label.text = dice_affix.get_description()
 			
-			if "N%" in affix_label.text:
-				var val = dice_affix.effect_value
-				var rounded = snappedf(val, 0.01) if val <= 1.0 else val
-				affix_label.text = affix_label.text.replace("N%", "%d%%" % int(rounded * 100 if val <= 1.0 else rounded))
-			elif "N" in affix_label.text:
-				var formatted_value = _format_affix_value(dice_affix)
-				affix_label.text = affix_label.text.replace("N", formatted_value)
+			affix_label.text = _replace_n_placeholder(affix_label.text, dice_affix)
 		else:
 			affix_label.text = dice_affix.affix_name
 		
@@ -95,6 +83,30 @@ static func build_tooltip(die_res: DieResource) -> PanelContainer:
 	
 	return panel
 
+
+
+static func _replace_n_placeholder(text: String, dice_affix: DiceAffix) -> String:
+	var val := dice_affix.effect_value
+	var val_min := dice_affix.effect_value_min
+	var val_max := dice_affix.effect_value_max
+	var is_percent := val_max <= 1.0 and val_min >= 0.0 and val_max > 0.0
+
+	if "+N%" in text or "N%" in text:
+		var pct_val: int
+		if is_percent:
+			pct_val = int(snappedf(val, 0.01) * 100)
+		else:
+			pct_val = int(val)
+		text = text.replace("+N%", "+%d%%" % pct_val)
+		text = text.replace("N%", "%d%%" % pct_val)
+		return text
+
+	if "+N" in text or "N" in text:
+		var formatted := _format_affix_value(dice_affix)
+		text = text.replace("+N", formatted)
+		text = text.replace("N", formatted)
+
+	return text
 
 ## Format affix value with proper rounding
 static func _format_affix_value(dice_affix: DiceAffix) -> String:

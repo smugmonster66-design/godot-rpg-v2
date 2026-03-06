@@ -432,6 +432,7 @@ static func _string_to_element(type_str: String) -> Element:
 func duplicate_die() -> DieResource:
 	"""Create a deep copy of this die"""
 	var copy = DieResource.new(die_type, source)
+	copy.die_type = die_type 
 	copy.display_name = display_name
 	copy.fill_texture = fill_texture
 	copy.stroke_texture = stroke_texture

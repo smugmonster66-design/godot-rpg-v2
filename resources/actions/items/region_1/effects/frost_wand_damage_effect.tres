@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://bq6ws0vwcr6iw"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_3p0g7"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_r4r78"]
+
+[resource]
+script = ExtResource("1_3p0g7")
+effect_name = "Ice Shard: Damage"
+damage_type = 4

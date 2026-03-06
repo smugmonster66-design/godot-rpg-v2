@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://lo6bwt0jpmmv"]
+
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_p0io8"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_4g8r8"]
+[ext_resource type="Resource" uid="uid://g1tfurbhuhgi" path="res://resources/actions/items/region_1/effects/sanctum_stiletto_damage_effect.tres" id="3_0ycx6"]
+[ext_resource type="Resource" uid="uid://byy24vjk8ce16" path="res://resources/actions/items/region_1/effects/sanctum_stiletto_bleed_effect.tres" id="4_172me"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="5_ajjo4"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="6_rstww"]
+
+[resource]
+script = ExtResource("6_rstww")
+action_id = "weapon_sanctum_stiletto_puncture"
+action_name = "Puncture"
+action_description = "A quick pierce that applies 2 Bleed. Reliable opener for bleed builds."
+min_dice_required = 1
+effects = Array[ExtResource("2_4g8r8")]([ExtResource("3_0ycx6"), ExtResource("4_172me")])

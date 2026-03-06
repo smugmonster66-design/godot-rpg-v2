@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://cg8q6ygg7sb7i"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_wtdvr"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_eprev"]
+
+[resource]
+script = ExtResource("1_wtdvr")
+effect_name = "Shadow Bolt: Lifesteal"
+target = 0
+effect_type = 9
+lifesteal_percent = 0.25
+lifesteal_deals_damage = false
