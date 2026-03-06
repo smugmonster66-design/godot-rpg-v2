@@ -519,7 +519,7 @@ func show_dice_hand(enemy_combatant: Combatant):
 	_clear_hand_dice()
 
 	# Add dice visuals for rolled hand
-	var hand_dice = enemy_combatant.get_available_dice()
+	var hand_dice = enemy_combatant.dice_collection.get_hand_dice()
 
 	for die in hand_dice:
 		var visual = _create_die_visual(die)

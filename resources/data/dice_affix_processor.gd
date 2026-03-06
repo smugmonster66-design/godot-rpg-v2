@@ -731,8 +731,8 @@ func _apply_status_effect(die: DieResource, index: int, edata: Dictionary, resul
 # NEW v2 EFFECT IMPLEMENTATIONS
 # ============================================================================
 
+
 func _apply_randomize_element(die: DieResource, index: int, elements: Array, result: Dictionary):
-	"""Set die element to a random choice from the given list."""
 	if elements.size() == 0:
 		return
 	
@@ -741,14 +741,44 @@ func _apply_randomize_element(die: DieResource, index: int, elements: Array, res
 	var old_element = die.element
 	die.element = mapped
 	
+	# Overwrite element_affix so CombatDieObject.refresh_display() applies the correct shader
+	var new_affix = _get_element_affix(mapped)
+	if new_affix:
+		die.element_affix = new_affix
+	
 	result.special_effects.append({
 		"type": "randomize_element",
 		"die_index": index,
 		"old_element": old_element,
 		"new_element": mapped,
-		"element_name": chosen
+		"element_name": chosen,
+		"needs_visual_refresh": true,
 	})
 	print("    🎨 %s element randomized to %s" % [die.display_name, chosen])
+
+
+func _get_element_affix(element: int) -> DiceAffix:
+	"""Load the element visual affix for a given DieResource.Element enum value.
+	Returns null if the element has no affix or the file doesn't exist."""
+	const ELEMENT_AFFIX_NAMES: Dictionary = {
+		1: "slashing",   # SLASHING
+		2: "blunt",      # BLUNT
+		3: "piercing",   # PIERCING
+		4: "fire",       # FIRE
+		5: "ice",        # ICE
+		6: "shock",      # SHOCK
+		7: "poison",     # POISON
+		8: "shadow",     # SHADOW
+		9: "faith",      # FAITH
+	}
+	var name_str: String = ELEMENT_AFFIX_NAMES.get(element, "")
+	if name_str.is_empty():
+		return null
+	var path: String = "res://resources/affixes/elements/%s_element.tres" % name_str
+	if not ResourceLoader.exists(path):
+		return null
+	return load(path) as DiceAffix
+
 
 func _apply_leech_heal(die: DieResource, index: int, percent: float, result: Dictionary):
 	"""Store leech heal data for combat resolution.
@@ -797,11 +827,16 @@ func _apply_set_element(die: DieResource, index: int, element_str: String, conte
 		var mapped = DieResource._string_to_element(element_str)
 		die.element = mapped
 
+	var new_affix = _get_element_affix(die.element)
+	if new_affix:
+		die.element_affix = new_affix
+	
 	result.special_effects.append({
 		"type": "set_element",
 		"die_index": index,
 		"old_element": old_element,
-		"new_element": die.element
+		"new_element": die.element,
+		"needs_visual_refresh": true,
 	})
 
 func _apply_create_combat_modifier(source_die: DieResource, modifier: CombatModifier, result: Dictionary):

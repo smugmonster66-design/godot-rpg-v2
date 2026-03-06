@@ -1515,7 +1515,7 @@ func show_enemy_hand(enemy_combatant: Combatant):
 				child.queue_free()
 			
 			# Add dice visuals
-			var hand_dice = enemy_combatant.get_available_dice()
+			var hand_dice = enemy_combatant.dice_collection.get_hand_dice()
 			for die in hand_dice:
 				var visual: Control = null
 				if die.has_method("instantiate_combat_visual"):

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="DieResource" load_steps=11 format=3 uid="uid://cgr5jnuyua814"]
+[gd_resource type="Resource" script_class="DieResource" load_steps=12 format=3 uid="uid://cgr5jnuyua814"]
 
 [ext_resource type="PackedScene" uid="uid://b4wyrmm8bfq20" path="res://scenes/ui/components/dice/combat/combat_die_d8.tscn" id="1_djbye"]
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_fvhyb"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="5_knniy"]
 [ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="6_pwfhh"]
 [ext_resource type="PackedScene" uid="uid://lx27hjqny6b8" path="res://scenes/ui/components/dice/pool/pool_die_d8.tscn" id="7_1pfhi"]
+[ext_resource type="Resource" uid="uid://tgcxuxsqao8g" path="res://resources/dice_affixes/rollable/positional/tier_2/set_element_on_roll.tres" id="7_pm31n"]
 [ext_resource type="Texture2D" uid="uid://ccv17kswol4os" path="res://assets/dice/d8s/d8-stroke-basic.png" id="9_i1tf8"]
 
 [sub_resource type="Resource" id="Resource_q1u55"]
@@ -26,5 +27,5 @@ fill_texture = ExtResource("3_7ekiu")
 stroke_texture = ExtResource("9_i1tf8")
 combat_die_scene = ExtResource("1_djbye")
 pool_die_scene = ExtResource("7_1pfhi")
-inherent_affixes = Array[ExtResource("1_fvhyb")]([SubResource("Resource_q1u55")])
+inherent_affixes = Array[ExtResource("1_fvhyb")]([SubResource("Resource_q1u55"), ExtResource("7_pm31n")])
 metadata/_custom_type_script = "uid://d3l85pyscg85h"

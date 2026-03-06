@@ -262,6 +262,16 @@ func _finalize_deferred_values():
 				visual.animate_value_to(change.to, 0.25, flash_color)
 		pool.pending_value_animations.clear()
 	
+	# --- Element visual refresh (Volatile / SET_ELEMENT affixes) ---
+	if "pending_element_refreshes" in pool and not pool.pending_element_refreshes.is_empty():
+		for die_index in pool.pending_element_refreshes:
+			var visual = _get_die_visual(die_index)
+			if visual and is_instance_valid(visual) and visual.has_method("refresh_display"):
+				visual.refresh_display()
+				print("🎨 AffixVisualAnimator: Refreshed element shader on die [%d]" % die_index)
+		pool.pending_element_refreshes.clear()
+	
+	
 	# --- New: process pending shatters ---
 	if "pending_shatters" in pool and not pool.pending_shatters.is_empty():
 		# Brief delay so the value-to-0 animation finishes first

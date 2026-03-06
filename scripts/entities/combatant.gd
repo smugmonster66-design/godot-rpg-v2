@@ -258,21 +258,7 @@ func start_turn():
 		for die in dice_collection.get_hand_dice():
 			print("    %s: %d" % [die.get_display_name(), die.get_total_value()])
 	
-	# Apply Stunned status — lock N random dice
-	if has_node("StatusTracker"):
-		var tracker: StatusTracker = get_node("StatusTracker")
-		var stun_count: int = tracker.get_stunned_dice_count()
-		if stun_count > 0 and dice_collection:
-			var hand: Array[DieResource] = dice_collection.get_hand_dice()
-			var eligible: Array[DieResource] = []
-			for die in hand:
-				if not die.is_consumed and not die.is_locked:
-					eligible.append(die)
-			eligible.shuffle()
-			for i in range(mini(stun_count, eligible.size())):
-				eligible[i].is_locked = true
-				eligible[i].is_consumed = true
-				print("  ⚡ Stunned (locked) die: %s" % eligible[i].display_name)
+
 
 func end_turn():
 	"""Called when this combatant's turn ends"""

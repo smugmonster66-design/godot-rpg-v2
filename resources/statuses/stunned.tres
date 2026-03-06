@@ -9,7 +9,7 @@
 script = ExtResource("2_db370")
 status_id = "stunned"
 duration_type = 1
-default_duration = 2
+default_duration = 1
 max_stacks = 10
 cleanse_tags = Array[String](["debuff", "cc", "stun"])
 affix_name = "Stunned"

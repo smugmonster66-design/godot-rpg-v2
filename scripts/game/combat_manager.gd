@@ -1231,6 +1231,16 @@ func _start_enemy_turn(enemy: Combatant):
 			ep.hand_dice_visuals,
 			source_pos
 		)
+		
+		# Emit DIE_LOCKED events for any locked dice
+		await get_tree().process_frame
+		var enemy_hand = enemy.dice_collection.hand
+		for i in range(enemy_hand.size()):
+			if enemy_hand[i].is_locked and i < ep.hand_dice_visuals.size():
+				var visual = ep.hand_dice_visuals[i]
+				if is_instance_valid(visual) and event_bus:
+					event_bus.emit_die_locked(visual)
+					print("  📡 Emitted DIE_LOCKED for enemy hand[%d]" % i)
 
 	_process_enemy_turn(enemy)
 
@@ -1242,7 +1252,9 @@ func _process_enemy_turn(enemy: Combatant):
 		return
 	
 	if not enemy.has_usable_dice():
-		print("  %s has no usable dice" % enemy.combatant_name)
+		print("  %s has no usable dice (all stunned)" % enemy.combatant_name)
+		# Brief pause so player can see the stunned roll before turn ends
+		await get_tree().create_timer(1.2).timeout
 		_finish_enemy_turn(enemy)
 		return
 	

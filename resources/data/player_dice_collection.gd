@@ -80,6 +80,7 @@ var _element_use_counts: Dictionary = {}
 
 ## Format: {die_index: {from: int, to: int}}
 var pending_value_animations: Dictionary = {}
+var pending_element_refreshes: Array[int] = []
 
 ## v4 — Mana System: Accumulated combat events from dice affix processing.
 ## Drained by CombatManager after each action via drain_combat_events().
@@ -291,6 +292,7 @@ func roll_hand():
 	used_pool_indices.clear()
 	_pending_destructions.clear()
 	pending_value_animations.clear()
+	pending_element_refreshes.clear()
 	_element_use_counts.clear()
 	
 	# Process PASSIVE affixes on pool dice before copying/rolling
@@ -365,11 +367,14 @@ func roll_hand():
 
 
 func _apply_stunned_locks() -> void:
-	"""Lock N random unconsumed dice based on Stunned stacks."""
-	var player_node = _get_player()
-	if not player_node or not player_node.status_tracker:
+	var tracker: StatusTracker = _get_owner_status_tracker()
+	print("  [STUN DEBUG] _apply_stunned_locks: tracker=%s, parent=%s" % [
+		tracker, get_parent()])
+	if not tracker:
+		print("  [STUN DEBUG] No tracker found — BAILING")
 		return
-	var lock_count: int = player_node.status_tracker.get_stunned_dice_count()
+	var lock_count: int = tracker.get_stunned_dice_count()
+	print("  [STUN DEBUG] lock_count=%d, hand.size()=%d" % [lock_count, hand.size()])
 	if lock_count <= 0:
 		return
 	
@@ -385,7 +390,7 @@ func _apply_stunned_locks() -> void:
 	for j in range(to_lock):
 		var idx: int = available[j]
 		hand[idx].is_locked = true
-		hand[idx].is_consumed = true  # Locked dice can't be placed
+		# Locked dice can't be placed
 		print("  🔒 Stunned: locked %s at hand[%d]" % [hand[idx].display_name, idx])
 
 
@@ -698,7 +703,7 @@ func get_unconsumed_hand() -> Array[DieResource]:
 	that needs to know what the player can still use."""
 	var result: Array[DieResource] = []
 	for die in hand:
-		if not die.is_consumed:
+		if not die.is_consumed and not die.is_locked:
 			result.append(die)
 	return result
 
@@ -714,7 +719,7 @@ func get_unconsumed_count() -> int:
 	"""Get count of dice that can still be used this turn."""
 	var count := 0
 	for die in hand:
-		if not die.is_consumed:
+		if not die.is_consumed and not die.is_locked:
 			count += 1
 	return count
 
@@ -751,16 +756,27 @@ func _apply_status_die_penalty(die: DieResource) -> void:
 		die.apply_flat_modifier(-penalty)
 
 func _get_status_die_penalty() -> int:
-	"""Query the player's StatusTracker for die value penalty."""
-	var player_node = _get_player()
-	if player_node and "status_tracker" in player_node and player_node.status_tracker:
-		return player_node.status_tracker.get_die_penalty()
+	"""Query the owner's StatusTracker for die value penalty."""
+	var tracker: StatusTracker = _get_owner_status_tracker()
+	if tracker:
+		return tracker.get_die_penalty()
 	return 0
 
 func _get_player():
 	"""Get the Player resource. Tries GameManager first, then context."""
 	if GameManager and GameManager.player:
 		return GameManager.player
+	return null
+
+func _get_owner_status_tracker() -> StatusTracker:
+	var parent = get_parent()
+	print("  [STUN DEBUG] _get_owner_status_tracker: parent=%s" % parent)
+	var tracker = parent.get_node_or_null("StatusTracker") if parent else null
+	print("  [STUN DEBUG] tracker from get_node_or_null=%s" % tracker)
+	if tracker is StatusTracker:
+		return tracker
+	if parent and "status_tracker" in parent and parent.status_tracker is StatusTracker:
+		return parent.status_tracker
 	return null
 
 
@@ -968,6 +984,10 @@ func _handle_affix_results(result: Dictionary):
 				# Die is already rerolled by DiceAffixProcessor._apply_auto_reroll()
 				# Just emit the event for animation
 				call_deferred("_emit_die_rolled_event", effect)
+			
+			"randomize_element", "set_element":
+				if effect.get("needs_visual_refresh", false):
+					pending_element_refreshes.append(effect.die_index)
 			
 			"destroy_from_pool":
 				var pool_idx: int = effect.pool_slot_index
