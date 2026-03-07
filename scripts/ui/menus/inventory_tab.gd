@@ -170,12 +170,16 @@ func on_external_data_change():
 func _item_name(item) -> String:
 	if item is EquippableItem:
 		return item.item_name
+	elif item is ConsumableItem:
+		return item.item_name
 	elif item is Dictionary:
 		return item.get("name", "Unknown")
 	return "Unknown"
 
 func _item_icon(item) -> Texture2D:
 	if item is EquippableItem:
+		return item.icon
+	elif item is ConsumableItem:
 		return item.icon
 	elif item is Dictionary:
 		if item.has("icon") and item.icon:
@@ -184,6 +188,8 @@ func _item_icon(item) -> Texture2D:
 
 func _item_rarity_name(item) -> String:
 	if item is EquippableItem:
+		return item.get_rarity_name()
+	elif item is ConsumableItem:
 		return item.get_rarity_name()
 	elif item is Dictionary:
 		return item.get("rarity", "Common")
@@ -198,6 +204,8 @@ func _item_slot(item) -> String:
 
 func _item_description(item) -> String:
 	if item is EquippableItem:
+		return item.description
+	elif item is ConsumableItem:
 		return item.description
 	elif item is Dictionary:
 		return item.get("description", "No description.")
@@ -217,6 +225,8 @@ func _is_equipment(item) -> bool:
 	return false
 
 func _is_consumable(item) -> bool:
+	if item is ConsumableItem:
+		return true
 	return _item_type(item) == "Consumable"
 
 func _is_item_equipped(item) -> bool:
@@ -292,7 +302,10 @@ func _get_filtered_items() -> Array:
 		return []
 	
 	if current_category == "All":
-		return player.inventory
+		var all_items: Array = []
+		all_items.append_array(player.inventory)
+		all_items.append_array(player.consumables)
+		return all_items
 	
 	var filtered = []
 	for item in player.inventory:
@@ -307,6 +320,13 @@ func _get_filtered_items() -> Array:
 			filtered.append(item)
 		elif current_category == "Consumable" and _is_consumable(item):
 			filtered.append(item)
+	
+	
+	# Merge consumables when Consumable tab is selected
+	if current_category == "Consumable":
+		for consumable in player.consumables:
+			filtered.append(consumable)
+	
 	
 	return filtered
 
@@ -908,31 +928,81 @@ func _on_use_item_pressed():
 		data_changed.emit()  # Bubble up
 
 func _use_consumable(item):
-	"""Use a consumable item (Dictionary-based consumables only)"""
+	"""Use a consumable item — ConsumableItem resource or legacy Dictionary."""
 	if not player:
 		return
-	
-	# Consumables are still Dictionary-based
-	if not item is Dictionary:
+
+	if item is ConsumableItem:
+		# Die-targeted consumables need the selection popup
+		if item.target_type == ConsumableItem.TargetType.SINGLE_DIE:
+			_open_die_select_popup(item)
+			return
+
+		var result = player.use_consumable(item)
+		if result.get("success", false):
+			print("  [OK] Used %s -- %s" % [item.item_name, result.get("message", "")])
+		else:
+			print("  [FAIL] %s" % result.get("message", "Failed"))
+		selected_item = null
+		refresh()
 		return
-	
-	var effect = item.get("effect", "")
-	var amount = item.get("amount", 0)
-	
-	match effect:
-		"heal":
-			player.heal(amount)
-			print("💊 Used %s - Healed %d HP" % [item.get("name", ""), amount])
-		"restore_mana":
-			player.restore_mana(amount)
-			print("💊 Used %s - Restored %d Mana" % [item.get("name", ""), amount])
-		_:
-			print("❓ Unknown consumable effect: %s" % effect)
-	
-	# Remove from inventory
-	player.inventory.erase(item)
+
+	# Legacy Dictionary path
+	if item is Dictionary:
+		var effect = item.get("effect", "")
+		var amount = item.get("amount", 0)
+		match effect:
+			"heal":
+				player.heal(amount)
+				print("💊 Used %s - Healed %d HP" % [item.get("name", ""), amount])
+			"restore_mana":
+				player.restore_mana(amount)
+				print("💊 Used %s - Restored %d Mana" % [item.get("name", ""), amount])
+			_:
+				print("❓ Unknown consumable effect: %s" % effect)
+		player.inventory.erase(item)
+		selected_item = null
+		refresh()
+
+# ============================================================================
+# DIE SELECTION POPUP
+# ============================================================================
+
+var _die_select_popup: ConsumableDieSelectPopup = null
+
+func _open_die_select_popup(consumable: ConsumableItem):
+	"""Open the die selection popup for a die-targeted consumable."""
+	# Close the player menu so the bottom UI panel is accessible for dragging
+	if GameManager and GameManager.game_root and GameManager.game_root.player_menu:
+		GameManager.game_root.player_menu.close_menu()
+
+	if not _die_select_popup:
+		var scene: PackedScene = load("res://scenes/ui/popups/consumable_die_select_popup.tscn")
+		_die_select_popup = scene.instantiate()
+		get_tree().root.add_child(_die_select_popup)
+		_die_select_popup.die_confirmed.connect(_on_die_select_confirmed)
+		_die_select_popup.cancelled.connect(_on_die_select_cancelled)
+
+	_die_select_popup.open(consumable, player)
+
+
+func _on_die_select_confirmed(consumable: ConsumableItem, die: DieResource):
+	"""Player confirmed die selection — use the consumable."""
+	var result = player.use_consumable(consumable, {"selected_die": die})
+	if result.get("success", false):
+		print("  [OK] Used %s on %s -- %s" % [
+			consumable.item_name, die.get_display_name(), result.get("message", "")])
+	else:
+		print("  [FAIL] %s" % result.get("message", "Failed"))
 	selected_item = null
 	refresh()
+	data_changed.emit()
+
+
+func _on_die_select_cancelled():
+	"""Player cancelled die selection."""
+	print("  [--] Die selection cancelled")
+
 
 func _on_equip_item_pressed():
 	"""Equip/unequip item button pressed"""

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://wa1dcljj6cct"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_la1ta"]
+[ext_resource type="Resource" uid="uid://bsco7h6osele3" path="res://resources/consumables/region_1/affixes/barrier_20.tres" id="2_c1cfo"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_1dyh5"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_q6s6l"]
+
+[resource]
+script = ExtResource("4_q6s6l")
+item_name = "Aegis Elixir"
+description = "+20 Barrier for next combat"
+flavor_text = "Creates a magical barrier. Duration: one fight. Quality: adequate."
+tier = 1
+rarity = 1
+use_context = 1
+max_stack = 5
+granted_affixes = Array[ExtResource("1_la1ta")]([ExtResource("2_c1cfo")])
+base_value = 60

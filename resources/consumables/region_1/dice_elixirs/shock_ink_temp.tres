@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://c7hqk48eslskx"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_tpyyc"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_8nuhj"]
+[ext_resource type="Resource" uid="uid://dd6su7c4wkbt7" path="res://resources/consumables/region_1/dice_affixes/set_element_shock.tres" id="3_mnba0"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_u20d1"]
+
+[resource]
+script = ExtResource("4_u20d1")
+item_name = "Shock Ink (Temp)"
+description = "Set a die's element to Shock for next combat"
+flavor_text = "Coats a die in shock. Overrides its existing element."
+tier = 2
+rarity = 2
+use_context = 1
+target_type = 1
+max_stack = 5
+granted_dice_affixes = Array[ExtResource("2_8nuhj")]([ExtResource("3_mnba0")])
+base_value = 75

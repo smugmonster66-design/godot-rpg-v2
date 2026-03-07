@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://c3csfhgmjbrvi"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_uayrd"]
+[ext_resource type="Resource" uid="uid://dlrjplmtpuoc3" path="res://resources/consumables/region_1/affixes/gold_find_25.tres" id="2_8qiy3"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_h3tmx"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_pw7ds"]
+
+[resource]
+script = ExtResource("4_pw7ds")
+item_name = "Prospector's Draught"
+description = "+25% Gold Find for next combat"
+flavor_text = "You will notice coins you would normally miss."
+tier = 1
+rarity = 1
+use_context = 1
+max_stack = 5
+granted_affixes = Array[ExtResource("1_uayrd")]([ExtResource("2_8qiy3")])
+base_value = 40

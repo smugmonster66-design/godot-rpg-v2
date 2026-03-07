@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=4 format=3 uid="uid://bxtjb3smwrmpi"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_w5kvg"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_vwaa2"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="3_tm5py"]
+
+[resource]
+script = ExtResource("3_tm5py")
+item_name = "Restorative Bundle"
+description = "Heal 40 HP + Restore 15 Mana"
+flavor_text = "A little of everything. The bureaucratic approach to healing."
+max_stack = 15
+heal_amount = 40
+mana_amount = 15
+base_value = 30

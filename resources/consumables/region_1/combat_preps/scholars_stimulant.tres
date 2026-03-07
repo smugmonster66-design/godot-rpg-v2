@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://cf1pjtexwh45i"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_cknd1"]
+[ext_resource type="Resource" uid="uid://dti3x08xo82ci" path="res://resources/consumables/region_1/affixes/intellect_5.tres" id="2_1q6bg"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_5p81p"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_3pclo"]
+
+[resource]
+script = ExtResource("4_3pclo")
+item_name = "Scholar's Stimulant"
+description = "+5 Intellect for next combat"
+flavor_text = "Think faster. Think harder. Think too much."
+tier = 1
+rarity = 1
+use_context = 1
+max_stack = 5
+granted_affixes = Array[ExtResource("1_cknd1")]([ExtResource("2_1q6bg")])
+base_value = 35

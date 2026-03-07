@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://olpx64ycxddk"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_my3ab"]
+[ext_resource type="Resource" uid="uid://bu8bcawlb7gp1" path="res://resources/consumables/region_1/affixes/shadow_dmg_8.tres" id="2_o2yep"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_ck8s6"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_ut522"]
+
+[resource]
+script = ExtResource("4_ut522")
+item_name = "Shadow Pitch"
+description = "+8 Shadow Damage for next combat"
+flavor_text = "Darkness in a jar. Opens in darkness."
+tier = 1
+rarity = 1
+use_context = 1
+max_stack = 5
+granted_affixes = Array[ExtResource("1_my3ab")]([ExtResource("2_o2yep")])
+base_value = 50

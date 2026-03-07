@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=4 format=3 uid="uid://c4r0ik6w373hg"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_5pxmm"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_nrppn"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="3_k7eor"]
+
+[resource]
+script = ExtResource("3_k7eor")
+item_name = "Quarterdeck Barrier Salve"
+description = "+20 Barrier"
+flavor_text = "Naval-grade protective wax. Also works on ship hulls."
+max_stack = 15
+barrier_amount = 20
+base_value = 15

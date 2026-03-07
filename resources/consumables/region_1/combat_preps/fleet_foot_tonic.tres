@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://b8k55d8d7admm"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_w63bd"]
+[ext_resource type="Resource" uid="uid://7aocluat1b4o" path="res://resources/consumables/region_1/affixes/agility_5.tres" id="2_a0kyi"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_d4ciw"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_lnxaa"]
+
+[resource]
+script = ExtResource("4_lnxaa")
+item_name = "Fleet-Foot Tonic"
+description = "+5 Agility for next combat"
+flavor_text = "Makes you quicker. Not more graceful."
+tier = 1
+rarity = 1
+use_context = 1
+max_stack = 5
+granted_affixes = Array[ExtResource("1_w63bd")]([ExtResource("2_a0kyi")])
+base_value = 35

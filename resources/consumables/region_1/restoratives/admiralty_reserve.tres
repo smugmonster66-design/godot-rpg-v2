@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=4 format=3 uid="uid://dup6gufu7giq"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_17n10"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_igeqy"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="3_ueydf"]
+
+[resource]
+script = ExtResource("3_ueydf")
+item_name = "Admiralty Reserve"
+description = "Heal 120 HP, cleanse 1 debuff"
+flavor_text = "From the Grand Admiral's personal stock. Don't ask how we got it."
+rarity = 1
+max_stack = 5
+heal_amount = 120
+cleanse_debuffs = true
+cleanse_count = 1
+base_value = 80

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://b2ghekiju1bxi"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_2e4pl"]
+[ext_resource type="Resource" uid="uid://cbn40irk1lnv6" path="res://resources/consumables/region_1/affixes/health_30.tres" id="2_nfxws"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_ilros"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_u3ucy"]
+
+[resource]
+script = ExtResource("4_u3ucy")
+item_name = "Vitality Brew"
+description = "+30 Max HP for next combat"
+flavor_text = "Temporarily increases maximum health. You will feel it wear off."
+tier = 1
+rarity = 1
+use_context = 1
+max_stack = 5
+granted_affixes = Array[ExtResource("1_2e4pl")]([ExtResource("2_nfxws")])
+base_value = 55

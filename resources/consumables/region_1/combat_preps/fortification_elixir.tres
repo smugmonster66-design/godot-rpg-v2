@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=7 format=3 uid="uid://bjn0c4orasvm6"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_5u1xu"]
+[ext_resource type="Resource" uid="uid://f3kpdc6puj4k" path="res://resources/consumables/region_1/affixes/fort_armor_10.tres" id="2_hcalm"]
+[ext_resource type="Resource" uid="uid://sjj3svae50ho" path="res://resources/consumables/region_1/affixes/fort_barrier_10.tres" id="3_4gb4y"]
+[ext_resource type="Resource" uid="uid://b8xk7fcnuhofj" path="res://resources/consumables/region_1/affixes/fort_health_15.tres" id="4_tt1nn"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="5_n5dps"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="6_7qt31"]
+
+[resource]
+script = ExtResource("6_7qt31")
+item_name = "Fortification Elixir"
+description = "+10 Armor, +10 Barrier, +15 HP for next combat"
+flavor_text = "The complete defensive package. Comes in a very large bottle."
+tier = 1
+rarity = 2
+use_context = 1
+max_stack = 5
+granted_affixes = Array[ExtResource("1_5u1xu")]([ExtResource("2_hcalm"), ExtResource("3_4gb4y"), ExtResource("4_tt1nn")])
+base_value = 150

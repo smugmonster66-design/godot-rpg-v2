@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://dta7f623aqksc"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_pjbge"]
+[ext_resource type="Resource" uid="uid://d3j5y17s3nw13" path="res://resources/consumables/region_1/affixes/mana_cost_80.tres" id="2_m5hrc"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_u6745"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_q3ahg"]
+
+[resource]
+script = ExtResource("4_q3ahg")
+item_name = "Mana Catalyst"
+description = "-20% Mana Costs for next combat"
+flavor_text = "Reduces mana costs. Side effects: blue tongue."
+tier = 1
+rarity = 2
+use_context = 1
+max_stack = 5
+granted_affixes = Array[ExtResource("1_pjbge")]([ExtResource("2_m5hrc")])
+base_value = 65

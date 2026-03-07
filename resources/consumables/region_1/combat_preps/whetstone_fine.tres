@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://ccs7utui28mdi"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_818iv"]
+[ext_resource type="Resource" uid="uid://ckxhvwh8snprt" path="res://resources/consumables/region_1/affixes/dmg_bonus_5.tres" id="2_4mfrg"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_bdggb"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_awiiu"]
+
+[resource]
+script = ExtResource("4_awiiu")
+item_name = "Whetstone (Fine)"
+description = "+5 Damage for next combat"
+flavor_text = "Sharpens blades. Also works on blunt weapons somehow."
+tier = 1
+rarity = 1
+use_context = 1
+max_stack = 5
+granted_affixes = Array[ExtResource("1_818iv")]([ExtResource("2_4mfrg")])
+base_value = 40

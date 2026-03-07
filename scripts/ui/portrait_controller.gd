@@ -46,6 +46,8 @@ var status_container: HBoxContainer = null
 var level_badge_label: Label = null
 var level_badge_bg: Panel = null
 
+const STATUS_ICON_MATERIAL := preload("res://resources/materials/status_icon_base.tres")
+
 # ============================================================================
 # STATE
 # ============================================================================
@@ -327,10 +329,18 @@ func _create_status_icon(effect: Dictionary) -> TextureRect:
 	icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
+
+	
+
 	var status_name: String = effect.get("name", "")
 	var stacks: int = effect.get("stacks", 0)
 	var turns: int = effect.get("turns", -1)
 	var status_affix: StatusAffix = effect.get("status_affix")
+
+
+	var mat: ShaderMaterial = STATUS_ICON_MATERIAL.duplicate()
+	mat.set_shader_parameter("tint_color", _get_status_color(status_name))
+	icon_rect.material = mat
 
 	# Build tooltip
 	var tooltip: String = status_name.capitalize()

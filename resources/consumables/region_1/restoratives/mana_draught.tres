@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=4 format=3 uid="uid://t6mpxy0uqibr"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_ly4dm"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_u1fq4"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="3_ushji"]
+
+[resource]
+script = ExtResource("3_ushji")
+item_name = "Mana Draught"
+description = "Restore 25 Mana"
+flavor_text = "The Arcanaeum's recipe, probably."
+max_stack = 15
+mana_amount = 25
+base_value = 20

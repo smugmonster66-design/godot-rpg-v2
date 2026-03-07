@@ -10,6 +10,7 @@ extends Control
 const TOGGLE_KEY := KEY_EQUAL
 const UI_SCALE := 2  # Multiplier for all sizes
 const ITEM_BASE_PATH := "res://resources/items/"
+const CONSUMABLE_BASE_PATH := "res://resources/consumables/"
 
 ## If true, panel starts hidden.
 @export var start_hidden: bool = true
@@ -38,6 +39,13 @@ var _raw_level_slider: HSlider
 var _raw_level_label: Label
 var _raw_generate_button: Button
 
+# -- Tab 3: Consumables --
+var _con_region_spin: SpinBox
+var _con_tier_dropdown: OptionButton
+var _con_item_dropdown: OptionButton
+var _con_count_spin: SpinBox
+var _con_add_button: Button
+
 # -- Shared --
 var _results_scroll: ScrollContainer
 var _results_vbox: VBoxContainer
@@ -45,6 +53,9 @@ var _clear_button: Button
 
 # Populated by _scan_region(). slot_name -> Array of {name, path}
 var _items_by_slot: Dictionary = {}
+
+# Populated by _scan_consumable_region(). tier_folder -> Array of {name, path}
+var _consumables_by_tier: Dictionary = {}
 
 # ============================================================================
 # LIFECYCLE
@@ -157,6 +168,7 @@ func _build_ui() -> void:
 
 	_build_table_tab()
 	_build_raw_tab()
+	_build_consumable_tab()
 
 	# -- Results --
 	root_vbox.add_child(HSeparator.new())
@@ -301,6 +313,272 @@ func _build_raw_tab() -> void:
 
 
 # ============================================================================
+# TAB 3: CONSUMABLES
+# ============================================================================
+
+func _build_consumable_tab() -> void:
+	var vbox := VBoxContainer.new()
+	vbox.name = "Consumables"
+	vbox.add_theme_constant_override("separation", _s(6))
+	_tab_container.add_child(vbox)
+
+	# Region spinner
+	var reg_hbox := HBoxContainer.new()
+	vbox.add_child(reg_hbox)
+	reg_hbox.add_child(_label("Region:"))
+	_con_region_spin = SpinBox.new()
+	_con_region_spin.min_value = 1
+	_con_region_spin.max_value = 6
+	_con_region_spin.value = 1
+	_con_region_spin.value_changed.connect(_on_con_region_changed)
+	reg_hbox.add_child(_con_region_spin)
+
+	# Tier dropdown
+	vbox.add_child(_label("Tier:"))
+	_con_tier_dropdown = OptionButton.new()
+	_con_tier_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_con_tier_dropdown.item_selected.connect(_on_con_tier_selected)
+	vbox.add_child(_con_tier_dropdown)
+
+	# Item dropdown
+	vbox.add_child(_label("Item:"))
+	_con_item_dropdown = OptionButton.new()
+	_con_item_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_child(_con_item_dropdown)
+
+	# Count spinner
+	var count_hbox := HBoxContainer.new()
+	vbox.add_child(count_hbox)
+	count_hbox.add_child(_label("Count:"))
+	_con_count_spin = SpinBox.new()
+	_con_count_spin.min_value = 1
+	_con_count_spin.max_value = 20
+	_con_count_spin.value = 1
+	count_hbox.add_child(_con_count_spin)
+
+	# Add button
+	_con_add_button = Button.new()
+	_con_add_button.text = "Add to Player"
+	_con_add_button.pressed.connect(_on_add_consumable)
+	vbox.add_child(_con_add_button)
+
+
+# ============================================================================
+# CONSUMABLE SCANNING
+# ============================================================================
+
+# Display names for tier folders
+const TIER_DISPLAY_NAMES := {
+	"restoratives": "T1 Restoratives",
+	"combat_preps": "T2 Combat Preps",
+	"dice_elixirs": "T3 Dice Elixirs",
+	"inscriptions": "T4 Inscriptions",
+	"curios": "T5 Curios",
+}
+
+# Scan order
+const TIER_FOLDER_ORDER: Array[String] = [
+	"restoratives", "combat_preps", "dice_elixirs", "inscriptions", "curios"
+]
+
+func _scan_consumable_region(region: int) -> void:
+	_consumables_by_tier.clear()
+	var region_path := CONSUMABLE_BASE_PATH + "region_%d/" % region
+	var dir := DirAccess.open(region_path)
+	if not dir:
+		push_warning("DebugLootPanel: could not open %s" % region_path)
+		return
+
+	# Scan in defined order so dropdown is predictable
+	for folder: String in TIER_FOLDER_ORDER:
+		var folder_path := region_path + folder + "/"
+		var folder_dir := DirAccess.open(folder_path)
+		if not folder_dir:
+			continue
+		var items: Array = _scan_consumable_folder(folder_path)
+		if not items.is_empty():
+			_consumables_by_tier[folder] = items
+
+	if _consumables_by_tier.is_empty():
+		push_warning("DebugLootPanel: no consumables found in %s" % region_path)
+
+
+func _scan_consumable_folder(path: String) -> Array:
+	var results: Array = []
+	var dir := DirAccess.open(path)
+	if not dir:
+		return results
+
+	# Collect filenames first to avoid iterator corruption
+	var files: Array[String] = []
+	dir.list_dir_begin()
+	var fname := dir.get_next()
+	while fname != "":
+		if not dir.current_is_dir() and fname.ends_with(".tres"):
+			files.append(fname)
+		fname = dir.get_next()
+	dir.list_dir_end()
+
+	for file: String in files:
+		var full_path := path + file
+		var res := ResourceLoader.load(full_path, "", ResourceLoader.CACHE_MODE_IGNORE)
+		if res != null and res is ConsumableItem:
+			var ci: ConsumableItem = res as ConsumableItem
+			results.append({"name": ci.item_name, "path": full_path})
+
+	results.sort_custom(func(a, b): return a["name"] < b["name"])
+	return results
+
+
+# ============================================================================
+# CONSUMABLE DROPDOWN POPULATION
+# ============================================================================
+
+func _refresh_consumable_tiers() -> void:
+	_scan_consumable_region(int(_con_region_spin.value))
+	_con_tier_dropdown.clear()
+
+	if _consumables_by_tier.is_empty():
+		_con_tier_dropdown.add_item("(No consumables found)")
+		_con_tier_dropdown.disabled = true
+		_con_item_dropdown.clear()
+		_con_item_dropdown.disabled = true
+		return
+
+	_con_tier_dropdown.disabled = false
+	for folder: String in TIER_FOLDER_ORDER:
+		if _consumables_by_tier.has(folder):
+			var display: String = TIER_DISPLAY_NAMES.get(folder, folder)
+			_con_tier_dropdown.add_item(display)
+			# Store the folder key in metadata so we can look it up on selection
+			var idx: int = _con_tier_dropdown.item_count - 1
+			_con_tier_dropdown.set_item_metadata(idx, folder)
+
+	# Select first tier and populate items
+	if _con_tier_dropdown.item_count > 0:
+		_con_tier_dropdown.selected = 0
+		var first_folder: String = _con_tier_dropdown.get_item_metadata(0)
+		_populate_consumable_items(first_folder)
+
+
+func _populate_consumable_items(tier_folder: String) -> void:
+	_con_item_dropdown.clear()
+	var items: Array = _consumables_by_tier.get(tier_folder, [])
+	if items.is_empty():
+		_con_item_dropdown.add_item("(No items)")
+		_con_item_dropdown.disabled = true
+		return
+
+	_con_item_dropdown.disabled = false
+	for entry: Dictionary in items:
+		_con_item_dropdown.add_item(entry["name"])
+
+
+func _on_con_region_changed(_value: float) -> void:
+	_refresh_consumable_tiers()
+
+
+func _on_con_tier_selected(idx: int) -> void:
+	var folder: String = _con_tier_dropdown.get_item_metadata(idx)
+	_populate_consumable_items(folder)
+
+
+# ============================================================================
+# CONSUMABLE ADD ACTION
+# ============================================================================
+
+func _on_add_consumable() -> void:
+	var player := _get_player()
+	if not player:
+		_add_result_line("[color=red]No player found[/color]")
+		return
+
+	if not player.has_method("add_consumable"):
+		_add_result_line("[color=red]Player.add_consumable() not found -- apply player.gd patch first[/color]")
+		return
+
+	var tier_idx: int = _con_tier_dropdown.selected
+	if tier_idx < 0:
+		_add_result_line("[color=red]No tier selected[/color]")
+		return
+
+	var tier_folder: String = _con_tier_dropdown.get_item_metadata(tier_idx)
+	var item_idx: int = _con_item_dropdown.selected
+	var items: Array = _consumables_by_tier.get(tier_folder, [])
+
+	if item_idx < 0 or item_idx >= items.size():
+		_add_result_line("[color=red]No item selected[/color]")
+		return
+
+	var entry: Dictionary = items[item_idx]
+	var count: int = int(_con_count_spin.value)
+
+	_add_result_line("[color=gray]-- Adding %dx %s --[/color]" % [count, entry["name"]])
+
+	for _i in count:
+		var loaded := ResourceLoader.load(entry["path"], "", ResourceLoader.CACHE_MODE_IGNORE)
+		if not loaded or not loaded is ConsumableItem:
+			_add_result_line("[color=red]  Failed to load: %s[/color]" % entry["path"])
+			continue
+		var ci: ConsumableItem = loaded.duplicate() as ConsumableItem
+		player.add_consumable(ci)
+
+	# Display what we added
+	var loaded_for_display := ResourceLoader.load(entry["path"], "", ResourceLoader.CACHE_MODE_IGNORE)
+	if loaded_for_display and loaded_for_display is ConsumableItem:
+		_add_consumable_result(loaded_for_display as ConsumableItem, count)
+
+	_add_result_line("[color=green]Added %dx %s to player[/color]" % [count, entry["name"]])
+
+
+func _add_consumable_result(ci: ConsumableItem, count: int) -> void:
+	var tier_names := ["Restorative", "Combat Prep", "Dice Elixir", "Inscription", "Curio"]
+	var tier_name: String = tier_names[ci.tier] if ci.tier < tier_names.size() else "Unknown"
+	var rarity_color := _get_rarity_hex(ci.rarity)
+
+	_add_result_line("  [color=%s]%s[/color] x%d [%s, %dg]" % [
+		rarity_color, ci.item_name, count, tier_name, ci.base_value])
+
+	# Show effects based on tier
+	match ci.tier:
+		ConsumableItem.ConsumableTier.RESTORATIVE:
+			var effects: Array[String] = []
+			if ci.heal_amount > 0:
+				effects.append("+%d HP" % ci.heal_amount)
+			if ci.heal_percent > 0.0:
+				effects.append("+%d%% HP" % int(ci.heal_percent * 100))
+			if ci.mana_amount > 0:
+				effects.append("+%d Mana" % ci.mana_amount)
+			if ci.barrier_amount > 0:
+				effects.append("+%d Barrier" % ci.barrier_amount)
+			if ci.cleanse_debuffs:
+				effects.append("Cleanse%s" % (
+					" (%d)" % ci.cleanse_count if ci.cleanse_count > 0 else " all"))
+			if not effects.is_empty():
+				_add_result_line("    %s" % " | ".join(effects))
+
+		ConsumableItem.ConsumableTier.COMBAT_PREP:
+			for affix: Affix in ci.granted_affixes:
+				if affix:
+					_add_result_line("    Affix: %s (%s)" % [
+						affix.affix_name, affix.get_category_name()])
+
+		ConsumableItem.ConsumableTier.DICE_ELIXIR:
+			_add_result_line("    Filter: %s" % ci.dice_target_filter)
+			for da: DiceAffix in ci.granted_dice_affixes:
+				if da:
+					_add_result_line("    DiceAffix: %s" % da.affix_name)
+
+		ConsumableItem.ConsumableTier.INSCRIPTION:
+			if ci.inscription_affix:
+				_add_result_line("    Inscribes: %s" % ci.inscription_affix.affix_name)
+				_add_result_line("    %s" % ci.inscription_affix.description)
+
+	if ci.flavor_text and not ci.flavor_text.is_empty():
+		_add_result_line("    [color=gray][i]%s[/i][/color]" % ci.flavor_text)
+
+
+# ============================================================================
 # ITEM SCANNING
 # ============================================================================
 
@@ -363,6 +641,7 @@ func _populate_dropdowns() -> void:
 	_raw_rarity_dropdown.selected = 3
 
 	_refresh_raw_slots()
+	_refresh_consumable_tiers()
 
 
 func _refresh_raw_slots() -> void:

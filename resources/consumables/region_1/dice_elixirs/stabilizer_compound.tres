@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://4gmvcv3ry824"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_8gct4"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_thxs5"]
+[ext_resource type="Resource" uid="uid://cprb4oxx2wwr8" path="res://resources/consumables/region_1/dice_affixes/set_min_3.tres" id="3_4q28m"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_bpswr"]
+
+[resource]
+script = ExtResource("4_bpswr")
+item_name = "Stabilizer Compound"
+description = "Dice cannot roll below 3"
+flavor_text = "Consistency over excitement."
+tier = 2
+rarity = 2
+use_context = 1
+max_stack = 5
+granted_dice_affixes = Array[ExtResource("2_thxs5")]([ExtResource("3_4q28m")])
+dice_target_filter = "type:D6+"
+base_value = 90

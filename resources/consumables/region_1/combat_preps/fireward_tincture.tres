@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://b61cumxarvqv1"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_1ggk6"]
+[ext_resource type="Resource" uid="uid://j4w3oiftwsqq" path="res://resources/consumables/region_1/affixes/fire_resist_15.tres" id="2_ckr5w"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_d7n52"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_1qrbs"]
+
+[resource]
+script = ExtResource("4_1qrbs")
+item_name = "Fireward Tincture"
+description = "+15 Fire Resist for next combat"
+flavor_text = "Grants fire resistance. Does not grant immunity. Note the distinction."
+tier = 1
+rarity = 1
+use_context = 1
+max_stack = 5
+granted_affixes = Array[ExtResource("1_1ggk6")]([ExtResource("2_ckr5w")])
+base_value = 45

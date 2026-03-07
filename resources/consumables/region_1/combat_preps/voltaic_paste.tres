@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://dui8jlh3wsp5k"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_g08uu"]
+[ext_resource type="Resource" uid="uid://cxdgxqlfmmsj" path="res://resources/consumables/region_1/affixes/shock_dmg_8.tres" id="2_s7vik"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_ikygk"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_m0nmh"]
+
+[resource]
+script = ExtResource("4_m0nmh")
+item_name = "Voltaic Paste"
+description = "+8 Shock Damage for next combat"
+flavor_text = "Apply to weapon. Do not apply to yourself."
+tier = 1
+rarity = 1
+use_context = 1
+max_stack = 5
+granted_affixes = Array[ExtResource("1_g08uu")]([ExtResource("2_s7vik")])
+base_value = 50

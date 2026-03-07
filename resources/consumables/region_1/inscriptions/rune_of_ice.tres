@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://nc4vbgmkkd28"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_1jf3d"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_i2kvs"]
+[ext_resource type="Resource" uid="uid://c1ye1080eus6k" path="res://resources/consumables/region_1/dice_affixes/perm_set_ice.tres" id="3_s1lsa"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_5y7s3"]
+
+[resource]
+script = ExtResource("4_5y7s3")
+item_name = "Rune of the Glacier"
+description = "Permanently set element to Ice"
+flavor_text = "Permanent frost coating. Cold to the touch."
+tier = 3
+rarity = 3
+target_type = 1
+max_stack = 3
+inscription_affix = ExtResource("3_s1lsa")
+base_value = 300

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://cx02jut87g6vd"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_11anr"]
+[ext_resource type="Resource" uid="uid://bx3uwye44v0ru" path="res://resources/consumables/region_1/affixes/shock_resist_15.tres" id="2_qkjtk"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_r5ms7"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_4c3fq"]
+
+[resource]
+script = ExtResource("4_4c3fq")
+item_name = "Stormward Tincture"
+description = "+15 Shock Resist for next combat"
+flavor_text = "Insulates against electrical damage."
+tier = 1
+rarity = 1
+use_context = 1
+max_stack = 5
+granted_affixes = Array[ExtResource("1_11anr")]([ExtResource("2_qkjtk")])
+base_value = 45

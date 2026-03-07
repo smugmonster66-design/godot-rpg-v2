@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://dva1b7mia3g28"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_gr38w"]
+[ext_resource type="Resource" uid="uid://ont1hdjqbmhi" path="res://resources/consumables/region_1/affixes/shadow_resist_15.tres" id="2_0fjvi"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_b5w15"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_8ji72"]
+
+[resource]
+script = ExtResource("4_8ji72")
+item_name = "Shadowward Tincture"
+description = "+15 Shadow Resist for next combat"
+flavor_text = "Wards against dark magic. The jar glows faintly."
+tier = 1
+rarity = 1
+use_context = 1
+max_stack = 5
+granted_affixes = Array[ExtResource("1_gr38w")]([ExtResource("2_0fjvi")])
+base_value = 45

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=4 format=3 uid="uid://cj8cfj6ioqhel"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_8g7b3"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_mn5b2"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="3_urexv"]
+
+[resource]
+script = ExtResource("3_urexv")
+item_name = "Officer's Brandy"
+description = "Heal 80 HP"
+flavor_text = "Reserved for commissioned officers. You look commissioned enough."
+heal_amount = 80
+base_value = 45

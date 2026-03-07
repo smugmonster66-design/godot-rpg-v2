@@ -67,6 +67,11 @@ var is_dragging: bool = false
 var is_drag_target: bool = false
 var _base_style: StyleBox = null
 
+# Long-press tooltip gating
+var _press_timer: Timer = null
+var _press_pending: bool = false
+const LONG_PRESS_DURATION := 0.5
+
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
@@ -76,6 +81,13 @@ func _ready():
 	mouse_filter = MOUSE_FILTER_STOP
 	_apply_slot_size()
 	update_display()
+
+	# Long-press timer for tooltip gating
+	_press_timer = Timer.new()
+	_press_timer.one_shot = true
+	_press_timer.wait_time = LONG_PRESS_DURATION
+	_press_timer.timeout.connect(_on_long_press)
+	add_child(_press_timer)
 
 func _apply_slot_size():
 	"""Derive slot minimum size from die_display_scale + padding."""
@@ -176,9 +188,27 @@ func _update_background():
 # ============================================================================
 
 func _gui_input(event: InputEvent):
-	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-			die_clicked.emit(self)
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			# Start long-press timer — only emit die_clicked if held without dragging
+			_press_pending = true
+			_press_timer.start()
+		else:
+			# Released before timer fired — cancel (was a tap or drag)
+			_cancel_long_press()
+
+
+func _on_long_press():
+	"""Timer fired — user held without dragging. Emit click for tooltip."""
+	if _press_pending and not is_dragging:
+		_press_pending = false
+		die_clicked.emit(self)
+
+
+func _cancel_long_press():
+	_press_pending = false
+	if _press_timer and not _press_timer.is_stopped():
+		_press_timer.stop()
 
 func _notification(what):
 	match what:
@@ -205,6 +235,9 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 		return null
 	if die.is_locked:
 		return null
+	
+	# Cancel pending long-press — this is a drag, not a tooltip
+	_cancel_long_press()
 	
 	is_dragging = true
 	drag_started.emit(self, die)

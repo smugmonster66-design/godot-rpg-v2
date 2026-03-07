@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://b5nb4gpy63u3t"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_8yjrr"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_tnjx3"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_e1va8"]
+
+[resource]
+script = ExtResource("2_tnjx3")
+affix_name = "Rune of Fortification"
+description = "+1 to all rolls (permanent)"
+effect_value = 1.0

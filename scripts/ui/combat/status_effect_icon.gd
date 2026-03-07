@@ -16,6 +16,7 @@ signal tooltip_requested(status_data: Dictionary, icon_global_pos: Vector2)
 # ============================================================================
 
 const ICON_SIZE := Vector2(64, 64)
+const STATUS_ICON_MATERIAL := preload("res://resources/materials/status_icon_base.tres")
 
 # ============================================================================
 # STATE
@@ -50,6 +51,10 @@ func _ready():
 	icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(icon_rect)
+
+	var _icon_material: ShaderMaterial = STATUS_ICON_MATERIAL.duplicate()
+	icon_rect.material = _icon_material
+
 
 	## Border tint applied directly to the icon rect
 	#var border_style = StyleBoxFlat.new()
@@ -110,35 +115,36 @@ func _gui_input(event: InputEvent):
 # INTERNALS
 # ============================================================================
 
-func _apply_visuals():
+
+func _apply_visuals() -> void:
+	if status_instance.is_empty():
+		return
+
 	var affix: StatusAffix = status_instance.get("status_affix")
 	if not affix:
 		return
 
-	# Icon
-	if icon_rect:
-		if affix.icon:
-			icon_rect.texture = affix.icon
-		else:
-			# Colored placeholder
-			icon_rect.modulate = _fallback_color(affix)
-			var img = Image.create(16, 16, false, Image.FORMAT_RGBA8)
-			img.fill(Color.WHITE)
-			icon_rect.texture = ImageTexture.create_from_image(img)
+	status_id = affix.status_id
 
-	# Stack count
+	# ── Texture ──
+	if affix.icon:
+		icon_rect.texture = affix.icon
+
+	# ── Shader tint ──
+	if icon_rect.material is ShaderMaterial:
+		icon_rect.material.set_shader_parameter(
+			"tint_color",
+			ThemeManager.get_status_color(status_id)
+		)
+
+	# ── Stack label ──
 	var stacks: int = status_instance.get("current_stacks", 0)
-	if stack_label:
-		stack_label.text = str(stacks) if stacks > 1 else ""
+	stack_label.text = str(stacks) if stacks > 1 else ""
 
-	# Border color: red for debuffs, green for buffs
-	if debuff_border:
-		var style: StyleBoxFlat = debuff_border.get_theme_stylebox("panel") as StyleBoxFlat
-		if style:
-			if affix.is_debuff:
-				style.border_color = Color(0.8, 0.2, 0.2, 0.8)
-			else:
-				style.border_color = Color(0.2, 0.7, 0.3, 0.8)
+	# ── Remaining turns ──
+	var turns: int = status_instance.get("remaining_turns", -1)
+	# (Add a turns label if your design calls for it)
+
 
 func _fallback_color(affix: StatusAffix) -> Color:
 	"""Fallback tint when no icon texture is available."""

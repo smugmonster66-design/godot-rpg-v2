@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://bab81vqhfsy4"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_xpd4l"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_ciucs"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_wk4v6"]
+
+[resource]
+script = ExtResource("2_ciucs")
+affix_name = "Frost Coating"
+description = "+8 Ice Damage"
+category = 23
+tags = Array[String](["ice"])
+effect_number = 8.0

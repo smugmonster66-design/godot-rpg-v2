@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=4 format=3 uid="uid://dhdlyjxyjwikl"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_sq31o"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_wdii5"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="3_yrh5m"]
+
+[resource]
+script = ExtResource("3_yrh5m")
+item_name = "Antidote Tablet"
+description = "Cleanse all debuffs"
+flavor_text = "Standard Navy issue. Form 14-C required for reimbursement."
+max_stack = 15
+cleanse_debuffs = true
+base_value = 20

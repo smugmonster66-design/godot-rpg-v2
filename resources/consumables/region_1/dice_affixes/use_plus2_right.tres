@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://dmwbkr2tou467"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_hrrv2"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_u1oxu"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_7vjjd"]
+
+[resource]
+script = ExtResource("2_u1oxu")
+affix_name = "Chain Reaction"
+description = "+2 to right neighbor on use"
+trigger = 1
+neighbor_target = 2
+effect_value = 2.0

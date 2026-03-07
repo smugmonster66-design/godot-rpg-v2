@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://dfx5cyfb287dr"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_c8h24"]
+[ext_resource type="Resource" uid="uid://b7e43q04py168" path="res://resources/consumables/region_1/affixes/armor_15.tres" id="2_qsnwk"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_aff2r"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_1l84a"]
+
+[resource]
+script = ExtResource("4_1l84a")
+item_name = "Marine Hardening Wax"
+description = "+15 Armor for next combat"
+flavor_text = "Standard hull treatment. Also works on skeletons."
+tier = 1
+rarity = 1
+use_context = 1
+max_stack = 5
+granted_affixes = Array[ExtResource("1_c8h24")]([ExtResource("2_qsnwk")])
+base_value = 80

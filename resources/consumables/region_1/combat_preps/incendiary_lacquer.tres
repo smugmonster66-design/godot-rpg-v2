@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://bptv7f4i761w2"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_v5v16"]
+[ext_resource type="Resource" uid="uid://58abiggkldu2" path="res://resources/consumables/region_1/affixes/proc_burn_30.tres" id="2_2db7t"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_vkjnn"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_h7mw6"]
+
+[resource]
+script = ExtResource("4_h7mw6")
+item_name = "Incendiary Lacquer"
+description = "30% Burn on Hit for next combat"
+flavor_text = "Sets things on fire. That is literally all it does."
+tier = 1
+rarity = 2
+use_context = 1
+max_stack = 5
+granted_affixes = Array[ExtResource("1_v5v16")]([ExtResource("2_2db7t")])
+base_value = 90

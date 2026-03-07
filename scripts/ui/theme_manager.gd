@@ -218,24 +218,29 @@ func get_rarity_color_enum(rarity: int) -> Color:
 # PUBLIC API — STATUS COLORS
 # ============================================================================
 
+
 func get_status_color(status_name: String) -> Color:
-	# Get color for a combat status effect.
+	# Endesga-64 palette — exact hex matches from endesga-64.hex
 	match status_name.to_lower():
-		"poison":    return Color(0.40, 0.85, 0.25)
-		"burn":      return Color(1.0, 0.40, 0.10)
-		"bleed":     return Color(0.80, 0.10, 0.10)
-		"chill":     return Color(0.50, 0.80, 1.0)
-		"stunned":   return Color(1.0, 1.0, 0.20)
-		"slowed":    return Color(0.40, 0.40, 0.80)
-		"corrode":   return Color(0.60, 0.50, 0.10)
-		"shadow":    return Color(0.30, 0.10, 0.40)
-		"block":     return Color(0.60, 0.60, 0.60)
-		"dodge":     return Color(0.20, 0.90, 0.60)
-		"overhealth": return Color(0.90, 0.90, 0.20)
-		"expose":    return Color(1.0, 0.50, 0.50)
-		"enfeeble":  return Color(0.50, 0.30, 0.50)
-		"ignition":  return Color(1.0, 0.60, 0.0)
-		_:           return PALETTE.text_secondary
+		"burn":       return Color.html("FF5000")  # vivid orange-red
+		"bleed":      return Color.html("C42430")  # deep blood red
+		"poison":     return Color.html("5AC54F")  # toxic mid-green
+		"chill":      return Color.html("0CF1FF")  # icy bright cyan
+		"freeze":     return Color.html("94FDFF")  # pale frost cyan
+		"static":     return Color.html("0098DC")  # electric mid-blue
+		"stunned":    return Color.html("FFC825")  # lightning yellow
+		"slowed":     return Color.html("657392")  # muted steel-blue
+		"corrode":    return Color.html("EDAB50")  # rusty amber
+		"shadow":     return Color.html("622461")  # dark violet
+		"expose":     return Color.html("F68187")  # vulnerability pink
+		"enfeeble":   return Color.html("93388F")  # drained purple
+		"ignition":   return Color.html("FFA214")  # warm amber
+		"block":      return Color.html("858585")  # steel grey
+		"dodge":      return Color.html("00CDF9")  # agile bright blue
+		"overhealth": return Color.html("FFEB57")  # gold excess
+		"taunt":      return Color.html("FF0040")  # hot red provocation
+		"barrier":    return Color.html("0069AA")  # protective navy
+		_:            return PALETTE.text_secondary
 
 
 # ============================================================================

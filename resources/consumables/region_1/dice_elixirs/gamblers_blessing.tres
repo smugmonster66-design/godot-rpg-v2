@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://c0qap62388w2o"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_u2tl3"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_hvdbu"]
+[ext_resource type="Resource" uid="uid://pwhah06lflmx" path="res://resources/consumables/region_1/dice_affixes/roll_plus1.tres" id="3_78km4"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_j11lh"]
+
+[resource]
+script = ExtResource("4_j11lh")
+item_name = "Gambler's Blessing"
+description = "+1 to all die rolls for next combat"
+flavor_text = "Every roll gets a nudge. Today you are the house."
+tier = 2
+rarity = 2
+use_context = 1
+max_stack = 5
+granted_dice_affixes = Array[ExtResource("2_hvdbu")]([ExtResource("3_78km4")])
+base_value = 100

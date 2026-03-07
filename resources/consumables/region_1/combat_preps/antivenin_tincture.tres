@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://bsfrq2svodk53"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_pej6m"]
+[ext_resource type="Resource" uid="uid://dpuiuukjp5sy" path="res://resources/consumables/region_1/affixes/poison_resist_15.tres" id="2_wxru1"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_df27v"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_leskl"]
+
+[resource]
+script = ExtResource("4_leskl")
+item_name = "Antivenin Tincture"
+description = "+15 Poison Resist for next combat"
+flavor_text = "Pre-emptive antivenom. Beats the alternative."
+tier = 1
+rarity = 1
+use_context = 1
+max_stack = 5
+granted_affixes = Array[ExtResource("1_pej6m")]([ExtResource("2_wxru1")])
+base_value = 45

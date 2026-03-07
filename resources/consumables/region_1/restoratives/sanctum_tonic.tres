@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=4 format=3 uid="uid://phuxalm3ov4p"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_63whn"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_gymwu"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="3_leq67"]
+
+[resource]
+script = ExtResource("3_leq67")
+item_name = "Sanctum Tonic"
+description = "Heal 50 HP"
+flavor_text = "Prescribed by licensed apothecaries. License pending."
+max_stack = 15
+heal_amount = 50
+base_value = 25

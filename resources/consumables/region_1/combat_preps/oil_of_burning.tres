@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://ddrpo7fde8ocs"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_21xw7"]
+[ext_resource type="Resource" uid="uid://e3a633yq6ren" path="res://resources/consumables/region_1/affixes/fire_dmg_8.tres" id="2_ukqtt"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_4vocr"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_lmq70"]
+
+[resource]
+script = ExtResource("4_lmq70")
+item_name = "Oil of Burning"
+description = "+8 Fire Damage for next combat"
+flavor_text = "Flammable. Very flammable. Concerningly flammable."
+tier = 1
+rarity = 1
+use_context = 1
+max_stack = 5
+granted_affixes = Array[ExtResource("1_21xw7")]([ExtResource("2_ukqtt")])
+base_value = 50

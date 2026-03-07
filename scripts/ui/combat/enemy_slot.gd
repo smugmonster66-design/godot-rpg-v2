@@ -67,7 +67,7 @@ signal slot_unhovered(slot: EnemySlot)
 @onready var portrait_rect: TextureRect = $MarginContainer/VBox/PortraitSection/Portrait
 @onready var reticle_rect: ColorRect = $MarginContainer/VBox/PortraitSection/ReticleRect
 @onready var health_bar: TextureProgressBar = $MarginContainer/VBox/PortraitSection/HealthBar
-
+@onready var background_frame: NinePatchRect = $MarginContainer/VBox/PortraitSection/BackgroundFrame
 
 # ============================================================================
 # STATE
@@ -80,6 +80,7 @@ var style_box: StyleBoxFlat = null
 var dice_icons: Array[Control] = []
 var status_display: StatusEffectDisplay = null
 var reticle_material: ShaderMaterial = null
+var turn_glow_material: ShaderMaterial = null
 var _reticle_mode: ReticleMode = ReticleMode.NONE
 
 func _slot_color(custom: Color, palette_fallback: Color) -> Color:
@@ -136,7 +137,8 @@ func _connect_signals():
 
 
 func _setup_reticle():
-	"""Grab the shader material from the scene-placed ReticleRect."""
+	"""Grab the shader material from the scene-placed ReticleRect,
+	and load a duplicate of the border glow material for ENEMY_TURN."""
 	if reticle_rect and reticle_rect.material is ShaderMaterial:
 		reticle_material = reticle_rect.material.duplicate()
 		reticle_rect.material = reticle_material
@@ -144,14 +146,36 @@ func _setup_reticle():
 	elif reticle_rect:
 		push_warning("EnemySlot[%d]: ReticleRect has no ShaderMaterial" % slot_index)
 
+	var glow_res = ResourceLoader.load(
+		"res://resources/materials/enemy_turn_glow_material.tres",
+		"", ResourceLoader.CACHE_MODE_IGNORE
+	) as ShaderMaterial
+	if glow_res:
+		turn_glow_material = glow_res.duplicate()
+	else:
+		push_warning("EnemySlot[%d]: Could not load enemy_turn_glow_material.tres" % slot_index)
+
 
 # ============================================================================
 # RETICLE — SINGLE VISUAL OVERLAY FOR ALL MODES
 # ============================================================================
 
 func _set_reticle(mode: ReticleMode) -> void:
-	"""Set the reticle mode. Handles visibility, color, rotation, pulse."""
+	"""Set the reticle mode. Handles visibility, color, rotation, pulse.
+	ENEMY_TURN uses a border glow on BackgroundFrame instead of the crosshair."""
 	_reticle_mode = mode
+
+	# ── ENEMY_TURN: border glow on BackgroundFrame, crosshair hidden ──
+	if mode == ReticleMode.ENEMY_TURN:
+		if reticle_rect:
+			reticle_rect.visible = false
+		if background_frame and turn_glow_material:
+			background_frame.material = turn_glow_material
+		return
+
+	# ── All other modes: ensure glow is cleared ──
+	if background_frame and background_frame.material == turn_glow_material:
+		background_frame.material = null
 
 	if not reticle_rect or not reticle_material:
 		return
@@ -182,11 +206,6 @@ func _set_reticle(mode: ReticleMode) -> void:
 			cfg = {
 				"color": reticle_aoe_color,
 				"rotation": 0.6, "pulse": 2.0, "pulse_min": 0.5, "radius": 0.33,
-			}
-		ReticleMode.ENEMY_TURN:
-			cfg = {
-				"color": reticle_turn_color,
-				"rotation": 0.3, "pulse": 1.0, "pulse_min": 0.5, "radius": 0.30,
 			}
 
 	reticle_material.set_shader_parameter("reticle_color", cfg.color)

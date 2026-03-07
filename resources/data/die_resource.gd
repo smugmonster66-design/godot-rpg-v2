@@ -83,6 +83,14 @@ var icon: Texture2D:
 ## Affixes that are always on this die (e.g., a "Flame Die" has fire affixes built-in)
 @export var inherent_affixes: Array[DiceAffix] = []
 
+## Permanent affixes added by consumable inscriptions.
+## Separate from inherent (built-in) and applied (runtime/temporary).
+@export var inscribed_affixes: Array[DiceAffix] = []
+
+## Maximum inscription slots. Override per-die or use default by die type.
+@export var max_inscription_slots: int = -1  ## -1 = use default by die type
+
+
 ## Runtime affixes added by equipment, blessings, curses, etc.
 var applied_affixes: Array[DiceAffix] = []
 
@@ -301,6 +309,9 @@ func get_all_affixes() -> Array[DiceAffix]:
 	# Then inherent affixes
 	all.append_array(inherent_affixes)
 	
+	# Then inscribed affixes (permanent player modifications)
+	all.append_array(inscribed_affixes)
+	
 	# Then applied affixes (highest priority for visual overwrites)
 	all.append_array(applied_affixes)
 	
@@ -464,6 +475,13 @@ func duplicate_die() -> DieResource:
 		if affix:
 			copy.applied_affixes.append(affix.duplicate(true))
 	
+	# Deep copy inscribed affixes
+	for affix in inscribed_affixes:
+		if affix:
+			copy.inscribed_affixes.append(affix.duplicate(true))
+	copy.max_inscription_slots = max_inscription_slots
+	
+	
 	# Copy rarity name
 	copy.rarity_name = rarity_name
 	
@@ -479,6 +497,12 @@ func to_dict() -> Dictionary:
 	for affix in inherent_affixes:
 		if affix:
 			inherent_data.append(affix.to_dict())
+	
+	var inscribed_data: Array[Dictionary] = []
+	for affix in inscribed_affixes:
+		if affix:
+			inscribed_data.append(affix.to_dict())
+	
 	
 	var applied_data: Array[Dictionary] = []
 	for affix in applied_affixes:
@@ -499,6 +523,7 @@ func to_dict() -> Dictionary:
 		"can_reroll": can_reroll,
 		"inherent_affixes": inherent_data,
 		"applied_affixes": applied_data,
+		"inscribed_affixes": inscribed_data,
 		# is_consumed is NOT serialized — hand is transient
 	}
 
@@ -521,6 +546,9 @@ static func from_dict(data: Dictionary) -> DieResource:
 	
 	for affix_data in data.get("applied_affixes", []):
 		die.applied_affixes.append(DiceAffix.from_dict(affix_data))
+	
+	for affix_data in data.get("inscribed_affixes", []):
+		die.inscribed_affixes.append(DiceAffix.from_dict(affix_data))
 	
 	return die
 

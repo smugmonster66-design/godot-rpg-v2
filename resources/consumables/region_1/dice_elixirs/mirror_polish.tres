@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://bfve5pshjt8ao"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_rrlwm"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_g3nwh"]
+[ext_resource type="Resource" uid="uid://cahvmvn14abow" path="res://resources/consumables/region_1/dice_affixes/copy_left_50.tres" id="3_dg3i5"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_lxo6d"]
+
+[resource]
+script = ExtResource("4_lxo6d")
+item_name = "Mirror Polish"
+description = "Copy 50% of left neighbor value"
+flavor_text = "Dice mirror the die to their left."
+tier = 2
+rarity = 2
+use_context = 1
+max_stack = 5
+granted_dice_affixes = Array[ExtResource("2_g3nwh")]([ExtResource("3_dg3i5")])
+base_value = 110

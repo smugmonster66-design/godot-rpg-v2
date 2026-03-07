@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://bwlilw7t3hsdp"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_dmywj"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_1hk80"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_rkh5t"]
+
+[resource]
+script = ExtResource("2_1hk80")
+affix_name = "Ice Ink"
+description = "Set element to ice"
+effect_type = 21
+effect_data = {
+"element": "ICE"
+}

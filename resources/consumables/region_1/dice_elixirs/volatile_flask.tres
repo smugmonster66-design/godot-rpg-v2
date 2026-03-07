@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://sev3cbsnoyjf"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_vimdl"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_nocnh"]
+[ext_resource type="Resource" uid="uid://cd1w6xk5fgmp5" path="res://resources/consumables/region_1/dice_affixes/roll_plus3_first.tres" id="3_6ur8y"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_db2ne"]
+
+[resource]
+script = ExtResource("4_db2ne")
+item_name = "Volatile Flask"
+description = "+3 to first die roll"
+flavor_text = "Opening roll hits harder. After that, your problem."
+tier = 2
+rarity = 2
+use_context = 1
+max_stack = 5
+granted_dice_affixes = Array[ExtResource("2_nocnh")]([ExtResource("3_6ur8y")])
+dice_target_filter = "first"
+base_value = 80

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=4 format=3 uid="uid://b484l7f3hemc7"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_2hgf6"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_urxr8"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="3_comqt"]
+
+[resource]
+script = ExtResource("3_comqt")
+item_name = "Erasure Solvent"
+description = "Remove one inscribed affix from a die"
+flavor_text = "Undoes a previous inscription. The rune fights back."
+tier = 3
+rarity = 2
+target_type = 1
+max_stack = 5
+can_overwrite = true
+base_value = 150

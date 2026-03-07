@@ -1,0 +1,117 @@
+[gd_scene load_steps=3 format=3 uid="uid://bj3c4bfg65dhk"]
+
+[ext_resource type="Script" uid="uid://b5y58nj247jq5" path="res://scripts/ui/popups/consumable_die_select_popup.gd" id="1_popup"]
+[ext_resource type="Script" uid="uid://cem70rtx0aubi" path="res://scripts/ui/popups/die_drop_zone.gd" id="2_dropzone"]
+
+[node name="ConsumableDieSelectPopup" type="CanvasLayer"]
+layer = 100
+script = ExtResource("1_popup")
+
+[node name="DimBackground" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.65)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+theme_type_variation = &"MenuPanel"
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+theme_type_variation = &"header"
+text = "Select a Die"
+horizontal_alignment = 1
+
+[node name="HSep1" type="HSeparator" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+
+[node name="ConsumableInfo" type="HBoxContainer" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="IconRect" type="TextureRect" parent="CenterContainer/Panel/VBox/ConsumableInfo"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="InfoVBox" type="VBoxContainer" parent="CenterContainer/Panel/VBox/ConsumableInfo"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="NameLabel" type="Label" parent="CenterContainer/Panel/VBox/ConsumableInfo/InfoVBox"]
+layout_mode = 2
+theme_type_variation = &"large"
+text = "Consumable Name"
+
+[node name="DescLabel" type="Label" parent="CenterContainer/Panel/VBox/ConsumableInfo/InfoVBox"]
+layout_mode = 2
+theme_type_variation = &"small"
+text = "Effect description goes here"
+autowrap_mode = 3
+
+[node name="HSep2" type="HSeparator" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+
+[node name="DropZone" type="PanelContainer" parent="CenterContainer/Panel/VBox"]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+script = ExtResource("2_dropzone")
+
+[node name="DropVBox" type="VBoxContainer" parent="CenterContainer/Panel/VBox/DropZone"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="DropHint" type="Label" parent="CenterContainer/Panel/VBox/DropZone/DropVBox"]
+layout_mode = 2
+theme_type_variation = &"normal"
+text = "Drag a die here from your pool"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DiePreviewContainer" type="CenterContainer" parent="CenterContainer/Panel/VBox/DropZone/DropVBox"]
+visible = false
+custom_minimum_size = Vector2(0, 128)
+layout_mode = 2
+
+[node name="DieInfoLabel" type="Label" parent="CenterContainer/Panel/VBox/DropZone/DropVBox"]
+layout_mode = 2
+theme_type_variation = &"small"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="HSep3" type="HSeparator" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+
+[node name="ButtonRow" type="HBoxContainer" parent="CenterContainer/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="CancelButton" type="Button" parent="CenterContainer/Panel/VBox/ButtonRow"]
+custom_minimum_size = Vector2(160, 48)
+layout_mode = 2
+text = "Cancel"
+
+[node name="ConfirmButton" type="Button" parent="CenterContainer/Panel/VBox/ButtonRow"]
+custom_minimum_size = Vector2(160, 48)
+layout_mode = 2
+disabled = true
+text = "Confirm"

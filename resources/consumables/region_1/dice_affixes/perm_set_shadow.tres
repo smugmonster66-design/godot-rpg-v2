@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://d2vr4new1ix27"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_ff5t5"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_f8bdr"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_j1nl1"]
+
+[resource]
+script = ExtResource("2_f8bdr")
+affix_name = "Rune of Shadow"
+description = "Permanently set element to shadow"
+effect_type = 21
+effect_data = {
+"element": "SHADOW"
+}

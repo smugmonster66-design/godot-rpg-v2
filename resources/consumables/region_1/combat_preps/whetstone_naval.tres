@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://cex28060n7smq"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_tq7ap"]
+[ext_resource type="Resource" uid="uid://dpjr4qc4ypqtx" path="res://resources/consumables/region_1/affixes/dmg_bonus_10.tres" id="2_vg8km"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_ftr7e"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_w1rh0"]
+
+[resource]
+script = ExtResource("4_w1rh0")
+item_name = "Whetstone (Naval Grade)"
+description = "+10 Damage for next combat"
+flavor_text = "Admiralty specification: must produce visible sparks."
+tier = 1
+rarity = 1
+use_context = 1
+max_stack = 5
+granted_affixes = Array[ExtResource("1_tq7ap")]([ExtResource("2_vg8km")])
+base_value = 80

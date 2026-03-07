@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://e3a633yq6ren"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_vhj5n"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_7ruho"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_b6ibs"]
+
+[resource]
+script = ExtResource("2_7ruho")
+affix_name = "Burning Oil"
+description = "+8 Fire Damage"
+category = 22
+tags = Array[String](["fire"])
+effect_number = 8.0

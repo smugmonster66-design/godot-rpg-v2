@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://bc6btavd16ndc"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_47anl"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_7gkh2"]
+[ext_resource type="Resource" uid="uid://bp1xohytcwapl" path="res://resources/consumables/region_1/dice_affixes/perm_bleed_2.tres" id="3_08ywf"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_irvc4"]
+
+[resource]
+script = ExtResource("4_irvc4")
+item_name = "Sigil of Fracture"
+description = "Apply 2 Bleed stacks on use (permanent)"
+flavor_text = "Sharp dice draw blood. Reliably."
+tier = 3
+rarity = 3
+target_type = 1
+max_stack = 3
+inscription_affix = ExtResource("3_08ywf")
+inscription_die_filter = Array[String](["element:SLASHING", "element:PIERCING"])
+base_value = 350

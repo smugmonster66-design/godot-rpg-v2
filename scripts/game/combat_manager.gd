@@ -376,6 +376,12 @@ func _finalize_combat_init(p_player: Player):
 	# --- END MANA ---
 	
 	
+	# --- CONSUMABLES: Apply pending buffs BEFORE procs evaluate ---
+	if player:
+		_apply_consumable_buffs()
+	# --- END CONSUMABLES ---
+	
+	
 	
 	# Initialize proc processor and fire combat-start procs
 	if not proc_processor:
@@ -3040,10 +3046,19 @@ func end_combat(player_won: bool):
 		_apply_proc_results(combat_end_results)
 	# --- END COMBAT_END PROCS ---
 	
+	
+	
 	# --- PROC: Reset per-combat proc state ---
 	if proc_processor and player and player.affix_manager:
 		proc_processor.on_combat_end(player.affix_manager)
 	# --- END PROC ---
+
+
+	# --- CONSUMABLES: Strip temporary buffs ---
+	if player:
+		_strip_consumable_buffs()
+	# --- END CONSUMABLES ---
+
 
 	# --- COMPANIONS: Sync NPC state, clear summons, update panel ---
 	if companion_manager:
@@ -3623,6 +3638,155 @@ func _add_threat_to_all_enemies(source: Combatant, threat_type: String, value: i
 				tracker.add_healing_threat(source, value)
 			"proc":
 				tracker.add_proc_threat(source, value)
+
+
+
+# ============================================================================
+# CONSUMABLE BUFF MANAGEMENT
+# ============================================================================
+
+func _apply_consumable_buffs():
+	"""Apply pending consumable buffs at combat start.
+	T2 affixes go into player.affix_manager.
+	T3 dice affixes go into matching dice's applied_affixes."""
+	if not player or player.active_consumable_buffs.is_empty():
+		return
+
+	print("🧪 Applying consumable buffs (%d pending)" % player.active_consumable_buffs.size())
+
+	for buff_entry in player.active_consumable_buffs:
+		var consumable: ConsumableItem = buff_entry.get("consumable")
+		if not consumable:
+			continue
+
+		var buff_type: String = buff_entry.get("type", "")
+
+		if buff_type == "affix":
+			# T2: Inject Affixes into affix_manager
+			for affix_template in consumable.granted_affixes:
+				if not affix_template:
+					continue
+				var copy: Affix = affix_template.duplicate(true)
+				copy.source = consumable.item_name
+				copy.source_type = "consumable"
+				copy.add_tag("consumable")
+				player.affix_manager.add_affix(copy)
+				print("  ⚗️ Applied affix: %s (from %s)" % [copy.affix_name, consumable.item_name])
+
+		elif buff_type == "dice_affix":
+			# T3: Inject DiceAffixes into matching dice
+			# Single-die targeting: use stored die reference if present
+			var stored_die: DieResource = buff_entry.get("selected_die", null)
+			var target_dice: Array[DieResource] = []
+			if stored_die:
+				target_dice.append(stored_die)
+			else:
+				target_dice = _filter_dice_for_consumable(consumable)
+			for die in target_dice:
+				for da_template in consumable.granted_dice_affixes:
+					if not da_template:
+						continue
+					var copy: DiceAffix = da_template.duplicate(true)
+					copy.source = consumable.item_name
+					copy.source_type = "consumable"
+					die.applied_affixes.append(copy)
+					print("  [OK] Applied dice affix: %s to %s" % [copy.affix_name, die.get_display_name()])
+
+
+func _strip_consumable_buffs():
+	"""Remove all temporary consumable buffs after combat ends.
+	Decrements remaining_combats and removes expired entries."""
+	if not player:
+		return
+
+	# Strip T2 affixes from affix_manager (uses tag)
+	var removed_count = player.affix_manager.remove_affixes_by_tag("consumable")
+	if removed_count > 0:
+		print("🧪 Stripped %d consumable affixes" % removed_count)
+
+	# Strip T3 dice affixes (uses source_type — DiceAffix has no tags)
+	if player.dice_pool:
+		var dice_removed: int = 0
+		for die in player.dice_pool.get_all_dice():
+			var to_remove: Array[DiceAffix] = []
+			for da in die.applied_affixes:
+				if da.source_type == "consumable":
+					to_remove.append(da)
+			for da in to_remove:
+				die.applied_affixes.erase(da)
+				dice_removed += 1
+		if dice_removed > 0:
+			print("🧪 Stripped %d consumable dice affixes" % dice_removed)
+
+	# Decrement combat counters, remove expired
+	var expired: Array[Dictionary] = []
+	for buff_entry in player.active_consumable_buffs:
+		buff_entry["remaining_combats"] = buff_entry.get("remaining_combats", 1) - 1
+		if buff_entry["remaining_combats"] <= 0:
+			expired.append(buff_entry)
+	for entry in expired:
+		player.active_consumable_buffs.erase(entry)
+	if expired.size() > 0:
+		print("🧪 Expired %d consumable buff entries" % expired.size())
+
+
+func _filter_dice_for_consumable(consumable: ConsumableItem) -> Array[DieResource]:
+	"""Parse dice_target_filter and return matching dice from player's pool."""
+	var all_dice: Array[DieResource] = []
+	if player.dice_pool:
+		all_dice = player.dice_pool.get_all_dice()
+	if all_dice.is_empty():
+		return []
+
+	var filter_str: String = consumable.dice_target_filter.strip_edges().to_lower()
+
+	if filter_str == "all" or filter_str.is_empty():
+		return all_dice
+
+	var result: Array[DieResource] = []
+
+	if filter_str == "first":
+		if all_dice.size() > 0:
+			result.append(all_dice[0])
+		return result
+
+	if filter_str == "last":
+		if all_dice.size() > 0:
+			result.append(all_dice[all_dice.size() - 1])
+		return result
+
+	if filter_str.begins_with("element:"):
+		var elem_name = filter_str.split(":")[1].to_upper()
+		for die in all_dice:
+			var die_elem_name = DieResource.Element.keys()[die.element]
+			if die_elem_name == elem_name:
+				result.append(die)
+		return result
+
+	if filter_str.begins_with("type:"):
+		var type_part = filter_str.split(":")[1].to_upper()
+		var has_plus = type_part.ends_with("+")
+		var type_num = int(type_part.replace("+", "").replace("D", ""))
+		for die in all_dice:
+			if has_plus:
+				if die.die_type >= type_num:
+					result.append(die)
+			else:
+				if die.die_type == type_num:
+					result.append(die)
+		return result
+
+	if filter_str.begins_with("tagged:"):
+		var tag = filter_str.split(":")[1]
+		for die in all_dice:
+			if die.has_tag(tag):
+				result.append(die)
+		return result
+
+	# Unknown filter — return all as fallback
+	push_warning("Unknown dice_target_filter: '%s' — returning all dice" % filter_str)
+	return all_dice
+
 
 
 func _on_companion_died_threat_update(companion: CompanionCombatant, _slot: int) -> void:

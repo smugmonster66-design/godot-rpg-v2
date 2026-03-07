@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://cts8gg107tb1h"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_djhbs"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_gqkd8"]
+[ext_resource type="Resource" uid="uid://dmwbkr2tou467" path="res://resources/consumables/region_1/dice_affixes/use_plus2_right.tres" id="3_xu6lr"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_k52bj"]
+
+[resource]
+script = ExtResource("4_k52bj")
+item_name = "Chain Reaction Tonic"
+description = "+2 to right neighbor on use"
+flavor_text = "Each die boosts its neighbor. Positioning matters."
+tier = 2
+rarity = 2
+use_context = 1
+max_stack = 5
+granted_dice_affixes = Array[ExtResource("2_gqkd8")]([ExtResource("3_xu6lr")])
+base_value = 120

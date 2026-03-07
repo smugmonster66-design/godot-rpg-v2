@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://c7pfmnafhy5c4"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_yvhf3"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_kcod5"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_6lry6"]
+
+[resource]
+script = ExtResource("2_kcod5")
+affix_name = "Serrated Coat"
+description = "30% Bleed on Hit"
+category = 35
+effect_number = 2.0
+effect_data = {
+"stacks": 2,
+"status_id": "bleed"
+}
+proc_trigger = 1
+proc_chance = 0.3

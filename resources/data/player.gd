@@ -46,6 +46,20 @@ var equipment_sets: Dictionary = {}
 # ============================================================================
 var inventory: Array[EquippableItem] = []
 
+
+# ============================================================================
+# CONSUMABLE INVENTORY
+# ============================================================================
+## Consumable items stored separately from equipment.
+## Supports stacking via ConsumableItem.current_stack.
+var consumables: Array[ConsumableItem] = []
+
+## Consumable buffs pending application at next combat start.
+## Each entry: {"consumable": ConsumableItem, "remaining_combats": int, "type": String}
+var active_consumable_buffs: Array[Dictionary] = []
+
+
+
 # ============================================================================
 # CLASS SYSTEM
 # ============================================================================
@@ -543,6 +557,48 @@ func remove_from_inventory(item: EquippableItem):
 	"""Remove an EquippableItem from inventory."""
 	inventory.erase(item)
 	inventory_changed.emit()
+
+
+# ============================================================================
+# CONSUMABLE MANAGEMENT
+# ============================================================================
+
+func add_consumable(item: ConsumableItem):
+	"""Add a consumable, stacking if possible."""
+	if not item:
+		return
+	# Try to stack with existing
+	for existing in consumables:
+		if existing.item_name == item.item_name and existing.current_stack < existing.max_stack:
+			existing.current_stack += 1
+			inventory_changed.emit()
+			print("🧪 Stacked %s (%d/%d)" % [item.item_name, existing.current_stack, existing.max_stack])
+			return
+	# New entry
+	item.current_stack = 1
+	consumables.append(item)
+	inventory_changed.emit()
+	print("🧪 Added consumable: %s" % item.item_name)
+
+
+func remove_consumable(item: ConsumableItem):
+	"""Remove one stack of a consumable. Removes entry if stack reaches 0."""
+	if not item:
+		return
+	if item.current_stack > 1:
+		item.current_stack -= 1
+		inventory_changed.emit()
+	else:
+		consumables.erase(item)
+		inventory_changed.emit()
+
+
+func use_consumable(item: ConsumableItem, context: Dictionary = {}) -> Dictionary:
+	"""Use a consumable. Handles stack decrement and removal."""
+	var result = item.use(self, context)
+	if result.get("success", false) and item.consumed_on_use:
+		remove_consumable(item)
+	return result
 
 
 func add_experience(amount: int):

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=4 format=3 uid="uid://durs5d3hubxbj"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_mwdjq"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_y5w6a"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="3_10la5"]
+
+[resource]
+script = ExtResource("3_10la5")
+item_name = "Greater Mana Draught"
+description = "Restore 50 Mana"
+flavor_text = "Brewed from imported arcane reagents. Import duties included."
+rarity = 1
+mana_amount = 50
+base_value = 50

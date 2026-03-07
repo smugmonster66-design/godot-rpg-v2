@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://pppyfn287d36"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_u6lvj"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_on3aa"]
+[ext_resource type="Resource" uid="uid://b51rlbq0j8tic" path="res://resources/consumables/region_1/dice_affixes/leech_15.tres" id="3_bs05k"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_2ae4g"]
+
+[resource]
+script = ExtResource("4_2ae4g")
+item_name = "Leech Draught"
+description = "15% lifesteal on all dice used"
+flavor_text = "Heal for damage dealt by each die. Vampiric, but legal."
+tier = 2
+rarity = 2
+use_context = 1
+max_stack = 5
+granted_dice_affixes = Array[ExtResource("2_on3aa")]([ExtResource("3_bs05k")])
+base_value = 130

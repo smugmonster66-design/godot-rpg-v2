@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ConsumableItem" load_steps=5 format=3 uid="uid://dxtkg7qwoajcg"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_yohfm"]
+[ext_resource type="Resource" uid="uid://c7pfmnafhy5c4" path="res://resources/consumables/region_1/affixes/proc_bleed_30.tres" id="2_4vub5"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_1o753"]
+[ext_resource type="Script" uid="uid://ko1y8kp7vlc8" path="res://resources/data/consumable_item.gd" id="4_forlf"]
+
+[resource]
+script = ExtResource("4_forlf")
+item_name = "Serrated Edge Compound"
+description = "30% Bleed on Hit for next combat"
+flavor_text = "Your weapon will need re-sharpening afterward."
+tier = 1
+rarity = 2
+use_context = 1
+max_stack = 5
+granted_affixes = Array[ExtResource("1_yohfm")]([ExtResource("2_4vub5")])
+base_value = 90

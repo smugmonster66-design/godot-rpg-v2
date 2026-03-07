@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://dlooe4wtubut"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_wuvs6"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_0bsv0"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_ycfsb"]
+
+[resource]
+script = ExtResource("2_0bsv0")
+affix_name = "Duelist's Focus"
+description = "+4 to last die on use"
+trigger = 1
+position_requirement = 2
+effect_value = 4.0
