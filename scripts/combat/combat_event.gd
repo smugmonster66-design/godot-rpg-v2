@@ -77,6 +77,7 @@ enum Type {
 	# --- Elemental / special ---
 	ELEMENT_COMBO,           ## Multiple elements combined for a bonus
 	BATTLEFIELD_EFFECT,      ## A battlefield zone triggered
+	COMBO_TRIGGERED,
 }
 
 # ============================================================================
@@ -172,6 +173,14 @@ static func heal_applied(target: Node, amount: int, source: Node = null) -> Comb
 	evt.target_node = target
 	evt.source_node = source
 	evt.values = { "amount": amount }
+	return evt
+
+static func combo_triggered(target: Node, marks_consumed: int, bonus_damage: int, source: Node = null) -> CombatEvent:
+	var evt = CombatEvent.new()
+	evt.type = Type.COMBO_TRIGGERED
+	evt.target_node = target
+	evt.source_node = source
+	evt.values = { "marks_consumed": marks_consumed, "bonus_damage": bonus_damage }
 	return evt
 
 static func crit_landed(target: Node, amount: int, source: Node = null) -> CombatEvent:

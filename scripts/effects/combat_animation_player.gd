@@ -83,11 +83,16 @@ func play_action_animation(
 		print("  🎬 CAP: Playing IMPACT...")
 		if animation_set.impact_delay > 0:
 			await get_tree().create_timer(animation_set.impact_delay).timeout
+		# Emit before awaiting — damage, floaters, and status effects
+		# now fire at the same moment the impact visual starts, not after it finishes.
+		if animation_set.apply_effect_at == CombatAnimationSet.EffectTiming.ON_IMPACT:
+			apply_effect_now.emit()
 		await _play_impact(animation_set, target_positions, target_nodes)
 		print("  🎬 CAP: IMPACT done")
-	
-	if animation_set.apply_effect_at == CombatAnimationSet.EffectTiming.ON_IMPACT:
-		apply_effect_now.emit()
+	else:
+		# No impact animation — still need to fire if ON_IMPACT was selected
+		if animation_set.apply_effect_at == CombatAnimationSet.EffectTiming.ON_IMPACT:
+			apply_effect_now.emit()
 	
 	impact_finished.emit()
 	animation_sequence_finished.emit()

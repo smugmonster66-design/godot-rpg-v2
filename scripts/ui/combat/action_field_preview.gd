@@ -344,7 +344,6 @@ func _update_disabled_state():
 # ============================================================================
 
 func _on_gui_input(event: InputEvent):
-	print("🖱️ PREVIEW GUI INPUT: %s for '%s'" % [event, action_name])
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		print("  ✅ LEFT CLICK DETECTED")
 		if is_disabled:

@@ -989,10 +989,12 @@ func _can_drop_data(_pos: Vector2, data: Variant) -> bool:
 	# Check accepted elements (from Action resource)
 	if action_resource and action_resource.accepted_elements.size() > 0:
 		var die = data.get("die") as DieResource
-		if die:
-			var die_element: int = die.get_effective_element()
-			if die_element not in action_resource.accepted_elements:
-				return false
+		if not die:
+			# Can't validate element — reject to be safe
+			return false
+		var die_element: int = die.get_effective_element()
+		if die_element not in action_resource.accepted_elements:
+			return false
 	return true
 
 

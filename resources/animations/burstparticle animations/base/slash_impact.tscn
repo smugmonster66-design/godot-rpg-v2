@@ -1,0 +1,128 @@
+[gd_scene load_steps=20 format=3 uid="uid://bp_slash_hit_001"]
+
+; ─────────────────────────────────────────────────────────────────────────────
+; SLASH IMPACT
+; Part 1 — Slash (2 layers)
+; Layer 1 SPARKS:  12 particles, narrow cone, additive white-gold sparks.
+;                  Uses orb2 (asymmetric) so x/y scale curves make streaky lines.
+;                  VERY high damping — sparks stop almost instantly (slash feel).
+; Layer 2 MOTES:   8 tiny omnidirectional motes, gentle gravity, slow fade.
+;                  Lingers after sparks die — adds weight without clutter.
+;
+; DIRECTION: Sparks default to Vector2(1,0) facing right. Rotate the parent
+; ParticleEffect node to match the attack direction in your animation system.
+; ─────────────────────────────────────────────────────────────────────────────
+
+[ext_resource type="Script" uid="uid://c1pmu5cw4o18f" path="res://scripts/effects/particle_effect.gd" id="1_pe"]
+[ext_resource type="Script" path="res://addons/BurstParticles2D/BurstParticleGroup2D.gd" id="2_bpg"]
+[ext_resource type="Script" path="res://addons/BurstParticles2D/BurstParticles2D.gd" id="3_bp"]
+[ext_resource type="Texture2D" uid="uid://dc67f1jdiu0tu" path="res://addons/BurstParticles2D/BurstParticles2D-demo/orb2.png" id="4_orb2"]
+[ext_resource type="Texture2D" uid="uid://ovw18l4dc1fv" path="res://addons/BurstParticles2D/BurstParticles2D-demo/orb.png" id="5_orb"]
+
+; ── SPARKS sub-resources ─────────────────────────────────────────────────────
+
+; Bright white → warm gold-yellow → transparent (additive sparks)
+[sub_resource type="Gradient" id="Gradient_sparks"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 0.95, 0.55, 0.9, 1, 0.8, 0.2, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_sparks"]
+gradient = SubResource("Gradient_sparks")
+
+; Very fast rise to 1.0 by t=0.2 — maximum damping, sparks stop almost instantly
+[sub_resource type="Curve" id="Curve_dist_vdamped"]
+_data = [Vector2(0, 0), 0.0, 9.0, 0, 0, Vector2(0.2, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+; Linear shrink 1→0
+[sub_resource type="Curve" id="Curve_scale_shrink"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+; Fast alpha drop — sparks pop and vanish by t=0.4
+[sub_resource type="Curve" id="Curve_alpha_fast"]
+_data = [Vector2(0, 1), 0.0, -3.0, 0, 0, Vector2(0.4, 0), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+; X scale holds constant — keeps orb2 streak length
+[sub_resource type="Curve" id="Curve_xscale_hold"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0]
+point_count = 1
+
+; Y scale collapses fast — streak narrows to a line, then vanishes
+[sub_resource type="Curve" id="Curve_yscale_narrow"]
+_data = [Vector2(0, 1), 0.0, -4.0, 0, 0, Vector2(0.35, 0), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+; ── MOTES sub-resources ──────────────────────────────────────────────────────
+
+; Light warm grey → mid grey → transparent
+[sub_resource type="Gradient" id="Gradient_motes"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(1, 1, 0.9, 0.9, 0.85, 0.8, 0.7, 0.5, 0.6, 0.55, 0.45, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_motes"]
+gradient = SubResource("Gradient_motes")
+
+; Moderate damping — motes drift a short distance then settle
+[sub_resource type="Curve" id="Curve_dist_motes"]
+_data = [Vector2(0, 0), 0.0, 4.0, 0, 0, Vector2(0.4, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+; Gentle slow fade — motes linger longer than sparks
+[sub_resource type="Curve" id="Curve_alpha_slow"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.5, 0.9), 0.0, 0.0, 0, 0, Vector2(1, 0), -1.0, 0.0, 0, 0]
+point_count = 3
+
+; Linear 0→1 — drives offset over lifetime (gentle gravity downward)
+[sub_resource type="Curve" id="Curve_offset_linear"]
+_data = [Vector2(0, 0), 0.0, 0.0, 1, 1, Vector2(1, 1), 0.0, 0.0, 1, 1]
+point_count = 2
+
+; ── NODES ────────────────────────────────────────────────────────────────────
+
+[node name="ParticleEffect" type="Node2D"]
+script = ExtResource("1_pe")
+one_shot = true
+duration = 0.5
+
+[node name="BurstParticles2D" type="Node2D" parent="."]
+script = ExtResource("2_bpg")
+
+[node name="Sparks" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 12
+lifetime = 0.25
+lifetime_randomness = 0.3
+texture = ExtResource("4_orb2")
+image_scale = 0.18
+image_scale_randomness = 0.4
+gradient = SubResource("GradientTexture1D_sparks")
+blend_mode = 1
+; Default direction is Vector2(1,0) — rotate parent to match attack direction
+spread_degrees = 40.0
+distance = 180.0
+distance_randomness = 0.5
+distance_curve = SubResource("Curve_dist_vdamped")
+scale_curve = SubResource("Curve_scale_shrink")
+x_scale_curve = SubResource("Curve_xscale_hold")
+y_scale_curve = SubResource("Curve_yscale_narrow")
+alpha_curve = SubResource("Curve_alpha_fast")
+
+[node name="Motes" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 8
+lifetime = 0.45
+lifetime_randomness = 0.5
+texture = ExtResource("5_orb")
+image_scale = 0.05
+image_scale_randomness = 0.6
+gradient = SubResource("GradientTexture1D_motes")
+direction_rotation_randomness = 1.0
+distance = 70.0
+distance_randomness = 0.7
+offset = Vector2(0, 60)
+distance_curve = SubResource("Curve_dist_motes")
+scale_curve = SubResource("Curve_scale_shrink")
+offset_curve = SubResource("Curve_offset_linear")
+alpha_curve = SubResource("Curve_alpha_slow")

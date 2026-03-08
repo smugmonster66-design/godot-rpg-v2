@@ -199,10 +199,11 @@ func _gui_input(event: InputEvent):
 
 
 func _on_long_press():
-	"""Timer fired — user held without dragging. Emit click for tooltip."""
-	if _press_pending and not is_dragging:
+	"""Timer fired — user held without dragging. Show die tooltip."""
+	if _press_pending and not is_dragging and die:
 		_press_pending = false
-		die_clicked.emit(self)
+		var anchor := get_screen_position() + size / 2.0
+		DieTooltipPopup.show_die(die, anchor, get_tree().root, self)
 
 
 func _cancel_long_press():
@@ -302,9 +303,7 @@ func set_selected(selected: bool):
 # ============================================================================
 
 func _make_custom_tooltip(_for_text: String) -> Object:
-	if not die:
-		return null
-	return DieTooltipHelper.build_tooltip(die)
+	return null
 
 func _get_tooltip(_at_position: Vector2) -> String:
-	return "" 
+	return ""

@@ -20,7 +20,7 @@ var trigger_processor: CompanionTriggerProcessor = null
 var companion_panel: CompanionPanel = null
 # Threat tracking - one per enemy
 var enemy_threat_trackers: Array = []  # Array of ThreatTracker instances
-
+var _victory_pending: bool = false
 var _pending_summon_data: CompanionData = null
 var debug_panel: CombatDebugPanel = null
 # ============================================================================
@@ -353,6 +353,14 @@ func _finalize_combat_init(p_player: Player):
 		companion_panel = GameManager.game_root.companion_panel
 		print("  [OK] CompanionPanel linked for companion animations")
 
+
+	if companion_panel and companion_manager:
+		for i in range(companion_manager.TOTAL_SLOTS):
+			var comp: CompanionCombatant = companion_manager.get_slot(i)
+			if comp and is_instance_valid(comp):
+				companion_panel.set_companion(i, comp)
+
+
 	# Connect cleanup
 	if not combat_ended.is_connected(_on_combat_ended):
 		combat_ended.connect(_on_combat_ended)
@@ -651,7 +659,7 @@ func _check_combat_end() -> bool:
 		if _defer_combat_end:
 			_deferred_combat_end_result = 1  # player won
 			return true
-		end_combat(true)
+		_victory_sequence()
 		return true
 	
 	return false
@@ -667,7 +675,10 @@ func _flush_deferred_combat_end() -> void:
 	else:
 		player_won = _deferred_combat_end_result == 1
 	_deferred_combat_end_result = -1
-	end_combat(player_won)
+	if player_won:
+		_victory_sequence()
+	else:
+		end_combat(false)
 
 
 
@@ -2305,6 +2316,10 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 							mark_tracker.remove_stacks(ms.status_id, existing)
 							if target_node.has_method("take_damage"):
 								target_node.take_damage(combo_dmg)
+								if event_bus:
+									var visual = _get_combatant_visual(target_node)
+									if visual:
+										event_bus.emit_combo_triggered(visual, existing, combo_dmg)
 							print("  🔥 Combo: %d marks × %d = %d" % [existing, bonus, combo_dmg])
 							_update_and_check_target(target_node)
 						else:
@@ -3002,6 +3017,31 @@ func is_in_prep_phase() -> bool:
 # ============================================================================
 # COMBAT END
 # ============================================================================
+
+func _victory_sequence() -> void:
+	"""Wait for in-flight animations to settle, then call end_combat(true)."""
+	if _victory_pending or combat_state == CombatState.ENDED:
+		return
+	_victory_pending = true
+
+	# If the action animation is still mid-play, wait for it to finish
+	if combat_state == CombatState.ANIMATING:
+		await animation_player.animation_sequence_finished
+
+	# Drain reactive micro-animations (floating labels, flashes, etc.)
+	if combat_ui and "reactive_animator" in combat_ui and combat_ui.reactive_animator:
+		var ra = combat_ui.reactive_animator
+		var elapsed := 0.0
+		const TIMEOUT := 2.0
+		while ra._active_count > 0 and elapsed < TIMEOUT:
+			await get_tree().process_frame
+			elapsed += get_process_delta_time()
+
+	# Satisfying pause before the summary appears
+	await get_tree().create_timer(1.0).timeout
+
+	_victory_pending = false
+	end_combat(true)
 
 func end_combat(player_won: bool):
 	if combat_state == CombatState.ENDED:

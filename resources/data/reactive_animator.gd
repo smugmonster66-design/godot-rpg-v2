@@ -60,6 +60,8 @@ var _queue_groups: Dictionary = {}
 
 ## Track active animations for "all done" detection
 var _active_count: int = 0
+const _LABEL_STAGGER_MS: float = 240.0
+var _label_last_spawn: Dictionary = {}
 
 ## Reference to CombatEffectPlayer for playing combat effect presets
 var _effect_player: CombatEffectPlayer = null
@@ -109,6 +111,7 @@ func cleanup() -> void:
 		_event_bus.game_event.disconnect(_on_game_event)
 	_event_bus = null
 	_queue_groups.clear()
+	_label_last_spawn.clear()
 
 	# Clean up effects container children
 	for child in _effects_container.get_children():
@@ -420,7 +423,23 @@ func _play_sound(target: Node, preset: MicroAnimationPreset) -> void:
 
 
 func _spawn_floating_label(target: Node, preset: MicroAnimationPreset, event: CombatEvent) -> void:
-	"""Spawn a floating text label that rises and fades out."""
+	"""Spawn a floating text label that rises and fades out.
+	Labels targeting the same node are staggered so each one has time to
+	rise clear before the next fires."""
+	var target_id: int = target.get_instance_id()
+	var now: float = Time.get_ticks_msec()
+	var last: float = _label_last_spawn.get(target_id, -_LABEL_STAGGER_MS)
+	var elapsed: float = now - last
+
+	if elapsed < _LABEL_STAGGER_MS:
+		var wait_sec: float = ((_LABEL_STAGGER_MS - elapsed) / 1000.0)
+		await get_tree().create_timer(wait_sec).timeout
+		if not is_instance_valid(target):
+			return
+
+	# Record spawn time BEFORE the label is built so back-to-back callers
+	# each see an incrementing timestamp rather than the same value.
+	_label_last_spawn[target_id] = Time.get_ticks_msec()
 	var text = _resolve_label_text(preset, event)
 	if text == "":
 		return
@@ -461,8 +480,19 @@ func _spawn_floating_label(target: Node, preset: MicroAnimationPreset, event: Co
 	])
 	
 	
+	var duration: float = preset.label_duration
+	var rise_distance: float = preset.label_rise_distance
+	var scatter_x: float = preset.label_scatter_x
+	var tv: StringName = label.theme_type_variation
+	if tv != &"" and label.has_theme_constant("duration_ms", tv):
+		duration = label.get_theme_constant("duration_ms", tv) / 1000.0
+	if tv != &"" and label.has_theme_constant("rise_distance", tv):
+		rise_distance = float(label.get_theme_constant("rise_distance", tv))
+	if tv != &"" and label.has_theme_constant("scatter_x", tv):
+		scatter_x = float(label.get_theme_constant("scatter_x", tv))
+
 	var center = _get_global_center(target)
-	var scatter = randf_range(-preset.label_scatter_x, preset.label_scatter_x)
+	var scatter = randf_range(-scatter_x, scatter_x)
 	label.global_position = center + Vector2(scatter, 0) - label.size / 2
 	label.scale = Vector2(preset.label_start_scale, preset.label_start_scale)
 	label.pivot_offset = label.size / 2
@@ -470,15 +500,15 @@ func _spawn_floating_label(target: Node, preset: MicroAnimationPreset, event: Co
 	# Animate: rise + fade + optional scale
 	var tween = label.create_tween().set_parallel(true)
 	tween.tween_property(label, "global_position:y",
-		center.y - preset.label_rise_distance, preset.label_duration) \
+		center.y - rise_distance, duration) \
 		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-	tween.tween_property(label, "modulate:a", 0.0, preset.label_duration) \
+	tween.tween_property(label, "modulate:a", 0.0, duration) \
 		.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
 
 	if preset.label_end_scale != preset.label_start_scale:
 		tween.tween_property(label, "scale",
 			Vector2(preset.label_end_scale, preset.label_end_scale),
-			preset.label_duration)
+			duration)
 
 	tween.finished.connect(label.queue_free)
 
@@ -577,6 +607,13 @@ func _resolve_label_text(preset: MicroAnimationPreset, event: CombatEvent) -> St
 
 		CombatEvent.Type.STATUS_APPLIED:
 			return event.values.get("status_name", "")
+	
+
+		CombatEvent.Type.STATUS_TICKED:
+			var tick_dmg = event.values.get("tick_damage", 0)
+			if tick_dmg > 0:
+				return "%s%d" % [preset.label_prefix if preset.label_prefix != "" else "-", tick_dmg]
+			return ""
 
 		CombatEvent.Type.SHIELD_GAINED:
 			var amount = event.values.get("amount", 0)

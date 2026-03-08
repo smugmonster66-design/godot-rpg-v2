@@ -199,6 +199,10 @@ func emit_turn_started(combatant_node: Node, is_player: bool) -> void:
 func emit_round_started(round_number: int) -> void:
 	emit_event(CombatEvent.round_started(round_number))
 
+func emit_combo_triggered(target: Node, marks_consumed: int, bonus_damage: int, source: Node = null) -> void:
+	emit_event(CombatEvent.combo_triggered(target, marks_consumed, bonus_damage, source))
+
+
 func emit_affix_triggered(target: Node, affix_name: String, source: Node = null) -> void:
 	emit_event(CombatEvent.affix_triggered(target, affix_name, source))
 

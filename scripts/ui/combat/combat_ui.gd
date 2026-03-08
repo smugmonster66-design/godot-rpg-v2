@@ -440,6 +440,7 @@ func initialize_ui(p_player: Player, p_enemies):
 	
 	# Load all reaction .tres files from the reactions directory
 	var reaction_dir = "res://resources/effects/reactions/"
+	reactive_animator.reactions.clear() 
 	var dir = DirAccess.open(reaction_dir)
 	if dir:
 		dir.list_dir_begin()

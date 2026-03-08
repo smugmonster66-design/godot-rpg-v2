@@ -1,0 +1,147 @@
+[gd_scene load_steps=19 format=3 uid="uid://bp_crit_hit_001"]
+
+; ─────────────────────────────────────────────────────────────────────────────
+; CRITICAL HIT IMPACT
+; Part 1 — Critical Hit (3 layers)
+; Layer 1 STARBURST: 16 additive orbs, full 360°, white→gold, punchy stop.
+;                    The initial "crack" moment.
+; Layer 2 GLOW:      1 large orb_soft, additive, EXPANDS from small to large.
+;                    Scale grows ~0.6→3.5x over its lifetime — the shockwave ring.
+; Layer 3 EMBERS:    20 tiny orbs, 360°, drift UPWARD, orange/amber, slow fade.
+;                    Lingers after the burst — the "wow" tail.
+; ─────────────────────────────────────────────────────────────────────────────
+
+[ext_resource type="Script" uid="uid://c1pmu5cw4o18f" path="res://scripts/effects/particle_effect.gd" id="1_pe"]
+[ext_resource type="Script" path="res://addons/BurstParticles2D/BurstParticleGroup2D.gd" id="2_bpg"]
+[ext_resource type="Script" path="res://addons/BurstParticles2D/BurstParticles2D.gd" id="3_bp"]
+[ext_resource type="Texture2D" uid="uid://ovw18l4dc1fv" path="res://addons/BurstParticles2D/BurstParticles2D-demo/orb.png" id="4_orb"]
+[ext_resource type="Texture2D" uid="uid://vwe34itxqa37" path="res://addons/BurstParticles2D/BurstParticles2D-demo/orb_soft.png" id="5_orb_soft"]
+
+; ── STARBURST sub-resources ──────────────────────────────────────────────────
+
+; White → bright gold → dim amber → transparent (additive, very vivid)
+[sub_resource type="Gradient" id="Gradient_starburst"]
+offsets = PackedFloat32Array(0, 0.3, 0.7, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 0.95, 0.4, 1, 1, 0.65, 0.05, 0.5, 1, 0.55, 0, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_starburst"]
+gradient = SubResource("Gradient_starburst")
+
+; ── GLOW sub-resources ───────────────────────────────────────────────────────
+
+; Pure white → warm white → transparent (additive expansion ring)
+[sub_resource type="Gradient" id="Gradient_glow"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 0.95, 0.7, 0.7, 1, 0.85, 0.3, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_glow"]
+gradient = SubResource("Gradient_glow")
+
+; ── EMBERS sub-resources ─────────────────────────────────────────────────────
+
+; Warm orange → amber → dark transparent (floaty embers)
+[sub_resource type="Gradient" id="Gradient_embers"]
+offsets = PackedFloat32Array(0, 0.4, 1)
+colors = PackedColorArray(1, 0.75, 0.25, 0.9, 1, 0.45, 0.05, 0.6, 0.75, 0.25, 0, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_embers"]
+gradient = SubResource("Gradient_embers")
+
+; ── SHARED CURVES ────────────────────────────────────────────────────────────
+
+; Fast stop — rise to 1 by t=0.3, plateau. Used by Starburst and Embers distance.
+[sub_resource type="Curve" id="Curve_dist_fast"]
+_data = [Vector2(0, 0), 0.0, 6.0, 0, 0, Vector2(0.3, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+; Linear shrink 1→0. Used by Starburst and Embers scale.
+[sub_resource type="Curve" id="Curve_scale_shrink"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+; Hold full alpha until t=0.6, then sharp drop. Starburst "pop" feel.
+[sub_resource type="Curve" id="Curve_alpha_hold_pop"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.6, 1), 0.0, -4.5, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+; GLOW SCALE: grows from ~0.6 to ~3.5x over its lifetime.
+; max_value=4.0 means actual scale = curve_value * 4.0.
+; 0.15 * 4.0 = 0.6 start, 0.875 * 4.0 = 3.5 end.
+[sub_resource type="Curve" id="Curve_scale_glow_expand"]
+max_value = 4.0
+_data = [Vector2(0, 0.15), 0.0, 2.0, 0, 0, Vector2(1, 0.875), 0.0, 0.0, 0, 0]
+point_count = 2
+
+; Linear alpha fade 1→0. Glow fades as it expands.
+[sub_resource type="Curve" id="Curve_alpha_fade"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+; Gentle slow fade — embers linger. Starts fading at t=0.5.
+[sub_resource type="Curve" id="Curve_alpha_ember_slow"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.5, 0.9), 0.0, 0.0, 0, 0, Vector2(1, 0), -1.0, 0.0, 0, 0]
+point_count = 3
+
+; Linear 0→1. Drives offset upward over lifetime — embers float up.
+[sub_resource type="Curve" id="Curve_offset_linear"]
+_data = [Vector2(0, 0), 0.0, 0.0, 1, 1, Vector2(1, 1), 0.0, 0.0, 1, 1]
+point_count = 2
+
+; ── NODES ────────────────────────────────────────────────────────────────────
+
+[node name="ParticleEffect" type="Node2D"]
+script = ExtResource("1_pe")
+one_shot = true
+duration = 1.0
+
+[node name="BurstParticles2D" type="Node2D" parent="."]
+script = ExtResource("2_bpg")
+
+[node name="Starburst" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 16
+lifetime = 0.3
+lifetime_randomness = 0.2
+texture = ExtResource("4_orb")
+image_scale = 0.1
+image_scale_randomness = 0.4
+gradient = SubResource("GradientTexture1D_starburst")
+blend_mode = 1
+direction_rotation_randomness = 1.0
+distance = 250.0
+distance_randomness = 0.4
+distance_curve = SubResource("Curve_dist_fast")
+scale_curve = SubResource("Curve_scale_shrink")
+alpha_curve = SubResource("Curve_alpha_hold_pop")
+
+[node name="Glow" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.35
+texture = ExtResource("5_orb_soft")
+image_scale = 0.5
+gradient = SubResource("GradientTexture1D_glow")
+blend_mode = 1
+distance = 0.0
+spread_degrees = 0.0
+scale_curve = SubResource("Curve_scale_glow_expand")
+alpha_curve = SubResource("Curve_alpha_fade")
+
+[node name="Embers" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 20
+lifetime = 0.8
+lifetime_randomness = 0.5
+texture = ExtResource("4_orb")
+image_scale = 0.04
+image_scale_randomness = 0.7
+gradient = SubResource("GradientTexture1D_embers")
+direction_rotation_randomness = 1.0
+distance = 100.0
+distance_randomness = 0.6
+; offset = Vector2(0, -80) — negative Y = up in Godot 2D
+offset = Vector2(0, -80)
+distance_curve = SubResource("Curve_dist_fast")
+scale_curve = SubResource("Curve_scale_shrink")
+offset_curve = SubResource("Curve_offset_linear")
+alpha_curve = SubResource("Curve_alpha_ember_slow")

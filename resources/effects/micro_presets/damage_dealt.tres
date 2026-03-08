@@ -16,6 +16,3 @@ label_enabled = true
 label_color = Color(1, 0.2, 0.2, 1)
 label_theme_type = &"floater"
 label_bold = true
-label_rise_distance = 45.0
-label_duration = 0.8
-label_scatter_x = 10.0

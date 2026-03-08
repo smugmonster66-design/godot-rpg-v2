@@ -1,0 +1,111 @@
+[gd_scene load_steps=17 format=3 uid="uid://bp_blunt_hit_001"]
+
+; ─────────────────────────────────────────────────────────────────────────────
+; BLUNT HIT IMPACT
+; Part 1 — Heavy/Blunt Hit (2 layers)
+; Layer 1 FLASH:  Single large orb_soft, additive, collapses instantly.
+;                 The percussive "thud" visual.
+; Layer 2 DEBRIS: 14 orbs, full 360°, downward gravity pull, slower stop.
+;                 Earthy tan palette — feels heavy, physical.
+; ─────────────────────────────────────────────────────────────────────────────
+
+[ext_resource type="Script" uid="uid://c1pmu5cw4o18f" path="res://scripts/effects/particle_effect.gd" id="1_pe"]
+[ext_resource type="Script" path="res://addons/BurstParticles2D/BurstParticleGroup2D.gd" id="2_bpg"]
+[ext_resource type="Script" path="res://addons/BurstParticles2D/BurstParticles2D.gd" id="3_bp"]
+[ext_resource type="Texture2D" uid="uid://vwe34itxqa37" path="res://addons/BurstParticles2D/BurstParticles2D-demo/orb_soft.png" id="4_orb_soft"]
+[ext_resource type="Texture2D" uid="uid://ovw18l4dc1fv" path="res://addons/BurstParticles2D/BurstParticles2D-demo/orb.png" id="5_orb"]
+
+; ── FLASH sub-resources ──────────────────────────────────────────────────────
+
+; Bright white → warm white → transparent (additive, so only brightness matters)
+[sub_resource type="Gradient" id="Gradient_flash"]
+offsets = PackedFloat32Array(0, 0.4, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 0.95, 0.85, 1, 1, 0.9, 0.7, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_flash"]
+gradient = SubResource("Gradient_flash")
+
+; Collapse fast — starts large, accelerates toward 0 (punchy "thud" feel)
+[sub_resource type="Curve" id="Curve_scale_collapse"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -3.0, 0.0, 0, 0]
+point_count = 2
+
+; Linear alpha fade over full lifetime
+[sub_resource type="Curve" id="Curve_alpha_linear"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+; ── DEBRIS sub-resources ─────────────────────────────────────────────────────
+
+; Warm cream → earthy tan → dark brown transparent
+[sub_resource type="Gradient" id="Gradient_debris"]
+offsets = PackedFloat32Array(0, 0.45, 1)
+colors = PackedColorArray(1, 0.95, 0.8, 1, 0.7, 0.6, 0.4, 0.8, 0.4, 0.3, 0.2, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_debris"]
+gradient = SubResource("Gradient_debris")
+
+; Moderate rise to 1.0 by t=0.5 — less damped than melee, particles arc naturally
+[sub_resource type="Curve" id="Curve_dist_debris"]
+_data = [Vector2(0, 0), 0.0, 3.0, 0, 0, Vector2(0.5, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+; Linear shrink
+[sub_resource type="Curve" id="Curve_scale_shrink"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+; Hold then drop — debris visible longer before fading
+[sub_resource type="Curve" id="Curve_alpha_debris"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.65, 1), 0.0, -3.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+; Linear 0→1 — drives offset_curve (gravity simulation: particles drift toward offset Vector2)
+[sub_resource type="Curve" id="Curve_offset_linear"]
+_data = [Vector2(0, 0), 0.0, 0.0, 1, 1, Vector2(1, 1), 0.0, 0.0, 1, 1]
+point_count = 2
+
+; ── NODES ────────────────────────────────────────────────────────────────────
+
+[node name="ParticleEffect" type="Node2D"]
+script = ExtResource("1_pe")
+one_shot = true
+duration = 0.5
+
+; BurstParticleGroup2D — calling burst() on this fires all children simultaneously.
+; NOTE: particle_effect.gd requires a 2-line patch to support this node type.
+; See part1_impact_scenes_notes.md.
+[node name="BurstParticles2D" type="Node2D" parent="."]
+script = ExtResource("2_bpg")
+
+[node name="Flash" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.15
+texture = ExtResource("4_orb_soft")
+image_scale = 2.0
+gradient = SubResource("GradientTexture1D_flash")
+blend_mode = 1
+distance = 0.0
+spread_degrees = 0.0
+scale_curve = SubResource("Curve_scale_collapse")
+alpha_curve = SubResource("Curve_alpha_linear")
+
+[node name="Debris" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 14
+lifetime = 0.4
+lifetime_randomness = 0.4
+texture = ExtResource("5_orb")
+image_scale = 0.12
+image_scale_randomness = 0.5
+gradient = SubResource("GradientTexture1D_debris")
+direction_rotation_randomness = 1.0
+distance = 180.0
+distance_randomness = 0.5
+; offset pulls particles downward over lifetime via offset_curve — simulates gravity
+offset = Vector2(0, 100)
+distance_curve = SubResource("Curve_dist_debris")
+scale_curve = SubResource("Curve_scale_shrink")
+offset_curve = SubResource("Curve_offset_linear")
+alpha_curve = SubResource("Curve_alpha_debris")
