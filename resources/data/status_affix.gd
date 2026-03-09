@@ -78,6 +78,8 @@ enum ThresholdEffect {
 ## Whether reapplying refreshes the turn duration
 @export var refresh_on_reapply: bool = true
 
+
+
 # ============================================================================
 # DECAY
 # ============================================================================
@@ -121,6 +123,11 @@ enum ThresholdEffect {
 @export var tick_damage_type: StatusDamageType = StatusDamageType.NONE
 ## Healing per stack each tick (0 = no tick healing)
 @export var heal_per_stack: int = 0
+
+
+## Dice effects applied to the owner's hand each roll.
+## Each StatusDiceEffect describes targeting + what to do to matched dice.
+@export var dice_effects: Array[StatusDiceEffect] = []
 
 # ============================================================================
 # TICK EFFECT — STAT MODIFIERS

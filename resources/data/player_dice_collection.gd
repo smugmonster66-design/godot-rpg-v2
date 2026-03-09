@@ -329,7 +329,7 @@ func roll_hand():
 	for die in hand:
 		_apply_status_die_penalty(die)
 	
-	_apply_stunned_locks()
+	_apply_status_dice_effects(StatusDiceEffect.FireTrigger.ON_ROLL)
 	
 	
 	# === Build deferred value changes and revert to base ===
@@ -366,32 +366,140 @@ func roll_hand():
 
 
 
-func _apply_stunned_locks() -> void:
+func _apply_status_dice_effects(trigger: StatusDiceEffect.FireTrigger) -> void:
+	"""Apply all StatusDiceEffect entries from active statuses that match the given trigger.
+	Called from roll_hand() and add_die_to_hand() after all other modifiers."""
 	var tracker: StatusTracker = _get_owner_status_tracker()
-	print("  [STUN DEBUG] _apply_stunned_locks: tracker=%s, parent=%s" % [
-		tracker, get_parent()])
 	if not tracker:
-		print("  [STUN DEBUG] No tracker found — BAILING")
 		return
-	var lock_count: int = tracker.get_stunned_dice_count()
-	print("  [STUN DEBUG] lock_count=%d, hand.size()=%d" % [lock_count, hand.size()])
-	if lock_count <= 0:
-		return
-	
-	# Gather indices of unlocked, unconsumed dice
-	var available: Array[int] = []
+
+	for instance in tracker.get_all_active():
+		var affix: StatusAffix = instance["status_affix"]
+		var stacks: int = instance["current_stacks"]
+
+		if not affix or affix.dice_effects.is_empty():
+			continue
+
+		for dice_effect in affix.dice_effects:
+			if dice_effect.fire_trigger != trigger:
+				continue
+			_apply_single_dice_effect(dice_effect, stacks)
+
+
+func _apply_single_dice_effect(effect: StatusDiceEffect, stacks: int) -> void:
+	"""Resolve targets for one StatusDiceEffect and apply it to each matched die."""
+	var count: int = stacks if effect.target_count_equals_stacks else effect.target_count
+	var targets: Array[int] = _resolve_dice_targets(effect, count)
+
+	for idx in targets:
+		var die: DieResource = hand[idx]
+		match effect.effect_type:
+			StatusDiceEffect.EffectType.LOCK:
+				die.is_locked = true
+				print("  🔒 Status dice effect: locked %s at hand[%d]" % [die.display_name, idx])
+			StatusDiceEffect.EffectType.CONSUME:
+				die.is_consumed = true
+				print("  🚫 Status dice effect: consumed %s at hand[%d]" % [die.display_name, idx])
+			StatusDiceEffect.EffectType.MODIFY_VALUE_FLAT:
+				die.apply_flat_modifier(int(effect.effect_value))
+				print("  📉 Status dice effect: %+d to %s at hand[%d]" % [int(effect.effect_value), die.display_name, idx])
+			StatusDiceEffect.EffectType.MODIFY_VALUE_MULT:
+				die.modified_value = int(die.modified_value * effect.effect_value)
+				print("  📉 Status dice effect: x%.2f to %s at hand[%d]" % [effect.effect_value, die.display_name, idx])
+			StatusDiceEffect.EffectType.ADD_TAG:
+				die.add_tag(effect.effect_tag)
+				print("  🏷️ Status dice effect: added tag '%s' to %s" % [effect.effect_tag, die.display_name])
+			StatusDiceEffect.EffectType.REMOVE_TAG:
+				die.remove_tag(effect.effect_tag)
+				print("  🏷️ Status dice effect: removed tag '%s' from %s" % [effect.effect_tag, die.display_name])
+			StatusDiceEffect.EffectType.CHANGE_ELEMENT:
+				die.element = effect.effect_element
+				print("  🌀 Status dice effect: changed element on %s at hand[%d]" % [die.display_name, idx])
+			StatusDiceEffect.EffectType.MODIFY_VALUE_CONDITIONAL:
+				var computed: int = _compute_conditional_modifier(effect)
+				if computed != 0:
+					die.apply_flat_modifier(computed)
+					print("  📉 Status dice effect (conditional): %+d to %s at hand[%d]" % [computed, die.display_name, idx])
+
+
+func _compute_conditional_modifier(effect: StatusDiceEffect) -> int:
+	"""Resolve the computed flat modifier for a MODIFY_VALUE_CONDITIONAL effect."""
+	var tracker: StatusTracker = _get_owner_status_tracker()
+	var formula: int = effect.conditional_formula
+	var raw: float = 0.0
+
+	if formula == StatusDiceEffect.ConditionalFormula.PER_STACK_OF_STATUS:
+		var stacks: int = tracker.get_stacks(effect.formula_status_id) if tracker else 0
+		raw = stacks * effect.effect_value
+
+	elif formula == StatusDiceEffect.ConditionalFormula.PER_N_STACKS_OF_STATUS:
+		var stacks: int = tracker.get_stacks(effect.formula_status_id) if tracker else 0
+		var divisor: int = maxi(1, effect.formula_divisor)
+		raw = floori(stacks / float(divisor)) * effect.effect_value
+
+	elif formula == StatusDiceEffect.ConditionalFormula.IF_STATUS_ACTIVE:
+		if tracker and tracker.has_status(effect.formula_status_id):
+			raw = effect.effect_value
+
+	elif formula == StatusDiceEffect.ConditionalFormula.PER_CONSUMED_DIE_THIS_TURN:
+		var consumed: int = 0
+		for d in hand:
+			if d.is_consumed:
+				consumed += 1
+		raw = consumed * effect.effect_value
+
+	elif formula == StatusDiceEffect.ConditionalFormula.PER_REMAINING_DIE:
+		raw = get_unconsumed_count() * effect.effect_value
+
+	# Apply clamps if set (non-zero = active)
+	if effect.formula_result_min != 0.0 or effect.formula_result_max != 0.0:
+		if effect.formula_result_min != 0.0:
+			raw = maxf(raw, effect.formula_result_min)
+		if effect.formula_result_max != 0.0:
+			raw = minf(raw, effect.formula_result_max)
+
+	return int(raw)
+
+
+func _resolve_dice_targets(effect: StatusDiceEffect, count: int) -> Array[int]:
+	"""Return the hand indices that this StatusDiceEffect should act on."""
+	var eligible: Array[int] = []
+
 	for i in range(hand.size()):
-		if not hand[i].is_consumed and not hand[i].is_locked:
-			available.append(i)
-	
-	# Shuffle and lock up to lock_count
-	available.shuffle()
-	var to_lock: int = mini(lock_count, available.size())
-	for j in range(to_lock):
-		var idx: int = available[j]
-		hand[idx].is_locked = true
-		# Locked dice can't be placed
-		print("  🔒 Stunned: locked %s at hand[%d]" % [hand[idx].display_name, idx])
+		var die: DieResource = hand[i]
+		if die.is_consumed or die.is_locked:
+			continue
+		match effect.target_mode:
+			StatusDiceEffect.TargetMode.BY_TAG:
+				if die.has_tag(effect.target_tag):
+					eligible.append(i)
+			StatusDiceEffect.TargetMode.BY_INDEX:
+				if i in effect.target_indices:
+					eligible.append(i)
+			_:
+				eligible.append(i)
+
+	match effect.target_mode:
+		StatusDiceEffect.TargetMode.ALL:
+			return eligible
+		StatusDiceEffect.TargetMode.BY_INDEX, \
+		StatusDiceEffect.TargetMode.BY_TAG:
+			return eligible
+		StatusDiceEffect.TargetMode.RANDOM_N:
+			eligible.shuffle()
+			return eligible.slice(0, mini(count, eligible.size()))
+		StatusDiceEffect.TargetMode.HIGHEST_N:
+			eligible.sort_custom(func(a, b):
+				return hand[a].get_total_value() > hand[b].get_total_value())
+			return eligible.slice(0, mini(count, eligible.size()))
+		StatusDiceEffect.TargetMode.LOWEST_N:
+			eligible.sort_custom(func(a, b):
+				return hand[a].get_total_value() < hand[b].get_total_value())
+			return eligible.slice(0, mini(count, eligible.size()))
+
+	return []
+
+
 
 
 func _create_hand_die(pool_die: DieResource, pool_index: int) -> DieResource:
@@ -1140,7 +1248,7 @@ func add_die_to_hand(die: DieResource) -> void:
 	# Apply Slowed + Chill die value penalty
 	_apply_status_die_penalty(die)
 
-	_apply_stunned_locks()
+	_apply_status_dice_effects(StatusDiceEffect.FireTrigger.ON_ROLL)
 
 	print("🔮 Added %s to hand (slot %d, value %d)" % [
 		die.display_name, die.slot_index, die.get_total_value()])

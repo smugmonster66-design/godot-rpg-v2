@@ -9,4 +9,4 @@ script = ExtResource("1_yem54")
 effect_name = "Ice Shard: Chill"
 effect_type = 2
 status_affix = ExtResource("2_skf65")
-stack_count = 2
+stack_count = 4
