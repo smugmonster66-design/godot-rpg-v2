@@ -1,0 +1,90 @@
+[gd_scene load_steps=16 format=3 uid="uid://d3o3am6y2qses"]
+
+[ext_resource type="Script" uid="uid://c1pmu5cw4o18f" path="res://scripts/effects/particle_effect.gd" id="1_pe"]
+[ext_resource type="Script" uid="uid://cujo3211m8dkn" path="res://addons/BurstParticles2D/BurstParticleGroup2D.gd" id="2_bpg"]
+[ext_resource type="Script" uid="uid://djwtqk0v2ks2d" path="res://addons/BurstParticles2D/BurstParticles2D.gd" id="3_bp"]
+[ext_resource type="Texture2D" uid="uid://lmg2qly5vjkf" path="res://assets/particles/Complex/circle/sphere_39.png" id="4_0whr8"]
+[ext_resource type="Texture2D" uid="uid://cao62gvh2ukm" path="res://assets/particles/Complex/circle/sphere_16.png" id="5_uhc70"]
+[ext_resource type="Texture2D" uid="uid://cyq5sto4hycl0" path="res://assets/particles/Complex/circle/sphere_17.png" id="6_2yhoc"]
+
+[sub_resource type="Gradient" id="Gradient_inner"]
+offsets = PackedFloat32Array(0, 0.15, 0.7, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 0.95, 0.7, 1, 1, 0.85, 0.4, 0.85, 0.9, 0.75, 0.2, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_inner"]
+gradient = SubResource("Gradient_inner")
+
+[sub_resource type="Curve" id="Curve_scale_inner"]
+_limits = [0.0, 6.0, 0.0, 1.0]
+_data = [Vector2(0, 0.34196854), 0.0, 0.9093266, 1, 1, Vector2(1, 1.2512951), 0.9093266, 0.0, 1, 1]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_mid"]
+offsets = PackedFloat32Array(0, 0.2, 0.65, 1)
+colors = PackedColorArray(1, 1, 1, 0, 0.85, 0.92, 1, 1, 0.5, 0.72, 1, 0.9, 0.3, 0.5, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_mid"]
+gradient = SubResource("Gradient_mid")
+
+[sub_resource type="Curve" id="Curve_scale_mid"]
+_limits = [0.0, 12.0, 0.0, 1.0]
+_data = [Vector2(0, 0.04), 0.0, 0.0, 1, 1, Vector2(1, 1), 0.0, 0.0, 1, 1]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_outer"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(0.7, 0.85, 1, 0.55, 0.45, 0.65, 1, 0.3, 0.2, 0.4, 0.9, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_outer"]
+gradient = SubResource("Gradient_outer")
+
+[sub_resource type="Curve" id="Curve_scale_outer"]
+_limits = [0.0, 16.0, 0.0, 1.0]
+_data = [Vector2(0, 0.04), 0.0, 0.0, 1, 1, Vector2(1, 1), 0.0, 0.0, 1, 1]
+point_count = 2
+
+[node name="ParticleEffect" type="Node2D"]
+script = ExtResource("1_pe")
+duration = 0.8
+
+[node name="BurstParticles2D" type="Node2D" parent="."]
+script = ExtResource("2_bpg")
+
+[node name="InnerRing" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.35
+repeat = true
+texture = ExtResource("4_0whr8")
+image_scale = 0.5
+gradient = SubResource("GradientTexture1D_inner")
+blend_mode = 1
+distance = 0.0
+spread_degrees = 0.0
+scale_curve = SubResource("Curve_scale_inner")
+
+[node name="MidRing" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.55
+repeat = true
+texture = ExtResource("5_uhc70")
+image_scale = 0.1
+gradient = SubResource("GradientTexture1D_mid")
+blend_mode = 1
+distance = 0.0
+spread_degrees = 0.0
+scale_curve = SubResource("Curve_scale_mid")
+
+[node name="OuterBloom" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.8
+repeat = true
+texture = ExtResource("6_2yhoc")
+image_scale = 0.1
+gradient = SubResource("GradientTexture1D_outer")
+blend_mode = 1
+distance = 0.0
+spread_degrees = 0.0
+scale_curve = SubResource("Curve_scale_outer")

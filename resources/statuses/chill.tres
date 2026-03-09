@@ -1,14 +1,18 @@
-[gd_resource type="Resource" script_class="StatusAffix" load_steps=6 format=3 uid="uid://dwjgco21ai57h"]
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=8 format=3 uid="uid://dwjgco21ai57h"]
 
+[ext_resource type="PackedScene" uid="uid://c6fins175mk7y" path="res://scenes/effects/new/status visual FX/chill/chill_loop.tscn" id="1_kkdl5"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_ormld"]
 [ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_grh24"]
 [ext_resource type="Texture2D" uid="uid://ccmksfkwean8v" path="res://assets/status_effects/chill_status.png" id="2_ikv4q"]
+[ext_resource type="PackedScene" uid="uid://m0gy1w007ywc" path="res://scenes/effects/new/status visual FX/chill/chill_apply.tscn" id="2_qrvgb"]
 [ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_u5r48"]
 [ext_resource type="Resource" uid="uid://dtw8chkka17ps" path="res://resources/statuses/freeze.tres" id="4_u5r48"]
 
 [resource]
 script = ExtResource("2_grh24")
 status_id = "chill"
+apply_particle_scene = ExtResource("2_qrvgb")
+active_particle_scene = ExtResource("1_kkdl5")
 cleanse_tags = Array[String](["debuff", "chill", "ice", "slow_effect"])
 stack_threshold = 15
 threshold_effect = 2

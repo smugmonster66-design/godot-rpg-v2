@@ -1,25 +1,33 @@
-[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://c8rvgwlhg87lm"]
+[gd_resource type="Resource" script_class="Action" load_steps=11 format=3 uid="uid://c8rvgwlhg87lm"]
 
-[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_4dswj"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_kdav7"]
+[ext_resource type="PackedScene" path="res://scenes/effects/new/status visual FX/warded/ward_apply.tscn" id="1_qr6vj"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_4dswj"]
+[ext_resource type="Script" uid="uid://luoa1f4jirnk" path="res://resources/data/combat_animation_set.gd" id="2_6fjmh"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_11sy7"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_c37rb"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_11sy7"]
+[ext_resource type="Resource" uid="uid://bau0ilngqxftf" path="res://resources/statuses/warded.tres" id="4_qr6vj"]
+
+[sub_resource type="Resource" id="Resource_tn0pe"]
+script = ExtResource("2_6fjmh")
+cast_effect = ExtResource("1_qr6vj")
+cast_duration = 0.5
+metadata/_custom_type_script = "uid://luoa1f4jirnk"
 
 [sub_resource type="Resource" id="Resource_qr6vj"]
 script = ExtResource("1_kdav7")
 effect_name = "Ward Shield"
 target = 0
-effect_type = 5
-value_source = 1
-shield_multiplier = 0.8
+effect_type = 2
+status_affix = ExtResource("4_qr6vj")
+stack_count = 3
 
 [resource]
 script = ExtResource("4_11sy7")
 action_id = "ward"
 action_name = "Ward"
-action_description = "Gain barrier equal to die × 0.8."
+action_description = "Gain 3 Warded."
 effects = Array[ExtResource("1_kdav7")]([SubResource("Resource_qr6vj")])
-animation_set = ExtResource("1_4dswj")
+animation_set = SubResource("Resource_tn0pe")
 action_type = 1

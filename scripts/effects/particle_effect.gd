@@ -48,14 +48,9 @@ func play():
 	# We read lifetime before calling burst() because the node frees itself
 	# after finishing — the reference becomes invalid once finished fires.
 	var burst_duration: float = 0.0
-	var burst_finished: bool = false
 	if burst:
-		if use_color_override:
-			burst.modulate = color_override
-		# Cache duration before triggering — node is valid here
+		if use_color_override: burst.modulate = color_override
 		burst_duration = burst.get("lifetime") if "lifetime" in burst else duration
-		# Connect finished before firing so we never miss it
-		burst.finished.connect(func(): burst_finished = true, CONNECT_ONE_SHOT)
 		burst.burst()
 
 	# --- Start AnimatedSprite2D concurrently ---
@@ -82,7 +77,7 @@ func play():
 	# --- Wait for BurstParticles2D if still running ---
 	# We use a timer fallback rather than awaiting the signal directly,
 	# because the node may have already freed itself by the time we get here.
-	if burst and not burst_finished:
+	if burst and burst_duration > 0.0:
 		var burst_wait: float = burst_duration - particle_duration
 		if burst_wait > 0.0:
 			await get_tree().create_timer(burst_wait).timeout

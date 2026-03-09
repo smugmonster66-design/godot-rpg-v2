@@ -1,12 +1,24 @@
-[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://dmjl1yoyotvlh"]
+[gd_resource type="Resource" script_class="Action" load_steps=13 format=3 uid="uid://dmjl1yoyotvlh"]
 
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_eevfk"]
+[ext_resource type="PackedScene" path="res://scenes/effects/new/fire/fire_cast.tscn" id="1_kmkdh"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_ooxfb"]
+[ext_resource type="PackedScene" uid="uid://cf03pfvr05lfo" path="res://scenes/effects/new/fire/fire_impact.tscn" id="2_s88r5"]
+[ext_resource type="Script" uid="uid://luoa1f4jirnk" path="res://resources/data/combat_animation_set.gd" id="3_bi4wc"]
 [ext_resource type="Resource" uid="uid://bscp3ltixgo1x" path="res://resources/actions/items/region_1/effects/cinder_wand_damage_effect.tres" id="3_m5twt"]
+[ext_resource type="PackedScene" uid="uid://u72eg47784pw" path="res://scenes/effects/class actions/chromatic_bolt_fire_projectile_effect.tscn" id="4_kmkdh"]
 [ext_resource type="Resource" uid="uid://cr8nh4uonp718" path="res://resources/actions/items/region_1/effects/cinder_wand_burn_effect.tres" id="4_yjdyh"]
 [ext_resource type="Resource" uid="uid://8s7bqwqyrxa2" path="res://resources/actions/items/region_1/effects/cinder_wand_mana_effect.tres" id="5_kmkdh"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_s88r5"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_bi4wc"]
+
+[sub_resource type="Resource" id="Resource_kmkdh"]
+script = ExtResource("3_bi4wc")
+cast_effect = ExtResource("1_kmkdh")
+travel_effect = ExtResource("4_kmkdh")
+travel_duration = 0.2
+impact_effect = ExtResource("2_s88r5")
+metadata/_custom_type_script = "uid://luoa1f4jirnk"
 
 [resource]
 script = ExtResource("7_bi4wc")
@@ -15,3 +27,4 @@ action_name = "Ember Shot"
 action_description = "Applies 1 Burn. Restores 1 mana."
 min_dice_required = 1
 effects = Array[ExtResource("2_ooxfb")]([ExtResource("3_m5twt"), ExtResource("4_yjdyh"), ExtResource("5_kmkdh")])
+animation_set = SubResource("Resource_kmkdh")

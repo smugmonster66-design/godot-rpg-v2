@@ -1,0 +1,62 @@
+[gd_scene load_steps=9 format=3 uid="uid://cb4vpdxdsf2r8"]
+
+[ext_resource type="Texture2D" uid="uid://ehgo7c8rve5e" path="res://assets/particles/Color/fire/fire_11.png" id="1_6ork4"]
+[ext_resource type="Texture2D" uid="uid://ddqaa68govw2d" path="res://assets/particles/Color/magic particles/magic_particles_4.png" id="2_4k5rk"]
+
+[sub_resource type="Gradient" id="Gradient_embers"]
+offsets = PackedFloat32Array(0, 0.25, 0.65, 1)
+colors = PackedColorArray(1, 0.75, 0.2, 0.9, 1, 0.4, 0.05, 0.8, 0.7, 0.15, 0, 0.3, 0.4, 0.05, 0, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_embers"]
+gradient = SubResource("Gradient_embers")
+
+[sub_resource type="ParticleProcessMaterial" id="PPM_embers"]
+emission_shape_offset = Vector3(0, 60, 0)
+emission_shape = 1
+emission_sphere_radius = 150.0
+direction = Vector3(0, -1, 0)
+spread = 35.0
+initial_velocity_min = 25.0
+initial_velocity_max = 65.0
+gravity = Vector3(0, -40, 0)
+scale_min = 0.099999994
+scale_max = 0.19999999
+color_ramp = SubResource("GradientTexture1D_embers")
+
+[sub_resource type="Gradient" id="Gradient_glow"]
+offsets = PackedFloat32Array(0, 0.4, 1)
+colors = PackedColorArray(1, 0.55, 0.1, 0, 1, 0.35, 0.05, 0.3, 0.8, 0.1, 0, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_glow"]
+gradient = SubResource("Gradient_glow")
+
+[sub_resource type="ParticleProcessMaterial" id="PPM_glow"]
+emission_shape_offset = Vector3(0, 40, 0)
+emission_shape = 1
+emission_sphere_radius = 150.0
+direction = Vector3(0, -1, 0)
+spread = 60.0
+initial_velocity_min = 8.0
+initial_velocity_max = 20.0
+gravity = Vector3(0, -15, 0)
+scale_min = 0.099999994
+scale_max = 0.17999999
+color_ramp = SubResource("GradientTexture1D_glow")
+
+[node name="ParticleEffect" type="Node2D"]
+z_index = 10
+
+[node name="Embers" type="GPUParticles2D" parent="."]
+texture = ExtResource("1_6ork4")
+lifetime = 1.8
+preprocess = 1.0
+randomness = 0.5
+process_material = SubResource("PPM_embers")
+
+[node name="CoreGlow" type="GPUParticles2D" parent="."]
+amount = 3
+texture = ExtResource("2_4k5rk")
+lifetime = 2.2
+preprocess = 1.0
+randomness = 0.4
+process_material = SubResource("PPM_glow")

@@ -179,33 +179,24 @@ func _update_header():
 # ============================================================================
 
 func _update_tree_tabs():
-	"""Update tree tab names and visibility"""
+	"""Update tree tab names, icons, and visibility"""
 	if not player or not player.active_class:
 		_hide_all_tabs()
 		return
 	
 	var trees = player.active_class.get_skill_trees()
+	var tab_nodes = [tree_tab_1, tree_tab_2, tree_tab_3]
 	
-	if tree_tab_1:
-		if trees.size() > 0 and trees[0]:
-			#tree_tab_1.text = trees[0].tree_name
-			tree_tab_1.show()
+	for i in range(tab_nodes.size()):
+		var tab = tab_nodes[i]
+		if not tab:
+			continue
+		if i < trees.size() and trees[i]:
+			tab.text = trees[i].tree_name
+			tab.icon = trees[i].icon  # NEW: propagate tree icon to button
+			tab.show()
 		else:
-			tree_tab_1.hide()
-	
-	if tree_tab_2:
-		if trees.size() > 1 and trees[1]:
-			#tree_tab_2.text = trees[1].tree_name
-			tree_tab_2.show()
-		else:
-			tree_tab_2.hide()
-	
-	if tree_tab_3:
-		if trees.size() > 2 and trees[2]:
-			#tree_tab_3.text = trees[2].tree_name
-			tree_tab_3.show()
-		else:
-			tree_tab_3.hide()
+			tab.hide()
 	
 	_update_tab_highlight()
 

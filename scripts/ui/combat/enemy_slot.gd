@@ -82,6 +82,8 @@ var status_display: StatusEffectDisplay = null
 var reticle_material: ShaderMaterial = null
 var turn_glow_material: ShaderMaterial = null
 var _reticle_mode: ReticleMode = ReticleMode.NONE
+var _particle_layer: PortraitParticleLayer = null
+
 
 func _slot_color(custom: Color, palette_fallback: Color) -> Color:
 	return custom if use_custom_slot_colors else palette_fallback
@@ -520,9 +522,21 @@ func _update_display():
 	
 	
 	# Status effects
-	if status_display and enemy and enemy.has_node("StatusTracker"):
+	if enemy and enemy.has_node("StatusTracker"):
 		var tracker: StatusTracker = enemy.get_node("StatusTracker")
-		status_display.connect_tracker(tracker)
+		if status_display:
+			status_display.connect_tracker(tracker)
+		# Bind portrait particle layer
+		if not _particle_layer:
+			var portrait_section := $MarginContainer/VBox/PortraitSection
+			_particle_layer = PortraitParticleLayer.new()
+			_particle_layer.name = "StatusParticleLayer"
+			portrait_section.add_child(_particle_layer)
+			# Must be last child so it draws on top of frame/reticle
+			portrait_section.move_child(_particle_layer, portrait_section.get_child_count() - 1)
+			
+		if _particle_layer:
+			_particle_layer.bind_tracker(tracker)
 
 # ============================================================================
 # SIGNAL HANDLERS

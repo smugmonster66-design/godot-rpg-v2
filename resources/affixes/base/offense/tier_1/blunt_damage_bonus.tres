@@ -8,6 +8,7 @@
 script = ExtResource("2_v6h70")
 affix_name = "Blunt Damage Bonus"
 description = "+N Blunt damage"
+elemental_identity = 1
 category = 20
 tags = Array[String](["damage", "physical", "blunt"])
 effect_min = 1.0

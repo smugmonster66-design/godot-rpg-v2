@@ -10,10 +10,6 @@
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_joayw"]
 texture = ExtResource("2_0cgqb")
-texture_margin_left = 65.0
-texture_margin_top = 100.0
-texture_margin_right = 65.0
-texture_margin_bottom = 100.0
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sgqpl"]
 

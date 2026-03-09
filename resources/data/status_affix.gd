@@ -51,6 +51,22 @@ enum ThresholdEffect {
 @export var status_id: String = ""
 
 # ============================================================================
+# PORTRAIT PARTICLES
+# ============================================================================
+@export_group("Portrait Particles")
+## One-shot burst scene played on the portrait when this status is first applied.
+## Use for impact moments: blood splatter on Bleed, frost burst on Chill, etc.
+## The scene is instanced, added to the portrait layer, and auto-freed when done.
+## Root node must emit a "finished" signal, OR be a one-shot GPUParticles2D/CPUParticles2D.
+@export var apply_particle_scene: PackedScene = null
+
+## Looping ambient scene that persists on the portrait while this status is active.
+## Use for sustained visuals: blood drip loop, shield shimmer, flame flicker, etc.
+## Freed (with a short fade) when the status is removed.
+@export var active_particle_scene: PackedScene = null
+
+
+# ============================================================================
 # DURATION & STACKING
 # ============================================================================
 @export_group("Duration & Stacking")

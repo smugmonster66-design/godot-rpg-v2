@@ -1,0 +1,71 @@
+[gd_scene load_steps=13 format=3 uid="uid://dcyf88npcopie"]
+
+[ext_resource type="Texture2D" uid="uid://bwap264ll24t8" path="res://assets/particles/Basic/ding blood/dingbats-439.png" id="1_akbtk"]
+[ext_resource type="Texture2D" uid="uid://dk2pd5svldj60" path="res://assets/particles/512x/scratch_01_a.png" id="2_akbtk"]
+
+[sub_resource type="Gradient" id="Gradient_drops"]
+offsets = PackedFloat32Array(0, 0.2, 0.65, 1)
+colors = PackedColorArray(0.7, 0.04, 0.04, 0, 0.65, 0.03, 0.03, 0.95, 0.35, 0.01, 0.01, 0.7, 0.08, 0, 0, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_drops"]
+gradient = SubResource("Gradient_drops")
+
+[sub_resource type="Curve" id="Curve_drop_scale"]
+_data = [Vector2(0, 0.3), 0.0, 0.5, 0, 0, Vector2(0.35, 0.5), 0.0, -0.3, 0, 0, Vector2(1, 0.1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_drop_scale"]
+curve = SubResource("Curve_drop_scale")
+
+[sub_resource type="ParticleProcessMaterial" id="PPM_drops"]
+emission_shape = 3
+emission_box_extents = Vector3(128, 1, 1)
+direction = Vector3(0, 1, 0)
+spread = 15.0
+initial_velocity_min = 10.0
+initial_velocity_max = 30.0
+gravity = Vector3(0, 120, 0)
+scale_min = 0.5
+scale_max = 0.5
+scale_curve = SubResource("CurveTexture_drop_scale")
+color_ramp = SubResource("GradientTexture1D_drops")
+
+[sub_resource type="Gradient" id="Gradient_glow"]
+offsets = PackedFloat32Array(0, 0.35, 0.65, 1)
+colors = PackedColorArray(0.5, 0.02, 0.02, 0, 0.55, 0.03, 0.03, 0.35, 0.4, 0.01, 0.01, 0.25, 0.3, 0, 0, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_glow"]
+gradient = SubResource("Gradient_glow")
+
+[sub_resource type="Curve" id="Curve_glow_scale"]
+_data = [Vector2(0, 0.5), 0.0, 0.3, 0, 0, Vector2(0.5, 0.8), 0.0, -0.3, 0, 0, Vector2(1, 0.5), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_glow_scale"]
+curve = SubResource("Curve_glow_scale")
+
+[sub_resource type="ParticleProcessMaterial" id="PPM_glow"]
+direction = Vector3(0, -1, 0)
+gravity = Vector3(0, 0, 0)
+scale_min = 0.5
+scale_curve = SubResource("CurveTexture_glow_scale")
+color_ramp = SubResource("GradientTexture1D_glow")
+
+[node name="ParticleEffect" type="Node2D"]
+z_index = 10
+
+[node name="FallingDrops" type="GPUParticles2D" parent="."]
+amount = 3
+texture = ExtResource("1_akbtk")
+lifetime = 2.2
+preprocess = 0.5
+randomness = 0.8
+process_material = SubResource("PPM_drops")
+
+[node name="WoundGlow" type="GPUParticles2D" parent="."]
+amount = 2
+texture = ExtResource("2_akbtk")
+lifetime = 3.0
+preprocess = 1.0
+randomness = 0.5
+process_material = SubResource("PPM_glow")

@@ -1,6 +1,8 @@
-[gd_resource type="Resource" script_class="StatusAffix" load_steps=5 format=3 uid="uid://kilfjnbqkpbi"]
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=7 format=3 uid="uid://kilfjnbqkpbi"]
 
+[ext_resource type="PackedScene" uid="uid://dcyf88npcopie" path="res://scenes/effects/new/status visual FX/bleed/bleed_loop.tscn" id="1_66xm2"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_wfeu7"]
+[ext_resource type="PackedScene" path="res://scenes/effects/new/status visual FX/bleed/bleed_apply.tscn" id="2_1egjh"]
 [ext_resource type="Texture2D" uid="uid://dbde7eab0ivfh" path="res://assets/status_effects/bleeding_status.png" id="2_l1ul7"]
 [ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_lp4ev"]
 [ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_lp4ev"]
@@ -8,6 +10,8 @@
 [resource]
 script = ExtResource("2_lp4ev")
 status_id = "bleed"
+apply_particle_scene = ExtResource("2_1egjh")
+active_particle_scene = ExtResource("1_66xm2")
 decay_style = 1
 cleanse_tags = Array[String](["debuff", "dot", "bleed", "physical_dot"])
 damage_per_stack = 1

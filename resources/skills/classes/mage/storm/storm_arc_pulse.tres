@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="SkillResource" load_steps=14 format=3 uid="uid://w7dxubkuj5v"]
+[gd_resource type="Resource" script_class="SkillResource" load_steps=15 format=3 uid="uid://w7dxubkuj5v"]
 
 [ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_bum1y"]
+[ext_resource type="Texture2D" uid="uid://gxf3lm4x5qba" path="res://assets/icons/classes/mage/storm/arc_pulse_icon.png" id="1_gpxic"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_xxb36"]
 [ext_resource type="Resource" uid="uid://b4xf2ov4c143a" path="res://resources/affixes/classes/mage/storm/spark/spark_element_unlock.tres" id="3_fhxr0"]
 [ext_resource type="Resource" uid="uid://xul6geic6ic7" path="res://resources/affixes/classes/mage/storm/arc_pulse/arc_pulse_r1_affix.tres" id="3_fxyel"]
@@ -30,6 +31,7 @@ required_skill = SubResource("Resource_15ods")
 script = ExtResource("6_fhxr0")
 skill_id = "storm_arc_pulse"
 skill_name = "Arc Pulse"
+icon = ExtResource("1_gpxic")
 description = "Shock mana dice apply [color=yellow]1/2/3[/color] [color=cyan]Static[/color] on use."
 tier = 2
 column = 1

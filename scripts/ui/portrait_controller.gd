@@ -56,6 +56,7 @@ var _current_mask: Texture2D = null
 var _portrait_material: ShaderMaterial = null
 var _frame_material: ShaderMaterial = null
 var _is_ko: bool = false
+var _particle_layer: PortraitParticleLayer = null
 
 # ============================================================================
 # INITIALIZATION
@@ -67,6 +68,7 @@ func _ready():
 	_create_status_container()
 	_create_level_badge()
 	_setup_click_input()
+	_create_particle_layer()
 	print("🖼️ PortraitController ready")
 
 func _discover_nodes():
@@ -200,7 +202,6 @@ func set_ko(is_ko: bool):
 
 func set_player(p_player: Player):
 	"""Bind to a player and connect signals for live updates."""
-	# Disconnect old player
 	if player:
 		_disconnect_player_signals()
 
@@ -209,6 +210,9 @@ func set_player(p_player: Player):
 	if player:
 		_connect_player_signals()
 		refresh()
+		# Bind particle layer to player's StatusTracker
+		if _particle_layer and player.status_tracker:
+			_particle_layer.bind_tracker(player.status_tracker)
 
 func refresh():
 	"""Full refresh of all portrait elements."""
@@ -372,6 +376,13 @@ func _create_status_icon(effect: Dictionary) -> TextureRect:
 func _get_status_color(effect_name: String) -> Color:
 	"""Get a representative color for a status effect."""
 	return ThemeManager.get_status_color(effect_name)
+
+
+func _create_particle_layer() -> void:
+	"""Create the status particle overlay layer."""
+	_particle_layer = PortraitParticleLayer.new()
+	_particle_layer.name = "StatusParticleLayer"
+	add_child(_particle_layer)
 
 # ============================================================================
 # LEVEL BADGE

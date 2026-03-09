@@ -1,9 +1,9 @@
-[gd_resource type="Resource" script_class="AffixTable" load_steps=10 format=3]
+[gd_resource type="Resource" script_class="AffixTable" load_steps=11 format=3 uid="uid://hgxnw4ixt707"]
 
-[ext_resource type="Script" path="res://resources/data/affix.gd" id="1_affix_script"]
-[ext_resource type="Script" path="res://resources/data/affix_table.gd" id="2_table_script"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_affix_script"]
+[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="2_table_script"]
 [ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_1/strength_bonus.tres" id="affix_0"]
-[ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_1/agility_bonus.tres" id="affix_1"]
+[ext_resource type="Resource" uid="uid://b6j5hkbb0oqn7" path="res://resources/affixes/region_1/offense/tier_1/agility_bonus.tres" id="affix_1"]
 [ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_1/intellect_bonus.tres" id="affix_2"]
 [ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_1/luck_bonus.tres" id="affix_3"]
 [ext_resource type="Resource" path="res://resources/affixes/region_1/offense/tier_1/global_damage_bonus.tres" id="affix_4"]

@@ -240,6 +240,8 @@ func get_status_color(status_name: String) -> Color:
 		"overhealth": return Color.html("FFEB57")  # gold excess
 		"taunt":      return Color.html("FF0040")  # hot red provocation
 		"barrier":    return Color.html("0069AA")  # protective navy
+		"fortified":  return PALETTE.armor    # Color(0.60, 0.60, 0.65)
+		"warded":     return PALETTE.barrier  # Color(0.40, 0.70, 0.95)
 		_:            return PALETTE.text_secondary
 
 

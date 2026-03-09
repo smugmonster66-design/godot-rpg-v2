@@ -887,7 +887,10 @@ func _on_action_confirmed(action_data: Dictionary):
 	var animation_set: CombatAnimationSet = null
 	var action_resource = action_data.get("action_resource") as Action
 	if action_resource:
-		# Check for element-specific animation override from placed dice
+		# Start with the action's own animation set as the baseline
+		if action_resource.get("animation_set"):
+			animation_set = action_resource.animation_set
+		# Override with element-specific set only if one is defined for this die
 		var placed = action_data.get("placed_dice", []) as Array
 		if placed.size() > 0 and action_resource.has_method("get_animation_for_element"):
 			var first_die = placed[0] as DieResource
@@ -895,13 +898,9 @@ func _on_action_confirmed(action_data: Dictionary):
 				var die_elem = first_die.get_effective_element()
 				var dt = DieResource.ELEMENT_TO_DAMAGE_TYPE.get(die_elem, -1)
 				if dt >= 0:
-					animation_set = action_resource.get_animation_for_element(dt)
-		# Fallback to base animation set if action defines none
-		if not animation_set:
-			animation_set = load("res://resources/animations/baseline animations/base_combat_animation_set.tres")
-		# Fallback to default animation_set
-		if not animation_set and action_resource.get("animation_set"):
-			animation_set = action_resource.animation_set
+					var element_set = action_resource.get_animation_for_element(dt)
+					if element_set:
+						animation_set = element_set
 	
 	# Get the action field that was used (for source position)
 	var action_field: ActionField = null
@@ -2842,21 +2841,16 @@ func _get_defender_stats(defender) -> Dictionary:
 		var elem_mods: Dictionary = {}
 		if defender.enemy_data and defender.enemy_data.element_modifiers.size() > 0:
 			elem_mods = defender.enemy_data.element_modifiers
-		var dmg_recv_bonuses: Dictionary = _get_damage_received_bonuses(defender)
-		
-		# Apply status modifiers (Corrode, etc.) to enemy defenses
-		var armor: int = defender.armor
-		var barrier: int = defender.barrier
+		var enemy_armor: float = defender.armor
+		var enemy_barrier: float = defender.barrier
 		var tracker: StatusTracker = _get_status_tracker(defender)
 		if tracker:
-			armor += int(tracker.get_total_stat_modifier("armor"))
-			barrier += int(tracker.get_total_stat_modifier("barrier"))
-		
+			enemy_armor += tracker.get_total_stat_modifier("armor")
+			enemy_barrier += tracker.get_total_stat_modifier("barrier")
 		return {
-			"armor": maxi(0, armor),
-			"barrier": maxi(0, barrier),
+			"armor": maxf(0.0, enemy_armor),
+			"barrier": maxf(0.0, enemy_barrier),
 			"element_modifiers": elem_mods,
-			"damage_received_bonuses": dmg_recv_bonuses,
 			"defense_mult": 1.0,
 		}
 	return {"armor": 0, "barrier": 0, "element_modifiers": {}, "damage_received_bonuses": {}, "defense_mult": 1.0}
