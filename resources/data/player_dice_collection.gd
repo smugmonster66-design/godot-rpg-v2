@@ -81,6 +81,11 @@ var _element_use_counts: Dictionary = {}
 ## Format: {die_index: {from: int, to: int}}
 var pending_value_animations: Dictionary = {}
 var pending_element_refreshes: Array[int] = []
+## General-purpose dice mutation queue. Flushed by CombatManager at
+## post-animation sync points. All die-mutating systems append here
+## via _record_mutation() instead of emitting events directly.
+var _pending_dice_mutations: Array[Dictionary] = []
+
 
 ## v4 — Mana System: Accumulated combat events from dice affix processing.
 ## Drained by CombatManager after each action via drain_combat_events().
@@ -293,6 +298,7 @@ func roll_hand():
 	_pending_destructions.clear()
 	pending_value_animations.clear()
 	pending_element_refreshes.clear()
+	_pending_dice_mutations.clear()
 	_element_use_counts.clear()
 	
 	# Process PASSIVE affixes on pool dice before copying/rolling
@@ -325,9 +331,7 @@ func roll_hand():
 	# Apply persistent combat modifiers (also modifies values)
 	_apply_combat_modifiers()
 	
-	# Apply Slowed + Chill die value penalty
-	for die in hand:
-		_apply_status_die_penalty(die)
+	
 	
 	_apply_status_dice_effects(StatusDiceEffect.FireTrigger.ON_ROLL)
 	
@@ -387,18 +391,29 @@ func _apply_status_dice_effects(trigger: StatusDiceEffect.FireTrigger) -> void:
 
 
 func _apply_single_dice_effect(effect: StatusDiceEffect, stacks: int) -> void:
-	"""Resolve targets for one StatusDiceEffect and apply it to each matched die."""
+	"""Resolve targets for one StatusDiceEffect and apply it to each matched die.
+	Records mutations for deferred visual handling via _flush_dice_mutations."""
 	var count: int = stacks if effect.target_count_equals_stacks else effect.target_count
 	var targets: Array[int] = _resolve_dice_targets(effect, count)
+	var source_label: String = _get_status_label_for_effect(effect)
+	var status_id: String = _get_status_id_for_effect(effect)
 
 	for idx in targets:
 		var die: DieResource = hand[idx]
+		var value_before: int = die.get_total_value()
+
 		match effect.effect_type:
 			StatusDiceEffect.EffectType.LOCK:
 				die.is_locked = true
+				_record_mutation(idx, DiceMutation.Type.LOCKED, source_label,
+					0, 0,
+					effect.apply_particle_scene, effect.active_particle_scene, status_id)
 				print("  🔒 Status dice effect: locked %s at hand[%d]" % [die.display_name, idx])
 			StatusDiceEffect.EffectType.CONSUME:
 				die.is_consumed = true
+				_record_mutation(idx, DiceMutation.Type.CONSUMED, source_label,
+					0, 0,
+					effect.apply_particle_scene, effect.active_particle_scene, status_id)
 				print("  🚫 Status dice effect: consumed %s at hand[%d]" % [die.display_name, idx])
 			StatusDiceEffect.EffectType.MODIFY_VALUE_FLAT:
 				die.apply_flat_modifier(int(effect.effect_value))
@@ -408,18 +423,34 @@ func _apply_single_dice_effect(effect: StatusDiceEffect, stacks: int) -> void:
 				print("  📉 Status dice effect: x%.2f to %s at hand[%d]" % [effect.effect_value, die.display_name, idx])
 			StatusDiceEffect.EffectType.ADD_TAG:
 				die.add_tag(effect.effect_tag)
+				_record_mutation(idx, DiceMutation.Type.TAG_ADDED, source_label,
+					0, 0,
+					effect.apply_particle_scene, effect.active_particle_scene, status_id)
 				print("  🏷️ Status dice effect: added tag '%s' to %s" % [effect.effect_tag, die.display_name])
 			StatusDiceEffect.EffectType.REMOVE_TAG:
 				die.remove_tag(effect.effect_tag)
+				_record_mutation(idx, DiceMutation.Type.TAG_REMOVED, source_label,
+					0, 0,
+					effect.apply_particle_scene, effect.active_particle_scene, status_id)
 				print("  🏷️ Status dice effect: removed tag '%s' from %s" % [effect.effect_tag, die.display_name])
 			StatusDiceEffect.EffectType.CHANGE_ELEMENT:
 				die.element = effect.effect_element
+				_record_mutation(idx, DiceMutation.Type.ELEMENT_CHANGED, source_label,
+					0, 0,
+					effect.apply_particle_scene, effect.active_particle_scene, status_id)
 				print("  🌀 Status dice effect: changed element on %s at hand[%d]" % [die.display_name, idx])
 			StatusDiceEffect.EffectType.MODIFY_VALUE_CONDITIONAL:
 				var computed: int = _compute_conditional_modifier(effect)
 				if computed != 0:
 					die.apply_flat_modifier(computed)
 					print("  📉 Status dice effect (conditional): %+d to %s at hand[%d]" % [computed, die.display_name, idx])
+
+		# Record value change for any effect type that modifies value
+		var value_after: int = die.get_total_value()
+		if value_after != value_before:
+			_record_mutation(idx, DiceMutation.Type.VALUE_CHANGED, source_label,
+				value_after - value_before, value_after,
+				effect.apply_particle_scene, effect.active_particle_scene, status_id)
 
 
 func _compute_conditional_modifier(effect: StatusDiceEffect) -> int:
@@ -642,8 +673,6 @@ func insert_into_hand(index: int, die: DieResource):
 		if modifier.applies_to_die(die, index):
 			modifier.apply_to_die(die)
 
-	# Apply Slowed + Chill die value penalty
-	_apply_status_die_penalty(die)
 
 	# Track value changes from insertion for deferred animation
 	var insertion_changes: Dictionary = {}
@@ -856,12 +885,6 @@ func restore_die(die: DieResource):
 # COMBAT MODIFIERS (v2)
 # ============================================================================
 
-func _apply_status_die_penalty(die: DieResource) -> void:
-	"""Apply Slowed + Chill die value penalty from player's StatusTracker.
-	Called after ON_ROLL affixes and combat modifiers."""
-	var penalty: int = _get_status_die_penalty()
-	if penalty > 0:
-		die.apply_flat_modifier(-penalty)
 
 func _get_status_die_penalty() -> int:
 	"""Query the owner's StatusTracker for die value penalty."""
@@ -878,9 +901,8 @@ func _get_player():
 
 func _get_owner_status_tracker() -> StatusTracker:
 	var parent = get_parent()
-	print("  [STUN DEBUG] _get_owner_status_tracker: parent=%s" % parent)
+	print("  [TRACKER DEBUG] owner=%s, parent=%s" % [name, parent.name if parent else "NULL"])
 	var tracker = parent.get_node_or_null("StatusTracker") if parent else null
-	print("  [STUN DEBUG] tracker from get_node_or_null=%s" % tracker)
 	if tracker is StatusTracker:
 		return tracker
 	if parent and "status_tracker" in parent and parent.status_tracker is StatusTracker:
@@ -894,14 +916,21 @@ func _apply_combat_modifiers():
 	Called after roll_hand() creates fresh copies and processes ON_ROLL affixes."""
 	if combat_modifiers.size() == 0:
 		return
-	
+
 	print("  🛡️ Applying %d combat modifier(s)..." % combat_modifiers.size())
 	for modifier in combat_modifiers:
 		for i in range(hand.size()):
 			var die = hand[i]
+			var before: int = die.get_total_value()
 			if modifier.applies_to_die(die, i):
 				modifier.apply_to_die(die)
+				var after: int = die.get_total_value()
+				if after != before:
+					_record_mutation(i, DiceMutation.Type.VALUE_CHANGED,
+						modifier.source_name, after - before, after)
 				print("    %s → %s (now %d)" % [modifier.source_name, die.display_name, die.get_total_value()])
+
+
 
 func add_combat_modifier(modifier: CombatModifier):
 	"""Add a persistent combat modifier (can be called externally too)."""
@@ -1182,6 +1211,72 @@ func shatter_hand_die(die_index: int):
 # COMBAT / MANA EVENT QUEUES (v4 — Mana System)
 # ============================================================================
 
+# ============================================================================
+# DICE MUTATION QUEUE
+# ============================================================================
+
+func _record_mutation(
+		die_index: int,
+		type: DiceMutation.Type,
+		source: String,
+		delta: int = 0,
+		new_value: int = 0,
+		apply_particle: PackedScene = null,
+		active_particle: PackedScene = null,
+		status_id: String = "") -> void:
+	"""Append a mutation record to the pending queue.
+	Called by all die-mutating systems instead of emitting events directly.
+	Flushed by CombatManager after the roll animation completes.
+
+	apply_particle:  one-shot burst to play on the die visual.
+	active_particle: looping ambient to attach while the parent status is active.
+	status_id:       parent status id, used as the active particle tracking key."""
+	_pending_dice_mutations.append({
+		"die_index": die_index,
+		"type": type,
+		"source": source,
+		"delta": delta,
+		"new_value": new_value,
+		"apply_particle": apply_particle,
+		"active_particle": active_particle,
+		"status_id": status_id,
+	})
+	print("  📌 Mutation queued: [%d] %s '%s' delta=%+d" % [
+		die_index, DiceMutation.Type.keys()[type], source, delta])
+
+
+func drain_dice_mutations() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	result.assign(_pending_dice_mutations)
+	_pending_dice_mutations.clear()
+	return result
+
+
+func _get_status_label_for_effect(effect: StatusDiceEffect) -> String:
+	"""Derive a display label for a status dice effect floater."""
+	var tracker: StatusTracker = _get_owner_status_tracker()
+	if not tracker:
+		return "Status"
+	for instance in tracker.get_all_active():
+		var affix: StatusAffix = instance["status_affix"]
+		if affix and affix.dice_effects.has(effect):
+			return affix.affix_name
+	return "Status"
+
+
+func _get_status_id_for_effect(effect: StatusDiceEffect) -> String:
+	"""Get the parent StatusAffix's status_id for a given dice effect.
+	Used as the tracking key for active (looping) die particles."""
+	var tracker: StatusTracker = _get_owner_status_tracker()
+	if not tracker:
+		return ""
+	for instance in tracker.get_all_active():
+		var affix: StatusAffix = instance["status_affix"]
+		if affix and affix.dice_effects.has(effect):
+			return affix.status_id
+	return ""
+
+
 func drain_combat_events() -> Array[Dictionary]:
 	"""Return and clear all pending combat events.
 	Called by CombatManager after each action is applied."""
@@ -1245,8 +1340,7 @@ func add_die_to_hand(die: DieResource) -> void:
 		if modifier.applies_to_die(die, die.slot_index):
 			modifier.apply_to_die(die)
 
-	# Apply Slowed + Chill die value penalty
-	_apply_status_die_penalty(die)
+
 
 	_apply_status_dice_effects(StatusDiceEffect.FireTrigger.ON_ROLL)
 

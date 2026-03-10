@@ -8,6 +8,7 @@ class_name CombatDieObject
 # COMBAT-SPECIFIC STATE
 # ============================================================================
 var slot_index: int = -1  # Position in hand/action field
+@onready var particle_anchor: Node2D = $ParticleAnchor
 
 # ============================================================================
 # VALUE DISPLAY - Shows rolled value

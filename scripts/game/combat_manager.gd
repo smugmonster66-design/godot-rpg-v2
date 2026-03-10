@@ -799,8 +799,13 @@ func _on_roll_pressed():
 		var animation_duration = dice_count * 0.08 + 0.25
 		await get_tree().create_timer(animation_duration).timeout
 
-	# Fire locked die animations now that visuals exist
+	# Flush queued die mutations (status locks, value changes, particles)
 	await get_tree().process_frame
+	if player and player.dice_pool and combat_ui and combat_ui.dice_pool_display:
+		var dpd = combat_ui.dice_pool_display
+		_flush_dice_mutations(player.dice_pool, func(idx: int) -> Node:
+			return dpd.get_die_visual_at(idx))
+	# Carry-over locks from previous turns (not captured by mutation queue)
 	if player and player.dice_pool:
 		player.dice_pool.emit_locked_die_events()
 
@@ -1248,15 +1253,20 @@ func _start_enemy_turn(enemy: Combatant):
 			source_pos
 		)
 		
-		# Emit DIE_LOCKED events for any locked dice
+		# Flush queued die mutations (status locks, value changes, particles)
 		await get_tree().process_frame
+		_flush_dice_mutations(enemy.dice_collection, func(idx: int) -> Node:
+			if idx < ep.hand_dice_visuals.size():
+				return ep.hand_dice_visuals[idx]
+			return null)
+		# Carry-over locks not captured by mutation queue
 		var enemy_hand = enemy.dice_collection.hand
 		for i in range(enemy_hand.size()):
 			if enemy_hand[i].is_locked and i < ep.hand_dice_visuals.size():
 				var visual = ep.hand_dice_visuals[i]
 				if is_instance_valid(visual) and event_bus:
 					event_bus.emit_die_locked(visual)
-					print("  📡 Emitted DIE_LOCKED for enemy hand[%d]" % i)
+					print("  📡 Emitted DIE_LOCKED for enemy hand[%d] (carry-over)" % i)
 
 	_process_enemy_turn(enemy)
 
@@ -3820,6 +3830,123 @@ func _filter_dice_for_consumable(consumable: ConsumableItem) -> Array[DieResourc
 	# Unknown filter — return all as fallback
 	push_warning("Unknown dice_target_filter: '%s' — returning all dice" % filter_str)
 	return all_dice
+
+
+
+func _flush_dice_mutations(
+		dice_collection: PlayerDiceCollection,
+		get_visual_func: Callable) -> void:
+	if not event_bus:
+		return
+
+	var mutations: Array[Dictionary] = dice_collection.drain_dice_mutations()
+
+	# Group VALUE_CHANGED mutations by die index — all other types fire immediately.
+	# Dict: die_index → { visual, sources: Array[String], net_delta: int, new_value: int }
+	var value_groups: Dictionary = {}
+
+	for m in mutations:
+		var idx: int = m["die_index"]
+		var source: String = m["source"]
+		var visual: Node = get_visual_func.call(idx)
+
+		if m["type"] == DiceMutation.Type.VALUE_CHANGED:
+			if not value_groups.has(idx):
+				value_groups[idx] = {
+					"visual": visual,
+					"sources": [],
+					"net_delta": 0,
+					"new_value": m["new_value"],
+				}
+			if source not in value_groups[idx]["sources"]:
+				value_groups[idx]["sources"].append(source)
+			value_groups[idx]["net_delta"] += m["delta"]
+			value_groups[idx]["new_value"] = m["new_value"]
+			continue
+
+		# Non-VALUE_CHANGED: handle immediately
+		if not is_instance_valid(visual):
+			continue
+
+		match m["type"]:
+			DiceMutation.Type.LOCKED:
+				event_bus.emit_die_locked(visual)
+			DiceMutation.Type.CONSUMED, \
+			DiceMutation.Type.ELEMENT_CHANGED, \
+			DiceMutation.Type.TAG_ADDED, \
+			DiceMutation.Type.TAG_REMOVED:
+				pass
+
+		var anchor: Node = visual.get_node_or_null("ParticleAnchor")
+		if not anchor:
+			continue
+		var apply_scene: PackedScene = m.get("apply_particle")
+		if apply_scene:
+			var burst: Node = apply_scene.instantiate()
+			anchor.add_child(burst)
+			if burst.has_method("play"):
+				burst.play()
+			if burst.has_signal("finished"):
+				burst.finished.connect(burst.queue_free)
+			else:
+				get_tree().create_timer(3.0).timeout.connect(burst.queue_free)
+		var active_scene: PackedScene = m.get("active_particle")
+		var status_id: String = m.get("status_id", "")
+		if active_scene and not status_id.is_empty():
+			var key: String = "%s_die_%d" % [status_id, idx]
+			if not anchor.has_node(key):
+				var loop: Node = active_scene.instantiate()
+				loop.name = key
+				anchor.add_child(loop)
+				if loop.has_method("play"):
+					loop.play()
+
+	# For each die with value changes: source floaters first, then one net delta floater.
+	for idx in value_groups:
+		var g: Dictionary = value_groups[idx]
+		var visual: Node = g["visual"]
+		if not is_instance_valid(visual):
+			continue
+
+		var net: int = g["net_delta"]
+		var new_val: int = g["new_value"]
+		var old_val: int = new_val - net
+
+		# One sourcefloater per unique source — delta=0 suppresses the generic label
+		for src in g["sources"]:
+			event_bus.emit_die_value_changed(visual, old_val, old_val, src)
+
+		# Net delta with no source tag — triggers only the generic floater
+		event_bus.emit_die_value_changed(visual, old_val, new_val, "")
+
+		# Animate the die visual to its final value
+		if visual.has_method("animate_value_to"):
+			var flash := Color(0.5, 1.5, 0.5) if net > 0 else Color(1.5, 0.5, 0.5)
+			visual.animate_value_to(new_val, 0.25, flash)
+
+
+func _clear_expired_die_particles(
+		dice_collection: PlayerDiceCollection,
+		get_visual_func: Callable,
+		expired_status_ids: Array[String]) -> void:
+	"""Remove looping die particles for statuses that just expired mid-turn.
+	Note: particles are also naturally cleared between turns when CombatDieObject
+	visuals are rebuilt by DicePoolDisplay on the next roll, so this is only
+	needed for statuses that expire mid-turn."""
+	for sid in expired_status_ids:
+		for i in range(dice_collection.hand.size()):
+			var visual: Node = get_visual_func.call(i)
+			if not is_instance_valid(visual):
+				continue
+			var anchor: Node = visual.get_node_or_null("ParticleAnchor")
+			if not anchor:
+				continue
+			var key: String = "%s_die_%d" % [sid, i]
+			var loop: Node = anchor.get_node_or_null(key)
+			if loop:
+				loop.queue_free()
+				print("  🧹 Cleared die particle '%s' from hand[%d]" % [key, i])
+
 
 
 

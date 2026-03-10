@@ -98,11 +98,11 @@ func _ready():
 
 
 func initialize(event_bus: CombatEventBus, effect_player: CombatEffectPlayer = null, animation_player: CombatAnimationPlayer = null) -> void:
-	"""Connect to the event bus. Call during CombatUI setup."""
 	_event_bus = event_bus
 	_effect_player = effect_player
 	_animation_player = animation_player
 	event_bus.game_event.connect(_on_game_event)
+	_sort_reactions()  # ← sort AFTER all reactions have been appended by combat_ui
 	print("  ✅ ReactiveAnimator initialized with %d reactions" % reactions.size())
 
 func cleanup() -> void:
@@ -423,22 +423,24 @@ func _play_sound(target: Node, preset: MicroAnimationPreset) -> void:
 
 
 func _spawn_floating_label(target: Node, preset: MicroAnimationPreset, event: CombatEvent) -> void:
-	"""Spawn a floating text label that rises and fades out.
-	Labels targeting the same node are staggered so each one has time to
-	rise clear before the next fires."""
 	var target_id: int = target.get_instance_id()
+
+	# Source tag labels skip stagger — they must fire first and set the timestamp
+	# so the generic reaction waits behind them.
+	if preset.label_use_source_tag_prefix and event.source_tag != "":
+		_label_last_spawn[target_id] = Time.get_ticks_msec()
+		_spawn_label_raw(target, event.source_tag, &"sourcefloater", preset.label_color, preset)
+		return
+
+	# Stagger check for all other labels
 	var now: float = Time.get_ticks_msec()
 	var last: float = _label_last_spawn.get(target_id, -_LABEL_STAGGER_MS)
 	var elapsed: float = now - last
-
 	if elapsed < _LABEL_STAGGER_MS:
-		var wait_sec: float = ((_LABEL_STAGGER_MS - elapsed) / 1000.0)
-		await get_tree().create_timer(wait_sec).timeout
+		await get_tree().create_timer((_LABEL_STAGGER_MS - elapsed) / 1000.0).timeout
 		if not is_instance_valid(target):
 			return
 
-	# Record spawn time BEFORE the label is built so back-to-back callers
-	# each see an incrementing timestamp rather than the same value.
 	_label_last_spawn[target_id] = Time.get_ticks_msec()
 	var text = _resolve_label_text(preset, event)
 	if text == "":
@@ -512,6 +514,46 @@ func _spawn_floating_label(target: Node, preset: MicroAnimationPreset, event: Co
 
 	tween.finished.connect(label.queue_free)
 
+func _spawn_label_raw(target: Node, text: String, theme_type: StringName, fallback_color: Color, preset: MicroAnimationPreset) -> void:
+	var label = Label.new()
+	label.text = text
+	label.theme_type_variation = theme_type if theme_type != &"" else &"normal"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_effects_container.add_child(label)
+	print("  🏷️ Raw label: text='%s' theme_type='%s' resolved_font_size=%d" % [
+		label.text,
+		label.theme_type_variation,
+		label.get_theme_font_size("font_size")])
+	var color := fallback_color
+	if theme_type != &"" and label.has_theme_color(text, theme_type):
+		color = label.get_theme_color(text, theme_type)
+	label.add_theme_color_override("font_color", color)
+	var duration: float = preset.label_duration
+	var rise_distance: float = preset.label_rise_distance
+	var scatter_x: float = preset.label_scatter_x
+	var tv: StringName = label.theme_type_variation
+	if tv != &"" and label.has_theme_constant("duration_ms", tv):
+		duration = label.get_theme_constant("duration_ms", tv) / 1000.0
+	if tv != &"" and label.has_theme_constant("rise_distance", tv):
+		rise_distance = float(label.get_theme_constant("rise_distance", tv))
+	if tv != &"" and label.has_theme_constant("scatter_x", tv):
+		scatter_x = float(label.get_theme_constant("scatter_x", tv))
+	var center = _get_global_center(target)
+	var scatter = randf_range(-scatter_x, scatter_x)
+	label.global_position = center + Vector2(scatter, 0) - label.size / 2
+	label.scale = Vector2(preset.label_start_scale, preset.label_start_scale)
+	label.pivot_offset = label.size / 2
+	var tween = label.create_tween().set_parallel(true)
+	tween.tween_property(label, "global_position:y", center.y - rise_distance, duration) \
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(label, "modulate:a", 0.0, duration) \
+		.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+	if preset.label_end_scale != preset.label_start_scale:
+		tween.tween_property(label, "scale",
+			Vector2(preset.label_end_scale, preset.label_end_scale), duration)
+	tween.finished.connect(label.queue_free)
 
 
 func _play_combat_effect(target: Node, preset: MicroAnimationPreset, event: CombatEvent) -> void:
@@ -591,11 +633,16 @@ func _resolve_label_text(preset: MicroAnimationPreset, event: CombatEvent) -> St
 	match event.type:
 		CombatEvent.Type.DIE_VALUE_CHANGED:
 			var delta = event.values.get("delta", 0)
+			var delta_str: String
 			if delta > 0:
-				return "+%d" % delta
+				delta_str = "+%d" % delta
 			elif delta < 0:
-				return "%d" % delta
-			return ""
+				delta_str = "%d" % delta
+			else:
+				return ""
+			if preset.label_prefix != "":
+				return "%s%s" % [preset.label_prefix, delta_str]
+			return delta_str
 
 		CombatEvent.Type.DAMAGE_DEALT:
 			var amount = event.values.get("amount", 0)

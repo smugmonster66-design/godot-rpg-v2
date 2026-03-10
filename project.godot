@@ -41,7 +41,7 @@ window/stretch/aspect="expand"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/BurstParticles2D/plugin.cfg", "res://addons/action_effect_editor/plugin.cfg", "res://addons/affix_builder/plugin.cfg", "res://addons/auto_scene_documenter/plugin.cfg", "res://addons/dialogue_editor/plugin.cfg", "res://addons/dungeon_editor/plugin.cfg", "res://addons/theme_editor/plugin.cfg")
+enabled=PackedStringArray("res://addons/BurstParticles2D/plugin.cfg", "res://addons/action_effect_editor/plugin.cfg", "res://addons/affix_builder/plugin.cfg", "res://addons/auto_scene_documenter/plugin.cfg", "res://addons/dialogue_editor/plugin.cfg", "res://addons/dungeon_editor/plugin.cfg", "res://addons/e64_palette/plugin.cfg", "res://addons/theme_editor/plugin.cfg")
 
 [gui]
 

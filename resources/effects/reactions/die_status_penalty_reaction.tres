@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AnimationReaction" load_steps=5 format=3 uid="uid://b8mll80piptwd"]
+
+[ext_resource type="Resource" uid="uid://drh113ud3yscn" path="res://resources/effects/micro_presets/die_status_penalty.tres" id="1_preset"]
+[ext_resource type="Script" uid="uid://ccjdw1pfc320o" path="res://resources/data/reaction_condition.gd" id="2_cond"]
+[ext_resource type="Script" uid="uid://d31vp50po1w5e" path="res://resources/data/animation_reaction.gd" id="3_reaction"]
+
+[sub_resource type="Resource" id="cond_1"]
+script = ExtResource("2_cond")
+operator = 8
+negate = true
+
+[resource]
+script = ExtResource("3_reaction")
+conditions = Array[ExtResource("2_cond")]([SubResource("cond_1")])
+animation_preset = ExtResource("1_preset")
+priority = 15

@@ -171,6 +171,11 @@ enum EffectDirection { SOURCE_TO_TARGET, TARGET_TO_SOURCE }
 ## Prefix added to auto-generated or value-key text (e.g. "+", "-", "")
 @export var label_prefix: String = ""
 
+## When true, prepends event.source_tag to the auto-generated label text.
+## e.g. source_tag "Chill" + delta -1 → "Chill -1"
+@export var label_use_source_tag_prefix: bool = false
+
+
 ## Label color
 @export var label_color: Color = Color.WHITE
 

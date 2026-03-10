@@ -76,6 +76,17 @@ enum FireTrigger {
 ## Element for CHANGE_ELEMENT.
 @export var effect_element: DieResource.Element = DieResource.Element.NONE
 
+## ── PARTICLE EFFECTS ────────────────────────────────────────────────────────
+
+## One-shot burst played on the die visual when this effect fires.
+## Scene root must emit "finished" or be a one-shot GPUParticles2D/CPUParticles2D.
+@export var apply_particle_scene: PackedScene = null
+
+## Looping ambient scene attached to the die visual while the parent status
+## is active. Freed when the status expires or between turns.
+## Tracked on the die's ParticleAnchor node under key: status_id + "_die_" + index
+@export var active_particle_scene: PackedScene = null
+
 ## ── MODIFY_VALUE_CONDITIONAL ────────────────────────────────────────────────
 
 ## Which formula drives the computed modifier.
