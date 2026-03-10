@@ -1255,7 +1255,7 @@ func _start_enemy_turn(enemy: Combatant):
 		
 		# Flush queued die mutations (status locks, value changes, particles)
 		await get_tree().process_frame
-		_flush_dice_mutations(enemy.dice_collection, func(idx: int) -> Node:
+		await _flush_dice_mutations(enemy.dice_collection, func(idx: int) -> Node:
 			if idx < ep.hand_dice_visuals.size():
 				return ep.hand_dice_visuals[idx]
 			return null)
@@ -3902,6 +3902,8 @@ func _flush_dice_mutations(
 					loop.play()
 
 	# For each die with value changes: source floaters first, then one net delta floater.
+	# For each die with value changes: source floaters first, then one net delta floater.
+	var shatter_visuals: Array = []
 	for idx in value_groups:
 		var g: Dictionary = value_groups[idx]
 		var visual: Node = g["visual"]
@@ -3923,6 +3925,52 @@ func _flush_dice_mutations(
 		if visual.has_method("animate_value_to"):
 			var flash := Color(0.5, 1.5, 0.5) if net > 0 else Color(1.5, 0.5, 0.5)
 			visual.animate_value_to(new_val, 0.25, flash)
+
+		# Collect for deferred shatter — hide immediately so the value
+		# animation tween can't restore modulate after we hide it
+		if new_val <= 0:
+			visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			if "draggable" in visual:
+				visual.draggable = false
+			shatter_visuals.append(visual)
+
+	# Wait for value animations then shatter collapsed dice
+	if not shatter_visuals.is_empty():
+		await get_tree().create_timer(0.35).timeout
+		for v in shatter_visuals:
+			if is_instance_valid(v):
+				await _shatter_die_visual(v)
+
+
+
+func _shatter_die_visual(visual: Control) -> void:
+	# Mark the underlying die as consumed so AI won't select it
+	if visual is CombatDieObject and visual.die_resource:
+		visual.die_resource.is_consumed = true
+	# Disable interactivity
+	visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if "draggable" in visual:
+		visual.draggable = false
+
+	var animator = combat_ui.affix_visual_animator if combat_ui else null
+	if not animator or not animator.die_shatter_preset or not animator.effect_player:
+		visual.modulate.a = 0.0
+		return
+
+	var center = visual.global_position + visual.size / 2.0
+	var shatter = ShatterEffect.new()
+	shatter.configure(animator.die_shatter_preset, center)
+
+	if visual is CombatDieObject and visual.die_resource:
+		shatter.set_source_appearance(
+			visual.die_resource.fill_texture,
+			visual.modulate
+		)
+
+	var pos = visual.global_position + visual.size / 2.0
+	visual.modulate.a = 0.0
+	var target = CombatEffectTarget.position(pos)
+	await animator.effect_player.play_combat_effect(shatter, target, target)
 
 
 func _clear_expired_die_particles(

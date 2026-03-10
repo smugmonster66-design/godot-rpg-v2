@@ -12,6 +12,6 @@
 script = ExtResource("7_oyegi")
 action_id = "weapon_frost_wand_ice_shard"
 action_name = "Ice Shard"
-action_description = "Fires a cold shard. Applies 2 Chill. Restores 1 mana on use."
+action_description = "Applies 2 Chill. Restores 1 mana on use."
 min_dice_required = 1
 effects = Array[ExtResource("2_iy7lp")]([ExtResource("3_qbg5y"), ExtResource("4_hns2q"), ExtResource("5_70rq8")])
