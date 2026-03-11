@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CombatAnimationSet" load_steps=4 format=3 uid="uid://c40s1c0dvwjjt"]
+
+[ext_resource type="Script" uid="uid://luoa1f4jirnk" path="res://resources/data/combat_animation_set.gd" id="1_lmjum"]
+[ext_resource type="PackedScene" uid="uid://dopy0hm4iiy47" path="res://scenes/effects/new/slashing/slash_cast.tscn" id="1_sxh4c"]
+[ext_resource type="PackedScene" uid="uid://bymgjhaf7ai8o" path="res://resources/animations/burstparticle animations/base/slash_lines_impact.tscn" id="2_j7wn8"]
+
+[resource]
+script = ExtResource("1_lmjum")
+cast_effect = ExtResource("1_sxh4c")
+impact_effect = ExtResource("2_j7wn8")
+metadata/_custom_type_script = "uid://luoa1f4jirnk"

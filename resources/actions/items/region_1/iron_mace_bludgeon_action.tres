@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://du8dsjx0ygnhu"]
+[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://du8dsjx0ygnhu"]
 
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_asfhs"]
+[ext_resource type="Resource" uid="uid://d2cuj62scv8by" path="res://resources/animations/baseline animations/elemental anisets/blunt/base_blunt_aniset.tres" id="1_v1xp8"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_v1xp8"]
 [ext_resource type="Resource" uid="uid://2ee81u7vmobh" path="res://resources/actions/items/region_1/effects/iron_mace_damage_effect.tres" id="3_mtgj2"]
 [ext_resource type="Resource" uid="uid://capevh6d4uab5" path="res://resources/actions/items/region_1/effects/iron_mace_stunned_effect.tres" id="4_2sxsc"]
@@ -14,3 +15,4 @@ action_name = "Bludgeon"
 action_description = "Applies Stun."
 min_dice_required = 1
 effects = Array[ExtResource("2_v1xp8")]([ExtResource("3_mtgj2"), ExtResource("4_2sxsc")])
+animation_set = ExtResource("1_v1xp8")

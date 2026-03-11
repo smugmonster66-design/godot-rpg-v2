@@ -1,10 +1,10 @@
 [gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://lfewhwpmvcyu"]
 
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_orahk"]
+[ext_resource type="Resource" uid="uid://cl2aqobrvgqk5" path="res://resources/animations/baseline animations/elemental anisets/shadow/base_shadow_aniset.tres" id="1_te7x2"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_te7x2"]
 [ext_resource type="Resource" uid="uid://bfv6gqfqh6vj7" path="res://resources/actions/items/region_1/effects/shadow_staff_damage_effect.tres" id="3_5xmdh"]
 [ext_resource type="Resource" uid="uid://cg8q6ygg7sb7i" path="res://resources/actions/items/region_1/effects/shadow_staff_lifesteal_effect.tres" id="4_v3f7c"]
-[ext_resource type="Resource" uid="uid://dfxm8bnwxl7uh" path="res://resources/actions/items/region_1/effects/shadow_staff_execute_effect.tres" id="5_e8410"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_cnlui"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_n5kib"]
 
@@ -15,4 +15,5 @@ action_name = "Shadow Bolt"
 action_description = "Heals for 25% of damage. 1.5x damage to targets <20% HP."
 die_slots = 2
 min_dice_required = 1
-effects = Array[ExtResource("2_te7x2")]([ExtResource("3_5xmdh"), ExtResource("4_v3f7c"), ExtResource("5_e8410")])
+effects = Array[ExtResource("2_te7x2")]([ExtResource("3_5xmdh"), ExtResource("4_v3f7c")])
+animation_set = ExtResource("1_te7x2")

@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://cbtal54g3lfd1"]
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://cbtal54g3lfd1"]
 
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_1wubd"]
+[ext_resource type="Resource" uid="uid://cv80sowk2cnj7" path="res://resources/animations/baseline animations/elemental anisets/ice/base_ice_aniset.tres" id="1_iy7lp"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_iy7lp"]
 [ext_resource type="Resource" uid="uid://bq6ws0vwcr6iw" path="res://resources/actions/items/region_1/effects/frost_wand_damage_effect.tres" id="3_qbg5y"]
 [ext_resource type="Resource" uid="uid://ccfs26p1aecj5" path="res://resources/actions/items/region_1/effects/frost_wand_chill_effect.tres" id="4_hns2q"]
@@ -15,3 +16,4 @@ action_name = "Ice Shard"
 action_description = "Applies 2 Chill. Restores 1 mana on use."
 min_dice_required = 1
 effects = Array[ExtResource("2_iy7lp")]([ExtResource("3_qbg5y"), ExtResource("4_hns2q"), ExtResource("5_70rq8")])
+animation_set = ExtResource("1_iy7lp")

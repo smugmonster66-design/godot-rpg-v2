@@ -221,6 +221,7 @@ static func status_ticked(target: Node, status_name: String, tick_damage: int, e
 	var evt = CombatEvent.new()
 	evt.type = Type.STATUS_TICKED
 	evt.target_node = target
+	evt.source_tag = status_name
 	evt.values = {
 		"status_name": status_name,
 		"tick_damage": tick_damage,

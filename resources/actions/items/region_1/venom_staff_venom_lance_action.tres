@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://1ahb8svt4h4y"]
+[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://1ahb8svt4h4y"]
 
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_fxfnp"]
+[ext_resource type="Resource" uid="uid://6mj8ow0748s3" path="res://resources/animations/baseline animations/elemental anisets/poison/base_poison_aniset.tres" id="1_ksmcg"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_ksmcg"]
 [ext_resource type="Resource" uid="uid://cei5nonoyoq3a" path="res://resources/actions/items/region_1/effects/venom_staff_damage_effect.tres" id="3_8gxq2"]
 [ext_resource type="Resource" uid="uid://cfs1ss7v3vvsh" path="res://resources/actions/items/region_1/effects/venom_staff_poison_effect.tres" id="4_lale5"]
@@ -15,3 +16,4 @@ action_description = "Applies 4 Poison."
 die_slots = 2
 min_dice_required = 1
 effects = Array[ExtResource("2_ksmcg")]([ExtResource("3_8gxq2"), ExtResource("4_lale5")])
+animation_set = ExtResource("1_ksmcg")

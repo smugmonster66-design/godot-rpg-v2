@@ -1,0 +1,70 @@
+[gd_scene load_steps=13 format=3 uid="uid://dopy0hm4iiy47"]
+
+[ext_resource type="Script" uid="uid://c1pmu5cw4o18f" path="res://scripts/effects/particle_effect.gd" id="1_pe"]
+[ext_resource type="Script" uid="uid://cujo3211m8dkn" path="res://addons/BurstParticles2D/BurstParticleGroup2D.gd" id="2_bpg"]
+[ext_resource type="Script" uid="uid://djwtqk0v2ks2d" path="res://addons/BurstParticles2D/BurstParticles2D.gd" id="3_bp"]
+[ext_resource type="Texture2D" uid="uid://pbeb0ajd4i4u" path="res://assets/particles/512x/flare_01_a.png" id="4_flare"]
+[ext_resource type="Texture2D" uid="uid://b6giybdwtrkqt" path="res://assets/particles/Complex/flare/flare_25.png" id="5_cvocx"]
+
+[sub_resource type="Gradient" id="Gradient_flare"]
+offsets = PackedFloat32Array(0, 0.15, 0.55, 1)
+colors = PackedColorArray(0.95, 0.95, 0.88, 0, 1, 1, 0.96, 0.85, 0.88, 0.85, 0.72, 0.45, 0.6, 0.58, 0.45, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_flare"]
+gradient = SubResource("Gradient_flare")
+
+[sub_resource type="Curve" id="Curve_scale_flare"]
+_limits = [0.0, 2.5, 0.0, 1.0]
+_data = [Vector2(0, 0.08), 0.0, 8.0, 0, 0, Vector2(0.35, 0.85), 0.0, 0.0, 0, 0, Vector2(1, 0.35), -1.8, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_sparks"]
+offsets = PackedFloat32Array(0, 0.25, 0.65, 1)
+colors = PackedColorArray(0.98, 0.98, 0.92, 1, 0.88, 0.85, 0.72, 0.85, 0.65, 0.62, 0.5, 0.4, 0.3, 0.28, 0.22, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_sparks"]
+gradient = SubResource("Gradient_sparks")
+
+[sub_resource type="Curve" id="Curve_dist_sparks"]
+_data = [Vector2(0, 0), 0.0, 6.0, 0, 0, Vector2(0.3, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_alpha_sparks"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.55, 1), 0.0, -4.5, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[node name="ParticleEffect" type="Node2D"]
+script = ExtResource("1_pe")
+duration = 0.28
+
+[node name="BurstParticles2D" type="Node2D" parent="."]
+script = ExtResource("2_bpg")
+
+[node name="WindupFlare" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.28
+repeat = true
+texture = ExtResource("4_flare")
+image_scale = 0.4
+gradient = SubResource("GradientTexture1D_flare")
+blend_mode = 1
+direction_rotation_randomness = 1.0
+distance = 0.0
+scale_curve = SubResource("Curve_scale_flare")
+
+[node name="KineticSparks" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 6
+lifetime = 0.22
+lifetime_randomness = 0.3
+repeat = true
+texture = ExtResource("5_cvocx")
+image_scale = 0.06
+image_scale_randomness = 0.4
+gradient = SubResource("GradientTexture1D_sparks")
+direction_rotation_randomness = 1.0
+distance = 55.0
+distance_randomness = 0.45
+distance_curve = SubResource("Curve_dist_sparks")
+alpha_curve = SubResource("Curve_alpha_sparks")

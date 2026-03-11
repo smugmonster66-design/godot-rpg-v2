@@ -1,0 +1,101 @@
+[gd_scene load_steps=17 format=3 uid="uid://c0cqge4rngka8"]
+
+[ext_resource type="Script" uid="uid://c1pmu5cw4o18f" path="res://scripts/effects/particle_effect.gd" id="1_pe"]
+[ext_resource type="Script" uid="uid://cujo3211m8dkn" path="res://addons/BurstParticles2D/BurstParticleGroup2D.gd" id="2_bpg"]
+[ext_resource type="Script" uid="uid://djwtqk0v2ks2d" path="res://addons/BurstParticles2D/BurstParticles2D.gd" id="3_bp"]
+[ext_resource type="Texture2D" uid="uid://bsqesem558yui" path="res://assets/particles/Complex/flare/flare_3.png" id="4_flare"]
+[ext_resource type="Texture2D" uid="uid://cf6bymehp0tvk" path="res://assets/particles/Complex/smoke/smoke_1.png" id="5_smoke"]
+[ext_resource type="Texture2D" uid="uid://diyj15tmkr2mt" path="res://assets/particles/512x/dirt_01_a.png" id="6_dirt"]
+
+[sub_resource type="Gradient" id="Gradient_glow"]
+offsets = PackedFloat32Array(0, 0.35, 0.65, 1)
+colors = PackedColorArray(0.85, 0.82, 0.75, 0, 0.95, 0.92, 0.84, 0.75, 0.8, 0.77, 0.68, 0.55, 0.45, 0.43, 0.38, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_glow"]
+gradient = SubResource("Gradient_glow")
+
+[sub_resource type="Curve" id="Curve_scale_glow"]
+_limits = [0.0, 2.8, 0.0, 1.0]
+_data = [Vector2(0, 0.12), 0.0, 2.0, 0, 0, Vector2(0.55, 0.9), 0.0, 0.0, 0, 0, Vector2(1, 0.28), -2.2, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_air"]
+offsets = PackedFloat32Array(0, 0.3, 0.7, 1)
+colors = PackedColorArray(0.65, 0.62, 0.55, 0, 0.62, 0.58, 0.52, 0.38, 0.48, 0.45, 0.4, 0.2, 0.28, 0.26, 0.23, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_air"]
+gradient = SubResource("Gradient_air")
+
+[sub_resource type="Curve" id="Curve_offset_air"]
+_data = [Vector2(0, 0), 0.0, 0.0, 1, 1, Vector2(1, 1), 0.0, 0.0, 1, 1]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_debris"]
+offsets = PackedFloat32Array(0, 0.3, 0.7, 1)
+colors = PackedColorArray(0.62, 0.48, 0.3, 0.9, 0.52, 0.4, 0.24, 0.75, 0.38, 0.29, 0.17, 0.35, 0.18, 0.14, 0.08, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_debris"]
+gradient = SubResource("Gradient_debris")
+
+[sub_resource type="Curve" id="Curve_dist_debris"]
+_data = [Vector2(0, 0), 0.0, 6.0, 0, 0, Vector2(0.3, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_alpha_debris"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.6, 1), 0.0, -4.5, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[node name="ParticleEffect" type="Node2D"]
+scale = Vector2(2, 2)
+script = ExtResource("1_pe")
+duration = 0.42
+
+[node name="BurstParticles2D" type="Node2D" parent="."]
+script = ExtResource("2_bpg")
+
+[node name="MassGlow" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.38
+repeat = true
+texture = ExtResource("4_flare")
+image_scale = 0.5
+gradient = SubResource("GradientTexture1D_glow")
+blend_mode = 1
+direction_rotation_randomness = 1.0
+distance = 0.0
+scale_curve = SubResource("Curve_scale_glow")
+
+[node name="AirDisturb" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 4
+lifetime = 0.42
+lifetime_randomness = 0.45
+repeat = true
+texture = ExtResource("5_smoke")
+image_scale = 0.2
+image_scale_randomness = 0.5
+gradient = SubResource("GradientTexture1D_air")
+direction_rotation_randomness = 1.0
+distance = 30.0
+distance_randomness = 0.6
+offset = Vector2(0, -45)
+offset_curve = SubResource("Curve_offset_air")
+
+[node name="GroundDebris" type="Node2D" parent="BurstParticles2D"]
+visible = false
+rotation = 1.5707964
+script = ExtResource("3_bp")
+num_particles = 5
+lifetime = 0.28
+lifetime_randomness = 0.3
+repeat = true
+texture = ExtResource("6_dirt")
+image_scale = 0.1
+image_scale_randomness = 0.45
+gradient = SubResource("GradientTexture1D_debris")
+direction_rotation_randomness = 0.2
+distance = 45.0
+distance_randomness = 0.5
+distance_curve = SubResource("Curve_dist_debris")
+alpha_curve = SubResource("Curve_alpha_debris")

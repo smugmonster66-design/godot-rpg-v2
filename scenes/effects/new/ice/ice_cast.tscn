@@ -1,0 +1,96 @@
+[gd_scene load_steps=16 format=3 uid="uid://bvifrl55xxuer"]
+
+[ext_resource type="Script" uid="uid://c1pmu5cw4o18f" path="res://scripts/effects/particle_effect.gd" id="1_pe"]
+[ext_resource type="Script" uid="uid://cujo3211m8dkn" path="res://addons/BurstParticles2D/BurstParticleGroup2D.gd" id="2_bpg"]
+[ext_resource type="Script" uid="uid://djwtqk0v2ks2d" path="res://addons/BurstParticles2D/BurstParticles2D.gd" id="3_bp"]
+[ext_resource type="Texture2D" uid="uid://ccdslmwedhkwk" path="res://assets/particles/Basic/ding shapes/d-snowflake.png" id="4_flake"]
+[ext_resource type="Texture2D" uid="uid://bg7rjxmh4qrda" path="res://assets/particles/512x/light_01_a.png" id="6_light"]
+
+[sub_resource type="Gradient" id="Gradient_flake"]
+offsets = PackedFloat32Array(0, 0.15, 0.65, 0.9, 1)
+colors = PackedColorArray(0.85, 0.95, 1, 0, 0.9, 0.97, 1, 1, 0.7, 0.85, 0.95, 1, 0.4, 0.7, 0.9, 0.8, 0.15, 0.3, 0.5, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_flake"]
+gradient = SubResource("Gradient_flake")
+
+[sub_resource type="Curve" id="Curve_scale_flake"]
+_limits = [0.0, 2.0, 0.0, 1.0]
+_data = [Vector2(0, 0), 0.0, 8.0, 0, 0, Vector2(0.2, 1), 0.0, 0.0, 0, 0, Vector2(0.75, 0.95), 0.0, -6.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="Gradient" id="Gradient_formation"]
+offsets = PackedFloat32Array(0, 0.1, 0.55, 1)
+colors = PackedColorArray(0.9, 0.97, 1, 0, 0.9, 0.97, 1, 0.9, 0.7, 0.85, 0.95, 0.7, 0.15, 0.3, 0.5, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_formation"]
+gradient = SubResource("Gradient_formation")
+
+[sub_resource type="Curve" id="Curve_dist_formation"]
+_data = [Vector2(0, 0), 0.0, 8.0, 0, 0, Vector2(0.25, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_scale_formation"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.6, 0.9), 0.0, -2.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_flash"]
+offsets = PackedFloat32Array(0, 0.15, 1)
+colors = PackedColorArray(0.85, 0.95, 1, 0, 0.9, 0.97, 1, 1, 0.4, 0.7, 0.9, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_flash"]
+gradient = SubResource("Gradient_flash")
+
+[sub_resource type="Curve" id="Curve_scale_flash"]
+_limits = [0.0, 4.0, 0.0, 1.0]
+_data = [Vector2(0, 0.05), 0.0, 8.0, 0, 0, Vector2(1, 0.6), 0.0, 0.0, 1, 1]
+point_count = 2
+
+[node name="ParticleEffect" type="Node2D"]
+script = ExtResource("1_pe")
+duration = 0.7
+
+[node name="BurstParticles2D" type="Node2D" parent="."]
+script = ExtResource("2_bpg")
+
+[node name="SnowflakeForm" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.7
+repeat = true
+texture = ExtResource("4_flake")
+image_scale = 0.4
+gradient = SubResource("GradientTexture1D_flake")
+distance = 0.0
+spread_degrees = 0.0
+scale_curve = SubResource("Curve_scale_flake")
+
+[node name="CrystalFormation" type="Node2D" parent="BurstParticles2D"]
+visible = false
+script = ExtResource("3_bp")
+num_particles = 8
+lifetime = 0.65
+lifetime_randomness = 0.15
+repeat = true
+texture = ExtResource("4_flake")
+image_scale = 0.2
+image_scale_randomness = 0.2
+gradient = SubResource("GradientTexture1D_formation")
+blend_mode = 1
+direction_rotation_randomness = 1.0
+distance = 50.0
+distance_randomness = 0.2
+distance_curve = SubResource("Curve_dist_formation")
+scale_curve = SubResource("Curve_scale_formation")
+
+[node name="LaunchFlash" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.15
+repeat = true
+texture = ExtResource("6_light")
+image_scale = 0.3
+gradient = SubResource("GradientTexture1D_flash")
+blend_mode = 1
+distance = 0.0
+spread_degrees = 0.0
+scale_curve = SubResource("Curve_scale_flash")

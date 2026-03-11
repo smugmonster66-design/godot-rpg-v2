@@ -22,6 +22,8 @@ var companion_panel: CompanionPanel = null
 var enemy_threat_trackers: Array = []  # Array of ThreatTracker instances
 var _victory_pending: bool = false
 var _pending_summon_data: CompanionData = null
+var _pending_chain_hops: Array[Dictionary] = []
+var _chain_hops_running: bool = false
 var debug_panel: CombatDebugPanel = null
 # ============================================================================
 # STATE
@@ -232,7 +234,7 @@ func _execute_action(action_data: Dictionary, source: Node2D, targets: Array[Com
 		_apply_action_effect(action_data, s, live_targets)
 	
 	animation_player.apply_effect_now.connect(apply_effect_callable, CONNECT_ONE_SHOT)
-	
+
 	await animation_player.play_action_animation(
 		animation_set,
 		source_pos,
@@ -240,6 +242,113 @@ func _execute_action(action_data: Dictionary, source: Node2D, targets: Array[Com
 		target_nodes
 	)
 
+	# ── Animated chain hops ──
+	# Both ActionEffect.CHAIN and DiceAffix chain events push to _pending_chain_hops
+	# during the effect application above. Now that the primary animation is done,
+	# drain and play them sequentially.
+	if not _pending_chain_hops.is_empty():
+		var primary = targets[0] if targets.size() > 0 else null
+		await _execute_pending_chain_hops(primary)
+
+func _run_chain_hops_async(primary_target) -> void:
+	"""Fire-and-forget wrapper so chain hops run concurrently with impact animation."""
+	_chain_hops_running = true
+	await _execute_pending_chain_hops(primary_target)
+	_chain_hops_running = false
+
+
+func _execute_pending_chain_hops(primary_target) -> void:
+	"""Drain _pending_chain_hops and animate each group sequentially.
+	Called from _execute_action() after play_action_animation() awaits."""
+	var hops_to_run: Array[Dictionary] = _pending_chain_hops.duplicate()
+	_pending_chain_hops.clear()
+
+	for group in hops_to_run:
+		await _execute_chain_hop_group(group)
+
+
+func _execute_chain_hop_group(group: Dictionary) -> void:
+	"""Animate and apply damage for one group of chain hops.
+	Travels from start_node → target[0] → target[1] → ... with optional
+	travel projectile and impact burst at each landing.
+
+	group keys:
+	  start_node       : Node2D — where the first hop originates (primary target)
+	  targets          : Array[Combatant] — ordered hop targets
+	  damages          : Array[int] — damage per hop (pre-calculated)
+	  chain_animation  : ChainAnimationConfig or null
+	  element          : String or int (for logging)
+	"""
+	var targets: Array = group.get("targets", [])
+	var damages: Array = group.get("damages", [])
+	var anim_config: ChainAnimationConfig = group.get("chain_animation", null)
+	var element = group.get("element", "")
+	var start_node = group.get("start_node")
+
+	var start_idx = enemy_combatants.find(start_node) if start_node else -1
+	var from_pos: Vector2
+	if start_idx >= 0:
+		from_pos = _get_enemy_portrait_position(start_idx)
+	elif start_node and is_instance_valid(start_node):
+		from_pos = start_node.global_position
+	else:
+		from_pos = Vector2.ZERO
+
+	var effects_layer = animation_player.effects_layer if animation_player else null
+
+	for i in range(mini(targets.size(), damages.size())):
+		var ct: Combatant = targets[i]
+		var dmg: int = damages[i]
+
+		if not is_instance_valid(ct) or not ct.is_alive():
+			continue
+
+		var enemy_idx = enemy_combatants.find(ct)
+		var to_pos: Vector2 = _get_enemy_portrait_position(enemy_idx) \
+			if enemy_idx >= 0 else ct.global_position
+
+		# ── Travel projectile (arc from previous position to this target) ──
+		if anim_config and anim_config.travel_effect and effects_layer:
+			var projectile = anim_config.travel_effect.instantiate()
+			effects_layer.add_child(projectile)
+			projectile.global_position = from_pos
+			if projectile.has_method("setup"):
+				projectile.setup(from_pos, to_pos, anim_config.travel_duration, null)
+			if projectile.has_method("play"):
+				projectile.play()
+			if projectile.has_signal("reached_target"):
+				await projectile.reached_target
+			else:
+				await get_tree().create_timer(anim_config.travel_duration).timeout
+		elif anim_config:
+			# Config exists but no travel scene — brief pause for timing feel
+			await get_tree().create_timer(anim_config.travel_duration).timeout
+
+		# ── Apply damage ──
+		ct.take_damage(dmg)
+		var idx = enemy_combatants.find(ct)
+		print("    ⚡ Chain hop %d: %d %s → %s" % [i + 1, dmg, str(element), ct.combatant_name])
+		if event_bus:
+			var v = _get_combatant_visual(ct)
+			if v:
+				event_bus.emit_damage_dealt(v, dmg, str(element), false)
+		if idx >= 0:
+			_update_enemy_health(idx)
+			_check_enemy_death(ct)
+
+		# ── Impact burst (fire-and-forget — does not block next hop) ──
+		if anim_config and anim_config.impact_effect and effects_layer:
+			var impact = anim_config.impact_effect.instantiate()
+			effects_layer.add_child(impact)
+			impact.global_position = to_pos
+			if impact.has_method("play"):
+				impact.play()
+
+		# ── Optional gap between hops ──
+		if anim_config and anim_config.hop_delay > 0.0:
+			await get_tree().create_timer(anim_config.hop_delay).timeout
+
+		from_pos = to_pos
 
 # ============================================================================
 # ENCOUNTER SPAWNING
@@ -1028,6 +1137,9 @@ func _play_action_with_animation(action_data: Dictionary, targets: Array, target
 			if t and is_instance_valid(t):
 				live_targets.append(t)
 		_apply_action_effect(action_data, p, live_targets)
+		# Start chain hops concurrently with the impact animation
+		if not _pending_chain_hops.is_empty():
+			_run_chain_hops_async(live_targets[0] if live_targets.size() > 0 else null)
 	
 	if anim_player.has_signal("apply_effect_now"):
 		if not anim_player.apply_effect_now.is_connected(apply_effect_callback):
@@ -1050,12 +1162,19 @@ func _play_action_with_animation(action_data: Dictionary, targets: Array, target
 				if t and is_instance_valid(t):
 					live_targets.append(t)
 			_apply_action_effect(action_data, p, live_targets)
-	
+			if not _pending_chain_hops.is_empty():
+				_run_chain_hops_async(live_targets[0] if live_targets.size() > 0 else null)
+
+	# ── Await chain hops (started concurrently at impact) ──
+	while _chain_hops_running:
+		await get_tree().process_frame
+
 	# Notify UI that action animation is complete (so it can collapse expanded field)
 	if combat_ui and combat_ui.has_method("on_action_animation_complete"):
 		await combat_ui.on_action_animation_complete()
-	
+
 	combat_state = CombatState.PLAYER_TURN
+
 
 
 func _play_enemy_action_with_animation(action_data: Dictionary, enemy: Combatant,
@@ -1143,6 +1262,9 @@ func _play_enemy_action_with_animation(action_data: Dictionary, enemy: Combatant
 			if t and is_instance_valid(t):
 				live_targets.append(t)
 		_apply_action_effect(action_data, e, live_targets)
+		# Start chain hops concurrently with the impact animation
+		if not _pending_chain_hops.is_empty():
+			_run_chain_hops_async(live_targets[0] if live_targets.size() > 0 else null)
 	
 	if anim_player.has_signal("apply_effect_now"):
 		if not anim_player.apply_effect_now.is_connected(apply_effect_callback):
@@ -1166,6 +1288,12 @@ func _play_enemy_action_with_animation(action_data: Dictionary, enemy: Combatant
 				if t and is_instance_valid(t):
 					live_targets.append(t)
 			_apply_action_effect(action_data, e, live_targets)
+			if not _pending_chain_hops.is_empty():
+				_run_chain_hops_async(live_targets[0] if live_targets.size() > 0 else null)
+
+	# ── Await chain hops (started concurrently at impact) ──
+	while _chain_hops_running:
+		await get_tree().process_frame
 
 
 func _get_player_portrait_position() -> Vector2:
@@ -1909,45 +2037,57 @@ func _resolve_splash(event: Dictionary, primary_target) -> void:
 		var idx = enemy_combatants.find(target)
 		print("    💥 Splash: %d %s damage to %s" % [
 			splash_damage, event.get("element", ""), target.combatant_name])
+		if event_bus:
+			var v = _get_combatant_visual(target)
+			if v:
+				event_bus.emit_damage_dealt(v, splash_damage, event.get("element", ""), false)
 		if idx >= 0:
 			_update_enemy_health(idx)
 			_check_enemy_death(target)
 
 func _resolve_chain(event: Dictionary, primary_target) -> void:
-	"""Chain damage to N additional targets with decay multiplier."""
+	"""Queue chain hops from a dice affix chain event.
+	Damage and animation are deferred to _execute_pending_chain_hops(),
+	which fires after the primary action animation completes."""
 	var base_damage = int(event.get("damage", 0))
-	var chains = event.get("chains", 2)
+	var chains = int(event.get("chains", 2))
 	var decay = event.get("decay", 0.7)
-	
+
 	if base_damage <= 0:
 		return
-	
-	# Build target list: all living enemies except primary
+
+	# Build ordered target list and pre-calculate decayed damages
 	var eligible: Array[Combatant] = []
 	for enemy in enemy_combatants:
 		if enemy.is_alive() and enemy != primary_target:
 			eligible.append(enemy)
-	
+
+	var hop_targets: Array[Combatant] = []
+	var hop_damages: Array[int] = []
 	var current_damage = float(base_damage)
-	var chain_count = 0
-	
+
 	for target in eligible:
-		if chain_count >= chains:
+		if hop_targets.size() >= chains:
 			break
-		
 		current_damage *= decay
-		var chain_dmg = int(current_damage)
-		if chain_dmg <= 0:
+		var dmg = int(current_damage)
+		if dmg <= 0:
 			break
-		
-		target.take_damage(chain_dmg)
-		chain_count += 1
-		var idx = enemy_combatants.find(target)
-		print("    ⚡ Chain %d: %d %s damage to %s" % [
-			chain_count, chain_dmg, event.get("element", ""), target.combatant_name])
-		if idx >= 0:
-			_update_enemy_health(idx)
-			_check_enemy_death(target)
+		hop_targets.append(target)
+		hop_damages.append(dmg)
+
+	if hop_targets.is_empty():
+		return
+
+	_pending_chain_hops.append({
+		"start_node": primary_target,
+		"targets": hop_targets,
+		"damages": hop_damages,
+		"chain_animation": event.get("chain_animation", null),
+		"element": event.get("element", ""),
+	})
+	print("    ⚡ Chain queued (dice affix): %d hops, base %d" % [
+		hop_targets.size(), base_damage])
 
 func _resolve_aoe(event: Dictionary) -> void:
 	"""AoE damage to all living enemies."""
@@ -2074,6 +2214,10 @@ func _on_status_threshold_enemy(status_id: String, event_data: Dictionary,
 					enemy_index, damage,
 					"magical" if is_magical else "physical",
 					event_data.get("status_name", status_id)])
+				if event_bus:
+					var v = _get_combatant_visual(target)
+					if v:
+						event_bus.emit_damage_dealt(v, damage, "", false)
 				
 				if not target.is_alive():
 					_check_enemy_death(target)
@@ -2157,6 +2301,7 @@ func _apply_status_tick_results(player_ref, combatant: Combatant,
 			if visual:
 				if damage > 0:
 					event_bus.emit_status_ticked(visual, status_name, damage, result.get("element", ""))
+					event_bus.emit_damage_dealt(visual, damage, result.get("element", ""), false)
 				if heal > 0:
 					event_bus.emit_heal_applied(visual, heal)
 		
@@ -2364,17 +2509,29 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 							_update_and_check_target(st)
 
 			ActionEffect.EffectType.CHAIN:
-				var multipliers: Array = result.get("chain_multipliers", [])
+				var primary_dmg: int = result.get("primary_damage", result.get("damage", 0))
+				var chain_multipliers: Array = result.get("chain_multipliers", [])
 				var target_node = result.get("target")
-				var chain_tgts = _get_chain_targets(
-					target_node, result.get("chain_can_repeat", false))
-				for i in range(mini(multipliers.size(), chain_tgts.size())):
-					var ct = chain_tgts[i]
-					var chain_dmg: int = int(last_primary_damage * multipliers[i])
-					if chain_dmg > 0 and ct.is_alive() and ct.has_method("take_damage"):
-						ct.take_damage(chain_dmg)
-						print("  ⚡ Chain %d: %d → %s" % [i + 1, chain_dmg, ct.combatant_name])
-						_update_and_check_target(ct)
+
+				if primary_dmg > 0 and target_node and target_node.has_method("take_damage"):
+					target_node.take_damage(primary_dmg)
+					_update_and_check_target(target_node)
+
+				var chain_tgts = _get_chain_targets(target_node, result.get("chain_can_repeat", false))
+				var hop_count = mini(chain_multipliers.size(), chain_tgts.size())
+				if hop_count > 0:
+					var hop_damages: Array[int] = []
+					for i in range(hop_count):
+						hop_damages.append(maxi(1, int(primary_dmg * chain_multipliers[i])))
+					_pending_chain_hops.append({
+						"start_node": target_node,
+						"targets": chain_tgts.slice(0, hop_count),
+						"damages": hop_damages,
+						"chain_animation": result.get("chain_animation", null),
+						"element": result.get("damage_type", -1),
+					})
+					print("  ⚡ Chain queued: %d hops from %s" % [hop_count,
+						target_node.combatant_name if target_node else "?"])
 
 			ActionEffect.EffectType.RANDOM_STRIKES:
 				var strike_damages: Array = result.get("strike_damages", [])
@@ -3219,14 +3376,22 @@ func _get_splash_targets(primary_target, splash_all: bool) -> Array:
 	return targets
 
 func _get_chain_targets(primary_target, can_repeat: bool) -> Array:
-	var targets: Array = []
+	var others: Array = []
 	for e in enemy_combatants:
 		if e.is_alive() and e != primary_target:
-			targets.append(e)
-	if can_repeat and targets.size() > 0:
-		var base = targets.duplicate()
-		while targets.size() < 10:
-			targets.append_array(base)
+			others.append(e)
+	if not can_repeat:
+		return others
+	# Build a bounce pool from living targets only — primary included if alive
+	var pool: Array = []
+	if primary_target and is_instance_valid(primary_target) and primary_target.is_alive():
+		pool.append(primary_target)
+	pool.append_array(others)
+	if pool.is_empty():
+		return []
+	var targets: Array = []
+	while targets.size() < 10:
+		targets.append_array(pool)
 	return targets
 
 func _update_and_check_target(target) -> void:

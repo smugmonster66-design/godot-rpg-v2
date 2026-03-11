@@ -145,6 +145,13 @@ func _play_travel(anim_set: CombatAnimationSet, from: Vector2, targets: Array[Ve
 		_add_effect(projectile, from)
 		projectile.scale *= anim_set.travel_scale
 		
+		print("🔍 PROJECTILE: class=%s script=%s has_setup=%s" % [
+			projectile.get_class(),
+			projectile.get_script(),
+			projectile.has_method("setup")
+		])
+		
+		
 		if projectile.has_method("setup"):
 			projectile.setup(from, target_pos, anim_set.travel_duration, anim_set.travel_curve)
 		
@@ -188,8 +195,16 @@ func _play_impact(anim_set: CombatAnimationSet, positions: Array[Vector2], nodes
 			if effect is ShaderEffect and i < nodes.size():
 				effect.setup(nodes[i])
 		
+		# Impact effects always draw above travel/cast effects
+		if effect and effect is Node2D:
+			effect.z_index = 10
+		
 		if not effect:
 			continue
+		
+		# Impact effects always draw above travel/cast effects
+		if effect is Node2D:
+			effect.z_index = 10
 		
 		if anim_set.impact_sound:
 			_play_sound(anim_set.impact_sound, pos)
@@ -239,6 +254,7 @@ func _configure_effect(combat_effect: Variant, preset: Variant, source_pos: Vect
 		if combat_effect.has_method("configure_base"):
 			combat_effect.configure_base(preset, source_pos, target_pos)
 
+	
 
 func _await_effect_finished(effect: Node):
 	"""Await whichever completion signal the effect emits."""

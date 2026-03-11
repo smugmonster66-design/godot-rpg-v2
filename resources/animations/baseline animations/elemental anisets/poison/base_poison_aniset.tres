@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CombatAnimationSet" load_steps=5 format=3 uid="uid://6mj8ow0748s3"]
+
+[ext_resource type="Script" uid="uid://luoa1f4jirnk" path="res://resources/data/combat_animation_set.gd" id="1_dns0m"]
+[ext_resource type="PackedScene" uid="uid://8dawp24jibyk" path="res://scenes/effects/new/poison/poison_cast.tscn" id="1_ix3ts"]
+[ext_resource type="PackedScene" uid="uid://bfjjmwr4esyed" path="res://scenes/effects/new/ice/poison_projectile_new_effect.tscn" id="4_ix3ts"]
+[ext_resource type="PackedScene" uid="uid://c8cyar5wf8ik1" path="res://scenes/effects/new/poison/poison_impact.tscn" id="4_j2xxa"]
+
+[resource]
+script = ExtResource("1_dns0m")
+cast_effect = ExtResource("1_ix3ts")
+travel_effect = ExtResource("4_ix3ts")
+travel_duration = 0.2
+impact_effect = ExtResource("4_j2xxa")
+metadata/_custom_type_script = "uid://luoa1f4jirnk"

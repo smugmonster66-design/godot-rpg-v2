@@ -1,0 +1,137 @@
+[gd_scene load_steps=16 format=3]
+
+[ext_resource type="Script" uid="uid://c1pmu5cw4o18f" path="res://scripts/effects/particle_effect.gd" id="1_pe"]
+[ext_resource type="Script" path="res://addons/BurstParticles2D/BurstParticleGroup2D.gd" id="2_bpg"]
+[ext_resource type="Script" path="res://addons/BurstParticles2D/BurstParticles2D.gd" id="3_bp"]
+[ext_resource type="Texture2D" path="res://assets/particles/512x/light_02_a.png" id="4_light"]
+[ext_resource type="Texture2D" path="res://assets/particles/512x/circle_05_a.png" id="5_circle"]
+[ext_resource type="Texture2D" path="res://assets/particles/512x/smoke_07_a.png" id="6_smoke"]
+
+; Palette (Endesga-64):
+;   #1c121c = (0.11, 0.07, 0.11) near-black void
+;   #3b1443 = (0.23, 0.08, 0.26) deep purple-black
+;   #622461 = (0.38, 0.14, 0.38) dark magenta-purple
+;   #93388f = (0.58, 0.22, 0.56) lifted purple highlight
+;   #7a09fa = (0.48, 0.04, 0.98) electric purple accent
+
+; ── DarkWell ──────────────────────────────────────────────────────────────────
+; Single additive bloom at near-black — makes the area feel drained of light.
+; Slow swell peaking at 0.65, collapses inward. Single particle.
+[sub_resource type="Gradient" id="Gradient_well"]
+offsets = PackedFloat32Array(0.0, 0.3, 0.65, 1.0)
+colors = PackedColorArray(
+	0.23, 0.08, 0.26, 0.0,
+	0.38, 0.14, 0.38, 0.80,
+	0.58, 0.22, 0.56, 0.55,
+	0.23, 0.08, 0.26, 0.0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_well"]
+gradient = SubResource("Gradient_well")
+
+[sub_resource type="Curve" id="Curve_scale_well"]
+max_value = 3.2
+_data = [Vector2(0.0, 0.08), 0.0, 1.5, 0, 0, Vector2(0.65, 0.94), 0.0, 0.0, 0, 0, Vector2(1.0, 0.25), -2.5, 0.0, 0, 0]
+point_count = 3
+
+; ── ShadowMotes ───────────────────────────────────────────────────────────────
+; 6 motes drifting inward — achieved via very short distance + strong inward
+; offset so particles appear to converge on the cast point.
+; Normal blend — physical absence of light, not energy.
+[sub_resource type="Gradient" id="Gradient_motes"]
+offsets = PackedFloat32Array(0.0, 0.25, 0.7, 1.0)
+colors = PackedColorArray(
+	0.38, 0.14, 0.38, 0.0,
+	0.38, 0.14, 0.38, 0.65,
+	0.23, 0.08, 0.26, 0.35,
+	0.11, 0.07, 0.11, 0.0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_motes"]
+gradient = SubResource("Gradient_motes")
+
+; Offset curve: starts spread, converges to origin (inward pull effect).
+[sub_resource type="Curve" id="Curve_offset_motes"]
+_data = [Vector2(0.0, 1.0), 0.0, 0.0, 0, 0, Vector2(1.0, 0.0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+; ── VoidTendril ───────────────────────────────────────────────────────────────
+; 3 dark wisps barely moving — the air feeling wrong near the shadow source.
+; Very low opacity, slow upward creep, long lifetime.
+[sub_resource type="Gradient" id="Gradient_tendril"]
+offsets = PackedFloat32Array(0.0, 0.25, 0.7, 1.0)
+colors = PackedColorArray(
+	0.23, 0.08, 0.26, 0.0,
+	0.23, 0.08, 0.26, 0.40,
+	0.11, 0.07, 0.11, 0.20,
+	0.11, 0.07, 0.11, 0.0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_tendril"]
+gradient = SubResource("Gradient_tendril")
+
+[sub_resource type="Curve" id="Curve_scale_tendril"]
+_data = [Vector2(0.0, 0.2), 0.0, 2.5, 0, 0, Vector2(0.4, 1.0), 0.0, 0.0, 0, 0, Vector2(1.0, 0.1), -1.5, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_offset_tendril"]
+_data = [Vector2(0.0, 0.0), 0.0, 0.0, 1, 1, Vector2(1.0, 1.0), 0.0, 0.0, 1, 1]
+point_count = 2
+
+; ── Scene Root ────────────────────────────────────────────────────────────────
+; duration = VoidTendril lifetime (0.55s — longest layer)
+[node name="ParticleEffect" type="Node2D"]
+script = ExtResource("1_pe")
+one_shot = true
+duration = 0.55
+
+[node name="BurstParticles2D" type="Node2D" parent="."]
+script = ExtResource("2_bpg")
+
+; Layer 1: DarkWell — darkness pooling at the cast point
+[node name="DarkWell" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.48
+lifetime_randomness = 0.0
+texture = ExtResource("4_light")
+image_scale = 0.88
+image_scale_randomness = 0.0
+gradient = SubResource("GradientTexture1D_well")
+blend_mode = 1
+direction_rotation_randomness = 1.0
+distance = 0.0
+distance_randomness = 0.0
+scale_curve = SubResource("Curve_scale_well")
+
+; Layer 2: ShadowMotes — motes converging inward toward cast point
+[node name="ShadowMotes" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 6
+lifetime = 0.42
+lifetime_randomness = 0.4
+texture = ExtResource("5_circle")
+image_scale = 0.22
+image_scale_randomness = 0.45
+gradient = SubResource("GradientTexture1D_motes")
+blend_mode = 0
+direction_rotation_randomness = 1.0
+distance = 90.0
+distance_randomness = 0.5
+offset = Vector2(0.0, 0.0)
+offset_curve = SubResource("Curve_offset_motes")
+
+; Layer 3: VoidTendril — dark wisps creeping upward, air feeling wrong
+[node name="VoidTendril" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 3
+lifetime = 0.55
+lifetime_randomness = 0.4
+texture = ExtResource("6_smoke")
+image_scale = 0.48
+image_scale_randomness = 0.5
+gradient = SubResource("GradientTexture1D_tendril")
+blend_mode = 0
+direction_rotation_randomness = 1.0
+distance = 35.0
+distance_randomness = 0.6
+scale_curve = SubResource("Curve_scale_tendril")
+offset = Vector2(0.0, -180.0)
+offset_curve = SubResource("Curve_offset_tendril")

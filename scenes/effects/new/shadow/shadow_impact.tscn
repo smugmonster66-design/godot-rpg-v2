@@ -1,0 +1,192 @@
+[gd_scene load_steps=22 format=3]
+
+[ext_resource type="Script" uid="uid://c1pmu5cw4o18f" path="res://scripts/effects/particle_effect.gd" id="1_pe"]
+[ext_resource type="Script" path="res://addons/BurstParticles2D/BurstParticleGroup2D.gd" id="2_bpg"]
+[ext_resource type="Script" path="res://addons/BurstParticles2D/BurstParticles2D.gd" id="3_bp"]
+[ext_resource type="Texture2D" path="res://assets/particles/512x/light_02_a.png" id="4_light"]
+[ext_resource type="Texture2D" path="res://assets/particles/512x/light_01_a.png" id="5_ring"]
+[ext_resource type="Texture2D" path="res://assets/particles/512x/circle_05_a.png" id="6_circle"]
+[ext_resource type="Texture2D" path="res://assets/particles/512x/smoke_07_a.png" id="7_smoke"]
+
+; Palette (Endesga-64):
+;   #1c121c = (0.11, 0.07, 0.11) near-black void
+;   #3b1443 = (0.23, 0.08, 0.26) deep purple-black
+;   #622461 = (0.38, 0.14, 0.38) dark magenta-purple
+;   #93388f = (0.58, 0.22, 0.56) lifted purple highlight
+
+; ── VoidFlash ─────────────────────────────────────────────────────────────────
+; Fast additive purple bloom — the void opening for an instant.
+; Smaller expansion than physical impacts (3.5×) — this is a puncture,
+; not a shockwave. 0.18s — blinks open then gone.
+[sub_resource type="Gradient" id="Gradient_flash"]
+offsets = PackedFloat32Array(0.0, 0.25, 1.0)
+colors = PackedColorArray(
+	0.58, 0.22, 0.56, 1.0,
+	0.38, 0.14, 0.38, 0.75,
+	0.23, 0.08, 0.26, 0.0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_flash"]
+gradient = SubResource("Gradient_flash")
+
+[sub_resource type="Curve" id="Curve_scale_flash"]
+max_value = 3.5
+_data = [Vector2(0.0, 0.08), 0.0, 2.5, 0, 0, Vector2(1.0, 0.875), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_alpha_flash"]
+_data = [Vector2(0.0, 1.0), 0.0, 0.0, 0, 0, Vector2(1.0, 0.0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+; ── VoidRing ──────────────────────────────────────────────────────────────────
+; Slow expanding ring — the edge of the void as it briefly opens.
+; Near-black, normal blend, max opacity 0.45.
+; Distinctly slower than VoidFlash (0.42s vs 0.18s) — the two read separately.
+[sub_resource type="Gradient" id="Gradient_ring"]
+offsets = PackedFloat32Array(0.0, 0.35, 1.0)
+colors = PackedColorArray(
+	0.23, 0.08, 0.26, 0.45,
+	0.11, 0.07, 0.11, 0.25,
+	0.11, 0.07, 0.11, 0.0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_ring"]
+gradient = SubResource("Gradient_ring")
+
+[sub_resource type="Curve" id="Curve_scale_ring"]
+max_value = 4.8
+_data = [Vector2(0.0, 0.08), 0.0, 1.5, 0, 0, Vector2(1.0, 0.875), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_alpha_ring"]
+_data = [Vector2(0.0, 1.0), 0.0, 0.0, 0, 0, Vector2(1.0, 0.0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+; ── ShadowScatter ─────────────────────────────────────────────────────────────
+; 10 fragments of darkness scattering from the impact point.
+; 360° fast-stop at 180px. Normal blend.
+; Mid → deep → near-black.
+[sub_resource type="Gradient" id="Gradient_scatter"]
+offsets = PackedFloat32Array(0.0, 0.3, 0.65, 1.0)
+colors = PackedColorArray(
+	0.58, 0.22, 0.56, 0.90,
+	0.38, 0.14, 0.38, 0.70,
+	0.23, 0.08, 0.26, 0.30,
+	0.11, 0.07, 0.11, 0.0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_scatter"]
+gradient = SubResource("Gradient_scatter")
+
+[sub_resource type="Curve" id="Curve_dist_scatter"]
+_data = [Vector2(0.0, 0.0), 0.0, 6.0, 0, 0, Vector2(0.3, 1.0), 0.0, 0.0, 0, 0, Vector2(1.0, 1.0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_alpha_scatter"]
+_data = [Vector2(0.0, 1.0), 0.0, 0.0, 0, 0, Vector2(0.55, 1.0), 0.0, -4.5, 0, 0, Vector2(1.0, 0.0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+; ── CrawlingTendrils ──────────────────────────────────────────────────────────
+; 5 shadow wisps crawling outward along the surface, not upward.
+; Achieved via node rotation_degrees=90 (horizontal spread) and very low
+; upward velocity — these hug the surface rather than rising.
+; Long lifetime (1.0s). Max opacity 0.5.
+; This is the lasting impression — shadow where the void touched.
+[sub_resource type="Gradient" id="Gradient_tendrils"]
+offsets = PackedFloat32Array(0.0, 0.2, 0.6, 1.0)
+colors = PackedColorArray(
+	0.23, 0.08, 0.26, 0.0,
+	0.23, 0.08, 0.26, 0.50,
+	0.11, 0.07, 0.11, 0.25,
+	0.11, 0.07, 0.11, 0.0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_tendrils"]
+gradient = SubResource("Gradient_tendrils")
+
+[sub_resource type="Curve" id="Curve_scale_tendrils"]
+_data = [Vector2(0.0, 0.2), 0.0, 2.5, 0, 0, Vector2(0.4, 1.0), 0.0, 0.0, 0, 0, Vector2(1.0, 0.1), -1.5, 0.0, 0, 0]
+point_count = 3
+
+; Outward crawl: starts at origin, drifts slowly out along surface.
+[sub_resource type="Curve" id="Curve_offset_tendrils"]
+_data = [Vector2(0.0, 0.0), 0.0, 0.0, 1, 1, Vector2(1.0, 1.0), 0.0, 0.0, 1, 1]
+point_count = 2
+
+; ── Scene Root ────────────────────────────────────────────────────────────────
+; duration = CrawlingTendrils lifetime (1.0s — longest layer)
+[node name="ParticleEffect" type="Node2D"]
+script = ExtResource("1_pe")
+one_shot = true
+duration = 1.0
+
+[node name="BurstParticles2D" type="Node2D" parent="."]
+script = ExtResource("2_bpg")
+
+; Layer 1: VoidFlash — the void puncturing open, fast purple blink
+[node name="VoidFlash" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.18
+lifetime_randomness = 0.0
+texture = ExtResource("4_light")
+image_scale = 0.82
+image_scale_randomness = 0.0
+gradient = SubResource("GradientTexture1D_flash")
+blend_mode = 1
+direction_rotation_randomness = 1.0
+distance = 0.0
+distance_randomness = 0.0
+scale_curve = SubResource("Curve_scale_flash")
+alpha_curve = SubResource("Curve_alpha_flash")
+
+; Layer 2: VoidRing — slow near-black pressure ring, the void's edge
+[node name="VoidRing" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.42
+lifetime_randomness = 0.0
+texture = ExtResource("5_ring")
+image_scale = 0.78
+image_scale_randomness = 0.0
+gradient = SubResource("GradientTexture1D_ring")
+blend_mode = 0
+direction_rotation_randomness = 1.0
+distance = 0.0
+distance_randomness = 0.0
+scale_curve = SubResource("Curve_scale_ring")
+alpha_curve = SubResource("Curve_alpha_ring")
+
+; Layer 3: ShadowScatter — fragments of darkness launching outward
+[node name="ShadowScatter" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 10
+lifetime = 0.38
+lifetime_randomness = 0.4
+texture = ExtResource("6_circle")
+image_scale = 0.22
+image_scale_randomness = 0.5
+gradient = SubResource("GradientTexture1D_scatter")
+blend_mode = 0
+direction_rotation_randomness = 1.0
+distance = 180.0
+distance_randomness = 0.45
+distance_curve = SubResource("Curve_dist_scatter")
+alpha_curve = SubResource("Curve_alpha_scatter")
+
+; Layer 4: CrawlingTendrils — shadow crawling outward along the surface.
+; rotation_degrees=0 (horizontal) + low vertical offset keeps them surface-level.
+; Long slow drift outward — the void leaving its mark.
+[node name="CrawlingTendrils" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 5
+lifetime = 1.0
+lifetime_randomness = 0.45
+texture = ExtResource("7_smoke")
+image_scale = 0.55
+image_scale_randomness = 0.45
+gradient = SubResource("GradientTexture1D_tendrils")
+blend_mode = 0
+direction_rotation_randomness = 0.6
+spread_degrees = 160.0
+distance = 120.0
+distance_randomness = 0.5
+scale_curve = SubResource("Curve_scale_tendrils")
+offset = Vector2(0.0, -30.0)
+offset_curve = SubResource("Curve_offset_tendrils")

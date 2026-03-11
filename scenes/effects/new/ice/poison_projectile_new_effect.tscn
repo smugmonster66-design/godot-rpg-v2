@@ -1,0 +1,117 @@
+[gd_scene load_steps=17 format=3 uid="uid://bfjjmwr4esyed"]
+
+[ext_resource type="Script" uid="uid://dhg3menrmqvi7" path="res://scripts/effects/projectile_effect.gd" id="1_rn77l"]
+[ext_resource type="Texture2D" uid="uid://bjljfvo3psynv" path="res://assets/particles/Complex/lines/lines_3.png" id="2_ej104"]
+[ext_resource type="Texture2D" uid="uid://ccdslmwedhkwk" path="res://assets/particles/Basic/ding shapes/d-snowflake.png" id="3_vlk1l"]
+[ext_resource type="Texture2D" uid="uid://c8suha7cl0hlo" path="res://assets/particles/Basic/spiral/spiral_27.png" id="4_vlk1l"]
+[ext_resource type="Texture2D" uid="uid://cf18cwxtvwhh8" path="res://assets/particles/512x/circle_04_a.png" id="5_a8oex"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pj2l8"]
+atlas = ExtResource("2_ej104")
+region = Rect2(0, 0, 512, 512)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_3wtjc"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pj2l8")
+}],
+"loop": true,
+"name": &"default",
+"speed": 12.0
+}]
+
+[sub_resource type="Gradient" id="Gradient_nlhed"]
+offsets = PackedFloat32Array(0, 0.06666667, 1)
+colors = PackedColorArray(0, 0, 0, 0, 1, 0.33003333, 0, 1, 1, 0.6553385, 0, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_ikowk"]
+gradient = SubResource("Gradient_nlhed")
+
+[sub_resource type="Curve" id="Curve_cyjpt"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_7scna"]
+curve = SubResource("Curve_cyjpt")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_2k06s"]
+particle_flag_disable_z = true
+emission_shape = 1
+emission_sphere_radius = 2.0
+direction = Vector3(0, -1, 0)
+spread = 10.0
+initial_velocity_min = 5.0
+initial_velocity_max = 10.0
+angular_velocity_min = 455.83
+angular_velocity_max = 455.83
+gravity = Vector3(0, -30, 0)
+damping_min = 5.0
+damping_max = 15.000001
+scale_min = 0.03
+scale_max = 0.06
+scale_curve = SubResource("CurveTexture_7scna")
+color_ramp = SubResource("GradientTexture1D_ikowk")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_y4t15"]
+particle_flag_disable_z = true
+spread = 0.0
+angular_velocity_min = 719.99994
+angular_velocity_max = 719.99994
+gravity = Vector3(0, 0, 0)
+scale_min = 0.29999998
+scale_max = 0.29999998
+color = Color(0.6, 0.902, 0.373, 1)
+
+[sub_resource type="Gradient" id="Gradient_8qefh"]
+offsets = PackedFloat32Array(0, 0.35, 1)
+colors = PackedColorArray(0.6, 0.9, 0.37, 0.85, 0.35, 0.77, 0.31, 0.55, 0.2, 0.6, 0.29, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_trail"]
+gradient = SubResource("Gradient_8qefh")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_nnxlt"]
+particle_flag_disable_z = true
+direction = Vector3(-1, 0, 0)
+spread = 23.776
+initial_velocity_min = 25.0
+initial_velocity_max = 70.0
+scale_min = 0.29999998
+scale_max = 0.39999998
+color_ramp = SubResource("GradientTexture1D_trail")
+
+[node name="ProjectileEffect" type="Node2D"]
+script = ExtResource("1_rn77l")
+ghost_count = 10
+ghost_color = Color(0.6, 0.902, 0.373, 1)
+ghost_source_node = NodePath("GPUParticles2D2")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+modulate = Color(0.6, 0.902, 0.373, 1)
+position = Vector2(-100, 0)
+rotation = -1.5707964
+sprite_frames = SubResource("SpriteFrames_3wtjc")
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="."]
+visible = false
+emitting = false
+amount = 45
+texture = ExtResource("3_vlk1l")
+lifetime = 0.3
+process_material = SubResource("ParticleProcessMaterial_2k06s")
+
+[node name="GPUParticles2D2" type="GPUParticles2D" parent="."]
+emitting = false
+amount = 1
+texture = ExtResource("4_vlk1l")
+lifetime = 0.5
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_y4t15")
+
+[node name="GPUParticles2D3" type="GPUParticles2D" parent="."]
+emitting = false
+amount = 10
+texture = ExtResource("5_a8oex")
+lifetime = 0.35
+randomness = 0.5
+process_material = SubResource("ParticleProcessMaterial_nnxlt")

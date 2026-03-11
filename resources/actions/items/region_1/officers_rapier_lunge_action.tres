@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://ch7t77sn76x28"]
+[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://ch7t77sn76x28"]
 
+[ext_resource type="Resource" uid="uid://cx8fw0em8d65a" path="res://resources/animations/baseline animations/elemental anisets/piercing/base_piercing_aniset.tres" id="1_ewq7q"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_idge7"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_ewq7q"]
 [ext_resource type="Resource" uid="uid://c7k83tfiwbyui" path="res://resources/actions/items/region_1/effects/officers_rapier_damage_effect.tres" id="3_8etc6"]
@@ -14,3 +15,4 @@ action_name = "Lunge"
 action_description = "Applies 2 marks. Follow-up hits consume marks for bonus damage."
 min_dice_required = 1
 effects = Array[ExtResource("2_ewq7q")]([ExtResource("3_8etc6"), ExtResource("4_kcimt")])
+animation_set = ExtResource("1_ewq7q")

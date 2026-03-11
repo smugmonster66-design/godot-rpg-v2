@@ -1,0 +1,136 @@
+[gd_scene load_steps=23 format=3 uid="uid://cv78otkrn4ta0"]
+
+[ext_resource type="Script" uid="uid://c1pmu5cw4o18f" path="res://scripts/effects/particle_effect.gd" id="1_pe"]
+[ext_resource type="Script" uid="uid://cujo3211m8dkn" path="res://addons/BurstParticles2D/BurstParticleGroup2D.gd" id="2_bpg"]
+[ext_resource type="Script" uid="uid://djwtqk0v2ks2d" path="res://addons/BurstParticles2D/BurstParticles2D.gd" id="3_bp"]
+[ext_resource type="Texture2D" uid="uid://62u5j0xyyym0" path="res://assets/particles/Complex/flare/flare_1.png" id="4_flare"]
+[ext_resource type="Texture2D" uid="uid://bk6v1aae6iway" path="res://assets/particles/Complex/muzzle flash/muzzle_flash_4.png" id="5_bqye0"]
+[ext_resource type="Texture2D" uid="uid://bjljfvo3psynv" path="res://assets/particles/Complex/lines/lines_3.png" id="6_lines"]
+[ext_resource type="Texture2D" uid="uid://cf6bymehp0tvk" path="res://assets/particles/Complex/smoke/smoke_1.png" id="7_smoke"]
+
+[sub_resource type="Gradient" id="Gradient_flash"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.78, 0.81, 0.87, 0.75, 0.26, 0.3, 0.43, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_flash"]
+gradient = SubResource("Gradient_flash")
+
+[sub_resource type="Curve" id="Curve_scale_flash"]
+_limits = [0.0, 2.5, 0.0, 1.0]
+_data = [Vector2(0, 0.1), 0.0, 2.5, 0, 0, Vector2(1, 0.875), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_alpha_flash"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_mark"]
+offsets = PackedFloat32Array(0, 0.3, 0.7, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.396, 0.451, 0.573, 1, 0.396, 0.451, 0.573, 1, 0.259, 0.298, 0.431, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_mark"]
+gradient = SubResource("Gradient_mark")
+
+[sub_resource type="Curve" id="Curve_bqye0"]
+_data = [Vector2(0, 0.007180214), 0.0, 0.0, 0, 0, Vector2(0.13268608, 1), 0.0, 0.0, 0, 0, Vector2(0.6504854, 0.7708876), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.228697, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="Gradient" id="Gradient_spray"]
+offsets = PackedFloat32Array(0, 0.2, 0.6, 1)
+colors = PackedColorArray(0.78, 0.81, 0.87, 1, 0.78, 0.81, 0.87, 0.85, 0.57, 0.63, 0.73, 0.4, 0.26, 0.3, 0.43, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_spray"]
+gradient = SubResource("Gradient_spray")
+
+[sub_resource type="Curve" id="Curve_dist_spray"]
+_data = [Vector2(0, 0), 0.0, 6.0, 0, 0, Vector2(0.3, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_alpha_spray"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.5, 1), 0.0, -4.5, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_wisps"]
+offsets = PackedFloat32Array(0, 0.25, 0.65, 1)
+colors = PackedColorArray(0.57, 0.63, 0.73, 0, 0.57, 0.63, 0.73, 0.3, 0.4, 0.45, 0.57, 0.15, 0.26, 0.3, 0.43, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_wisps"]
+gradient = SubResource("Gradient_wisps")
+
+[sub_resource type="Curve" id="Curve_offset_wisps"]
+_data = [Vector2(0, 0), 0.0, 0.0, 1, 1, Vector2(1, 1), 0.0, 0.0, 1, 1]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_scale_wisps"]
+_data = [Vector2(0, 0.4), 0.0, 2.0, 0, 0, Vector2(0.4, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.15), -1.2, 0.0, 0, 0]
+point_count = 3
+
+[node name="ParticleEffect" type="Node2D"]
+position = Vector2(0, 60)
+scale = Vector2(1.5, 1.5)
+script = ExtResource("1_pe")
+duration = 0.65
+
+[node name="BurstParticles2D" type="Node2D" parent="."]
+script = ExtResource("2_bpg")
+
+[node name="EntryFlash" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.15
+repeat = true
+texture = ExtResource("4_flare")
+image_scale = 0.75
+gradient = SubResource("GradientTexture1D_flash")
+blend_mode = 1
+distance = 0.0
+scale_curve = SubResource("Curve_scale_flash")
+alpha_curve = SubResource("Curve_alpha_flash")
+
+[node name="PunctureMark" type="Node2D" parent="BurstParticles2D"]
+position = Vector2(0, -60)
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.45
+repeat = true
+texture = ExtResource("5_bqye0")
+image_scale = 0.4
+gradient = SubResource("GradientTexture1D_mark")
+distance = 0.0
+align_sprite_rotation = false
+alpha_curve = SubResource("Curve_bqye0")
+
+[node name="Backspray" type="Node2D" parent="BurstParticles2D"]
+rotation = -1.5707964
+script = ExtResource("3_bp")
+num_particles = 8
+lifetime = 0.28
+lifetime_randomness = 0.25
+repeat = true
+texture = ExtResource("6_lines")
+image_scale = 0.3
+image_scale_randomness = 0.3
+gradient = SubResource("GradientTexture1D_spray")
+angle_degrees = -90.0
+distance_randomness = 0.4
+align_sprite_rotation = false
+spread_degrees = 30.0
+distance_curve = SubResource("Curve_dist_spray")
+alpha_curve = SubResource("Curve_alpha_spray")
+
+[node name="SeepingWisps" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 3
+lifetime = 0.65
+lifetime_randomness = 0.45
+repeat = true
+texture = ExtResource("7_smoke")
+image_scale = 0.2
+image_scale_randomness = 0.5
+gradient = SubResource("GradientTexture1D_wisps")
+direction_rotation_randomness = 1.0
+distance = 35.0
+distance_randomness = 0.6
+offset = Vector2(0, -180)
+offset_curve = SubResource("Curve_offset_wisps")
+scale_curve = SubResource("Curve_scale_wisps")

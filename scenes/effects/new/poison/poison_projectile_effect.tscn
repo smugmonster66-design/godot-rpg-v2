@@ -1,0 +1,62 @@
+[gd_scene load_steps=9 format=3 uid="uid://cus0rurqtnvvb"]
+
+[ext_resource type="Script" uid="uid://dhg3menrmqvi7" path="res://scripts/effects/projectile_effect.gd" id="1_proj"]
+[ext_resource type="Texture2D" uid="uid://l803qnfhqkfs" path="res://assets/particles/Complex/circle/rounded_1.png" id="2_lemkr"]
+[ext_resource type="Texture2D" uid="uid://cf18cwxtvwhh8" path="res://assets/particles/512x/circle_04_a.png" id="3_drip"]
+[ext_resource type="Texture2D" uid="uid://c8suha7cl0hlo" path="res://assets/particles/Basic/spiral/spiral_27.png" id="4_spiral"]
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_q5h0y"]
+particle_flag_disable_z = true
+spread = 0.0
+angular_velocity_min = 719.99994
+angular_velocity_max = 719.99994
+gravity = Vector3(0, 0, 0)
+scale_min = 0.29999998
+scale_max = 0.29999998
+color = Color(0.6, 0.902, 0.373, 1)
+
+[sub_resource type="Gradient" id="Gradient_trail"]
+offsets = PackedFloat32Array(0, 0.35, 1)
+colors = PackedColorArray(0.6, 0.9, 0.37, 0.85, 0.35, 0.77, 0.31, 0.55, 0.2, 0.6, 0.29, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_trail"]
+gradient = SubResource("Gradient_trail")
+
+[sub_resource type="ParticleProcessMaterial" id="PPM_trail"]
+particle_flag_disable_z = true
+direction = Vector3(-1, 0, 0)
+spread = 23.776
+initial_velocity_min = 25.0
+initial_velocity_max = 70.0
+scale_min = 0.29999998
+scale_max = 0.39999998
+color_ramp = SubResource("GradientTexture1D_trail")
+
+[node name="ProjectileEffect" type="Node2D"]
+script = ExtResource("1_proj")
+ghost_count = 5
+ghost_lifetime = 0.3
+ghost_start_alpha = 0.6
+ghost_color = Color(0.35, 0.77, 0.31, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+visible = false
+modulate = Color(0.6, 0.9, 0.37, 1)
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("2_lemkr")
+
+[node name="GPUParticles2D2" type="GPUParticles2D" parent="."]
+emitting = false
+amount = 1
+texture = ExtResource("4_spiral")
+lifetime = 0.5
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_q5h0y")
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="."]
+emitting = false
+amount = 10
+texture = ExtResource("3_drip")
+lifetime = 0.35
+randomness = 0.5
+process_material = SubResource("PPM_trail")

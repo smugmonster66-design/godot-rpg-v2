@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="Action" load_steps=11 format=3 uid="uid://c8rvgwlhg87lm"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_kdav7"]
-[ext_resource type="PackedScene" path="res://scenes/effects/new/status visual FX/warded/ward_apply.tscn" id="1_qr6vj"]
+[ext_resource type="PackedScene" uid="uid://d3o3am6y2qses" path="res://scenes/effects/new/status visual FX/warded/ward_apply.tscn" id="1_qr6vj"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_4dswj"]
 [ext_resource type="Script" uid="uid://luoa1f4jirnk" path="res://resources/data/combat_animation_set.gd" id="2_6fjmh"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_11sy7"]

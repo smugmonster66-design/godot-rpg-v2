@@ -900,6 +900,7 @@ func _apply_emit_chain(source_die: DieResource, index: int,
 		"element": edata.get("element", ""),
 		"chains": int(edata.get("chains", 2)),
 		"decay": edata.get("decay", 0.7),
+		"chain_animation": edata.get("chain_animation", null),
 	}
 	result.combat_events.append(event)
 	print("    ⚡ %s queued chain: %.0f %s × %d (%.0f%% decay)" % [

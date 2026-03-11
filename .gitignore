@@ -12,8 +12,12 @@ export_presets.cfg
 data_*/
 mono_crash.*.json
 
+# Claude Code worktrees and local AI tooling
+.claude/
+
 # System/tool-specific ignores
 .DS_Store
+
 Thumbs.db
 *.swp
 *.swo

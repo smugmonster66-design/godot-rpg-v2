@@ -1,0 +1,159 @@
+[gd_scene load_steps=27 format=3 uid="uid://ckt0qjawvhw22"]
+
+[ext_resource type="Script" uid="uid://c1pmu5cw4o18f" path="res://scripts/effects/particle_effect.gd" id="1_pe"]
+[ext_resource type="Script" uid="uid://cujo3211m8dkn" path="res://addons/BurstParticles2D/BurstParticleGroup2D.gd" id="2_bpg"]
+[ext_resource type="Script" uid="uid://djwtqk0v2ks2d" path="res://addons/BurstParticles2D/BurstParticles2D.gd" id="3_bp"]
+[ext_resource type="Texture2D" uid="uid://bg7rjxmh4qrda" path="res://assets/particles/512x/light_01_a.png" id="4_light"]
+[ext_resource type="Texture2D" uid="uid://cex6ixgwiseru" path="res://assets/particles/Complex/impacts/impact_4.png" id="5_impact"]
+[ext_resource type="Texture2D" uid="uid://cxwql577h2yj7" path="res://assets/particles/Complex/circle/spiky_15.png" id="6_1321m"]
+[ext_resource type="Texture2D" uid="uid://diyj15tmkr2mt" path="res://assets/particles/512x/dirt_01_a.png" id="6_dirt"]
+[ext_resource type="Texture2D" uid="uid://dn8cjv63p1o8a" path="res://assets/particles/Complex/smoke/smoke_3.png" id="7_smoke"]
+
+[sub_resource type="Gradient" id="Gradient_flash"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(1, 1, 0.98, 1, 0.9, 0.87, 0.78, 0.7, 0.5, 0.47, 0.4, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_flash"]
+gradient = SubResource("Gradient_flash")
+
+[sub_resource type="Curve" id="Curve_scale_flash"]
+_limits = [0.0, 4.5, 0.0, 1.0]
+_data = [Vector2(0, 0.08), 0.0, 2.5, 0, 0, Vector2(1, 0.875), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_alpha_flash"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_mark"]
+offsets = PackedFloat32Array(0, 0.25, 0.65, 1)
+colors = PackedColorArray(0.95, 0.92, 0.83, 1, 0.9, 0.87, 0.78, 0.9, 0.68, 0.64, 0.56, 0.45, 0.35, 0.33, 0.28, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_mark"]
+gradient = SubResource("Gradient_mark")
+
+[sub_resource type="Gradient" id="Gradient_ring"]
+offsets = PackedFloat32Array(0, 0.4, 1)
+colors = PackedColorArray(0.78, 0.75, 0.68, 0.35, 0.878, 0.455, 0.22, 1, 0.3, 0.28, 0.24, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_ring"]
+gradient = SubResource("Gradient_ring")
+
+[sub_resource type="Curve" id="Curve_scale_ring"]
+_limits = [0.0, 5.5, 0.0, 1.0]
+_data = [Vector2(0, 0.08), 0.0, 1.5, 0, 0, Vector2(1, 0.875), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_alpha_ring"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_debris"]
+offsets = PackedFloat32Array(0, 0.25, 0.65, 1)
+colors = PackedColorArray(0.68, 0.52, 0.32, 1, 0.55, 0.42, 0.25, 0.85, 0.38, 0.29, 0.17, 0.4, 0.18, 0.14, 0.08, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_debris"]
+gradient = SubResource("Gradient_debris")
+
+[sub_resource type="Curve" id="Curve_dist_debris"]
+_data = [Vector2(0, 0), 0.0, 6.0, 0, 0, Vector2(0.3, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_alpha_debris"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.55, 1), 0.0, -4.5, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_dust"]
+offsets = PackedFloat32Array(0, 0.2, 0.55, 1)
+colors = PackedColorArray(0.65, 0.62, 0.54, 0, 0.62, 0.58, 0.5, 0.5, 0.45, 0.42, 0.36, 0.25, 0.22, 0.2, 0.17, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_dust"]
+gradient = SubResource("Gradient_dust")
+
+[sub_resource type="Curve" id="Curve_offset_dust"]
+_data = [Vector2(0, 0), 0.0, 0.0, 1, 1, Vector2(1, 1), 0.0, 0.0, 1, 1]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_scale_dust"]
+_data = [Vector2(0, 0.3), 0.0, 2.5, 0, 0, Vector2(0.4, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.1), -1.5, 0.0, 0, 0]
+point_count = 3
+
+[node name="ParticleEffect" type="Node2D"]
+scale = Vector2(2, 2)
+script = ExtResource("1_pe")
+duration = 0.85
+
+[node name="BurstParticles2D" type="Node2D" parent="."]
+script = ExtResource("2_bpg")
+
+[node name="ConcussiveFlash" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.22
+repeat = true
+texture = ExtResource("4_light")
+image_scale = 0.7
+gradient = SubResource("GradientTexture1D_flash")
+blend_mode = 1
+direction_rotation_randomness = 1.0
+distance = 0.0
+scale_curve = SubResource("Curve_scale_flash")
+alpha_curve = SubResource("Curve_alpha_flash")
+
+[node name="ImpactMark" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.25
+repeat = true
+texture = ExtResource("5_impact")
+image_scale = 0.3
+gradient = SubResource("GradientTexture1D_mark")
+direction_rotation_randomness = 1.0
+distance = 0.0
+
+[node name="ShockwaveRing" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.45
+repeat = true
+texture = ExtResource("6_1321m")
+image_scale = 0.5
+gradient = SubResource("GradientTexture1D_ring")
+direction_rotation_randomness = 1.0
+distance = 0.0
+scale_curve = SubResource("Curve_scale_ring")
+alpha_curve = SubResource("Curve_alpha_ring")
+
+[node name="ImpactDebris" type="Node2D" parent="BurstParticles2D"]
+rotation = -1.5707964
+script = ExtResource("3_bp")
+num_particles = 12
+lifetime = 0.38
+lifetime_randomness = 0.4
+repeat = true
+texture = ExtResource("6_dirt")
+image_scale = 0.08
+image_scale_randomness = 0.5
+gradient = SubResource("GradientTexture1D_debris")
+direction_rotation_randomness = 0.55
+distance_randomness = 0.45
+spread_degrees = 90.0
+distance_curve = SubResource("Curve_dist_debris")
+alpha_curve = SubResource("Curve_alpha_debris")
+
+[node name="DustCloud" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 7
+lifetime = 0.85
+lifetime_randomness = 0.45
+repeat = true
+texture = ExtResource("7_smoke")
+image_scale = 0.2
+image_scale_randomness = 0.5
+gradient = SubResource("GradientTexture1D_dust")
+direction_rotation_randomness = 1.0
+distance = 55.0
+distance_randomness = 0.6
+offset = Vector2(0, -80)
+offset_curve = SubResource("Curve_offset_dust")
+scale_curve = SubResource("Curve_scale_dust")

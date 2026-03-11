@@ -45,6 +45,9 @@ enum Rarity {
 
 ## DiceAffix applied to all player dice (null if affix_type == STAT)
 @export var dice_affix: DiceAffix = null
+## Optional chain animation config for dice affixes that use effect_type CHAIN.
+## Injected into effect_data["chain_animation"] when the affix is applied.
+@export var chain_animation: ChainAnimationConfig = null
 
 ## Stat Affix applied to player affix_manager (null if affix_type == DICE)
 @export var stat_affix: Affix = null

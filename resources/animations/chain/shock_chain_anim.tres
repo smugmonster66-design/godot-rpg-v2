@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ChainAnimationConfig" load_steps=4 format=3 uid="uid://befkl28qdopdt"]
+
+[ext_resource type="PackedScene" uid="uid://dtdi7u1tyqi2l" path="res://scenes/effects/impact/lightning_impact_effect.tscn" id="1_7idq1"]
+[ext_resource type="Script" uid="uid://b18k5l2p16ap4" path="res://resources/data/chain_animation_config.gd" id="1_i6bxr"]
+[ext_resource type="PackedScene" uid="uid://dpc8m5xw0i018" path="res://scenes/effects/projectiles/lightning_bolt_effect.tscn" id="3_hgk1o"]
+
+[resource]
+script = ExtResource("1_i6bxr")
+travel_effect = ExtResource("3_hgk1o")
+impact_effect = ExtResource("1_7idq1")
+metadata/_custom_type_script = "uid://b18k5l2p16ap4"

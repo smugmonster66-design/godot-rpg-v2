@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SkillTree" load_steps=196 format=3 uid="uid://7skxlt53e4sf"]
+[gd_resource type="Resource" script_class="SkillTree" load_steps=197 format=3 uid="uid://7skxlt53e4sf"]
 
 [ext_resource type="Shader" uid="uid://bnitqsn8ayk0j" path="res://shaders/dice/fire/fire_fill.gdshader" id="1_bnh2n"]
 [ext_resource type="Material" uid="uid://cmy28n60ig7hq" path="res://resources/materials/engraved_icon_material.tres" id="1_ea8jm"]
@@ -19,6 +19,7 @@
 [ext_resource type="Resource" uid="uid://behojsm6qvxjl" path="res://resources/statuses/burn.tres" id="13_bnh2n"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="15_ea8jm"]
 [ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="15_skkmn"]
+[ext_resource type="Script" uid="uid://dfaph2f2anhu0" path="res://resources/data/status_dice_effect.gd" id="19_6o4qc"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_skkmn"]
 shader = ExtResource("1_bnh2n")

@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://dsvru2cvx610"]
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://dsvru2cvx610"]
 
+[ext_resource type="Resource" uid="uid://tspwgx50bmmh" path="res://resources/animations/classes/mage/storm/chromatic bolt/chromatic_bolt_lightning_aniset.tres" id="1_7kchp"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_t7ut6"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_7kchp"]
 [ext_resource type="Resource" uid="uid://cs0d0ajplc5df" path="res://resources/actions/items/region_1/effects/spark_wand_damage_effect.tres" id="3_coi20"]
@@ -15,3 +16,4 @@ action_name = "Zap"
 action_description = "A quick shock that applies 2 Static. Restores 1 mana on use."
 min_dice_required = 1
 effects = Array[ExtResource("2_7kchp")]([ExtResource("3_coi20"), ExtResource("4_h1uks"), ExtResource("5_b7ry5")])
+animation_set = ExtResource("1_7kchp")

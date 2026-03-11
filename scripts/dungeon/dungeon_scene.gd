@@ -601,6 +601,8 @@ func _apply_run_affix(entry: RunAffixEntry):
 	match entry.affix_type:
 		RunAffixEntry.AffixType.DICE:
 			if entry.dice_affix:
+				if entry.chain_animation:
+					entry.dice_affix.effect_data["chain_animation"] = entry.chain_animation
 				_apply_temp_affix(entry.dice_affix)
 		RunAffixEntry.AffixType.STAT:
 			if entry.stat_affix:
@@ -609,11 +611,14 @@ func _apply_run_affix(entry: RunAffixEntry):
 				current_run.track_shrine_affix(copy)
 		RunAffixEntry.AffixType.HYBRID:
 			if entry.dice_affix:
+				if entry.chain_animation:
+					entry.dice_affix.effect_data["chain_animation"] = entry.chain_animation
 				_apply_temp_affix(entry.dice_affix)
 			if entry.stat_affix:
 				var copy = entry.stat_affix.duplicate(true)
 				_player.affix_manager.add_affix(copy)
 				current_run.track_shrine_affix(copy)
+
 
 func _apply_temp_affix(affix: DiceAffix):
 	if not _player: return

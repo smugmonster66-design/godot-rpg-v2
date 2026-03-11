@@ -173,6 +173,8 @@ var value_source_defense: String = "armor"
 @export var chain_decay: float = 0.7
 ## If true, chain can bounce back to already-hit targets.
 @export var chain_can_repeat: bool = false
+@export var chain_animation: ChainAnimationConfig = null
+
 
 @export_group("Random Strikes Settings")
 ## Number of independent strikes distributed randomly.
@@ -414,7 +416,14 @@ func _calculate_chain(_dv: Array, _ctx: Dictionary, _cm: float) -> Dictionary:
 		if m <= 0.0: break
 		multipliers.append(m)
 		m *= chain_decay
-	return {"chain_count": chain_count, "chain_decay": chain_decay, "chain_can_repeat": chain_can_repeat, "chain_multipliers": multipliers}
+	return {
+		"chain_count": chain_count,
+		"chain_decay": chain_decay,
+		"chain_can_repeat": chain_can_repeat,
+		"chain_multipliers": multipliers,
+		"chain_animation": chain_animation,
+		"damage_type": damage_type,
+	}
 
 func _calculate_random_strikes(dv: Array, ctx: Dictionary, cm: float) -> Dictionary:
 	var psb = strike_damage if strike_damage > 0 else base_damage
