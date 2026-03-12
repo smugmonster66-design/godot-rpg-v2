@@ -325,13 +325,13 @@ func _execute_chain_hop_group(group: Dictionary) -> void:
 			await get_tree().create_timer(anim_config.travel_duration).timeout
 
 		# ── Apply damage ──
-		ct.take_damage(dmg)
+		var actual_chain := _apply_elemental_damage(ct, dmg, element)
 		var idx = enemy_combatants.find(ct)
 		print("    ⚡ Chain hop %d: %d %s → %s" % [i + 1, dmg, str(element), ct.combatant_name])
 		if event_bus:
 			var v = _get_combatant_visual(ct)
 			if v:
-				event_bus.emit_damage_dealt(v, dmg, str(element), false)
+				event_bus.emit_damage_dealt(v, actual_chain, str(element), false)
 		if idx >= 0:
 			_update_enemy_health(idx)
 			_check_enemy_death(ct)
@@ -2033,14 +2033,14 @@ func _resolve_splash(event: Dictionary, primary_target) -> void:
 			splash_targets.append(enemy_combatants[primary_index + 1])
 	
 	for target in splash_targets:
-		target.take_damage(splash_damage)
+		var actual_splash := _apply_elemental_damage(target, splash_damage, event.get("element", ""))
 		var idx = enemy_combatants.find(target)
 		print("    💥 Splash: %d %s damage to %s" % [
 			splash_damage, event.get("element", ""), target.combatant_name])
 		if event_bus:
 			var v = _get_combatant_visual(target)
 			if v:
-				event_bus.emit_damage_dealt(v, splash_damage, event.get("element", ""), false)
+				event_bus.emit_damage_dealt(v, actual_splash, event.get("element", ""), false)
 		if idx >= 0:
 			_update_enemy_health(idx)
 			_check_enemy_death(target)
@@ -2097,7 +2097,7 @@ func _resolve_aoe(event: Dictionary) -> void:
 	
 	for enemy in enemy_combatants:
 		if enemy.is_alive():
-			enemy.take_damage(damage)
+			_apply_elemental_damage(enemy, damage, event.get("element", ""))
 			var idx = enemy_combatants.find(enemy)
 			print("    🌊 AoE: %d %s damage to %s" % [
 				damage, event.get("element", ""), enemy.combatant_name])
@@ -2111,7 +2111,7 @@ func _resolve_bonus_damage(event: Dictionary, primary_target) -> void:
 	if damage <= 0 or not primary_target or not primary_target.is_alive():
 		return
 	
-	primary_target.take_damage(damage)
+	_apply_elemental_damage(primary_target, damage, event.get("element", ""))
 	var idx = enemy_combatants.find(primary_target)
 	print("    🔥 Bonus damage: %d %s to %s" % [
 		damage, event.get("element", ""), primary_target.combatant_name])
@@ -2430,7 +2430,7 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 				if result.get("lifesteal_deals_damage", true) and dmg > 0:
 					var target_node = result.get("target")
 					if target_node and target_node.has_method("take_damage"):
-						target_node.take_damage(dmg)
+						_apply_elemental_damage(target_node, dmg, result.get("element", ""))
 						_update_and_check_target(target_node)
 				var heal_amt = int(dmg * pct)
 				if heal_amt > 0 and source:
@@ -2491,7 +2491,7 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 					var target_node = result.get("target")
 					for i in range(echo_damages.size()):
 						if target_node and target_node.is_alive() and target_node.has_method("take_damage"):
-							target_node.take_damage(echo_damages[i])
+							_apply_elemental_damage(target_node, echo_damages[i], result.get("element", ""))
 							print("  🔁 Echo %d: %d" % [i + 1, echo_damages[i]])
 					if target_node:
 						_update_and_check_target(target_node)
@@ -2504,7 +2504,7 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 				if splash_dmg > 0:
 					for st in _get_splash_targets(target_node, result.get("splash_all", false)):
 						if st.has_method("take_damage"):
-							st.take_damage(splash_dmg)
+							_apply_elemental_damage(st, splash_dmg, result.get("element", ""))
 							print("  💥 Splash: %d → %s" % [splash_dmg, st.combatant_name])
 							_update_and_check_target(st)
 
@@ -2514,8 +2514,10 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 				var target_node = result.get("target")
 
 				if primary_dmg > 0 and target_node and target_node.has_method("take_damage"):
-					target_node.take_damage(primary_dmg)
+					_apply_elemental_damage(target_node, primary_dmg, result.get("damage_type", -1))
 					_update_and_check_target(target_node)
+
+
 
 				var chain_tgts = _get_chain_targets(target_node, result.get("chain_can_repeat", false))
 				var hop_count = mini(chain_multipliers.size(), chain_tgts.size())
@@ -2544,7 +2546,7 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 						break
 					var hit = alive[randi() % alive.size()]
 					if hit.has_method("take_damage"):
-						hit.take_damage(strike_damages[i])
+						_apply_elemental_damage(hit, strike_damages[i], result.get("element", ""))
 						print("  🎲 Strike %d: %d → %s" % [i + 1, strike_damages[i], hit.combatant_name])
 						_update_and_check_target(hit)
 
@@ -2996,6 +2998,33 @@ func _calculate_heal(action_data: Dictionary, healer) -> int:
 	
 	# Legacy fallback
 	return int((dice_total + base_heal) * multiplier)
+
+func _apply_elemental_damage(target, raw_amount: int, element = "") -> int:
+	"""Apply damage to target using the correct defense stat for the element type.
+	Returns actual damage dealt after defense reduction.
+	Elemental (fire/ice/shock/poison/shadow) reduces against barrier.
+	Physical (slashing/blunt/piercing) reduces against armor.
+	element: ActionEffect.DamageType int, or String int like "5", or "" for untyped (uses armor)."""
+	if raw_amount <= 0 or not target or not target.is_alive():
+		return 0
+	# Resolve element to DamageType int
+	var dtype: int = -1
+	if element is int and element >= 0:
+		dtype = element
+	elif element is String and element != "":
+		var parsed = element.to_int()
+		if str(parsed) == element:  # valid numeric string
+			dtype = parsed
+	if dtype < 0:
+		# Untyped — fall back to flat armor subtraction via existing take_damage
+		target.take_damage(raw_amount)
+		return raw_amount
+	var packet = DamagePacket.new()
+	packet.add_damage(dtype as ActionEffect.DamageType, float(raw_amount))
+	var def_stats: Dictionary = _get_defender_stats(target)
+	var final_dmg: int = packet.calculate_final_damage(def_stats)
+	target.take_damage(final_dmg)
+	return final_dmg
 
 func _get_defender_stats(defender) -> Dictionary:
 	"""Get defense stats from defender.

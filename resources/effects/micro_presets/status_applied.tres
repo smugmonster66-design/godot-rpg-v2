@@ -10,5 +10,4 @@ flash_enabled = true
 flash_color = Color(1.2, 0.5, 1.5, 1)
 flash_out_duration = 0.25
 label_enabled = true
-label_color = Color(0.9, 0.6, 1, 1)
-label_theme_type = &"floater"
+label_theme_type = &"status_applied_floater"

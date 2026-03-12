@@ -13,6 +13,4 @@ shake_intensity = 3.0
 shake_duration = 0.15
 shake_count = 4
 label_enabled = true
-label_color = Color(1, 0.2, 0.2, 1)
-label_theme_type = &"floater"
-label_bold = true
+label_theme_type = &"damage_floater"

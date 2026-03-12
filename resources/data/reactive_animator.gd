@@ -69,6 +69,9 @@ var _effect_player: CombatEffectPlayer = null
 ## Reference to CombatAnimationPlayer for playing full animation sets
 var _animation_player: CombatAnimationPlayer = null
 
+## Tracks the last flash tween per target node to prevent stacking on rapid multi-hits
+var _flash_tweens: Dictionary = {}  # Node -> Tween
+
 # ============================================================================
 # SETUP
 # ============================================================================
@@ -318,11 +321,21 @@ func _play_flash(target: Node, preset: MicroAnimationPreset, event: CombatEvent)
 		if dynamic is Color:
 			color = dynamic
 
-	var original_mod: Color = target.modulate
+		# Kill any in-flight flash tween on this target so rapid multi-hits
+	# don't read a partially-tweened color as the "restore" value.
+	if _flash_tweens.has(target):
+		var old: Tween = _flash_tweens[target]
+		if is_instance_valid(old):
+			old.kill()
+		_flash_tweens.erase(target)
+	# Always restore to white — the normal un-hit state for living combatants.
+	var original_mod: Color = Color.WHITE
 
 	var tween = target.create_tween()
+	_flash_tweens[target] = tween
 	tween.tween_property(target, "modulate", color, preset.flash_in_duration)
 	tween.tween_property(target, "modulate", original_mod, preset.flash_out_duration)
+
 
 
 func _play_shake(target: Node, preset: MicroAnimationPreset) -> void:
@@ -427,9 +440,11 @@ func _spawn_floating_label(target: Node, preset: MicroAnimationPreset, event: Co
 
 	# Source tag labels skip stagger — they must fire first and set the timestamp
 	# so the generic reaction waits behind them.
+	# Uses preset.label_theme_type for named-color lookup if set; falls back to sourcefloater.
 	if preset.label_use_source_tag_prefix and event.source_tag != "":
 		_label_last_spawn[target_id] = Time.get_ticks_msec()
-		_spawn_label_raw(target, event.source_tag, &"sourcefloater", preset.label_color, preset)
+		var src_theme: StringName = preset.label_theme_type if preset.label_theme_type != &"" else &"sourcefloater"
+		_spawn_label_raw(target, event.source_tag, src_theme, preset.label_color, preset)
 		return
 
 	# Stagger check for all other labels
@@ -446,6 +461,13 @@ func _spawn_floating_label(target: Node, preset: MicroAnimationPreset, event: Co
 	if text == "":
 		return
 
+	# STATUS_APPLIED: route through _spawn_label_raw so the status name is used
+	# as a named color key (e.g. status_applied_floater/colors/Burn) the same
+	# way sourcefloater does for status ticks.
+	if event.type == CombatEvent.Type.STATUS_APPLIED and preset.label_theme_type != &"":
+		_spawn_label_raw(target, text, preset.label_theme_type, preset.label_color, preset)
+		return
+
 	# Resolve color
 	var color = preset.label_color
 	if preset.label_color_key != "" and event.values.has(preset.label_color_key):
@@ -453,35 +475,15 @@ func _spawn_floating_label(target: Node, preset: MicroAnimationPreset, event: Co
 		if dynamic is Color:
 			color = dynamic
 
-	# Create the label
+	# Create the label — add to tree before measuring so theme inheritance resolves correctly
 	var label = Label.new()
 	label.text = text
-	label.add_theme_color_override("font_color", color)
-	if preset.label_theme_type != &"":
-		label.theme_type_variation = preset.label_theme_type
-	else:
-		label.theme_type_variation = "normal"
-
-	if preset.label_bold and preset.label_theme_type == &"":
-		# Only manual bump when not using theme type (theme handles bold via font)
-		label.add_theme_font_size_override("font_size", preset.label_font_size + 2)
+	label.theme_type_variation = preset.label_theme_type if preset.label_theme_type != &"" else &"normal"
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	# Position at target center with optional scatter
 	_effects_container.add_child(label)
-	
-	
-	# TEMP DEBUG — remove after verifying
-	print("  🏷️ Floating label: text='%s' theme_type='%s' font_size=%d container_theme=%s" % [
-		label.text,
-		label.theme_type_variation,
-		label.get_theme_font_size("font_size"),
-		_effects_container.theme
-	])
-	
-	
+
 	var duration: float = preset.label_duration
 	var rise_distance: float = preset.label_rise_distance
 	var scatter_x: float = preset.label_scatter_x
@@ -522,10 +524,6 @@ func _spawn_label_raw(target: Node, text: String, theme_type: StringName, fallba
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_effects_container.add_child(label)
-	print("  🏷️ Raw label: text='%s' theme_type='%s' resolved_font_size=%d" % [
-		label.text,
-		label.theme_type_variation,
-		label.get_theme_font_size("font_size")])
 	var color := fallback_color
 	if theme_type != &"" and label.has_theme_color(text, theme_type):
 		color = label.get_theme_color(text, theme_type)
