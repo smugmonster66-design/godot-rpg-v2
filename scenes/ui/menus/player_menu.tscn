@@ -158,13 +158,13 @@ theme_override_styles/panel = SubResource("StyleBoxEmpty_ff6ld")
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.5
-anchor_top = 0.124
 anchor_right = 0.5
-anchor_bottom = 0.14
+anchor_bottom = 0.05
 offset_left = -458.0
 offset_right = 458.0
 offset_bottom = 180.0
 grow_horizontal = 2
+grow_vertical = 0
 alignment = 1
 
 [node name="CharacterButton" type="Button" parent="PanelContainer/TabButtons" groups=["menu_tab_buttons", "player_menu_tab_button"]]
@@ -324,7 +324,7 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="Control" type="Control" parent="PanelContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 400)
+custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
 mouse_filter = 2
 
@@ -694,6 +694,8 @@ layout_mode = 2
 [node name="CategorySidebar" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer"]
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
+theme_override_constants/separation = 30
+alignment = 1
 
 [node name="AllButton" type="Button" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/CategorySidebar" groups=["inventory_category_button"]]
 custom_minimum_size = Vector2(96, 96)
@@ -831,7 +833,6 @@ theme_type_variation = &"normal"
 [node name="InventoryDetailsPanel" type="PanelContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer" groups=["inventory_details_panel"]]
 layout_mode = 2
 size_flags_vertical = 3
-size_flags_stretch_ratio = 2.0
 theme_override_styles/panel = SubResource("StyleBoxTexture_t1rrh")
 
 [node name="DetailsVBox" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/InventoryDetailsPanel"]
@@ -839,6 +840,7 @@ layout_mode = 2
 theme_override_constants/separation = 10
 
 [node name="CenterContainer" type="CenterContainer" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/InventoryDetailsPanel/DetailsVBox"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 
@@ -854,6 +856,7 @@ theme_override_styles/panel = SubResource("StyleBoxEmpty_xf5ph")
 layout_mode = 2
 
 [node name="ItemDescription" type="Label" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/InventoryDetailsPanel/DetailsVBox/PanelContainer3/VBoxContainer"]
+visible = false
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 size_flags_vertical = 1
@@ -862,6 +865,7 @@ text = "This is a description of the item in question, very nice."
 autowrap_mode = 3
 
 [node name="HSeparator" type="HSeparator" parent="PanelContainer/VBoxContainer/ContentArea/Inventory/MainVBox/MarginContainer/HBoxContainer/VBoxContainer/InventoryDetailsPanel/DetailsVBox/PanelContainer3/VBoxContainer"]
+visible = false
 layout_mode = 2
 theme_override_constants/separation = 10
 theme_override_styles/separator = SubResource("StyleBoxLine_g3tuo")

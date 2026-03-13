@@ -12,6 +12,7 @@ script = ExtResource("6_if0nm")
 action_id = "weapon_frost_staff_frost_bolt"
 action_name = "Frost Bolt"
 action_description = "Applies 5 Chill."
+damage_element = 4
 die_slots = 2
 min_dice_required = 1
 effects = Array[ExtResource("2_7dhh7")]([ExtResource("3_fwggt"), ExtResource("4_yoo4r")])

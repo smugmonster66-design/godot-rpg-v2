@@ -14,6 +14,7 @@ script = ExtResource("7_xhfy1")
 action_id = "weapon_spark_wand_zap"
 action_name = "Zap"
 action_description = "A quick shock that applies 2 Static. Restores 1 mana on use."
+damage_element = 5
 min_dice_required = 1
 effects = Array[ExtResource("2_7kchp")]([ExtResource("3_coi20"), ExtResource("4_h1uks"), ExtResource("5_b7ry5")])
 animation_set = ExtResource("1_7kchp")

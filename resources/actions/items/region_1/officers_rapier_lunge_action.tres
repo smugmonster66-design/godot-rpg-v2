@@ -13,6 +13,7 @@ script = ExtResource("6_gn1lx")
 action_id = "weapon_officers_rapier_lunge"
 action_name = "Lunge"
 action_description = "Applies 2 marks. Follow-up hits consume marks for bonus damage."
+damage_element = 2
 min_dice_required = 1
 effects = Array[ExtResource("2_ewq7q")]([ExtResource("3_8etc6"), ExtResource("4_kcimt")])
 animation_set = ExtResource("1_ewq7q")

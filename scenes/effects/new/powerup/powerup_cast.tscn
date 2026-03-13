@@ -1,0 +1,106 @@
+[gd_scene load_steps=17 format=3 uid="uid://6tv6bhu7jirq"]
+
+[ext_resource type="Script" uid="uid://c1pmu5cw4o18f" path="res://scripts/effects/particle_effect.gd" id="1_pe"]
+[ext_resource type="Script" uid="uid://cujo3211m8dkn" path="res://addons/BurstParticles2D/BurstParticleGroup2D.gd" id="2_bpg"]
+[ext_resource type="Script" uid="uid://djwtqk0v2ks2d" path="res://addons/BurstParticles2D/BurstParticles2D.gd" id="3_bp"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_k42x8"]
+load_path = "res://.godot/imported/light_02_a.png-4cde6137529c8e165669d40a9067be54.ctex"
+
+[sub_resource type="Gradient" id="Gradient_core"]
+offsets = PackedFloat32Array(0, 0.2, 0.5, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 0.92, 0.34, 0.95, 1, 0.78, 0.15, 0.7, 1, 0.64, 0.08, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_core"]
+gradient = SubResource("Gradient_core")
+
+[sub_resource type="Curve" id="Curve_scale_core"]
+_limits = [0.0, 3.0, 0.0, 1.0]
+_data = [Vector2(0, 0.1), 0.0, 2.2, 0, 0, Vector2(0.45, 0.95), 0.0, 0.0, 0, 0, Vector2(1, 0.28), -2.2, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_xqhds"]
+load_path = "res://.godot/imported/magic_01_a.png-ac0a22271bf9c386bec630bfc0d85392.ctex"
+
+[sub_resource type="Gradient" id="Gradient_sparks"]
+offsets = PackedFloat32Array(0, 0.25, 0.65, 1)
+colors = PackedColorArray(1, 0.92, 0.34, 1, 1, 0.78, 0.15, 0.8, 1, 0.64, 0.08, 0.35, 0.93, 0.46, 0.08, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_sparks"]
+gradient = SubResource("Gradient_sparks")
+
+[sub_resource type="Curve" id="Curve_dist_sparks"]
+_data = [Vector2(0, 0), 0.0, 6.0, 0, 0, Vector2(0.3, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_alpha_sparks"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.55, 1), 0.0, -4.5, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_k8bmy"]
+load_path = "res://.godot/imported/star_01_a.png-c6969378229ccd7c63126f3995a0c259.ctex"
+
+[sub_resource type="Gradient" id="Gradient_dust"]
+offsets = PackedFloat32Array(0, 0.2, 0.65, 1)
+colors = PackedColorArray(1, 0.92, 0.34, 0, 1, 0.92, 0.34, 0.75, 1, 0.64, 0.08, 0.35, 0.93, 0.46, 0.08, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_dust"]
+gradient = SubResource("Gradient_dust")
+
+[sub_resource type="Curve" id="Curve_offset_dust"]
+_data = [Vector2(0, 0), 0.0, 0.0, 1, 1, Vector2(1, 1), 0.0, 0.0, 1, 1]
+point_count = 2
+
+[node name="ParticleEffect" type="Node2D"]
+script = ExtResource("1_pe")
+duration = 0.55
+
+[node name="BurstParticles2D" type="Node2D" parent="."]
+script = ExtResource("2_bpg")
+
+[node name="GoldCore" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.42
+repeat = true
+texture = SubResource("CompressedTexture2D_k42x8")
+image_scale = 0.85
+gradient = SubResource("GradientTexture1D_core")
+blend_mode = 1
+direction_rotation_randomness = 1.0
+distance = 0.0
+scale_curve = SubResource("Curve_scale_core")
+
+[node name="RisingSparks" type="Node2D" parent="BurstParticles2D"]
+rotation = -1.5707964
+script = ExtResource("3_bp")
+num_particles = 8
+lifetime = 0.35
+lifetime_randomness = 0.35
+repeat = true
+texture = SubResource("CompressedTexture2D_xqhds")
+image_scale = 0.2
+image_scale_randomness = 0.45
+gradient = SubResource("GradientTexture1D_sparks")
+direction_rotation_randomness = 0.3
+distance = 160.0
+distance_randomness = 0.45
+spread_degrees = 55.0
+distance_curve = SubResource("Curve_dist_sparks")
+alpha_curve = SubResource("Curve_alpha_sparks")
+
+[node name="GoldDust" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 5
+lifetime = 0.55
+lifetime_randomness = 0.4
+repeat = true
+texture = SubResource("CompressedTexture2D_k8bmy")
+image_scale = 0.18
+image_scale_randomness = 0.5
+gradient = SubResource("GradientTexture1D_dust")
+direction_rotation_randomness = 1.0
+distance = 55.0
+distance_randomness = 0.6
+offset = Vector2(0, -170)
+offset_curve = SubResource("Curve_offset_dust")

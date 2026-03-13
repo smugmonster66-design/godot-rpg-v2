@@ -12,5 +12,6 @@ script = ExtResource("6_7i2iu")
 action_id = "weapon_iron_warhammer_pulverize"
 action_name = "Pulverize"
 action_description = "Applies 3 Corrode. "
+damage_element = 1
 min_dice_required = 1
 effects = Array[ExtResource("2_lirm1")]([ExtResource("3_yld7f"), ExtResource("4_qffne")])

@@ -12,5 +12,6 @@ script = ExtResource("6_7fm7h")
 action_id = "weapon_marine_halberd_formation_thrust"
 action_name = "Formation Thrust"
 action_description = "Applies 2 Expose."
+damage_element = 2
 min_dice_required = 1
 effects = Array[ExtResource("2_4sr31")]([ExtResource("3_aftey"), ExtResource("4_fb322")])

@@ -1,0 +1,37 @@
+[gd_scene load_steps=6 format=3 uid="uid://r7nacyq80xuf"]
+
+[ext_resource type="Script" uid="uid://c1pmu5cw4o18f" path="res://scripts/effects/particle_effect.gd" id="1_7dgun"]
+[ext_resource type="Texture2D" uid="uid://bcdb2q7irfapf" path="res://assets/particles/Basic/ding shapes/heart-plus.png" id="2_7dgun"]
+
+[sub_resource type="Gradient" id="Gradient_arrows"]
+offsets = PackedFloat32Array(0, 0.18, 0.65, 1)
+colors = PackedColorArray(0.6, 0.9, 0.37, 0, 0.6, 0.9, 0.37, 0.9, 0.35, 0.77, 0.31, 0.6, 0.2, 0.6, 0.29, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_arrows"]
+gradient = SubResource("Gradient_arrows")
+
+[sub_resource type="ParticleProcessMaterial" id="PPM_arrows"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(150, 150, 0)
+direction = Vector3(0, -1, 0)
+spread = 0.0
+initial_velocity_min = 128.0
+initial_velocity_max = 200.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.049999997
+scale_max = 0.099999994
+color_ramp = SubResource("GradientTexture1D_arrows")
+
+[node name="ParticleEffect" type="Node2D"]
+script = ExtResource("1_7dgun")
+duration = 0.7
+
+[node name="BuffArrows" type="GPUParticles2D" parent="."]
+emitting = false
+amount = 10
+texture = ExtResource("2_7dgun")
+lifetime = 0.7
+one_shot = true
+randomness = 0.3
+process_material = SubResource("PPM_arrows")

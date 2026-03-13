@@ -13,6 +13,7 @@ script = ExtResource("7_voy44")
 action_id = "weapon_ember_staff_flame_burst"
 action_name = "Flame Burst"
 action_description = "Applies 3 Burn. Echoes at 40% if dice total is 10 or more."
+damage_element = 3
 die_slots = 2
 min_dice_required = 1
 effects = Array[ExtResource("2_6xvo7")]([ExtResource("3_pkypx"), ExtResource("4_1fnro"), ExtResource("5_wm1kv")])

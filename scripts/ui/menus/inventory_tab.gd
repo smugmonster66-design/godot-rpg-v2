@@ -79,6 +79,8 @@ var current_category: String = "All"
 
 # Shader resources
 var rarity_shader: Shader = null
+var _selection_overlay: TextureRect = null
+var _selection_tween: Tween = null
 
 var _active_die_tooltip: DieTooltipPopup = null
 
@@ -98,6 +100,8 @@ func _ready():
 	
 	# Load rarity shader
 	rarity_shader = load("res://shaders/rarity_border.gdshader")
+	_create_selection_overlay()
+	
 	
 	_discover_ui_elements()
 	print("🎒 InventoryTab: Ready")
@@ -166,6 +170,9 @@ func on_external_data_change():
 # ============================================================================
 # ITEM TYPE HELPERS — Abstracts EquippableItem vs Dictionary access
 # ============================================================================
+
+
+
 
 func _item_name(item) -> String:
 	if item is EquippableItem:
@@ -253,6 +260,7 @@ func _item_set_definition(item):
 # ============================================================================
 
 func _rebuild_inventory_grid():
+	_stop_selection_tween()
 	"""Rebuild inventory item grid"""
 	if not inventory_grid:
 		return
@@ -503,24 +511,28 @@ func _update_item_details():
 	# Close any floating die tooltip from previous item
 	_close_die_tooltip()
 	
-	# ── 1. Item name (rarity colored) + subtitle ──
+		# ── 1. Item name (rarity colored) + subtitle ──
 	if name_labels.size() > 0:
 		var rarity_name = _item_rarity_name(selected_item)
 		name_labels[0].text = _item_name(selected_item)
 		name_labels[0].add_theme_color_override("font_color", ThemeManager.get_rarity_color(rarity_name))
+		_auto_shrink_label(name_labels[0])
 		
 		# Populate subtitle label (scene sibling of ItemName)
 		var subtitle_label = name_labels[0].get_parent().find_child("SubtitleLabel", false, false)
 		if subtitle_label:
 			if selected_item is EquippableItem:
 				var slot_display = "Heavy Weapon" if selected_item.is_heavy_weapon() else selected_item.get_slot_name()
-				subtitle_label.text = "%s · %s" % [selected_item.get_rarity_name(), slot_display]
+				subtitle_label.text = "Lv. %d · %s" % [selected_item.item_level, slot_display]
 				subtitle_label.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
 				subtitle_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 				subtitle_label.show()
+				_auto_shrink_label(subtitle_label)
 			else:
 				subtitle_label.text = ""
 				subtitle_label.hide()
+
+
 	
 	# ── 3. Item image ──
 	if image_rects.size() > 0:
@@ -581,13 +593,20 @@ func _update_item_details():
 					action_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 					affix_container.add_child(action_desc)
 			
-			# ── 8. Base stat affixes (blue) ──
+			# ── 8. Base stat affixes (blue-white, one line) ──
 			if equippable.base_affixes.size() > 0:
 				_add_section_separator(affix_container)
+				var base_texts: Array[String] = []
 				for affix in equippable.base_affixes:
 					if affix:
-						var lbl = _create_affix_label(affix, Color(0.6, 0.75, 0.95))
-						affix_container.add_child(lbl)
+						base_texts.append(affix.get_resolved_description())
+				if not base_texts.is_empty():
+					var lbl = Label.new()
+					lbl.text = " | ".join(base_texts)
+					lbl.add_theme_color_override("font_color", Color(0.6, 0.75, 0.95))
+					lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+					affix_container.add_child(lbl)
+
 			
 			# ── 9. Inherent affixes (green) ──
 			if equippable.inherent_affixes.size() > 0:
@@ -595,6 +614,9 @@ func _update_item_details():
 					if affix:
 						var lbl = _create_affix_label(affix, Color(0.7, 0.9, 0.7))
 						affix_container.add_child(lbl)
+
+
+
 			
 			# ── 10. Rolled affixes (gold) ──
 			if equippable.rolled_affixes.size() > 0:
@@ -626,55 +648,68 @@ func _update_item_details():
 					threshold_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 					affix_container.add_child(threshold_label)
 			
-			# ── 12. Item Level ──
+					# ── 12. Flavor text (red, centered) ──
+		if equippable.flavor_text and equippable.flavor_text != "":
 			_add_section_separator(affix_container)
-			if equippable.item_level > 0:
-				var level_label = Label.new()
-				level_label.text = "Item Level %d (Region %d)" % [equippable.item_level, equippable.region]
-				level_label.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
-				affix_container.add_child(level_label)
+			var flavor = Label.new()
+			flavor.theme_type_variation = &"FlavorLabel"
+			flavor.text = equippable.flavor_text
+			flavor.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			flavor.add_theme_color_override("font_color", Color(0.85, 0.2, 0.2))
+			flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			affix_container.add_child(flavor)
+		
+		# ── 13. Requirements + Sell value (bottom row) ──
+		_add_section_separator(affix_container)
+		var bottom_row = HBoxContainer.new()
+		bottom_row.alignment = BoxContainer.ALIGNMENT_BEGIN
+		
+		# Left side: requirements stacked vertically
+		var req_vbox = VBoxContainer.new()
+		req_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		if equippable.has_requirements():
+			var all_reqs = []
+			if equippable.required_level > 0:
+				all_reqs.append(["Level %d" % equippable.required_level,
+					player and player.level >= equippable.required_level])
+			if equippable.required_strength > 0:
+				all_reqs.append(["%d Strength" % equippable.required_strength,
+					player and player.get_total_stat("strength") >= equippable.required_strength])
+			if equippable.required_agility > 0:
+				all_reqs.append(["%d Agility" % equippable.required_agility,
+					player and player.get_total_stat("agility") >= equippable.required_agility])
+			if equippable.required_intellect > 0:
+				all_reqs.append(["%d Intellect" % equippable.required_intellect,
+					player and player.get_total_stat("intellect") >= equippable.required_intellect])
 			
-			# ── 13. Sell value ──
-			var sell_label = Label.new()
-			sell_label.text = "Sell: %d gold" % equippable.get_sell_value()
-			sell_label.add_theme_color_override("font_color", ThemeManager.PALETTE.warning)
-			affix_container.add_child(sell_label)
-			
-			# ── 14. Requirements (all shown: green if met, red if not) ──
-			if equippable.has_requirements():
-				_add_section_separator(affix_container)
-				var all_reqs = []
-				if equippable.required_level > 0:
-					all_reqs.append(["Level %d" % equippable.required_level,
-						player and player.level >= equippable.required_level])
-				if equippable.required_strength > 0:
-					all_reqs.append(["%d Strength" % equippable.required_strength,
-						player and player.get_total_stat("strength") >= equippable.required_strength])
-				if equippable.required_agility > 0:
-					all_reqs.append(["%d Agility" % equippable.required_agility,
-						player and player.get_total_stat("agility") >= equippable.required_agility])
-				if equippable.required_intellect > 0:
-					all_reqs.append(["%d Intellect" % equippable.required_intellect,
-						player and player.get_total_stat("intellect") >= equippable.required_intellect])
-				
-				for req in all_reqs:
-					var req_label = Label.new()
-					req_label.text = "Requires %s" % req[0]
-					req_label.add_theme_color_override("font_color",
-						ThemeManager.PALETTE.success if req[1] else ThemeManager.PALETTE.danger)
-					affix_container.add_child(req_label)
-			
-			# ── 15. Flavor text (red, centered) ──
-			if equippable.flavor_text and equippable.flavor_text != "":
-				_add_section_separator(affix_container)
-				var flavor = Label.new()
-				flavor.theme_type_variation = &"FlavorLabel"
-				flavor.text = equippable.flavor_text
-				flavor.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-				#flavor.add_theme_font_size_override("font_size", ThemeManager.FONT_SIZES.small)
-				flavor.add_theme_color_override("font_color", Color(0.85, 0.2, 0.2))
-				flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-				affix_container.add_child(flavor)
+			for req in all_reqs:
+				var req_label = Label.new()
+				req_label.text = "Requires %s" % req[0]
+				req_label.add_theme_color_override("font_color",
+					ThemeManager.PALETTE.success if req[1] else ThemeManager.PALETTE.danger)
+				req_vbox.add_child(req_label)
+		bottom_row.add_child(req_vbox)
+		
+		# Right side: coin icon + amount, vertically centered
+		var sell_hbox = HBoxContainer.new()
+		sell_hbox.alignment = BoxContainer.ALIGNMENT_END
+		
+		var coin_icon = TextureRect.new()
+		coin_icon.texture = load("res://assets/icons/coins_icon.png")
+		coin_icon.custom_minimum_size = Vector2(20, 20)
+		coin_icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+		coin_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		coin_icon.modulate = ThemeManager.PALETTE.warning
+		sell_hbox.add_child(coin_icon)
+		
+		var sell_amount = Label.new()
+		sell_amount.text = " %d" % equippable.get_sell_value()
+		sell_amount.add_theme_color_override("font_color", ThemeManager.PALETTE.warning)
+		sell_hbox.add_child(sell_amount)
+		
+		bottom_row.add_child(sell_hbox)
+		affix_container.add_child(bottom_row)
+
 	
 	# ── Action buttons ──
 	var is_equip = _is_equipment(selected_item)
@@ -909,12 +944,52 @@ func _collect_all_granted_dice(equippable: EquippableItem) -> Array[DieResource]
 	return dice
 
 func _highlight_selected_button(button: TextureButton):
-	# Reset previous selection
-	if _selected_button and is_instance_valid(_selected_button):
-		_selected_button.modulate = Color.WHITE
-	# Highlight new selection
 	_selected_button = button
-	_selected_button.modulate = Color(1.2, 1.2, 0.8)  # Slight bright/warm tint
+	var wrapper = button.get_parent()
+	if wrapper and _selection_overlay:
+		if _selection_overlay.get_parent():
+			_selection_overlay.get_parent().remove_child(_selection_overlay)
+		wrapper.add_child(_selection_overlay)
+		# Center the overlay on the wrapper
+		var wrapper_size = wrapper.custom_minimum_size
+		_selection_overlay.size = wrapper_size
+		_selection_overlay.pivot_offset = wrapper_size * 0.5
+		_selection_overlay.position = Vector2.ZERO
+		_selection_overlay.visible = true
+		_start_selection_tween()
+
+
+
+
+func _create_selection_overlay():
+	_selection_overlay = TextureRect.new()
+	_selection_overlay.texture = load("res://assets/particles/Basic/targets/target_8.png")
+	_selection_overlay.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+	_selection_overlay.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_selection_overlay.modulate = Color(1.0, 0.75, 0.2, 0.85)
+	_selection_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_selection_overlay.visible = false
+
+	
+
+
+func _start_selection_tween():
+	if _selection_tween and _selection_tween.is_valid():
+		_selection_tween.kill()
+	_selection_overlay.rotation = 0.0
+	_selection_tween = _selection_overlay.create_tween().set_loops()
+	_selection_tween.tween_property(_selection_overlay, "rotation", TAU, 6.0).from(0.0)
+
+func _stop_selection_tween():
+	if _selection_tween and _selection_tween.is_valid():
+		_selection_tween.kill()
+		_selection_tween = null
+	if _selection_overlay and _selection_overlay.get_parent():
+		_selection_overlay.get_parent().remove_child(_selection_overlay)
+		_selection_overlay.visible = false
+
+
+
 
 func _on_use_item_pressed():
 	"""Use item button pressed"""
@@ -1127,3 +1202,28 @@ func _update_category_button_visuals():
 			button.modulate = Color(1.0, 1.0, 1.0, 1.0)
 		else:
 			button.modulate = Color(1.0, 1.0, 1.0, 0.5)
+
+
+
+func _auto_shrink_label(label: Label, min_size: int = 10) -> void:
+	"""Shrink a label's font size until its text fits within its container width.
+	Restores the theme default first, then steps down until it fits."""
+	# Remove any previous override so we start from the theme size
+	label.remove_theme_font_size_override("font_size")
+	
+	var container_width: float = label.get_parent().size.x if label.get_parent() else label.size.x
+	if container_width <= 0.0:
+		return
+	
+	var font := label.get_theme_font("font")
+	var base_size: int = label.get_theme_font_size("font_size")
+	var current_size := base_size
+	
+	while current_size > min_size:
+		var text_width := font.get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, current_size).x
+		if text_width <= container_width:
+			break
+		current_size -= 1
+	
+	if current_size < base_size:
+		label.add_theme_font_size_override("font_size", current_size)

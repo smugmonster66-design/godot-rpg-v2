@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="DieResource" load_steps=12 format=3 uid="uid://bwqwi8papc0sf"]
+
+[ext_resource type="PackedScene" uid="uid://de8q4axqsu2ki" path="res://scenes/ui/components/dice/combat/combat_die_d6.tscn" id="1_salww"]
+[ext_resource type="Resource" uid="uid://7voejwf2ow1m" path="res://resources/affixes/elements/fire_element.tres" id="2_wu1nt"]
+[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="3_t281f"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="4_1xn2k"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="5_1xn2k"]
+[ext_resource type="PackedScene" uid="uid://bxqtkedv2ygd3" path="res://scenes/ui/components/dice/pool/pool_die_d6.tscn" id="5_7q24n"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="6_7q24n"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="6_iyvyy"]
+[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="7_b40qp"]
+[ext_resource type="Resource" uid="uid://tgcxuxsqao8g" path="res://resources/dice_affixes/rollable/positional/tier_2/set_element_on_roll.tres" id="7_iyvyy"]
+
+[sub_resource type="Resource" id="Resource_b40qp"]
+script = ExtResource("4_1xn2k")
+affix_name = "Bolstered"
+description = "+N"
+affix_tier = 2
+effect_value = 99999.0
+effect_value_min = 2.0
+effect_value_max = 5.0
+
+[resource]
+script = ExtResource("6_iyvyy")
+display_name = "Fire D6"
+element = 4
+element_affix = ExtResource("2_wu1nt")
+fill_texture = ExtResource("3_t281f")
+stroke_texture = ExtResource("7_b40qp")
+combat_die_scene = ExtResource("1_salww")
+pool_die_scene = ExtResource("5_7q24n")
+inherent_affixes = Array[ExtResource("4_1xn2k")]([SubResource("Resource_b40qp"), ExtResource("7_iyvyy")])

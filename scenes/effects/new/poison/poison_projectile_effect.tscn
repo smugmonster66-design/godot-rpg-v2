@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dhg3menrmqvi7" path="res://scripts/effects/projectile_effect.gd" id="1_proj"]
 [ext_resource type="Texture2D" uid="uid://l803qnfhqkfs" path="res://assets/particles/Complex/circle/rounded_1.png" id="2_lemkr"]
-[ext_resource type="Texture2D" uid="uid://cf18cwxtvwhh8" path="res://assets/particles/512x/circle_04_a.png" id="3_drip"]
+[ext_resource type="Texture2D" uid="uid://nt6dtph58530" path="res://assets/particles/Basic/ding circles/dingbats-345.png" id="4_q5h0y"]
 [ext_resource type="Texture2D" uid="uid://c8suha7cl0hlo" path="res://assets/particles/Basic/spiral/spiral_27.png" id="4_spiral"]
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_q5h0y"]
@@ -56,7 +56,7 @@ process_material = SubResource("ParticleProcessMaterial_q5h0y")
 [node name="GPUParticles2D" type="GPUParticles2D" parent="."]
 emitting = false
 amount = 10
-texture = ExtResource("3_drip")
+texture = ExtResource("4_q5h0y")
 lifetime = 0.35
 randomness = 0.5
 process_material = SubResource("PPM_trail")

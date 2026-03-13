@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://buulrmrni365a"]
 
-[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_khgn5"]
+[ext_resource type="Resource" uid="uid://cnu7r3224b3w3" path="res://resources/animations/baseline animations/elemental anisets/buff and debuff/base_buff_aniset.tres" id="1_ayg6t"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_ynmmn"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_khgn5"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_rqgxh"]
@@ -21,6 +21,7 @@ script = ExtResource("4_ayg6t")
 action_id = "shield_wall"
 action_name = "Shield Wall"
 action_description = "Gain 3 Fortified for 1 turn."
+damage_element = 1
 effects = Array[ExtResource("1_ynmmn")]([SubResource("Resource_rqgxh")])
-animation_set = ExtResource("1_khgn5")
+animation_set = ExtResource("1_ayg6t")
 action_type = 1

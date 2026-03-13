@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="Action" load_steps=10 format=3 uid="uid://27ono85pw0ws"]
+[gd_resource type="Resource" script_class="Action" load_steps=11 format=3 uid="uid://27ono85pw0ws"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_ovjum"]
+[ext_resource type="Resource" uid="uid://cnu7r3224b3w3" path="res://resources/animations/baseline animations/elemental anisets/buff and debuff/base_buff_aniset.tres" id="1_rbmie"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_ygpiq"]
 [ext_resource type="Resource" uid="uid://dryvh1auub4o8" path="res://resources/statuses/empowered.tres" id="2_hude2"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="3_6x4v3"]
@@ -29,4 +30,5 @@ action_id = "rally"
 action_name = "Rally"
 action_description = "Empower all allies + 2 Fortified to all."
 effects = Array[ExtResource("1_ovjum")]([SubResource("Resource_tisul"), SubResource("Resource_q6fjh")])
+animation_set = ExtResource("1_rbmie")
 action_type = 3

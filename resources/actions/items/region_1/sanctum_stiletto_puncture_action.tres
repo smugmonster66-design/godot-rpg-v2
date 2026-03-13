@@ -12,5 +12,6 @@ script = ExtResource("6_rstww")
 action_id = "weapon_sanctum_stiletto_puncture"
 action_name = "Puncture"
 action_description = "A quick pierce that applies 2 Bleed. Reliable opener for bleed builds."
+damage_element = 2
 min_dice_required = 1
 effects = Array[ExtResource("2_4g8r8")]([ExtResource("3_0ycx6"), ExtResource("4_172me")])

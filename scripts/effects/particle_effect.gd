@@ -24,9 +24,9 @@ class_name ParticleEffect
 ## Apply color_override to the sprite as well (via modulate)
 @export var tint_sprite: bool = false
 
-@onready var particles: GPUParticles2D = get_node_or_null("GPUParticles2D")
-@onready var burst: Node2D = get_node_or_null("BurstParticles2D")
-@onready var sprite: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
+@onready var particles: GPUParticles2D = _find_child_of_class("GPUParticles2D")
+@onready var burst: Node2D = _find_burst_child()
+@onready var sprite: AnimatedSprite2D = _find_child_of_class("AnimatedSprite2D")
 
 func play():
 	if not particles and not burst and not sprite:
@@ -87,3 +87,21 @@ func play():
 		await sprite.animation_finished
 
 	_on_finished()
+
+
+
+func _find_child_of_class(class_name_str: String) -> Node:
+	for child in get_children():
+		if child.get_class() == class_name_str:
+			return child
+	return null
+
+func _find_burst_child() -> Node2D:
+	"""Find BurstParticles2D child. It's an addon type, so check by script class name."""
+	for child in get_children():
+		if child.get_class() == "BurstParticles2D":
+			return child
+		# BurstParticles2D may report as Node2D — check script class
+		if child.get_script() and child.has_method("burst"):
+			return child
+	return null

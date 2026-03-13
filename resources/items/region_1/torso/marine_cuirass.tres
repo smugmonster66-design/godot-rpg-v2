@@ -7,13 +7,14 @@
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_rom8j"]
 [ext_resource type="Resource" uid="uid://bo60aqpcko6p6" path="res://resources/affixes/base_stats/inherent_barrier_hybrid.tres" id="4_34fk5"]
 [ext_resource type="Resource" uid="uid://cbv0pogyu7y55" path="res://resources/slot_definitions/torso_slot.tres" id="4_w60jo"]
-[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="6_64ave"]
+[ext_resource type="Texture2D" uid="uid://cwarqhi40ocab" path="res://assets/items/torso/marine cuirass.png" id="6_64ave"]
 
 [resource]
 script = ExtResource("3_rom8j")
 item_name = "Marine Cuirass"
 description = ""
 flavor_text = "Standard Marine issue. The arrogance is also standard issue."
+icon = ExtResource("6_64ave")
 rarity = 1
 equip_slot = 1
 slot_definition = ExtResource("4_w60jo")

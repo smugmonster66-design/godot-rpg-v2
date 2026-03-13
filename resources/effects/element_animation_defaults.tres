@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="ElementAnimationDefaults" load_steps=10 format=3 uid="uid://q88nqa1jnim0"]
+
+[ext_resource type="Resource" uid="uid://d2cuj62scv8by" path="res://resources/animations/baseline animations/elemental anisets/blunt/base_blunt_aniset.tres" id="1_270y4"]
+[ext_resource type="Script" uid="uid://62kw5xqtw6y2" path="res://resources/data/element_animation_defaults.gd" id="1_v2pnc"]
+[ext_resource type="Resource" uid="uid://bgjeq3ifqp066" path="res://resources/animations/classes/mage/flame/chromatic bolt/cboltflame/chromatic_bolt_fire_animation_set.tres" id="2_pw4nu"]
+[ext_resource type="Resource" uid="uid://cv80sowk2cnj7" path="res://resources/animations/baseline animations/elemental anisets/ice/base_ice_aniset.tres" id="3_3yrp2"]
+[ext_resource type="Resource" uid="uid://cx8fw0em8d65a" path="res://resources/animations/baseline animations/elemental anisets/piercing/base_piercing_aniset.tres" id="4_3uh55"]
+[ext_resource type="Resource" uid="uid://6mj8ow0748s3" path="res://resources/animations/baseline animations/elemental anisets/poison/base_poison_aniset.tres" id="5_fq6f7"]
+[ext_resource type="Resource" uid="uid://cl2aqobrvgqk5" path="res://resources/animations/baseline animations/elemental anisets/shadow/base_shadow_aniset.tres" id="7_c33tr"]
+[ext_resource type="Resource" uid="uid://tspwgx50bmmh" path="res://resources/animations/classes/mage/storm/chromatic bolt/chromatic_bolt_lightning_aniset.tres" id="8_38hcn"]
+[ext_resource type="Resource" uid="uid://c40s1c0dvwjjt" path="res://resources/animations/baseline animations/elemental anisets/slashing/base_slash_aniset.tres" id="9_5u4m8"]
+
+[resource]
+script = ExtResource("1_v2pnc")
+slashing = ExtResource("9_5u4m8")
+blunt = ExtResource("1_270y4")
+piercing = ExtResource("4_3uh55")
+fire = ExtResource("2_pw4nu")
+ice = ExtResource("3_3yrp2")
+shock = ExtResource("8_38hcn")
+poison = ExtResource("5_fq6f7")
+shadow = ExtResource("7_c33tr")
+metadata/_custom_type_script = "uid://62kw5xqtw6y2"

@@ -11,6 +11,7 @@ script = ExtResource("5_usdyo")
 action_id = "weapon_longbow_volley"
 action_name = "Volley"
 action_description = "Fire two arrows at random targets."
+damage_element = 2
 die_slots = 2
 min_dice_required = 1
 effects = Array[ExtResource("2_0c2bq")]([ExtResource("3_n1g16")])

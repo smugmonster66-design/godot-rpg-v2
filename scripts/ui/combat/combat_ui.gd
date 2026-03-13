@@ -1201,6 +1201,8 @@ func animate_die_to_action_field(die_visual: Control, action_name: String, die: 
 	
 	field.dice_visuals.append(clone)
 	field.update_icon_state()
+	field._update_damage_preview()
+
 
 
 
@@ -1881,7 +1883,14 @@ func _collapse_enemy_action_field() -> void:
 	tween.tween_property(current_expanded_field, "scale", Vector2(0.3, 0.3), 0.25)
 	tween.tween_property(current_expanded_field, "modulate:a", 0.0, 0.2)
 	
-	await tween.finished
+	var collapse_timer = get_tree().create_timer(2.0)
+	var collapse_done = [false]
+	tween.finished.connect(func(): collapse_done[0] = true, CONNECT_ONE_SHOT)
+	collapse_timer.timeout.connect(func(): collapse_done[0] = true, CONNECT_ONE_SHOT)
+	while not collapse_done[0]:
+		await get_tree().process_frame
+	if not tween.is_valid():
+		push_warning("⚠️ Enemy collapse tween was invalidated")
 	
 	# Cleanup
 	if expanded_field_overlay:

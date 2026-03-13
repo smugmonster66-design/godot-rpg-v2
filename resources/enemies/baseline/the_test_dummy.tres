@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=16 format=3 uid="uid://b503wt018tst7"]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_sxjg4"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_vqsmt"]
+[ext_resource type="Resource" uid="uid://dsi64wh8bt513" path="res://resources/animations/baseline animations/elemental anisets/buff and debuff/base_heal_aniset.tres" id="2_yt48h"]
+[ext_resource type="Resource" uid="uid://dey1njrhd3r2d" path="res://resources/affixes/base_stats/enemy_inherent_health.tres" id="3_0otn4"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="3_nyu4v"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="4_7elew"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="4_45uag"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="5_o037d"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="5_xmwsb"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_5x2vk"]
+[ext_resource type="Texture2D" uid="uid://co0exon8m1uc0" path="res://assets/characters/enemies/test_dummy_128.png" id="9_6bq88"]
+[ext_resource type="Resource" uid="uid://bwqwi8papc0sf" path="res://resources/dice/base/test_dummy_d6.tres" id="12_17fjg"]
+[ext_resource type="Resource" uid="uid://syra6v8npt41" path="res://resources/enemy_templates/support_int.tres" id="13_eqkhn"]
+
+[sub_resource type="Resource" id="Resource_616nk"]
+script = ExtResource("4_45uag")
+effect_name = "Mend Heal"
+target = 0
+effect_type = 1
+value_source = 1
+heal_uses_dice = true
+
+[sub_resource type="Resource" id="Resource_ogp0y"]
+script = ExtResource("1_sxjg4")
+action_id = "mend"
+action_name = "Mend"
+action_description = "Heal an ally for die value."
+effects = Array[ExtResource("4_45uag")]([SubResource("Resource_616nk")])
+animation_set = ExtResource("2_yt48h")
+action_type = 2
+
+[resource]
+script = ExtResource("4_7elew")
+enemy_name = "Test Dummy"
+description = "Hit me."
+portrait = ExtResource("9_6bq88")
+template = ExtResource("13_eqkhn")
+combat_role = 4
+max_health = 99999
+starting_dice = Array[ExtResource("5_o037d")]([ExtResource("12_17fjg")])
+combat_actions = Array[ExtResource("1_sxjg4")]([SubResource("Resource_ogp0y")])
+metadata/_custom_type_script = "uid://dgbvtipfph6x3"

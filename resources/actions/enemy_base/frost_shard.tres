@@ -1,6 +1,5 @@
-[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://dkskjvqg2xh1k"]
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://dkskjvqg2xh1k"]
 
-[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_2hp2y"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_ty2ds"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_2hp2y"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_k3orc"]
@@ -20,7 +19,7 @@ script = ExtResource("4_k3orc")
 action_id = "frost_shard"
 action_name = "Frost Shard"
 action_description = "Deals 1D+1 Ice damage at 0.8×."
+damage_element = 4
 effects = Array[ExtResource("1_ty2ds")]([SubResource("Resource_pab1m")])
-animation_set = ExtResource("1_2hp2y")
 base_damage = 1
 damage_multiplier = 0.8

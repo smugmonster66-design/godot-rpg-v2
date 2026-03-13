@@ -1,6 +1,5 @@
-[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://t07im4pj58ml"]
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://t07im4pj58ml"]
 
-[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_25t0e"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_u7v15"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_25t0e"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_uqjc3"]
@@ -20,7 +19,7 @@ script = ExtResource("4_uqjc3")
 action_id = "magic_bolt"
 action_name = "Magic Bolt"
 action_description = "Deals 1D+2 Fire damage at 1.1×."
+damage_element = 3
 effects = Array[ExtResource("1_u7v15")]([SubResource("Resource_l2d6t")])
-animation_set = ExtResource("1_25t0e")
 base_damage = 2
 damage_multiplier = 1.1

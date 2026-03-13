@@ -633,12 +633,12 @@ func _scan_slot_folder(path: String) -> Array:
 func _populate_dropdowns() -> void:
 	_refresh_table_list()
 
-	var rarity_names := ["Auto (Template)", "Common", "Uncommon", "Rare", "Epic", "Legendary"]
+	var rarity_names := ["Random", "Common", "Uncommon", "Rare", "Epic", "Legendary"]
 	for dropdown in [_table_rarity_dropdown, _raw_rarity_dropdown]:
 		dropdown.clear()
 		for i in rarity_names.size():
 			dropdown.add_item(rarity_names[i], i)
-	_raw_rarity_dropdown.selected = 3
+	_raw_rarity_dropdown.selected = 0
 
 	_refresh_raw_slots()
 	_refresh_consumable_tiers()
@@ -723,12 +723,18 @@ func _on_roll_table() -> void:
 				if not item:
 					continue
 
-				if rarity_idx > 0:
-					item.rarity = rarity_idx - 1
-					item.item_affixes.clear()
-					item.inherent_affixes.clear()
-					item.rolled_affixes.clear()
-					item.initialize_affixes()
+				# Rarity: 0 = Random, 1-5 = specific override
+				var use_rarity: int
+				if rarity_idx == 0:
+					use_rarity = _roll_random_rarity()
+				else:
+					use_rarity = rarity_idx - 1
+
+				item.rarity = use_rarity
+				item.item_affixes.clear()
+				item.inherent_affixes.clear()
+				item.rolled_affixes.clear()
+				item.initialize_affixes()
 
 				_add_item_result(item)
 
@@ -770,8 +776,13 @@ func _on_generate_raw() -> void:
 	item.item_level = level
 	item.region = region
 
-	if rarity_idx > 0:
-		item.rarity = rarity_idx - 1
+	# Rarity: 0 = Random, 1-5 = specific override
+	var use_rarity: int
+	if rarity_idx == 0:
+		use_rarity = _roll_random_rarity()
+	else:
+		use_rarity = rarity_idx - 1
+	item.rarity = use_rarity
 
 	item.item_affixes.clear()
 	item.inherent_affixes.clear()
@@ -872,6 +883,25 @@ func _get_player() -> Player:
 			if gm.get("player"):
 				return gm.player
 	return null
+
+
+# Weighted random rarity: Common 40%, Uncommon 30%, Rare 18%, Epic 9%, Legendary 3%
+# Weighted random rarity: Common 40%, Uncommon 30%, Rare 18%, Epic 12%
+# Legendary is excluded — those are bespoke uniques from the world legendary pool
+const RARITY_WEIGHTS: Array[float] = [40.0, 30.0, 18.0, 12.0]
+
+
+func _roll_random_rarity() -> int:
+	var total := 0.0
+	for w in RARITY_WEIGHTS:
+		total += w
+	var roll := randf() * total
+	var cumulative := 0.0
+	for i in RARITY_WEIGHTS.size():
+		cumulative += RARITY_WEIGHTS[i]
+		if roll <= cumulative:
+			return i
+	return 0
 
 
 func _get_rarity_hex(rarity: int) -> String:

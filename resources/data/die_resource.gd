@@ -384,24 +384,28 @@ const ELEMENT_TO_DAMAGE_TYPE = {
 
 func get_effective_element() -> Element:
 	"""Get the die's effective element after dice affix overrides.
-	Priority: ADD_DAMAGE_TYPE affix > innate element > NONE
+	Priority: ADD_DAMAGE_TYPE affix (pure override only) > innate element > NONE
+	ADD_DAMAGE_TYPE affixes with effect_value > 0 add bonus damage of a secondary
+	element but do not reclassify the die — those are skipped here.
 	"""
 	# Check applied affixes first (highest priority)
 	for affix in applied_affixes:
-		if affix and affix.effect_type == DiceAffix.EffectType.ADD_DAMAGE_TYPE:
+		if affix and affix.effect_type == DiceAffix.EffectType.ADD_DAMAGE_TYPE \
+				and affix.effect_value == 0.0:
 			var type_str = affix.get_damage_type()
 			var mapped = _string_to_element(type_str)
 			if mapped != Element.NONE:
 				return mapped
-	
+
 	# Check inherent affixes
 	for affix in inherent_affixes:
-		if affix and affix.effect_type == DiceAffix.EffectType.ADD_DAMAGE_TYPE:
+		if affix and affix.effect_type == DiceAffix.EffectType.ADD_DAMAGE_TYPE \
+				and affix.effect_value == 0.0:
 			var type_str = affix.get_damage_type()
 			var mapped = _string_to_element(type_str)
 			if mapped != Element.NONE:
 				return mapped
-	
+
 	# Fall back to innate element
 	return element
 

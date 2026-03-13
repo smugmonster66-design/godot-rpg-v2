@@ -2,8 +2,10 @@
 
 [ext_resource type="Script" uid="uid://dhg3menrmqvi7" path="res://scripts/effects/projectile_effect.gd" id="1_proj"]
 [ext_resource type="Texture2D" uid="uid://l803qnfhqkfs" path="res://assets/particles/Complex/circle/rounded_1.png" id="2_blob"]
-[ext_resource type="Texture2D" uid="uid://cgkrpyc2tvnur" path="res://assets/particles/512x/smoke_07_a.png" id="3_smoke"]
 [ext_resource type="Texture2D" uid="uid://bysl4gb6j2nt3" path="res://assets/particles/Complex/flare/flare_28.png" id="4_u7baj"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_g2geh"]
+load_path = "res://.godot/imported/smoke_07_a.png-080e78fc4268f95218e6ea837fb9bd34.ctex"
 
 [sub_resource type="Gradient" id="Gradient_trail"]
 offsets = PackedFloat32Array(0, 0.4, 1)
@@ -48,7 +50,7 @@ scale = Vector2(0.28, 0.28)
 texture = ExtResource("2_blob")
 
 [node name="GPUParticles2D" type="GPUParticles2D" parent="."]
-texture = ExtResource("3_smoke")
+texture = SubResource("CompressedTexture2D_g2geh")
 lifetime = 0.4
 randomness = 0.55
 process_material = SubResource("PPM_trail")

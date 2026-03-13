@@ -566,17 +566,21 @@ func get_resolved_description() -> String:
 		return ""
 
 	var value_str: String
+	var is_percent := rounding_mode == RoundMode.DECIMAL_2 or (effect_number > 0.0 and effect_number < 1.0)
+
 	if _is_multiplier_category():
 		value_str = "%.2f" % effect_number
-	elif rounding_mode == RoundMode.DECIMAL_2:
-		value_str = "%d%%" % int(effect_number * 100)
-	elif effect_number > 0.0 and effect_number < 1.0:
-		# Legacy fallback for untagged percentage affixes
-		value_str = "%d%%" % int(effect_number * 100)
+	elif is_percent:
+		value_str = "%d" % int(effect_number * 100)
 	else:
 		value_str = str(int(effect_number))
 
+	# Add % suffix only if the description doesn't already have one after N
+	if is_percent and "N%" not in description and "{value}%" not in description:
+		value_str += "%"
+
 	return description.replace("N", value_str).replace("{value}", value_str)
+
 
 func _is_multiplier_category() -> bool:
 	"""Check if this affix's category is a multiplier type."""

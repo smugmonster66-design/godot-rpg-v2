@@ -20,6 +20,7 @@ enum ChargeType {
 @export_multiline var action_description: String = ""
 @export var damage_formula: String = ""
 @export var icon: Texture2D = null
+@export var damage_element: ActionEffect.DamageType = ActionEffect.DamageType.SLASHING
 
 # ============================================================================
 # DICE REQUIREMENTS

@@ -1,6 +1,5 @@
-[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://bbxydxonqjqr1"]
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://bbxydxonqjqr1"]
 
-[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_1imlq"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_fih6b"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_1imlq"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_56k0p"]
@@ -18,5 +17,5 @@ script = ExtResource("4_56k0p")
 action_id = "stab"
 action_name = "Stab"
 action_description = "Deals 1D Piercing damage."
+damage_element = 2
 effects = Array[ExtResource("1_fih6b")]([SubResource("Resource_syex5")])
-animation_set = ExtResource("1_1imlq")

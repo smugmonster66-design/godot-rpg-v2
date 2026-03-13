@@ -12,6 +12,7 @@ script = ExtResource("6_sfvla")
 action_id = "weapon_storm_staff_thunderstrike"
 action_name = "Thunderstrike"
 action_description = "Applies 3 Static. Chains to a second target for half damage."
+damage_element = 5
 die_slots = 2
 min_dice_required = 1
 effects = Array[ExtResource("2_s20om")]([ExtResource("3_lbndf"), ExtResource("4_3uuln")])

@@ -29,6 +29,7 @@ action_id = "mage_chromatic_bolt"
 action_name = "Chromatic Bolt"
 action_description = "A bolt of prismatic energy that matches the element of its dice. "
 damage_formula = "D + 1 Fire + 1 Ice + 1 Shock"
+damage_element = 3
 min_dice_required = 1
 accepted_elements = Array[int]([4, 5, 6])
 charge_type = 1

@@ -1,14 +1,11 @@
 # res://scripts/game/combat_manager.gd
 # Combat manager - handles combat flow with encounter spawning
 extends Node2D
-
 # ============================================================================
 # NODE REFERENCES
 # ============================================================================
 @onready var encounter_spawner: EncounterSpawner = $EncounterSpawner
 @onready var animation_player: CombatAnimationPlayer = $CombatAnimationPlayer
-
-
 var player_combatant: Combatant = null
 var enemy_combatants: Array[Combatant] = []
 var combat_ui = null
@@ -34,10 +31,9 @@ var _combat_initialized: bool = false  # Add this line
 ## When true, _check_combat_end() records the result but does NOT call
 ## end_combat(). Set at the start of action resolution, cleared at the end.
 var _defer_combat_end: bool = false
-
 ## Tracks the deferred result: -1 = no pending end, 0 = player lost, 1 = player won.
 var _deferred_combat_end_result: int = -1
-
+var element_animation_defaults: ElementAnimationDefaults = null
 
 
 
@@ -48,32 +44,23 @@ enum CombatState {
 	ANIMATING,
 	ENDED
 }
-
 enum TurnPhase {
 	NONE,       ## Not the player's turn
 	PREP,       ## Player can open menu / swap gear
 	ACTION,     ## Hand rolled, menu locked, placing dice
 }
-
 var combat_state: CombatState = CombatState.INITIALIZING
 var turn_phase: TurnPhase = TurnPhase.NONE
-
 # Per-combat charge tracker — prevents charge reset exploits from re-equipping
 # Key: action resource_path (String), Value: charges consumed (int)
 var combat_charge_tracker: Dictionary = {}
-
-
-
 ## v5: Track how many unique enemies the player hit this turn (for Crucible's Gift)
 var _enemies_hit_this_turn: Array = []
 var _enemies_hit_last_turn: int = 0
-
-
 # Turn order
 var turn_order: Array[Combatant] = []
 var current_turn_index: int = 0
 var current_round: int = 0
-
 # ============================================================================
 # SIGNALS
 # ============================================================================
@@ -82,11 +69,9 @@ signal turn_started(combatant: Combatant, is_player: bool)
 signal player_turn_ended()
 signal round_started(round_number: int)
 signal turn_phase_changed(phase: TurnPhase)
-
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
-
 func _ready():
 	
 	add_to_group("combat_manager")
@@ -102,10 +87,12 @@ func _ready():
 	# Setup UI connections
 	setup_ui_connections()
 	
+	element_animation_defaults = load("res://resources/effects/element_animation_defaults.tres")
+	
+	
 	# Check for pending encounter from GameManager
 	await get_tree().process_frame
 	check_pending_encounter()
-
 func find_combat_nodes():
 	"""Find combat nodes in the scene tree"""
 	print("🔍 Finding combat nodes...")
@@ -135,14 +122,12 @@ func find_combat_nodes():
 	if not combat_ui:
 		combat_ui = find_child("CombatUI", true, false)
 	print("  CombatUI: %s" % ("✓" if combat_ui else "✗"))
-
 	# Create CompanionManager
 	if not companion_manager:
 		companion_manager = CompanionManager.new()
 		companion_manager.name = "CompanionManager"
 		add_child(companion_manager)
 		print("  [OK] CompanionManager created")
-
 func setup_encounter_spawner():
 	"""Setup encounter spawner signals"""
 	if encounter_spawner:
@@ -150,7 +135,6 @@ func setup_encounter_spawner():
 			encounter_spawner.enemies_spawned.connect(_on_enemies_spawned)
 		if not encounter_spawner.spawn_failed.is_connected(_on_spawn_failed):
 			encounter_spawner.spawn_failed.connect(_on_spawn_failed)
-
 func setup_ui_connections():
 	"""Setup combat UI signal connections"""
 	if combat_ui:
@@ -162,7 +146,6 @@ func setup_ui_connections():
 	
 	# v4 — Status Thresholds: Connect threshold signals
 	_connect_status_threshold_signals()
-
 func check_pending_encounter():
 	"""Check if GameManager has a pending encounter"""
 	if GameManager and GameManager.pending_encounter:
@@ -172,9 +155,6 @@ func check_pending_encounter():
 		
 		if GameManager.player:
 			initialize_combat(GameManager.player)
-
-
-
 func _execute_conditional_riders(action_resource: Action,
 		source: Combatant, targets: Array) -> void:
 	if not action_resource.has_meta("conditional_riders"):
@@ -199,8 +179,6 @@ func _execute_conditional_riders(action_resource: Action,
 			var rider_results := effect.execute(
 				source, targets, [], combat_context)
 			_process_action_effect_results(rider_results, source)
-
-
 func _execute_action(action_data: Dictionary, source: Node2D, targets: Array[Combatant]):
 	var animation_set = action_data.get("animation_set") as CombatAnimationSet
 	
@@ -234,14 +212,12 @@ func _execute_action(action_data: Dictionary, source: Node2D, targets: Array[Com
 		_apply_action_effect(action_data, s, live_targets)
 	
 	animation_player.apply_effect_now.connect(apply_effect_callable, CONNECT_ONE_SHOT)
-
 	await animation_player.play_action_animation(
 		animation_set,
 		source_pos,
 		target_positions,
 		target_nodes
 	)
-
 	# ── Animated chain hops ──
 	# Both ActionEffect.CHAIN and DiceAffix chain events push to _pending_chain_hops
 	# during the effect application above. Now that the primary animation is done,
@@ -249,29 +225,22 @@ func _execute_action(action_data: Dictionary, source: Node2D, targets: Array[Com
 	if not _pending_chain_hops.is_empty():
 		var primary = targets[0] if targets.size() > 0 else null
 		await _execute_pending_chain_hops(primary)
-
 func _run_chain_hops_async(primary_target) -> void:
 	"""Fire-and-forget wrapper so chain hops run concurrently with impact animation."""
 	_chain_hops_running = true
 	await _execute_pending_chain_hops(primary_target)
 	_chain_hops_running = false
-
-
 func _execute_pending_chain_hops(primary_target) -> void:
 	"""Drain _pending_chain_hops and animate each group sequentially.
 	Called from _execute_action() after play_action_animation() awaits."""
 	var hops_to_run: Array[Dictionary] = _pending_chain_hops.duplicate()
 	_pending_chain_hops.clear()
-
 	for group in hops_to_run:
 		await _execute_chain_hop_group(group)
-
-
 func _execute_chain_hop_group(group: Dictionary) -> void:
 	"""Animate and apply damage for one group of chain hops.
 	Travels from start_node → target[0] → target[1] → ... with optional
 	travel projectile and impact burst at each landing.
-
 	group keys:
 	  start_node       : Node2D — where the first hop originates (primary target)
 	  targets          : Array[Combatant] — ordered hop targets
@@ -284,7 +253,6 @@ func _execute_chain_hop_group(group: Dictionary) -> void:
 	var anim_config: ChainAnimationConfig = group.get("chain_animation", null)
 	var element = group.get("element", "")
 	var start_node = group.get("start_node")
-
 	var start_idx = enemy_combatants.find(start_node) if start_node else -1
 	var from_pos: Vector2
 	if start_idx >= 0:
@@ -293,20 +261,15 @@ func _execute_chain_hop_group(group: Dictionary) -> void:
 		from_pos = start_node.global_position
 	else:
 		from_pos = Vector2.ZERO
-
 	var effects_layer = animation_player.effects_layer if animation_player else null
-
 	for i in range(mini(targets.size(), damages.size())):
 		var ct: Combatant = targets[i]
 		var dmg: int = damages[i]
-
 		if not is_instance_valid(ct) or not ct.is_alive():
 			continue
-
 		var enemy_idx = enemy_combatants.find(ct)
 		var to_pos: Vector2 = _get_enemy_portrait_position(enemy_idx) \
 			if enemy_idx >= 0 else ct.global_position
-
 		# ── Travel projectile (arc from previous position to this target) ──
 		if anim_config and anim_config.travel_effect and effects_layer:
 			var projectile = anim_config.travel_effect.instantiate()
@@ -323,7 +286,6 @@ func _execute_chain_hop_group(group: Dictionary) -> void:
 		elif anim_config:
 			# Config exists but no travel scene — brief pause for timing feel
 			await get_tree().create_timer(anim_config.travel_duration).timeout
-
 		# ── Apply damage ──
 		var actual_chain := _apply_elemental_damage(ct, dmg, element)
 		var idx = enemy_combatants.find(ct)
@@ -332,10 +294,12 @@ func _execute_chain_hop_group(group: Dictionary) -> void:
 			var v = _get_combatant_visual(ct)
 			if v:
 				event_bus.emit_damage_dealt(v, actual_chain, str(element), false)
+		# Source floater for damage_received_bonuses (e.g. Static)
+		if element is int and element >= 0:
+			_emit_received_bonus_floaters(ct, [element])
 		if idx >= 0:
 			_update_enemy_health(idx)
 			_check_enemy_death(ct)
-
 		# ── Impact burst (fire-and-forget — does not block next hop) ──
 		if anim_config and anim_config.impact_effect and effects_layer:
 			var impact = anim_config.impact_effect.instantiate()
@@ -343,17 +307,13 @@ func _execute_chain_hop_group(group: Dictionary) -> void:
 			impact.global_position = to_pos
 			if impact.has_method("play"):
 				impact.play()
-
 		# ── Optional gap between hops ──
 		if anim_config and anim_config.hop_delay > 0.0:
 			await get_tree().create_timer(anim_config.hop_delay).timeout
-
 		from_pos = to_pos
-
 # ============================================================================
 # ENCOUNTER SPAWNING
 # ============================================================================
-
 func _on_enemies_spawned(enemies: Array[Combatant]):
 	"""Handle enemies spawned by EncounterSpawner"""
 	enemy_combatants = enemies
@@ -363,11 +323,9 @@ func _on_enemies_spawned(enemies: Array[Combatant]):
 		_connect_enemy_signals(enemy_combatants[i], i)
 	
 	print("⚔️ %d enemies ready for combat" % enemy_combatants.size())
-
 func _on_spawn_failed(reason: String):
 	"""Handle spawn failure"""
 	push_error("⚔️ Encounter spawn failed: %s" % reason)
-
 func _connect_enemy_signals(enemy: Combatant, index: int):
 	"""Connect signals for an enemy combatant"""
 	if not enemy.health_changed.is_connected(_on_enemy_health_changed):
@@ -376,11 +334,9 @@ func _connect_enemy_signals(enemy: Combatant, index: int):
 		enemy.died.connect(_on_enemy_died.bind(enemy))
 	if not enemy.turn_completed.is_connected(_on_combatant_turn_completed):
 		enemy.turn_completed.connect(_on_combatant_turn_completed.bind(enemy))
-
 # ============================================================================
 # COMBAT INITIALIZATION
 # ============================================================================
-
 func initialize_combat(p_player: Player):
 	"""Initialize combat with player data"""
 	print("⚔️ Initializing combat...")
@@ -403,7 +359,6 @@ func initialize_combat(p_player: Player):
 	# Continue initialization after spawning
 	await get_tree().process_frame
 	_finalize_combat_init(p_player)
-
 func _finalize_combat_init(p_player: Player):
 	"""Finalize combat initialization after enemies are ready"""
 	if _combat_initialized:
@@ -448,7 +403,6 @@ func _finalize_combat_init(p_player: Player):
 	# Initialize UI
 	if combat_ui:
 		combat_ui.initialize_ui(player, enemy_combatants)
-
 	# Initialize companions
 	if companion_manager:
 		companion_manager.initialize(player, self)
@@ -456,20 +410,15 @@ func _finalize_combat_init(p_player: Player):
 		trigger_processor._companion_manager = companion_manager
 		trigger_processor._combat_manager = self
 		print("  [OK] CompanionTriggerProcessor initialized")
-
 	# Acquire companion panel for animation source positions
 	if GameManager and GameManager.game_root and GameManager.game_root.companion_panel:
 		companion_panel = GameManager.game_root.companion_panel
 		print("  [OK] CompanionPanel linked for companion animations")
-
-
 	if companion_panel and companion_manager:
 		for i in range(companion_manager.TOTAL_SLOTS):
 			var comp: CompanionCombatant = companion_manager.get_slot(i)
 			if comp and is_instance_valid(comp):
 				companion_panel.set_companion(i, comp)
-
-
 	# Connect cleanup
 	if not combat_ended.is_connected(_on_combat_ended):
 		combat_ended.connect(_on_combat_ended)
@@ -530,22 +479,18 @@ func _finalize_combat_init(p_player: Player):
 	# --- Reactive Animation: Bridge status signals to event bus ---
 	if event_bus:
 		_connect_status_event_bridges()
-
 	# Brief delay for scene transition (fade-from-black is ~0.7s)
 	if GameManager.game_root and GameManager.game_root.is_in_dungeon:
 		await get_tree().create_timer(0.5).timeout
-
 	print("🔍 BEFORE drop-in check: combat_ui=%s, enemy_panel=%s" % [
 		combat_ui != null,
 		combat_ui.enemy_panel != null if combat_ui else "N/A"])
-
 	if combat_ui and combat_ui.enemy_panel and combat_ui.enemy_panel.has_method("play_drop_in_animation"):
 		print("🔍 CALLING play_drop_in_animation()")
 		await combat_ui.enemy_panel.play_drop_in_animation()
 		print("🔍 RETURNED from play_drop_in_animation()")
 	else:
 		print("🔍 SKIPPED drop-in — condition failed")
-
 	# Initialize threat trackers for each enemy
 	enemy_threat_trackers.clear()
 	for enemy in enemy_combatants:
@@ -567,12 +512,8 @@ func _finalize_combat_init(p_player: Player):
 			companion_manager.companion_died.connect(_on_companion_died_threat_update)
 		if not companion_manager.companion_spawned.is_connected(_on_companion_spawned_threat_update):
 			companion_manager.companion_spawned.connect(_on_companion_spawned_threat_update)
-
-
 	print("🔍 CALLING _start_round()")
 	_start_round()
-
-
 func _connect_status_event_bridges():
 	"""Bridge StatusTracker signals to CombatEventBus for reactive animations.
 	Keeps StatusTracker decoupled — it doesn't know about the event bus."""
@@ -611,8 +552,6 @@ func _connect_status_event_bridges():
 						if visual:
 							event_bus.emit_status_removed(visual, sid)
 			)
-
-
 func _sync_player_to_combatant():
 	"""Sync player stats to combatant"""
 	if player and player_combatant:
@@ -621,7 +560,6 @@ func _sync_player_to_combatant():
 		player_combatant.combatant_name = "Player"
 		player_combatant.update_display()
 		print("  ✅ Synced player to combatant")
-
 func _build_turn_order():
 	"""Build the turn order array"""
 	turn_order.clear()
@@ -641,18 +579,14 @@ func _build_turn_order():
 			if enemy.is_alive():
 				turn_order.append(enemy)
 		turn_order.append(player_combatant)
-
 # ============================================================================
 # TURN ORDER MANAGEMENT
 # ============================================================================
-
 func _start_round():
 	"""Start a new round"""
 	current_round += 1
 	current_turn_index = 0
-
 	print("\n[Combat] === ROUND %d ===" % current_round)
-
 	# --- COMPANIONS: Tick cooldowns and durations ---
 	if companion_manager:
 		var expired_slots = companion_manager.tick_round()
@@ -670,7 +604,6 @@ func _start_round():
 	
 	round_started.emit(current_round)
 	_start_current_turn()
-
 func _start_current_turn():
 	"""Start the current combatant's turn"""
 	# Skip dead combatants
@@ -718,7 +651,6 @@ func _start_current_turn():
 		_start_player_turn()
 	else:
 		_start_enemy_turn(combatant)
-
 func _end_current_turn():
 	if combat_state == CombatState.ENDED:
 		return
@@ -730,7 +662,6 @@ func _end_current_turn():
 	
 	current_turn_index += 1
 	_start_current_turn()
-
 func _end_round():
 	"""End round and check for combat end or start new round"""
 	print("\n⚔️ === ROUND %d ENDED ===" % current_round)
@@ -744,7 +675,6 @@ func _end_round():
 		return
 	
 	_start_round()
-
 func _check_combat_end() -> bool:
 	if combat_state == CombatState.ENDED:
 		return true
@@ -772,7 +702,6 @@ func _check_combat_end() -> bool:
 		return true
 	
 	return false
-
 func _flush_deferred_combat_end() -> void:
 	_defer_combat_end = false
 	if _deferred_combat_end_result < 0:
@@ -788,52 +717,36 @@ func _flush_deferred_combat_end() -> void:
 		_victory_sequence()
 	else:
 		end_combat(false)
-
-
-
-
 # ============================================================================
 # PLAYER TURN
 # ============================================================================
-
 func _start_player_turn():
 	"""Start player's turn — enters PREP phase first"""
 	combat_state = CombatState.PLAYER_TURN
-
 	# v5: Update multi-target tracking for Crucible's Gift
 	_enemies_hit_last_turn = _enemies_hit_this_turn.size()
 	_enemies_hit_this_turn.clear()
-
 	# --- STATUS: Start-of-turn processing ---
 	if player:
 		var tick_results = player.status_tracker.process_turn_start()
 		await _apply_status_tick_results(player, player_combatant, tick_results)
-
 		# Check if player died from DoT damage
 		if not player_combatant.is_alive():
 			_check_player_death()
 			return
 	
 	# --- END STATUS ---
-
-
-
 	if event_bus:
 			event_bus.emit_round_started(current_round)
-
 	# --- COMPANIONS: Player turn start triggers ---
 	await _fire_companions_animated(CompanionData.CompanionTrigger.PLAYER_TURN_START)
 	# --- END COMPANIONS ---
-
 	# --- PROC: Turn-start procs ---
 	if player and player.affix_manager and proc_processor:
 		var turn_start_results = proc_processor.process_turn_start(
 			player.affix_manager, _build_proc_context())
 		_apply_proc_results(turn_start_results)
 	# --- END PROC ---
-
-
-
 	
 	# --- BATTLEFIELD: Process channels at player turn start ---
 	if battlefield_tracker and battlefield_tracker.has_any_effects():
@@ -850,32 +763,24 @@ func _start_player_turn():
 		if _check_combat_end():
 			return
 	# --- END BATTLEFIELD ---
-
-
 	# Enter prep phase — menu is accessible, hand is NOT rolled yet
 	turn_phase = TurnPhase.PREP
 	turn_phase_changed.emit(TurnPhase.PREP)
-
 	if combat_ui:
 		combat_ui.enter_prep_phase()
-
 func _on_roll_pressed():
 	"""Player pressed Roll — transition from PREP to ACTION phase"""
 	if combat_state != CombatState.PLAYER_TURN or turn_phase != TurnPhase.PREP:
 		return
-
 	print("🎲 Player pressed Roll — entering ACTION phase")
-
 	# Lock the menu
 	turn_phase = TurnPhase.ACTION
 	turn_phase_changed.emit(TurnPhase.ACTION)
-
 	# Force-close menu if open
 	if GameManager.game_root and GameManager.game_root.player_menu:
 		var menu = GameManager.game_root.player_menu
 		if menu.visible and menu.has_method("close_menu"):
 			menu.close_menu()
-
 	# Now do everything the old _start_player_turn did after status processing
 	if player and player.dice_pool:
 		# Clear stale action field dice BEFORE rolling new hand
@@ -883,23 +788,19 @@ func _on_roll_pressed():
 			for field in combat_ui.action_fields:
 				if is_instance_valid(field) and field.placed_dice.size() > 0:
 					field.clear_dice()
-
 		# Tell DicePoolDisplay to skip its built-in entrance animation
 		if combat_ui and combat_ui.dice_pool_display:
 			combat_ui.dice_pool_display.hide_for_roll_animation = true
-
 		# Roll the hand
 		player.dice_pool.roll_hand()
 		
 		
-
 		# Wait one frame for refresh to create visuals
 		await get_tree().process_frame
 		if combat_ui and combat_ui.roll_animator:
 			combat_ui.roll_animator.play_roll_sequence()
 	else:
 		print("  ⚠️ No player or dice_pool!")
-
 	# Wait for the roll animation to finish before enabling UI
 	if combat_ui and combat_ui.roll_animator:
 		await combat_ui.roll_animator.roll_animation_complete
@@ -907,7 +808,6 @@ func _on_roll_pressed():
 		var dice_count = player.dice_pool.hand.size() if player and player.dice_pool else 0
 		var animation_duration = dice_count * 0.08 + 0.25
 		await get_tree().create_timer(animation_duration).timeout
-
 	# Flush queued die mutations (status locks, value changes, particles)
 	await get_tree().process_frame
 	if player and player.dice_pool and combat_ui and combat_ui.dice_pool_display:
@@ -917,18 +817,12 @@ func _on_roll_pressed():
 	# Carry-over locks from previous turns (not captured by mutation queue)
 	if player and player.dice_pool:
 		player.dice_pool.emit_locked_die_events()
-
 	if combat_ui:
 		combat_ui.enter_action_phase()
 		
 	# Enable mana die dragging during action phase
 	if combat_ui and combat_ui.has_method("set_mana_drag_enabled"):
 		combat_ui.set_mana_drag_enabled(true)
-
-
-
-
-
 func _on_player_end_turn():
 	"""Player ended their turn"""
 	if combat_state != CombatState.PLAYER_TURN:
@@ -960,7 +854,6 @@ func _on_player_end_turn():
 			player.affix_manager, _build_proc_context())
 		_apply_proc_results(turn_end_results)
 	# --- END PROC ---
-
 	# --- COMPANIONS: Player turn end triggers ---
 	await _fire_companions_animated(CompanionData.CompanionTrigger.PLAYER_TURN_END)
 	# --- END COMPANIONS ---
@@ -970,9 +863,6 @@ func _on_player_end_turn():
 		combat_ui.tick_temp_action_fields()
 	
 	_end_current_turn()
-
-
-
 func _on_action_confirmed(action_data: Dictionary):
 	"""Player confirmed an action - plays animation then applies effect"""
 	if combat_state != CombatState.PLAYER_TURN:
@@ -983,11 +873,9 @@ func _on_action_confirmed(action_data: Dictionary):
 	
 	var target = action_data.get("target", null) as Combatant
 	var target_index = action_data.get("target_index", 0)
-
 	# Fallback to first living enemy if no target specified
 	if not target or not target.is_alive():
 		target = _get_first_living_enemy()
-
 	# ALWAYS derive index from the combatant reference — UI may pass slot index
 	target_index = enemy_combatants.find(target) if target else 0
 	
@@ -1016,6 +904,14 @@ func _on_action_confirmed(action_data: Dictionary):
 					if element_set:
 						animation_set = element_set
 	
+	# Global element fallback — if action has no animation set, use element defaults
+	if not animation_set and element_animation_defaults:
+		var dt := _resolve_action_damage_type(action_data)
+		if dt >= 0:
+			animation_set = element_animation_defaults.get_for_element(dt)
+	
+	
+	
 	# Get the action field that was used (for source position)
 	var action_field: ActionField = null
 	if combat_ui:
@@ -1037,15 +933,11 @@ func _on_action_confirmed(action_data: Dictionary):
 		await _play_action_with_animation(action_data, targets, target_index, animation_set, anim_player, action_field)
 	else:
 		_apply_action_effect(action_data, player_combatant, targets)
-
-
-
 func _get_combat_animation_player():
 	"""Find the CombatAnimationPlayer node"""
 	if has_node("CombatAnimationPlayer"):
 		return get_node("CombatAnimationPlayer")
 	return find_child("CombatAnimationPlayer", true, false)
-
 func _play_action_with_animation(action_data: Dictionary, targets: Array, target_index: int,
 		animation_set: CombatAnimationSet, anim_player, action_field: ActionField) -> void:
 	"""Play action animation and apply effect at the right timing"""
@@ -1164,19 +1056,13 @@ func _play_action_with_animation(action_data: Dictionary, targets: Array, target
 			_apply_action_effect(action_data, p, live_targets)
 			if not _pending_chain_hops.is_empty():
 				_run_chain_hops_async(live_targets[0] if live_targets.size() > 0 else null)
-
 	# ── Await chain hops (started concurrently at impact) ──
 	while _chain_hops_running:
 		await get_tree().process_frame
-
 	# Notify UI that action animation is complete (so it can collapse expanded field)
 	if combat_ui and combat_ui.has_method("on_action_animation_complete"):
 		await combat_ui.on_action_animation_complete()
-
 	combat_state = CombatState.PLAYER_TURN
-
-
-
 func _play_enemy_action_with_animation(action_data: Dictionary, enemy: Combatant,
 		targets: Array, target_index: int, animation_set: CombatAnimationSet,
 		anim_player, action_field: ActionField) -> void:
@@ -1290,12 +1176,9 @@ func _play_enemy_action_with_animation(action_data: Dictionary, enemy: Combatant
 			_apply_action_effect(action_data, e, live_targets)
 			if not _pending_chain_hops.is_empty():
 				_run_chain_hops_async(live_targets[0] if live_targets.size() > 0 else null)
-
 	# ── Await chain hops (started concurrently at impact) ──
 	while _chain_hops_running:
 		await get_tree().process_frame
-
-
 func _get_player_portrait_position() -> Vector2:
 	"""Get the center position of the player's portrait for targeting animations."""
 	# Use the persistent portrait in GameRoot's UI layer
@@ -1307,50 +1190,37 @@ func _get_player_portrait_position() -> Vector2:
 	
 	# Fallback
 	return Vector2(540, 1600)
-
 func _get_enemy_portrait_position(enemy_index: int) -> Vector2:
 	"""Get the center position of an enemy's portrait in the UI.
 	Uses enemy_panel.get_enemy_visual() which translates array index → slot."""
 	if not combat_ui or not combat_ui.enemy_panel:
 		return Vector2.ZERO
-
 	var slot = combat_ui.enemy_panel.get_enemy_visual(enemy_index)
 	if not slot or not slot is EnemySlot or not slot.portrait_rect:
 		return Vector2.ZERO
-
 	var portrait = slot.portrait_rect
 	return portrait.global_position + portrait.size / 2
-
-
-
 # ============================================================================
 # ENEMY TURN
 # ============================================================================
-
 func _start_enemy_turn(enemy: Combatant):
 	"""Start an enemy's turn"""
 	combat_state = CombatState.ENEMY_TURN
-
 	# --- STATUS: Enemy start-of-turn processing ---
 	if enemy.has_node("StatusTracker"):
 		var tracker: StatusTracker = enemy.get_node("StatusTracker")
 		var tick_results = tracker.process_turn_start()
 		await _apply_status_tick_results(null, enemy, tick_results)
-
 		if not enemy.is_alive():
 			_check_enemy_death(enemy)
 			return
 	# --- END STATUS ---
-
 	if combat_ui and combat_ui.has_method("set_player_turn"):
 		combat_ui.set_player_turn(false)
-
 	# Tell enemy panel to create dice hidden (same pattern as player)
 	if combat_ui and combat_ui.enemy_panel:
 		combat_ui.enemy_panel.hide_for_roll_animation = true
-
 	enemy.start_turn()
-
 	if combat_ui and combat_ui.has_method("show_enemy_hand"):
 		combat_ui.show_enemy_hand(enemy)
 		
@@ -1358,23 +1228,18 @@ func _start_enemy_turn(enemy: Combatant):
 	# Extra frames for EnemyDiceHand layout propagation (was hidden, now visible)
 	await get_tree().process_frame
 	await get_tree().process_frame
-
 	# Small delay to let UI update
 	await get_tree().create_timer(0.3).timeout
-
 	# Play roll animation - projectiles come from the enemy's portrait
 	if combat_ui and combat_ui.roll_animator and combat_ui.enemy_panel:
 		var ep = combat_ui.enemy_panel
 		var slot_idx = ep.get_slot_for_combatant(enemy)
 		var source_pos = Vector2.ZERO
-
 		if slot_idx >= 0 and slot_idx < ep.enemy_slots.size():
 			var slot: EnemySlot = ep.enemy_slots[slot_idx]
 			if slot.portrait_rect:
 				source_pos = slot.portrait_rect.global_position + slot.portrait_rect.size / 2.0
-
 		await get_tree().process_frame
-
 		await combat_ui.roll_animator.play_roll_sequence_for(
 			ep,
 			ep.hand_dice_visuals,
@@ -1387,6 +1252,35 @@ func _start_enemy_turn(enemy: Combatant):
 			if idx < ep.hand_dice_visuals.size():
 				return ep.hand_dice_visuals[idx]
 			return null)
+			
+			
+		
+		
+		# Finalize pending value animations for enemy dice
+		# (Player path uses AffixVisualAnimator; enemies don't have one)
+		var enemy_pool = enemy.dice_collection
+		if not enemy_pool.pending_value_animations.is_empty():
+			for die_index in enemy_pool.pending_value_animations.keys():
+				var change = enemy_pool.pending_value_animations[die_index]
+				if die_index < enemy_pool.hand.size():
+					enemy_pool.hand[die_index].modified_value = change.to
+				# Animate the visual if available
+				if die_index < ep.hand_dice_visuals.size():
+					var visual = ep.hand_dice_visuals[die_index]
+					if is_instance_valid(visual) and visual.has_method("animate_value_to"):
+						var flash_color = Color(0.5, 1.5, 0.5, 1.0) if change.to > change.from else Color(1.5, 0.5, 0.5, 1.0)
+						visual.animate_value_to(change.to, 0.25, flash_color)
+			enemy_pool.pending_value_animations.clear()
+		
+		if not enemy_pool.pending_element_refreshes.is_empty():
+			for die_index in enemy_pool.pending_element_refreshes:
+				if die_index < ep.hand_dice_visuals.size():
+					var visual = ep.hand_dice_visuals[die_index]
+					if is_instance_valid(visual) and visual.has_method("refresh_display"):
+						visual.refresh_display()
+			enemy_pool.pending_element_refreshes.clear()
+		
+			
 		# Carry-over locks not captured by mutation queue
 		var enemy_hand = enemy.dice_collection.hand
 		for i in range(enemy_hand.size()):
@@ -1395,11 +1289,11 @@ func _start_enemy_turn(enemy: Combatant):
 				if is_instance_valid(visual) and event_bus:
 					event_bus.emit_die_locked(visual)
 					print("  📡 Emitted DIE_LOCKED for enemy hand[%d] (carry-over)" % i)
-
 	_process_enemy_turn(enemy)
-
-
 func _process_enemy_turn(enemy: Combatant):
+	print("  _process_enemy_turn: alive=%s, usable_dice=%s, unconsumed=%d" % [
+	enemy.is_alive(), enemy.has_usable_dice(), 
+	enemy.dice_collection.get_unconsumed_count()])
 	"""Process enemy AI decisions with threat-based targeting"""
 	if not enemy.is_alive():
 		_finish_enemy_turn(enemy)
@@ -1472,7 +1366,6 @@ func _process_enemy_turn(enemy: Combatant):
 		decision.action["selected_target"] = target
 	
 	_animate_enemy_action(enemy, decision)
-
 func _animate_enemy_action(enemy: Combatant, decision: EnemyAI.Decision):
 	"""Animate enemy action: expand preview → place dice → execute → collapse.
 	Mirrors the player's preview-expand-confirm-animate-collapse flow."""
@@ -1574,6 +1467,12 @@ func _animate_enemy_action(enemy: Combatant, decision: EnemyAI.Decision):
 	if action_resource and action_resource.get("animation_set"):
 		animation_set = action_resource.animation_set
 	
+	# Global element fallback — if action has no animation set, use element defaults
+	if not animation_set and element_animation_defaults:
+		var dt := _resolve_action_damage_type(action_data)
+		if dt >= 0:
+			animation_set = element_animation_defaults.get_for_element(dt)
+	
 	var anim_player = _get_combat_animation_player()
 	
 	if animation_set and anim_player:
@@ -1601,7 +1500,6 @@ func _animate_enemy_action(enemy: Combatant, decision: EnemyAI.Decision):
 	
 	# ── Step 7: Loop for remaining dice ──
 	_process_enemy_turn(enemy)
-
 func _execute_enemy_action_immediate(enemy: Combatant, decision: EnemyAI.Decision):
 	"""Fallback: execute enemy action without expansion animation.
 	Used if the UI fails to expand the preview."""
@@ -1633,7 +1531,6 @@ func _execute_enemy_action_immediate(enemy: Combatant, decision: EnemyAI.Decisio
 	
 	await get_tree().create_timer(enemy.action_delay).timeout
 	_process_enemy_turn(enemy)
-
 func _finish_enemy_turn(enemy: Combatant):
 	"""Finish enemy's turn"""
 	print("  %s's turn complete" % enemy.combatant_name)
@@ -1673,17 +1570,11 @@ func _finish_enemy_turn(enemy: Combatant):
 	
 	enemy.end_turn()
 	_end_current_turn()
-
-
-
 func _on_combatant_turn_completed(_combatant: Combatant):
 	pass
-
 # ============================================================================
 # DAMAGE CALCULATION
 # ============================================================================
-
-
 func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: Array):
 	"""Apply the actual game effect (damage, heal, etc.) from an action"""
 	# Guard: defer combat end checks until the full sequence completes.
@@ -1771,6 +1662,11 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 								element_str = ActionEffect.DamageType.keys()[action_resource.effects[0].damage_type]
 							event_bus.emit_damage_dealt(visual, damage, element_str, is_crit, _get_combatant_visual(source))
 					
+					# Emit source floaters for damage_received_bonuses (e.g. Static)
+					var eb_keys: Array = damage_result.get("element_breakdown", {}).keys()
+					if not eb_keys.is_empty():
+						_emit_received_bonus_floaters(target, eb_keys)
+					
 					# v5: Track unique enemies hit for Crucible's Gift
 					if source == player_combatant and target not in _enemies_hit_this_turn:
 						_enemies_hit_this_turn.append(target)
@@ -1838,6 +1734,12 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 			var heal_amount = _calculate_heal(action_data, source)
 			print("  💚 %s heals for %d" % [source.combatant_name, heal_amount])
 			source.heal(heal_amount)
+			
+			# Emit heal event for reactive animations (floating labels)
+			if event_bus:
+				var visual = _get_combatant_visual(source)
+				if visual:
+					event_bus.emit_heal_applied(visual, heal_amount, visual)
 			
 			# --- THREAT: Add healing threat ---
 			if source == player_combatant or _is_companion(source):
@@ -1975,13 +1877,9 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 	if not was_already_deferred:
 		_flush_deferred_combat_end()
 	# --- END DEFERRED COMBAT END ---
-
-
-
 # ============================================================================
 # COMBAT / MANA EVENT RESOLUTION (v4 — Mana System)
 # ============================================================================
-
 func _resolve_combat_events(events: Array[Dictionary], primary_target) -> void:
 	"""Resolve queued combat events from dice affix processing.
 	Called after _apply_action_effect() with the primary attack target."""
@@ -2006,7 +1904,6 @@ func _resolve_combat_events(events: Array[Dictionary], primary_target) -> void:
 				print("    🛡️ Resistance bypass: %s (noted for calc)" % event.get("element", ""))
 			_:
 				print("    ⚠️ Unknown combat event type: %s" % event.get("type", "?"))
-
 func _resolve_splash(event: Dictionary, primary_target) -> void:
 	"""Splash damage to enemies adjacent to the primary target in formation.
 	Supports mode=flat (fixed damage) and mode=percent (% of primary damage)."""
@@ -2044,7 +1941,6 @@ func _resolve_splash(event: Dictionary, primary_target) -> void:
 		if idx >= 0:
 			_update_enemy_health(idx)
 			_check_enemy_death(target)
-
 func _resolve_chain(event: Dictionary, primary_target) -> void:
 	"""Queue chain hops from a dice affix chain event.
 	Damage and animation are deferred to _execute_pending_chain_hops(),
@@ -2052,20 +1948,16 @@ func _resolve_chain(event: Dictionary, primary_target) -> void:
 	var base_damage = int(event.get("damage", 0))
 	var chains = int(event.get("chains", 2))
 	var decay = event.get("decay", 0.7)
-
 	if base_damage <= 0:
 		return
-
 	# Build ordered target list and pre-calculate decayed damages
 	var eligible: Array[Combatant] = []
 	for enemy in enemy_combatants:
 		if enemy.is_alive() and enemy != primary_target:
 			eligible.append(enemy)
-
 	var hop_targets: Array[Combatant] = []
 	var hop_damages: Array[int] = []
 	var current_damage = float(base_damage)
-
 	for target in eligible:
 		if hop_targets.size() >= chains:
 			break
@@ -2075,10 +1967,8 @@ func _resolve_chain(event: Dictionary, primary_target) -> void:
 			break
 		hop_targets.append(target)
 		hop_damages.append(dmg)
-
 	if hop_targets.is_empty():
 		return
-
 	_pending_chain_hops.append({
 		"start_node": primary_target,
 		"targets": hop_targets,
@@ -2088,7 +1978,6 @@ func _resolve_chain(event: Dictionary, primary_target) -> void:
 	})
 	print("    ⚡ Chain queued (dice affix): %d hops, base %d" % [
 		hop_targets.size(), base_damage])
-
 func _resolve_aoe(event: Dictionary) -> void:
 	"""AoE damage to all living enemies."""
 	var damage = int(event.get("damage", 0))
@@ -2097,28 +1986,34 @@ func _resolve_aoe(event: Dictionary) -> void:
 	
 	for enemy in enemy_combatants:
 		if enemy.is_alive():
-			_apply_elemental_damage(enemy, damage, event.get("element", ""))
+			var actual_dmg := _apply_elemental_damage(enemy, damage, event.get("element", ""))
 			var idx = enemy_combatants.find(enemy)
 			print("    🌊 AoE: %d %s damage to %s" % [
 				damage, event.get("element", ""), enemy.combatant_name])
+			if event_bus:
+				var v = _get_combatant_visual(enemy)
+				if v:
+					event_bus.emit_damage_dealt(v, actual_dmg, event.get("element", ""), false)
 			if idx >= 0:
 				_update_enemy_health(idx)
 				_check_enemy_death(enemy)
-
 func _resolve_bonus_damage(event: Dictionary, primary_target) -> void:
 	"""Bonus flat damage added to the primary target."""
 	var damage = int(event.get("damage", 0))
 	if damage <= 0 or not primary_target or not primary_target.is_alive():
 		return
 	
-	_apply_elemental_damage(primary_target, damage, event.get("element", ""))
+	var actual_dmg := _apply_elemental_damage(primary_target, damage, event.get("element", ""))
 	var idx = enemy_combatants.find(primary_target)
 	print("    🔥 Bonus damage: %d %s to %s" % [
 		damage, event.get("element", ""), primary_target.combatant_name])
+	if event_bus:
+		var v = _get_combatant_visual(primary_target)
+		if v:
+			event_bus.emit_damage_dealt(v, actual_dmg, event.get("element", ""), false)
 	if idx >= 0:
 		_update_enemy_health(idx)
 		_check_enemy_death(primary_target)
-
 func _resolve_mana_events(events: Array[Dictionary]) -> void:
 	"""Resolve queued mana events from dice affix processing."""
 	if events.is_empty():
@@ -2149,17 +2044,9 @@ func _resolve_mana_events(events: Array[Dictionary]) -> void:
 					print("    🔮 Mana gain: +%d" % amount)
 			_:
 				print("    ⚠️ Unknown mana event type: %s" % event.get("type", "?"))
-
-
-
-
-
-
-
 # ============================================================================
 # v4 — STATUS THRESHOLD RESOLUTION
 # ============================================================================
-
 func _connect_status_threshold_signals():
 	"""Connect status_threshold_triggered from all combatant StatusTrackers."""
 	# Player
@@ -2181,7 +2068,6 @@ func _connect_status_threshold_signals():
 			if not tracker.status_threshold_triggered.is_connected(_on_status_threshold_enemy):
 				tracker.status_threshold_triggered.connect(
 					_on_status_threshold_enemy.bind(i))
-
 func _on_status_threshold_player(status_id: String, event_data: Dictionary):
 	"""Handle threshold on the PLAYER (e.g., self-damage from Poison burst)."""
 	print("💥 Player threshold: %s → %s" % [status_id, event_data])
@@ -2194,10 +2080,12 @@ func _on_status_threshold_player(status_id: String, event_data: Dictionary):
 			print("  💥 Player takes %d %s burst from %s" % [
 				damage, "magical" if is_magical else "physical",
 				event_data.get("status_name", status_id)])
-			
+			if event_bus:
+				var v = _get_combatant_visual(player_combatant)
+				if v:
+					event_bus.emit_damage_dealt(v, damage, "", false)
 			if not player_combatant.is_alive():
 				_check_player_death()
-
 func _on_status_threshold_enemy(status_id: String, event_data: Dictionary,
 		enemy_index: int = 0):
 	"""Handle threshold on an ENEMY (e.g., Burn explosion deals burst damage)."""
@@ -2221,8 +2109,6 @@ func _on_status_threshold_enemy(status_id: String, event_data: Dictionary,
 				
 				if not target.is_alive():
 					_check_enemy_death(target)
-
-
 func _get_status_duration_bonus(status_id: String) -> int:
 	if not player or not "affix_manager" in player:
 		return 0
@@ -2238,7 +2124,6 @@ func _get_status_duration_bonus(status_id: String) -> int:
 		if target_sid == status_id or target_sid == "":
 			bonus += int(affix.effect_data.get("duration_bonus", 0))
 	return bonus
-
 func _get_status_damage_mult(status_id: String) -> float:
 	if not player or not "affix_manager" in player:
 		return 1.0
@@ -2252,8 +2137,6 @@ func _get_status_damage_mult(status_id: String) -> float:
 		if target_sid == status_id or target_sid == "":
 			mult *= affix.get_value()
 	return mult
-
-
 func _apply_status_tick_results(player_ref, combatant: Combatant, 
 		tick_results: Array[Dictionary]) -> void:
 	"""Apply damage/heal from status tick results and update UI.
@@ -2318,20 +2201,15 @@ func _apply_status_tick_results(player_ref, combatant: Combatant,
 	# Brief pause so player can see tick damage
 	if tick_results.size() > 0:
 		await get_tree().create_timer(0.3).timeout
-
-
 func _sync_player_health():
 	"""Sync player HP to the player combatant node."""
 	if player and player_combatant:
 		player_combatant.current_health = player.current_hp
 		player_combatant.max_health = player.max_hp
 		player_combatant.update_display()
-
-
 # ============================================================================
 # ACTION EFFECT RESULT PROCESSING (v3.1 — 21 EffectTypes)
 # ============================================================================
-
 func _process_action_effect_results(results: Array[Dictionary], source: Combatant, primary_damage: int = 0) -> void:
 	"""Process ActionEffect execution results for all 21 effect types.
 	Called after Action.execute_simple() returns results.
@@ -2397,15 +2275,17 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 				var duration: int = result.get("shield_duration", -1)
 				if amount > 0 and source and source.has_method("add_shield"):
 					source.add_shield(amount, duration)
+					if event_bus:
+						var visual = _get_combatant_visual(source)
+						if visual:
+							event_bus.emit_shield_gained(visual, amount)
 				print("  🛡️ Shield: +%d" % amount)
-
 			ActionEffect.EffectType.ARMOR_BUFF:
 				var amount: int = result.get("armor_amount", 0)
 				var duration: int = result.get("armor_duration", 2)
 				if amount > 0 and source and source.has_method("add_armor_buff"):
 					source.add_armor_buff(amount, duration)
 				print("  🛡️ Armor: +%d for %dt" % [amount, duration])
-
 			ActionEffect.EffectType.DAMAGE_REDUCTION:
 				var amount = result.get("reduction_amount", 0)
 				var is_pct: bool = result.get("reduction_is_percent", false)
@@ -2415,14 +2295,12 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 						result.get("reduction_single_use", false))
 				print("  🛡️ DR: %s for %dt" % [
 					"%d%%" % int(amount * 100) if is_pct else str(int(amount)), duration])
-
 			ActionEffect.EffectType.REFLECT:
 				var pct: float = result.get("reflect_percent", 0.3)
 				var duration: int = result.get("reflect_duration", 2)
 				if source and source.has_method("add_reflect"):
 					source.add_reflect(pct, duration, result.get("reflect_element"))
 				print("  🪞 Reflect: %d%% for %dt" % [int(pct * 100), duration])
-
 			# ── Combat Modifiers ──
 			ActionEffect.EffectType.LIFESTEAL:
 				var dmg: int = result.get("damage", 0)
@@ -2430,29 +2308,44 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 				if result.get("lifesteal_deals_damage", true) and dmg > 0:
 					var target_node = result.get("target")
 					if target_node and target_node.has_method("take_damage"):
-						_apply_elemental_damage(target_node, dmg, result.get("element", ""))
+						var actual_ls_dmg := _apply_elemental_damage(target_node, dmg, result.get("element", ""))
+						if event_bus:
+							var visual = _get_combatant_visual(target_node)
+							if visual:
+								event_bus.emit_damage_dealt(visual, actual_ls_dmg, result.get("element", ""), false)
 						_update_and_check_target(target_node)
 				var heal_amt = int(dmg * pct)
 				if heal_amt > 0 and source:
 					source.heal(heal_amt)
 					if source == player_combatant:
 						_update_player_health()
+					if event_bus:
+						var visual = _get_combatant_visual(source)
+						if visual:
+							event_bus.emit_heal_applied(visual, heal_amt, visual)
 				print("  🧛 Lifesteal: %d dmg, %d healed" % [dmg, heal_amt])
-
 			ActionEffect.EffectType.EXECUTE:
 				var dmg: int = result.get("damage", 0)
 				var target_node = result.get("target")
 				if result.get("execute_instant_kill", false) and target_node:
+					var kill_dmg = target_node.current_health
 					if target_node.has_method("take_damage"):
-						target_node.take_damage(target_node.current_health)
+						target_node.take_damage(kill_dmg)
+					if event_bus:
+						var visual = _get_combatant_visual(target_node)
+						if visual:
+							event_bus.emit_damage_dealt(visual, kill_dmg, "", false)
 					print("  💀 Execute: instant kill!")
 				elif dmg > 0 and target_node and target_node.has_method("take_damage"):
 					target_node.take_damage(dmg)
+					if event_bus:
+						var visual = _get_combatant_visual(target_node)
+						if visual:
+							event_bus.emit_damage_dealt(visual, dmg, "", false)
 					print("  💀 Execute: %d damage%s" % [dmg,
 						" (bonus!)" if result.get("execute_triggered") else ""])
 				if target_node:
 					_update_and_check_target(target_node)
-
 			ActionEffect.EffectType.COMBO_MARK:
 				var target_node = result.get("target")
 				var ms: StatusAffix = result.get("mark_status")
@@ -2474,6 +2367,7 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 									var visual = _get_combatant_visual(target_node)
 									if visual:
 										event_bus.emit_combo_triggered(visual, existing, combo_dmg)
+										event_bus.emit_damage_dealt(visual, combo_dmg, "", false)
 							print("  🔥 Combo: %d marks × %d = %d" % [existing, bonus, combo_dmg])
 							_update_and_check_target(target_node)
 						else:
@@ -2483,19 +2377,31 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 					var dmg = result.get("damage", 0)
 					if dmg > 0 and target_node and target_node.has_method("take_damage"):
 						target_node.take_damage(dmg)
+						if event_bus:
+							var visual = _get_combatant_visual(target_node)
+							if visual:
+								event_bus.emit_damage_dealt(visual, dmg, "", false)
 						_update_and_check_target(target_node)
-
 			ActionEffect.EffectType.ECHO:
 				if result.get("echo_triggered", false):
 					var echo_damages: Array = result.get("echo_damages", [])
 					var target_node = result.get("target")
 					for i in range(echo_damages.size()):
 						if target_node and target_node.is_alive() and target_node.has_method("take_damage"):
-							_apply_elemental_damage(target_node, echo_damages[i], result.get("element", ""))
+							var actual_echo := _apply_elemental_damage(target_node, echo_damages[i], result.get("element", ""))
+							if event_bus:
+								var visual = _get_combatant_visual(target_node)
+								if visual:
+									event_bus.emit_damage_dealt(visual, actual_echo, result.get("element", ""), false)
+							# Source floater for damage_received_bonuses (e.g. Static)
+							var echo_elem = result.get("element", "")
+							if echo_elem is int and echo_elem >= 0:
+								_emit_received_bonus_floaters(target_node, [echo_elem])
+							elif echo_elem is String and echo_elem != "":
+								_emit_received_bonus_floaters(target_node, [echo_elem.to_int()])
 							print("  🔁 Echo %d: %d" % [i + 1, echo_damages[i]])
 					if target_node:
 						_update_and_check_target(target_node)
-
 			# ── Multi-Target ──
 			ActionEffect.EffectType.SPLASH:
 				var primary_dmg: int = result.get("primary_damage", result.get("damage", 0))
@@ -2504,21 +2410,34 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 				if splash_dmg > 0:
 					for st in _get_splash_targets(target_node, result.get("splash_all", false)):
 						if st.has_method("take_damage"):
-							_apply_elemental_damage(st, splash_dmg, result.get("element", ""))
+							var actual_splash := _apply_elemental_damage(st, splash_dmg, result.get("element", ""))
+							if event_bus:
+								var visual = _get_combatant_visual(st)
+								if visual:
+									event_bus.emit_damage_dealt(visual, actual_splash, result.get("element", ""), false)
+							# Source floater for damage_received_bonuses (e.g. Static)
+							var splash_elem = result.get("element", "")
+							if splash_elem is int and splash_elem >= 0:
+								_emit_received_bonus_floaters(st, [splash_elem])
+							elif splash_elem is String and splash_elem != "":
+								_emit_received_bonus_floaters(st, [splash_elem.to_int()])
 							print("  💥 Splash: %d → %s" % [splash_dmg, st.combatant_name])
 							_update_and_check_target(st)
-
 			ActionEffect.EffectType.CHAIN:
 				var primary_dmg: int = result.get("primary_damage", result.get("damage", 0))
 				var chain_multipliers: Array = result.get("chain_multipliers", [])
 				var target_node = result.get("target")
-
 				if primary_dmg > 0 and target_node and target_node.has_method("take_damage"):
-					_apply_elemental_damage(target_node, primary_dmg, result.get("damage_type", -1))
+					var actual_chain_dmg := _apply_elemental_damage(target_node, primary_dmg, result.get("damage_type", -1))
+					if event_bus:
+						var visual = _get_combatant_visual(target_node)
+						if visual:
+							event_bus.emit_damage_dealt(visual, actual_chain_dmg, str(result.get("damage_type", "")), false)
+					# Source floater for damage_received_bonuses (e.g. Static)
+					var chain_dt = result.get("damage_type", -1)
+					if chain_dt is int and chain_dt >= 0:
+						_emit_received_bonus_floaters(target_node, [chain_dt])
 					_update_and_check_target(target_node)
-
-
-
 				var chain_tgts = _get_chain_targets(target_node, result.get("chain_can_repeat", false))
 				var hop_count = mini(chain_multipliers.size(), chain_tgts.size())
 				if hop_count > 0:
@@ -2534,7 +2453,6 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 					})
 					print("  ⚡ Chain queued: %d hops from %s" % [hop_count,
 						target_node.combatant_name if target_node else "?"])
-
 			ActionEffect.EffectType.RANDOM_STRIKES:
 				var strike_damages: Array = result.get("strike_damages", [])
 				for i in range(strike_damages.size()):
@@ -2546,10 +2464,19 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 						break
 					var hit = alive[randi() % alive.size()]
 					if hit.has_method("take_damage"):
-						_apply_elemental_damage(hit, strike_damages[i], result.get("element", ""))
+						var actual_strike := _apply_elemental_damage(hit, strike_damages[i], result.get("element", ""))
+						if event_bus:
+							var visual = _get_combatant_visual(hit)
+							if visual:
+								event_bus.emit_damage_dealt(visual, actual_strike, result.get("element", ""), false)
+						# Source floater for damage_received_bonuses (e.g. Static)
+						var strike_elem = result.get("element", "")
+						if strike_elem is int and strike_elem >= 0:
+							_emit_received_bonus_floaters(hit, [strike_elem])
+						elif strike_elem is String and strike_elem != "":
+							_emit_received_bonus_floaters(hit, [strike_elem.to_int()])
 						print("  🎲 Strike %d: %d → %s" % [i + 1, strike_damages[i], hit.combatant_name])
 						_update_and_check_target(hit)
-
 			# ── Economy ──
 			ActionEffect.EffectType.MANA_MANIPULATE:
 				var mana_amt: int = result.get("mana_amount", 0)
@@ -2564,7 +2491,6 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 						player.mana_pool.mana_changed.emit(
 							player.mana_pool.current_mana, player.mana_pool.max_mana)
 						print("  🔮 Mana: -%d" % drain)
-
 			ActionEffect.EffectType.MODIFY_COOLDOWN:
 				var reduction: int = result.get("cooldown_reduction", 1)
 				var target_id: String = result.get("cooldown_target_action_id", "")
@@ -2580,7 +2506,6 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 							action.current_cooldown = maxi(0, action.current_cooldown - reduction)
 							count += 1
 				print("  ⏱️ CD -%d on %d action(s)" % [reduction, count])
-
 			ActionEffect.EffectType.REFUND_CHARGES:
 				var refund: int = result.get("charges_to_refund", 1)
 				var target_id: String = result.get("refund_target_action_id", "")
@@ -2602,7 +2527,6 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 							if field.has_method("refresh_charge_state"):
 								field.refresh_charge_state()
 				print("  🔋 Refunded %d charge(s)" % total)
-
 			ActionEffect.EffectType.GRANT_TEMP_ACTION:
 				var granted: Action = result.get("granted_action")
 				var duration: int = result.get("grant_duration", 1)
@@ -2611,7 +2535,6 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 					print("  🎁 Granted '%s' for %dt" % [granted.action_name, duration])
 				elif granted:
 					print("  🎁 Grant '%s' queued (UI pending)" % granted.action_name)
-
 			# ── Battlefield ──
 			ActionEffect.EffectType.CHANNEL:
 				if battlefield_tracker:
@@ -2771,6 +2694,11 @@ func _process_single_battlefield_result(result: Dictionary) -> void:
 				target_node.take_damage(dmg)
 				print("  📡 BF damage: %d → %s" % [dmg,
 					target_node.combatant_name if target_node else "?"])
+				# ── Reactive emit: BF damage ──
+				if event_bus:
+					var visual = _get_combatant_visual(target_node)
+					if visual:
+						event_bus.emit_damage_dealt(visual, dmg, "", false, null)
 				_update_and_check_target(target_node)
 		
 		ActionEffect.EffectType.HEAL:
@@ -2947,6 +2875,9 @@ func _calculate_damage(action_data: Dictionary, attacker, defender) -> Dictionar
 		base_crit = player.get_total_stat("luck") * CombatCalculator.LUCK_CRIT_PER_POINT
 	
 	# Both paths now go through calculate_attack_damage (handles null attacker_affixes)
+	var action_dmg_elem: int = -1
+	if action_res is Action:
+		action_dmg_elem = int(action_res.damage_element)
 	var result: Dictionary = CombatCalculator.calculate_attack_damage(
 		attacker_affixes,
 		effects,
@@ -2956,7 +2887,9 @@ func _calculate_damage(action_data: Dictionary, attacker, defender) -> Dictionar
 		accepted_elems,
 		attacker_tracker,
 		defender_tracker,
-		base_crit
+		base_crit,
+		CombatCalculator.CRIT_DAMAGE_MULTIPLIER,
+		action_dmg_elem
 	)
 	
 	# Log element breakdown for debugging
@@ -3022,9 +2955,48 @@ func _apply_elemental_damage(target, raw_amount: int, element = "") -> int:
 	var packet = DamagePacket.new()
 	packet.add_damage(dtype as ActionEffect.DamageType, float(raw_amount))
 	var def_stats: Dictionary = _get_defender_stats(target)
+	
+	var drb: Dictionary = def_stats.get("damage_received_bonuses", {})
+	for bonus_dt in drb:
+		if packet.damages.get(bonus_dt, 0.0) > 0.0:
+			packet.add_damage(bonus_dt, float(drb[bonus_dt]))
+	
 	var final_dmg: int = packet.calculate_final_damage(def_stats)
 	target.take_damage(final_dmg)
 	return final_dmg
+
+
+func _emit_received_bonus_floaters(target: Combatant, element_keys: Array) -> void:
+	if not event_bus:
+		return
+	var visual = _get_combatant_visual(target)
+	if not visual:
+		return
+	var tracker: StatusTracker = _get_status_tracker(target)
+	if not tracker:
+		return
+	var dt_to_name: Dictionary = {
+		ActionEffect.DamageType.SHOCK: "shock",
+		ActionEffect.DamageType.FIRE: "fire",
+		ActionEffect.DamageType.ICE: "ice",
+		ActionEffect.DamageType.POISON: "poison",
+		ActionEffect.DamageType.SHADOW: "shadow",
+		ActionEffect.DamageType.SLASHING: "slashing",
+		ActionEffect.DamageType.BLUNT: "blunt",
+		ActionEffect.DamageType.PIERCING: "piercing",
+	}
+	for dt in element_keys:
+		var elem_name: String = dt_to_name.get(dt, "")
+		if elem_name.is_empty():
+			continue
+		var bonus_key: String = "%s_damage_received_bonus" % elem_name
+		for sid in tracker.active_statuses:
+			var instance: Dictionary = tracker.active_statuses[sid]
+			var affix: StatusAffix = instance["status_affix"]
+			var contribution: float = affix.get_stat_modifier_total(instance, bonus_key)
+			if contribution > 0.0:
+				event_bus.emit_status_ticked(visual, affix.affix_name, int(contribution), elem_name)
+
 
 func _get_defender_stats(defender) -> Dictionary:
 	"""Get defense stats from defender.
@@ -3048,7 +3020,9 @@ func _get_defender_stats(defender) -> Dictionary:
 			"barrier": maxf(0.0, enemy_barrier),
 			"element_modifiers": elem_mods,
 			"defense_mult": 1.0,
+			"damage_received_bonuses": _get_damage_received_bonuses(defender),
 		}
+
 	return {"armor": 0, "barrier": 0, "element_modifiers": {}, "damage_received_bonuses": {}, "defense_mult": 1.0}
 
 
@@ -3510,6 +3484,12 @@ func _apply_proc_results(results: Dictionary, proc_target: Combatant = null) -> 
 			dmg_target.take_damage(dmg)
 			print("  ⚡ Proc bonus damage: %d → %s" % [dmg, dmg_target.combatant_name])
 			
+			# ── Reactive emit: Proc bonus damage ──
+			if event_bus:
+				var visual = _get_combatant_visual(dmg_target)
+				if visual:
+					event_bus.emit_damage_dealt(visual, dmg, "", false, null)
+			
 			# --- THREAT: Add proc threat ---
 			_add_threat_to_all_enemies(player_combatant, "proc", dmg)
 			# --- END THREAT ---
@@ -3582,6 +3562,11 @@ func _apply_proc_results(results: Dictionary, proc_target: Combatant = null) -> 
 				if amount > 0 and player_combatant and player_combatant.has_method("add_shield"):
 					player_combatant.add_shield(amount, 1)
 					print("  🛡️ Proc barrier: +%d" % amount)
+					# ── Reactive emit: Proc barrier ──
+					if event_bus:
+						var visual = _get_combatant_visual(player_combatant)
+						if visual:
+							event_bus.emit_shield_gained(visual, amount)
 			
 			"stacking_buff":
 				print("  📈 Stacking buff: %s x%d = %.1f (%s)" % [
@@ -3653,7 +3638,13 @@ func _on_enemy_threshold_triggered(status_id: String, data: Dictionary, source_e
 			for enemy in other_enemies:
 				print("  ★ Flashpoint splash: %d fire damage to %s" % [splash, enemy.combatant_name])
 				enemy.take_damage(splash)
+				# ── Reactive emit: Flashpoint splash ──
+				if event_bus:
+					var visual = _get_combatant_visual(enemy)
+					if visual:
+						event_bus.emit_damage_dealt(visual, splash, "", false, null)
 				_update_enemy_health(enemy_combatants.find(enemy))
+				_check_enemy_death(enemy)
 	
 	# Pyroclastic Flow: Apply 3 Burn stacks to other enemies
 	var has_pyro_flow: bool = player.affix_manager.get_affixes_by_tag("pyroclastic_flow").size() > 0
@@ -3719,6 +3710,11 @@ func _process_companion_results(results: Array[Dictionary]) -> void:
 				if target and target.has_method("take_damage"):
 					target.take_damage(dmg)
 					print("  [Companion] %d damage -> %s" % [dmg, target.combatant_name])
+					# ── Reactive emit: Companion damage ──
+					if event_bus:
+						var visual = _get_combatant_visual(target)
+						if visual:
+							event_bus.emit_damage_dealt(visual, dmg, "", false, null)
 					_update_and_check_target(target)
 			ActionEffect.EffectType.HEAL:
 				var heal: int = result.get("heal", 0)
@@ -3742,6 +3738,11 @@ func _process_companion_results(results: Array[Dictionary]) -> void:
 				var amount: int = result.get("shield_amount", 0)
 				if amount > 0 and target and target.has_method("add_shield"):
 					target.add_shield(amount, result.get("shield_duration", -1))
+					# ── Reactive emit: Companion shield ──
+					if event_bus:
+						var visual = _get_combatant_visual(target)
+						if visual:
+							event_bus.emit_shield_gained(visual, amount)
 
 func _fire_companions_animated(trigger_type: CompanionData.CompanionTrigger,
 		context: Dictionary = {}) -> void:
@@ -4201,6 +4202,15 @@ func _on_companion_spawned_threat_update(companion: CompanionCombatant, _slot: i
 	"""Add new companion to all threat trackers."""
 	for tracker in enemy_threat_trackers:
 		tracker.add_combatant(companion, 0.0)
+
+func _resolve_action_damage_type(action_data: Dictionary) -> int:
+	"""Determine the element for an action. Used for global animation fallback."""
+	var action_res = action_data.get("action_resource") as Action
+	if action_res:
+		return action_res.damage_element
+	return -1
+
+
 
 func _get_bottom_ui() -> Control:
 	return get_tree().get_first_node_in_group("bottom_ui")

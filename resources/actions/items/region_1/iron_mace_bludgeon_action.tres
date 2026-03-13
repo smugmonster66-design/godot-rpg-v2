@@ -13,6 +13,7 @@ script = ExtResource("6_sme15")
 action_id = "weapon_iron_mace_bludgeon"
 action_name = "Bludgeon"
 action_description = "Applies Stun."
+damage_element = 1
 min_dice_required = 1
 effects = Array[ExtResource("2_v1xp8")]([ExtResource("3_mtgj2"), ExtResource("4_2sxsc")])
 animation_set = ExtResource("1_v1xp8")

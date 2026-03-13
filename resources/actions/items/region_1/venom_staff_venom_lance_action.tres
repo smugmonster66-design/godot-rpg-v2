@@ -13,6 +13,7 @@ script = ExtResource("6_v8wqv")
 action_id = "weapon_venom_staff_venom_lance"
 action_name = "Venom Lance"
 action_description = "Applies 4 Poison."
+damage_element = 6
 die_slots = 2
 min_dice_required = 1
 effects = Array[ExtResource("2_ksmcg")]([ExtResource("3_8gxq2"), ExtResource("4_lale5")])

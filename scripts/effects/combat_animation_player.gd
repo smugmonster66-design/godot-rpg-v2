@@ -4,6 +4,7 @@ class_name CombatAnimationPlayer
 
 signal animation_sequence_started()
 signal cast_finished()
+signal fire_started()
 signal travel_finished()
 signal impact_finished()
 signal animation_sequence_finished()
@@ -37,15 +38,16 @@ func play_action_animation(
 		return
 	
 	var has_cast = animation_set.cast_preset or animation_set.cast_effect
+	var has_fire = animation_set.fire_preset or animation_set.fire_effect
 	var has_travel = animation_set.travel_effect and target_positions.size() > 0
 	var has_impact = (animation_set.impact_preset or animation_set.impact_effect) and target_positions.size() > 0
-	
-	print("  🎬 CAP: START (cast=%s, travel=%s, impact=%s, targets=%d, effect_at=%s)" % [
-		has_cast, has_travel, has_impact, target_positions.size(),
+
+	print("  🎬 CAP: START (cast=%s, fire=%s, travel=%s, impact=%s, targets=%d, effect_at=%s)" % [
+		has_cast, has_fire, has_travel, has_impact, target_positions.size(),
 		CombatAnimationSet.EffectTiming.keys()[animation_set.apply_effect_at]])
-	
+
 	animation_sequence_started.emit()
-	
+
 	# 1. Cast animation (at source/action field)
 	if has_cast:
 		print("  🎬 CAP: Playing CAST...")
@@ -56,13 +58,21 @@ func play_action_animation(
 		else:
 			await _play_cast(animation_set, source_position)
 		print("  🎬 CAP: CAST done")
-	
+
 	if animation_set.apply_effect_at == CombatAnimationSet.EffectTiming.ON_CAST:
 		apply_effect_now.emit()
-	
+
 	cast_finished.emit()
-	
-	# 2. Travel animation (projectile to each target)
+
+	# 2. Fire animation (at source, simultaneous with travel)
+	if has_fire:
+		print("  🎬 CAP: Playing FIRE...")
+		_play_fire(animation_set, source_position)  # Don't await — runs concurrently
+		fire_started.emit()
+		if animation_set.apply_effect_at == CombatAnimationSet.EffectTiming.ON_FIRE:
+			apply_effect_now.emit()
+
+	# 3. Travel animation (projectile to each target)
 	if has_travel:
 		print("  🎬 CAP: Playing TRAVEL...")
 		if has_impact and animation_set.travel_impact_overlap > 0.0:
@@ -72,13 +82,13 @@ func play_action_animation(
 		else:
 			await _play_travel(animation_set, source_position, target_positions)
 		print("  🎬 CAP: TRAVEL done")
-	
+
 	if animation_set.apply_effect_at == CombatAnimationSet.EffectTiming.ON_TRAVEL_END:
 		apply_effect_now.emit()
-	
+
 	travel_finished.emit()
-	
-	# 3. Impact animation (at each target)
+
+	# 4. Impact animation (at each target)
 	if has_impact:
 		print("  🎬 CAP: Playing IMPACT...")
 		if animation_set.impact_delay > 0:
@@ -93,7 +103,7 @@ func play_action_animation(
 		# No impact animation — still need to fire if ON_IMPACT was selected
 		if animation_set.apply_effect_at == CombatAnimationSet.EffectTiming.ON_IMPACT:
 			apply_effect_now.emit()
-	
+
 	impact_finished.emit()
 	animation_sequence_finished.emit()
 	print("  🎬 CAP: FINISHED")
@@ -135,6 +145,40 @@ func _play_cast(anim_set: CombatAnimationSet, position: Vector2):
 	
 	# Path C: Neither valid, just wait cast_duration
 	await get_tree().create_timer(anim_set.cast_duration).timeout
+
+
+func _play_fire(anim_set: CombatAnimationSet, position: Vector2):
+	"""Spawn fire effect at source. Not awaited — runs concurrently with travel."""
+	var fire_pos = position + anim_set.fire_offset
+
+	# Path A: PackedScene fire effect
+	if anim_set.fire_effect and anim_set.fire_effect is PackedScene:
+		var effect = anim_set.fire_effect.instantiate()
+		_add_effect(effect, fire_pos)
+		effect.scale *= anim_set.fire_scale
+
+		if anim_set.fire_sound:
+			_play_sound(anim_set.fire_sound, fire_pos)
+
+		if effect.has_method("play"):
+			effect.play()
+			# Don't await — fire runs concurrently, effect self-cleans via effect_finished
+		else:
+			# No play method — schedule cleanup after fire_duration
+			get_tree().create_timer(anim_set.fire_duration).timeout.connect(effect.queue_free)
+		return
+
+	# Path B: CombatEffectPreset fire
+	if anim_set.fire_preset:
+		var effect = CombatAnimationSet.create_effect_from_preset(anim_set.fire_preset)
+		if effect:
+			_add_effect(effect, fire_pos)
+			_configure_effect(effect, anim_set.fire_preset, fire_pos, fire_pos)
+
+			if anim_set.fire_sound:
+				_play_sound(anim_set.fire_sound, fire_pos)
+
+			effect.play()  # Don't await — runs concurrently
 
 
 func _play_travel(anim_set: CombatAnimationSet, from: Vector2, targets: Array[Vector2]):

@@ -1,6 +1,5 @@
-[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://w0fglebqspt6"]
+[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://w0fglebqspt6"]
 
-[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="1_kodwi"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_v84xm"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_kodwi"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_n3juv"]
@@ -19,6 +18,6 @@ script = ExtResource("4_n3juv")
 action_id = "shove"
 action_name = "Shove"
 action_description = "Weak Blunt hit at 0.5×."
+damage_element = 1
 effects = Array[ExtResource("1_v84xm")]([SubResource("Resource_mu0kh")])
-animation_set = ExtResource("1_kodwi")
 damage_multiplier = 0.5

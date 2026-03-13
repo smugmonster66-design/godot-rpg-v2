@@ -776,8 +776,8 @@ func configure_from_dict(action_data: Dictionary):
 	# 4. Inferred from first damage effect
 	if action_data.has("source_element"):
 		element = action_data["source_element"] as ActionEffect.DamageType
-	elif action_resource and action_resource.get("element") != null:
-		element = action_resource.element
+	elif action_resource and action_resource.get("damage_element") != null:
+		element = action_resource.damage_element
 	elif action_data.has("element"):
 		element = action_data.get("element", ActionEffect.DamageType.SLASHING)
 	else:

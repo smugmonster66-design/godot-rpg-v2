@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=4 format=3 uid="uid://bbfb4l30olu08"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_boebp"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="2_d2yqa"]
+[ext_resource type="Resource" uid="uid://b503wt018tst7" path="res://resources/enemies/baseline/the_test_dummy.tres" id="2_pteh3"]
+
+[resource]
+script = ExtResource("2_d2yqa")
+encounter_name = "Test Dummy"
+encounter_id = "testdummyencounter"
+enemies = Array[ExtResource("1_boebp")]([ExtResource("2_pteh3")])
+enemy_slots = Array[int]([1])
+metadata/_custom_type_script = "uid://bbk8nd6ma5i6p"

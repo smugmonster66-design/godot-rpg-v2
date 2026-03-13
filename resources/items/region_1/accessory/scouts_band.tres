@@ -6,13 +6,14 @@
 [ext_resource type="Resource" uid="uid://by212c4j0x5gp" path="res://resources/affixes/base_stats/inherent_health.tres" id="3_gbb6b"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_r4fms"]
 [ext_resource type="Resource" uid="uid://baxp7h1tamq4" path="res://resources/slot_definitions/accessory_slot.tres" id="4_gbb6b"]
-[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="5_gbb6b"]
+[ext_resource type="Texture2D" uid="uid://c2fbq40xjh6x6" path="res://assets/items/accessory/scout's band.png" id="5_gbb6b"]
 
 [resource]
 script = ExtResource("3_r4fms")
 item_name = "Scout's Band"
 description = ""
 flavor_text = "Officially classified as 'retention jewelry.' No one calls it that."
+icon = ExtResource("5_gbb6b")
 rarity = 1
 equip_slot = 7
 slot_definition = ExtResource("4_gbb6b")

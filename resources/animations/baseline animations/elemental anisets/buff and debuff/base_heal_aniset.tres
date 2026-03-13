@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CombatAnimationSet" load_steps=5 format=3 uid="uid://dsi64wh8bt513"]
+
+[ext_resource type="PackedScene" uid="uid://bpgx2afu0wtp1" path="res://scenes/effects/new/buff and debuff/heal_cast.tscn" id="1_g128m"]
+[ext_resource type="Script" uid="uid://luoa1f4jirnk" path="res://resources/data/combat_animation_set.gd" id="1_mt53t"]
+[ext_resource type="PackedScene" uid="uid://clegv1b3jvt0p" path="res://scenes/effects/new/buff and debuff/heal_fire.tscn" id="2_g128m"]
+[ext_resource type="PackedScene" uid="uid://r7nacyq80xuf" path="res://scenes/effects/new/buff and debuff/heal_impact.tscn" id="3_esfpn"]
+
+[resource]
+script = ExtResource("1_mt53t")
+cast_effect = ExtResource("1_g128m")
+cast_duration = 1.2
+fire_effect = ExtResource("2_g128m")
+fire_duration = 0.9
+impact_effect = ExtResource("3_esfpn")
+impact_duration = 0.7
+metadata/_custom_type_script = "uid://luoa1f4jirnk"

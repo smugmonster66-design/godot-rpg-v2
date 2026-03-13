@@ -7,13 +7,14 @@
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_xdpfw"]
 [ext_resource type="Resource" uid="uid://l4haca2jhusf" path="res://resources/slot_definitions/head_slot.tres" id="4_2ds66"]
 [ext_resource type="Resource" uid="uid://bo60aqpcko6p6" path="res://resources/affixes/base_stats/inherent_barrier_hybrid.tres" id="4_we8wg"]
-[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="6_awixx"]
+[ext_resource type="Texture2D" uid="uid://c0orkr74vdci1" path="res://assets/items/head/marine helm.png" id="6_awixx"]
 
 [resource]
 script = ExtResource("3_xdpfw")
 item_name = "Marine Helm"
 description = ""
 flavor_text = "Regulation 4.2.1: All Marine armor must be polished on Tuesdays. "
+icon = ExtResource("6_awixx")
 rarity = 1
 equip_slot = 0
 slot_definition = ExtResource("4_2ds66")

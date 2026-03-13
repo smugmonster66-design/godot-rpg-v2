@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://b4lx64hb2j18d"]
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://b4lx64hb2j18d"]
 
+[ext_resource type="Resource" uid="uid://cnu7r3224b3w3" path="res://resources/animations/baseline animations/elemental anisets/buff and debuff/base_buff_aniset.tres" id="1_dqffg"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_rt8oq"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_wy5sw"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_8vndt"]
@@ -20,5 +21,7 @@ script = ExtResource("4_rt8oq")
 action_id = "sidestep"
 action_name = "Sidestep"
 action_description = "Gain 2 Braced for 1 turn."
+damage_element = 2
 effects = Array[ExtResource("1_wy5sw")]([SubResource("Resource_dqffg")])
+animation_set = ExtResource("1_dqffg")
 action_type = 1

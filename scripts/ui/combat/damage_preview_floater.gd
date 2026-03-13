@@ -60,7 +60,8 @@ var _is_configured: bool = false
 
 ## Cached accepted_elements from Action resource for multi-element match checks
 var _current_accepted_elements: Array[int] = []
-
+## Cached damage_element from Action resource for single-element synergy checks
+var _current_damage_element: int = -1
 # ============================================================================
 # INITIALIZATION
 # ============================================================================
@@ -129,8 +130,11 @@ func update_preview(
 	
 	# Cache accepted_elements for multi-element match checks
 	_current_accepted_elements = []
-	if action_resource and action_resource.accepted_elements.size() > 0:
-		_current_accepted_elements = action_resource.accepted_elements
+	_current_damage_element = -1
+	if action_resource:
+		if action_resource.accepted_elements.size() > 0:
+			_current_accepted_elements = action_resource.accepted_elements
+		_current_damage_element = int(action_resource.damage_element)
 	
 	# Step 1: Calculate base element breakdown from dice + effects
 	var damages: Dictionary = {}
@@ -196,17 +200,10 @@ func _calculate_from_effects(
 				var die_value: float = float(die.get_total_value())
 				var die_damage_type: ActionEffect.DamageType = die.get_effective_damage_type(effect_element)
 				
-				# Multi-element match for accepted_elements actions (e.g. Chromatic Bolt)
-				var is_match: bool
-				if _current_accepted_elements.size() > 0:
-					var die_elem = die.get_effective_element()
-					is_match = (die_elem != DieResource.Element.NONE
-						and die_elem in _current_accepted_elements)
-				else:
-					is_match = die.is_element_match(effect_element)
-				
-				if is_match:
-					die_value *= CombatCalculator.ELEMENT_MATCH_BONUS
+				# Element synergy: +25% (min +1) when die matches Action.damage_element
+				if _current_damage_element >= 0 and die.is_element_match(_current_damage_element):
+					var raw = die_value
+					die_value = maxf(raw * CombatCalculator.ELEMENT_MATCH_BONUS, raw + 1.0)
 				
 				effect_damages[die_damage_type] = effect_damages.get(die_damage_type, 0.0) + die_value
 		
