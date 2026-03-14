@@ -11,7 +11,7 @@ class_name SkillTree
 @export var icon: Texture2D = null
 
 # ============================================================================
-# SKILLS BY TIER (rows 1-9)
+# SKILLS BY TIER (rows 1-8)
 # ============================================================================
 @export_group("Tier 1 (Row 1)")
 @export var tier_1_skills: Array[SkillResource] = []
@@ -37,29 +37,21 @@ class_name SkillTree
 @export_group("Tier 8 (Row 8)")
 @export var tier_8_skills: Array[SkillResource] = []
 
-@export_group("Tier 9 (Row 9)")
-@export var tier_9_skills: Array[SkillResource] = []
-
-@export_group("Tier 10 (Row 10)")
-@export var tier_10_skills: Array[SkillResource] = []
-
 # ============================================================================
 # TIER UNLOCK REQUIREMENTS
 # ============================================================================
 @export_group("Tier Unlock Requirements")
 @export var tier_2_points_required: int = 1
 @export var tier_3_points_required: int = 3
-@export var tier_4_points_required: int = 5
-@export var tier_5_points_required: int = 8
-@export var tier_6_points_required: int = 11
-@export var tier_7_points_required: int = 15
+@export var tier_4_points_required: int = 6
+@export var tier_5_points_required: int = 9
+@export var tier_6_points_required: int = 12
+@export var tier_7_points_required: int = 16
 @export var tier_8_points_required: int = 20
-@export var tier_9_points_required: int = 25
-@export var tier_10_points_required: int = 28
 # ============================================================================
 # GRID CONSTANTS
 # ============================================================================
-const GRID_ROWS: int = 10
+const GRID_ROWS: int = 8
 const GRID_COLUMNS: int = 7
 
 # ============================================================================
@@ -96,8 +88,6 @@ func get_all_skills() -> Array[SkillResource]:
 	skills.append_array(tier_6_skills)
 	skills.append_array(tier_7_skills)
 	skills.append_array(tier_8_skills)
-	skills.append_array(tier_9_skills)
-	skills.append_array(tier_10_skills)
 	return skills
 
 func get_skills_for_tier(tier: int) -> Array[SkillResource]:
@@ -111,8 +101,6 @@ func get_skills_for_tier(tier: int) -> Array[SkillResource]:
 		6: return tier_6_skills
 		7: return tier_7_skills
 		8: return tier_8_skills
-		9: return tier_9_skills
-		10: return tier_10_skills
 		_: return []
 
 func get_skill_by_id(id: String) -> SkillResource:
@@ -123,7 +111,7 @@ func get_skill_by_id(id: String) -> SkillResource:
 	return null
 
 func get_skill_at_position(row: int, col: int) -> SkillResource:
-	"""Get skill at a specific grid position (row 0-8, col 0-6)"""
+	"""Get skill at a specific grid position (row 0-7, col 0-6)"""
 	var tier = row + 1  # Convert 0-indexed row to 1-indexed tier
 	var tier_skills = get_skills_for_tier(tier)
 	
@@ -160,8 +148,6 @@ func get_points_required_for_tier(tier: int) -> int:
 		6: return tier_6_points_required
 		7: return tier_7_points_required
 		8: return tier_8_points_required
-		9: return tier_9_points_required
-		10: return tier_10_points_required
 		_: return 999
 
 func is_tier_unlocked(tier: int, points_spent_in_tree: int) -> bool:
