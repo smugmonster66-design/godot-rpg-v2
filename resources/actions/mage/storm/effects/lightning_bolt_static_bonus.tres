@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://cxie0e5284n06"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_m4lj4"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_f405l"]
+
+[resource]
+script = ExtResource("1_m4lj4")
+effect_name = "Lightning Bolt: Static Bonus"
+effect_data = {
+"condition": "target_has_status",
+"damage_per_stack": 3,
+"status_id": "static",
+"value_source": "TARGET_STATUS_STACKS"
+}
+damage_type = 5
+base_damage = 3
+dice_count = 0

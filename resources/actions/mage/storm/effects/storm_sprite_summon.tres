@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://0kpgy11dd73p"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_414nt"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_eoqmf"]
+
+[resource]
+script = ExtResource("1_414nt")
+effect_name = "Storm Sprite: Summon"
+target = 0
+effect_type = 22
+effect_data = {
+"companion_type": "storm_sprite",
+"hp_multiplier": 3,
+"hp_source": "DICE_TOTAL"
+}

@@ -7,8 +7,8 @@
 
 [resource]
 script = ExtResource("3_xbm68")
-affix_name = "Spark: Chromatic Bolt Static I"
-description = "Chromatic Bolt applies 1 Static (shock die)."
+affix_name = "Spark R1: Chromatic Bolt Static"
+description = "Chromatic Bolt applies 1 Static on hit (requires shock die)."
 category = 54
 tags = Array[String](["mage", "storm", "class_action_mod", "static_apply"])
 effect_data = {

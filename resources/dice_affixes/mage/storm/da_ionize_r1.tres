@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://c0cftkqi46bmo"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_vwjo3"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_uhrhr"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_ho8pf"]
+
+[resource]
+script = ExtResource("2_uhrhr")
+affix_name = "Ionize I: Static on Pull"
+description = "Pulling shock die applies 1 Static."
+use_global_element_visuals = true
+global_element_type = 5
+effect_type = 16
+effect_value = 1.0
+effect_data = {
+"stacks": 1,
+"status_id": "static",
+"target": "random_enemy",
+"trigger_on_pull": true
+}

@@ -10,7 +10,7 @@ script = ExtResource("3_2cwku")
 affix_name = "Thunderclap: Grant Action"
 description = "Grants Thunderclap action."
 category = 31
-tags = Array[String](["mage", "storm", "tempest", "granted_action"])
+tags = Array[String](["mage", "storm", "voltaic", "granted_action"])
 effect_data = {
 "action_id": "storm_thunderclap"
 }

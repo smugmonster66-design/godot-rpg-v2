@@ -10,7 +10,7 @@ script = ExtResource("3_e0b81")
 affix_name = "Lightning Bolt: Grant Action"
 description = "Grants Lightning Bolt action."
 category = 31
-tags = Array[String](["mage", "storm", "tempest", "granted_action", "chain"])
+tags = Array[String](["mage", "storm", "conduit", "granted_action", "exploiter"])
 effect_data = {
 "action_id": "storm_lightning_bolt"
 }

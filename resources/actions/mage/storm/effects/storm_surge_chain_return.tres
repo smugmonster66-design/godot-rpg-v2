@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://3k34crt7ia56"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_bu5l7"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_lii4b"]
+
+[resource]
+script = ExtResource("1_bu5l7")
+effect_name = "Storm Surge: Chain Return"
+effect_type = 14
+effect_data = {
+"chain_percent": 0.6,
+"chain_return_to_primary": true,
+"chain_targets": 1
+}
+damage_type = 5
+damage_multiplier = 0.6
+dice_count = 0

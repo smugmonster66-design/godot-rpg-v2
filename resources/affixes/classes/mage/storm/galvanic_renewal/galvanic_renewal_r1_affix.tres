@@ -7,15 +7,16 @@
 [resource]
 script = ExtResource("2_j0cfw")
 affix_name = "Galvanic Renewal I"
-description = "On shock kill, gain a free shock mana die. 1/turn."
+description = "On shock kill: gain 1 free shock die to hand. Max 1/turn."
 category = 35
-tags = Array[String](["mage", "storm", "conduit", "die_grant", "on_kill"])
+tags = Array[String](["mage", "storm", "proc", "kill", "die_generation"])
 effect_number = 1.0
 effect_data = {
-"element": "SHOCK",
-"element_condition": "SHOCK",
-"proc_effect": "grant_mana_die",
-"proc_trigger": "ON_KILL",
-"uses_per_turn": 1
+"count": 1,
+"die_element": "SHOCK",
+"max_per_turn": 1,
+"proc_condition_element": "SHOCK",
+"proc_effect": "add_die_to_hand",
+"proc_trigger": "ON_KILL"
 }
 proc_trigger = 9

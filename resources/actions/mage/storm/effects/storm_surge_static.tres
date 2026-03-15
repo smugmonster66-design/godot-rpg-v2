@@ -6,10 +6,8 @@
 
 [resource]
 script = ExtResource("1_151t3")
-effect_name = "Storm Surge: Apply Static"
+effect_name = "Storm Surge: Mass Static"
 target = 2
 effect_type = 2
-damage_type = 5
-dice_count = 0
 status_affix = ExtResource("2_wb830")
 stack_count = 3

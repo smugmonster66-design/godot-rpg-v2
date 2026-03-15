@@ -624,16 +624,23 @@ func _create_tier_3():
 			_static_status, 1),
 		"storm_sprite_static")
 
+	# Summon effect — uses SUMMON_COMPANION effect type with companion data
+	var ss_summon: ActionEffect = _save_effect(
+		_make_action_effect("Storm Sprite: Summon",
+			ActionEffect.TargetType.SELF, ActionEffect.EffectType.SUMMON_COMPANION,
+			ActionEffect.DamageType.SHOCK, 0, 1.0, 0),
+		"storm_sprite_summon")
+	ss_summon.effect_data = {"companion_type": "storm_sprite",
+		"hp_source": "DICE_TOTAL", "hp_multiplier": 3}
+	ResourceSaver.save(ss_summon, EFFECT_DIR + "storm_sprite_summon.tres")
+
 	var ss_effs: Array[ActionEffect] = []
-	ss_effs.assign([ss_dmg, ss_static])
+	ss_effs.assign([ss_summon, ss_dmg, ss_static])
 	var ss_act: Action = _save_action(
 		_make_action_with_elements("storm_conjure_sprite", "Conjure Storm Sprite",
 			"Summon a Storm Sprite that zaps a random enemy each turn for 4 shock damage and 1 Static. HP scales with die value.",
 			1, ss_effs, shock_only, Action.ChargeType.LIMITED_PER_COMBAT, 1),
 		"conjure_storm_sprite_action")
-	ss_act.effect_data = {"summon": true, "companion_type": "storm_sprite",
-		"hp_source": "DICE_TOTAL", "hp_multiplier": 3}
-	ResourceSaver.save(ss_act, ACTION_DIR + "conjure_storm_sprite_action.tres")
 
 	var ss_grant_mem: Affix = _make_affix("Storm Sprite: Grant Action",
 		"Grants Conjure Storm Sprite action.",

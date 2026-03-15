@@ -1,18 +1,21 @@
-[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://dupv2qthqy5ax"]
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://dupv2qthqy5ax"]
 
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_4tgy6"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_xxyhn"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_2phwo"]
 [ext_resource type="Resource" uid="uid://cygmvrxjg3rv0" path="res://resources/actions/mage/storm/effects/lightning_bolt_damage.tres" id="2_h7kic"]
 [ext_resource type="Resource" uid="uid://dotvtkp16tui5" path="res://resources/actions/mage/storm/effects/lightning_bolt_chain.tres" id="3_ycch4"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_4tgy6"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="5_2phwo"]
+[ext_resource type="Resource" uid="uid://cxie0e5284n06" path="res://resources/actions/mage/storm/effects/lightning_bolt_static_bonus.tres" id="5_sisko"]
 
 [resource]
 script = ExtResource("5_2phwo")
 action_id = "storm_lightning_bolt"
 action_name = "Lightning Bolt"
-action_description = "Heavy shock strike, chains to 1 enemy for 50% damage."
+action_description = "Deal x1.2 shock damage. +3 bonus damage per Static stack on target. Chain to 1 enemy for 50%."
 die_slots = 2
 min_dice_required = 2
-accepted_elements = Array[int]([6])
+accepted_elements = Array[int]([4])
 charge_type = 1
-effects = Array[ExtResource("1_xxyhn")]([ExtResource("2_h7kic"), ExtResource("3_ycch4")])
+effects = Array[ExtResource("1_xxyhn")]([ExtResource("2_h7kic"), ExtResource("5_sisko"), ExtResource("3_ycch4")])

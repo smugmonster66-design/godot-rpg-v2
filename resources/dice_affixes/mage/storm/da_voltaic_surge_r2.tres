@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=5 format=3 uid="uid://6rrldh3wsrn6"]
+
+[ext_resource type="Resource" uid="uid://ecbbgw1l2u2g" path="res://resources/dice_affixes/mage/storm/conditions/cond_target_has_static.tres" id="1_nsopn"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_n0fdk"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_wjame"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_v0a6j"]
+
+[resource]
+script = ExtResource("3_wjame")
+affix_name = "Voltaic Surge II: Per-Stack Damage"
+description = "+2 damage per Static stack."
+use_global_element_visuals = true
+global_element_type = 5
+trigger = 1
+condition = ExtResource("1_nsopn")
+effect_type = 26
+effect_value = 2.0
+effect_data = {
+"per_stack_of": "static"
+}

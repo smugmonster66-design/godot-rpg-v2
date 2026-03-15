@@ -8,9 +8,9 @@
 [resource]
 script = ExtResource("3_wg4py")
 affix_name = "Polarity I"
-description = "+1 value if no adjacent shock die."
+description = "Shock die +2 value if no adjacent die is Shock."
 category = 39
-tags = Array[String](["mage", "storm", "conduit", "mana_die_affix", "positional", "spacing"])
+tags = Array[String](["mage", "storm", "mana_die_affix", "positional", "conduit"])
 effect_data = {
 "dice_affix": ExtResource("1_40x1a")
 }

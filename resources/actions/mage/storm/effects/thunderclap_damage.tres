@@ -7,5 +7,3 @@
 script = ExtResource("1_tlwi0")
 effect_name = "Thunderclap: Damage"
 damage_type = 5
-damage_multiplier = 1.2
-dice_count = 2

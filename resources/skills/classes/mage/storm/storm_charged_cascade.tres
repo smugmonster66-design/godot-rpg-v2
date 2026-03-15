@@ -1,0 +1,97 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=26 format=3 uid="uid://vyqf600ggebf"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_suh7w"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_knn2w"]
+[ext_resource type="Resource" uid="uid://b4xf2ov4c143a" path="res://resources/affixes/classes/mage/storm/spark/spark_element_unlock.tres" id="3_h75p2"]
+[ext_resource type="Resource" uid="uid://uocd0xx3v8eq" path="res://resources/affixes/classes/mage/storm/charged_cascade/charged_cascade_r1_affix.tres" id="3_sq1nx"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="4_46db5"]
+[ext_resource type="Resource" uid="uid://bxw4trwiat2cq" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r1_affix.tres" id="4_clwyt"]
+[ext_resource type="Resource" uid="uid://c87vlxexpp16r" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r2_affix.tres" id="5_d1bjg"]
+[ext_resource type="Resource" uid="uid://cs8flo2oc50ge" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r3_affix.tres" id="6_tjs5r"]
+[ext_resource type="Resource" uid="uid://1xr453f8ax31" path="res://resources/affixes/classes/mage/storm/conductor/conductor_r1_affix.tres" id="8_veppb"]
+[ext_resource type="Resource" uid="uid://de4fox2vomexv" path="res://resources/affixes/classes/mage/storm/conductor/conductor_r2_affix.tres" id="9_scf3m"]
+[ext_resource type="Resource" uid="uid://bvo0it3p3iywx" path="res://resources/affixes/classes/mage/storm/conductor/conductor_r3_affix.tres" id="10_ix16o"]
+[ext_resource type="Resource" uid="uid://y3jy7l82kofr" path="res://resources/affixes/classes/mage/storm/arc_conduit/arc_conduit_r1_affix.tres" id="11_cmvf7"]
+[ext_resource type="Resource" uid="uid://ca7c8n6dajsx3" path="res://resources/affixes/classes/mage/storm/arc_conduit/arc_conduit_r2_affix.tres" id="12_lf25r"]
+[ext_resource type="Resource" uid="uid://dbf76ngs7w4ow" path="res://resources/affixes/classes/mage/storm/voltaic_surge/voltaic_surge_r1_affix.tres" id="13_ih4gg"]
+[ext_resource type="Resource" uid="uid://dy2lq7u43asd7" path="res://resources/affixes/classes/mage/storm/voltaic_surge/voltaic_surge_r2_affix.tres" id="14_kbgnh"]
+[ext_resource type="Resource" uid="uid://cvcfd1vt222ok" path="res://resources/affixes/classes/mage/storm/voltaic_surge/voltaic_surge_r3_affix.tres" id="15_drayl"]
+
+[sub_resource type="Resource" id="Resource_gwqxq"]
+script = ExtResource("4_46db5")
+skill_id = "storm_spark"
+skill_name = "Spark"
+description = "Unlock [color=yellow]Shock[/color] mana. Chromatic Bolt applies [color=yellow]1/2/3 Static[/color] on hit (requires shock die)."
+column = 3
+rank_1_affixes = Array[ExtResource("2_knn2w")]([ExtResource("3_h75p2"), ExtResource("4_clwyt")])
+rank_2_affixes = Array[ExtResource("2_knn2w")]([ExtResource("3_h75p2"), ExtResource("5_d1bjg")])
+rank_3_affixes = Array[ExtResource("2_knn2w")]([ExtResource("3_h75p2"), ExtResource("6_tjs5r")])
+
+[sub_resource type="Resource" id="Resource_l1ipw"]
+script = ExtResource("1_suh7w")
+required_skill = SubResource("Resource_gwqxq")
+
+[sub_resource type="Resource" id="Resource_nocxb"]
+script = ExtResource("4_46db5")
+skill_id = "storm_conductor"
+skill_name = "Conductor"
+description = "Shock mana dice chain [color=yellow]30/40/50%[/color] damage to 1 additional enemy on use."
+tier = 2
+column = 3
+prerequisites = Array[ExtResource("1_suh7w")]([SubResource("Resource_l1ipw")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_knn2w")]([ExtResource("8_veppb")])
+rank_2_affixes = Array[ExtResource("2_knn2w")]([ExtResource("9_scf3m")])
+rank_3_affixes = Array[ExtResource("2_knn2w")]([ExtResource("10_ix16o")])
+
+[sub_resource type="Resource" id="Resource_uvsbj"]
+script = ExtResource("1_suh7w")
+required_skill = SubResource("Resource_nocxb")
+
+[sub_resource type="Resource" id="Resource_h75p2"]
+script = ExtResource("4_46db5")
+skill_id = "storm_arc_conduit"
+skill_name = "Arc Conduit"
+description = "Shock dice chain to +1 extra target. Chain bounces apply [color=yellow]1/2[/color] [color=yellow]Static[/color]."
+tier = 4
+column = 2
+prerequisites = Array[ExtResource("1_suh7w")]([SubResource("Resource_uvsbj")])
+tree_points_required = 6
+rank_1_affixes = Array[ExtResource("2_knn2w")]([ExtResource("11_cmvf7")])
+rank_2_affixes = Array[ExtResource("2_knn2w")]([ExtResource("12_lf25r")])
+
+[sub_resource type="Resource" id="Resource_clwyt"]
+script = ExtResource("1_suh7w")
+required_skill = SubResource("Resource_h75p2")
+
+[sub_resource type="Resource" id="Resource_8sbcy"]
+script = ExtResource("1_suh7w")
+required_skill = SubResource("Resource_nocxb")
+
+[sub_resource type="Resource" id="Resource_d1bjg"]
+script = ExtResource("4_46db5")
+skill_id = "storm_voltaic_surge"
+skill_name = "Voltaic Surge"
+description = "Shock dice deal +[color=yellow]1/2/3[/color] bonus damage per [color=yellow]Static[/color] stack on target."
+tier = 4
+column = 4
+prerequisites = Array[ExtResource("1_suh7w")]([SubResource("Resource_8sbcy")])
+tree_points_required = 6
+rank_1_affixes = Array[ExtResource("2_knn2w")]([ExtResource("13_ih4gg")])
+rank_2_affixes = Array[ExtResource("2_knn2w")]([ExtResource("14_kbgnh")])
+rank_3_affixes = Array[ExtResource("2_knn2w")]([ExtResource("15_drayl")])
+
+[sub_resource type="Resource" id="Resource_tjs5r"]
+script = ExtResource("1_suh7w")
+required_skill = SubResource("Resource_d1bjg")
+
+[resource]
+script = ExtResource("4_46db5")
+skill_id = "storm_charged_cascade"
+skill_name = "Charged Cascade"
+description = "[color=yellow]WEAVE:[/color] Chain bounces deal +3 bonus damage per [color=yellow]Static[/color] stack on bounce target."
+tier = 5
+column = 3
+prerequisites = Array[ExtResource("1_suh7w")]([SubResource("Resource_clwyt"), SubResource("Resource_tjs5r")])
+tree_points_required = 9
+rank_1_affixes = Array[ExtResource("2_knn2w")]([ExtResource("3_sq1nx")])

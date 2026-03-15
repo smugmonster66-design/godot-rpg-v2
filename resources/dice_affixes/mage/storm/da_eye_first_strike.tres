@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://d4g0aojeli3s7"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_f1372"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_75ti1"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_xptgl"]
+
+[resource]
+script = ExtResource("2_75ti1")
+affix_name = "Eye of the Storm: First Strike"
+description = "First-position shock die applies 2 Static to all enemies."
+use_global_element_visuals = true
+global_element_type = 5
+trigger = 1
+position_requirement = 1
+effect_type = 16
+effect_value = 1.0
+effect_data = {
+"stacks": 2,
+"status_id": "static",
+"target": "ALL_ENEMIES"
+}

@@ -8,7 +8,8 @@
 script = ExtResource("1_4ehp8")
 effect_name = "Thunderclap: Apply Static"
 effect_type = 2
+value_source = 1
 damage_type = 5
 dice_count = 0
 status_affix = ExtResource("2_pyp31")
-stack_count = 3
+stack_count = 0

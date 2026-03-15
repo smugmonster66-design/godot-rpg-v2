@@ -7,15 +7,13 @@
 [resource]
 script = ExtResource("2_mquxd")
 affix_name = "Thunderhead II"
-description = "At start of each turn, apply 3 Static to all enemies."
-category = 35
-tags = Array[String](["mage", "storm", "voltaic", "static_apply", "passive"])
+description = "Turn start: apply 3 Static to all enemies."
+category = 33
+tags = Array[String](["mage", "storm", "voltaic", "static_apply", "aoe", "passive"])
 effect_number = 3.0
 effect_data = {
-"proc_effect": "apply_status",
-"proc_trigger": "ON_TURN_START",
+"proc_effect": "apply_status_to_all_enemies",
 "stacks": 3,
 "status_id": "static",
-"target": "all_enemies"
+"turn_trigger": "START_OF_TURN"
 }
-proc_trigger = 3

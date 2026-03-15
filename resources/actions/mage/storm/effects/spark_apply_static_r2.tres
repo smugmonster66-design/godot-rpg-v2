@@ -6,9 +6,7 @@
 
 [resource]
 script = ExtResource("1_jynf0")
-effect_name = "Spark: Apply Static II"
+effect_name = "Spark R2: Apply Static"
 effect_type = 2
-damage_type = 5
-dice_count = 0
 status_affix = ExtResource("2_oe0i1")
 stack_count = 2

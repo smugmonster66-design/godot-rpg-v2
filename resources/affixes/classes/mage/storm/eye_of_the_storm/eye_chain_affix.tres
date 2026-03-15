@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://bwvebjeb8k7ma"]
+
+[ext_resource type="Resource" uid="uid://cqaw65ykwpc5r" path="res://resources/dice_affixes/mage/storm/da_eye_chain_extension.tres" id="1_hnqce"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_yu4st"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_yaecu"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_nsrlb"]
+
+[resource]
+script = ExtResource("3_yaecu")
+affix_name = "Eye of the Storm: Chains"
+description = "All shock chain effects hit +1 additional target."
+category = 39
+tags = Array[String](["mage", "storm", "capstone", "chain"])
+effect_data = {
+"dice_affix": ExtResource("1_hnqce")
+}

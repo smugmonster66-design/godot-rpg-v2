@@ -7,6 +7,10 @@
 script = ExtResource("1_81oqt")
 effect_name = "Lightning Bolt: Chain"
 effect_type = 14
+effect_data = {
+"chain_percent": 0.5,
+"chain_targets": 1
+}
 damage_type = 5
 chain_count = 1
 chain_decay = 0.5

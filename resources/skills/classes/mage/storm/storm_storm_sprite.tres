@@ -1,0 +1,55 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=16 format=3 uid="uid://bkfi86jwxokdv"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_tbt7y"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_2je6q"]
+[ext_resource type="Resource" uid="uid://by185xp5bnghi" path="res://resources/affixes/classes/mage/storm/storm_sprite/storm_sprite_r1_affix.tres" id="3_jr154"]
+[ext_resource type="Resource" uid="uid://b4xf2ov4c143a" path="res://resources/affixes/classes/mage/storm/spark/spark_element_unlock.tres" id="3_le0v2"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="4_2qvst"]
+[ext_resource type="Resource" uid="uid://bxw4trwiat2cq" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r1_affix.tres" id="4_hn0pg"]
+[ext_resource type="Resource" uid="uid://c87vlxexpp16r" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r2_affix.tres" id="5_o4nno"]
+[ext_resource type="Resource" uid="uid://cs8flo2oc50ge" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r3_affix.tres" id="6_k83fq"]
+[ext_resource type="Resource" uid="uid://1xr453f8ax31" path="res://resources/affixes/classes/mage/storm/conductor/conductor_r1_affix.tres" id="8_ounb1"]
+[ext_resource type="Resource" uid="uid://de4fox2vomexv" path="res://resources/affixes/classes/mage/storm/conductor/conductor_r2_affix.tres" id="9_faosi"]
+[ext_resource type="Resource" uid="uid://bvo0it3p3iywx" path="res://resources/affixes/classes/mage/storm/conductor/conductor_r3_affix.tres" id="10_4wio8"]
+
+[sub_resource type="Resource" id="Resource_gwqxq"]
+script = ExtResource("4_2qvst")
+skill_id = "storm_spark"
+skill_name = "Spark"
+description = "Unlock [color=yellow]Shock[/color] mana. Chromatic Bolt applies [color=yellow]1/2/3 Static[/color] on hit (requires shock die)."
+column = 3
+rank_1_affixes = Array[ExtResource("2_2je6q")]([ExtResource("3_le0v2"), ExtResource("4_hn0pg")])
+rank_2_affixes = Array[ExtResource("2_2je6q")]([ExtResource("3_le0v2"), ExtResource("5_o4nno")])
+rank_3_affixes = Array[ExtResource("2_2je6q")]([ExtResource("3_le0v2"), ExtResource("6_k83fq")])
+
+[sub_resource type="Resource" id="Resource_l1ipw"]
+script = ExtResource("1_tbt7y")
+required_skill = SubResource("Resource_gwqxq")
+
+[sub_resource type="Resource" id="Resource_nocxb"]
+script = ExtResource("4_2qvst")
+skill_id = "storm_conductor"
+skill_name = "Conductor"
+description = "Shock mana dice chain [color=yellow]30/40/50%[/color] damage to 1 additional enemy on use."
+tier = 2
+column = 3
+prerequisites = Array[ExtResource("1_tbt7y")]([SubResource("Resource_l1ipw")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_2je6q")]([ExtResource("8_ounb1")])
+rank_2_affixes = Array[ExtResource("2_2je6q")]([ExtResource("9_faosi")])
+rank_3_affixes = Array[ExtResource("2_2je6q")]([ExtResource("10_4wio8")])
+
+[sub_resource type="Resource" id="Resource_2wnw8"]
+script = ExtResource("1_tbt7y")
+required_skill = SubResource("Resource_nocxb")
+
+[resource]
+script = ExtResource("4_2qvst")
+skill_id = "storm_storm_sprite"
+skill_name = "Storm Sprite"
+description = "[color=yellow]ACTION:[/color] 1 shock die, per-combat. Summon Sprite (zaps random enemy: 4 shock + 1 [color=yellow]Static[/color]/turn). HP = die value x3."
+tier = 3
+column = 3
+prerequisites = Array[ExtResource("1_tbt7y")]([SubResource("Resource_2wnw8")])
+tree_points_required = 3
+rank_1_affixes = Array[ExtResource("2_2je6q")]([ExtResource("3_jr154")])

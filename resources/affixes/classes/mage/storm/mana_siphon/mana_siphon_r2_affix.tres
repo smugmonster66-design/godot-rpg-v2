@@ -7,13 +7,13 @@
 [resource]
 script = ExtResource("2_6tbfd")
 affix_name = "Mana Siphon II"
-description = "On shock kill, restore 5 mana."
+description = "On shock kill: restore 6 mana."
 category = 35
-tags = Array[String](["mage", "storm", "conduit", "mana_restore", "on_kill"])
-effect_number = 5.0
+tags = Array[String](["mage", "storm", "proc", "mana", "conduit", "kill"])
+effect_number = 6.0
 effect_data = {
-"amount": 5,
-"element_condition": "SHOCK",
+"amount": 6,
+"proc_condition_element": "SHOCK",
 "proc_effect": "mana_restore",
 "proc_trigger": "ON_KILL"
 }

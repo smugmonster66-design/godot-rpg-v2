@@ -1,58 +1,57 @@
-[gd_resource type="Resource" script_class="SkillResource" load_steps=19 format=3 uid="uid://cge40kk56362y"]
+[gd_resource type="Resource" script_class="SkillResource" load_steps=18 format=3 uid="uid://cge40kk56362y"]
 
 [ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_gv4ni"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_0xww2"]
-[ext_resource type="Resource" uid="uid://b4xf2ov4c143a" path="res://resources/affixes/classes/mage/storm/spark/spark_element_unlock.tres" id="3_jfjlj"]
+[ext_resource type="Resource" uid="uid://b4xf2ov4c143a" path="res://resources/affixes/classes/mage/storm/spark/spark_element_unlock.tres" id="3_k7tbo"]
 [ext_resource type="Resource" uid="uid://bqfp6e88ssve3" path="res://resources/affixes/classes/mage/storm/ionize/ionize_r1_affix.tres" id="3_r7qx7"]
-[ext_resource type="Resource" uid="uid://dg5rgufp75vi1" path="res://resources/affixes/classes/mage/storm/spark/spark_size_unlock.tres" id="4_q20xr"]
+[ext_resource type="Resource" uid="uid://bxw4trwiat2cq" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r1_affix.tres" id="4_jfjlj"]
 [ext_resource type="Resource" uid="uid://c751ovlwh0rm7" path="res://resources/affixes/classes/mage/storm/ionize/ionize_r2_affix.tres" id="4_vkper"]
 [ext_resource type="Resource" uid="uid://cyliqe7yjmr3g" path="res://resources/affixes/classes/mage/storm/ionize/ionize_r3_affix.tres" id="5_h8jsu"]
-[ext_resource type="Resource" uid="uid://bxw4trwiat2cq" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r1_affix.tres" id="5_koed0"]
-[ext_resource type="Resource" uid="uid://c87vlxexpp16r" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r2_affix.tres" id="6_daxy0"]
+[ext_resource type="Resource" uid="uid://c87vlxexpp16r" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r2_affix.tres" id="5_q20xr"]
+[ext_resource type="Resource" uid="uid://cs8flo2oc50ge" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r3_affix.tres" id="6_koed0"]
 [ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="6_o8yr4"]
-[ext_resource type="Resource" uid="uid://cs8flo2oc50ge" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r3_affix.tres" id="7_x1fgc"]
-[ext_resource type="Resource" uid="uid://xul6geic6ic7" path="res://resources/affixes/classes/mage/storm/arc_pulse/arc_pulse_r1_affix.tres" id="9_6fnck"]
-[ext_resource type="Resource" uid="uid://c3gm4vr2txv7f" path="res://resources/affixes/classes/mage/storm/arc_pulse/arc_pulse_r2_affix.tres" id="10_hvf5n"]
-[ext_resource type="Resource" uid="uid://bdf1nbal6xnma" path="res://resources/affixes/classes/mage/storm/arc_pulse/arc_pulse_r3_affix.tres" id="11_s2iuy"]
+[ext_resource type="Resource" uid="uid://xul6geic6ic7" path="res://resources/affixes/classes/mage/storm/arc_pulse/arc_pulse_r1_affix.tres" id="8_daxy0"]
+[ext_resource type="Resource" uid="uid://c3gm4vr2txv7f" path="res://resources/affixes/classes/mage/storm/arc_pulse/arc_pulse_r2_affix.tres" id="9_x1fgc"]
+[ext_resource type="Resource" uid="uid://bdf1nbal6xnma" path="res://resources/affixes/classes/mage/storm/arc_pulse/arc_pulse_r3_affix.tres" id="10_6fnck"]
 
-[sub_resource type="Resource" id="Resource_15ods"]
+[sub_resource type="Resource" id="Resource_gwqxq"]
 script = ExtResource("6_o8yr4")
 skill_id = "storm_spark"
 skill_name = "Spark"
-description = "Unlock [color=yellow]Shock[/color] mana. Chromatic Bolt applies [color=yellow]1/2/3[/color] [color=cyan]Static[/color] on hit (requires shock die)."
+description = "Unlock [color=yellow]Shock[/color] mana. Chromatic Bolt applies [color=yellow]1/2/3 Static[/color] on hit (requires shock die)."
 column = 3
-rank_1_affixes = Array[ExtResource("2_0xww2")]([ExtResource("3_jfjlj"), ExtResource("4_q20xr"), ExtResource("5_koed0")])
-rank_2_affixes = Array[ExtResource("2_0xww2")]([ExtResource("3_jfjlj"), ExtResource("4_q20xr"), ExtResource("6_daxy0")])
-rank_3_affixes = Array[ExtResource("2_0xww2")]([ExtResource("3_jfjlj"), ExtResource("4_q20xr"), ExtResource("7_x1fgc")])
+rank_1_affixes = Array[ExtResource("2_0xww2")]([ExtResource("3_k7tbo"), ExtResource("4_jfjlj")])
+rank_2_affixes = Array[ExtResource("2_0xww2")]([ExtResource("3_k7tbo"), ExtResource("5_q20xr")])
+rank_3_affixes = Array[ExtResource("2_0xww2")]([ExtResource("3_k7tbo"), ExtResource("6_koed0")])
 
-[sub_resource type="Resource" id="Resource_jgg6u"]
+[sub_resource type="Resource" id="Resource_fhxr0"]
 script = ExtResource("1_gv4ni")
-required_skill = SubResource("Resource_15ods")
+required_skill = SubResource("Resource_gwqxq")
 
-[sub_resource type="Resource" id="Resource_wdwkh"]
+[sub_resource type="Resource" id="Resource_k7tbo"]
 script = ExtResource("6_o8yr4")
 skill_id = "storm_arc_pulse"
 skill_name = "Arc Pulse"
-description = "Shock mana dice apply [color=yellow]1/2/3[/color] [color=cyan]Static[/color] on use."
+description = "Shock mana dice apply [color=yellow]1/2/3[/color] [color=yellow]Static[/color] on use."
 tier = 2
 column = 1
-prerequisites = Array[ExtResource("1_gv4ni")]([SubResource("Resource_jgg6u")])
+prerequisites = Array[ExtResource("1_gv4ni")]([SubResource("Resource_fhxr0")])
 tree_points_required = 1
-rank_1_affixes = Array[ExtResource("2_0xww2")]([ExtResource("9_6fnck")])
-rank_2_affixes = Array[ExtResource("2_0xww2")]([ExtResource("10_hvf5n")])
-rank_3_affixes = Array[ExtResource("2_0xww2")]([ExtResource("11_s2iuy")])
+rank_1_affixes = Array[ExtResource("2_0xww2")]([ExtResource("8_daxy0")])
+rank_2_affixes = Array[ExtResource("2_0xww2")]([ExtResource("9_x1fgc")])
+rank_3_affixes = Array[ExtResource("2_0xww2")]([ExtResource("10_6fnck")])
 
-[sub_resource type="Resource" id="Resource_s0xc7"]
+[sub_resource type="Resource" id="Resource_jfjlj"]
 script = ExtResource("1_gv4ni")
-required_skill = SubResource("Resource_wdwkh")
+required_skill = SubResource("Resource_k7tbo")
 
 [resource]
 script = ExtResource("6_o8yr4")
 skill_id = "storm_ionize"
 skill_name = "Ionize"
-description = "Pulling a shock mana die applies [color=yellow]1/2/3[/color] [color=cyan]Static[/color] to a random enemy."
+description = "Pulling shock mana die applies [color=yellow]1/2/3[/color] [color=yellow]Static[/color] to random enemy."
 tier = 3
-prerequisites = Array[ExtResource("1_gv4ni")]([SubResource("Resource_s0xc7")])
+prerequisites = Array[ExtResource("1_gv4ni")]([SubResource("Resource_jfjlj")])
 tree_points_required = 3
 rank_1_affixes = Array[ExtResource("2_0xww2")]([ExtResource("3_r7qx7")])
 rank_2_affixes = Array[ExtResource("2_0xww2")]([ExtResource("4_vkper")])

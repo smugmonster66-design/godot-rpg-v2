@@ -1,17 +1,20 @@
-[gd_resource type="Resource" script_class="Action" load_steps=6 format=3 uid="uid://bg7yq6cv4cw0w"]
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://bg7yq6cv4cw0w"]
 
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_41jir"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_jyonr"]
-[ext_resource type="Resource" uid="uid://cnhflmcihttna" path="res://resources/actions/mage/storm/effects/conjure_storm_sprite_effect.tres" id="2_41jir"]
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_tk3fr"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_qnq67"]
+[ext_resource type="Resource" uid="uid://0kpgy11dd73p" path="res://resources/actions/mage/storm/effects/storm_sprite_summon.tres" id="4_atldm"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_tk3fr"]
+[ext_resource type="Resource" uid="uid://cqi0an3kq1it5" path="res://resources/actions/mage/storm/effects/storm_sprite_zap.tres" id="4_xjb0i"]
+[ext_resource type="Resource" uid="uid://d32yfmsmg50bf" path="res://resources/actions/mage/storm/effects/storm_sprite_static.tres" id="5_atldm"]
 
 [resource]
 script = ExtResource("4_tk3fr")
-action_id = "storm_conjure_storm_sprite"
+action_id = "storm_conjure_sprite"
 action_name = "Conjure Storm Sprite"
-action_description = "Summon a Storm Sprite that zaps enemies each turn."
+action_description = "Summon a Storm Sprite that zaps a random enemy each turn for 4 shock damage and 1 Static. HP scales with die value."
 min_dice_required = 1
-accepted_elements = Array[int]([6])
+accepted_elements = Array[int]([4])
 charge_type = 2
-effects = Array[ExtResource("1_jyonr")]([ExtResource("2_41jir")])
+effects = Array[ExtResource("1_jyonr")]([ExtResource("4_atldm"), ExtResource("4_xjb0i"), ExtResource("5_atldm")])

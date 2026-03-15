@@ -7,15 +7,21 @@
 [resource]
 script = ExtResource("2_bsax2")
 affix_name = "Static Discharge"
-description = "When a Static target dies, deal remaining stacks as shock damage to all others and apply half as Static."
+description = "When target with Static dies: deal remaining stacks as shock AoE, apply half as Static to all."
 category = 35
-tags = Array[String](["mage", "storm", "conduit", "static_synergy", "on_kill", "propagate"])
-effect_number = 1.0
+tags = Array[String](["mage", "storm", "conduit", "death", "aoe", "chain", "static_apply"])
 effect_data = {
-"damage_per_stack": 1,
-"proc_effect": "static_death_discharge",
-"proc_trigger": "ON_KILL",
-"spread_fraction": 0.5,
-"target": "all_other_enemies"
+"effects": [{
+"damage_type": "SHOCK",
+"status_id": "static",
+"type": "aoe_damage",
+"value_source": "DEAD_TARGET_STATUS_STACKS"
+}, {
+"stacks_source": "DEAD_TARGET_STATUS_STACKS_HALF",
+"status_id": "static",
+"type": "apply_status_to_all"
+}],
+"proc_condition_status": "static",
+"proc_trigger": "ON_ENEMY_DEATH"
 }
 proc_trigger = 9

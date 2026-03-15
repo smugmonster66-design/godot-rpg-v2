@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://1xr453f8ax31"]
+
+[ext_resource type="Resource" uid="uid://cv2ssq0vgunru" path="res://resources/dice_affixes/mage/storm/da_conductor_r1.tres" id="1_j12f6"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_bg7k1"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_ehdeo"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_03hvb"]
+
+[resource]
+script = ExtResource("3_ehdeo")
+affix_name = "Conductor I"
+description = "Shock dice chain 30% damage to 1 enemy on use."
+category = 39
+tags = Array[String](["mage", "storm", "mana_die_affix", "chain", "center"])
+effect_data = {
+"dice_affix": ExtResource("1_j12f6")
+}

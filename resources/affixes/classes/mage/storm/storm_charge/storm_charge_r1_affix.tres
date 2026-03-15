@@ -7,15 +7,15 @@
 [resource]
 script = ExtResource("2_o1do1")
 affix_name = "Storm Charge I"
-description = "Applying Static to 10+ target spreads 1 to others."
-category = 35
-tags = Array[String](["mage", "storm", "voltaic", "static_spread"])
+description = "Applying Static to target with 8+ stacks: splash 1 Static to all others."
+category = 36
+tags = Array[String](["mage", "storm", "voltaic", "static_apply", "spread", "threshold"])
 effect_number = 1.0
 effect_data = {
-"proc_effect": "spread_static",
-"proc_trigger": "ON_STATUS_APPLIED",
+"condition_status": "static",
+"condition_threshold": 8,
+"proc_effect": "splash_status_to_all_others",
 "stacks": 1,
 "status_id": "static",
-"target": "all_other_enemies",
-"threshold": 10
+"trigger": "ON_STATUS_APPLIED"
 }

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://c6ar14r1ijwcv"]
+
+[ext_resource type="Resource" uid="uid://d4g0aojeli3s7" path="res://resources/dice_affixes/mage/storm/da_eye_first_strike.tres" id="1_6ldy1"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_6oata"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_mkwww"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_7fgom"]
+
+[resource]
+script = ExtResource("3_mkwww")
+affix_name = "Eye of the Storm: First Strike"
+description = "Shock die in FIRST position applies 2 Static to all enemies on use."
+category = 39
+tags = Array[String](["mage", "storm", "capstone", "static_apply", "aoe", "positional"])
+effect_data = {
+"dice_affix": ExtResource("1_6ldy1")
+}

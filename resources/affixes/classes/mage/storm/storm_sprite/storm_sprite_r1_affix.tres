@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://by185xp5bnghi"]
+
+[ext_resource type="Resource" uid="uid://bg7yq6cv4cw0w" path="res://resources/actions/mage/storm/conjure_storm_sprite_action.tres" id="1_ktrpg"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_7ge1g"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_da371"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_23fj4"]
+
+[resource]
+script = ExtResource("3_da371")
+affix_name = "Storm Sprite: Grant Action"
+description = "Grants Conjure Storm Sprite action."
+category = 31
+tags = Array[String](["mage", "storm", "center", "granted_action", "companion"])
+effect_data = {
+"action_id": "storm_conjure_sprite"
+}
+granted_action = ExtResource("1_ktrpg")
