@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=11 format=3 uid="uid://b22qn2vb56qxs"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_akvoi"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_a11tj"]
+[ext_resource type="Resource" uid="uid://8o0ecju72833" path="res://resources/affixes/classes/mage/frost/glaciate/glaciate_element_unlock.tres" id="3_1cq6n"]
+[ext_resource type="Resource" uid="uid://3tgxqv1ft8fm" path="res://resources/affixes/classes/mage/frost/brittle/brittle_r1_affix.tres" id="3_qdh5l"]
+[ext_resource type="Resource" uid="uid://1scs1enyv8af" path="res://resources/affixes/classes/mage/frost/brittle/brittle_r2_affix.tres" id="4_1cq6n"]
+[ext_resource type="Resource" uid="uid://ssl2e82j51p4" path="res://resources/affixes/classes/mage/frost/glaciate/glaciate_ca_affix.tres" id="4_wmpyv"]
+[ext_resource type="Resource" uid="uid://hfbu13ujgwft" path="res://resources/affixes/classes/mage/frost/brittle/brittle_r3_affix.tres" id="5_wmpyv"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="6_nyv6m"]
+
+[sub_resource type="Resource" id="Resource_exl55"]
+script = ExtResource("6_nyv6m")
+skill_id = "frost_glaciate"
+skill_name = "Glaciate"
+description = "Unlock [color=cyan]Ice[/color] mana. Chromatic Bolt applies [color=cyan]2 Chill[/color] on hit (requires ice die)."
+column = 3
+rank_1_affixes = Array[ExtResource("2_a11tj")]([ExtResource("3_1cq6n"), ExtResource("4_wmpyv")])
+
+[sub_resource type="Resource" id="Resource_nyv6m"]
+script = ExtResource("1_akvoi")
+required_skill = SubResource("Resource_exl55")
+
+[resource]
+script = ExtResource("6_nyv6m")
+skill_id = "frost_brittle"
+skill_name = "Brittle"
+description = "Ice die deals +[color=yellow]1/2/3[/color] bonus damage per 4 [color=cyan]Chill[/color] stacks on target."
+tier = 2
+column = 5
+prerequisites = Array[ExtResource("1_akvoi")]([SubResource("Resource_nyv6m")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_a11tj")]([ExtResource("3_qdh5l")])
+rank_2_affixes = Array[ExtResource("2_a11tj")]([ExtResource("4_1cq6n")])
+rank_3_affixes = Array[ExtResource("2_a11tj")]([ExtResource("5_wmpyv")])

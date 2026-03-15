@@ -1,0 +1,87 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=23 format=3 uid="uid://btf1d7s0akdj1"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_wk8c2"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_ggbc8"]
+[ext_resource type="Resource" uid="uid://b7puhoqu42uie" path="res://resources/affixes/classes/mage/frost/avalanche/avalanche_r1_affix.tres" id="3_k0eli"]
+[ext_resource type="Resource" uid="uid://8o0ecju72833" path="res://resources/affixes/classes/mage/frost/glaciate/glaciate_element_unlock.tres" id="3_l5th7"]
+[ext_resource type="Resource" uid="uid://ssl2e82j51p4" path="res://resources/affixes/classes/mage/frost/glaciate/glaciate_ca_affix.tres" id="4_08rs0"]
+[ext_resource type="Resource" uid="uid://47vy78r1svp3" path="res://resources/affixes/classes/mage/frost/avalanche/avalanche_r2_affix.tres" id="4_bhiqj"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="5_ws8ko"]
+[ext_resource type="Resource" uid="uid://j7sy1q5bjsk7" path="res://resources/affixes/classes/mage/frost/creeping_frost/creeping_frost_r1_affix.tres" id="6_1gisl"]
+[ext_resource type="Resource" uid="uid://dbigxhuoodv2e" path="res://resources/affixes/classes/mage/frost/creeping_frost/creeping_frost_r2_affix.tres" id="7_5u6f7"]
+[ext_resource type="Resource" uid="uid://bi7elx3x73iig" path="res://resources/affixes/classes/mage/frost/creeping_frost/creeping_frost_r3_affix.tres" id="8_sg7jh"]
+[ext_resource type="Resource" uid="uid://yxoj1fnvdiq5" path="res://resources/affixes/classes/mage/frost/hoarfrost/hoarfrost_r1_affix.tres" id="9_tn4dx"]
+[ext_resource type="Resource" uid="uid://dhr5irebshdnj" path="res://resources/affixes/classes/mage/frost/hoarfrost/hoarfrost_r2_affix.tres" id="10_fpkwc"]
+[ext_resource type="Resource" uid="uid://bfvnas2bls3jo" path="res://resources/affixes/classes/mage/frost/spreading_cold/spreading_cold_r1_affix.tres" id="11_oe75m"]
+[ext_resource type="Resource" uid="uid://dfqrb18f4uuds" path="res://resources/affixes/classes/mage/frost/spreading_cold/spreading_cold_r2_affix.tres" id="12_jx714"]
+
+[sub_resource type="Resource" id="Resource_exl55"]
+script = ExtResource("5_ws8ko")
+skill_id = "frost_glaciate"
+skill_name = "Glaciate"
+description = "Unlock [color=cyan]Ice[/color] mana. Chromatic Bolt applies [color=cyan]2 Chill[/color] on hit (requires ice die)."
+column = 3
+rank_1_affixes = Array[ExtResource("2_ggbc8")]([ExtResource("3_l5th7"), ExtResource("4_08rs0")])
+
+[sub_resource type="Resource" id="Resource_3jtiw"]
+script = ExtResource("1_wk8c2")
+required_skill = SubResource("Resource_exl55")
+
+[sub_resource type="Resource" id="Resource_klixn"]
+script = ExtResource("5_ws8ko")
+skill_id = "frost_creeping_frost"
+skill_name = "Creeping Frost"
+description = "Ice mana dice apply [color=yellow]1/2/3[/color] [color=cyan]Chill[/color] on use."
+tier = 2
+column = 1
+prerequisites = Array[ExtResource("1_wk8c2")]([SubResource("Resource_3jtiw")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_ggbc8")]([ExtResource("6_1gisl")])
+rank_2_affixes = Array[ExtResource("2_ggbc8")]([ExtResource("7_5u6f7")])
+rank_3_affixes = Array[ExtResource("2_ggbc8")]([ExtResource("8_sg7jh")])
+
+[sub_resource type="Resource" id="Resource_iae0c"]
+script = ExtResource("1_wk8c2")
+required_skill = SubResource("Resource_klixn")
+
+[sub_resource type="Resource" id="Resource_bl7qe"]
+script = ExtResource("5_ws8ko")
+skill_id = "frost_hoarfrost"
+skill_name = "Hoarfrost"
+description = "End of turn: apply [color=yellow]1/2[/color] [color=cyan]Chill[/color] to target per unused die in hand."
+tier = 3
+prerequisites = Array[ExtResource("1_wk8c2")]([SubResource("Resource_iae0c")])
+tree_points_required = 3
+rank_1_affixes = Array[ExtResource("2_ggbc8")]([ExtResource("9_tn4dx")])
+rank_2_affixes = Array[ExtResource("2_ggbc8")]([ExtResource("10_fpkwc")])
+
+[sub_resource type="Resource" id="Resource_0e5to"]
+script = ExtResource("1_wk8c2")
+required_skill = SubResource("Resource_bl7qe")
+
+[sub_resource type="Resource" id="Resource_wmw4c"]
+script = ExtResource("5_ws8ko")
+skill_id = "frost_spreading_cold"
+skill_name = "Spreading Cold"
+description = "Ice die splashes [color=yellow]30/50%[/color] of [color=cyan]Chill[/color] to all other enemies."
+tier = 5
+prerequisites = Array[ExtResource("1_wk8c2")]([SubResource("Resource_0e5to")])
+tree_points_required = 9
+rank_1_affixes = Array[ExtResource("2_ggbc8")]([ExtResource("11_oe75m")])
+rank_2_affixes = Array[ExtResource("2_ggbc8")]([ExtResource("12_jx714")])
+
+[sub_resource type="Resource" id="Resource_x110w"]
+script = ExtResource("1_wk8c2")
+required_skill = SubResource("Resource_wmw4c")
+
+[resource]
+script = ExtResource("5_ws8ko")
+skill_id = "frost_avalanche"
+skill_name = "Avalanche"
+description = "When [color=cyan]Freeze[/color] triggers: apply [color=yellow]3/5[/color] [color=cyan]Chill[/color] to all other enemies."
+tier = 6
+column = 1
+prerequisites = Array[ExtResource("1_wk8c2")]([SubResource("Resource_x110w")])
+tree_points_required = 12
+rank_1_affixes = Array[ExtResource("2_ggbc8")]([ExtResource("3_k0eli")])
+rank_2_affixes = Array[ExtResource("2_ggbc8")]([ExtResource("4_bhiqj")])

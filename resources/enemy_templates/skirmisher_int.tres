@@ -1,12 +1,12 @@
 [gd_resource type="Resource" script_class="EnemyTemplate" load_steps=14 format=3 uid="uid://dvrwpotgjid2c"]
 
 [ext_resource type="Script" uid="uid://cwrg87ac6o11i" path="res://resources/data/role_tier_budget.gd" id="1_c6jmv"]
-[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_6n50f"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_c6jmv"]
 [ext_resource type="Resource" uid="uid://c63ch5dhpuvv3" path="res://resources/actions/enemy_base/spark.tres" id="3_8xe02"]
 [ext_resource type="Resource" uid="uid://dkskjvqg2xh1k" path="res://resources/actions/enemy_base/frost_shard.tres" id="4_c40gm"]
 [ext_resource type="Resource" uid="uid://dq1xdlnoycvj4" path="res://resources/actions/enemy_base/chain_spark.tres" id="5_llahy"]
 [ext_resource type="Resource" uid="uid://cneee54ixptk" path="res://resources/affixes/base_stats/enemy/enemy_health_int_skirmisher.tres" id="6_4si65"]
-[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="7_vhg56"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="7_6n50f"]
 [ext_resource type="Script" uid="uid://dvo4fc8b1285h" path="res://resources/data/enemy_template.gd" id="8_w3rko"]
 
 [sub_resource type="Resource" id="Resource_dbfrn"]
@@ -82,7 +82,7 @@ archetype = 3
 dice_philosophy = 1
 defense_profile = 1
 default_ai_strategy = 2
-default_actions = Array[ExtResource("2_6n50f")]([ExtResource("3_8xe02"), ExtResource("4_c40gm"), ExtResource("5_llahy")])
+default_actions = Array[ExtResource("2_c6jmv")]([ExtResource("3_8xe02"), ExtResource("4_c40gm"), ExtResource("5_llahy")])
 health_weight = 0.8
 armor_weight = 0.0
 barrier_weight = 0.8

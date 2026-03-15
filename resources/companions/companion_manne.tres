@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="CompanionData" load_steps=9 format=3 uid="uid://cyj2w70dyw4v2"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_gcl3b"]
-[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_2ayxl"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_bcqdx"]
 [ext_resource type="Script" uid="uid://pc0eo2522dpe" path="res://resources/data/companion_data.gd" id="2_micht"]
 [ext_resource type="Texture2D" uid="uid://cxhxycueqqbp0" path="res://assets/characters/companions/manne_placeholder_bust.png" id="3_2ayxl"]
 [ext_resource type="Resource" uid="uid://c5h8lam3n4p5q" path="res://resources/statuses/taunt.tres" id="4_aribs"]

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://bdx7vc54hp0ce"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_56uuc"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_t7p1k"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_md4pl"]
+
+[resource]
+script = ExtResource("2_t7p1k")
+affix_name = "Frostbite I"
+description = "Chill Freeze threshold reduced by 2."
+category = 36
+tags = Array[String](["mage", "frost", "freeze", "threshold"])
+effect_data = {
+"modify_status_threshold": "chill",
+"threshold_reduction": 2
+}

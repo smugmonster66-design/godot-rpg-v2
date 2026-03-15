@@ -223,6 +223,15 @@ func emit_combat_started() -> void:
 	evt.type = CombatEvent.Type.COMBAT_STARTED
 	emit_event(evt)
 
+func emit_intent_declared(enemy_visual: Node, intent_data: Dictionary) -> void:
+	"""Emit when an enemy declares its next-turn intent (framed out — no UI yet)."""
+	var evt = CombatEvent.new()
+	evt.type = CombatEvent.Type.TURN_STARTED  # Reuse type — listeners filter by source_tag
+	evt.source_node = enemy_visual
+	evt.source_tag = "intent"
+	evt.values = intent_data
+	emit_event(evt)
+
 func emit_combat_ended(player_won: bool) -> void:
 	var evt = CombatEvent.new()
 	evt.type = CombatEvent.Type.COMBAT_ENDED

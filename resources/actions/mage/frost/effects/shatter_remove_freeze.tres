@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=4 format=3 uid="uid://dd7mvlghru4fj"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_3r3k5"]
+[ext_resource type="Resource" uid="uid://dtw8chkka17ps" path="res://resources/statuses/freeze.tres" id="2_qk58d"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="3_g2yla"]
+
+[resource]
+script = ExtResource("1_3r3k5")
+effect_name = "Shatter: Consume Freeze"
+effect_type = 3
+status_affix = ExtResource("2_qk58d")

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://3c8m32xg58ux"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_nw4x5"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_04a4d"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_vt1hl"]
+
+[resource]
+script = ExtResource("2_04a4d")
+affix_name = "Rimestorm: Chain"
+description = "Ice die chains to 1 additional enemy for 60% damage, applying 2 Chill."
+use_global_element_visuals = true
+global_element_type = 4
+trigger = 1
+effect_type = 24
+effect_value = 0.6
+effect_data = {
+"chain_count": 1,
+"chain_damage_mult": 0.6,
+"chain_stacks": 2,
+"chain_status": "chill"
+}

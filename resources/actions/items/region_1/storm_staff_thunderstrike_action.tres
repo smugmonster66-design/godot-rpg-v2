@@ -1,6 +1,8 @@
-[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://erq27l03lphc"]
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://erq27l03lphc"]
 
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_lbndf"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_rdvr3"]
+[ext_resource type="Resource" uid="uid://balebew0qila6" path="res://resources/animations/baseline animations/elemental anisets/shock/thunderstrike_aniset.tres" id="2_3uuln"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_s20om"]
 [ext_resource type="Resource" uid="uid://dxa6mfwjjgli" path="res://resources/actions/items/region_1/effects/storm_staff_static_effect.tres" id="3_lbndf"]
 [ext_resource type="Resource" uid="uid://4a37xahjxw2h" path="res://resources/actions/items/region_1/effects/storm_staff_chain_effect.tres" id="4_3uuln"]
@@ -16,3 +18,4 @@ damage_element = 5
 die_slots = 2
 min_dice_required = 1
 effects = Array[ExtResource("2_s20om")]([ExtResource("3_lbndf"), ExtResource("4_3uuln")])
+animation_set = ExtResource("2_3uuln")

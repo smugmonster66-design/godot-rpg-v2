@@ -8,8 +8,7 @@
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0cgqb"]
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_joayw"]
-texture = ExtResource("2_0cgqb")
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_joayw"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sgqpl"]
 
@@ -76,7 +75,7 @@ alignment = 1
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 0
-theme_override_styles/panel = SubResource("StyleBoxTexture_joayw")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_joayw")
 
 [node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer/HeaderPlate"]
 layout_mode = 2

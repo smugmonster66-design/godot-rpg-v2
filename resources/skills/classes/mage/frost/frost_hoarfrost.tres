@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=15 format=3 uid="uid://r62iewdtmfdt"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_fhaeu"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_kl3iv"]
+[ext_resource type="Resource" uid="uid://yxoj1fnvdiq5" path="res://resources/affixes/classes/mage/frost/hoarfrost/hoarfrost_r1_affix.tres" id="3_k5uqs"]
+[ext_resource type="Resource" uid="uid://8o0ecju72833" path="res://resources/affixes/classes/mage/frost/glaciate/glaciate_element_unlock.tres" id="3_sg0el"]
+[ext_resource type="Resource" uid="uid://dhr5irebshdnj" path="res://resources/affixes/classes/mage/frost/hoarfrost/hoarfrost_r2_affix.tres" id="4_jl4a4"]
+[ext_resource type="Resource" uid="uid://ssl2e82j51p4" path="res://resources/affixes/classes/mage/frost/glaciate/glaciate_ca_affix.tres" id="4_t12nc"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="5_c4jtb"]
+[ext_resource type="Resource" uid="uid://j7sy1q5bjsk7" path="res://resources/affixes/classes/mage/frost/creeping_frost/creeping_frost_r1_affix.tres" id="6_56a3k"]
+[ext_resource type="Resource" uid="uid://dbigxhuoodv2e" path="res://resources/affixes/classes/mage/frost/creeping_frost/creeping_frost_r2_affix.tres" id="7_3vj5m"]
+[ext_resource type="Resource" uid="uid://bi7elx3x73iig" path="res://resources/affixes/classes/mage/frost/creeping_frost/creeping_frost_r3_affix.tres" id="8_1xemu"]
+
+[sub_resource type="Resource" id="Resource_exl55"]
+script = ExtResource("5_c4jtb")
+skill_id = "frost_glaciate"
+skill_name = "Glaciate"
+description = "Unlock [color=cyan]Ice[/color] mana. Chromatic Bolt applies [color=cyan]2 Chill[/color] on hit (requires ice die)."
+column = 3
+rank_1_affixes = Array[ExtResource("2_kl3iv")]([ExtResource("3_sg0el"), ExtResource("4_t12nc")])
+
+[sub_resource type="Resource" id="Resource_3jtiw"]
+script = ExtResource("1_fhaeu")
+required_skill = SubResource("Resource_exl55")
+
+[sub_resource type="Resource" id="Resource_klixn"]
+script = ExtResource("5_c4jtb")
+skill_id = "frost_creeping_frost"
+skill_name = "Creeping Frost"
+description = "Ice mana dice apply [color=yellow]1/2/3[/color] [color=cyan]Chill[/color] on use."
+tier = 2
+column = 1
+prerequisites = Array[ExtResource("1_fhaeu")]([SubResource("Resource_3jtiw")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_kl3iv")]([ExtResource("6_56a3k")])
+rank_2_affixes = Array[ExtResource("2_kl3iv")]([ExtResource("7_3vj5m")])
+rank_3_affixes = Array[ExtResource("2_kl3iv")]([ExtResource("8_1xemu")])
+
+[sub_resource type="Resource" id="Resource_iae0c"]
+script = ExtResource("1_fhaeu")
+required_skill = SubResource("Resource_klixn")
+
+[resource]
+script = ExtResource("5_c4jtb")
+skill_id = "frost_hoarfrost"
+skill_name = "Hoarfrost"
+description = "End of turn: apply [color=yellow]1/2[/color] [color=cyan]Chill[/color] to target per unused die in hand."
+tier = 3
+prerequisites = Array[ExtResource("1_fhaeu")]([SubResource("Resource_iae0c")])
+tree_points_required = 3
+rank_1_affixes = Array[ExtResource("2_kl3iv")]([ExtResource("3_k5uqs")])
+rank_2_affixes = Array[ExtResource("2_kl3iv")]([ExtResource("4_jl4a4")])

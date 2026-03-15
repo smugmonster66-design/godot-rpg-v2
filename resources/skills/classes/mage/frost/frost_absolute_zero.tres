@@ -1,0 +1,231 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=53 format=3 uid="uid://da26mgk3i1i2e"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_50owy"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_7ythi"]
+[ext_resource type="Resource" uid="uid://dbrkjn1hys5sv" path="res://resources/affixes/classes/mage/frost/absolute_zero/absolute_zero_r1_affix.tres" id="3_r0b6o"]
+[ext_resource type="Resource" uid="uid://8o0ecju72833" path="res://resources/affixes/classes/mage/frost/glaciate/glaciate_element_unlock.tres" id="3_vwhvk"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="4_aw5wf"]
+[ext_resource type="Resource" uid="uid://ssl2e82j51p4" path="res://resources/affixes/classes/mage/frost/glaciate/glaciate_ca_affix.tres" id="4_ry2qm"]
+[ext_resource type="Resource" uid="uid://j7sy1q5bjsk7" path="res://resources/affixes/classes/mage/frost/creeping_frost/creeping_frost_r1_affix.tres" id="6_yra7p"]
+[ext_resource type="Resource" uid="uid://dbigxhuoodv2e" path="res://resources/affixes/classes/mage/frost/creeping_frost/creeping_frost_r2_affix.tres" id="7_qx5sj"]
+[ext_resource type="Resource" uid="uid://bi7elx3x73iig" path="res://resources/affixes/classes/mage/frost/creeping_frost/creeping_frost_r3_affix.tres" id="8_o6o05"]
+[ext_resource type="Resource" uid="uid://b5h8rbs2d7oxr" path="res://resources/affixes/classes/mage/frost/frost_spike/frost_spike_r1_affix.tres" id="9_y73b4"]
+[ext_resource type="Resource" uid="uid://3tgxqv1ft8fm" path="res://resources/affixes/classes/mage/frost/brittle/brittle_r1_affix.tres" id="10_4143a"]
+[ext_resource type="Resource" uid="uid://1scs1enyv8af" path="res://resources/affixes/classes/mage/frost/brittle/brittle_r2_affix.tres" id="11_uy2yx"]
+[ext_resource type="Resource" uid="uid://hfbu13ujgwft" path="res://resources/affixes/classes/mage/frost/brittle/brittle_r3_affix.tres" id="12_b33rc"]
+[ext_resource type="Resource" uid="uid://bdx7vc54hp0ce" path="res://resources/affixes/classes/mage/frost/frostbite/frostbite_r1_affix.tres" id="13_ekmyk"]
+[ext_resource type="Resource" uid="uid://d0mh1k7g35ucg" path="res://resources/affixes/classes/mage/frost/frostbite/frostbite_r2_affix.tres" id="14_11irl"]
+[ext_resource type="Resource" uid="uid://dnkufyibficrq" path="res://resources/affixes/classes/mage/frost/frozen_conduit/frozen_conduit_r1_affix.tres" id="15_a7eg0"]
+[ext_resource type="Resource" uid="uid://cwnc7tj50ocbr" path="res://resources/affixes/classes/mage/frost/entropy/entropy_r1_affix.tres" id="16_ee5we"]
+[ext_resource type="Resource" uid="uid://llmgxw34nm5c" path="res://resources/affixes/classes/mage/frost/rimestorm/rimestorm_r1_affix.tres" id="17_m5gy3"]
+[ext_resource type="Resource" uid="uid://8vwd751g553c" path="res://resources/affixes/classes/mage/frost/black_ice/black_ice_resist_r1_affix.tres" id="18_rwdko"]
+[ext_resource type="Resource" uid="uid://dnnd77nwfs144" path="res://resources/affixes/classes/mage/frost/black_ice/black_ice_dmg_r1_affix.tres" id="19_qqgny"]
+[ext_resource type="Resource" uid="uid://cjv703e1tne4j" path="res://resources/affixes/classes/mage/frost/black_ice/black_ice_resist_r2_affix.tres" id="20_11pvn"]
+[ext_resource type="Resource" uid="uid://c38g8bq185ksm" path="res://resources/affixes/classes/mage/frost/black_ice/black_ice_dmg_r2_affix.tres" id="21_y0hnc"]
+[ext_resource type="Resource" uid="uid://cus48x0drkuq3" path="res://resources/affixes/classes/mage/frost/shatter/shatter_r1_affix.tres" id="22_be1g7"]
+[ext_resource type="Resource" uid="uid://24m4uoi18vvw" path="res://resources/affixes/classes/mage/frost/glacial_execution/glacial_execution_r1_affix.tres" id="23_2mfwf"]
+[ext_resource type="Resource" uid="uid://bhin10xo2j5bo" path="res://resources/affixes/classes/mage/frost/glacial_execution/glacial_execution_r2_affix.tres" id="24_lls8h"]
+[ext_resource type="Resource" uid="uid://bl41vspk3ee7s" path="res://resources/affixes/classes/mage/frost/crystallize/crystallize_r1_affix.tres" id="25_loaj2"]
+
+[sub_resource type="Resource" id="Resource_exl55"]
+script = ExtResource("4_aw5wf")
+skill_id = "frost_glaciate"
+skill_name = "Glaciate"
+description = "Unlock [color=cyan]Ice[/color] mana. Chromatic Bolt applies [color=cyan]2 Chill[/color] on hit (requires ice die)."
+column = 3
+rank_1_affixes = Array[ExtResource("2_7ythi")]([ExtResource("3_vwhvk"), ExtResource("4_ry2qm")])
+
+[sub_resource type="Resource" id="Resource_3jtiw"]
+script = ExtResource("1_50owy")
+required_skill = SubResource("Resource_exl55")
+
+[sub_resource type="Resource" id="Resource_klixn"]
+script = ExtResource("4_aw5wf")
+skill_id = "frost_creeping_frost"
+skill_name = "Creeping Frost"
+description = "Ice mana dice apply [color=yellow]1/2/3[/color] [color=cyan]Chill[/color] on use."
+tier = 2
+column = 1
+prerequisites = Array[ExtResource("1_50owy")]([SubResource("Resource_3jtiw")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_7ythi")]([ExtResource("6_yra7p")])
+rank_2_affixes = Array[ExtResource("2_7ythi")]([ExtResource("7_qx5sj")])
+rank_3_affixes = Array[ExtResource("2_7ythi")]([ExtResource("8_o6o05")])
+
+[sub_resource type="Resource" id="Resource_wut2l"]
+script = ExtResource("1_50owy")
+required_skill = SubResource("Resource_klixn")
+
+[sub_resource type="Resource" id="Resource_8xl0x"]
+script = ExtResource("4_aw5wf")
+skill_id = "frost_frost_spike"
+skill_name = "Frost Spike"
+description = "[color=yellow]ACTION:[/color] 1 ice die -> ice damage + apply [color=cyan]Chill[/color] = die value. Unlimited."
+tier = 4
+column = 1
+prerequisites = Array[ExtResource("1_50owy")]([SubResource("Resource_wut2l")])
+tree_points_required = 6
+rank_1_affixes = Array[ExtResource("2_7ythi")]([ExtResource("9_y73b4")])
+
+[sub_resource type="Resource" id="Resource_d6tr0"]
+script = ExtResource("1_50owy")
+required_skill = SubResource("Resource_8xl0x")
+
+[sub_resource type="Resource" id="Resource_nyv6m"]
+script = ExtResource("1_50owy")
+required_skill = SubResource("Resource_exl55")
+
+[sub_resource type="Resource" id="Resource_6tl5h"]
+script = ExtResource("4_aw5wf")
+skill_id = "frost_brittle"
+skill_name = "Brittle"
+description = "Ice die deals +[color=yellow]1/2/3[/color] bonus damage per 4 [color=cyan]Chill[/color] stacks on target."
+tier = 2
+column = 5
+prerequisites = Array[ExtResource("1_50owy")]([SubResource("Resource_nyv6m")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_7ythi")]([ExtResource("10_4143a")])
+rank_2_affixes = Array[ExtResource("2_7ythi")]([ExtResource("11_uy2yx")])
+rank_3_affixes = Array[ExtResource("2_7ythi")]([ExtResource("12_b33rc")])
+
+[sub_resource type="Resource" id="Resource_px13l"]
+script = ExtResource("1_50owy")
+required_skill = SubResource("Resource_6tl5h")
+
+[sub_resource type="Resource" id="Resource_t5axy"]
+script = ExtResource("4_aw5wf")
+skill_id = "frost_frostbite"
+skill_name = "Frostbite"
+description = "[color=cyan]Chill[/color] Freeze threshold reduced by [color=yellow]2/4[/color] (freezes at 13/11)."
+tier = 3
+column = 6
+prerequisites = Array[ExtResource("1_50owy")]([SubResource("Resource_px13l")])
+tree_points_required = 3
+rank_1_affixes = Array[ExtResource("2_7ythi")]([ExtResource("13_ekmyk")])
+rank_2_affixes = Array[ExtResource("2_7ythi")]([ExtResource("14_11irl")])
+
+[sub_resource type="Resource" id="Resource_2g4yd"]
+script = ExtResource("1_50owy")
+required_skill = SubResource("Resource_t5axy")
+
+[sub_resource type="Resource" id="Resource_wmg0g"]
+script = ExtResource("4_aw5wf")
+skill_id = "frost_frozen_conduit"
+skill_name = "Frozen Conduit"
+description = "[color=yellow]WEAVE:[/color] Ice die value +1 per 3 [color=cyan]Chill[/color] stacks on target."
+tier = 5
+column = 3
+prerequisites = Array[ExtResource("1_50owy")]([SubResource("Resource_d6tr0"), SubResource("Resource_2g4yd")])
+tree_points_required = 9
+rank_1_affixes = Array[ExtResource("2_7ythi")]([ExtResource("15_a7eg0")])
+
+[sub_resource type="Resource" id="Resource_ic2ss"]
+script = ExtResource("1_50owy")
+required_skill = SubResource("Resource_wmg0g")
+
+[sub_resource type="Resource" id="Resource_p0737"]
+script = ExtResource("4_aw5wf")
+skill_id = "frost_entropy"
+skill_name = "Entropy"
+description = "[color=yellow]WEAVE:[/color] Turn start: if 10+ [color=cyan]Chill[/color] on any enemy, restore 2 mana + next ice die +3 value."
+tier = 6
+column = 3
+prerequisites = Array[ExtResource("1_50owy")]([SubResource("Resource_ic2ss")])
+tree_points_required = 12
+rank_1_affixes = Array[ExtResource("2_7ythi")]([ExtResource("16_ee5we")])
+
+[sub_resource type="Resource" id="Resource_f3u17"]
+script = ExtResource("1_50owy")
+required_skill = SubResource("Resource_p0737")
+
+[sub_resource type="Resource" id="Resource_ivb2m"]
+script = ExtResource("4_aw5wf")
+skill_id = "frost_rimestorm"
+skill_name = "Rimestorm"
+description = "Ice die chains to 1 additional enemy for [color=yellow]60%[/color] damage, applying [color=cyan]2 Chill[/color]."
+tier = 7
+column = 2
+prerequisites = Array[ExtResource("1_50owy")]([SubResource("Resource_f3u17")])
+tree_points_required = 16
+rank_1_affixes = Array[ExtResource("2_7ythi")]([ExtResource("17_m5gy3")])
+
+[sub_resource type="Resource" id="Resource_b2tbb"]
+script = ExtResource("1_50owy")
+required_skill = SubResource("Resource_ivb2m")
+
+[sub_resource type="Resource" id="Resource_5ulx8"]
+script = ExtResource("1_50owy")
+required_skill = SubResource("Resource_6tl5h")
+
+[sub_resource type="Resource" id="Resource_jjy8a"]
+script = ExtResource("4_aw5wf")
+skill_id = "frost_black_ice"
+skill_name = "Black Ice"
+description = "At 8+ [color=cyan]Chill[/color]: ice die ignores resistance and deals +[color=yellow]3/5[/color] bonus damage."
+tier = 4
+column = 5
+prerequisites = Array[ExtResource("1_50owy")]([SubResource("Resource_5ulx8")])
+tree_points_required = 6
+rank_1_affixes = Array[ExtResource("2_7ythi")]([ExtResource("18_rwdko"), ExtResource("19_qqgny")])
+rank_2_affixes = Array[ExtResource("2_7ythi")]([ExtResource("20_11pvn"), ExtResource("21_y0hnc")])
+
+[sub_resource type="Resource" id="Resource_qaaew"]
+script = ExtResource("1_50owy")
+required_skill = SubResource("Resource_jjy8a")
+
+[sub_resource type="Resource" id="Resource_cuunn"]
+script = ExtResource("4_aw5wf")
+skill_id = "frost_shatter"
+skill_name = "Shatter"
+description = "[color=yellow]ACTION:[/color] 2 ice dice -> x1.5 ice damage. [color=cyan]Frozen[/color]: x4.5 + consume. Per turn."
+tier = 5
+column = 6
+prerequisites = Array[ExtResource("1_50owy")]([SubResource("Resource_qaaew")])
+tree_points_required = 9
+rank_1_affixes = Array[ExtResource("2_7ythi")]([ExtResource("22_be1g7")])
+
+[sub_resource type="Resource" id="Resource_qbwyt"]
+script = ExtResource("1_50owy")
+required_skill = SubResource("Resource_cuunn")
+
+[sub_resource type="Resource" id="Resource_h0dwk"]
+script = ExtResource("4_aw5wf")
+skill_id = "frost_glacial_execution"
+skill_name = "Glacial Execution"
+description = "Shatter deals x2 damage if target is below [color=yellow]30/40%[/color] HP."
+tier = 6
+column = 5
+prerequisites = Array[ExtResource("1_50owy")]([SubResource("Resource_qbwyt")])
+tree_points_required = 12
+rank_1_affixes = Array[ExtResource("2_7ythi")]([ExtResource("23_2mfwf")])
+rank_2_affixes = Array[ExtResource("2_7ythi")]([ExtResource("24_lls8h")])
+
+[sub_resource type="Resource" id="Resource_a18cw"]
+script = ExtResource("1_50owy")
+required_skill = SubResource("Resource_h0dwk")
+
+[sub_resource type="Resource" id="Resource_pjkc6"]
+script = ExtResource("4_aw5wf")
+skill_id = "frost_crystallize"
+skill_name = "Crystallize"
+description = "Damage to [color=cyan]Frozen[/color] target: gain [color=yellow]4 Barrier[/color], target loses [color=yellow]2 ice resistance[/color] permanently."
+tier = 7
+column = 5
+prerequisites = Array[ExtResource("1_50owy")]([SubResource("Resource_a18cw")])
+tree_points_required = 16
+rank_1_affixes = Array[ExtResource("2_7ythi")]([ExtResource("25_loaj2")])
+
+[sub_resource type="Resource" id="Resource_ipft0"]
+script = ExtResource("1_50owy")
+required_skill = SubResource("Resource_pjkc6")
+
+[resource]
+script = ExtResource("4_aw5wf")
+skill_id = "frost_absolute_zero"
+skill_name = "Absolute Zero"
+description = "[color=yellow]SIGNATURE:[/color] 3 ice dice -> AoE ice damage + [color=cyan]Chill[/color] = dice total to all. Freeze resets Shatter. Per combat."
+tier = 8
+column = 3
+prerequisites = Array[ExtResource("1_50owy")]([SubResource("Resource_b2tbb"), SubResource("Resource_ipft0")])
+tree_points_required = 20
+rank_1_affixes = Array[ExtResource("2_7ythi")]([ExtResource("3_r0b6o")])

@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DiceAffixCondition" load_steps=2 format=3 uid="uid://ul6r1l12ecfw"]
+
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="1_hcpmi"]
+
+[resource]
+script = ExtResource("1_hcpmi")
+type = 2
+threshold = 2.0

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://dbrkjn1hys5sv"]
+
+[ext_resource type="Resource" uid="uid://bddlm0y7s6qlj" path="res://resources/actions/mage/frost/absolute_zero_action.tres" id="1_dis8k"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_gbelu"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_n621w"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_4qlhh"]
+
+[resource]
+script = ExtResource("3_n621w")
+affix_name = "Absolute Zero: Grant Action"
+description = "Grants Absolute Zero action."
+category = 31
+tags = Array[String](["mage", "frost", "signature", "granted_action", "aoe", "ultimate"])
+effect_data = {
+"action_id": "frost_absolute_zero"
+}
+granted_action = ExtResource("1_dis8k")

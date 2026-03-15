@@ -1,10 +1,11 @@
-[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://0pygaobs5j01"]
+[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://0pygaobs5j01"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_drdfc"]
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_xk0x6"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_dyote"]
-[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_t5oxp"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_xk0x6"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_dyote"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_xk0x6"]
 
 [sub_resource type="Resource" id="Resource_x0hbu"]
 script = ExtResource("1_drdfc")

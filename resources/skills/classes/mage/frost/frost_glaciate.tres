@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=6 format=3 uid="uid://dgxsjvjo5tfqs"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_b6qvq"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_fy4tp"]
+[ext_resource type="Resource" uid="uid://8o0ecju72833" path="res://resources/affixes/classes/mage/frost/glaciate/glaciate_element_unlock.tres" id="3_t6474"]
+[ext_resource type="Resource" uid="uid://ssl2e82j51p4" path="res://resources/affixes/classes/mage/frost/glaciate/glaciate_ca_affix.tres" id="4_dvu4f"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="5_avkh7"]
+
+[resource]
+script = ExtResource("5_avkh7")
+skill_id = "frost_glaciate"
+skill_name = "Glaciate"
+description = "Unlock [color=cyan]Ice[/color] mana. Chromatic Bolt applies [color=cyan]2 Chill[/color] on hit (requires ice die)."
+column = 3
+rank_1_affixes = Array[ExtResource("2_fy4tp")]([ExtResource("3_t6474"), ExtResource("4_dvu4f")])

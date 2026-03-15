@@ -1,12 +1,13 @@
-[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://c2o8najs6s3xh"]
+[gd_resource type="Resource" script_class="Action" load_steps=10 format=3 uid="uid://c2o8najs6s3xh"]
 
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_0f23m"]
 [ext_resource type="Resource" uid="uid://cnu7r3224b3w3" path="res://resources/animations/baseline animations/elemental anisets/buff and debuff/base_buff_aniset.tres" id="1_1pcqe"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_2838v"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_t7nhy"]
-[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_qdw2l"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_nmnpp"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_2838v"]
 [ext_resource type="Resource" uid="uid://chgprsba6wfw2" path="res://resources/statuses/fortified.tres" id="5_fort"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="6_1pcqe"]
 
 [sub_resource type="Resource" id="Resource_1pcqe"]
 script = ExtResource("1_t7nhy")
@@ -21,6 +22,7 @@ script = ExtResource("4_2838v")
 action_id = "brace"
 action_name = "Brace"
 action_description = "Gain 2 Fortified for 1 turn."
+action_category = 1
 damage_element = 1
 effects = Array[ExtResource("1_t7nhy")]([SubResource("Resource_1pcqe")])
 animation_set = ExtResource("1_1pcqe")

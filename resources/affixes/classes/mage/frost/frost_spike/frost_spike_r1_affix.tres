@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://b5h8rbs2d7oxr"]
+
+[ext_resource type="Resource" uid="uid://bgd1cj10leq4p" path="res://resources/actions/mage/frost/frost_spike_action.tres" id="1_s68d6"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_ieafe"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_jxdya"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_josbr"]
+
+[resource]
+script = ExtResource("3_jxdya")
+affix_name = "Frost Spike: Grant Action"
+description = "Grants Frost Spike action."
+category = 31
+tags = Array[String](["mage", "frost", "applier", "granted_action"])
+effect_data = {
+"action_id": "frost_frost_spike"
+}
+granted_action = ExtResource("1_s68d6")

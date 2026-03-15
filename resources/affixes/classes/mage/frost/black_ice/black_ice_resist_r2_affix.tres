@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://cjv703e1tne4j"]
+
+[ext_resource type="Resource" uid="uid://ds2ijfqbw3p7b" path="res://resources/dice_affixes/mage/frost/da_black_ice_resist_r2.tres" id="1_i8xe8"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_82vj8"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_c8lku"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_pdadi"]
+
+[resource]
+script = ExtResource("3_c8lku")
+affix_name = "Black Ice II: Bypass"
+description = "At 8+ Chill: ignore ice resistance."
+category = 39
+tags = Array[String](["mage", "frost", "mana_die_affix", "exploiter", "penetration"])
+effect_data = {
+"dice_affix": ExtResource("1_i8xe8")
+}

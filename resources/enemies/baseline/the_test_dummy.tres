@@ -26,6 +26,7 @@ heal_uses_dice = true
 script = ExtResource("1_sxjg4")
 action_id = "mend"
 action_name = "Mend"
+action_category = 3
 action_description = "Heal an ally for die value."
 effects = Array[ExtResource("4_45uag")]([SubResource("Resource_616nk")])
 animation_set = ExtResource("2_yt48h")

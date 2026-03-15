@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://6t8bw3chew3i"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_8uycv"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_d6pk1"]
+
+[resource]
+script = ExtResource("1_8uycv")
+effect_name = "Absolute Zero: Reset Shatter"
+target = 0
+effect_type = 18
+effect_data = {
+"charges": 1,
+"condition": "any_freeze_triggered",
+"target_action_id": "frost_shatter"
+}

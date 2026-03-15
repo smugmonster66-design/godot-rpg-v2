@@ -1,0 +1,218 @@
+[gd_scene load_steps=36 format=3 uid="uid://diq1w1aos7xlu"]
+
+[ext_resource type="Script" uid="uid://c1pmu5cw4o18f" path="res://scripts/effects/particle_effect.gd" id="1_pe"]
+[ext_resource type="Script" uid="uid://cujo3211m8dkn" path="res://addons/BurstParticles2D/BurstParticleGroup2D.gd" id="2_bpg"]
+[ext_resource type="Script" uid="uid://djwtqk0v2ks2d" path="res://addons/BurstParticles2D/BurstParticles2D.gd" id="3_bp"]
+[ext_resource type="Texture2D" uid="uid://bfjjcg4kw424o" path="res://assets/particles/Complex/others/lightrays_6.png" id="4_66xbf"]
+[ext_resource type="Texture2D" uid="uid://cyh7ge0r71dpx" path="res://assets/particles/512x/spark_05_a.png" id="5_66xbf"]
+[ext_resource type="Texture2D" uid="uid://62u5j0xyyym0" path="res://assets/particles/Complex/flare/flare_1.png" id="6_flare"]
+[ext_resource type="Texture2D" uid="uid://c7iyb0kmjjkuv" path="res://assets/particles/512x/spark_02_a.png" id="7_dkfwd"]
+[ext_resource type="Texture2D" uid="uid://dwynnoqilegcu" path="res://assets/particles/Complex/impacts/impact_1.png" id="8_ring"]
+[ext_resource type="Texture2D" uid="uid://dbin52mry3taq" path="res://assets/particles/Complex/flare/flare_5.png" id="9_sparkle"]
+
+[sub_resource type="Gradient" id="Gradient_beam"]
+offsets = PackedFloat32Array(0, 0.15, 0.5, 1)
+colors = PackedColorArray(0.7, 0.85, 1, 1, 0.5, 0.7, 1, 0.85, 0.3, 0.5, 0.85, 0.4, 0.2, 0.3, 0.5, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_beam"]
+gradient = SubResource("Gradient_beam")
+
+[sub_resource type="Curve" id="Curve_scale_beam"]
+_limits = [0.0, 2.0, 0.0, 1.0]
+_data = [Vector2(0, 0.3), 0.0, 5.0, 0, 0, Vector2(0.15, 1), 0.0, 0.0, 0, 0, Vector2(0.5, 0.8), 0.0, -2.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="Curve" id="Curve_alpha_beam"]
+_data = [Vector2(0, 0), 0.0, 10.0, 0, 0, Vector2(0.08, 1), 0.0, 0.0, 0, 0, Vector2(0.4, 0.7), 0.0, -2.5, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="Gradient" id="Gradient_column"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(5.121112e-05, 0.45581502, 0.9906519, 1, 0.7, 0.85, 1, 0.85, 0.5, 0.7, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_column"]
+gradient = SubResource("Gradient_column")
+
+[sub_resource type="Curve" id="Curve_scale_column"]
+_limits = [0.0, 1.8, 0.0, 1.0]
+_data = [Vector2(0, 0.2), 0.0, 6.0, 0, 0, Vector2(0.1, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_alpha_column"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.48019803, 0.6067416), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_flash"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(0.95, 0.97, 1, 1, 0.7, 0.85, 1, 0.8, 0.5, 0.7, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_flash"]
+gradient = SubResource("Gradient_flash")
+
+[sub_resource type="Curve" id="Curve_scale_flash"]
+_limits = [0.0, 5.5, 0.0, 1.0]
+_data = [Vector2(0, 0.06), 0.0, 4.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_alpha_flash"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_ground"]
+offsets = PackedFloat32Array(0, 0.15, 0.55, 1)
+colors = PackedColorArray(0.9, 0.95, 1, 1, 0.6, 0.8, 1, 1, 0.4, 0.6, 0.95, 0.45, 0.25, 0.4, 0.8, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_ground"]
+gradient = SubResource("Gradient_ground")
+
+[sub_resource type="Curve" id="Curve_dist_fast"]
+_data = [Vector2(0, 0), 0.0, 6.0, 0, 0, Vector2(0.3, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_scale_shrink"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_alpha_ground"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.5, 1), 0.0, -5.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_ring"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(0.6, 0.8, 1, 0.85, 0.5, 0.7, 1, 0.45, 0.3, 0.5, 0.85, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_ring"]
+gradient = SubResource("Gradient_ring")
+
+[sub_resource type="Curve" id="Curve_scale_ring"]
+_limits = [0.0, 4.5, 0.0, 1.0]
+_data = [Vector2(0, 0.06), 0.0, 2.5, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_alpha_ring"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.35, 0.65), 0.0, -2.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_linger"]
+offsets = PackedFloat32Array(0, 0.2, 0.6, 1)
+colors = PackedColorArray(0.5, 0.7, 1, 0, 0.6, 0.8, 1, 0.75, 0.4, 0.6, 0.95, 0.35, 0.3, 0.5, 0.85, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_linger"]
+gradient = SubResource("Gradient_linger")
+
+[sub_resource type="Curve" id="Curve_offset_linear"]
+_data = [Vector2(0, 0), 0.0, 0.0, 1, 1, Vector2(1, 1), 0.0, 0.0, 1, 1]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_scale_linger"]
+_data = [Vector2(0, 0.3), 0.0, 2.0, 0, 0, Vector2(0.35, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.1), -1.5, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_alpha_linger"]
+_data = [Vector2(0, 0), 0.0, 4.0, 0, 0, Vector2(0.2, 0.85), 0.0, 0.0, 0, 0, Vector2(0.6, 0.6), 0.0, -2.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[node name="ParticleEffect" type="Node2D"]
+script = ExtResource("1_pe")
+duration = 0.55
+
+[node name="BurstParticles2D" type="Node2D" parent="."]
+scale = Vector2(1.2, 1.2)
+script = ExtResource("2_bpg")
+
+[node name="LightningBeam" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.35
+repeat = true
+texture = ExtResource("4_66xbf")
+image_scale = 1.1
+gradient = SubResource("GradientTexture1D_beam")
+blend_mode = 1
+distance = 0.0
+offset = Vector2(0, -220)
+align_sprite_rotation = false
+spread_degrees = 0.0
+scale_curve = SubResource("Curve_scale_beam")
+alpha_curve = SubResource("Curve_alpha_beam")
+
+[node name="BoltColumn" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.12
+repeat = true
+texture = ExtResource("5_66xbf")
+image_scale = 0.7
+gradient = SubResource("GradientTexture1D_column")
+blend_mode = 1
+distance = 0.0
+offset = Vector2(0, -160)
+align_sprite_rotation = false
+spread_degrees = 0.0
+scale_curve = SubResource("Curve_scale_column")
+alpha_curve = SubResource("Curve_alpha_column")
+
+[node name="StrikeFlash" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.12
+repeat = true
+texture = ExtResource("6_flare")
+image_scale = 0.55
+gradient = SubResource("GradientTexture1D_flash")
+blend_mode = 1
+direction_rotation_randomness = 1.0
+distance = 0.0
+scale_curve = SubResource("Curve_scale_flash")
+alpha_curve = SubResource("Curve_alpha_flash")
+
+[node name="GroundSparks" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 12
+lifetime = 0.3
+lifetime_randomness = 0.3
+repeat = true
+texture = ExtResource("7_dkfwd")
+image_scale = 0.12
+image_scale_randomness = 0.45
+gradient = SubResource("GradientTexture1D_ground")
+blend_mode = 1
+direction_rotation_randomness = 1.0
+distance = 160.0
+distance_randomness = 0.45
+distance_curve = SubResource("Curve_dist_fast")
+scale_curve = SubResource("Curve_scale_shrink")
+alpha_curve = SubResource("Curve_alpha_ground")
+
+[node name="ImpactRing" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 1
+lifetime = 0.3
+repeat = true
+texture = ExtResource("8_ring")
+image_scale = 0.7
+gradient = SubResource("GradientTexture1D_ring")
+blend_mode = 1
+direction_rotation_randomness = 1.0
+distance = 0.0
+scale_curve = SubResource("Curve_scale_ring")
+alpha_curve = SubResource("Curve_alpha_ring")
+
+[node name="LingeringSparks" type="Node2D" parent="BurstParticles2D"]
+script = ExtResource("3_bp")
+num_particles = 6
+lifetime = 0.55
+lifetime_randomness = 0.4
+repeat = true
+texture = ExtResource("9_sparkle")
+image_scale = 0.08
+image_scale_randomness = 0.5
+gradient = SubResource("GradientTexture1D_linger")
+blend_mode = 1
+direction_rotation_randomness = 1.0
+distance = 50.0
+distance_randomness = 0.6
+offset = Vector2(0, -25)
+offset_curve = SubResource("Curve_offset_linear")
+scale_curve = SubResource("Curve_scale_linger")
+alpha_curve = SubResource("Curve_alpha_linger")

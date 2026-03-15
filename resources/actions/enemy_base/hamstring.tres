@@ -1,12 +1,13 @@
-[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://m6wyov0hkvoh"]
+[gd_resource type="Resource" script_class="Action" load_steps=10 format=3 uid="uid://m6wyov0hkvoh"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_6kl2o"]
 [ext_resource type="Resource" uid="uid://cucvsaebmi31c" path="res://resources/animations/baseline animations/elemental anisets/buff and debuff/base_debuff_aniset.tres" id="1_khcll"]
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_v8siv"]
 [ext_resource type="Resource" uid="uid://i0gx0hubkmmx" path="res://resources/statuses/slowed.tres" id="2_s1o4v"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_v8siv"]
-[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="3_khcll"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_v8siv"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="5_sp6a7"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="6_v8siv"]
 
 [sub_resource type="Resource" id="Resource_fiwgy"]
 script = ExtResource("1_6kl2o")
@@ -20,6 +21,7 @@ script = ExtResource("5_sp6a7")
 action_id = "hamstring"
 action_name = "Hamstring"
 action_description = "Apply 2 Slowed to player."
+action_category = 2
 damage_element = 7
 effects = Array[ExtResource("1_6kl2o")]([SubResource("Resource_fiwgy")])
 animation_set = ExtResource("1_khcll")

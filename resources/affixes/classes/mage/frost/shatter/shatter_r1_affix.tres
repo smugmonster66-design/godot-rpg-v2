@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://cus48x0drkuq3"]
+
+[ext_resource type="Resource" uid="uid://cpwlcpktyi35f" path="res://resources/actions/mage/frost/shatter_action.tres" id="1_g24jo"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_80rat"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_y7j2g"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_l21el"]
+
+[resource]
+script = ExtResource("3_y7j2g")
+affix_name = "Shatter: Grant Action"
+description = "Grants Shatter action."
+category = 31
+tags = Array[String](["mage", "frost", "exploiter", "granted_action"])
+effect_data = {
+"action_id": "frost_shatter"
+}
+granted_action = ExtResource("1_g24jo")

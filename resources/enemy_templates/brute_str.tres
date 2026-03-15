@@ -2,12 +2,12 @@
 
 [ext_resource type="Script" uid="uid://cwrg87ac6o11i" path="res://resources/data/role_tier_budget.gd" id="1_mitx0"]
 [ext_resource type="Resource" uid="uid://chmejcvma7x2j" path="res://resources/affixes/base_stats/enemy/enemy_health_str_brute.tres" id="2_7os6x"]
-[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_w6vhs"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_43p45"]
 [ext_resource type="Resource" uid="uid://begv50agccdr2" path="res://resources/actions/enemy_base/smash.tres" id="3_43p45"]
-[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_w6vhs"]
 [ext_resource type="Script" uid="uid://dvo4fc8b1285h" path="res://resources/data/enemy_template.gd" id="4_egrtl"]
 [ext_resource type="Resource" uid="uid://c2o8najs6s3xh" path="res://resources/actions/enemy_base/brace.tres" id="4_llbec"]
 [ext_resource type="Resource" uid="uid://j6lnu4bac00v" path="res://resources/actions/enemy_base/crushing_blow.tres" id="5_eqn70"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="7_llbec"]
 
 [sub_resource type="Resource" id="Resource_j5f5a"]
 script = ExtResource("1_mitx0")
@@ -84,7 +84,7 @@ dice_drag_duration = 0.5
 script = ExtResource("4_egrtl")
 template_name = "STR Brute"
 template_description = "High single-target physical damage. Armor-heavy. Aggressive."
-default_actions = Array[ExtResource("2_w6vhs")]([ExtResource("3_43p45"), ExtResource("4_llbec"), ExtResource("5_eqn70")])
+default_actions = Array[ExtResource("2_43p45")]([ExtResource("3_43p45"), ExtResource("4_llbec"), ExtResource("5_eqn70")])
 health_weight = 1.2
 armor_weight = 1.3
 damage_weight = 1.3

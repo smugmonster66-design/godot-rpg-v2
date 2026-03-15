@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=16 format=3 uid="uid://bs2jmts055gos"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_psucw"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_lig4w"]
+[ext_resource type="Resource" uid="uid://8o0ecju72833" path="res://resources/affixes/classes/mage/frost/glaciate/glaciate_element_unlock.tres" id="3_6hojl"]
+[ext_resource type="Resource" uid="uid://xio0np7qdwdg" path="res://resources/affixes/classes/mage/frost/permafrost_rune/permafrost_rune_r1_affix.tres" id="3_ssvtp"]
+[ext_resource type="Resource" uid="uid://bvl58iq3dufch" path="res://resources/affixes/classes/mage/frost/permafrost_rune/permafrost_rune_r2_affix.tres" id="4_idnrl"]
+[ext_resource type="Resource" uid="uid://ssl2e82j51p4" path="res://resources/affixes/classes/mage/frost/glaciate/glaciate_ca_affix.tres" id="4_v4iwc"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="5_ain4r"]
+[ext_resource type="Resource" uid="uid://cb0200tneljno" path="res://resources/affixes/classes/mage/frost/rime_dice/rime_dice_first_r1_affix.tres" id="6_e5v1x"]
+[ext_resource type="Resource" uid="uid://bt05ac7m204qa" path="res://resources/affixes/classes/mage/frost/rime_dice/rime_dice_last_r1_affix.tres" id="7_vnesp"]
+[ext_resource type="Resource" uid="uid://ddeg4vt3y08kp" path="res://resources/affixes/classes/mage/frost/rime_dice/rime_dice_first_r2_affix.tres" id="8_4a61c"]
+[ext_resource type="Resource" uid="uid://dvtdx6j4u4ado" path="res://resources/affixes/classes/mage/frost/rime_dice/rime_dice_last_r2_affix.tres" id="9_lx315"]
+
+[sub_resource type="Resource" id="Resource_exl55"]
+script = ExtResource("5_ain4r")
+skill_id = "frost_glaciate"
+skill_name = "Glaciate"
+description = "Unlock [color=cyan]Ice[/color] mana. Chromatic Bolt applies [color=cyan]2 Chill[/color] on hit (requires ice die)."
+column = 3
+rank_1_affixes = Array[ExtResource("2_lig4w")]([ExtResource("3_6hojl"), ExtResource("4_v4iwc")])
+
+[sub_resource type="Resource" id="Resource_ruqhm"]
+script = ExtResource("1_psucw")
+required_skill = SubResource("Resource_exl55")
+
+[sub_resource type="Resource" id="Resource_b46i2"]
+script = ExtResource("5_ain4r")
+skill_id = "frost_rime_dice"
+skill_name = "Rime Dice"
+description = "Ice die in [color=yellow]FIRST[/color] position: +[color=yellow]2/3[/color] value. In [color=yellow]LAST[/color]: apply [color=cyan]2/3 Chill[/color]."
+tier = 2
+column = 3
+prerequisites = Array[ExtResource("1_psucw")]([SubResource("Resource_ruqhm")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_lig4w")]([ExtResource("6_e5v1x"), ExtResource("7_vnesp")])
+rank_2_affixes = Array[ExtResource("2_lig4w")]([ExtResource("8_4a61c"), ExtResource("9_lx315")])
+
+[sub_resource type="Resource" id="Resource_a3gl7"]
+script = ExtResource("1_psucw")
+required_skill = SubResource("Resource_b46i2")
+
+[resource]
+script = ExtResource("5_ain4r")
+skill_id = "frost_permafrost_rune"
+skill_name = "Permafrost Rune"
+description = "Ice die adjacent to another ice die: both gain +[color=yellow]1/2[/color] value."
+tier = 3
+column = 3
+prerequisites = Array[ExtResource("1_psucw")]([SubResource("Resource_a3gl7")])
+tree_points_required = 3
+rank_1_affixes = Array[ExtResource("2_lig4w")]([ExtResource("3_ssvtp")])
+rank_2_affixes = Array[ExtResource("2_lig4w")]([ExtResource("4_idnrl")])

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://b7puhoqu42uie"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_06q88"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_55qjc"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_4wq3q"]
+
+[resource]
+script = ExtResource("2_55qjc")
+affix_name = "Avalanche I"
+description = "When Freeze triggers: apply 3 Chill to all other enemies."
+category = 35
+tags = Array[String](["mage", "frost", "applier", "chill_apply", "aoe", "chain"])
+effect_number = 3.0
+effect_data = {
+"proc_condition_status": "freeze",
+"proc_effect": "apply_status_to_all_others",
+"proc_trigger": "ON_STATUS_APPLIED",
+"stacks": 3,
+"status_id": "chill"
+}
+proc_trigger = 12

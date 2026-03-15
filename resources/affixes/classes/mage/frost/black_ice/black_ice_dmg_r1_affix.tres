@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://dnnd77nwfs144"]
+
+[ext_resource type="Resource" uid="uid://byksc2g76do74" path="res://resources/dice_affixes/mage/frost/da_black_ice_dmg_r1.tres" id="1_7xweq"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_a21o3"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_jtwbg"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_jo4qa"]
+
+[resource]
+script = ExtResource("3_jtwbg")
+affix_name = "Black Ice I: Damage"
+description = "At 8+ Chill: +3 bonus damage."
+category = 39
+tags = Array[String](["mage", "frost", "mana_die_affix", "exploiter", "damage"])
+effect_data = {
+"dice_affix": ExtResource("1_7xweq")
+}

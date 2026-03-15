@@ -4,9 +4,9 @@
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_wr610"]
 [ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_ir58o"]
 [ext_resource type="Script" uid="uid://dw1ljcj5l3pre" path="res://resources/data/run_affix_entry.gd" id="4_88x34"]
-[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="5_ldt6f"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="5_qj72v"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="6_omb0m"]
-[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="7_bpmwx"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="7_wr610"]
 
 [sub_resource type="Resource" id="Resource_rygu7"]
 script = ExtResource("2_wr610")

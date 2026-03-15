@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DiceAffixCondition" load_steps=2 format=3 uid="uid://b7gtg0o132ppj"]
+
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="1_kkb1c"]
+
+[resource]
+script = ExtResource("1_kkb1c")
+type = 2
+threshold = 4.0

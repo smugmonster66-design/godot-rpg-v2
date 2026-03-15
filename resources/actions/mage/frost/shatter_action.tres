@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://cpwlcpktyi35f"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_gawdl"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_mepo8"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_8gsfm"]
+[ext_resource type="Resource" uid="uid://dd42s5taq8mfo" path="res://resources/actions/mage/frost/effects/shatter_damage.tres" id="4_1jmnv"]
+[ext_resource type="Resource" uid="uid://dtbug1gsql7ak" path="res://resources/actions/mage/frost/effects/shatter_frozen_bonus.tres" id="5_gksq2"]
+[ext_resource type="Resource" uid="uid://dd7mvlghru4fj" path="res://resources/actions/mage/frost/effects/shatter_remove_freeze.tres" id="6_llfpm"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="7_bksju"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="8_jnt67"]
+
+[resource]
+script = ExtResource("8_jnt67")
+action_id = "frost_shatter"
+action_name = "Shatter"
+action_description = "Deal x1.5 ice damage. If Frozen: x4.5 instead and consume Freeze."
+die_slots = 2
+min_dice_required = 2
+accepted_elements = Array[int]([5])
+charge_type = 1
+effects = Array[ExtResource("3_8gsfm")]([ExtResource("4_1jmnv"), ExtResource("5_gksq2"), ExtResource("6_llfpm")])

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://dfqrb18f4uuds"]
+
+[ext_resource type="Resource" uid="uid://3mte1hae4mfe" path="res://resources/dice_affixes/mage/frost/da_spreading_cold_r2.tres" id="1_id7r2"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_6vh15"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_brr2q"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_lfbf5"]
+
+[resource]
+script = ExtResource("3_brr2q")
+affix_name = "Spreading Cold II"
+description = "Ice die splashes 50% of Chill applied to all other enemies."
+category = 39
+tags = Array[String](["mage", "frost", "mana_die_affix", "chill_apply", "aoe", "spread"])
+effect_data = {
+"dice_affix": ExtResource("1_id7r2")
+}

@@ -1,10 +1,11 @@
-[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://b1adqw72u5auw"]
+[gd_resource type="Resource" script_class="Action" load_steps=10 format=3 uid="uid://b1adqw72u5auw"]
 
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_qt4vc"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_vbxgj"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_pwmn8"]
-[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_yt8j6"]
 [ext_resource type="Resource" uid="uid://kilfjnbqkpbi" path="res://resources/statuses/bleed.tres" id="3_qt4vc"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_cnbnd"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_qt4vc"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="5_pwmn8"]
 
 [sub_resource type="Resource" id="Resource_48r2j"]

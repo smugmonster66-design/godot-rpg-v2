@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://bi34um1vx7efh"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_n3qan"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_mimhj"]
+
+[resource]
+script = ExtResource("1_n3qan")
+effect_name = "Frost Spike: Damage"
+damage_type = 4

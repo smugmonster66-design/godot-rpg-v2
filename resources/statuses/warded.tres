@@ -1,11 +1,12 @@
-[gd_resource type="Resource" script_class="StatusAffix" load_steps=7 format=3 uid="uid://bau0ilngqxftf"]
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=8 format=3 uid="uid://bau0ilngqxftf"]
 
-[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1"]
 [ext_resource type="PackedScene" uid="uid://cqh11npecrebl" path="res://scenes/effects/new/status visual FX/warded/ward_loop.tscn" id="1_jl1l4"]
-[ext_resource type="Texture2D" uid="uid://dqcq72wb4g76v" path="res://assets/status_effects/warded_status.png" id="2"]
-[ext_resource type="PackedScene" path="res://scenes/effects/new/status visual FX/warded/ward_apply.tscn" id="2_px0l4"]
+[ext_resource type="PackedScene" uid="uid://d3o3am6y2qses" path="res://scenes/effects/new/status visual FX/warded/ward_apply.tscn" id="2_px0l4"]
 [ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="3"]
-[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4"]
+[ext_resource type="Script" uid="uid://dfaph2f2anhu0" path="res://resources/data/status_dice_effect.gd" id="3_1632v"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_px0l4"]
+[ext_resource type="Texture2D" uid="uid://dqcq72wb4g76v" path="res://assets/status_effects/warded_status.png" id="5_kaoah"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="7_jddkn"]
 
 [resource]
 script = ExtResource("3")
@@ -22,8 +23,6 @@ stat_modifier_per_stack = {
 "barrier": 1
 }
 affix_name = "Warded"
-description = "Increases barrier by 1 per stack. Expires after 1 turn."
-icon = ExtResource("2")
-show_in_summary = false
-category = 36
+description = "Increased Barrier per stack"
+icon = ExtResource("5_kaoah")
 metadata/_custom_type_script = "uid://f3smt3r2ujm7"

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://bgd1cj10leq4p"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_ndmxx"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_t2bdm"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_rrpa4"]
+[ext_resource type="Resource" uid="uid://bi34um1vx7efh" path="res://resources/actions/mage/frost/effects/frost_spike_damage.tres" id="4_sdptm"]
+[ext_resource type="Resource" uid="uid://dd24s3ja4coof" path="res://resources/actions/mage/frost/effects/frost_spike_chill.tres" id="5_5iipf"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_846y8"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_1koo0"]
+
+[resource]
+script = ExtResource("7_1koo0")
+action_id = "frost_frost_spike"
+action_name = "Frost Spike"
+action_description = "Deal ice damage equal to die value. Apply Chill stacks equal to die value."
+min_dice_required = 1
+accepted_elements = Array[int]([5])
+max_charges = 99
+effects = Array[ExtResource("3_rrpa4")]([ExtResource("4_sdptm"), ExtResource("5_5iipf")])

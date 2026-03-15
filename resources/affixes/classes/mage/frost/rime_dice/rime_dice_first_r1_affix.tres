@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://cb0200tneljno"]
+
+[ext_resource type="Resource" uid="uid://b2qtqd1d3aqdb" path="res://resources/dice_affixes/mage/frost/da_rime_first_r1.tres" id="1_67pwd"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_h5qnc"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_ewjly"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_xwxcq"]
+
+[resource]
+script = ExtResource("3_ewjly")
+affix_name = "Rime Dice I: First"
+description = "Ice die in first position: +2 value."
+category = 39
+tags = Array[String](["mage", "frost", "mana_die_affix", "positional"])
+effect_data = {
+"dice_affix": ExtResource("1_67pwd")
+}

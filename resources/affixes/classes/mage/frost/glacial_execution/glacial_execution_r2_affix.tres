@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://bhin10xo2j5bo"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_375j4"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_bwn5o"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_s8sc5"]
+
+[resource]
+script = ExtResource("2_bwn5o")
+affix_name = "Glacial Execution II"
+description = "Shatter: x2 damage if target below 40% HP."
+category = 52
+tags = Array[String](["mage", "frost", "exploiter", "execute", "shatter_upgrade"])
+effect_data = {
+"action_id": "frost_shatter",
+"execute_multiplier": 2.0,
+"execute_threshold": 0.4
+}

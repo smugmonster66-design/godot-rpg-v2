@@ -6,6 +6,14 @@ class_name Action
 # ============================================================================
 # ENUMS
 # ============================================================================
+enum ActionCategory {
+	ATTACK,   ## Deals damage. Shows damage preview.
+	BUFF,     ## Applies beneficial effects to self/allies. Description only.
+	DEBUFF,   ## Applies detrimental effects to enemies. Description only.
+	HEAL,     ## Restores HP. Shows heal preview.
+	SUMMON,   ## Summons entities. Description only.
+}
+
 enum ChargeType {
 	UNLIMITED,          # Can use as many times as you have dice
 	LIMITED_PER_TURN,   # Resets at start of each turn
@@ -18,6 +26,7 @@ enum ChargeType {
 @export var action_id: String = ""
 @export var action_name: String = "New Action"
 @export_multiline var action_description: String = ""
+@export var action_category: ActionCategory = ActionCategory.ATTACK
 @export var damage_formula: String = ""
 @export var icon: Texture2D = null
 @export var damage_element: ActionEffect.DamageType = ActionEffect.DamageType.SLASHING
@@ -63,6 +72,12 @@ var current_cooldown: int = 0
 ## When populated, these are used instead of the legacy effects array.
 @export var effect_slots: Array[ActionEffectSlot] = []
 
+@export_group("AI Hints")
+## Per-action AI hints. Tell the enemy AI when to prefer or avoid this action.
+## Each hint pairs a condition (HP threshold, status check, etc.) with an
+## effect (score bonus, multiplier, or force-pick). Inspector-friendly dropdowns.
+@export var ai_hints: Array[ActionAIHint] = []
+
 @export_group("Animation")
 @export var animation_set: CombatAnimationSet
 
@@ -91,7 +106,6 @@ var current_cooldown: int = 0
 # ============================================================================
 @export_group("Legacy (Deprecated)")
 @export var action_type: int = 0  # 0=Attack, 1=Defend, 2=Heal, 3=Special
-@export var action_category: int = 0 
 @export var base_damage: int = 0
 @export var damage_multiplier: float = 1.0
 

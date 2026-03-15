@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://3tgxqv1ft8fm"]
+
+[ext_resource type="Resource" uid="uid://dqle7u4dbja25" path="res://resources/dice_affixes/mage/frost/da_brittle_r1.tres" id="1_xoy4y"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_hxlnd"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_mqvsj"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_tse5d"]
+
+[resource]
+script = ExtResource("3_mqvsj")
+affix_name = "Brittle I"
+description = "Ice die: +1 damage per 4 Chill stacks on target."
+category = 39
+tags = Array[String](["mage", "frost", "mana_die_affix", "exploiter", "damage"])
+effect_data = {
+"dice_affix": ExtResource("1_xoy4y")
+}

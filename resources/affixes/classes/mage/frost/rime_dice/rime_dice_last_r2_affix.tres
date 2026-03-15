@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://dvtdx6j4u4ado"]
+
+[ext_resource type="Resource" uid="uid://66grdslbrdqk" path="res://resources/dice_affixes/mage/frost/da_rime_last_r2.tres" id="1_ru3ti"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_t4mcn"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_4vioa"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_eyr0j"]
+
+[resource]
+script = ExtResource("3_4vioa")
+affix_name = "Rime Dice II: Last"
+description = "Ice die in last position: apply 3 Chill."
+category = 39
+tags = Array[String](["mage", "frost", "mana_die_affix", "positional", "chill_apply"])
+effect_data = {
+"dice_affix": ExtResource("1_ru3ti")
+}

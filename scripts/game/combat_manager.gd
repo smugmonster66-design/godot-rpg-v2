@@ -1330,11 +1330,44 @@ func _process_enemy_turn(enemy: Combatant):
 	
 	print("  🎯 %s targeting: %s" % [enemy.combatant_name, target.combatant_name])
 	
+	# --- STRATEGY ESCALATION ---
+	var effective_strategy: int = enemy.ai_strategy
+	if enemy.enemy_data and enemy.enemy_data.escalation_rules.size() > 0:
+		var esc_context := {
+			"self_hp_percent": float(enemy.current_health) / float(maxi(enemy.max_health, 1)),
+			"alive_ally_count": _count_alive_enemies_except(enemy),
+			"total_ally_count": enemy_combatants.size() - 1,
+			"turn_number": current_round,
+		}
+		for rule: AIEscalationRule in enemy.enemy_data.escalation_rules:
+			if rule and rule.evaluate(esc_context):
+				effective_strategy = rule.new_strategy
+				print("  ⚡ %s escalation: %s → %s" % [
+					enemy.combatant_name,
+					EnemyData.AIStrategy.keys()[enemy.ai_strategy],
+					EnemyData.AIStrategy.keys()[effective_strategy]])
+				break
+
 	# --- AI DECISION ---
+	var ai_context := {
+		"enemy": enemy,
+		"target": target,
+		"turn_number": current_round,
+	}
+
+	# Attach AI config if available
+	if enemy.enemy_data and enemy.enemy_data.ai_config:
+		ai_context["ai_config"] = enemy.enemy_data.ai_config
+
+	# Pass allied enemies only for team-aware enemies
+	if enemy.enemy_data and enemy.enemy_data.team_aware:
+		ai_context["allied_enemies"] = _get_alive_enemies_except(enemy)
+
 	var decision = EnemyAI.decide(
 		enemy.actions,
 		enemy.get_available_dice(),
-		enemy.ai_strategy
+		effective_strategy,
+		ai_context
 	)
 	
 	if not decision:
@@ -1567,9 +1600,40 @@ func _finish_enemy_turn(enemy: Combatant):
 			_check_enemy_death(enemy)
 			return
 	# --- END STATUS ---
-	
+
+	# --- INTENT PREVIEW (framed out — no UI yet) ---
+	if enemy.enemy_data:
+		var intent_ctx := {
+			"enemy": enemy,
+			"target": player_combatant,
+			"turn_number": current_round,
+		}
+		if enemy.enemy_data.ai_config:
+			intent_ctx["ai_config"] = enemy.enemy_data.ai_config
+		var intent := EnemyAI.preview_intent(enemy.actions, enemy.ai_strategy, intent_ctx)
+		enemy.next_intent = intent
+		if event_bus:
+			event_bus.emit_intent_declared(enemy, intent)
+	# --- END INTENT ---
+
 	enemy.end_turn()
 	_end_current_turn()
+func _get_alive_enemies_except(exclude: Combatant) -> Array:
+	"""Return alive enemy combatants excluding the given one."""
+	var result: Array = []
+	for e: Combatant in enemy_combatants:
+		if e != exclude and e.is_alive():
+			result.append(e)
+	return result
+
+func _count_alive_enemies_except(exclude: Combatant) -> int:
+	"""Count alive enemy combatants excluding the given one."""
+	var count := 0
+	for e: Combatant in enemy_combatants:
+		if e != exclude and e.is_alive():
+			count += 1
+	return count
+
 func _on_combatant_turn_completed(_combatant: Combatant):
 	pass
 # ============================================================================
@@ -1831,6 +1895,8 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 	# --- END FINALIZE ---
 	
 	# --- PROC: On-action-used procs (fires once per action) ---
+	var _action_res = action_data.get("action_resource") as Action
+	var _action_cat: int = _action_res.action_category if _action_res else Action.ActionCategory.ATTACK
 	if source == player_combatant and player and player.affix_manager and proc_processor:
 		var primary = targets[0] if targets.size() > 0 else null
 		var action_used_results = proc_processor.process_procs(
@@ -1838,13 +1904,13 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 			Affix.ProcTrigger.ON_ACTION_USED,
 			_build_proc_context({
 				"target": primary,
-				"action_resource": action_data.get("action_resource"),
+				"action_resource": _action_res,
 				"action_name": action_data.get("name", ""),
 				"placed_dice": action_data.get("placed_dice", []),
 			}))
-		_apply_proc_results(action_used_results, primary)
+		_apply_proc_results(action_used_results, primary, _action_cat)
 	# --- END ON_ACTION_USED ---
-	
+
 	# --- PROC: On-die-used procs (fires once per die consumed) ---
 	if source == player_combatant and player and player.affix_manager and proc_processor:
 		var placed_dice: Array = action_data.get("placed_dice", [])
@@ -1859,9 +1925,9 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 						"die_used": die,
 						"die_value": die.get_total_value(),
 						"die_element": die.get_effective_element(),
-						"action_resource": action_data.get("action_resource"),
+						"action_resource": _action_res,
 					}))
-				_apply_proc_results(die_used_results, primary)
+				_apply_proc_results(die_used_results, primary, _action_cat)
 	# --- END ON_DIE_USED ---
 	
 	# --- v6: CLASS ACTION CONDITIONAL RIDERS ---
@@ -2153,18 +2219,21 @@ func _apply_status_tick_results(player_ref, combatant: Combatant,
 		var heal: int = result.get("heal", 0)
 		
 		if damage > 0:
-			print("  🔥 %s takes %d %s damage from %s" % [
+			# Map is_magical to a damage type for proper armor/barrier routing
+			# Magical ticks → FIRE (barrier), Physical ticks → SLASHING (armor)
+			var tick_element: int = ActionEffect.DamageType.FIRE if is_magical else ActionEffect.DamageType.SLASHING
+
+			print("  🔥 %s takes %d %s damage from %s (half defense)" % [
 				combatant.combatant_name,
 				damage,
 				"magical" if is_magical else "physical",
 				status_name
 			])
-			
+
+			# Route through DamagePacket with 0.5 defense_mult (DoTs pierce half defense)
+			_apply_elemental_damage(combatant, damage, tick_element, 0.5)
 			if player_ref:
-				player_ref.take_damage(damage, is_magical)
 				_sync_player_health()
-			else:
-				combatant.take_damage(damage)
 		
 		if heal > 0:
 			print("  💚 %s heals %d from %s" % [
@@ -2932,12 +3001,13 @@ func _calculate_heal(action_data: Dictionary, healer) -> int:
 	# Legacy fallback
 	return int((dice_total + base_heal) * multiplier)
 
-func _apply_elemental_damage(target, raw_amount: int, element = "") -> int:
+func _apply_elemental_damage(target, raw_amount: int, element = "", defense_mult: float = 1.0) -> int:
 	"""Apply damage to target using the correct defense stat for the element type.
 	Returns actual damage dealt after defense reduction.
 	Elemental (fire/ice/shock/poison/shadow) reduces against barrier.
 	Physical (slashing/blunt/piercing) reduces against armor.
-	element: ActionEffect.DamageType int, or String int like "5", or "" for untyped (uses armor)."""
+	element: ActionEffect.DamageType int, or String int like "5", or "" for untyped.
+	defense_mult: Scales defense effectiveness (0.5 = half defense for DoT ticks)."""
 	if raw_amount <= 0 or not target or not target.is_alive():
 		return 0
 	# Resolve element to DamageType int
@@ -2949,19 +3019,18 @@ func _apply_elemental_damage(target, raw_amount: int, element = "") -> int:
 		if str(parsed) == element:  # valid numeric string
 			dtype = parsed
 	if dtype < 0:
-		# Untyped — fall back to flat armor subtraction via existing take_damage
-		target.take_damage(raw_amount)
-		return raw_amount
+		# Untyped — default to SLASHING (physical) so armor still applies
+		dtype = ActionEffect.DamageType.SLASHING
 	var packet = DamagePacket.new()
 	packet.add_damage(dtype as ActionEffect.DamageType, float(raw_amount))
 	var def_stats: Dictionary = _get_defender_stats(target)
-	
+
 	var drb: Dictionary = def_stats.get("damage_received_bonuses", {})
 	for bonus_dt in drb:
 		if packet.damages.get(bonus_dt, 0.0) > 0.0:
 			packet.add_damage(bonus_dt, float(drb[bonus_dt]))
-	
-	var final_dmg: int = packet.calculate_final_damage(def_stats)
+
+	var final_dmg: int = packet.calculate_final_damage(def_stats, defense_mult)
 	target.take_damage(final_dmg)
 	return final_dmg
 
@@ -3454,20 +3523,23 @@ func _build_combat_context(source: Combatant, targets: Array) -> Dictionary:
 
 
 
-func _apply_proc_results(results: Dictionary, proc_target: Combatant = null) -> void:
+func _apply_proc_results(results: Dictionary, proc_target: Combatant = null,
+		action_category: int = Action.ActionCategory.ATTACK) -> void:
 	"""Apply aggregated proc results to game state.
 	Handles all result types from AffixProcProcessor.process_procs().
-	
+
 	Args:
 		proc_target: The enemy target for bonus damage and status effects.
 					 Pass the primary attack target for ON_DEAL_DAMAGE/ON_KILL,
 					 or null for turn-based triggers (will auto-pick first alive enemy).
+		action_category: The triggering action's category. Bonus damage only
+					 fires for ATTACK actions to prevent heals/buffs dealing damage.
 	"""
 	if results.activated.is_empty():
 		return
-	
+
 	print("  ⚙️ %d procs activated" % results.activated.size())
-	
+
 	# --- Healing ---
 	if results.healing > 0 and player_combatant:
 		player_combatant.heal(int(results.healing))
@@ -3475,9 +3547,9 @@ func _apply_proc_results(results: Dictionary, proc_target: Combatant = null) -> 
 			player.current_hp = player_combatant.current_health
 		_update_player_health()
 		print("  💚 Proc heal: %d" % int(results.healing))
-	
-	# --- Bonus Damage ---
-	if results.bonus_damage > 0:
+
+	# --- Bonus Damage (ATTACK actions only) ---
+	if results.bonus_damage > 0 and action_category == Action.ActionCategory.ATTACK:
 		var dmg_target = proc_target if proc_target and proc_target.is_alive() else _get_first_living_enemy()
 		if dmg_target and dmg_target.has_method("take_damage"):
 			var dmg = int(results.bonus_damage)

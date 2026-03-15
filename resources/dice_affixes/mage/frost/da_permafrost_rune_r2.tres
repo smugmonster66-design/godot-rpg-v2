@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=5 format=3 uid="uid://b16a53vigqquy"]
+
+[ext_resource type="Resource" uid="uid://bbonvnd5wfgq2" path="res://resources/dice_affixes/mage/frost/conditions/cond_neighbor_ice.tres" id="1_4al2r"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_o1pqt"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_esk2y"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_3bygv"]
+
+[resource]
+script = ExtResource("3_esk2y")
+affix_name = "Permafrost Rune II: Ice Neighbor Bonus"
+description = "Adjacent ice dice: +2 value each."
+use_global_element_visuals = true
+global_element_type = 4
+trigger = 1
+neighbor_target = 3
+condition = ExtResource("1_4al2r")
+effect_value = 2.0

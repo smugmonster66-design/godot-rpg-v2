@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://bi7elx3x73iig"]
+
+[ext_resource type="Resource" uid="uid://b38wyaqy4t88a" path="res://resources/dice_affixes/mage/frost/da_creeping_frost_r3.tres" id="1_j6yx4"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_tn8y0"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_e5bns"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_yb4q7"]
+
+[resource]
+script = ExtResource("3_e5bns")
+affix_name = "Creeping Frost III"
+description = "Ice dice apply 3 Chill on use."
+category = 39
+tags = Array[String](["mage", "frost", "mana_die_affix", "chill_apply", "applier"])
+effect_data = {
+"dice_affix": ExtResource("1_j6yx4")
+}

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://binsb8rpbbapj"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_8moff"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_do71v"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_rc6j8"]
+
+[resource]
+script = ExtResource("2_do71v")
+affix_name = "Spreading Cold I: Chill Splash"
+description = "Splash 30% of applied Chill to all other enemies."
+use_global_element_visuals = true
+global_element_type = 4
+trigger = 1
+effect_type = 16
+effect_value = 1.0
+effect_data = {
+"splash_percent": 0.3,
+"splash_target": "ALL_OTHER_ENEMIES",
+"status_id": "chill"
+}

@@ -712,6 +712,10 @@ func enter_prep_phase():
 			if action_res:
 				action_res.reset_charges_for_turn()
 
+	# Rebuild player action field previews — hide_enemy_hand() cleared the grid,
+	# so we need to repopulate it. Previews are visible but not interactive
+	# until enter_action_phase() calls _set_previews_enabled(true).
+	refresh_action_fields()
 
 	if _bottom_ui:
 		_bottom_ui.enter_prep_phase()
@@ -1147,6 +1151,7 @@ func animate_die_to_action_field(die_visual: Control, action_name: String, die: 
 		print("  ⚠️ No valid die_visual to animate")
 		if die:
 			field.placed_dice.append(die)
+			field._update_damage_preview()
 		await get_tree().create_timer(0.3).timeout
 		return
 	

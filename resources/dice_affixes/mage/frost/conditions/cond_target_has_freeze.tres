@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DiceAffixCondition" load_steps=2 format=3 uid="uid://lm2mcdgx8qpq"]
+
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="1_0l8n7"]
+
+[resource]
+script = ExtResource("1_0l8n7")
+type = 21
+condition_status_id = "freeze"

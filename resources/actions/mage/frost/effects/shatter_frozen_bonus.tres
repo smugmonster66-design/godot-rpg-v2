@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://dtbug1gsql7ak"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_i0tog"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_bbyt7"]
+
+[resource]
+script = ExtResource("1_i0tog")
+effect_name = "Shatter: Frozen Bonus"
+effect_data = {
+"condition": "target_has_status",
+"replaces_base_damage": true,
+"status_id": "freeze"
+}
+damage_type = 4
+damage_multiplier = 3.0
+dice_count = 2

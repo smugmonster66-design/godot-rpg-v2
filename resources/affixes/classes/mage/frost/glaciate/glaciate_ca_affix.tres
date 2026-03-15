@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://ssl2e82j51p4"]
+
+[ext_resource type="Resource" uid="uid://cfmprg3agr378" path="res://resources/actions/mage/frost/effects/glaciate_apply_chill.tres" id="1_qerti"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_jcgr6"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_yw5fm"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_7wxxe"]
+
+[resource]
+script = ExtResource("3_yw5fm")
+affix_name = "Glaciate: Chromatic Bolt Chill"
+description = "Chromatic Bolt applies 2 Chill on hit (requires ice die)."
+category = 54
+tags = Array[String](["mage", "frost", "class_action_mod", "chill_apply"])
+effect_data = {
+"action_effect": ExtResource("1_qerti"),
+"ice_die_condition": true
+}

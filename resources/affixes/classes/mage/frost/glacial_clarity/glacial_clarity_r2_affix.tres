@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://bkihr03bwjqhm"]
+
+[ext_resource type="Resource" uid="uid://bd5b6tm50yspi" path="res://resources/dice_affixes/mage/frost/da_glacial_clarity_r2.tres" id="1_83n45"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_tsxqo"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_ug2xs"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_smmfj"]
+
+[resource]
+script = ExtResource("3_ug2xs")
+affix_name = "Glacial Clarity II"
+description = "Ice dice auto-reroll below 3."
+category = 39
+tags = Array[String](["mage", "frost", "mana_die_affix", "reroll", "consistency"])
+effect_data = {
+"dice_affix": ExtResource("1_83n45")
+}

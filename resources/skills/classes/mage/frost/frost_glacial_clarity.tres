@@ -1,0 +1,73 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=21 format=3 uid="uid://coqybfmfaqyn8"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_vy2w7"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_tq13f"]
+[ext_resource type="Resource" uid="uid://d30t3p51q3o6y" path="res://resources/affixes/classes/mage/frost/glacial_clarity/glacial_clarity_r1_affix.tres" id="3_0n5n2"]
+[ext_resource type="Resource" uid="uid://8o0ecju72833" path="res://resources/affixes/classes/mage/frost/glaciate/glaciate_element_unlock.tres" id="3_yxgk2"]
+[ext_resource type="Resource" uid="uid://ssl2e82j51p4" path="res://resources/affixes/classes/mage/frost/glaciate/glaciate_ca_affix.tres" id="4_5sr78"]
+[ext_resource type="Resource" uid="uid://bkihr03bwjqhm" path="res://resources/affixes/classes/mage/frost/glacial_clarity/glacial_clarity_r2_affix.tres" id="4_hl5wf"]
+[ext_resource type="Resource" uid="uid://bwf66hvmndh0b" path="res://resources/affixes/classes/mage/frost/glacial_clarity/glacial_clarity_r3_affix.tres" id="5_yal1p"]
+[ext_resource type="Resource" uid="uid://cb0200tneljno" path="res://resources/affixes/classes/mage/frost/rime_dice/rime_dice_first_r1_affix.tres" id="6_4iyip"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="6_ed2qe"]
+[ext_resource type="Resource" uid="uid://bt05ac7m204qa" path="res://resources/affixes/classes/mage/frost/rime_dice/rime_dice_last_r1_affix.tres" id="7_lvnw8"]
+[ext_resource type="Resource" uid="uid://ddeg4vt3y08kp" path="res://resources/affixes/classes/mage/frost/rime_dice/rime_dice_first_r2_affix.tres" id="8_x4vrh"]
+[ext_resource type="Resource" uid="uid://dvtdx6j4u4ado" path="res://resources/affixes/classes/mage/frost/rime_dice/rime_dice_last_r2_affix.tres" id="9_j1yys"]
+[ext_resource type="Resource" uid="uid://xio0np7qdwdg" path="res://resources/affixes/classes/mage/frost/permafrost_rune/permafrost_rune_r1_affix.tres" id="10_0ubui"]
+[ext_resource type="Resource" uid="uid://bvl58iq3dufch" path="res://resources/affixes/classes/mage/frost/permafrost_rune/permafrost_rune_r2_affix.tres" id="11_m2xr4"]
+
+[sub_resource type="Resource" id="Resource_exl55"]
+script = ExtResource("6_ed2qe")
+skill_id = "frost_glaciate"
+skill_name = "Glaciate"
+description = "Unlock [color=cyan]Ice[/color] mana. Chromatic Bolt applies [color=cyan]2 Chill[/color] on hit (requires ice die)."
+column = 3
+rank_1_affixes = Array[ExtResource("2_tq13f")]([ExtResource("3_yxgk2"), ExtResource("4_5sr78")])
+
+[sub_resource type="Resource" id="Resource_ruqhm"]
+script = ExtResource("1_vy2w7")
+required_skill = SubResource("Resource_exl55")
+
+[sub_resource type="Resource" id="Resource_b46i2"]
+script = ExtResource("6_ed2qe")
+skill_id = "frost_rime_dice"
+skill_name = "Rime Dice"
+description = "Ice die in [color=yellow]FIRST[/color] position: +[color=yellow]2/3[/color] value. In [color=yellow]LAST[/color]: apply [color=cyan]2/3 Chill[/color]."
+tier = 2
+column = 3
+prerequisites = Array[ExtResource("1_vy2w7")]([SubResource("Resource_ruqhm")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_tq13f")]([ExtResource("6_4iyip"), ExtResource("7_lvnw8")])
+rank_2_affixes = Array[ExtResource("2_tq13f")]([ExtResource("8_x4vrh"), ExtResource("9_j1yys")])
+
+[sub_resource type="Resource" id="Resource_a3gl7"]
+script = ExtResource("1_vy2w7")
+required_skill = SubResource("Resource_b46i2")
+
+[sub_resource type="Resource" id="Resource_1x7bt"]
+script = ExtResource("6_ed2qe")
+skill_id = "frost_permafrost_rune"
+skill_name = "Permafrost Rune"
+description = "Ice die adjacent to another ice die: both gain +[color=yellow]1/2[/color] value."
+tier = 3
+column = 3
+prerequisites = Array[ExtResource("1_vy2w7")]([SubResource("Resource_a3gl7")])
+tree_points_required = 3
+rank_1_affixes = Array[ExtResource("2_tq13f")]([ExtResource("10_0ubui")])
+rank_2_affixes = Array[ExtResource("2_tq13f")]([ExtResource("11_m2xr4")])
+
+[sub_resource type="Resource" id="Resource_oy8tu"]
+script = ExtResource("1_vy2w7")
+required_skill = SubResource("Resource_1x7bt")
+
+[resource]
+script = ExtResource("6_ed2qe")
+skill_id = "frost_glacial_clarity"
+skill_name = "Glacial Clarity"
+description = "Ice dice auto-reroll if value below [color=yellow]2/3/4[/color] (once per roll)."
+tier = 4
+column = 3
+prerequisites = Array[ExtResource("1_vy2w7")]([SubResource("Resource_oy8tu")])
+tree_points_required = 6
+rank_1_affixes = Array[ExtResource("2_tq13f")]([ExtResource("3_0n5n2")])
+rank_2_affixes = Array[ExtResource("2_tq13f")]([ExtResource("4_hl5wf")])
+rank_3_affixes = Array[ExtResource("2_tq13f")]([ExtResource("5_yal1p")])

@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://bl41vspk3ee7s"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_7ad5v"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_vsvfc"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_ljfhg"]
+
+[resource]
+script = ExtResource("2_vsvfc")
+affix_name = "Crystallize"
+description = "Damage to Frozen target: gain 4 Barrier, target loses 2 ice resistance permanently."
+category = 35
+tags = Array[String](["mage", "frost", "exploiter", "defense", "resistance_shred"])
+effect_data = {
+"effects": [{
+"amount": 4,
+"type": "barrier_gain"
+}, {
+"amount": 2,
+"element": "ICE",
+"permanent": true,
+"type": "target_resist_reduction"
+}],
+"proc_condition_status": "freeze",
+"proc_trigger": "ON_DEAL_DAMAGE"
+}
+proc_trigger = 1

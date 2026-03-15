@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=5 format=3 uid="uid://dv6gh4248hwtw"]
+
+[ext_resource type="Resource" uid="uid://ul6r1l12ecfw" path="res://resources/dice_affixes/mage/frost/conditions/cond_self_value_below_2.tres" id="1_7x7iw"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_b07v7"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_uvr5c"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_agmmq"]
+
+[resource]
+script = ExtResource("3_uvr5c")
+affix_name = "Glacial Clarity I: Reroll"
+description = "Auto-reroll ice die below 2."
+use_global_element_visuals = true
+global_element_type = 4
+condition = ExtResource("1_7x7iw")
+effect_type = 10
+effect_value = 1.0

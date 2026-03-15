@@ -33,6 +33,11 @@ var actions: Array[Dictionary] = []
 var current_action: Dictionary = {}
 var current_action_dice: Array[DieResource] = []
 
+# Intent preview (framed out — no UI yet)
+# Set at end of each enemy turn. UI layer will listen to CombatEventBus.
+# Keys: "category" (int: 0=ATK, 1=DEF, 2=HEAL, 3=SPECIAL), "action_name" (String)
+var next_intent: Dictionary = {}
+
 # Selection shader for targeting
 var selection_shader: ShaderMaterial = null
 var is_target_selected: bool = false
@@ -310,17 +315,18 @@ func get_available_dice() -> Array[DieResource]:
 # ============================================================================
 
 func take_damage(amount: int):
-	"""Take damage, applying armor reduction"""
-	var reduced = max(0, amount - armor)
-	current_health = max(0, current_health - reduced)
-	
-	print("  💥 %s takes %d damage (%d after armor), HP: %d/%d" % [
-		combatant_name, amount, reduced, current_health, max_health
+	"""Apply final damage to HP. Defense (armor/barrier) is already handled
+	upstream by DamagePacket.calculate_final_damage() — do NOT re-apply here."""
+	var actual = maxi(0, amount)
+	current_health = maxi(0, current_health - actual)
+
+	print("  💥 %s takes %d damage, HP: %d/%d" % [
+		combatant_name, actual, current_health, max_health
 	])
-	
+
 	health_changed.emit(current_health, max_health)
 	update_display()
-	
+
 	if current_health <= 0:
 		_on_death()
 

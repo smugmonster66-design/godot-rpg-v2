@@ -4,11 +4,11 @@
 #
 # Scene structure:
 #   ParticleEffect (Node2D) ← this script
-#     ├─ GPUParticles2D          — standard GPU particle emitter (optional)
-#     ├─ BurstParticles2D        — one-shot burst particle layer (optional)
-#     └─ AnimatedSprite2D        — sprite sheet overlay (optional)
+#     ├─ GPUParticles2D (one or more) — standard GPU particle emitters (optional)
+#     ├─ BurstParticles2D             — one-shot burst particle layer (optional)
+#     └─ AnimatedSprite2D             — sprite sheet overlay (optional)
 #
-# Any combination of the three children is valid.
+# Any combination of children is valid.
 # Duration is whichever child takes longest to finish.
 # BurstParticles2D child must have autoplay = false — this script fires it.
 extends CombatEffectBase
@@ -24,25 +24,26 @@ class_name ParticleEffect
 ## Apply color_override to the sprite as well (via modulate)
 @export var tint_sprite: bool = false
 
-@onready var particles: GPUParticles2D = _find_child_of_class("GPUParticles2D")
+@onready var gpu_particles: Array[GPUParticles2D] = _find_all_gpu_particles()
 @onready var burst: Node2D = _find_burst_child()
 @onready var sprite: AnimatedSprite2D = _find_child_of_class("AnimatedSprite2D")
 
 func play():
-	if not particles and not burst and not sprite:
+	if gpu_particles.is_empty() and not burst and not sprite:
 		push_warning("ParticleEffect: No GPUParticles2D, BurstParticles2D, or AnimatedSprite2D child found")
 		_on_finished()
 		return
 
 	effect_started.emit()
 
-	# --- Start GPUParticles2D ---
-	var particle_duration: float = 0.0
-	if particles:
+	# --- Start all GPUParticles2D ---
+	var max_particle_duration: float = 0.0
+	for p in gpu_particles:
 		if use_color_override:
-			particles.modulate = color_override
-		particles.emitting = true
-		particle_duration = particles.lifetime if one_shot else duration
+			p.modulate = color_override
+		p.emitting = true
+		var p_dur: float = p.lifetime if one_shot else duration
+		max_particle_duration = maxf(max_particle_duration, p_dur)
 
 	# --- Start BurstParticles2D ---
 	# We read lifetime before calling burst() because the node frees itself
@@ -69,18 +70,14 @@ func play():
 			push_warning("ParticleEffect: AnimatedSprite2D missing animation '%s'" % sprite_animation)
 			sprite_finished = true
 
-	# --- Wait for GPUParticles2D ---
-	if particles and particle_duration > 0.0:
-		await get_tree().create_timer(particle_duration).timeout
-		particles.emitting = false
+	# --- Wait for the longest duration across all children ---
+	var total_wait: float = maxf(max_particle_duration, burst_duration)
+	if total_wait > 0.0:
+		await get_tree().create_timer(total_wait).timeout
 
-	# --- Wait for BurstParticles2D if still running ---
-	# We use a timer fallback rather than awaiting the signal directly,
-	# because the node may have already freed itself by the time we get here.
-	if burst and burst_duration > 0.0:
-		var burst_wait: float = burst_duration - particle_duration
-		if burst_wait > 0.0:
-			await get_tree().create_timer(burst_wait).timeout
+	# Stop all GPU emitters
+	for p in gpu_particles:
+		p.emitting = false
 
 	# --- Wait for sprite if it's still going ---
 	if sprite and not sprite_finished:
@@ -88,6 +85,13 @@ func play():
 
 	_on_finished()
 
+
+func _find_all_gpu_particles() -> Array[GPUParticles2D]:
+	var result: Array[GPUParticles2D] = []
+	for child in get_children():
+		if child is GPUParticles2D:
+			result.append(child)
+	return result
 
 
 func _find_child_of_class(class_name_str: String) -> Node:

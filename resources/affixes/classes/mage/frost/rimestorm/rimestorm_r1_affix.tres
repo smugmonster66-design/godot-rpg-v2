@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://llmgxw34nm5c"]
+
+[ext_resource type="Resource" uid="uid://3c8m32xg58ux" path="res://resources/dice_affixes/mage/frost/da_rimestorm.tres" id="1_guura"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_eedn6"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_tyj72"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_wbnap"]
+
+[resource]
+script = ExtResource("3_tyj72")
+affix_name = "Rimestorm"
+description = "Ice die chains to 1 extra enemy (60% damage, 2 Chill)."
+category = 39
+tags = Array[String](["mage", "frost", "mana_die_affix", "chain", "aoe"])
+effect_data = {
+"dice_affix": ExtResource("1_guura")
+}

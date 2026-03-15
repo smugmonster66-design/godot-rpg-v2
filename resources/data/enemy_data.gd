@@ -96,6 +96,22 @@ enum TargetPriority {
 
 @export var target_priority: TargetPriority = TargetPriority.RANDOM
 
+## Optional AI personality config. Tunes element preference, heal urgency,
+## status awareness, etc. Null = use defaults (all sliders at 0.5).
+@export var ai_config: EnemyAIConfig = null
+
+@export_subgroup("Coordination")
+
+## When true, the AI considers allied enemies' statuses for synergy scoring.
+## Leave false for trash mobs that should fight independently.
+@export var team_aware: bool = false
+
+@export_subgroup("Strategy Escalation")
+
+## Rules evaluated each turn — first match overrides ai_strategy for that turn.
+## e.g. switch to AGGRESSIVE when HP < 30%.
+@export var escalation_rules: Array[AIEscalationRule] = []
+
 @export_subgroup("Timing")
 @export_range(0.3, 2.0, 0.1) var action_delay: float = 0.8
 @export_range(0.2, 1.0, 0.1) var dice_drag_duration: float = 0.4

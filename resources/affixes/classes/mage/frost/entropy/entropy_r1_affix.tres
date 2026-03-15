@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://cwnc7tj50ocbr"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_lqxhp"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_2dq51"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_5naug"]
+
+[resource]
+script = ExtResource("2_2dq51")
+affix_name = "Entropy"
+description = "Start of turn: if any enemy has 10+ Chill, restore 2 mana and next ice die +3."
+category = 33
+tags = Array[String](["mage", "frost", "weave", "mana", "sustain"])
+effect_data = {
+"condition": "any_enemy_status_stacks_above",
+"condition_status": "chill",
+"condition_threshold": 10,
+"effects": [{
+"amount": 2,
+"type": "mana_restore"
+}, {
+"effect": "MODIFY_VALUE_FLAT",
+"element": "ICE",
+"type": "temp_mana_die_affix",
+"uses": 1,
+"value": 3
+}],
+"turn_trigger": "START_OF_TURN"
+}

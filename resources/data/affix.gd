@@ -101,6 +101,9 @@ enum Category {
 								 ## Uses existing granted_action field.
 	CLASS_ACTION_CONDITIONAL,    ## Adds a conditional rider effect to the class action.
 								 ## effect_data: {"condition": AffixCondition, "action_effect": ActionEffect}
+	# ── Healing Modifiers (appended at end to preserve .tres integer compat) ──
+	HEALING_BONUS,               ## Flat bonus to healing done.
+	HEALING_MULTIPLIER,          ## Multiplier to healing done.
 }
 
 # ============================================================================

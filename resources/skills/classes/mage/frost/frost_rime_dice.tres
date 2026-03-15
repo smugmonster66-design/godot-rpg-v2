@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=12 format=3 uid="uid://dv5rhc824hvnh"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_fyxyo"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_061sl"]
+[ext_resource type="Resource" uid="uid://cb0200tneljno" path="res://resources/affixes/classes/mage/frost/rime_dice/rime_dice_first_r1_affix.tres" id="3_mhf5k"]
+[ext_resource type="Resource" uid="uid://8o0ecju72833" path="res://resources/affixes/classes/mage/frost/glaciate/glaciate_element_unlock.tres" id="3_o1yoi"]
+[ext_resource type="Resource" uid="uid://ssl2e82j51p4" path="res://resources/affixes/classes/mage/frost/glaciate/glaciate_ca_affix.tres" id="4_8cfmg"]
+[ext_resource type="Resource" uid="uid://bt05ac7m204qa" path="res://resources/affixes/classes/mage/frost/rime_dice/rime_dice_last_r1_affix.tres" id="4_o1yoi"]
+[ext_resource type="Resource" uid="uid://ddeg4vt3y08kp" path="res://resources/affixes/classes/mage/frost/rime_dice/rime_dice_first_r2_affix.tres" id="5_8cfmg"]
+[ext_resource type="Resource" uid="uid://dvtdx6j4u4ado" path="res://resources/affixes/classes/mage/frost/rime_dice/rime_dice_last_r2_affix.tres" id="6_ruqhm"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="7_hrsu8"]
+
+[sub_resource type="Resource" id="Resource_exl55"]
+script = ExtResource("7_hrsu8")
+skill_id = "frost_glaciate"
+skill_name = "Glaciate"
+description = "Unlock [color=cyan]Ice[/color] mana. Chromatic Bolt applies [color=cyan]2 Chill[/color] on hit (requires ice die)."
+column = 3
+rank_1_affixes = Array[ExtResource("2_061sl")]([ExtResource("3_o1yoi"), ExtResource("4_8cfmg")])
+
+[sub_resource type="Resource" id="Resource_ruqhm"]
+script = ExtResource("1_fyxyo")
+required_skill = SubResource("Resource_exl55")
+
+[resource]
+script = ExtResource("7_hrsu8")
+skill_id = "frost_rime_dice"
+skill_name = "Rime Dice"
+description = "Ice die in [color=yellow]FIRST[/color] position: +[color=yellow]2/3[/color] value. In [color=yellow]LAST[/color]: apply [color=cyan]2/3 Chill[/color]."
+tier = 2
+column = 3
+prerequisites = Array[ExtResource("1_fyxyo")]([SubResource("Resource_ruqhm")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_061sl")]([ExtResource("3_mhf5k"), ExtResource("4_o1yoi")])
+rank_2_affixes = Array[ExtResource("2_061sl")]([ExtResource("5_8cfmg"), ExtResource("6_ruqhm")])

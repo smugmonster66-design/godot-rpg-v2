@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://dhr5irebshdnj"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_l51y6"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_pmwyi"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_ayc27"]
+
+[resource]
+script = ExtResource("2_pmwyi")
+affix_name = "Hoarfrost II"
+description = "End of turn: 2 Chill per unused die."
+category = 35
+tags = Array[String](["mage", "frost", "applier", "chill_apply", "end_turn"])
+effect_number = 2.0
+effect_data = {
+"proc_effect": "apply_status_per_unused_die",
+"proc_trigger": "ON_TURN_END",
+"stacks_per_unused_die": 2,
+"status_id": "chill"
+}
+proc_trigger = 4

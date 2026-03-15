@@ -1,12 +1,13 @@
-[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://c8rvgwlhg87lm"]
+[gd_resource type="Resource" script_class="Action" load_steps=10 format=3 uid="uid://c8rvgwlhg87lm"]
 
 [ext_resource type="Resource" uid="uid://cnu7r3224b3w3" path="res://resources/animations/baseline animations/elemental anisets/buff and debuff/base_buff_aniset.tres" id="1_11sy7"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_kdav7"]
-[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_4dswj"]
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_qr6vj"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_11sy7"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_c37rb"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_11sy7"]
 [ext_resource type="Resource" uid="uid://bau0ilngqxftf" path="res://resources/statuses/warded.tres" id="4_qr6vj"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="6_qr6vj"]
 
 [sub_resource type="Resource" id="Resource_qr6vj"]
 script = ExtResource("1_kdav7")
@@ -21,6 +22,7 @@ script = ExtResource("4_11sy7")
 action_id = "ward"
 action_name = "Ward"
 action_description = "Gain 3 Warded."
+action_category = 1
 damage_element = 1
 effects = Array[ExtResource("1_kdav7")]([SubResource("Resource_qr6vj")])
 animation_set = ExtResource("1_11sy7")

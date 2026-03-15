@@ -1,12 +1,12 @@
 [gd_resource type="Resource" script_class="EnemyTemplate" load_steps=14 format=3 uid="uid://c2p4ewafuqmuw"]
 
 [ext_resource type="Script" uid="uid://cwrg87ac6o11i" path="res://resources/data/role_tier_budget.gd" id="1_1maqn"]
-[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_25gct"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_1maqn"]
 [ext_resource type="Resource" uid="uid://w0fglebqspt6" path="res://resources/actions/enemy_base/shove.tres" id="3_vkvb8"]
 [ext_resource type="Resource" uid="uid://dxpghbyxtxwiv" path="res://resources/actions/enemy_base/war_cry.tres" id="4_rcu63"]
 [ext_resource type="Resource" uid="uid://27ono85pw0ws" path="res://resources/actions/enemy_base/rally.tres" id="5_vr85y"]
 [ext_resource type="Resource" uid="uid://1ujkpi2fli2j" path="res://resources/affixes/base_stats/enemy/enemy_health_str_support.tres" id="6_q86vp"]
-[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="7_dlwkn"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="7_25gct"]
 [ext_resource type="Script" uid="uid://dvo4fc8b1285h" path="res://resources/data/enemy_template.gd" id="8_ol2bm"]
 
 [sub_resource type="Resource" id="Resource_wf488"]
@@ -75,7 +75,7 @@ role = 4
 dice_philosophy = 2
 defense_profile = 3
 default_ai_strategy = 1
-default_actions = Array[ExtResource("2_25gct")]([ExtResource("3_vkvb8"), ExtResource("4_rcu63"), ExtResource("5_vr85y")])
+default_actions = Array[ExtResource("2_1maqn")]([ExtResource("3_vkvb8"), ExtResource("4_rcu63"), ExtResource("5_vr85y")])
 health_weight = 0.6
 armor_weight = 0.3
 damage_weight = 0.3

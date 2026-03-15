@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://xio0np7qdwdg"]
+
+[ext_resource type="Resource" uid="uid://btxkka62o027t" path="res://resources/dice_affixes/mage/frost/da_permafrost_rune_r1.tres" id="1_bx00j"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_df7jr"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_tgcai"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_in1pp"]
+
+[resource]
+script = ExtResource("3_tgcai")
+affix_name = "Permafrost Rune I"
+description = "Ice die next to another ice die: both get +1 value."
+category = 39
+tags = Array[String](["mage", "frost", "mana_die_affix", "positional", "ice_synergy"])
+effect_data = {
+"dice_affix": ExtResource("1_bx00j")
+}

@@ -9,9 +9,10 @@ class_name ActionField
 # ============================================================================
 enum ActionType {
 	ATTACK,
-	DEFEND,
+	BUFF,
+	DEBUFF,
 	HEAL,
-	SPECIAL
+	SUMMON
 }
 
 # ============================================================================
@@ -134,6 +135,9 @@ func _ready():
 	_apply_element_shader()
 	_update_damage_preview()
 	_setup_source_badge()
+	# Deferred preview update — ensures layout is settled for fields configured
+	# before add_child() (e.g. enemy expanded fields)
+	call_deferred("_update_damage_preview")
 	# Connect action buttons
 	if confirm_button:
 		confirm_button.pressed.connect(_on_confirm_button_pressed)
@@ -402,30 +406,45 @@ func _restore_chromatic_shader():
 # ============================================================================
 
 func _update_damage_preview():
-	"""Update damage preview with Balatro-style Power × Mult breakdown."""
+	"""Update damage preview based on action category."""
 	if not dmg_preview_label:
+		print("⚠️ _update_damage_preview: dmg_preview_label is null for '%s'" % action_name)
 		return
-	
-	# Non-damage actions
-	if action_type == ActionType.DEFEND:
-		dmg_preview_label.text = ""
-		dmg_preview_label.append_text("[center]Defense[/center]")
-		return
-	elif action_type == ActionType.HEAL:
-		_update_heal_preview()
-		return
-	elif action_type == ActionType.SPECIAL:
-		dmg_preview_label.text = ""
-		dmg_preview_label.append_text("[center]Special[/center]")
-		return
-	
+
+	match action_type:
+		ActionType.ATTACK:
+			_update_attack_preview()
+		ActionType.HEAL:
+			_update_heal_preview()
+		ActionType.BUFF, ActionType.DEBUFF, ActionType.SUMMON:
+			if damage_formula_label:
+				damage_formula_label.text = ""
+				damage_formula_label.append_text(
+					"[center][color=#bbbbbb]%s[/color][/center]" % _get_category_label())
+				damage_formula_label.show()
+			if damage_floater:
+				damage_floater.hide()
+			return
+
+
+func _get_category_label() -> String:
+	"""Return a human-readable label for non-damage action categories."""
+	match action_type:
+		ActionType.BUFF: return "Buff"
+		ActionType.DEBUFF: return "Debuff"
+		ActionType.SUMMON: return "Summon"
+	return ""
+
+
+func _update_attack_preview():
+	"""Damage preview with Balatro-style Power × Mult breakdown."""
 	var element_name: String = ELEMENT_NAMES.get(element, "")
 	var element_color: Color = ThemeManager.get_element_color_enum(element)
 	var elem_hex: String = element_color.to_html(false)
-	
+
 	# Clear previous content
 	dmg_preview_label.text = ""
-	
+
 	if placed_dice.size() == 0:
 		# Formula mode: "2D+5 Fire" in element color
 		var formula: String = _get_damage_formula()
@@ -436,7 +455,7 @@ func _update_damage_preview():
 		var power: int = _calculate_preview_power()
 		var mult: float = _calculate_preview_mult()
 		var total: int = maxi(0, roundi(power * mult))
-		
+
 		if mult > 1.001 or mult < 0.999:
 			# Full breakdown: "17 × 2.0x = 34 Fire"
 			dmg_preview_label.append_text(
@@ -453,10 +472,10 @@ func _update_damage_preview():
 			dmg_preview_label.append_text(
 				"[center][color=#%s]→ %d %s[/color][/center]" % [
 					elem_hex, total, element_name])
-	
+
 	_update_damage_formula_label()
-	
-	# Update floating element chips (unchanged)
+
+	# Update floating element chips
 	if damage_floater:
 		var attacker_affixes: AffixPoolManager = null
 		if GameManager and GameManager.player:
@@ -467,8 +486,13 @@ func _update_damage_preview():
 		)
 
 func _update_damage_formula_label():
-	"""Update DamageFormulaLabel: shows damage_formula when empty, per-element breakdown with dice."""
+	"""Update DamageFormulaLabel: shows damage_formula when empty, per-element breakdown with dice.
+	Only runs for ATTACK actions — heals/buffs/debuffs/summons manage this label themselves."""
 	if not damage_formula_label:
+		return
+
+	# Non-attack actions write to damage_formula_label in their own preview functions
+	if action_type != ActionType.ATTACK:
 		return
 	
 	damage_formula_label.text = ""
@@ -592,22 +616,26 @@ func _calculate_element_breakdown() -> Dictionary:
 	return damages
 
 func _update_heal_preview():
-	"""Update preview for heal actions using RichTextLabel BBCode."""
-	if not dmg_preview_label:
+	"""Update preview for heal actions using the visible DamageFormulaLabel.
+	Only switches from formula to total once dice are actually placed,
+	to avoid flickering during the die-drop animation."""
+	if not damage_formula_label:
 		return
-	
+
 	var heal_hex: String = ThemeManager.PALETTE.success.to_html(false)
-	
-	dmg_preview_label.text = ""
-	
+
+	damage_formula_label.text = ""
+
 	if placed_dice.size() == 0:
 		var formula: String = _get_heal_formula()
-		dmg_preview_label.append_text(
+		damage_formula_label.append_text(
 			"[center][color=#%s]%s[/color][/center]" % [heal_hex, formula])
 	else:
 		var total_heal: int = _calculate_preview_heal()
-		dmg_preview_label.append_text(
-			"[center][color=#%s]→ %d HP[/color][/center]" % [heal_hex, total_heal])
+		damage_formula_label.append_text(
+			"[center][color=#%s]%d Healing[/color][/center]" % [heal_hex, total_heal])
+
+	damage_formula_label.show()
 
 func _calculate_preview_power() -> int:
 	"""Calculate pre-mult power: dice values + element match + base damage + flat bonuses.
@@ -733,10 +761,59 @@ func _calculate_preview_damage() -> int:
 	return maxi(0, roundi(_calculate_preview_power() * _calculate_preview_mult()))
 
 func _calculate_preview_heal() -> int:
-	"""Calculate heal with currently placed dice"""
-	var dice_total = get_total_dice_value()
-	var raw_heal = (dice_total + base_damage) * damage_multiplier
-	return int(raw_heal)
+	"""Calculate heal preview using effect-aware pipeline + affix bonuses.
+	Supports both effect_slots (modern) and effects (legacy) arrays."""
+	var heal_total: float = 0.0
+
+	# Resolve effects from either effect_slots or legacy effects array
+	var resolved_effects: Array = []
+	if action_resource:
+		if action_resource.effect_slots.size() > 0:
+			for slot in action_resource.effect_slots:
+				if slot and slot.effect:
+					var configured = slot.build_configured_effect()
+					if configured:
+						resolved_effects.append(configured)
+		elif not action_resource.effects.is_empty():
+			for eff in action_resource.effects:
+				if eff:
+					resolved_effects.append(eff)
+
+	if resolved_effects.size() > 0:
+		# Effect-aware: sum dice allocated to HEAL effects
+		var dice_index: int = 0
+		for effect in resolved_effects:
+			if effect.effect_type != ActionEffect.EffectType.HEAL:
+				continue
+			var effect_heal: float = 0.0
+			for i in range(effect.dice_count):
+				if dice_index >= placed_dice.size():
+					break
+				var die = placed_dice[dice_index]
+				dice_index += 1
+				if die is DieResource:
+					effect_heal += float(die.get_total_value())
+			if effect.base_damage > 0:  # base_damage field used as base heal amount
+				effect_heal += float(effect.base_damage)
+			if effect.damage_multiplier != 1.0:
+				effect_heal *= effect.damage_multiplier
+			heal_total += effect_heal
+	else:
+		# Legacy fallback
+		heal_total = float(get_total_dice_value() + base_damage) * damage_multiplier
+
+	# Affix healing bonuses
+	if GameManager and GameManager.player:
+		var affixes: AffixPoolManager = GameManager.player.affix_manager
+		if affixes:
+			for affix in affixes.get_pool(Affix.Category.HEALING_BONUS):
+				heal_total += affix.apply_effect()
+			var mult: float = 1.0
+			for affix in affixes.get_pool(Affix.Category.HEALING_MULTIPLIER):
+				mult *= affix.apply_effect()
+			heal_total *= mult
+
+	return maxi(0, roundi(heal_total))
 
 func get_total_dice_value() -> int:
 	"""Get sum of all placed dice values"""
@@ -754,7 +831,18 @@ func configure_from_dict(action_data: Dictionary):
 	action_name = action_data.get("name", "Action")
 	action_description = action_data.get("description", "")
 	action_icon = action_data.get("icon", null)
-	action_type = action_data.get("action_type", ActionType.ATTACK)
+	# Map Action.ActionCategory → ActionField.ActionType
+	if action_data.get("action_resource") is Action:
+		var res: Action = action_data["action_resource"]
+		match res.action_category:
+			Action.ActionCategory.ATTACK: action_type = ActionType.ATTACK
+			Action.ActionCategory.BUFF: action_type = ActionType.BUFF
+			Action.ActionCategory.DEBUFF: action_type = ActionType.DEBUFF
+			Action.ActionCategory.HEAL: action_type = ActionType.HEAL
+			Action.ActionCategory.SUMMON: action_type = ActionType.SUMMON
+	else:
+		# Legacy fallback from dict
+		action_type = action_data.get("action_type", ActionType.ATTACK)
 	die_slots = action_data.get("die_slots", 1)
 	base_damage = action_data.get("base_damage", 0)
 	damage_multiplier = action_data.get("damage_multiplier", 1.0)

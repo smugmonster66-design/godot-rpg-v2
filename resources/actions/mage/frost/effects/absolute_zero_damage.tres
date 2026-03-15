@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://c2yh103e3rg8d"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_xtwuv"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_6faph"]
+
+[resource]
+script = ExtResource("1_xtwuv")
+effect_name = "Absolute Zero: AoE Damage"
+target = 2
+damage_type = 4
+dice_count = 3

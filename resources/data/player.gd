@@ -300,26 +300,21 @@ func has_mana_pool() -> bool:
 # ============================================================================
 
 
-func take_damage(amount: int, is_magical: bool = false) -> int:
-	var damage_reduction: int = get_barrier() if is_magical else get_armor()
-	
-	if status_tracker:
-		damage_reduction += status_tracker.get_block_value()
-	
-	var actual_damage: int = maxi(0, amount - damage_reduction)
-	
-	if status_tracker:
-		actual_damage = status_tracker.consume_overhealth(actual_damage)
-	
+func take_damage(amount: int, _is_magical: bool = false) -> int:
+	"""Apply final damage to HP. Defense (armor/barrier), block, and overhealth
+	are already handled upstream by DamagePacket + _apply_defensive_statuses()
+	in CombatManager — do NOT re-apply here."""
+	var actual_damage: int = maxi(0, amount)
+
 	current_hp = maxi(0, current_hp - actual_damage)
 	hp_changed.emit(current_hp, max_hp)
-	
+
 	if status_tracker and actual_damage > 0:
 		status_tracker.process_on_event(StatusAffix.TickTiming.ON_DAMAGED)
-	
+
 	if current_hp <= 0:
 		die()
-	
+
 	return actual_damage
 
 func heal(amount: int):

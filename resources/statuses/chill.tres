@@ -1,13 +1,13 @@
 [gd_resource type="Resource" script_class="StatusAffix" load_steps=10 format=3 uid="uid://dwjgco21ai57h"]
 
 [ext_resource type="PackedScene" uid="uid://c6fins175mk7y" path="res://scenes/effects/new/status visual FX/chill/chill_loop.tscn" id="1_kkdl5"]
-[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_ormld"]
 [ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_grh24"]
-[ext_resource type="Texture2D" uid="uid://ccmksfkwean8v" path="res://assets/status_effects/chill_status.png" id="2_ikv4q"]
 [ext_resource type="PackedScene" uid="uid://m0gy1w007ywc" path="res://scenes/effects/new/status visual FX/chill/chill_apply.tscn" id="2_qrvgb"]
 [ext_resource type="Script" uid="uid://dfaph2f2anhu0" path="res://resources/data/status_dice_effect.gd" id="3_qrvgb"]
-[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_u5r48"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_qrvgb"]
 [ext_resource type="Resource" uid="uid://dtw8chkka17ps" path="res://resources/statuses/freeze.tres" id="4_u5r48"]
+[ext_resource type="Texture2D" uid="uid://ccmksfkwean8v" path="res://assets/status_effects/chill_status.png" id="5_3p8o1"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="7_70yof"]
 
 [sub_resource type="Resource" id="Resource_3p8o1"]
 script = ExtResource("3_qrvgb")
@@ -31,7 +31,5 @@ stack_threshold = 15
 threshold_effect = 2
 threshold_status = ExtResource("4_u5r48")
 affix_name = "Chill"
-description = "Every 2 stacks reduces die values by 1. Does not decay naturally."
-icon = ExtResource("2_ikv4q")
-show_in_summary = false
-category = 36
+description = "Reduces die values by 1 per 4 stacks. "
+icon = ExtResource("5_3p8o1")

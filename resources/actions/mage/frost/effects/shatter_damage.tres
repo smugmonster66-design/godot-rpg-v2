@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://dd42s5taq8mfo"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_l40cp"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_tko31"]
+
+[resource]
+script = ExtResource("1_l40cp")
+effect_name = "Shatter: Damage"
+damage_type = 4
+damage_multiplier = 1.5
+dice_count = 2

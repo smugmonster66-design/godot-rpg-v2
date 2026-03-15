@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://d2c86p8txbc6s"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_bopvd"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_ad4rc"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_got31"]
+
+[resource]
+script = ExtResource("2_ad4rc")
+affix_name = "Entropic Cascade: Chill Spread"
+description = "When Freeze triggers: all Chill on all enemies +3."
+category = 35
+tags = Array[String](["mage", "frost", "capstone", "chill_amplify", "aoe"])
+effect_data = {
+"proc_condition_status": "freeze",
+"proc_effect": "increase_status_stacks_on_all",
+"proc_trigger": "ON_STATUS_APPLIED",
+"stacks": 3,
+"status_id": "chill"
+}
+proc_trigger = 12
