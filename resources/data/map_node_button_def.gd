@@ -71,10 +71,19 @@ enum ButtonCategory {
 # REST DATA
 # ============================================================================
 @export_group("Rest")
-## Gold cost to rest (0 = free)
+## Gold cost to rest (0 = free). For a donation rest, the suggested donation.
 @export var rest_cost_gold: int = 0
 ## Fraction of max HP to restore (0.5 = 50%)
 @export var rest_heal_percent: float = 0.5
+## Donation rest (e.g. a shell-house): the player gives what they can, up to
+## rest_cost_gold, and always rests. A donation of 0 is accepted only once per
+## location. Donations add to the gold_donated counter.
+@export var rest_is_donation: bool = false
+## Notices for a donation rest. {gold} is replaced by the amount given.
+## Empty = the neutral default text.
+@export var rest_donation_text: String = ""
+@export var rest_free_text: String = ""
+@export var rest_refused_text: String = ""
 
 # ============================================================================
 # API

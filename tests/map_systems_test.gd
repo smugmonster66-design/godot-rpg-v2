@@ -182,7 +182,68 @@ func _run(root_scene: Node) -> void:
 			drawn_to_f = true
 	_check(not drawn_to_f, "no path drawn to the hidden node")
 
+	await _test_donation_rest(root_scene)
 	_finish()
+
+
+func _test_donation_rest(root_scene: Node) -> void:
+	print("-- donation rest (shell-houses)")
+	var radial: Node = root_scene.find_child("MapRadialMenu", true, false)
+	if radial == null:
+		for n in root_scene.find_children("*", "", true, false):
+			if n.has_method("_take_rest_donation"):
+				radial = n
+				break
+	_check(radial != null, "found the map radial menu")
+	if radial == null:
+		return
+	var player = GameManager.player
+	radial._player = player
+	var shell := LocationNode.new()
+	shell.location_id = &"t_shell_house"
+	radial._current_location = shell
+	var btn := MapNodeButtonDef.new()
+	btn.button_category = MapNodeButtonDef.ButtonCategory.REST
+	btn.rest_is_donation = true
+	btn.rest_cost_gold = 10
+	btn.rest_heal_percent = 1.0
+	var donated_before: int = GameState.get_counter(&"gold_donated")
+
+	player.gold = 3
+	player.current_hp = 1
+	radial._handle_rest(btn)
+	_check(player.gold == 0 and player.current_hp == player.max_hp, "gave what they had (3) and rested")
+	_check(GameState.get_counter(&"gold_donated") == donated_before + 3, "gold_donated counted the donation")
+
+	player.current_hp = 1
+	radial._handle_rest(btn)
+	_check(player.current_hp == player.max_hp, "broke: rested free, once")
+
+	player.current_hp = 1
+	_notices.clear()
+	radial._handle_rest(btn)
+	_check(player.current_hp == 1 and _notices.size() > 0, "broke again at the same shell-house: refused, with a notice")
+
+	player.gold = 25
+	radial._handle_rest(btn)
+	_check(player.gold == 15 and player.current_hp == player.max_hp, "with gold: gives the suggested 10")
+
+	var other := LocationNode.new()
+	other.location_id = &"t_other_shell_house"
+	radial._current_location = other
+	player.gold = 0
+	player.current_hp = 1
+	radial._handle_rest(btn)
+	_check(player.current_hp == player.max_hp, "a different shell-house gives its own free rest")
+
+	var paid := MapNodeButtonDef.new()
+	paid.button_category = MapNodeButtonDef.ButtonCategory.REST
+	paid.rest_cost_gold = 10
+	paid.rest_heal_percent = 1.0
+	player.current_hp = 1
+	_notices.clear()
+	radial._handle_rest(paid)
+	_check(player.current_hp == 1 and _notices.size() > 0, "fixed-price rest without gold says why")
 
 
 func _finish() -> void:

@@ -341,14 +341,41 @@ func _handle_enter_zone(button_def: MapNodeButtonDef) -> void:
 	hide_radial()
 	zone_entered.emit(button_def.sub_map)
 
+func _take_rest_donation(button_def: MapNodeButtonDef) -> bool:
+	"""Donation rest: give what you can, up to the suggested amount. A
+	donation of 0 is accepted once per location, then refused. Returns true
+	if the player may rest."""
+	var donation: int = mini(_player.gold, maxi(button_def.rest_cost_gold, 0))
+	if donation > 0:
+		_player.gold -= donation
+		GameState.increment_counter(&"gold_donated", donation)
+		var text: String = button_def.rest_donation_text if button_def.rest_donation_text != "" else "You leave {gold} gold in the donation bowl."
+		NotificationManager.notify(text.replace("{gold}", str(donation)), &"system")
+		return true
+	var loc_id: String = String(_current_location.location_id) if _current_location else "unknown"
+	var key := StringName("free_rest_used_%s" % loc_id)
+	if GameState.get_counter(key) > 0:
+		var refused: String = button_def.rest_refused_text if button_def.rest_refused_text != "" else "You have nothing to give, and you've already rested here for free once."
+		NotificationManager.notify(refused, &"system")
+		return false
+	GameState.set_counter(key, 1)
+	var free: String = button_def.rest_free_text if button_def.rest_free_text != "" else "You have nothing to give. You rest anyway, this once."
+	NotificationManager.notify(free, &"system")
+	return true
+
 func _handle_rest(button_def: MapNodeButtonDef) -> void:
 	if _player == null:
 		return
 	var cost = button_def.rest_cost_gold
-	if cost > 0 and _player.gold < cost:
-		return  # Not enough gold — no action (add UI feedback here when needed)
-	if cost > 0:
-		_player.gold -= cost
+	if button_def.rest_is_donation:
+		if not _take_rest_donation(button_def):
+			return
+	else:
+		if cost > 0 and _player.gold < cost:
+			NotificationManager.notify("Not enough gold to rest here (%d needed)." % cost, &"system")
+			return
+		if cost > 0:
+			_player.gold -= cost
 
 	var heal_amount = int(_player.max_hp * button_def.rest_heal_percent)
 
