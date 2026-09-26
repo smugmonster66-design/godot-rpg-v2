@@ -362,6 +362,8 @@ func on_combat_ended(player_won: bool):
 
 		# ── Apply gold/exp ──
 		if gold > 0:
+			# GOLD_FIND Trail perks on the active party
+			gold = roundi(gold * (1.0 + CompanionRoster.trail_bonus(CompanionData.TrailPerk.GOLD_FIND, _player)))
 			_player.add_gold(gold)
 			current_run.track_gold(gold)
 			GameEventBus.emit_gold_gained(gold, _get_portrait())

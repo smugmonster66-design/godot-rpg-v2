@@ -65,6 +65,10 @@ enum TargetType {
 @export var barrier_amount: int = 0
 @export var cleanse_debuffs: bool = false
 @export var cleanse_count: int = 0          ## 0 = all
+## Bring downed companions back. In a fight they come back Wounded.
+@export var revive_companions: bool = false
+## HP a revived companion gets back (share of max HP).
+@export_range(0.05, 1.0) var revive_hp_percent: float = 0.3
 
 # ============================================================================
 # T2: COMBAT PREP (Temp Affixes)
@@ -225,6 +229,10 @@ func _use_restorative(player) -> Dictionary:
 		if actual > 0:
 			player.base_barrier += actual
 		effects.append("+%d Barrier" % actual)
+
+	if revive_companions:
+		var n: int = CompanionRoster.revive_downed(revive_hp_percent, true)
+		effects.append("Revived %d companion(s)" % n)
 
 	if cleanse_debuffs and player.status_tracker:
 		if cleanse_count > 0:
