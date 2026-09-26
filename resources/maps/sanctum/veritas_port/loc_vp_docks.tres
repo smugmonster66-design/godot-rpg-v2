@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="LocationNode" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://resources/data/location_node.gd" id="1_x"]
+[ext_resource type="Script" path="res://resources/data/map_node_button_def.gd" id="2_x"]
+[ext_resource type="Resource" path="res://resources/maps/common/btn_npcs.tres" id="3_x"]
+[ext_resource type="Resource" path="res://resources/maps/common/btn_stash.tres" id="4_x"]
+[ext_resource type="Resource" path="res://resources/maps/common/btn_party.tres" id="5_x"]
+
+[resource]
+script = ExtResource("1_x")
+location_id = &"loc_vp_docks"
+display_name = "The Docks"
+node_type = 0
+map_node_category = 0
+radial_buttons = Array[ExtResource("2_x")]([ExtResource("3_x"), ExtResource("4_x"), ExtResource("5_x")])
+region_id = &"sanctum"
+map_position = Vector2(1900, 1900)
+connections = Array[StringName]([&"loc_vp_margerys_stall", &"loc_vp_salted_keel", &"loc_vp_imbrys_practice", &"loc_vp_dry_dock_row", &"loc_vp_ferry_terminal", &"loc_vp_government"])

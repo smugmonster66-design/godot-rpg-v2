@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="MapDefinition" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://resources/data/map_lighting_config.gd" id="1_x"]
+[ext_resource type="Script" path="res://resources/data/location_node.gd" id="2_x"]
+[ext_resource type="Script" path="res://resources/data/map_definition.gd" id="3_x"]
+[ext_resource type="Resource" path="res://resources/maps/sanctum/loc_veritas_port.tres" id="4_x"]
+[ext_resource type="Texture2D" path="res://assets/map_locations/test_map/test_map_background_placeholder.png" id="5_x"]
+
+[sub_resource type="Resource" id="lighting"]
+script = ExtResource("1_x")
+ambient_color = Color(0, 0, 0, 0)
+
+[resource]
+script = ExtResource("3_x")
+map_id = &"sanctum_region_map"
+display_name = "Sanctum"
+region_id = &"sanctum"
+location_nodes = Array[ExtResource("2_x")]([ExtResource("4_x")])
+starting_location_id = &"loc_veritas_port"
+background_texture = ExtResource("5_x")
+lighting_config = SubResource("lighting")

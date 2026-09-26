@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="MapDefinition" load_steps=16 format=3]
+
+[ext_resource type="Script" path="res://resources/data/map_lighting_config.gd" id="1_x"]
+[ext_resource type="Script" path="res://resources/data/location_node.gd" id="2_x"]
+[ext_resource type="Script" path="res://resources/data/map_definition.gd" id="3_x"]
+[ext_resource type="Resource" path="res://resources/maps/sanctum/veritas_port/loc_vp_docks.tres" id="4_x"]
+[ext_resource type="Resource" path="res://resources/maps/sanctum/veritas_port/loc_vp_margerys_stall.tres" id="5_x"]
+[ext_resource type="Resource" path="res://resources/maps/sanctum/veritas_port/loc_vp_salted_keel.tres" id="6_x"]
+[ext_resource type="Resource" path="res://resources/maps/sanctum/veritas_port/loc_vp_imbrys_practice.tres" id="7_x"]
+[ext_resource type="Resource" path="res://resources/maps/sanctum/veritas_port/loc_vp_dry_dock_row.tres" id="8_x"]
+[ext_resource type="Resource" path="res://resources/maps/sanctum/veritas_port/loc_vp_government.tres" id="9_x"]
+[ext_resource type="Resource" path="res://resources/maps/sanctum/veritas_port/loc_vp_customs_house.tres" id="10_x"]
+[ext_resource type="Resource" path="res://resources/maps/sanctum/veritas_port/loc_vp_mercantile.tres" id="11_x"]
+[ext_resource type="Resource" path="res://resources/maps/sanctum/veritas_port/loc_vp_ferry_terminal.tres" id="12_x"]
+[ext_resource type="Resource" path="res://resources/maps/sanctum/veritas_port/loc_vp_bastion_rock.tres" id="13_x"]
+[ext_resource type="Texture2D" path="res://assets/map_locations/test_map/test_map_background_placeholder.png" id="14_x"]
+
+[sub_resource type="Resource" id="lighting"]
+script = ExtResource("1_x")
+ambient_color = Color(0, 0, 0, 0)
+
+[resource]
+script = ExtResource("3_x")
+map_id = &"veritas_port_map"
+display_name = "Veritas Port"
+region_id = &"sanctum"
+location_nodes = Array[ExtResource("2_x")]([ExtResource("4_x"), ExtResource("5_x"), ExtResource("6_x"), ExtResource("7_x"), ExtResource("8_x"), ExtResource("9_x"), ExtResource("10_x"), ExtResource("11_x"), ExtResource("12_x"), ExtResource("13_x")])
+starting_location_id = &"loc_vp_docks"
+return_location_id = &"loc_veritas_port"
+background_texture = ExtResource("14_x")
+lighting_config = SubResource("lighting")

@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="LocationNode" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://resources/data/location_node.gd" id="1_x"]
+[ext_resource type="Script" path="res://resources/data/map_node_button_def.gd" id="2_x"]
+[ext_resource type="Script" path="res://resources/data/single_check.gd" id="3_x"]
+[ext_resource type="Script" path="res://resources/data/game_condition.gd" id="4_x"]
+
+[sub_resource type="Resource" id="check_unlock"]
+script = ExtResource("3_x")
+key = &"off_the_boat_done"
+
+[sub_resource type="Resource" id="cond_unlock"]
+script = ExtResource("4_x")
+condition_type = 2
+single_check = SubResource("check_unlock")
+
+[resource]
+script = ExtResource("1_x")
+location_id = &"loc_vp_ferry_terminal"
+display_name = "Ferry Terminal"
+node_type = 7
+map_node_category = 4
+region_id = &"sanctum"
+map_position = Vector2(2700, 1900)
+connections = Array[StringName]([&"loc_vp_docks", &"loc_vp_bastion_rock"])
+unlock_condition = SubResource("cond_unlock")

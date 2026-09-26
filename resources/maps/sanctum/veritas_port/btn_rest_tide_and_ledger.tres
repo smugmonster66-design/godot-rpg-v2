@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MapNodeButtonDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/data/map_node_button_def.gd" id="1_x"]
+
+[resource]
+script = ExtResource("1_x")
+button_category = 4
+rest_cost_gold = 10
+rest_heal_percent = 1.0
+label = "Rest (10 gold)"
+tooltip = "Take a room at the Tide & Ledger."

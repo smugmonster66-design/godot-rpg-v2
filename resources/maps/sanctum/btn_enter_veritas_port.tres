@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MapNodeButtonDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/data/map_node_button_def.gd" id="1_x"]
+[ext_resource type="Resource" path="res://resources/maps/sanctum/veritas_port/veritas_port_map.tres" id="2_x"]
+
+[resource]
+script = ExtResource("1_x")
+button_category = 3
+sub_map = ExtResource("2_x")
+label = "Enter"
+tooltip = "Enter Veritas Port."

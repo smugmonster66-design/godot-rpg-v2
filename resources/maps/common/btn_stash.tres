@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="MapNodeButtonDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/data/map_node_button_def.gd" id="1_x"]
+
+[resource]
+script = ExtResource("1_x")
+button_category = 6
+label = "Stash"
+tooltip = "Open your stash."

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="NPCDefinition" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://resources/data/npc_dialogue_entry.gd" id="1_x"]
+[ext_resource type="Resource" path="res://resources/dialogues/sprock/sprock_placeholder.tres" id="2_x"]
+[ext_resource type="Script" path="res://resources/data/npc_definition.gd" id="3_x"]
+[ext_resource type="Resource" path="res://resources/dialogues/speakers/ds_sprock.tres" id="4_x"]
+
+[sub_resource type="Resource" id="entry_placeholder"]
+script = ExtResource("1_x")
+encounter_id = &"sprock_placeholder"
+encounter = ExtResource("2_x")
+priority = -100
+
+[resource]
+script = ExtResource("3_x")
+npc_id = &"sprock"
+display_name = "Sprock Clatterjaw"
+speaker = ExtResource("4_x")
+home_location_id = &"loc_vp_dry_dock_row"
+dialogue_table = Array[ExtResource("1_x")]([SubResource("entry_placeholder")])

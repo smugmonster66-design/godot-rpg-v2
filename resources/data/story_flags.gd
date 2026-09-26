@@ -47,6 +47,15 @@ signal flag_changed(flag_name: StringName, new_value: bool)
 @export var tutorial_skills_complete: bool = false
 
 # ============================================================================
+# ACT 1 - SANCTUM
+# ============================================================================
+@export_group("Act 1 - Sanctum")
+@export var arrived_veritas_port: bool = false
+@export var met_margery: bool = false
+@export var keel_brawl_done: bool = false
+@export var off_the_boat_done: bool = false
+
+# ============================================================================
 # API
 # ============================================================================
 

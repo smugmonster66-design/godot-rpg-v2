@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="LocationNode" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://resources/data/location_node.gd" id="1_x"]
+[ext_resource type="Script" path="res://resources/data/map_node_button_def.gd" id="2_x"]
+[ext_resource type="Resource" path="res://resources/maps/common/btn_npcs.tres" id="3_x"]
+
+[resource]
+script = ExtResource("1_x")
+location_id = &"loc_vp_customs_house"
+display_name = "The Customs House"
+node_type = 0
+map_node_category = 4
+radial_buttons = Array[ExtResource("2_x")]([ExtResource("3_x")])
+region_id = &"sanctum"
+map_position = Vector2(1300, 2600)
+connections = Array[StringName]([&"loc_vp_government"])

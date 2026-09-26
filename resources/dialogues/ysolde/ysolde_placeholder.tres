@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="DialogueEncounter" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://resources/data/dialogue_line.gd" id="1_x"]
+[ext_resource type="Script" path="res://resources/data/dialogue_speaker.gd" id="2_x"]
+[ext_resource type="Script" path="res://resources/data/dialogue_encounter.gd" id="3_x"]
+[ext_resource type="Resource" path="res://resources/dialogues/speakers/ds_ysolde.tres" id="4_x"]
+
+[sub_resource type="Resource" id="line_1"]
+script = ExtResource("1_x")
+speaker_id = &"ysolde"
+text = "(Placeholder) No conversation written yet."
+
+[resource]
+script = ExtResource("3_x")
+encounter_id = &"ysolde_placeholder"
+speakers = Array[ExtResource("2_x")]([ExtResource("4_x")])
+first_line = SubResource("line_1")

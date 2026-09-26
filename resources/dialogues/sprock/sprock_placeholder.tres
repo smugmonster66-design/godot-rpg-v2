@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="DialogueEncounter" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://resources/data/dialogue_line.gd" id="1_x"]
+[ext_resource type="Script" path="res://resources/data/dialogue_choice.gd" id="2_x"]
+[ext_resource type="Script" path="res://resources/data/dialogue_speaker.gd" id="3_x"]
+[ext_resource type="Script" path="res://resources/data/dialogue_encounter.gd" id="4_x"]
+[ext_resource type="Resource" path="res://resources/dialogues/speakers/ds_sprock.tres" id="5_x"]
+
+[sub_resource type="Resource" id="line_smith"]
+script = ExtResource("1_x")
+auto_advance = true
+auto_advance_delay = 0.0
+event_tag = &"game_action:7:res://resources/crafting/smithing_config.tres"
+
+[sub_resource type="Resource" id="choice_smith"]
+script = ExtResource("2_x")
+label = "(Placeholder) Smithing"
+next_line = SubResource("line_smith")
+
+[sub_resource type="Resource" id="choice_leave"]
+script = ExtResource("2_x")
+label = "(Placeholder) Leave"
+
+[sub_resource type="Resource" id="line_1"]
+script = ExtResource("1_x")
+speaker_id = &"sprock"
+text = "(Placeholder) No conversation written yet."
+choices = Array[ExtResource("2_x")]([SubResource("choice_smith"), SubResource("choice_leave")])
+
+[resource]
+script = ExtResource("4_x")
+encounter_id = &"sprock_placeholder"
+speakers = Array[ExtResource("3_x")]([ExtResource("5_x")])
+first_line = SubResource("line_1")

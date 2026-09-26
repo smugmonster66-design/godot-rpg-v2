@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="NPCDefinition" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://resources/data/npc_dialogue_entry.gd" id="1_x"]
+[ext_resource type="Resource" path="res://resources/dialogues/ysolde/ysolde_placeholder.tres" id="2_x"]
+[ext_resource type="Script" path="res://resources/data/npc_definition.gd" id="3_x"]
+[ext_resource type="Resource" path="res://resources/dialogues/speakers/ds_ysolde.tres" id="4_x"]
+
+[sub_resource type="Resource" id="entry_placeholder"]
+script = ExtResource("1_x")
+encounter_id = &"ysolde_placeholder"
+encounter = ExtResource("2_x")
+priority = -100
+
+[resource]
+script = ExtResource("3_x")
+npc_id = &"ysolde"
+display_name = "Factor Ysolde Grynn"
+speaker = ExtResource("4_x")
+home_location_id = &"loc_vp_mercantile"
+dialogue_table = Array[ExtResource("1_x")]([SubResource("entry_placeholder")])

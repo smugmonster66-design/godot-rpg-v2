@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="LocationNode" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://resources/data/location_node.gd" id="1_x"]
+[ext_resource type="Script" path="res://resources/data/map_node_button_def.gd" id="2_x"]
+[ext_resource type="Resource" path="res://resources/maps/sanctum/veritas_port/btn_talk_margery.tres" id="3_x"]
+[ext_resource type="Script" path="res://resources/data/single_check.gd" id="4_x"]
+[ext_resource type="Script" path="res://resources/data/game_condition.gd" id="5_x"]
+
+[sub_resource type="Resource" id="check_unlock"]
+script = ExtResource("4_x")
+key = &"arrived_veritas_port"
+
+[sub_resource type="Resource" id="cond_unlock"]
+script = ExtResource("5_x")
+condition_type = 2
+single_check = SubResource("check_unlock")
+
+[resource]
+script = ExtResource("1_x")
+location_id = &"loc_vp_margerys_stall"
+display_name = "Margery's Stall"
+node_type = 0
+map_node_category = 4
+radial_buttons = Array[ExtResource("2_x")]([ExtResource("3_x")])
+region_id = &"sanctum"
+map_position = Vector2(1500, 1400)
+connections = Array[StringName]([&"loc_vp_docks"])
+unlock_condition = SubResource("cond_unlock")
