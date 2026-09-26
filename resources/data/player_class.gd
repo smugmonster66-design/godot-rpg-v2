@@ -9,7 +9,7 @@ class_name PlayerClass
 enum MainStat {
 	STRENGTH,
 	AGILITY,
-	INTELLIGENCE,
+	INTELLECT,
 	LUCK
 }
 
@@ -31,7 +31,7 @@ enum MainStat {
 @export var base_mana: int = 50
 @export var base_strength: int = 10
 @export var base_agility: int = 10
-@export var base_intelligence: int = 10
+@export var base_intellect: int = 10
 @export var base_luck: int = 10
 @export var base_armor: int = 0
 @export var base_barrier: int = 0
@@ -44,7 +44,7 @@ enum MainStat {
 @export var mana_per_level: int = 5
 @export var strength_per_level: float = 1.0
 @export var agility_per_level: float = 1.0
-@export var intelligence_per_level: float = 1.0
+@export var intellect_per_level: float = 1.0
 @export var luck_per_level: float = 1.0
 
 # ============================================================================
@@ -132,9 +132,9 @@ func get_stat_at_level(stat_name: String, p_level: int) -> int:
 		"agility":
 			base = base_agility
 			growth = agility_per_level
-		"intelligence":
-			base = base_intelligence
-			growth = intelligence_per_level
+		"intellect":
+			base = base_intellect
+			growth = intellect_per_level
 		"luck":
 			base = base_luck
 			growth = luck_per_level
@@ -148,12 +148,12 @@ func get_stat_at_level(stat_name: String, p_level: int) -> int:
 	return base + int(growth * (p_level - 1))
 
 func get_stat_bonus(stat_name: String) -> int:
-	"""Get base stat bonus"""
+	"""The class's contribution to a stat at its current level: base value
+	plus per-level growth (the primary stat grows fastest; see the class
+	resource). Armor and barrier don't grow."""
 	match stat_name:
-		"strength": return base_strength
-		"agility": return base_agility
-		"intelligence": return base_intelligence
-		"luck": return base_luck
+		"strength", "agility", "intellect", "luck":
+			return get_stat_at_level(stat_name, level)
 		"armor": return base_armor
 		"barrier": return base_barrier
 		_: return 0
@@ -163,7 +163,7 @@ func get_main_stat_name() -> String:
 	match main_stat:
 		MainStat.STRENGTH: return "strength"
 		MainStat.AGILITY: return "agility"
-		MainStat.INTELLIGENCE: return "intelligence"
+		MainStat.INTELLECT: return "intellect"
 		MainStat.LUCK: return "luck"
 		_: return "strength"
 

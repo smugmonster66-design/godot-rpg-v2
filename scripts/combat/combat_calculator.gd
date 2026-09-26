@@ -16,7 +16,8 @@ const PIERCING_ARMOR_PENETRATION: float = 0.5
 ## Base critical hit damage multiplier.
 const CRIT_DAMAGE_MULTIPLIER: float = 1.5
 
-## Crit chance per point of Luck (0.5 = 0.5% per Luck).
+## Crit chance and damage now come from CombatTuning (Agility -> chance,
+## Luck -> damage). Kept for reference; unused.
 const LUCK_CRIT_PER_POINT: float = 0.5
 
 

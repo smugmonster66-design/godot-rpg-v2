@@ -591,7 +591,49 @@ func _create_hand_die(pool_die: DieResource, pool_index: int) -> DieResource:
 	var hand_die = pool_die.duplicate_die()
 	hand_die.slot_index = pool_index  # Track which pool slot it came from
 	hand_die.source = pool_die.source
+	apply_stat_bonus(hand_die)
 	return hand_die
+
+
+# ============================================================================
+# MAIN STATS POWER DICE (designer, 2026-09-26)
+# ============================================================================
+
+## The Player whose stats power these dice (null for enemies).
+var stat_owner = null
+
+const _PHYSICAL_ELEMENTS := [DieResource.Element.SLASHING, DieResource.Element.BLUNT, DieResource.Element.PIERCING]
+
+func stat_bonus_for_die(die: DieResource) -> int:
+	"""Die value this pool's owner adds to a die: Strength for physical
+	dice, Intellect for magical dice, the class's primary stat for neutral
+	(NONE / FAITH) dice. 0 for enemies."""
+	if stat_owner == null or die == null:
+		return 0
+	var element = die.get_effective_element()
+	var stat_name: String
+	if element in _PHYSICAL_ELEMENTS:
+		stat_name = "strength"
+	elif element == DieResource.Element.NONE or element == DieResource.Element.FAITH:
+		stat_name = "intellect"
+		if stat_owner.active_class:
+			var primary: String = stat_owner.active_class.get_main_stat_name()
+			if primary in ["strength", "intellect"]:
+				stat_name = primary
+	else:
+		stat_name = "intellect"
+	return CombatTuning.die_stat_bonus(stat_owner.get_total_stat(stat_name))
+
+func apply_stat_bonus(die: DieResource) -> void:
+	"""Add the owner's stat bonus to a hand die, once. It rides on the die's
+	flat modifier, so rerolls keep it and it shows on the die face."""
+	if die == null or die.has_meta("stat_bonus_applied"):
+		return
+	var bonus := stat_bonus_for_die(die)
+	die.set_meta("stat_bonus_applied", bonus)
+	if bonus > 0:
+		die.modifier += bonus
+		die.modified_value += bonus
 
 
 func emit_locked_die_events() -> void:
@@ -715,6 +757,7 @@ func clear_hand():
 # ============================================================================
 
 func insert_into_hand(index: int, die: DieResource):
+	apply_stat_bonus(die)  # e.g. mana dice pulled mid-turn
 	index = clampi(index, 0, hand.size())
 	hand.insert(index, die)
 	# Update slot indices for stable position tracking

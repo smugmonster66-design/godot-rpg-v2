@@ -3406,10 +3406,13 @@ func _calculate_damage(action_data: Dictionary, attacker, defender) -> Dictionar
 	var attacker_tracker: StatusTracker = _get_status_tracker(attacker)
 	var defender_tracker: StatusTracker = _get_status_tracker(defender)
 	
-	# Build base crit chance from Luck
+	# Crit: Agility gives crit chance, Luck gives crit damage (player only;
+	# enemies crit only through Expose on their target).
 	var base_crit: float = 0.0
+	var crit_mult: float = CombatCalculator.CRIT_DAMAGE_MULTIPLIER
 	if attacker == player_combatant and player:
-		base_crit = player.get_total_stat("luck") * CombatCalculator.LUCK_CRIT_PER_POINT
+		base_crit = CombatTuning.crit_chance(player.get_total_stat("agility"))
+		crit_mult = CombatTuning.crit_multiplier(player.get_total_stat("luck"))
 	
 	# Both paths now go through calculate_attack_damage (handles null attacker_affixes)
 	var action_dmg_elem: int = -1
@@ -3425,7 +3428,7 @@ func _calculate_damage(action_data: Dictionary, attacker, defender) -> Dictionar
 		attacker_tracker,
 		defender_tracker,
 		base_crit,
-		CombatCalculator.CRIT_DAMAGE_MULTIPLIER,
+		crit_mult,
 		action_dmg_elem
 	)
 	

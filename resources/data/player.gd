@@ -125,6 +125,7 @@ func _init():
 	
 	dice_pool = PlayerDiceCollection.new()
 	dice_pool.name = "DicePool"
+	dice_pool.stat_owner = self  # main stats power the player's dice
 	
 	status_tracker = StatusTracker.new()
 	status_tracker.name = "StatusTracker"
@@ -164,7 +165,12 @@ func get_base_stat(stat_name: String) -> int:
 	return get(stat_name) if stat_name in self else 0
 
 func get_total_stat(stat_name: String) -> int:
-	var base_value = get(stat_name) if stat_name in self else 0
+	# With a class, the class supplies the base (and per-level growth); the
+	# Player's own default (10) only applies when there is no class, so the
+	# base isn't counted twice.
+	var base_value = 0
+	if not active_class:
+		base_value = get(stat_name) if stat_name in self else 0
 	var equipment_bonus = get_equipment_stat_bonus(stat_name)
 	var class_bonus = 0
 	if active_class:
@@ -257,6 +263,10 @@ func recalculate_stats():
 		current_mana = clampi(roundi(current_mana * (float(max_mana) / float(old_max_mana))), 0, max_mana)
 		mana_changed.emit(current_mana, max_mana)
 	
+	# ── Mana pool (v4): follows level, Intellect and gear, not just class switch ──
+	if has_mana_pool() and mana_pool.has_method("recalculate_max_mana"):
+		mana_pool.recalculate_max_mana(active_class.level, get_total_stat("intellect"))
+
 	# ── Effective Skill Ranks (v6) ──
 	# Equipment may grant SKILL_RANK_BONUS / TREE_SKILL_RANK_BONUS /
 	# CLASS_SKILL_RANK_BONUS / TAG_SKILL_RANK_BONUS affixes. Recalculate
