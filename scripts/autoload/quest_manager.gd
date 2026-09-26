@@ -53,6 +53,8 @@ func _connect_to_game_events():
 	"""Connect to relevant game events for automatic objective tracking."""
 	# Persistent autoloads — connect directly
 	GameState.flag_changed.connect(_on_state_changed)
+	# A new or loaded game replaces the whole journal: re-check availability.
+	GameState.state_loaded.connect(check_all_quest_availability)
 	GameState.counter_changed.connect(_on_counter_changed)
 	GameState.relationship_changed.connect(_on_relationship_changed)
 	MapManager.location_entered.connect(_on_location_entered)

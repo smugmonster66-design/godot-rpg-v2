@@ -98,9 +98,15 @@ func _ready():
 	
 	if current.name == "GameRoot":
 		print("🎮 Running under GameRoot - using layer system")
-		# GameRoot will set game_root reference and handle scene management
-		# Just initialize player - GameRoot will receive player_created signal
-		initialize_player()
+		# GameRoot owns the boot flow: with its title screen on, it calls
+		# start_new_game() or continue_game() when the player chooses.
+		# With the title screen off (dev), continue the save if there is one.
+		var shows_title: bool = current.get("show_title_screen") == true
+		if not shows_title:
+			if GameState.has_save():
+				continue_game()
+			else:
+				start_new_game()
 		return
 	
 	
@@ -128,9 +134,44 @@ func _ready():
 		initialize_player()
 		load_map_scene()
 
+# ============================================================================
+# NEW GAME / CONTINUE
+# ============================================================================
+
+## "new" or "continue": how the current session began. GameRoot reads it.
+var boot_mode: String = ""
+
+func start_new_game() -> void:
+	"""Discard in-memory state and start a fresh game. The save file on disk
+	is replaced by the new game's first autosave."""
+	boot_mode = "new"
+	GameState.new_game()
+	completed_encounters.clear()
+	pending_encounter = null
+	initialize_player()
+
+func continue_game() -> void:
+	"""Load the save from disk and restore the player from it."""
+	if not GameState.has_save():
+		push_warning("GameManager.continue_game: no save file; starting a new game")
+		start_new_game()
+		return
+	boot_mode = "continue"
+	GameState.load_game()
+	pending_encounter = null
+	initialize_player()
+
 func initialize_player():
 	"""Create persistent player"""
 	print("Creating player...")
+	if player != null:
+		push_warning("GameManager.initialize_player: a player already exists; replacing it")
+		if player.dice_pool and player.dice_pool.get_parent() == self:
+			remove_child(player.dice_pool)
+			player.dice_pool.queue_free()
+		if player.status_tracker and player.status_tracker.get_parent() == self:
+			remove_child(player.status_tracker)
+			player.status_tracker.queue_free()
 	
 	player = Player.new()
 	add_child(player.dice_pool)

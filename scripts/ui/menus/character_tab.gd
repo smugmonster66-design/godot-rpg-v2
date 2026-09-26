@@ -161,9 +161,10 @@ func set_player(p_player: Player):
 		if player.has_signal("equipment_changed") and not player.equipment_changed.is_connected(_on_player_equipment_changed):
 			player.equipment_changed.connect(_on_player_equipment_changed)
 
-	# Connect GameState counter changes for alignment
-	if not GameState.counters.counter_changed.is_connected(_on_counter_changed):
-		GameState.counters.counter_changed.connect(_on_counter_changed)
+	# Alignment counters: listen on GameState's relay signal, which survives
+	# the Counters object being replaced on new game / load.
+	if not GameState.counter_changed.is_connected(_on_counter_changed):
+		GameState.counter_changed.connect(_on_counter_changed)
 
 	refresh()
 

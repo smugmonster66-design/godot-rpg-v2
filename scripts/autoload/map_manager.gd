@@ -62,30 +62,74 @@ func _load_locations_recursive(path: String):
 		file_name = dir.get_next()
 	dir.list_dir_end()
 
+var _connected_progress: MapProgress = null
+
 func _connect_signals():
-	"""Connect to GameState.map signals."""
-	GameState.map.location_visited.connect(_on_location_visited)
-	GameState.map.location_unlocked.connect(_on_location_unlocked)
-	GameState.map.location_revealed.connect(_on_location_revealed)
+	"""Connect to GameState.map signals. GameState swaps its MapProgress when a
+	game is started or loaded, so reconnect to the new one on state_loaded."""
+	_bind_map_progress()
+	if not GameState.state_loaded.is_connected(_bind_map_progress):
+		GameState.state_loaded.connect(_bind_map_progress)
+
+func _bind_map_progress() -> void:
+	if _connected_progress and is_instance_valid(_connected_progress):
+		if _connected_progress.location_visited.is_connected(_on_location_visited):
+			_connected_progress.location_visited.disconnect(_on_location_visited)
+		if _connected_progress.location_unlocked.is_connected(_on_location_unlocked):
+			_connected_progress.location_unlocked.disconnect(_on_location_unlocked)
+		if _connected_progress.location_revealed.is_connected(_on_location_revealed):
+			_connected_progress.location_revealed.disconnect(_on_location_revealed)
+	_connected_progress = GameState.map
+	if _connected_progress == null:
+		return
+	_connected_progress.location_visited.connect(_on_location_visited)
+	_connected_progress.location_unlocked.connect(_on_location_unlocked)
+	_connected_progress.location_revealed.connect(_on_location_revealed)
 
 # ============================================================================
 # MAP STACK
 # ============================================================================
 
-func initialize_with_map(map_def: MapDefinition) -> void:
+func initialize_with_map(map_def: MapDefinition, stack_snapshot: Array = []) -> void:
 	"""Set the root map, clearing any prior navigation stack.
-	Call this from GameRoot when entering the map screen."""
+	Call this from GameRoot when entering the map screen.
+	stack_snapshot (from a save, see get_stack_snapshot) re-enters the zones the
+	player was inside, without replaying their arrival events."""
 	_map_stack.clear()
 	if map_def == null:
 		map_changed.emit(null)
 		return
 	_register_map_locations(map_def)
 	_map_stack.push_back({"map": map_def, "return_location": &""})
-	# Place player at starting location if not already positioned on this map
-	var start_id = map_def.get_starting_location_id()
-	if start_id != &"" and not map_def.contains_location(GameState.map.current_location):
+	# Re-enter saved zones (entry 0 is the root map itself)
+	for i in range(1, stack_snapshot.size()):
+		var entry = stack_snapshot[i]
+		if typeof(entry) != TYPE_DICTIONARY:
+			continue
+		var path: String = entry.get("path", "")
+		var zone = load(path) as MapDefinition if path != "" and ResourceLoader.exists(path) else null
+		if zone == null:
+			push_warning("MapManager: saved zone '%s' could not be loaded; stopping at the parent map" % path)
+			break
+		_register_map_locations(zone)
+		_map_stack.push_back({"map": zone, "return_location": StringName(entry.get("return", &""))})
+	# Place player at the top map's start if they aren't already on it
+	var top: MapDefinition = get_current_map()
+	var start_id = top.get_starting_location_id()
+	if start_id != &"" and not top.contains_location(GameState.map.current_location):
 		_force_enter_location(start_id)
-	map_changed.emit(map_def)
+	map_changed.emit(top)
+
+func get_stack_snapshot() -> Array:
+	"""The map stack as plain data for saving: root first."""
+	var out: Array = []
+	for entry in _map_stack:
+		var m: MapDefinition = entry.get("map")
+		out.append({
+			"path": m.resource_path if m else "",
+			"return": entry.get("return_location", &""),
+		})
+	return out
 
 func push_map(map_def: MapDefinition) -> void:
 	"""Enter a sub-map (town, dungeon approach, etc.).

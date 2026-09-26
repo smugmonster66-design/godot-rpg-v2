@@ -15,6 +15,8 @@ extends Node
 # ============================================================================
 signal state_loaded
 signal state_saved
+## Emitted after an autosave attempt that was blocked (combat, dungeon, dialogue).
+signal autosave_deferred
 signal flag_changed(flag_name: StringName, value: bool)
 signal counter_changed(counter_name: StringName, old_value: int, new_value: int)
 signal relationship_changed(npc_id: StringName, old_value: int, new_value: int)
@@ -52,13 +54,12 @@ var stash: StashData:
 # ============================================================================
 
 func _ready():
-	# Load or create save data
-	_save_data = SaveData.load_from_disk()
+	# Start with blank, in-memory state. The title screen decides whether this
+	# session is a new game (new_game()) or a continue (load_game()). Nothing is
+	# read from or written to disk until then.
+	_save_data = SaveData.new()
 	_connect_signals()
-	# Restore NPC seen encounters (NPCManager may not be ready yet — defer)
-	call_deferred(&"_restore_npc_state")
-	print("GameState ready - %s" % ("Loaded existing save" if SaveData.save_exists() else "New game"))
-	state_loaded.emit()
+	print("GameState ready - %s on disk" % ("save found" if SaveData.save_exists() else "no save"))
 
 func _restore_npc_state() -> void:
 	if NPCManager and not _save_data.seen_npc_encounters.is_empty():
@@ -98,10 +99,64 @@ func save() -> Error:
 	# Snapshot NPC seen encounters
 	if NPCManager:
 		_save_data.seen_npc_encounters = NPCManager.get_seen_encounters_snapshot()
+	# Snapshot the map stack (which zone the player is in)
+	if MapManager:
+		_save_data.map_stack = MapManager.get_stack_snapshot()
+	# Fold the current session into play time
+	_save_data.play_time = get_play_time()
+	_session_start = Time.get_unix_time_from_system()
 	var error = _save_data.save_to_disk()
 	if error == OK:
 		state_saved.emit()
 	return error
+
+# ============================================================================
+# AUTOSAVE
+# ============================================================================
+
+## True once the player has started or continued a game (set by GameRoot).
+## Nothing autosaves before that, so sitting on the title screen never
+## touches the save file.
+var session_active: bool = false
+
+## Master switch for autosaving.
+var autosave_enabled: bool = true
+
+var _autosave_queued: bool = false
+var _autosave_pending: bool = false
+
+func request_autosave() -> void:
+	"""Ask for a save at the next safe moment. Cheap to call often: requests in
+	the same frame collapse into one save, and a request made during combat,
+	a dungeon run or dialogue is held until the next request after it ends."""
+	if not session_active or not autosave_enabled:
+		return
+	if _autosave_queued:
+		return
+	_autosave_queued = true
+	call_deferred(&"_do_autosave")
+
+func _do_autosave() -> void:
+	_autosave_queued = false
+	if not _can_autosave():
+		_autosave_pending = true
+		autosave_deferred.emit()
+		return
+	_autosave_pending = false
+	save()
+
+func flush_pending_autosave() -> void:
+	"""Retry an autosave that was held back. GameRoot calls this when combat,
+	a dungeon run or a dialogue ends."""
+	if _autosave_pending:
+		request_autosave()
+
+func _can_autosave() -> bool:
+	if not session_active:
+		return false
+	if GameManager and GameManager.game_root and GameManager.game_root.has_method("can_autosave"):
+		return GameManager.game_root.can_autosave()
+	return true
 
 func load_game() -> void:
 	"""Reload from disk (discards current state)."""
@@ -110,16 +165,23 @@ func load_game() -> void:
 	# Restore NPC seen encounters
 	if NPCManager:
 		NPCManager.restore_seen_encounters(_save_data.seen_npc_encounters)
+	_session_start = Time.get_unix_time_from_system()
 	state_loaded.emit()
 
 func new_game() -> void:
-	"""Start a new game (discards current state)."""
+	"""Start a new game (discards current state). The old save file stays on
+	disk until the first autosave of the new game overwrites it."""
 	_save_data = SaveData.new()
 	_connect_signals()
 	# Clear NPC seen encounters
 	if NPCManager:
 		NPCManager.clear_seen_encounters()
+	_session_start = Time.get_unix_time_from_system()
 	state_loaded.emit()
+
+func get_saved_map_stack() -> Array:
+	"""Map stack recorded in the loaded save (empty for a new game)."""
+	return _save_data.map_stack
 
 func delete_save() -> Error:
 	"""Delete the save file."""
@@ -224,14 +286,12 @@ var _session_start: float = 0.0
 func _enter_tree():
 	_session_start = Time.get_unix_time_from_system()
 
-func _exit_tree():
-	# Skip auto-save when dev mode is active
-	if GameManager and GameManager.game_root and GameManager.game_root.dev_mode:
-		return
-	# Update play time on exit
-	if _save_data:
-		_save_data.play_time += Time.get_unix_time_from_system() - _session_start
-		save()
+func _notification(what: int) -> void:
+	# Save when the app is closed or sent to the background (mobile), but only
+	# at a safe moment: a save mid-combat would record half a fight.
+	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_APPLICATION_PAUSED:
+		if session_active and autosave_enabled and _can_autosave():
+			save()
 
 func get_play_time() -> float:
 	"""Get total play time in seconds, including current session."""

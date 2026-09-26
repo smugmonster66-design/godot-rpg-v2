@@ -17,7 +17,7 @@ class_name SaveData
 # ============================================================================
 @export_group("Meta")
 ## Save file version for migration support
-@export var version: int = 1
+@export var version: int = 2  # 2: adds map_stack
 ## When save was created
 @export var created_at: float = 0.0
 ## When save was last modified
@@ -53,6 +53,10 @@ class_name SaveData
 @export_group("Map")
 ## Map exploration progress
 @export var map: MapProgress = null
+## The map stack at save time: which zones the player is inside, root first.
+## Each entry is {"path": String (MapDefinition resource path), "return": StringName}.
+## Written by GameState.save() from MapManager.get_stack_snapshot().
+@export var map_stack: Array = []
 
 # ============================================================================
 # PLAYER STATE

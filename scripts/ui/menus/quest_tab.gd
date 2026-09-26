@@ -140,9 +140,24 @@ func _build_ui():
 	close_detail_btn.pressed.connect(_hide_detail_panel)
 	detail_vbox.add_child(close_detail_btn)
 
+var _bound_journal: QuestJournal = null
+
 func _connect_signals():
-	GameState.quests.quest_state_changed.connect(_on_quest_state_changed)
-	GameState.quests.objective_updated.connect(_on_objective_updated)
+	_bind_journal()
+	# GameState swaps its QuestJournal on new game / load; follow it.
+	if not GameState.state_loaded.is_connected(_bind_journal):
+		GameState.state_loaded.connect(_bind_journal)
+
+func _bind_journal() -> void:
+	if _bound_journal and is_instance_valid(_bound_journal):
+		if _bound_journal.quest_state_changed.is_connected(_on_quest_state_changed):
+			_bound_journal.quest_state_changed.disconnect(_on_quest_state_changed)
+		if _bound_journal.objective_updated.is_connected(_on_objective_updated):
+			_bound_journal.objective_updated.disconnect(_on_objective_updated)
+	_bound_journal = GameState.quests
+	if _bound_journal:
+		_bound_journal.quest_state_changed.connect(_on_quest_state_changed)
+		_bound_journal.objective_updated.connect(_on_objective_updated)
 
 # ============================================================================
 # PUBLIC API (called by PlayerMenu)

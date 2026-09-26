@@ -144,9 +144,10 @@ func _spawn_editor_toolbar() -> void:
 	_editor_toolbar.discard_requested.connect(_on_discard_requested)
 	_editor_toolbar.exit_edit_requested.connect(_toggle_edit_mode)
 
-func initialize_map(p_player, map_def: MapDefinition = null) -> void:
+func initialize_map(p_player, map_def: MapDefinition = null, stack_snapshot: Array = []) -> void:
 	"""Initialize the map scene. Pass a MapDefinition to display a specific map;
-	omit to display all registered locations (legacy/debug fallback)."""
+	omit to display all registered locations (legacy/debug fallback).
+	stack_snapshot restores the zones a saved game was inside."""
 	player = p_player
 	is_initialized = true
 
@@ -156,7 +157,7 @@ func initialize_map(p_player, map_def: MapDefinition = null) -> void:
 		MapManager.map_changed.connect(_on_map_changed)
 
 	if map_def != null:
-		MapManager.initialize_with_map(map_def)
+		MapManager.initialize_with_map(map_def, stack_snapshot)
 	else:
 		_rebuild_map_display()
 

@@ -12,6 +12,15 @@ extends Node
 ## Drag a MapDefinition .tres here to load a specific map on startup.
 ## Leave empty to use legacy fallback (displays all registered locations).
 @export var starting_map: MapDefinition = null
+## Zone pushed on top of starting_map when a NEW game begins, so the player
+## starts inside it (e.g. the Veritas Port docks). Leave empty to start on the
+## root map's starting location. Continue restores wherever the save was.
+@export var new_game_zone: MapDefinition = null
+
+@export_group("Boot")
+## Show the splash / main menu at startup. Off = skip straight in (continues
+## the save if one exists, otherwise starts a new game).
+@export var show_title_screen: bool = true
 
 @export_group("Dev Mode")
 @export var dev_mode: bool = false
@@ -49,6 +58,12 @@ var _combat_intro_done: bool = false
 
 var is_in_dungeon: bool = false
 
+const TITLE_SCREEN_SCENE := preload("res://scenes/ui/menus/title_screen.tscn")
+var _title_layer: CanvasLayer = null
+var _title_screen: Control = null
+## True once a game has started (new or continued) and the map is live.
+var _session_started: bool = false
+
 var _pending_post_combat: Dictionary = {}
 
 # Persistent UI elements (direct children of PersistentUILayer)
@@ -83,11 +98,15 @@ func _ready():
 		if not GameManager.player_created.is_connected(_on_player_created):
 			GameManager.player_created.connect(_on_player_created)
 
-	# Initialize map
-	_show_map()
-
 	# Find persistent UI elements
 	_setup_persistent_ui()
+
+	if show_title_screen:
+		_show_title_screen()
+	else:
+		_show_map()
+
+	_connect_autosave_triggers()
 
 	# TIMING FIX: Check if player already exists (GameManager autoload ran first)
 	call_deferred("_check_existing_player")
@@ -207,9 +226,72 @@ func _setup_persistent_ui():
 		print("  ⚠️ PortraitController not found or missing portrait_clicked signal")
 	
 
+# ============================================================================
+# TITLE SCREEN / BOOT
+# ============================================================================
+
+func _show_title_screen() -> void:
+	map_layer.visible = false
+	map_scene.process_mode = Node.PROCESS_MODE_DISABLED
+	ui_layer.visible = false
+	_title_layer = CanvasLayer.new()
+	_title_layer.name = "TitleLayer"
+	_title_layer.layer = 200
+	add_child(_title_layer)
+	_title_screen = TITLE_SCREEN_SCENE.instantiate()
+	_title_layer.add_child(_title_screen)
+	_title_screen.new_game_confirmed.connect(_on_title_new_game)
+	_title_screen.continue_requested.connect(_on_title_continue)
+
+func _close_title_screen() -> void:
+	if _title_layer:
+		_title_layer.queue_free()
+		_title_layer = null
+		_title_screen = null
+	ui_layer.visible = true
+	_show_map()
+
+func _on_title_new_game() -> void:
+	print("🎮 GameRoot: New Game")
+	_close_title_screen()
+	GameManager.start_new_game()
+
+func _on_title_continue() -> void:
+	print("🎮 GameRoot: Continue")
+	_close_title_screen()
+	GameManager.continue_game()
+
+# ============================================================================
+# AUTOSAVE
+# ============================================================================
+
+func can_autosave() -> bool:
+	"""Safe moments only: never mid-combat, mid-dungeon-run or mid-dialogue."""
+	if not _session_started:
+		return false
+	if is_in_combat or is_in_dungeon:
+		return false
+	if DialogueManager.is_active:
+		return false
+	return true
+
+func _connect_autosave_triggers() -> void:
+	MapManager.location_entered.connect(func(_id, _loc, _first): GameState.request_autosave())
+	MapManager.map_changed.connect(func(_m): GameState.request_autosave())
+	DialogueManager.dialogue_ended.connect(_on_dialogue_ended_autosave)
+	QuestManager.quest_objectives_updated.connect(func(_q, _d): GameState.request_autosave())
+	QuestManager.quest_ready_for_turn_in.connect(func(_q, _d): GameState.request_autosave())
+	QuestManager.quest_auto_completed.connect(func(_q, _d): GameState.request_autosave())
+
+func _on_dialogue_ended_autosave() -> void:
+	# dialogue_ended fires before is_active is cleared in some paths; defer.
+	GameState.flush_pending_autosave()
+	GameState.request_autosave()
+
 func _on_player_created(player: Resource):
 	"""Called when GameManager creates the player"""
 	print("🎮 GameRoot: Player created, initializing UI")
+	var is_continue: bool = GameManager.boot_mode == "continue"
 
 	# Initialize BottomUI with player
 	if bottom_ui:
@@ -227,17 +309,21 @@ func _on_player_created(player: Resource):
 		portrait_controller.set_player(player)
 		print("  ✅ PortraitController initialized with player")
 
-	# Initialize map scene with player
+	# Initialize map scene with player. Continue restores the saved zones;
+	# a new game enters new_game_zone (the docks) if one is set.
 	if map_scene and map_scene.has_method("initialize_map"):
-		map_scene.initialize_map(player, starting_map)
-		print("  ✅ MapScene initialized with player")
+		var stack: Array = GameState.get_saved_map_stack() if is_continue else []
+		map_scene.initialize_map(player, starting_map, stack)
+		if not is_continue and new_game_zone != null:
+			MapManager.push_map(new_game_zone)
+		print("  ✅ MapScene initialized with player (%s)" % ("continue" if is_continue else "new game"))
 		
 		
 		
 	
 	
-	# Apply dev mode overrides
-	if dev_mode and player:
+	# Apply dev mode overrides (new games only: a continued save already has them)
+	if dev_mode and player and not is_continue:
 		var pc = player.active_class
 		if pc:
 			pc.level = dev_level
@@ -288,6 +374,12 @@ func _on_player_created(player: Resource):
 	# Populate companion panel (after dev companions are added)
 	if companion_panel and player:
 		companion_panel.refresh_from_player(player)
+
+	# The game is live: allow autosaves, and write the first one now so a new
+	# game can be continued straight away.
+	_session_started = true
+	GameState.session_active = true
+	GameState.request_autosave()
 	
 	
 
@@ -387,6 +479,10 @@ func end_combat(player_won: bool = true):
 	# Report kills to QuestManager for objective tracking
 	if player_won and GameManager and GameManager.pending_encounter:
 		QuestManager.report_combat_kills(GameManager.pending_encounter.enemies)
+
+	if not is_in_dungeon:
+		GameState.flush_pending_autosave()
+		GameState.request_autosave()
 
 	if is_in_dungeon:
 		# Dungeon owns rewards — let it apply them, then show summary
@@ -527,6 +623,8 @@ func exit_dungeon():
 	if map_scene.has_method("set_ui_layer_visible"):
 		map_scene.set_ui_layer_visible(true)
 	map_scene.process_mode = Node.PROCESS_MODE_INHERIT
+	GameState.flush_pending_autosave()
+	GameState.request_autosave()
 
 func _on_dungeon_combat_requested(encounter: CombatEncounter):
 	print("⚔️ GameRoot: Dungeon combat starting")
