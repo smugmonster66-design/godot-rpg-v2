@@ -89,8 +89,8 @@ func refresh_state() -> void:
 	# Greyed out if locked
 	modulate = Color.WHITE if is_unlocked else Color(0.5, 0.5, 0.5, 0.8)
 
-	# Not interactable if locked or not revealed
-	disabled = not is_unlocked or not is_revealed
+	# Locked nodes stay tappable (they show why they're locked); unrevealed don't.
+	disabled = not is_revealed
 
 # ============================================================================
 # EDIT MODE

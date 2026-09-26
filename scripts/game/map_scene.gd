@@ -155,6 +155,11 @@ func initialize_map(p_player, map_def: MapDefinition = null, stack_snapshot: Arr
 		MapManager.location_entered.connect(_on_location_entered)
 	if not MapManager.map_changed.is_connected(_on_map_changed):
 		MapManager.map_changed.connect(_on_map_changed)
+	# Nodes revealed or unlocked mid-session show up straight away (gap 30).
+	if not MapManager.location_revealed.is_connected(_on_location_revealed_live):
+		MapManager.location_revealed.connect(_on_location_revealed_live)
+	if not MapManager.location_unlocked.is_connected(_on_location_unlocked_live):
+		MapManager.location_unlocked.connect(_on_location_unlocked_live)
 
 	if map_def != null:
 		MapManager.initialize_with_map(map_def, stack_snapshot)
@@ -249,7 +254,11 @@ func _build_path_data() -> void:
 	var locations = MapManager.get_current_map_locations()
 
 	for location in locations:
+		if not _edit_mode and not MapManager.check_location_visibility(location.location_id):
+			continue
 		for connected_id in location.get_bidirectional_connections():
+			if not _edit_mode and not MapManager.check_location_visibility(connected_id):
+				continue
 			var key = _pair_key(location.location_id, connected_id)
 			if drawn_pairs.has(key):
 				continue
@@ -266,6 +275,8 @@ func _build_path_data() -> void:
 				})
 
 		for connected_id in location.get_one_way_connections_all():
+			if not _edit_mode and not MapManager.check_location_visibility(connected_id):
+				continue
 			var key = str(location.location_id) + ">" + str(connected_id)
 			var connected = MapManager.get_location(connected_id)
 			if connected:
@@ -589,6 +600,28 @@ func _on_node_pressed(location: LocationNode, screen_pos: Vector2) -> void:
 func _on_action_completed() -> void:
 	_refresh_node_states()
 
+var _rebuild_queued: bool = false
+
+func _on_location_revealed_live(location_id: StringName, _location: LocationNode) -> void:
+	var map_def = MapManager.get_current_map()
+	if map_def == null or not map_def.contains_location(location_id):
+		return
+	if _rebuild_queued:
+		return
+	_rebuild_queued = true
+	_rebuild_after_reveal.call_deferred()
+
+func _rebuild_after_reveal() -> void:
+	_rebuild_queued = false
+	if is_initialized and not _is_traveling:
+		_rebuild_map_display()
+	elif is_initialized:
+		# Mid-travel: try again shortly so the marker isn't disturbed.
+		get_tree().create_timer(0.5).timeout.connect(_rebuild_after_reveal)
+
+func _on_location_unlocked_live(_location_id: StringName, _location: LocationNode) -> void:
+	_refresh_node_states()
+
 func _on_radial_closed() -> void:
 	if _top_bar:
 		_top_bar.clear_selected_location()
@@ -597,9 +630,10 @@ func _on_location_entered(_location_id: StringName, _location: LocationNode, _fi
 	_refresh_node_states()
 
 func _on_travel_requested(destination: LocationNode) -> void:
-	var waypoints = MapManager.find_path(GameState.map.current_location, destination.location_id)
-	MapManager.travel_to_any(destination.location_id)
-	_animate_player_marker_path(waypoints)
+	# Travel may stop short of the destination (a node on the way has an
+	# arrival scene); animate along the path actually travelled.
+	var travelled: Array[StringName] = MapManager.travel_along_path(destination.location_id)
+	_animate_player_marker_path(travelled)
 
 func _on_zone_entered(map_def: MapDefinition) -> void:
 	MapManager.push_map(map_def)

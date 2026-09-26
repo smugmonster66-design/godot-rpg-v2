@@ -50,6 +50,11 @@ func show_for_node(location: LocationNode, screen_pos: Vector2, player, game_roo
 	# At the current node: show all configured actions.
 	# At another node: show travel button if reachable via any path (multi-hop).
 	var is_at_node = GameState.map.current_location == location.location_id
+	# A locked node: say why instead of opening anything (gap 31).
+	if not is_at_node and not GameState.map.is_unlocked(location.location_id):
+		var hint: String = location.get_locked_hint()
+		NotificationManager.notify(hint if hint != "" else "You can't go there yet.", &"system")
+		return
 	var all_buttons: Array = []
 	if is_at_node:
 		all_buttons.append_array(location.radial_buttons)

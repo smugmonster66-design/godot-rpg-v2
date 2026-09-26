@@ -70,6 +70,22 @@ func _connect_signals():
 	_bind_map_progress()
 	if not GameState.state_loaded.is_connected(_bind_map_progress):
 		GameState.state_loaded.connect(_bind_map_progress)
+	# Story state changes can reveal or unlock nodes (gap 30).
+	GameState.flag_changed.connect(func(_f, _v): request_visibility_refresh())
+	GameState.counter_changed.connect(func(_c, _o, _n): request_visibility_refresh())
+	GameState.relationship_changed.connect(func(_n, _o, _v): request_visibility_refresh())
+	GameState.approval_changed.connect(func(_n, _o, _v): request_visibility_refresh())
+	# Quest progress and finished conversations too. DialogueManager loads after
+	# MapManager, so connect a frame later.
+	_connect_late_refresh_triggers.call_deferred()
+
+func _connect_late_refresh_triggers() -> void:
+	DialogueManager.dialogue_finished.connect(func(_e, _c): request_visibility_refresh())
+	QuestManager.quest_objectives_updated.connect(func(_q, _d): request_visibility_refresh())
+	QuestManager.quest_ready_for_turn_in.connect(func(_q, _d): request_visibility_refresh())
+	QuestManager.quest_auto_completed.connect(func(_q, _d): request_visibility_refresh())
+	QuestManager.quest_failed.connect(func(_q, _d): request_visibility_refresh())
+	QuestManager.quest_became_available.connect(func(_q, _d): request_visibility_refresh())
 
 func _bind_map_progress() -> void:
 	if _connected_progress and is_instance_valid(_connected_progress):
@@ -341,10 +357,40 @@ func can_reach(location_id: StringName) -> bool:
 
 func travel_to_any(location_id: StringName) -> bool:
 	"""Travel to any unlocked location, bypassing the direct-connection requirement.
-	Used for multi-hop travel where the UI handles intermediate waypoint animation."""
+	Used for multi-hop travel where the UI handles intermediate waypoint animation.
+	Prefer travel_along_path(), which also handles the nodes passed through."""
 	var location = get_location(location_id)
 	if location == null or not GameState.map.is_unlocked(location_id):
 		return false
+	_arrive_at(location_id, location)
+	return true
+
+func travel_along_path(destination_id: StringName) -> Array[StringName]:
+	"""Multi-hop travel that gives every node along the way its arrival handling
+	(first-visit flags and events, VISIT, neighbour unlocks), in order.
+	Travel stops early at the first node that hasn't been visited and has an
+	arrival scene (first_visit_dialogue), so the scene plays where it belongs.
+	Returns the path actually travelled, start first (for the marker animation);
+	empty if the destination can't be reached."""
+	var path: Array[StringName] = find_path(GameState.map.current_location, destination_id)
+	if path.is_empty():
+		return path
+	var travelled: Array[StringName] = [path[0]]
+	for i in range(1, path.size()):
+		var node_id: StringName = path[i]
+		var location = get_location(node_id)
+		if location == null or not GameState.map.is_unlocked(node_id):
+			break
+		travelled.append(node_id)
+		var stops_here: bool = i < path.size() - 1 \
+			and not GameState.map.has_visited(node_id) \
+			and location.first_visit_dialogue != &""
+		_arrive_at(node_id, location)
+		if stops_here:
+			break
+	return travelled
+
+func _arrive_at(location_id: StringName, location: LocationNode) -> void:
 	var first_visit = not GameState.map.has_visited(location_id)
 	GameState.map.set_current_location(location_id)
 	if first_visit:
@@ -353,7 +399,6 @@ func travel_to_any(location_id: StringName) -> bool:
 		_handle_visit(location)
 	_unlock_connected_locations(location_id)
 	location_entered.emit(location_id, location, first_visit)
-	return true
 
 func _handle_first_visit(location: LocationNode) -> void:
 	"""Handle first visit to a location."""
@@ -368,9 +413,7 @@ func _handle_first_visit(location: LocationNode) -> void:
 	# Trigger first visit dialogue if set
 	if location.first_visit_dialogue != &"":
 		_trigger_dialogue(location.first_visit_dialogue)
-	
-	# Report to quest system
-	QuestManager.report_visit(location.location_id)
+	# VISIT is reported by QuestManager's location_entered listener (once).
 
 func _handle_visit(location: LocationNode) -> void:
 	"""Handle subsequent visits to a location."""
@@ -469,6 +512,50 @@ func get_unlock_blockers(location_id: StringName) -> String:
 # ============================================================================
 # MAP STATE REFRESH
 # ============================================================================
+
+var _visibility_refresh_queued: bool = false
+
+func request_visibility_refresh() -> void:
+	"""Re-check reveals and unlocks after story state changes. Coalesced to one
+	pass per frame. Hooked to flag, counter, relationship and quest changes."""
+	if _visibility_refresh_queued:
+		return
+	_visibility_refresh_queued = true
+	_refresh_visibility_live.call_deferred()
+
+func _refresh_visibility_live() -> void:
+	"""Reveal HIDDEN nodes whose reveal_condition now passes (anywhere, as at a
+	map rebuild), and unlock revealed nodes whose unlock_condition now passes, but only if the player
+	has visited a node that connects to them (the same rule as unlocking on
+	arrival next door, applied live). Emits location_revealed / location_unlocked,
+	which MapScene uses to show new nodes without waiting for a map rebuild."""
+	_visibility_refresh_queued = false
+	if not GameState.session_active:
+		return
+	for location_id in _locations:
+		var location: LocationNode = get_location(location_id)
+		if location == null:
+			continue
+		if not GameState.map.is_revealed(location_id) and location.initial_visibility == LocationNode.VisibilityState.HIDDEN:
+			if _should_be_revealed(location):
+				GameState.map.reveal(location_id)
+		if GameState.map.is_unlocked(location_id):
+			continue
+		if not check_location_visibility(location_id):
+			continue
+		if not _has_visited_neighbour(location_id):
+			continue
+		if check_location_unlock(location_id):
+			GameState.map.unlock(location_id)
+
+func _has_visited_neighbour(location_id: StringName) -> bool:
+	for other_id in _locations:
+		if not GameState.map.has_visited(other_id):
+			continue
+		var other: LocationNode = get_location(other_id)
+		if other and location_id in other.get_all_connections():
+			return true
+	return false
 
 func refresh_all_visibility() -> void:
 	"""
