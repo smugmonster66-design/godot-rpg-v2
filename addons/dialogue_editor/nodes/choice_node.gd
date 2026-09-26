@@ -13,9 +13,10 @@ enum ChoiceCondType {
 	COUNTER,        # 2 — Compare a counter value
 	RELATIONSHIP,   # 3 — Compare NPC relationship
 	APPROVAL,       # 4 — Compare hidden NPC approval
+	PRESERVED,      # 5 — Loaded condition the inline UI can't show; kept unchanged on save
 }
 
-const COND_TYPE_LABELS = ["None", "Flag", "Counter", "Relationship", "Approval"]
+const COND_TYPE_LABELS = ["None", "Flag", "Counter", "Relationship", "Approval", "Advanced (kept)"]
 const OPERATOR_OPTIONS = ["==", "!=", ">", "<", ">=", "<="]
 
 # ============================================================================
@@ -44,6 +45,11 @@ static func _default_choice() -> Dictionary:
 		"cond_bool": true,
 		"show_when_locked": false,
 		"locked_hint": "",
+		# Preservation (set by the deserializer): the original DialogueChoice, so
+		# fields without a widget survive a save, plus read-only summaries.
+		"_source": null,
+		"cond_summary": "",
+		"effects_summary": "",
 	}
 
 static func _parse_choice(c: Dictionary) -> Dictionary:
@@ -201,6 +207,17 @@ func _create_choice_row(index: int) -> VBoxContainer:
 	approval_spin.value_changed.connect(_on_moral_value_changed.bind(index, "approval"))
 	approval_row.add_child(approval_spin)
 
+	# Read-only summary of effects kept from the loaded file (no widgets)
+	var effects_summary = str(choices[index].get("effects_summary", ""))
+	if effects_summary != "":
+		var effects_label = Label.new()
+		effects_label.text = "Also: " + effects_summary
+		effects_label.tooltip_text = "Kept from the file on save (edit in the Inspector)"
+		effects_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		effects_label.add_theme_font_size_override("font_size", 10)
+		effects_label.modulate = Color(1, 1, 1, 0.7)
+		container.add_child(effects_label)
+
 	# ── Condition section ──
 	_create_condition_ui(container, index)
 
@@ -238,8 +255,18 @@ func _create_condition_ui(container: VBoxContainer, index: int) -> void:
 		bool_dropdown.item_selected.connect(_on_cond_bool_changed.bind(index))
 		cond_header.add_child(bool_dropdown)
 
+	# Advanced condition kept from the file: show it read-only
+	if cond_type == ChoiceCondType.PRESERVED:
+		var summary = str(cond_data.get("cond_summary", ""))
+		var summary_label = Label.new()
+		summary_label.text = summary if summary != "" else "(no condition)"
+		summary_label.tooltip_text = "Kept unchanged on save. Pick another type to replace it."
+		summary_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		summary_label.add_theme_font_size_override("font_size", 10)
+		container.add_child(summary_label)
+
 	# Condition detail row: key + operator + value (only for non-NONE types)
-	if cond_type != ChoiceCondType.NONE:
+	if cond_type != ChoiceCondType.NONE and cond_type != ChoiceCondType.PRESERVED:
 		var cond_detail = HBoxContainer.new()
 		cond_detail.add_theme_constant_override("separation", 4)
 		container.add_child(cond_detail)
@@ -273,7 +300,9 @@ func _create_condition_ui(container: VBoxContainer, index: int) -> void:
 				key_edit.placeholder_text = "npc_id"
 				_add_operator_and_value(cond_detail, index, cond_data)
 
-		# Show-when-locked + hint row
+	# Show-when-locked + hint row (any condition, including a kept one; also
+	# shown when a value is set so it is never hidden-but-saved)
+	if cond_type != ChoiceCondType.NONE or cond_data.get("show_when_locked", false) or str(cond_data.get("locked_hint", "")) != "":
 		var lock_row = HBoxContainer.new()
 		lock_row.add_theme_constant_override("separation", 4)
 		container.add_child(lock_row)
@@ -430,6 +459,7 @@ func is_multi_output() -> bool:
 
 func get_node_data() -> Dictionary:
 	var data = super.get_node_data()
+	# Deep copy of the dicts; "_source" resources are shared, not duplicated
 	data.choices = choices.duplicate(true)
 	return data
 

@@ -91,6 +91,13 @@ func validate() -> void:
 				has_input = true
 				break
 		
+		# A detached next_line branch of a line that also has choices is
+		# attached on save (see dialogue_deserializer.gd)
+		for other in nodes:
+			if str(other.get_meta("hidden_next_line_node", "")) == str(node.name):
+				has_input = true
+				break
+
 		if not has_input:
 			_add_issue(node, Severity.WARNING, "Node '%s' has no incoming connection (orphaned)" % node.name)
 	
@@ -158,36 +165,32 @@ func _validate_choice_node(node: GraphNode, data: Dictionary, connections: Array
 		if label.strip_edges() == "":
 			_add_issue(node, Severity.WARNING, "Choice %d in '%s' has no label" % [i + 1, node.name])
 		
-		# Check connection for this choice (port i+1)
+		# Check connection for this choice (output port i: GraphNode ports count
+		# enabled output slots only, and the header slot has no output)
 		var has_connection = false
 		for conn in connections:
-			if conn.from_node == node.name and conn.from_port == i + 1:
+			if conn.from_node == node.name and conn.from_port == i:
 				has_connection = true
 				break
 		if not has_connection:
 			_add_issue(node, Severity.WARNING, "Choice %d '%s' in '%s' has no connection" % [i + 1, label, node.name])
 
 func _validate_condition_node(node: GraphNode, data: Dictionary, connections: Array) -> void:
-	var flag_name = data.get("flag_name", "")
-	
-	# Check flag name is set
-	if flag_name.strip_edges() == "":
-		_add_issue(node, Severity.ERROR, "Condition node '%s' has no flag/counter name" % node.name)
-	
-	# Check both outputs have connections
+	var serializer = preload("res://addons/dialogue_editor/io/dialogue_serializer.gd").new()
+	if serializer._create_condition_resource(data) == null:
+		_add_issue(node, Severity.ERROR, "Condition node '%s' is incomplete (its key is empty)" % node.name)
+
+	# Condition and Set Flag nodes only compile onto choices
+	_validate_after_choice(node, connections, "Condition")
+
+	# True = output port 0, False = output port 1. An unconnected False branch
+	# simply hides the choice when the condition fails.
 	var has_true = false
-	var has_false = false
 	for conn in connections:
-		if conn.from_node == node.name:
-			if conn.from_port == 1:
-				has_true = true
-			elif conn.from_port == 2:
-				has_false = true
-	
+		if conn.from_node == node.name and conn.from_port == 0:
+			has_true = true
 	if not has_true:
 		_add_issue(node, Severity.WARNING, "Condition '%s' True branch has no connection" % node.name)
-	if not has_false:
-		_add_issue(node, Severity.WARNING, "Condition '%s' False branch has no connection" % node.name)
 
 func _validate_set_flag_node(node: GraphNode, data: Dictionary, connections: Array) -> void:
 	var flag_name = data.get("flag_name", "")
@@ -195,6 +198,11 @@ func _validate_set_flag_node(node: GraphNode, data: Dictionary, connections: Arr
 	# Check flag name is set
 	if flag_name.strip_edges() == "":
 		_add_issue(node, Severity.ERROR, "Set Flag node '%s' has no flag/counter name" % node.name)
+
+	var action_type = int(data.get("action_type", 0))
+	if action_type == 1 or action_type == 4:
+		_add_issue(node, Severity.ERROR, "Set Flag node '%s': Clear Flag / Set Counter To have no runtime support on choices" % node.name)
+	_validate_after_choice(node, connections, "Set Flag")
 	
 	# Check has output connection
 	var has_output = false
@@ -204,6 +212,19 @@ func _validate_set_flag_node(node: GraphNode, data: Dictionary, connections: Arr
 			break
 	if not has_output:
 		_add_issue(node, Severity.WARNING, "Set Flag node '%s' has no output connection" % node.name)
+
+func _validate_after_choice(node: GraphNode, connections: Array, label: String) -> void:
+	"""Condition / Set Flag nodes must be reached only from a choice output
+	(directly or through other Condition / Set Flag nodes)."""
+	var graph = node.get_parent()
+	for conn in connections:
+		if str(conn.to_node) != str(node.name):
+			continue
+		var src = graph.get_node_or_null(NodePath(str(conn.from_node))) if graph else null
+		var t = src.get_node_type() if src and src.has_method("get_node_type") else ""
+		if t != "choice" and t != "condition" and t != "set_flag":
+			_add_issue(node, Severity.ERROR, "%s node '%s' must come after a choice (the runtime ignores it after a %s)" % [label, node.name, t if t != "" else "start"])
+			return
 
 # ============================================================================
 # ISSUE MANAGEMENT

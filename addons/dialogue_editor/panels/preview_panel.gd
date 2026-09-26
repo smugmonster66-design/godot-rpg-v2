@@ -171,19 +171,13 @@ func _preview_condition_node(node: GraphNode) -> void:
 	speaker_label.text = "CONDITION"
 	speaker_label.add_theme_color_override("font_color", Color(0.7, 0.5, 0.9))
 	
+	# Describe the condition exactly as it will be saved onto the choice
 	var data = node.get_node_data()
-	var condition_type = data.get("condition_type", 0)
-	var flag_name = data.get("flag_name", "")
-	var compare_value = data.get("compare_value", 0)
-	
-	var condition_text = ""
-	match condition_type:
-		0: condition_text = "Flag '%s' is SET" % flag_name
-		1: condition_text = "Flag '%s' is NOT SET" % flag_name
-		2: condition_text = "Counter '%s' >= %d" % [flag_name, compare_value]
-		3: condition_text = "Counter '%s' < %d" % [flag_name, compare_value]
-		4: condition_text = "Counter '%s' == %d" % [flag_name, compare_value]
-	
+	var serializer = preload("res://addons/dialogue_editor/io/dialogue_serializer.gd").new()
+	var cond = serializer._create_condition_resource(data)
+	var utils = preload("res://addons/dialogue_editor/io/dialogue_resource_utils.gd")
+	var condition_text = utils.describe_condition(cond) if cond else "(incomplete: key not set)"
+
 	dialogue_label.text = "[b]If:[/b] %s\n[color=green]✓ True →[/color] ...\n[color=red]✗ False →[/color] ..." % condition_text
 	
 	node_label.text = node.name
