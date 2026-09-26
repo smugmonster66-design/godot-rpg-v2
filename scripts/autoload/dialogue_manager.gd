@@ -295,9 +295,13 @@ func _auto_advance_or_end(line: DialogueLine) -> void:
 		# Keep current_line pointing to the action node so select_choice works,
 		# but don't clear the UI's displayed text (_last_visible_line stays).
 		current_line = line
-		var available: Array[DialogueChoice] = []
-		for choice in line.choices:
-			available.append(choice)
+		# Present the FILTERED list: select_choice() indexes into
+		# get_available_choices(), so presenting the raw list misindexed clicks
+		# (and showed hidden choices) when any choice had a condition.
+		var available: Array[DialogueChoice] = line.get_available_choices()
+		if available.is_empty():
+			_end_dialogue()
+			return
 		print("[DialogueManager] _auto_advance_or_end: presenting %d choices from action node" % available.size())
 		choices_presented.emit(available)
 	else:
