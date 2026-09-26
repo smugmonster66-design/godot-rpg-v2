@@ -272,7 +272,12 @@ func can_autosave() -> bool:
 	if not _session_started:
 		return false
 	if is_in_combat:
-		return false
+		# Only at the start of the player's turn, and not in a story fight
+		# (its conversation can't be restored mid-fight)
+		var cm = get_combat_manager()
+		if not (cm and cm.is_at_turn_save_point()) or DialogueManager.has_pending_resume():
+			return false
+		return true
 	# Inside a dungeon, only between nodes (the run is saved with it)
 	if is_in_dungeon and not (dungeon_scene and dungeon_scene.is_at_safe_point()):
 		return false
@@ -389,6 +394,9 @@ func _on_player_created(player: Resource):
 		var saved_run: Dictionary = GameState.get_saved_dungeon_run()
 		if not saved_run.is_empty():
 			_resume_dungeon_run(saved_run)
+		var saved_combat: Dictionary = GameState.get_saved_combat()
+		if not saved_combat.is_empty():
+			_resume_combat(saved_combat)
 	GameState.request_autosave()
 	
 	
@@ -619,6 +627,29 @@ func enter_dungeon(definition: DungeonDefinition):
 	if dmap:
 		dmap.camera = camera
 	dungeon_scene.enter_dungeon(definition, GameManager.player)
+
+func get_combat_manager() -> Node:
+	if combat_scene == null:
+		return null
+	var cm = combat_scene.find_child("CombatManager", true, false)
+	return cm if cm else combat_scene
+
+func _resume_combat(state: Dictionary) -> void:
+	"""Re-open a saved fight (Continue): same enemies, HP, statuses and
+	round; the player's turn starts again."""
+	var path: String = state.get("encounter", "")
+	var enc = load(path) as CombatEncounter if path != "" and ResourceLoader.exists(path) else null
+	if enc == null:
+		push_warning("GameRoot: saved fight could not be restored")
+		return
+	GameManager.pending_combat_restore = state
+	if is_in_dungeon and dungeon_scene and dungeon_scene.current_run:
+		dungeon_scene.resume_fight_at_current_node()
+		_on_dungeon_combat_requested(enc)
+	else:
+		GameManager.pending_encounter = enc
+		GameManager.pending_depth = state.get("depth", {})
+		start_combat(enc)
 
 func _resume_dungeon_run(saved_run: Dictionary) -> void:
 	"""Re-open the dungeon layer on a saved run (Continue)."""

@@ -66,6 +66,8 @@ const REGION_LOOT_CONFIGS := {
 var pending_encounter: CombatEncounter = null
 ## Dungeon depth multipliers for the pending fight ({stats, damage}); empty = none.
 var pending_depth: Dictionary = {}
+## A saved fight to restore into the next fight that starts (Continue).
+var pending_combat_restore: Dictionary = {}
 var completed_encounters: Array[String] = []
 
 # ============================================================================

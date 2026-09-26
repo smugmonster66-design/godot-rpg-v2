@@ -64,6 +64,9 @@ class_name SaveData
 @export var dungeon_run_state: Dictionary = {}
 ## Stat affixes from the run's shrines / run affixes, re-applied on resume.
 @export var dungeon_run_affixes: Array[Resource] = []
+## A fight in progress, saved at the start of the player's turn
+## (CombatManager.serialize_combat), or {} if none.
+@export var combat_state: Dictionary = {}
 
 # ============================================================================
 # PLAYER STATE

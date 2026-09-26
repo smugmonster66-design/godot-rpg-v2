@@ -102,6 +102,13 @@ func save() -> Error:
 	# Snapshot the map stack (which zone the player is in)
 	if MapManager:
 		_save_data.map_stack = MapManager.get_stack_snapshot()
+	# A fight in progress (saved only at the start of the player's turn)
+	_save_data.combat_state = {}
+	var gr_c = GameManager.game_root if GameManager else null
+	if gr_c and gr_c.is_in_combat and gr_c.has_method("get_combat_manager"):
+		var cm = gr_c.get_combat_manager()
+		if cm and cm.is_at_turn_save_point():
+			_save_data.combat_state = cm.serialize_combat()
 	# A dungeon run in progress (saved only at safe points between nodes)
 	_save_data.dungeon_run_state = {}
 	_save_data.dungeon_run_affixes = []
@@ -196,6 +203,19 @@ func set_last_rest(stack_snapshot: Array, location_id: StringName) -> void:
 func get_last_rest() -> Dictionary:
 	"""{stack, location} of the last rest, or {} if the player never rested."""
 	return _save_data.last_rest
+
+func get_saved_combat() -> Dictionary:
+	"""A fight in progress in the loaded save, or {}."""
+	return _save_data.combat_state
+
+func save_now_if_allowed() -> void:
+	"""Save immediately if this is a safe moment (used at the start of the
+	player's turn in a fight, where the moment passes within the frame)."""
+	if not session_active or not autosave_enabled:
+		return
+	if _can_autosave():
+		_autosave_pending = false
+		save()
 
 func get_saved_dungeon_run() -> Dictionary:
 	"""{state, affixes} of a run in progress in the loaded save, or {}."""

@@ -190,6 +190,13 @@ func serialize_run() -> Dictionary:
 		state["chain_index"] = _chain_runner.current_index
 	return state
 
+func resume_fight_at_current_node() -> void:
+	"""A run saved during a fight: the current node is the fight."""
+	if current_run == null:
+		return
+	_combat_node = current_run.get_node(current_run.current_node_id)
+	_awaiting_combat = _combat_node != null
+
 func get_run_stat_affixes() -> Array:
 	"""Stat affixes from shrines and run affixes (rebuilt from gear on load,
 	so a resumed run re-applies them)."""

@@ -530,6 +530,10 @@ func _finalize_combat_init(p_player: Player):
 			companion_manager.companion_died.connect(_on_companion_died_threat_update)
 		if not companion_manager.companion_spawned.is_connected(_on_companion_spawned_threat_update):
 			companion_manager.companion_spawned.connect(_on_companion_spawned_threat_update)
+	# A saved fight (Continue): put everything back before the round starts
+	if GameManager and not GameManager.pending_combat_restore.is_empty():
+		_apply_combat_restore(GameManager.pending_combat_restore)
+		GameManager.pending_combat_restore = {}
 	print("🔍 CALLING _start_round()")
 	_start_round()
 func _connect_status_event_bridges():
@@ -613,6 +617,10 @@ func _start_round():
 	"""Start a new round"""
 	current_round += 1
 	current_turn_index = 0
+	if _restore_to_player_turn:
+		# A restored fight picks up at the player's turn in this round
+		_restore_to_player_turn = false
+		current_turn_index = maxi(0, turn_order.find(player_combatant))
 	print("\n[Combat] === ROUND %d ===" % current_round)
 	# --- COMPANIONS: Tick cooldowns and durations ---
 	if companion_manager:
@@ -750,6 +758,12 @@ func _flush_deferred_combat_end() -> void:
 func _start_player_turn():
 	"""Start player's turn — enters PREP phase first"""
 	combat_state = CombatState.PLAYER_TURN
+	# Fights survive closing the app: save here, before turn-start effects
+	# tick and before the hand is rolled (resuming replays this turn start;
+	# nothing about the roll is known yet, so it can't be used to reroll).
+	_turn_save_point = true
+	GameState.save_now_if_allowed()
+	_turn_save_point = false
 	# v5: Update multi-target tracking for Crucible's Gift
 	_enemies_hit_last_turn = _enemies_hit_this_turn.size()
 	_enemies_hit_this_turn.clear()
@@ -1872,6 +1886,114 @@ func _process_enemy_on_use(enemy: Combatant, dice: Array, target) -> void:
 					ts[sa.status_id] = {"stacks": inst.get("current_stacks", 0)}
 			ctx["target_statuses"] = ts
 	enemy.dice_collection.process_on_use_affixes(dice, ctx)
+
+# ============================================================================
+# SAVE / RESTORE A FIGHT (at the start of the player's turn)
+# ============================================================================
+
+var _turn_save_point: bool = false
+var _restore_to_player_turn: bool = false
+
+func is_at_turn_save_point() -> bool:
+	return _turn_save_point
+
+func _statuses_to_list(tracker: StatusTracker) -> Array:
+	var out: Array = []
+	if tracker == null:
+		return out
+	for inst in tracker.get_all_active():
+		var sa: StatusAffix = inst.get("status_affix")
+		if sa and sa.resource_path != "":
+			out.append({"path": sa.resource_path, "stacks": int(inst.get("current_stacks", 1)),
+				"turns": int(inst.get("remaining_turns", -1))})
+	return out
+
+func _restore_statuses(tracker: StatusTracker, list: Array) -> void:
+	if tracker == null:
+		return
+	tracker.clear_all()
+	for s in list:
+		var path: String = s.get("path", "")
+		var sa = load(path) as StatusAffix if path != "" and ResourceLoader.exists(path) else null
+		if sa == null:
+			continue
+		tracker.apply_status(sa, int(s.get("stacks", 1)), "restored")
+		var inst: Dictionary = tracker.get_instance(sa.status_id)
+		if not inst.is_empty() and int(s.get("turns", -1)) >= 0:
+			inst["remaining_turns"] = int(s.get("turns", -1))
+
+func serialize_combat() -> Dictionary:
+	"""The fight as plain data (start of the player's turn)."""
+	if current_encounter == null or current_encounter.resource_path == "":
+		return {}
+	var enemies_out: Array = []
+	for e: Combatant in enemy_combatants:
+		var charges: Dictionary = {}
+		for d in e.actions:
+			var a: Action = d.get("action_resource")
+			if a:
+				charges[a.action_id] = a.current_charges
+		enemies_out.append({"hp": e.current_health, "max_hp": e.max_health, "armor": e.armor,
+			"barrier": e.barrier, "statuses": _statuses_to_list(_get_status_tracker(e)),
+			"charges": charges})
+	var comps: Array = []
+	if companion_manager:
+		for i in range(2):
+			var c = companion_manager.get_slot(i)
+			comps.append({"hp": c.current_health, "alive": c.is_alive()} if c else {})
+	return {
+		"encounter": current_encounter.resource_path,
+		"round": current_round,
+		"enemies": enemies_out,
+		"player": {"hp": player.current_hp if player else 0,
+			"mana": player.mana_pool.current_mana if player and player.mana_pool else 0,
+			"statuses": _statuses_to_list(player.status_tracker if player else null)},
+		"companions": comps,
+		"depth": GameManager.pending_depth.duplicate() if GameManager else {},
+	}
+
+func _apply_combat_restore(state: Dictionary) -> void:
+	"""Put a saved fight back (after spawning, before the round starts)."""
+	var list: Array = state.get("enemies", [])
+	for i in range(mini(list.size(), enemy_combatants.size())):
+		var e: Combatant = enemy_combatants[i]
+		var es: Dictionary = list[i]
+		e.max_health = int(es.get("max_hp", e.max_health))
+		e.current_health = int(es.get("hp", e.current_health))
+		e.armor = int(es.get("armor", e.armor))
+		e.barrier = int(es.get("barrier", e.barrier))
+		_restore_statuses(_get_status_tracker(e), es.get("statuses", []))
+		var charges: Dictionary = es.get("charges", {})
+		for d in e.actions:
+			var a: Action = d.get("action_resource")
+			if a and charges.has(a.action_id):
+				a.current_charges = int(charges[a.action_id])
+		if e.current_health <= 0:
+			e.current_health = 1
+			e.take_damage(1)   # dies the normal way (death handling, UI)
+		else:
+			e.update_display()
+			_update_enemy_health(i)
+	var ps: Dictionary = state.get("player", {})
+	if player:
+		player.current_hp = clampi(int(ps.get("hp", player.current_hp)), 1, player.max_hp)
+		if player.mana_pool:
+			player.mana_pool.current_mana = int(ps.get("mana", player.mana_pool.current_mana))
+		_restore_statuses(player.status_tracker, ps.get("statuses", []))
+		_update_player_health()
+	var comps: Array = state.get("companions", [])
+	if companion_manager:
+		for i in range(mini(comps.size(), 2)):
+			var c = companion_manager.get_slot(i)
+			var cs: Dictionary = comps[i]
+			if c and not cs.is_empty():
+				c.current_health = int(cs.get("hp", c.current_health))
+				if not bool(cs.get("alive", true)):
+					c.current_health = 1
+					c.take_damage(1)
+	current_round = maxi(0, int(state.get("round", 1)) - 1)
+	_restore_to_player_turn = true
+	print("💾 Restored saved fight: round %d" % int(state.get("round", 1)))
 
 func _lowest_ally_hp_percent(enemy: Combatant) -> float:
 	"""Lowest HP% among the enemy's other living allies (1.0 if it's alone)."""

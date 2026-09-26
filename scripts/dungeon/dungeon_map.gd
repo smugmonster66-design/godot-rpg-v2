@@ -283,8 +283,14 @@ func restore_progress():
 	done.sort_custom(func(a, b): return a.floor_num < b.floor_num)
 	for n in done:
 		complete_node(n.id)
-	if _run.current_node_id >= 0:
+	var cur = _run.get_node(_run.current_node_id) if _run.current_node_id >= 0 else null
+	if cur and cur.completed:
 		complete_node(_run.current_node_id)
+	elif cur:
+		# Saved mid-fight: the current node is being fought, not done
+		var cmn = _map_nodes.get(cur.id)
+		if cmn:
+			cmn.set_state(DungeonMapNode.State.CURRENT)
 	# Doors on floors already passed stay shut
 	for n in _run.nodes.values():
 		var mn = _map_nodes.get(n.id)
