@@ -45,7 +45,7 @@ single_check = SubResource("Resource_rqcpm")
 
 [sub_resource type="Resource" id="sc_obj_done"]
 script = ExtResource("8_sc")
-check_type = 8
+check_type = 9
 key = &"quest_objective:harbor_masters_request:defeat_naval_enemies"
 
 [sub_resource type="Resource" id="cond_obj_done"]
