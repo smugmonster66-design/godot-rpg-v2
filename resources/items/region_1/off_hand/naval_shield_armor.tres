@@ -7,13 +7,14 @@
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_hykq2"]
 [ext_resource type="Resource" uid="uid://btsq4gakq82l7" path="res://resources/slot_definitions/off_hand_slot.tres" id="4_g8hee"]
 [ext_resource type="Resource" uid="uid://bvlqcx16ejx" path="res://resources/affixes/base_stats/inherent_armor.tres" id="4_spi7j"]
-[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="6_dqbp3"]
+[ext_resource type="Texture2D" uid="uid://baebivodh60mi" path="res://assets/items/off hand/naval shield.png" id="6_dqbp3"]
 
 [resource]
 script = ExtResource("3_hykq2")
 item_name = "Naval Shield"
 description = ""
 flavor_text = "Stops swords. Stops arrows. Does not stop superior officers from assigning extra watch duty."
+icon = ExtResource("6_dqbp3")
 rarity = 1
 equip_slot = 5
 slot_definition = ExtResource("4_g8hee")

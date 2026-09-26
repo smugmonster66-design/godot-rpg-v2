@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=5 format=3 uid="uid://n3hsjrrtgwnt"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_iswfv"]
+[ext_resource type="Resource" uid="uid://smvwngq0l4kt" path="res://resources/enemies/region1/navy/trash/harbour_sentinel.tres" id="2_agh4n"]
+[ext_resource type="Resource" uid="uid://briapl6oc7k72" path="res://resources/enemies/region1/navy/trash/naval_arcanist.tres" id="3_5mfoa"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="4_ehfdh"]
+
+[resource]
+script = ExtResource("4_ehfdh")
+encounter_name = "Naval Guard Post"
+encounter_id = "navy_naval_guard_post"
+enemies = Array[ExtResource("1_iswfv")]([ExtResource("2_agh4n"), ExtResource("3_5mfoa")])
+enemy_slots = Array[int]([0, 2])
+difficulty_tier = 2
+level_range_max = 4

@@ -4,6 +4,5 @@
 
 [resource]
 script = ExtResource("1_bcwkh")
-type = 15
-invert = true
+type = 17
 condition_element = "FIRE"

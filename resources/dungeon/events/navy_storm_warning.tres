@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="DungeonEvent" load_steps=5 format=3 uid="uid://b4xhmpg3lfv6j"]
+
+[ext_resource type="Script" uid="uid://bqpkuln0fvmtp" path="res://resources/data/dungeon_event_choice.gd" id="1_fgth6"]
+[ext_resource type="Script" uid="uid://wf1v60wcm56b" path="res://resources/data/dungeon_event.gd" id="2_yjupi"]
+
+[sub_resource type="Resource" id="Resource_guvwl"]
+script = ExtResource("1_fgth6")
+choice_text = "Push forward quickly"
+result_text = "You dash through the storm and emerge on the other side, wiser for the experience."
+experience_reward = 20
+success_chance = 0.75
+fail_text = "A bolt of lightning strikes nearby — the shockwave throws you against the wall!"
+fail_heal_amount = -12
+
+[sub_resource type="Resource" id="Resource_n8ecy"]
+script = ExtResource("1_fgth6")
+choice_text = "Wait it out"
+result_text = "You find shelter and rest while the storm passes. The quiet does you good."
+heal_amount = 10
+
+[resource]
+script = ExtResource("2_yjupi")
+event_name = "Storm Warning"
+event_id = "navy_storm_warning"
+description = "Dark clouds gather overhead. Lightning crackles through the sanctum halls, casting jagged shadows across the stone."
+min_floor = 1
+max_floor = 4
+choices = Array[ExtResource("1_fgth6")]([SubResource("Resource_guvwl"), SubResource("Resource_n8ecy")])

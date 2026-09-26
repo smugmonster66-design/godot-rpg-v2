@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_hw0yk")
 affix_name = "Eye of the Storm: Double Stacks"
-description = "Double max Static stacks."
+description = "Double max [status:static] stacks."
 category = 36
 tags = Array[String](["mage", "storm", "capstone", "static_max_stacks"])
 effect_number = 2.0

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=12 format=3 uid="uid://4c56rt5hegkx"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=16 format=3 uid="uid://4c56rt5hegkx"]
 
 [ext_resource type="Resource" uid="uid://dunfmoxxyheng" path="res://resources/actions/items/region_1/marine_halberd_formation_thrust_action.tres" id="1_2a1m5"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_umq3p"]
@@ -9,7 +9,11 @@
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="4_3v7db"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="5_2a1m5"]
 [ext_resource type="Resource" uid="uid://dmbm1ao1pu7q4" path="res://resources/slot_definitions/heavy_slot.tres" id="6_pyjeo"]
-[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="7_3v7db"]
+[ext_resource type="PackedScene" uid="uid://b4wyrmm8bfq20" path="res://scenes/ui/components/dice/combat/combat_die_d8.tscn" id="6_y33iq"]
+[ext_resource type="Texture2D" uid="uid://der0rcr1m1pb2" path="res://assets/dice/d8s/d8-fill-basic.png" id="8_enlhc"]
+[ext_resource type="PackedScene" uid="uid://lx27hjqny6b8" path="res://scenes/ui/components/dice/pool/pool_die_d8.tscn" id="10_6r1mt"]
+[ext_resource type="Texture2D" uid="uid://ccv17kswol4os" path="res://assets/dice/d8s/d8-stroke-basic.png" id="11_h3jho"]
+[ext_resource type="Texture2D" uid="uid://rqfw4im56r31" path="res://assets/items/heavy/marine halberd.png" id="12_y33iq"]
 
 [sub_resource type="Resource" id="Resource_umq3p"]
 script = ExtResource("2_me3us")
@@ -17,12 +21,17 @@ display_name = "D8"
 die_type = 8
 element = 3
 element_affix = ExtResource("3_8b2ys")
+fill_texture = ExtResource("8_enlhc")
+stroke_texture = ExtResource("11_h3jho")
+combat_die_scene = ExtResource("6_y33iq")
+pool_die_scene = ExtResource("10_6r1mt")
 
 [resource]
 script = ExtResource("5_2a1m5")
 item_name = "Marine Halberd"
 description = ""
 flavor_text = "Boarding Protocol, Step 1: Point halberd at enemy. Step 2: Advance."
+icon = ExtResource("12_y33iq")
 rarity = 1
 equip_slot = 6
 has_elemental_identity = true

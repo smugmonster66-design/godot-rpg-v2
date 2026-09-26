@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://cy0t3ci0v4evn"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_6xx3b"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_5yt4u"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_oeftd"]
+
+[resource]
+script = ExtResource("2_5yt4u")
+affix_name = "Inferno Cascade: Lower Threshold"
+description = "[status:burn] explosion threshold reduced to 4."
+category = 36
+tags = Array[String](["mage", "flame", "capstone", "burn_amplify"])
+effect_data = {
+"modify_status_threshold": "burn",
+"threshold_reduction": 1
+}

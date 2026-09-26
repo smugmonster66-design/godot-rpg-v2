@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_m4hw0")
 affix_name = "Arc Pulse III"
-description = "Shock dice apply 3 Static on use."
+description = "[element:shock] dice apply 3 [status:static] on use."
 category = 39
 tags = Array[String](["mage", "storm", "mana_die_affix", "static_apply", "voltaic"])
 effect_data = {

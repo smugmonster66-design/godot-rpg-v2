@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=6 format=3 uid="uid://csctythbihqwh"]
+
+[ext_resource type="Script" uid="uid://dfaph2f2anhu0" path="res://resources/data/status_dice_effect.gd" id="1_culxy"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_ff01"]
+[ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_ff01"]
+[ext_resource type="Texture2D" uid="uid://d4mkry10lcb3e" path="res://assets/icons/classes/mage/flame/flashfire_skill.png" id="3_culxy"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_ff01"]
+
+[resource]
+script = ExtResource("2_ff01")
+status_id = "flashfire_buff"
+duration_type = 1
+default_duration = 1
+max_stacks = 20
+falls_off_between_turns = true
+is_debuff = false
+can_be_cleansed = false
+cleanse_tags = Array[String](["buff", "fire", "offensive_buff"])
+consume_on_die_use = true
+consume_element = 4
+affix_name = "Flashfire"
+description = "Next [element:fire] die used gains bonus value equal to stacks. Consumed on use."
+icon = ExtResource("3_culxy")
+has_elemental_identity = true
+elemental_identity = 3
+category = 33
+visual_color = Color(0.776, 0.271, 0.141, 1)

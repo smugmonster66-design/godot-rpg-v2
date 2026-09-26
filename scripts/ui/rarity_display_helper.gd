@@ -78,10 +78,7 @@ static func create_affix_label(affix: Affix, name_color: Color = Color(0.9, 0.7,
 		desc_text = affix.description
 
 	if not desc_text.is_empty():
-		var desc_label = Label.new()
-		desc_label.text = desc_text
-		desc_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.85))
-		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		var desc_label = DescriptionParser.make_rich_label(desc_text, Color(0.85, 0.85, 0.85))
 		panel.add_child(desc_label)
 
 	return panel

@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_lglon")
 affix_name = "Polarity III"
-description = "Shock die +4 value if no adjacent die is Shock."
+description = "[element:shock] die +4 value if no adjacent die is [element:shock]."
 category = 39
 tags = Array[String](["mage", "storm", "mana_die_affix", "positional", "conduit"])
 effect_data = {

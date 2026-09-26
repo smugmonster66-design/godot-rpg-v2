@@ -28,9 +28,18 @@ var dice_pool_display: DicePoolDisplay = null
 
 ## CanvasLayer container for projectiles (renders above dice)
 var _effects_layer: CanvasLayer = null
+var _behind_container: Control = null
 var _effects_container: Control = null
+var _above_container: Control = null
 
 var effect_player: CombatEffectPlayer = null
+
+## CombatAnimationPlayer for playing proc_anim_set animations
+var animation_player: CombatAnimationPlayer = null
+
+## CombatUI reference — used to find die visuals placed in action field slots
+## when the die has already been consumed from the pool display.
+var combat_ui = null
 
 
 
@@ -59,23 +68,42 @@ func _ready():
 	_effects_layer.name = "AffixEffectsOverlay"
 	_effects_layer.layer = 99  # Below CombatRollAnimator's 100
 	add_child(_effects_layer)
-	
+
+	# Behind container (renders below dice)
+	_behind_container = Control.new()
+	_behind_container.name = "BehindContainer"
+	_behind_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_behind_container.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_behind_container.z_index = -1
+	_effects_layer.add_child(_behind_container)
+
+	# Default container (current behavior)
 	_effects_container = Control.new()
 	_effects_container.name = "EffectsContainer"
 	_effects_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_effects_container.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_effects_layer.add_child(_effects_container)
 
+	# Above container (renders on top of dice)
+	_above_container = Control.new()
+	_above_container.name = "AboveContainer"
+	_above_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_above_container.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_above_container.z_index = 1
+	_effects_layer.add_child(_above_container)
 
-func initialize(hand_display: DicePoolDisplay, processor: DiceAffixProcessor, roll_animator: CombatRollAnimator = null, p_effect_player: CombatEffectPlayer = null):
+
+func initialize(hand_display: DicePoolDisplay, processor: DiceAffixProcessor, roll_animator: CombatRollAnimator = null, p_effect_player: CombatEffectPlayer = null, p_animation_player: CombatAnimationPlayer = null):
 	"""Connect to the processor's signal and store display reference.
 	Call during CombatUI setup, after the processor is created.
-	
+
 	If roll_animator is provided, pending visuals auto-flush after the
 	roll animation completes (when die visuals are guaranteed to exist)."""
 	dice_pool_display = hand_display
 	if p_effect_player:
 		effect_player = p_effect_player
+	if p_animation_player:
+		animation_player = p_animation_player
 	
 	
 	
@@ -89,6 +117,14 @@ func initialize(hand_display: DicePoolDisplay, processor: DiceAffixProcessor, ro
 			roll_animator.roll_animation_complete.connect(_on_roll_animation_complete)
 		print("🎬 AffixVisualAnimator: Connected to roll_animator for deferred playback")
 
+	# Connect ON_USE flush: when process_on_use_affixes() completes, flush any
+	# pending visuals from ON_USE dice affix activations
+	if hand_display and hand_display.dice_pool:
+		var pool = hand_display.dice_pool
+		if pool.has_signal("on_use_affixes_processed") and not pool.on_use_affixes_processed.is_connected(_on_on_use_affixes_processed):
+			pool.on_use_affixes_processed.connect(_on_on_use_affixes_processed)
+			print("🎬 AffixVisualAnimator: Connected to ON_USE flush signal")
+
 
 # ============================================================================
 # SIGNAL HANDLERS
@@ -96,26 +132,33 @@ func initialize(hand_display: DicePoolDisplay, processor: DiceAffixProcessor, ro
 
 func _on_affix_activated(source_die: DieResource, affix: DiceAffix, targets: Array[int]):
 	"""Called when any affix fires. Always queues for playback after roll completes."""
-	if not affix.roll_visual:
+	var has_roll_visual = affix.roll_visual and affix.roll_visual.animation_type != AffixRollVisual.AnimationType.NONE
+	var has_proc_anim = affix.proc_anim_set != null
+	if not has_roll_visual and not has_proc_anim:
 		return
-	if affix.roll_visual.animation_type == AffixRollVisual.AnimationType.NONE:
-		return
-	
+
 	# Always queue — on turn 2+ stale visuals may still exist when this fires,
 	# and playing immediately would target nodes about to be destroyed by refresh.
 	# flush_pending() plays them once fresh visuals are guaranteed to exist.
 	_pending_activations.append({
-	"source_slot": source_die.slot_index,
-	"roll_visual": affix.roll_visual,
-	"targets": targets.duplicate(),
-	"affix_name": affix.affix_name,
-})
+		"source_slot": source_die.slot_index,
+		"roll_visual": affix.roll_visual if has_roll_visual else null,
+		"proc_anim_set": affix.proc_anim_set if has_proc_anim else null,
+		"targets": targets.duplicate(),
+		"affix_name": affix.affix_name,
+	})
 	print("  🎬 AffixVisualAnimator: Queued %s" % affix.affix_name)
 
 
 func _on_roll_animation_complete():
 	"""Called after CombatRollAnimator finishes — die visuals now exist."""
 	flush_pending()
+
+
+func _on_on_use_affixes_processed():
+	"""Called after process_on_use_affixes() — flush ON_USE affix visuals."""
+	if not _pending_activations.is_empty():
+		flush_pending()
 
 
 func flush_pending():
@@ -133,9 +176,10 @@ func flush_pending():
 	for activation in to_play:
 		_current_affix_name = activation.get("affix_name", "")
 		await _play_activation(
-			activation.roll_visual,
+			activation.get("roll_visual"),
 			activation.source_slot,
-			activation.targets
+			activation.targets,
+			activation.get("proc_anim_set")
 		)
 		_current_affix_name = ""
 	
@@ -143,27 +187,47 @@ func flush_pending():
 	_finalize_deferred_values()
 
 
-func _play_activation(rv: AffixRollVisual, source_slot: int, targets: Array):
+func _play_activation(rv: AffixRollVisual, source_slot: int, targets: Array, proc_anim: CombatAnimationSet = null):
 	"""Resolve visuals from slot indices and play the animation."""
 	var source_visual = _get_die_visual(source_slot)
+
+	# Fallback: die was consumed from pool — look inside the action field slots
 	if not source_visual:
+		source_visual = _get_die_visual_from_action_field(source_slot)
+
+	if not source_visual:
+		# Still no visual found — can we at least play the proc_anim_set with
+		# a fallback position from the action field slot?
+		if proc_anim and animation_player:
+			var fallback_pos = _get_action_field_slot_position(source_slot)
+			if fallback_pos != Vector2.ZERO:
+				print("  🎬 AffixVisualAnimator: Playing proc_anim from action field slot (die %d consumed)" % source_slot)
+				animation_player.play_affix_animation(proc_anim, fallback_pos, fallback_pos)
+				return
 		print("  ⚠️ AffixVisualAnimator: No visual for source index %d" % source_slot)
 		return
-	
+
 	# Collect target visuals
 	var target_visuals: Array[Control] = []
 	for t_idx in targets:
 		var tv = _get_die_visual(t_idx)
 		if tv:
 			target_visuals.append(tv)
-	
+
 	# For SELF-targeting affixes, treat source as the target
 	if target_visuals.is_empty():
 		target_visuals.append(source_visual)
-	
-	# Play the visual — affix_activated already confirmed the affix fired,
-	# so always play. Value animations are applied if available but aren't required.
-	await _play_roll_visual(rv, source_visual, target_visuals)
+
+	# Play roll_visual if present
+	if rv:
+		await _play_roll_visual(rv, source_visual, target_visuals)
+
+	# Play proc_anim_set if present (via CombatAnimationPlayer)
+	if proc_anim and animation_player:
+		var source_pos = source_visual.global_position + source_visual.size / 2.0
+		var target_node = target_visuals[0] if target_visuals.size() > 0 else source_visual
+		var target_pos = target_node.global_position + target_node.size / 2.0
+		animation_player.play_affix_animation(proc_anim, source_pos, target_pos)
 
 
 # ============================================================================
@@ -254,12 +318,14 @@ func _finalize_deferred_values():
 		print("🎬 AffixVisualAnimator: Finalizing %d remaining value changes" % pool.pending_value_animations.size())
 		for die_index in pool.pending_value_animations.keys():
 			var change = pool.pending_value_animations[die_index]
-			if die_index < pool.hand.size():
-				pool.hand[die_index].modified_value = change.to
 			var visual = _get_die_visual(die_index)
 			if visual and visual is CombatDieObject and visual.has_method("animate_value_to"):
 				var flash_color = Color(0.5, 1.5, 0.5, 1.0) if change.to > change.from else Color(1.5, 0.5, 0.5, 1.0)
-				visual.animate_value_to(change.to, 0.25, flash_color)
+				visual.animate_value_to(change.to, 0.35, flash_color)
+			# Set modified_value AFTER starting the animation so the label
+			# reads the pre-animation value correctly in animate_value_to()
+			if die_index < pool.hand.size():
+				pool.hand[die_index].modified_value = change.to
 		pool.pending_value_animations.clear()
 	
 	# --- Element visual refresh (Volatile / SET_ELEMENT affixes) ---
@@ -376,7 +442,7 @@ func _play_projectile(rv: AffixRollVisual, source: Control, targets: Array[Contr
 	# If self-targeting, skip projectile — just play source effect + value
 	if is_self_target:
 		_flash_die(source, rv.source_flash_color, rv.source_scale_pulse, rv.source_effect_duration)
-		_spawn_impact_or_particles_at(rv.source_impact_scene, rv.source_particle_scene, from_center)
+		_spawn_impact_or_particles_at(rv.source_impact_scene, rv.source_particle_scene, from_center, rv.z_layer)
 		# Animate value change on self
 		var self_change = _get_value_change_for_visual(source)
 		if not self_change.is_empty():
@@ -388,8 +454,8 @@ func _play_projectile(rv: AffixRollVisual, source: Control, targets: Array[Contr
 	# === LAUNCH: Flash origin + animate origin value ===
 	if rv.source_flash_color != Color.WHITE or rv.source_scale_pulse > 1.0:
 		_flash_die(from_node, rv.source_flash_color, rv.source_scale_pulse, rv.source_effect_duration)
-	_spawn_impact_or_particles_at(rv.source_impact_scene, rv.source_particle_scene, from_center)
-	
+	_spawn_impact_or_particles_at(rv.source_impact_scene, rv.source_particle_scene, from_center, rv.z_layer)
+
 	# Animate the "from" die's value at launch (e.g., drained die goes 5→4)
 	var from_change = _get_value_change_for_visual(from_node)
 	if not from_change.is_empty():
@@ -430,8 +496,8 @@ func _play_projectile(rv: AffixRollVisual, source: Control, targets: Array[Contr
 	
 	# === IMPACT: Flash destination + animate destination value ===
 	_flash_die(to_node, rv.target_flash_color, rv.target_scale_pulse, rv.target_effect_duration)
-	_spawn_impact_or_particles_at(rv.target_impact_scene, rv.target_particle_scene, to_center)
-	
+	_spawn_impact_or_particles_at(rv.target_impact_scene, rv.target_particle_scene, to_center, rv.z_layer)
+
 	# Animate the "to" die's value on impact (e.g., siphon die goes 3→4)
 	var to_change = _get_value_change_for_visual(to_node)
 	if not to_change.is_empty():
@@ -443,7 +509,7 @@ func _play_projectile(rv: AffixRollVisual, source: Control, targets: Array[Contr
 		if is_instance_valid(extra_target) and extra_target != target:
 			var ec = extra_target.global_position + extra_target.size / 2.0
 			_flash_die(extra_target, rv.target_flash_color, rv.target_scale_pulse, rv.target_effect_duration)
-			_spawn_impact_or_particles_at(rv.target_impact_scene, rv.target_particle_scene, ec)
+			_spawn_impact_or_particles_at(rv.target_impact_scene, rv.target_particle_scene, ec, rv.z_layer)
 			var et_change = _get_value_change_for_visual(extra_target)
 			if not et_change.is_empty():
 				_animate_die_value(extra_target, et_change, rv.target_effect_duration)
@@ -627,8 +693,8 @@ func _play_die_effect_single(rv: AffixRollVisual, die_visual: Control, is_target
 	_flash_die(die_visual, flash_color, scale_pulse, duration)
 	
 	# Impact scene or particles
-	_spawn_impact_or_particles_at(impact_scene, particle_scene, center)
-	
+	_spawn_impact_or_particles_at(impact_scene, particle_scene, center, rv.z_layer)
+
 	# Animate deferred value change
 	var change = _get_value_change_for_visual(die_visual)
 	if not change.is_empty():
@@ -709,24 +775,40 @@ func _flash_die(die_visual: Control, flash_color: Color, scale_pulse: float, dur
 
 
 # ============================================================================
+# Z-LAYER CONTAINER ROUTING
+# ============================================================================
+
+func _get_container_for_z_layer(z_layer: AffixRollVisual.ZLayer) -> Control:
+	"""Return the correct effects container for the given z-layer."""
+	match z_layer:
+		AffixRollVisual.ZLayer.BEHIND_TARGET:
+			return _behind_container
+		AffixRollVisual.ZLayer.ABOVE_TARGET:
+			return _above_container
+		_:
+			return _effects_container
+
+
+# ============================================================================
 # PRIMITIVES — SCENE SPAWNING
 # ============================================================================
 
-func _spawn_impact_or_particles_at(impact_scene: PackedScene, particle_scene: PackedScene, global_center: Vector2):
+func _spawn_impact_or_particles_at(impact_scene: PackedScene, particle_scene: PackedScene, global_center: Vector2, z_layer: AffixRollVisual.ZLayer = AffixRollVisual.ZLayer.DEFAULT):
 	"""Spawn an impact scene (preferred) or particle scene (fallback) at a position."""
 	if impact_scene:
-		_spawn_scene_at(impact_scene, global_center)
+		_spawn_scene_at(impact_scene, global_center, z_layer)
 	elif particle_scene:
-		_spawn_particles_at(particle_scene, global_center)
+		_spawn_particles_at(particle_scene, global_center, z_layer)
 
 
-func _spawn_scene_at(scene: PackedScene, global_center: Vector2):
+func _spawn_scene_at(scene: PackedScene, global_center: Vector2, z_layer: AffixRollVisual.ZLayer = AffixRollVisual.ZLayer.DEFAULT):
 	"""Instance a custom scene at a global position. Auto-frees when done."""
 	if not scene:
 		return
-	
+
+	var container = _get_container_for_z_layer(z_layer)
 	var instance = scene.instantiate()
-	_effects_container.add_child(instance)
+	container.add_child(instance)
 	
 	# Position at center
 	if instance is Node2D:
@@ -781,13 +863,14 @@ func _spawn_scene_at(scene: PackedScene, global_center: Vector2):
 		)
 
 
-func _spawn_particles_at(particle_scene: PackedScene, global_center: Vector2):
+func _spawn_particles_at(particle_scene: PackedScene, global_center: Vector2, z_layer: AffixRollVisual.ZLayer = AffixRollVisual.ZLayer.DEFAULT):
 	"""Instantiate a simple particle scene at a global position with auto-cleanup."""
 	if not particle_scene:
 		return
-	
+
+	var container = _get_container_for_z_layer(z_layer)
 	var particles = particle_scene.instantiate()
-	_effects_container.add_child(particles)
+	container.add_child(particles)
 	
 	if particles is Node2D:
 		particles.global_position = global_center
@@ -937,3 +1020,48 @@ func _get_die_visual(die_index: int) -> Control:
 		if child is CombatDieObject and child.slot_index == die_index:
 			return child
 	return null
+
+
+func _get_die_visual_from_action_field(die_index: int) -> Control:
+	"""Find a die visual that was placed into the current expanded action field.
+	ON_USE affixes fire after the die is consumed from the pool and placed
+	into an action field slot, so we look there instead."""
+	if not combat_ui or not is_instance_valid(combat_ui):
+		return null
+	var field = combat_ui.current_expanded_field if "current_expanded_field" in combat_ui else null
+	if not field:
+		return null
+	# Search the action field's die_slot_panels for a visual matching slot_index
+	if "die_slot_panels" in field:
+		for slot in field.die_slot_panels:
+			if not is_instance_valid(slot):
+				continue
+			for child in slot.get_children():
+				if "slot_index" in child and child.slot_index == die_index:
+					return child
+	return null
+
+
+func _get_action_field_slot_position(die_index: int) -> Vector2:
+	"""Get the center position of the action field slot where a die was placed.
+	Returns Vector2.ZERO if not found."""
+	if not combat_ui or not is_instance_valid(combat_ui):
+		return Vector2.ZERO
+	var field = combat_ui.current_expanded_field if "current_expanded_field" in combat_ui else null
+	if not field:
+		return Vector2.ZERO
+	# Find the slot that contains this die by checking placed_dice
+	if "die_slot_panels" in field and "placed_dice" in field:
+		for i in range(field.placed_dice.size()):
+			var die = field.placed_dice[i]
+			if die and "slot_index" in die and die.slot_index == die_index:
+				if i < field.die_slot_panels.size():
+					var slot = field.die_slot_panels[i]
+					if is_instance_valid(slot):
+						return slot.global_position + slot.size / 2.0
+	# Fallback: use the first slot position
+	if "die_slot_panels" in field and field.die_slot_panels.size() > 0:
+		var first_slot = field.die_slot_panels[0]
+		if is_instance_valid(first_slot):
+			return first_slot.global_position + first_slot.size / 2.0
+	return Vector2.ZERO

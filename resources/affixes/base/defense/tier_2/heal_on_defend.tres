@@ -6,13 +6,14 @@
 
 [resource]
 script = ExtResource("2_hf6jd")
-affix_name = "Heal on Defend"
-description = "Heal N when defending"
+affix_name = "Heal on Hit Taken"
+description = "Heal {value} when struck"
 category = 35
-tags = Array[String](["proc", "heal", "defend"])
+tags = Array[String](["proc", "heal", "on_hit_taken", "defensive"])
 effect_min = 2.0
 effect_max = 25.0
 effect_data = {
 "effect": "heal_flat"
 }
-proc_trigger = 10
+proc_trigger = 2
+power_weight = 55.0

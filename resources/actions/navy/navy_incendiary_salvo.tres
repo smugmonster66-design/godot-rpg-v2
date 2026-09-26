@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="Action" load_steps=12 format=3 uid="uid://budajbmro7s5k"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_3ttju"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_eyijg"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_j3e1m"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_j3e1m"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_huosl"]
+[ext_resource type="Resource" uid="uid://behojsm6qvxjl" path="res://resources/statuses/burn.tres" id="5_3l75i"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_r0b1m"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_2wr4x"]
+
+[sub_resource type="Resource" id="Resource_3ttju"]
+script = ExtResource("1_3ttju")
+condition = 11
+threshold = 0.0
+
+[sub_resource type="Resource" id="Resource_eyijg"]
+script = ExtResource("3_j3e1m")
+effect_name = "Incendiary Damage"
+value_source = 1
+damage_type = 3
+base_damage = 3
+damage_multiplier = 1.3
+
+[sub_resource type="Resource" id="Resource_j3e1m"]
+script = ExtResource("3_j3e1m")
+effect_name = "Incendiary Burn"
+effect_type = 2
+status_affix = ExtResource("5_3l75i")
+stack_count = 5
+
+[resource]
+script = ExtResource("7_2wr4x")
+action_id = "navy_incendiary_salvo"
+action_name = "Incendiary Salvo"
+action_description = "A devastating firebomb barrage."
+damage_element = 3
+charge_type = 2
+effects = Array[ExtResource("3_j3e1m")]([SubResource("Resource_eyijg"), SubResource("Resource_j3e1m")])
+ai_hints = Array[ExtResource("1_3ttju")]([SubResource("Resource_3ttju")])

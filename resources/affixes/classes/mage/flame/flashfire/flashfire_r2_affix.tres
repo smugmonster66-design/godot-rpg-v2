@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://cm8db0vsrgg8v"]
+
+[ext_resource type="Resource" uid="uid://csbublgrc8rmi" path="res://resources/dice_affixes/mage/flame/da_flashfire_r2.tres" id="1_relrv"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_rg1sj"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_o384a"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_2kvrc"]
+
+[resource]
+script = ExtResource("3_o384a")
+affix_name = "Flashfire II"
+description = "[element:fire] die on max roll: gain [status:flashfire_buff] (5). Next [element:fire] die used gains +5 value."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "utility", "cascade", "max_roll"])
+effect_data = {
+"dice_affix": ExtResource("1_relrv")
+}

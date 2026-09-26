@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="Action" load_steps=14 format=3 uid="uid://cwxp1ts1i4vsa"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_un5es"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_0ty41"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_biv6e"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_biv6e"]
+[ext_resource type="Resource" uid="uid://ctdhnunfkyyr7" path="res://resources/statuses/dodge.tres" id="4_fwypj"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="5_yrgyb"]
+[ext_resource type="Resource" uid="uid://yqkfct3e0w0w" path="res://resources/statuses/braced.tres" id="6_8ygv6"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="7_3l61j"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="8_xm43o"]
+
+[sub_resource type="Resource" id="Resource_un5es"]
+script = ExtResource("1_un5es")
+condition = 1
+bonus_value = 20.0
+
+[sub_resource type="Resource" id="Resource_0ty41"]
+script = ExtResource("1_un5es")
+condition = 8
+threshold = 0.0
+status_id = "dodge"
+bonus_value = 10.0
+
+[sub_resource type="Resource" id="Resource_biv6e"]
+script = ExtResource("3_biv6e")
+effect_name = "Tumble Dodge"
+target = 0
+effect_type = 2
+status_affix = ExtResource("4_fwypj")
+
+[sub_resource type="Resource" id="Resource_fwypj"]
+script = ExtResource("3_biv6e")
+effect_name = "Tumble Brace"
+target = 0
+effect_type = 2
+status_affix = ExtResource("6_8ygv6")
+
+[resource]
+script = ExtResource("8_xm43o")
+action_id = "navy_tumble"
+action_name = "Tumble"
+action_description = "Dodge and brace for impact."
+action_category = 1
+charge_type = 1
+effects = Array[ExtResource("3_biv6e")]([SubResource("Resource_biv6e"), SubResource("Resource_fwypj")])
+ai_hints = Array[ExtResource("1_un5es")]([SubResource("Resource_un5es"), SubResource("Resource_0ty41")])
+action_type = 1

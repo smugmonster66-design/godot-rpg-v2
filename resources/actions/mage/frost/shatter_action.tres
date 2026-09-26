@@ -13,7 +13,7 @@
 script = ExtResource("8_jnt67")
 action_id = "frost_shatter"
 action_name = "Shatter"
-action_description = "Deal x1.5 ice damage. If Frozen: x4.5 instead and consume Freeze."
+action_description = "Deal x1.5 [element:ice] damage. If [status:freeze|Frozen]: x4.5 instead and consume [status:freeze]."
 die_slots = 2
 min_dice_required = 2
 accepted_elements = Array[int]([5])

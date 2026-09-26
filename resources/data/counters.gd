@@ -41,6 +41,15 @@ var criticals_landed: int:
 	get: return get_counter(&"criticals_landed")
 	set(v): set_counter(&"criticals_landed", v)
 
+# Morality axes (-100 to +100, start at 0)
+var virtue: int:  # Evil (-100) to Good (+100)
+	get: return get_counter(&"virtue")
+	set(v): set_counter(&"virtue", clampi(v, -100, 100))
+
+var order: int:  # Chaotic (-100) to Orderly (+100)
+	get: return get_counter(&"order")
+	set(v): set_counter(&"order", clampi(v, -100, 100))
+
 # ============================================================================
 # API
 # ============================================================================

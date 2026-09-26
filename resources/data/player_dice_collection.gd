@@ -28,6 +28,7 @@ signal combat_modifier_added(modifier: CombatModifier)   # v2
 signal die_destroyed(die: DieResource)                   # v2 — permanent pool removal
 signal die_shattered(die: DieResource) 
 signal mana_die_added(die_index: int)
+signal on_use_affixes_processed()                        # Fires after process_on_use_affixes completes
 
 
 var pending_shatters: Dictionary = {}
@@ -71,6 +72,12 @@ var _current_turn: int = 0
 ## Dice queued for permanent destruction at end of turn.
 ## We defer destruction to avoid modifying the pool mid-iteration.
 var _pending_destructions: Array[int] = []  # pool slot indices
+
+## ON_COMBAT_START dice affixes that fired during init, stored for the deferred
+## visual intro pass in CombatManager._play_combat_start_affix_intros().
+## Drained and cleared at the start of turn 1 — VISUAL ONLY, game effects
+## were already applied synchronously during start_combat() / process_trigger.
+var pending_affix_fires: Array = []
 
 
 ## Element usage tracking for mage turn-context conditions.
@@ -160,6 +167,7 @@ func start_combat():
 	_pending_destructions.clear()
 	used_pool_indices.clear()
 	hand.clear()
+	pending_affix_fires.clear()
 	clear_pending_events()  # v4: Clear stale combat/mana events
 
 func end_combat():
@@ -291,7 +299,11 @@ func _process_reorder_affixes():
 func roll_hand():
 	_current_turn += 1
 	print("🎲 Rolling hand from pool (%d dice)... [Turn %d]" % [dice.size(), _current_turn])
-	
+
+	# DA-9: Reset per-turn effect counters
+	if affix_processor:
+		affix_processor.reset_turn_counters()
+
 	# Clear previous hand
 	hand.clear()
 	used_pool_indices.clear()
@@ -507,6 +519,9 @@ func _resolve_dice_targets(effect: StatusDiceEffect, count: int) -> Array[int]:
 			StatusDiceEffect.TargetMode.BY_INDEX:
 				if i in effect.target_indices:
 					eligible.append(i)
+			StatusDiceEffect.TargetMode.BY_ELEMENT:
+				if die.get_effective_element() == effect.target_element:
+					eligible.append(i)
 			_:
 				eligible.append(i)
 
@@ -516,6 +531,8 @@ func _resolve_dice_targets(effect: StatusDiceEffect, count: int) -> Array[int]:
 		StatusDiceEffect.TargetMode.BY_INDEX, \
 		StatusDiceEffect.TargetMode.BY_TAG:
 			return eligible
+		StatusDiceEffect.TargetMode.BY_ELEMENT:
+			return eligible.slice(0, mini(count, eligible.size()))
 		StatusDiceEffect.TargetMode.RANDOM_N:
 			eligible.shuffle()
 			return eligible.slice(0, mini(count, eligible.size()))
@@ -531,6 +548,42 @@ func _resolve_dice_targets(effect: StatusDiceEffect, count: int) -> Array[int]:
 	return []
 
 
+func _apply_consumable_status_buffs(placed_dice: Array) -> void:
+	"""Apply and consume status buffs that trigger on die use (e.g., Flashfire).
+	Called at action confirm time, before ON_USE affix processing.
+	For each active status with consume_on_die_use = true, checks if any placed
+	die matches the consume_element. If so, applies current_stacks as a flat
+	bonus to the first matching die and removes the status."""
+	var tracker: StatusTracker = _get_owner_status_tracker()
+	if not tracker:
+		return
+
+	var to_consume: Array[String] = []
+	for instance in tracker.get_all_active():
+		var affix: StatusAffix = instance["status_affix"]
+		if not affix or not affix.consume_on_die_use:
+			continue
+
+		# Find the first placed die that matches the consume element
+		var matched_die: DieResource = null
+		for die in placed_dice:
+			if not die is DieResource:
+				continue
+			if affix.consume_element == DieResource.Element.NONE \
+					or die.get_effective_element() == affix.consume_element:
+				matched_die = die
+				break
+
+		if matched_die:
+			var bonus: int = instance["current_stacks"]
+			matched_die.apply_flat_modifier(bonus)
+			to_consume.append(affix.status_id)
+			print("  🔥 Consumable buff '%s': +%d to %s" % [
+				affix.status_id, bonus, matched_die.display_name])
+
+	# Remove consumed statuses after iteration
+	for sid in to_consume:
+		tracker.remove_status(sid)
 
 
 func _create_hand_die(pool_die: DieResource, pool_index: int) -> DieResource:
@@ -595,25 +648,37 @@ func finalize_dice_consumption(consumed_dice: Array) -> void:
 		print("🎲 Finalized consumption: %d dice → element counts: %s" % [
 			consumed_dice.size(), _element_use_counts])
 
-func process_on_use_affixes(placed_dice: Array) -> void:
+func process_on_use_affixes(placed_dice: Array, extra_context: Dictionary = {}) -> void:
 	"""Process ON_USE affixes for each placed die at action confirmation.
-	
+
 	Called by CombatManager BEFORE _apply_action_effect so that die-state
 	mutations (ADD_DAMAGE_TYPE, etc.) are visible to damage calculation,
 	and combat/mana events are queued before drain.
-	
+
 	Each die is processed sequentially with the full stable hand so
 	neighbor-targeting affixes resolve correctly. The processor already
 	skips consumed dice except the triggering_die, which preserves the
-	same semantics as the old per-drop flow."""
+	same semantics as the old per-drop flow.
+
+	extra_context: Optional keys merged into each die's context dict.
+	  Used by CombatManager to inject target_statuses so TARGET_HAS_STATUS
+	  conditions (e.g. "if target has Burn") evaluate correctly."""
+	# Apply consumable status buffs (e.g., Flashfire) before ON_USE affixes
+	_apply_consumable_status_buffs(placed_dice)
+
 	if not affix_processor:
+		on_use_affixes_processed.emit()
 		return
 	for die in placed_dice:
 		if not die is DieResource:
 			continue
 		var ctx = _build_use_context(die)
+		if not extra_context.is_empty():
+			ctx.merge(extra_context, true)  # extra_context values win on key collision
 		var result = affix_processor.process_trigger(hand, DiceAffix.Trigger.ON_USE, ctx)
 		_handle_affix_results(result)
+
+	on_use_affixes_processed.emit()
 
 
 func restore_to_hand(die: DieResource):
@@ -1079,10 +1144,22 @@ func find_hand_index(die: DieResource) -> int:
 
 
 func process_combat_start_affixes():
-	"""Process ON_COMBAT_START affixes"""
-	if affix_processor:
-		var result = affix_processor.process_trigger(dice, DiceAffix.Trigger.ON_COMBAT_START, _build_context())
-		_handle_affix_results(result)
+	"""Process ON_COMBAT_START affixes.
+	Records which dice affixes fired into pending_affix_fires so
+	CombatManager._play_combat_start_affix_intros() can show source floaters
+	on turn 1 after the event bus is live."""
+	if not affix_processor:
+		return
+	# Temporarily capture which affixes actually fired via the affix_activated signal
+	var _fired: Array = []
+	var _capture = func(_die, affix, _targets): _fired.append(affix)
+	affix_processor.affix_activated.connect(_capture)
+	var result = affix_processor.process_trigger(dice, DiceAffix.Trigger.ON_COMBAT_START, _build_context())
+	affix_processor.affix_activated.disconnect(_capture)
+	_handle_affix_results(result)
+	# Store fired affixes for the deferred visual intro pass (visual only)
+	for affix in _fired:
+		pending_affix_fires.append(affix)
 
 func process_combat_end_affixes():
 	"""Process ON_COMBAT_END affixes"""
@@ -1135,7 +1212,41 @@ func _handle_affix_results(result: Dictionary):
 			"create_combat_modifier":
 				var modifier: CombatModifier = effect.modifier
 				add_combat_modifier(modifier)
-	
+
+			"status_effect":
+				# DA-13: Convert status special_effect → combat_event for CombatManager
+				var status_event := {
+					"type": "apply_status",
+					"status_id": effect.get("status_id", ""),
+					"stacks": effect.get("stacks", 1),
+					"die_index": effect.get("die_index", -1),
+					"splash_percent": effect.get("splash_percent", 0.0),
+					"splash_target": effect.get("splash_target", ""),
+				}
+				# Forward target routing so CombatManager can resolve random_enemy etc.
+				if effect.has("target"):
+					status_event["target"] = effect.get("target", "")
+				_pending_combat_events.append(status_event)
+				print("    🎯 Queued combat event: apply_status '%s' ×%d (target=%s)" % [
+					status_event.status_id, status_event.stacks, status_event.get("target", "enemy")])
+
+			"leech_heal":
+				# DA-14: Convert leech/heal special_effect → combat_event for CombatManager
+				_pending_combat_events.append({
+					"type": "heal",
+					"mode": effect.get("mode", "percent"),
+					"percent": effect.get("percent", 0.0),
+					"amount": effect.get("amount", 0),
+					"die_index": effect.get("die_index", -1),
+				})
+
+			"chain_modifier":
+				# DA-3: Bridge chain_modifier special_effect → combat_event for CombatManager
+				_pending_combat_events.append({
+					"type": "chain_modifier",
+					"extra_chain_targets": effect.get("extra_chain_targets", 0),
+				})
+
 	# v4 — Mana System: Accumulate combat and mana events for CombatManager
 	if result.has("combat_events"):
 		for event in result.combat_events:

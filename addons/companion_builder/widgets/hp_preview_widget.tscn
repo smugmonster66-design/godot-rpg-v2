@@ -1,0 +1,49 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/companion_builder/widgets/hp_preview_widget.gd" id="1_script"]
+
+[node name="HpPreviewWidget" type="VBoxContainer"]
+script = ExtResource("1_script")
+
+[node name="HeaderLabel" type="Label" parent="."]
+layout_mode = 2
+text = "HP Preview"
+tooltip_text = "Live preview of calculated companion HP at simulated player stats"
+theme_override_font_sizes/font_size = 12
+
+[node name="InputRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="LevelLabel" type="Label" parent="InputRow"]
+layout_mode = 2
+text = "Lvl:"
+tooltip_text = "Simulated player level for HP calculation"
+
+[node name="SimLevelSpin" type="SpinBox" parent="InputRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Simulated player level for HP preview"
+min_value = 1.0
+max_value = 50.0
+value = 10.0
+
+[node name="HpLabel" type="Label" parent="InputRow"]
+layout_mode = 2
+text = "HP:"
+tooltip_text = "Simulated player max HP for PLAYER_PERCENT calculation"
+
+[node name="SimMaxHpSpin" type="SpinBox" parent="InputRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Simulated player max HP for PLAYER_PERCENT preview"
+min_value = 50.0
+max_value = 2000.0
+value = 200.0
+
+[node name="ResultLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Calculated: —"
+tooltip_text = "The companion's calculated max HP with the current settings"

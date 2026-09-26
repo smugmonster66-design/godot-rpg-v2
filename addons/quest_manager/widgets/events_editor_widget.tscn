@@ -1,0 +1,58 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/quest_manager/widgets/events_editor_widget.gd" id="1_script"]
+
+[node name="EventsEditorWidget" type="VBoxContainer"]
+layout_mode = 2
+script = ExtResource("1_script")
+
+[node name="OnAcceptHeader" type="Label" parent="."]
+layout_mode = 2
+text = "On Accept Events"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+
+[node name="OnAcceptList" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AddOnAcceptButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+ Add Accept Event"
+
+[node name="Sep1" type="HSeparator" parent="."]
+layout_mode = 2
+
+[node name="OnCompleteHeader" type="Label" parent="."]
+layout_mode = 2
+text = "On Complete Events"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+
+[node name="OnCompleteList" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AddOnCompleteButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+ Add Complete Event"
+
+[node name="Sep2" type="HSeparator" parent="."]
+layout_mode = 2
+
+[node name="OnFailHeader" type="Label" parent="."]
+layout_mode = 2
+text = "On Fail Events"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+
+[node name="OnFailList" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AddOnFailButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+ Add Fail Event"

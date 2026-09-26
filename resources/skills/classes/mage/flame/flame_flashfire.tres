@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=9 format=3 uid="uid://dtec107ycmm4j"]
+
+[ext_resource type="Texture2D" uid="uid://d4mkry10lcb3e" path="res://assets/icons/classes/mage/flame/flashfire_skill.png" id="1_s2nop"]
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_y7sti"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_g6kus"]
+[ext_resource type="Resource" uid="uid://gbvymlprt5ue" path="res://resources/affixes/classes/mage/flame/flashfire/flashfire_r1_affix.tres" id="3_s2nop"]
+[ext_resource type="Resource" uid="uid://cm8db0vsrgg8v" path="res://resources/affixes/classes/mage/flame/flashfire/flashfire_r2_affix.tres" id="4_fsdqf"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="5_5sjip"]
+[ext_resource type="Resource" uid="uid://bkxn5wnqxqcey" path="res://resources/skills/classes/mage/flame/flame_searing_vigor.tres" id="sk_searing_vigor"]
+
+[sub_resource type="Resource" id="Resource_utppc"]
+script = ExtResource("1_y7sti")
+required_skill = ExtResource("sk_searing_vigor")
+
+[resource]
+script = ExtResource("5_5sjip")
+skill_id = "flame_flashfire"
+skill_name = "Flashfire"
+icon = ExtResource("1_s2nop")
+description = "Fire die on max roll: next [element:fire] die this turn gains +[color=yellow]3/5[/color] value."
+skill_category = 1
+tier = 4
+prerequisites = Array[ExtResource("1_y7sti")]([SubResource("Resource_utppc")])
+tree_points_required = 6
+rank_1_affixes = Array[ExtResource("2_g6kus")]([ExtResource("3_s2nop")])
+rank_2_affixes = Array[ExtResource("2_g6kus")]([ExtResource("4_fsdqf")])

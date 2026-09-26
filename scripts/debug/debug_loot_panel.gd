@@ -187,6 +187,11 @@ func _build_ui() -> void:
 	_clear_button.pressed.connect(_clear_results)
 	results_header.add_child(_clear_button)
 
+	var delete_save_btn := Button.new()
+	delete_save_btn.text = "Delete Save"
+	delete_save_btn.pressed.connect(_on_delete_save)
+	results_header.add_child(delete_save_btn)
+
 	_results_scroll = ScrollContainer.new()
 	_results_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_results_scroll.custom_minimum_size.y = _sf(180)
@@ -856,6 +861,19 @@ func _add_result_line(bbcode_text: String) -> void:
 func _clear_results() -> void:
 	for child in _results_vbox.get_children():
 		child.queue_free()
+
+
+func _on_delete_save() -> void:
+	if SaveData.save_exists():
+		var err := SaveData.delete_save()
+		if err == OK:
+			_add_result_line("[color=green]Save file deleted[/color]")
+			if GameState:
+				GameState.new_game()
+		else:
+			_add_result_line("[color=red]Failed to delete save: %s[/color]" % error_string(err))
+	else:
+		_add_result_line("[color=yellow]No save file found[/color]")
 
 
 # ============================================================================

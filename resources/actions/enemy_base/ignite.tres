@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="Action" load_steps=10 format=3 uid="uid://c5j0k0tk343w6"]
+[gd_resource type="Resource" script_class="Action" load_steps=11 format=3 uid="uid://c5j0k0tk343w6"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_2o7ue"]
 [ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_mjdmu"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_bxvox"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_lngph"]
 [ext_resource type="Resource" uid="uid://behojsm6qvxjl" path="res://resources/statuses/burn.tres" id="3_mjdmu"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_lngph"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_mjdmu"]
@@ -26,7 +27,7 @@ stack_count = 2
 script = ExtResource("5_bxvox")
 action_id = "ignite"
 action_name = "Ignite"
-action_description = "Fire hit. Applies 2 Burn."
+action_description = "[element:fire] hit. Applies 2 [status:burn]."
 damage_element = 3
 effects = Array[ExtResource("1_2o7ue")]([SubResource("Resource_dxc8k"), SubResource("Resource_yhr1q")])
 base_damage = 1

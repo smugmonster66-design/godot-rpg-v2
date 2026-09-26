@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="LocationNode" load_steps=4 format=3 uid="uid://c5kuxq478vbuy"]
+
+[ext_resource type="Script" uid="uid://dgamp5w74kvwa" path="res://resources/data/location_node.gd" id="1_locscript"]
+[ext_resource type="Script" uid="uid://bvx6wd14mcwlb" path="res://resources/data/map_node_button_def.gd" id="2_btnscript"]
+[ext_resource type="Resource" uid="uid://bxxvd2m5dhu7" path="res://resources/maps/test/btn_enter_navy.tres" id="3_enternavy"]
+
+[resource]
+script = ExtResource("1_locscript")
+location_id = &"loc_navy_sanctum"
+display_name = "Dungeon Testing Facility"
+node_type = 2
+map_node_category = 1
+radial_buttons = Array[ExtResource("2_btnscript")]([ExtResource("3_enternavy")])
+description = "The gates of the Sanctum Navy Fortress loom ahead. Guards patrol the outer walls."
+map_position = Vector2(798.0056, 1763.9097)
+connections = Array[StringName]([&"loc_crossroads"])
+recommended_level = 5
+safe_zone = false

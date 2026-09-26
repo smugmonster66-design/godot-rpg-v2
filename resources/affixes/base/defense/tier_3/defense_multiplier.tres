@@ -6,9 +6,10 @@
 
 [resource]
 script = ExtResource("2_eoffj")
-affix_name = "Defense Multiplier"
-description = "×N defense"
+affix_name = "Armor Multiplier"
+description = "×{value} [status:fortified|Fortified]"
 category = 12
-tags = Array[String](["defense", "multiplier"])
+tags = Array[String](["defensive", "armor", "multiplier"])
 effect_min = 1.05
 effect_max = 1.5
+power_weight = 150.0

@@ -7,10 +7,9 @@
 [resource]
 script = ExtResource("2_wyut2")
 affix_name = "Commanding"
-description = "+N% to neighbors"
+description = "+N to both neighbors"
 affix_tier = 3
 neighbor_target = 3
-effect_type = 1
-effect_value = 1.65
-effect_value_min = 1.5
-effect_value_max = 1.8
+effect_value = 2.0
+effect_value_min = 1.0
+effect_value_max = 3.0

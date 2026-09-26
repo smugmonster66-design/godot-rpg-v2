@@ -31,14 +31,12 @@ layout_mode = 2
 
 [node name="Control4" type="Control" parent="SlotsContainer"]
 layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="EnemySlot2" parent="SlotsContainer" instance=ExtResource("2_g7aqa")]
 layout_mode = 2
 
 [node name="Control3" type="Control" parent="SlotsContainer"]
 layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="EnemySlot3" parent="SlotsContainer" instance=ExtResource("2_g7aqa")]
 layout_mode = 2

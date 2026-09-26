@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="DialogueEncounter" load_steps=14 format=3 uid="uid://dgv1qwtj12q7g"]
+
+[ext_resource type="Script" uid="uid://bo4owbm81mlc6" path="res://resources/data/dialogue_choice.gd" id="1_5mvkg"]
+[ext_resource type="Script" uid="uid://cl31cmstv6cgu" path="res://resources/data/dialogue_encounter.gd" id="1_6jkrd"]
+[ext_resource type="Script" uid="uid://bw7tg7tcax8cj" path="res://resources/data/dialogue_line.gd" id="2_0nbi2"]
+[ext_resource type="Script" uid="uid://08ijmdrudpd1" path="res://resources/data/dialogue_speaker.gd" id="2_266na"]
+[ext_resource type="Resource" uid="uid://dj8tngj1dy00j" path="res://resources/dialogues/speakers/ds_cate.tres" id="5_5j1aw"]
+
+[sub_resource type="Resource" id="Resource_5mvkg"]
+script = ExtResource("2_0nbi2")
+speaker_id = &"cate"
+text = "That should conclude the test quest for murder tracking!"
+set_right_bust = &"cate"
+
+[sub_resource type="Resource" id="Resource_0nbi2"]
+script = ExtResource("2_0nbi2")
+speaker_id = &"cate"
+text = "Well done!"
+mood = &"amused"
+set_right_bust = &"cate"
+next_line = SubResource("Resource_5mvkg")
+
+[sub_resource type="Resource" id="Resource_5j1aw"]
+script = ExtResource("2_0nbi2")
+next_line = SubResource("Resource_0nbi2")
+auto_advance = true
+auto_advance_delay = 0.0
+event_tag = &"game_action:5:harbor_masters_request"
+
+[sub_resource type="Resource" id="Resource_s5sct"]
+script = ExtResource("2_0nbi2")
+next_line = SubResource("Resource_5j1aw")
+auto_advance = true
+auto_advance_delay = 0.0
+event_tag = &"game_action:6:harbor_masters_request:report_harbor_master"
+
+[sub_resource type="Resource" id="Resource_lpwy3"]
+script = ExtResource("1_5mvkg")
+label = "You mean evaporating some hapless Marines? Yeah."
+next_line = SubResource("Resource_s5sct")
+
+[sub_resource type="Resource" id="Resource_ha72x"]
+script = ExtResource("2_0nbi2")
+speaker_id = &"cate"
+text = "I ... well ... yes. Did you [tremble rate=15 amp=3]finish the job[/tremble]?"
+set_right_bust = &"cate"
+choices = Array[ExtResource("1_5mvkg")]([SubResource("Resource_lpwy3")])
+
+[sub_resource type="Resource" id="Resource_gelin"]
+script = ExtResource("1_5mvkg")
+label = "Don't worry, it's not [shake rate=10 level=6]my[/shake] blood."
+next_line = SubResource("Resource_ha72x")
+
+[sub_resource type="Resource" id="Resource_ivi4f"]
+script = ExtResource("2_0nbi2")
+speaker_id = &"cate"
+text = "Hey, you're all covered in [color=red]blood[/color]!"
+set_right_bust = &"cate"
+choices = Array[ExtResource("1_5mvkg")]([SubResource("Resource_gelin")])
+
+[resource]
+script = ExtResource("1_6jkrd")
+speakers = Array[ExtResource("2_266na")]([ExtResource("5_5j1aw")])
+first_line = SubResource("Resource_ivi4f")

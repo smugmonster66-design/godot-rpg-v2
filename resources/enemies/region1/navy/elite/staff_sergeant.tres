@@ -1,0 +1,83 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=23 format=3 uid="uid://dmx1mjmpdg3hm"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_rwkqe"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_bgh4r"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="10_q3ab1"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_blunt.tres" id="11_dhu6i"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="12_wnjtx"]
+[ext_resource type="Resource" uid="uid://1ujkpi2fli2j" path="res://resources/affixes/base_stats/enemy/enemy_health_str_support.tres" id="13_rynqp"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="14_nf8eh"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="15_x0de7"]
+[ext_resource type="PackedScene" uid="uid://b4wyrmm8bfq20" path="res://scenes/ui/components/dice/combat/combat_die_d8.tscn" id="16_d0yr3"]
+[ext_resource type="Resource" uid="uid://2a7ntncvy5ij" path="res://resources/affixes/elements/blunt_element.tres" id="17_8g87b"]
+[ext_resource type="Texture2D" uid="uid://der0rcr1m1pb2" path="res://assets/dice/d8s/d8-fill-basic.png" id="18_3a5mb"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="19_kcxva"]
+[ext_resource type="PackedScene" uid="uid://lx27hjqny6b8" path="res://scenes/ui/components/dice/pool/pool_die_d8.tscn" id="20_cy3fl"]
+[ext_resource type="Texture2D" uid="uid://ccv17kswol4os" path="res://assets/dice/d8s/d8-stroke-basic.png" id="21_6mi2u"]
+[ext_resource type="Resource" uid="uid://c2p4ewafuqmuw" path="res://resources/enemy_templates/support_str.tres" id="22_3aew2"]
+[ext_resource type="Resource" uid="uid://dw0tp74n2di3h" path="res://resources/actions/navy/navy_bark_orders.tres" id="32_bark_ord"]
+[ext_resource type="Resource" uid="uid://by3ekbo70ettr" path="res://resources/actions/navy/navy_tactical_strike.tres" id="33_tactical"]
+[ext_resource type="Resource" uid="uid://cehufm8vx2s75" path="res://resources/actions/navy/navy_coordinated_assault.tres" id="34_coordina"]
+
+[sub_resource type="Resource" id="Resource_qem8l"]
+script = ExtResource("1_rwkqe")
+element_preference = 0.3
+heal_urgency = 0.3
+status_awareness = 0.7
+coordination_preference = 0.8
+
+[sub_resource type="Resource" id="Resource_bgh4r"]
+script = ExtResource("15_x0de7")
+display_name = "Blunt D8"
+die_type = 8
+element = 2
+element_affix = ExtResource("17_8g87b")
+fill_texture = ExtResource("18_3a5mb")
+stroke_texture = ExtResource("21_6mi2u")
+combat_die_scene = ExtResource("16_d0yr3")
+pool_die_scene = ExtResource("20_cy3fl")
+
+[sub_resource type="Resource" id="Resource_dhfk0"]
+script = ExtResource("15_x0de7")
+display_name = "Blunt D8"
+die_type = 8
+element = 2
+element_affix = ExtResource("17_8g87b")
+fill_texture = ExtResource("18_3a5mb")
+stroke_texture = ExtResource("21_6mi2u")
+combat_die_scene = ExtResource("16_d0yr3")
+pool_die_scene = ExtResource("20_cy3fl")
+
+[sub_resource type="Resource" id="Resource_hc4mq"]
+script = ExtResource("15_x0de7")
+display_name = "Blunt D8"
+die_type = 8
+element = 2
+element_affix = ExtResource("17_8g87b")
+fill_texture = ExtResource("18_3a5mb")
+stroke_texture = ExtResource("21_6mi2u")
+combat_die_scene = ExtResource("16_d0yr3")
+pool_die_scene = ExtResource("20_cy3fl")
+
+[resource]
+script = ExtResource("14_nf8eh")
+enemy_name = "Staff Sergeant"
+description = "Sanctum Navy Staff Sergeant."
+template = ExtResource("22_3aew2")
+combat_role = 4
+max_health = 15
+starting_dice = Array[ExtResource("15_x0de7")]([SubResource("Resource_bgh4r"), SubResource("Resource_dhfk0"), SubResource("Resource_hc4mq")])
+combat_actions = Array[ExtResource("2_bgh4r")]([ExtResource("32_bark_ord"), ExtResource("33_tactical"), ExtResource("34_coordina")])
+ai_config = SubResource("Resource_qem8l")
+team_aware = true
+action_delay = 0.7
+dice_drag_duration = 0.35
+experience_reward = 30
+gold_reward_min = 10
+gold_reward_max = 30
+enemy_tier = 1
+enemy_archetype = 1
+enemy_level_floor = 3
+level_scaling_multiplier = 0.95
+health_affix = ExtResource("13_rynqp")
+enemy_affixes = Array[ExtResource("10_q3ab1")]([ExtResource("11_dhu6i")])

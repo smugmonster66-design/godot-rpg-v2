@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="DungeonEvent" load_steps=6 format=3 uid="uid://b0kctpake7r1c"]
+
+[ext_resource type="Script" uid="uid://bqpkuln0fvmtp" path="res://resources/data/dungeon_event_choice.gd" id="1_itund"]
+[ext_resource type="Resource" uid="uid://c032xglqwa6to" path="res://resources/dice_affixes/rollable/combat/tier_1/bonus_damage_flat.tres" id="2_gqi5d"]
+[ext_resource type="Script" uid="uid://wf1v60wcm56b" path="res://resources/data/dungeon_event.gd" id="3_rflot"]
+
+[sub_resource type="Resource" id="Resource_5kwfp"]
+script = ExtResource("1_itund")
+choice_text = "Free them"
+result_text = "Grateful, the spy bandages your wounds with supplies hidden in their clothing."
+heal_percent = 0.15
+
+[sub_resource type="Resource" id="Resource_re8ar"]
+script = ExtResource("1_itund")
+choice_text = "Interrogate for intel"
+result_text = "They reveal a weakness in the enemy formations — you'll strike harder in the next fight."
+grant_temp_affix = ExtResource("2_gqi5d")
+success_chance = 0.6
+fail_text = "The 'spy' was bait! They lash out with a concealed blade."
+fail_heal_amount = -5
+
+[resource]
+script = ExtResource("3_rflot")
+event_name = "Captured Spy"
+event_id = "navy_captured_spy"
+description = "A prisoner in navy stocks claims to be an ally with intelligence about what lies ahead. Their eyes are desperate but lucid."
+min_floor = 2
+max_floor = 6
+choices = Array[ExtResource("1_itund")]([SubResource("Resource_5kwfp"), SubResource("Resource_re8ar")])

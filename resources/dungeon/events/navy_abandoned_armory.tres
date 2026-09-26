@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="DungeonEvent" load_steps=6 format=3 uid="uid://chb4tij7otil8"]
+
+[ext_resource type="Script" uid="uid://bqpkuln0fvmtp" path="res://resources/data/dungeon_event_choice.gd" id="1_4bve5"]
+[ext_resource type="Script" uid="uid://wf1v60wcm56b" path="res://resources/data/dungeon_event.gd" id="2_sgx07"]
+
+[sub_resource type="Resource" id="Resource_864e8"]
+script = ExtResource("1_4bve5")
+choice_text = "Search carefully"
+result_text = "You methodically sort through the racks and find a pouch of coins tucked behind a shield."
+gold_reward = 15
+
+[sub_resource type="Resource" id="Resource_ykrmp"]
+script = ExtResource("1_4bve5")
+choice_text = "Grab and run"
+result_text = "You scoop up armfuls of loose valuables before anyone notices!"
+gold_reward = 30
+success_chance = 0.7
+fail_text = "A hidden tripwire snaps — a blade swings from the ceiling!"
+fail_heal_amount = -10
+
+[sub_resource type="Resource" id="Resource_mvfm2"]
+script = ExtResource("1_4bve5")
+choice_text = "Leave it"
+result_text = "Discretion is the better part of valor. You note the location and move on."
+experience_reward = 5
+
+[resource]
+script = ExtResource("2_sgx07")
+event_name = "Abandoned Armory"
+event_id = "navy_abandoned_armory"
+description = "You discover an unlocked navy armory, weapons scattered across racks and crates. Dust motes hang in the air — it hasn't been disturbed in some time."
+choices = Array[ExtResource("1_4bve5")]([SubResource("Resource_864e8"), SubResource("Resource_ykrmp"), SubResource("Resource_mvfm2")])

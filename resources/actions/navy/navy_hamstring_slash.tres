@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="Action" load_steps=12 format=3 uid="uid://b61wbfptus2it"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_cw5l7"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_5ree2"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_pywwp"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_5ree2"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_tvmkw"]
+[ext_resource type="Resource" uid="uid://i0gx0hubkmmx" path="res://resources/statuses/slowed.tres" id="5_s4kor"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_h43ln"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_8ahon"]
+
+[sub_resource type="Resource" id="Resource_cw5l7"]
+script = ExtResource("1_cw5l7")
+condition = 6
+threshold = 0.0
+status_id = "slowed"
+bonus_value = 25.0
+
+[sub_resource type="Resource" id="Resource_pywwp"]
+script = ExtResource("3_5ree2")
+effect_name = "Hamstring Damage"
+value_source = 1
+base_damage = 1
+damage_multiplier = 0.8
+
+[sub_resource type="Resource" id="Resource_5ree2"]
+script = ExtResource("3_5ree2")
+effect_name = "Hamstring Slow"
+effect_type = 2
+status_affix = ExtResource("5_s4kor")
+stack_count = 2
+
+[resource]
+script = ExtResource("7_8ahon")
+action_id = "navy_hamstring_slash"
+action_name = "Hamstring Slash"
+action_description = "Cripple the target's movement."
+charge_type = 1
+effects = Array[ExtResource("3_5ree2")]([SubResource("Resource_pywwp"), SubResource("Resource_5ree2")])
+ai_hints = Array[ExtResource("1_cw5l7")]([SubResource("Resource_cw5l7")])

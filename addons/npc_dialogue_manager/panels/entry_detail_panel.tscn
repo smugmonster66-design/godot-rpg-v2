@@ -1,0 +1,286 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://addons/npc_dialogue_manager/panels/entry_detail_panel.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://addons/npc_dialogue_manager/widgets/condition_editor_widget.tscn" id="2_condition"]
+
+[node name="EntryDetailPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("1_script")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 2
+
+[node name="MainVBox" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NoSelectionLabel" type="Label" parent="ScrollContainer/MainVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Select an NPC from the browser"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="NPCDetailContainer" type="VBoxContainer" parent="ScrollContainer/MainVBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="NPCHeader" type="Label" parent="ScrollContainer/MainVBox/NPCDetailContainer"]
+layout_mode = 2
+text = "NPC Properties"
+theme_override_font_sizes/font_size = 14
+
+[node name="NpcIdRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/NPCDetailContainer"]
+layout_mode = 2
+
+[node name="NpcIdLabel" type="Label" parent="ScrollContainer/MainVBox/NPCDetailContainer/NpcIdRow"]
+layout_mode = 2
+text = "NPC ID:"
+
+[node name="NpcIdEdit" type="LineEdit" parent="ScrollContainer/MainVBox/NPCDetailContainer/NpcIdRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "npc_id"
+
+[node name="DisplayNameRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/NPCDetailContainer"]
+layout_mode = 2
+
+[node name="DisplayNameLabel" type="Label" parent="ScrollContainer/MainVBox/NPCDetailContainer/DisplayNameRow"]
+layout_mode = 2
+text = "Name:"
+
+[node name="DisplayNameEdit" type="LineEdit" parent="ScrollContainer/MainVBox/NPCDetailContainer/DisplayNameRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Display Name"
+
+[node name="LocationRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/NPCDetailContainer"]
+layout_mode = 2
+
+[node name="LocationLabel" type="Label" parent="ScrollContainer/MainVBox/NPCDetailContainer/LocationRow"]
+layout_mode = 2
+text = "Location:"
+
+[node name="LocationDropdown" type="OptionButton" parent="ScrollContainer/MainVBox/NPCDetailContainer/LocationRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SpeakerRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/NPCDetailContainer"]
+layout_mode = 2
+
+[node name="SpeakerLabel" type="Label" parent="ScrollContainer/MainVBox/NPCDetailContainer/SpeakerRow"]
+layout_mode = 2
+text = "Speaker:"
+
+[node name="SpeakerDropdown" type="OptionButton" parent="ScrollContainer/MainVBox/NPCDetailContainer/SpeakerRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PortraitRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/NPCDetailContainer"]
+layout_mode = 2
+
+[node name="PortraitLabel" type="Label" parent="ScrollContainer/MainVBox/NPCDetailContainer/PortraitRow"]
+layout_mode = 2
+text = "Portrait:"
+
+[node name="PortraitPathLabel" type="Label" parent="ScrollContainer/MainVBox/NPCDetailContainer/PortraitRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "(none)"
+size_flags_horizontal = 3
+text_overrun_behavior = 3
+theme_override_font_sizes/font_size = 11
+
+[node name="PickPortraitButton" type="Button" parent="ScrollContainer/MainVBox/NPCDetailContainer/PortraitRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Pick"
+tooltip_text = "Browse for a portrait texture"
+
+[node name="DefaultIconRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/NPCDetailContainer"]
+layout_mode = 2
+
+[node name="DefaultIconLabel" type="Label" parent="ScrollContainer/MainVBox/NPCDetailContainer/DefaultIconRow"]
+layout_mode = 2
+text = "Default Icon:"
+
+[node name="DefaultIconPathLabel" type="Label" parent="ScrollContainer/MainVBox/NPCDetailContainer/DefaultIconRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "(none)"
+size_flags_horizontal = 3
+text_overrun_behavior = 3
+theme_override_font_sizes/font_size = 11
+
+[node name="PickDefaultIconButton" type="Button" parent="ScrollContainer/MainVBox/NPCDetailContainer/DefaultIconRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Pick"
+tooltip_text = "Browse for a default dialogue icon texture"
+
+[node name="ClearDefaultIconButton" type="Button" parent="ScrollContainer/MainVBox/NPCDetailContainer/DefaultIconRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "×"
+tooltip_text = "Clear the default dialogue icon"
+
+[node name="NPCSep1" type="HSeparator" parent="ScrollContainer/MainVBox/NPCDetailContainer"]
+layout_mode = 2
+
+[node name="AvailabilityHeader" type="Label" parent="ScrollContainer/MainVBox/NPCDetailContainer"]
+layout_mode = 2
+text = "Availability Condition"
+theme_override_font_sizes/font_size = 13
+
+[node name="AvailabilityHint" type="Label" parent="ScrollContainer/MainVBox/NPCDetailContainer"]
+layout_mode = 2
+text = "When should this NPC appear?"
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 11
+
+[node name="AvailabilityWidget" parent="ScrollContainer/MainVBox/NPCDetailContainer" instance=ExtResource("2_condition")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="NPCSep2" type="HSeparator" parent="ScrollContainer/MainVBox/NPCDetailContainer"]
+layout_mode = 2
+
+[node name="NPCHint" type="Label" parent="ScrollContainer/MainVBox/NPCDetailContainer"]
+layout_mode = 2
+text = "Select an entry from the dialogue table, or click + Add to create one."
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 11
+
+[node name="DetailContainer" type="VBoxContainer" parent="ScrollContainer/MainVBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="IdentityHeader" type="Label" parent="ScrollContainer/MainVBox/DetailContainer"]
+layout_mode = 2
+text = "Dialogue Entry"
+theme_override_font_sizes/font_size = 14
+
+[node name="BackToNPCButton" type="Button" parent="ScrollContainer/MainVBox/DetailContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "← Back to NPC Properties"
+tooltip_text = "Return to NPC-level settings"
+
+[node name="EntrySep0" type="HSeparator" parent="ScrollContainer/MainVBox/DetailContainer"]
+layout_mode = 2
+
+[node name="IdRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/DetailContainer"]
+layout_mode = 2
+
+[node name="IdLabel" type="Label" parent="ScrollContainer/MainVBox/DetailContainer/IdRow"]
+layout_mode = 2
+text = "Encounter ID:"
+
+[node name="EncounterIdEdit" type="LineEdit" parent="ScrollContainer/MainVBox/DetailContainer/IdRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "encounter_id"
+
+[node name="PriorityRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/DetailContainer"]
+layout_mode = 2
+
+[node name="PriLabel" type="Label" parent="ScrollContainer/MainVBox/DetailContainer/PriorityRow"]
+layout_mode = 2
+text = "Priority:"
+
+[node name="PrioritySpin" type="SpinBox" parent="ScrollContainer/MainVBox/DetailContainer/PriorityRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = -999.0
+max_value = 9999.0
+tooltip_text = "Higher priority entries are evaluated first"
+
+[node name="OneShotCheck" type="CheckBox" parent="ScrollContainer/MainVBox/DetailContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "One-Shot (play only once)"
+
+[node name="IconRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/DetailContainer"]
+layout_mode = 2
+
+[node name="IconLabel" type="Label" parent="ScrollContainer/MainVBox/DetailContainer/IconRow"]
+layout_mode = 2
+text = "Icon:"
+
+[node name="IconPathLabel" type="Label" parent="ScrollContainer/MainVBox/DetailContainer/IconRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "(none)"
+size_flags_horizontal = 3
+text_overrun_behavior = 3
+theme_override_font_sizes/font_size = 11
+
+[node name="PickIconButton" type="Button" parent="ScrollContainer/MainVBox/DetailContainer/IconRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Pick"
+tooltip_text = "Browse for a conversation icon texture"
+
+[node name="ClearIconButton" type="Button" parent="ScrollContainer/MainVBox/DetailContainer/IconRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "×"
+tooltip_text = "Clear the icon (will use NPC default)"
+
+[node name="Sep1" type="HSeparator" parent="ScrollContainer/MainVBox/DetailContainer"]
+layout_mode = 2
+
+[node name="ConditionHeader" type="Label" parent="ScrollContainer/MainVBox/DetailContainer"]
+layout_mode = 2
+text = "Entry Condition"
+theme_override_font_sizes/font_size = 13
+
+[node name="ConditionWidget" parent="ScrollContainer/MainVBox/DetailContainer" instance=ExtResource("2_condition")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Sep2" type="HSeparator" parent="ScrollContainer/MainVBox/DetailContainer"]
+layout_mode = 2
+
+[node name="EncounterHeader" type="Label" parent="ScrollContainer/MainVBox/DetailContainer"]
+layout_mode = 2
+text = "Encounter"
+theme_override_font_sizes/font_size = 13
+
+[node name="EncounterPathLabel" type="Label" parent="ScrollContainer/MainVBox/DetailContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "(none)"
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 11
+
+[node name="EncounterButtons" type="HBoxContainer" parent="ScrollContainer/MainVBox/DetailContainer"]
+layout_mode = 2
+
+[node name="PickEncounterButton" type="Button" parent="ScrollContainer/MainVBox/DetailContainer/EncounterButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Pick .tres"
+tooltip_text = "Browse for an existing dialogue encounter file"
+
+[node name="OpenInEditorButton" type="Button" parent="ScrollContainer/MainVBox/DetailContainer/EncounterButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Open in Editor"
+tooltip_text = "Open this encounter in the Dialogue Editor"
+
+[node name="CreateEncounterButton" type="Button" parent="ScrollContainer/MainVBox/DetailContainer/EncounterButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Create New"
+tooltip_text = "Create a new encounter and open it in the editor"

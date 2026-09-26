@@ -6,13 +6,17 @@
 
 [resource]
 script = ExtResource("2_tnpp7")
-affix_name = "Barrier on Defend"
-description = "+N barrier when defending"
+affix_name = "Warded on Hit Taken"
+description = "Gain {value} [status:warded|Warded] when struck"
 category = 35
-tags = Array[String](["proc", "barrier", "defend"])
+tags = Array[String](["proc", "barrier", "on_hit_taken", "defensive"])
 effect_min = 2.0
 effect_max = 30.0
 effect_data = {
-"effect": "gain_barrier"
+"effect": "apply_status",
+"status": "warded",
+"status_stacks_from_value": true,
+"status_target": "self"
 }
-proc_trigger = 10
+proc_trigger = 2
+power_weight = 90.0

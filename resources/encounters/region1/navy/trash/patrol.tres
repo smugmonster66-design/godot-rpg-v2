@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=4 format=3 uid="uid://g638gofaboyq"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_7420k"]
+[ext_resource type="Resource" uid="uid://c2bo71ua4y88t" path="res://resources/enemies/region1/navy/trash/navy_enforcer.tres" id="2_72o0l"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="3_xolc7"]
+
+[resource]
+script = ExtResource("3_xolc7")
+encounter_name = "Navy Patrol"
+encounter_id = "navy_navy_patrol"
+enemies = Array[ExtResource("1_7420k")]([ExtResource("2_72o0l")])
+enemy_slots = Array[int]([1])
+level_range_max = 3

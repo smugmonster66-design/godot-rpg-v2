@@ -1,10 +1,13 @@
-[gd_resource type="Resource" script_class="Affix" load_steps=2 format=3 uid="uid://b2x3mu74rqjni"]
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://b2x3mu74rqjni"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_p68cr"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_yyw5y"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_0yync"]
 
 [resource]
 script = ExtResource("1_p68cr")
 affix_name = "Fire Fist"
-description = "Adds +5 Fire damage to each attack."
+description = "Adds +5 [element:fire] damage to each attack."
 category = 9
+power_weight = 80.0
 metadata/_custom_type_script = "uid://c8ianog20smkw"

@@ -1,0 +1,113 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=29 format=3 uid="uid://l1fymoglj4m2"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_im7e3"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_lye1l"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="11_0hymc"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_piercing.tres" id="12_dv8oe"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="13_oappa"]
+[ext_resource type="Resource" uid="uid://dukagxso81fx" path="res://resources/affixes/base_stats/enemy/enemy_health_agi_support.tres" id="14_uiy1x"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="15_h4e3e"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="16_fjgij"]
+[ext_resource type="PackedScene" uid="uid://de8q4axqsu2ki" path="res://scenes/ui/components/dice/combat/combat_die_d6.tscn" id="17_0mnop"]
+[ext_resource type="Resource" uid="uid://dc86xxo6gws3l" path="res://resources/affixes/elements/piercing_element.tres" id="18_hy1vu"]
+[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="19_k7otu"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="20_f6o7k"]
+[ext_resource type="PackedScene" uid="uid://bxqtkedv2ygd3" path="res://scenes/ui/components/dice/pool/pool_die_d6.tscn" id="21_cljsg"]
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="21_i3fxt"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="22_0nade"]
+[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="22_3sni0"]
+[ext_resource type="Resource" uid="uid://b5i2xbuayuem8" path="res://resources/enemy_templates/support_agi.tres" id="23_4qjcm"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="23_g6tjd"]
+[ext_resource type="Resource" uid="uid://bwgo4234yss66" path="res://resources/actions/navy/navy_flash_signal.tres" id="33_flash_si"]
+[ext_resource type="Resource" uid="uid://bt1fqwr2cvytd" path="res://resources/actions/navy/navy_mirror_trick.tres" id="34_mirror_t"]
+
+[sub_resource type="Resource" id="Resource_bv1ap"]
+script = ExtResource("1_im7e3")
+element_preference = 0.3
+heal_urgency = 0.3
+status_awareness = 0.9
+coordination_preference = 0.7
+
+
+[sub_resource type="Resource" id="Resource_ii6vt"]
+script = ExtResource("21_i3fxt")
+type = 4
+
+
+[sub_resource type="Resource" id="Resource_0hymc"]
+script = ExtResource("20_f6o7k")
+affix_name = "Blinding Flash"
+description = "On max roll, first die applies Enfeeble to enemy."
+trigger = 1
+position_requirement = 1
+condition = SubResource("Resource_ii6vt")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "enfeeble",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_dv8oe"]
+script = ExtResource("16_fjgij")
+display_name = "Piercing D6"
+element = 3
+element_affix = ExtResource("18_hy1vu")
+fill_texture = ExtResource("19_k7otu")
+stroke_texture = ExtResource("22_3sni0")
+combat_die_scene = ExtResource("17_0mnop")
+pool_die_scene = ExtResource("21_cljsg")
+inherent_affixes = Array[ExtResource("20_f6o7k")]([SubResource("Resource_0hymc")])
+
+
+[sub_resource type="Resource" id="Resource_oappa"]
+script = ExtResource("21_i3fxt")
+type = 4
+
+
+[sub_resource type="Resource" id="Resource_uiy1x"]
+script = ExtResource("20_f6o7k")
+affix_name = "Blinding Flash"
+description = "On max roll, first die applies Enfeeble to enemy."
+trigger = 1
+position_requirement = 1
+condition = SubResource("Resource_oappa")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "enfeeble",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_h4e3e"]
+script = ExtResource("16_fjgij")
+display_name = "Piercing D6"
+element = 3
+element_affix = ExtResource("18_hy1vu")
+fill_texture = ExtResource("19_k7otu")
+stroke_texture = ExtResource("22_3sni0")
+combat_die_scene = ExtResource("17_0mnop")
+pool_die_scene = ExtResource("21_cljsg")
+inherent_affixes = Array[ExtResource("20_f6o7k")]([SubResource("Resource_uiy1x")])
+
+
+[resource]
+script = ExtResource("15_h4e3e")
+enemy_name = "Signalman"
+description = "Sanctum Navy Signalman."
+template = ExtResource("23_4qjcm")
+combat_role = 4
+enemy_tags = PackedStringArray("navy", "humanoid")
+starting_dice = Array[ExtResource("16_fjgij")]([SubResource("Resource_dv8oe"), SubResource("Resource_h4e3e")])
+combat_actions = Array[ExtResource("2_lye1l")]([ExtResource("33_flash_si"), ExtResource("34_mirror_t")])
+ai_config = SubResource("Resource_bv1ap")
+team_aware = true
+action_delay = 0.6
+dice_drag_duration = 0.35
+gold_reward_min = 3
+gold_reward_max = 10
+enemy_archetype = 2
+health_affix = ExtResource("14_uiy1x")
+enemy_affixes = Array[ExtResource("11_0hymc")]([ExtResource("12_dv8oe")])

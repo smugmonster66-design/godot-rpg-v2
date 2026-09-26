@@ -1,0 +1,69 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://addons/quest_manager/quest_manager_dock.gd" id="1_dock"]
+[ext_resource type="PackedScene" path="res://addons/quest_manager/panels/quest_browser_panel.tscn" id="2_browser"]
+[ext_resource type="PackedScene" path="res://addons/quest_manager/panels/objective_list_panel.tscn" id="3_objectives"]
+[ext_resource type="PackedScene" path="res://addons/quest_manager/panels/quest_detail_panel.tscn" id="4_detail"]
+
+[node name="QuestManagerDock" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_dock")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Toolbar" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="SaveButton" type="Button" parent="VBox/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Save"
+tooltip_text = "Save the current quest definition"
+
+[node name="ValidateButton" type="Button" parent="VBox/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Validate"
+tooltip_text = "Check for errors in the quest definition"
+
+[node name="Spacer" type="Control" parent="VBox/Toolbar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CurrentQuestLabel" type="Label" parent="VBox/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = ""
+
+[node name="MainHSplit" type="HSplitContainer" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 200
+
+[node name="QuestBrowserPanel" parent="VBox/MainHSplit" instance=ExtResource("2_browser")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="CenterRightSplit" type="HSplitContainer" parent="VBox/MainHSplit"]
+layout_mode = 2
+size_flags_horizontal = 3
+split_offset = -280
+
+[node name="ObjectiveListPanel" parent="VBox/MainHSplit/CenterRightSplit" instance=ExtResource("3_objectives")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="QuestDetailPanel" parent="VBox/MainHSplit/CenterRightSplit" instance=ExtResource("4_detail")]
+unique_name_in_owner = true
+layout_mode = 2

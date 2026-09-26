@@ -6,15 +6,11 @@
 
 [resource]
 script = ExtResource("2_stbuu")
-affix_name = "Forge Bond: Position Bonus"
-description = "Fire die in first or last position deals +25% damage."
+affix_name = "Forge Bond: First Position"
+description = "FIRST [element:fire] die: +25% damage."
 use_global_element_visuals = true
 global_element_type = 3
 trigger = 1
 position_requirement = 1
-effect_type = 26
-effect_value = 0.25
-effect_data = {
-"element": "FIRE",
-"percent": 0.25
-}
+effect_type = 1
+effect_value = 1.25

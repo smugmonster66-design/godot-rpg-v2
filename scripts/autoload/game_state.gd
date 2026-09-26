@@ -18,6 +18,7 @@ signal state_saved
 signal flag_changed(flag_name: StringName, value: bool)
 signal counter_changed(counter_name: StringName, old_value: int, new_value: int)
 signal relationship_changed(npc_id: StringName, old_value: int, new_value: int)
+signal approval_changed(npc_id: StringName, old_value: int, new_value: int)
 
 # ============================================================================
 # THE SAVE DATA
@@ -34,11 +35,17 @@ var counters: Counters:
 var relationships: Relationships:
 	get: return _save_data.relationships
 
+var approvals: Approvals:
+	get: return _save_data.approvals
+
 var quests: QuestJournal:
 	get: return _save_data.quests
 
 var map: MapProgress:
 	get: return _save_data.map
+
+var stash: StashData:
+	get: return _save_data.stash
 
 # ============================================================================
 # INITIALIZATION
@@ -48,8 +55,14 @@ func _ready():
 	# Load or create save data
 	_save_data = SaveData.load_from_disk()
 	_connect_signals()
+	# Restore NPC seen encounters (NPCManager may not be ready yet — defer)
+	call_deferred(&"_restore_npc_state")
 	print("GameState ready - %s" % ("Loaded existing save" if SaveData.save_exists() else "New game"))
 	state_loaded.emit()
+
+func _restore_npc_state() -> void:
+	if NPCManager and not _save_data.seen_npc_encounters.is_empty():
+		NPCManager.restore_seen_encounters(_save_data.seen_npc_encounters)
 
 func _connect_signals():
 	"""Wire up sub-resource signals to bubble up."""
@@ -59,6 +72,8 @@ func _connect_signals():
 		_save_data.counters.counter_changed.connect(_on_counter_changed)
 	if _save_data.relationships:
 		_save_data.relationships.relationship_changed.connect(_on_relationship_changed)
+	if _save_data.approvals:
+		_save_data.approvals.approval_changed.connect(_on_approval_changed)
 
 func _on_flag_changed(flag_name: StringName, value: bool):
 	flag_changed.emit(flag_name, value)
@@ -69,12 +84,20 @@ func _on_counter_changed(counter_name: StringName, old_value: int, new_value: in
 func _on_relationship_changed(npc_id: StringName, old_value: int, new_value: int):
 	relationship_changed.emit(npc_id, old_value, new_value)
 
+func _on_approval_changed(npc_id: StringName, old_value: int, new_value: int):
+	approval_changed.emit(npc_id, old_value, new_value)
+
 # ============================================================================
 # SAVE/LOAD
 # ============================================================================
 
 func save() -> Error:
-	"""Save current state to disk."""
+	"""Save current state to disk. Snapshots player state from GameManager."""
+	if GameManager and GameManager.player:
+		_save_data.snapshot_player(GameManager.player, GameManager)
+	# Snapshot NPC seen encounters
+	if NPCManager:
+		_save_data.seen_npc_encounters = NPCManager.get_seen_encounters_snapshot()
 	var error = _save_data.save_to_disk()
 	if error == OK:
 		state_saved.emit()
@@ -84,12 +107,18 @@ func load_game() -> void:
 	"""Reload from disk (discards current state)."""
 	_save_data = SaveData.load_from_disk()
 	_connect_signals()
+	# Restore NPC seen encounters
+	if NPCManager:
+		NPCManager.restore_seen_encounters(_save_data.seen_npc_encounters)
 	state_loaded.emit()
 
 func new_game() -> void:
 	"""Start a new game (discards current state)."""
 	_save_data = SaveData.new()
 	_connect_signals()
+	# Clear NPC seen encounters
+	if NPCManager:
+		NPCManager.clear_seen_encounters()
 	state_loaded.emit()
 
 func delete_save() -> Error:
@@ -120,6 +149,10 @@ func increment_counter(counter_name: StringName, amount: int = 1) -> int:
 	"""Increment a counter and return new value."""
 	return _save_data.counters.increment(counter_name, amount)
 
+func set_counter(counter_name: StringName, value: int) -> void:
+	"""Set a counter to an exact value."""
+	_save_data.counters.set_counter(counter_name, value)
+
 func get_counter(counter_name: StringName) -> int:
 	"""Get a counter value."""
 	return _save_data.counters.get_counter(counter_name)
@@ -137,14 +170,34 @@ func get_relationship(npc_id: StringName) -> int:
 	return _save_data.relationships.get_relationship(npc_id)
 
 # ============================================================================
+# CONVENIENCE - APPROVALS (hidden from player)
+# ============================================================================
+
+func modify_approval(npc_id: StringName, delta: int) -> int:
+	"""Modify hidden NPC approval and return new value."""
+	return _save_data.approvals.modify(npc_id, delta)
+
+func get_approval(npc_id: StringName) -> int:
+	"""Get hidden NPC approval value."""
+	return _save_data.approvals.get_approval(npc_id)
+
+# ============================================================================
 # CONVENIENCE - PLAYER
 # ============================================================================
 
 func get_player_level() -> int:
-	return _save_data.player_level
+	return _save_data.player_stats.get("level", 1)
 
 func set_player_level(level: int) -> void:
-	_save_data.player_level = level
+	_save_data.player_stats["level"] = level
+
+func has_player_state() -> bool:
+	"""Whether a saved player state exists to restore."""
+	return _save_data.has_player_state
+
+func restore_player(player: Player, game_manager = null) -> bool:
+	"""Restore player state from save data. Returns false if no state saved."""
+	return _save_data.restore_player(player, game_manager)
 
 func get_class_level(class_id: StringName) -> int:
 	return _save_data.get_class_level(class_id)
@@ -172,6 +225,9 @@ func _enter_tree():
 	_session_start = Time.get_unix_time_from_system()
 
 func _exit_tree():
+	# Skip auto-save when dev mode is active
+	if GameManager and GameManager.game_root and GameManager.game_root.dev_mode:
+		return
 	# Update play time on exit
 	if _save_data:
 		_save_data.play_time += Time.get_unix_time_from_system() - _session_start
@@ -215,7 +271,10 @@ class GameStateConditionContext extends GameCondition.ConditionContext:
 	
 	func get_relationship(npc_id: StringName) -> int:
 		return _game_state.relationships.get_relationship(npc_id)
-	
+
+	func get_approval(npc_id: StringName) -> int:
+		return _game_state.approvals.get_approval(npc_id)
+
 	func get_item_count(item_id: StringName) -> int:
 		# Inventory is Array[EquippableItem], count by item_name
 		if GameManager and GameManager.player and GameManager.player.inventory:
@@ -239,8 +298,31 @@ class GameStateConditionContext extends GameCondition.ConditionContext:
 		return _game_state.map.has_visited(location_id)
 	
 	func evaluate_custom(key: StringName) -> bool:
-		# For edge cases - emit a signal and let game code respond
-		# You could add: custom_condition_checked.emit(key)
-		# And have listeners call set_custom_result(key, bool)
+		var key_str = str(key)
+		# Quest objective progress: "quest_objective_progress:quest_id:obj_id:op:value"
+		if key_str.begins_with("quest_objective_progress:"):
+			var parts = key_str.split(":")
+			if parts.size() >= 5:
+				var progress = _game_state.quests.get_objective_progress(StringName(parts[1]), StringName(parts[2]))
+				var op = parts[3]
+				var target = int(parts[4])
+				return _compare_int(progress, op, target)
+			return false
+		# Quest objective completion: "quest_objective:quest_id:objective_id"
+		if key_str.begins_with("quest_objective:"):
+			var parts = key_str.split(":")
+			if parts.size() >= 3:
+				return _game_state.quests.is_objective_complete(StringName(parts[1]), StringName(parts[2]))
+			return false
 		push_warning("Custom condition '%s' not implemented" % key)
+		return false
+
+	func _compare_int(value: int, op: String, target: int) -> bool:
+		match op:
+			"==": return value == target
+			"!=": return value != target
+			">":  return value > target
+			"<":  return value < target
+			">=": return value >= target
+			"<=": return value <= target
 		return false

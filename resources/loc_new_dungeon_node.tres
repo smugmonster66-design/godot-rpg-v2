@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="LocationNode" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/data/location_node.gd" id="1_fx182"]
+[ext_resource type="Script" path="res://resources/data/map_node_button_def.gd" id="2_il6mg"]
+
+[resource]
+script = ExtResource("1_fx182")
+location_id = &"new_dungeon_node"
+display_name = "New Dungeon Node"
+node_type = 2
+map_position = Vector2(408, 156)

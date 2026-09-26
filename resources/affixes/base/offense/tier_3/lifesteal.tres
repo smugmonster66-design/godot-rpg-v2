@@ -17,3 +17,4 @@ effect_data = {
 "effect": "heal_percent_damage"
 }
 proc_trigger = 1
+power_weight = 140.0

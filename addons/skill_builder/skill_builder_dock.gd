@@ -104,9 +104,9 @@ func _build_file_dialog():
 
 	_skill_picker_list = ItemList.new()
 	_skill_picker_list.size_flags_vertical = SIZE_EXPAND_FILL
-	_skill_picker_list.custom_minimum_size.y = 400
 	_skill_picker_list.item_activated.connect(func(_idx): _on_skill_picker_confirmed())
 	picker_vbox.add_child(_skill_picker_list)
+	_skill_picker_list.custom_minimum_size.y = 400
 
 	EditorInterface.get_base_control().add_child(_skill_picker)
 
@@ -131,17 +131,17 @@ func _build_ui():
 	main_vbox.add_child(HSeparator.new())
 
 	# -- Basic Info --
-	main_vbox.add_child(_make_section_header("📋 Basic Info"))
+	_make_section_header(main_vbox, "📋 Basic Info")
 	main_vbox.add_child(_build_basic_info_section())
 	main_vbox.add_child(HSeparator.new())
 
 	# -- Tree Position --
-	main_vbox.add_child(_make_section_header("🌳 Tree Position"))
+	_make_section_header(main_vbox, "🌳 Tree Position")
 	main_vbox.add_child(_build_tree_position_section())
 	main_vbox.add_child(HSeparator.new())
 
 	# -- Requirements --
-	main_vbox.add_child(_make_section_header("🔒 Requirements"))
+	_make_section_header(main_vbox, "🔒 Requirements")
 	main_vbox.add_child(_build_requirements_section())
 	main_vbox.add_child(HSeparator.new())
 
@@ -155,8 +155,7 @@ func _build_ui():
 	]
 	for i in range(MAX_RANKS):
 		var rank_num = i + 1
-		var header = _make_section_header("⭐ Rank %d Affixes" % rank_num, rank_colors[i])
-		main_vbox.add_child(header)
+		_make_section_header(main_vbox, "⭐ Rank %d Affixes" % rank_num, rank_colors[i])
 		main_vbox.add_child(_build_rank_section(i))
 		if i < MAX_RANKS - 1:
 			main_vbox.add_child(HSeparator.new())
@@ -221,7 +220,7 @@ func _build_save_load_row() -> VBoxContainer:
 
 	# Save path
 	var path_row = HBoxContainer.new()
-	path_row.add_child(_make_label_small("Save path:"))
+	_make_label_small(path_row, "Save path:")
 	_save_path_edit = LineEdit.new()
 	_save_path_edit.placeholder_text = "res://resources/skills/classes/mage/flame/t1/my_skill.tres"
 	_save_path_edit.size_flags_horizontal = SIZE_EXPAND_FILL
@@ -235,8 +234,8 @@ func _build_save_load_row() -> VBoxContainer:
 	# Loaded file indicator
 	_load_path_label = Label.new()
 	_load_path_label.text = ""
-	_load_path_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 	vbox.add_child(_load_path_label)
+	_load_path_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 
 	return vbox
 
@@ -247,7 +246,7 @@ func _build_basic_info_section() -> VBoxContainer:
 
 	# Skill ID + auto-generate button
 	var id_row = HBoxContainer.new()
-	id_row.add_child(_make_label_small("ID:"))
+	_make_label_small(id_row, "ID:")
 	_skill_id_edit = LineEdit.new()
 	_skill_id_edit.placeholder_text = "flame_kindling"
 	_skill_id_edit.size_flags_horizontal = SIZE_EXPAND_FILL
@@ -261,7 +260,7 @@ func _build_basic_info_section() -> VBoxContainer:
 
 	# Skill Name
 	var name_row = HBoxContainer.new()
-	name_row.add_child(_make_label_small("Name:"))
+	_make_label_small(name_row, "Name:")
 	_skill_name_edit = LineEdit.new()
 	_skill_name_edit.placeholder_text = "Kindling"
 	_skill_name_edit.size_flags_horizontal = SIZE_EXPAND_FILL
@@ -269,16 +268,16 @@ func _build_basic_info_section() -> VBoxContainer:
 	vbox.add_child(name_row)
 
 	# Description (multi-line, supports BBCode)
-	vbox.add_child(_make_label_small("Description (BBCode):"))
+	_make_label_small(vbox, "Description (BBCode):")
 	_description_edit = TextEdit.new()
-	_description_edit.custom_minimum_size.y = 60
 	_description_edit.size_flags_horizontal = SIZE_EXPAND_FILL
 	_description_edit.placeholder_text = "+2 [color=orange]fire[/color] damage per adjacent fire die."
 	vbox.add_child(_description_edit)
+	_description_edit.custom_minimum_size.y = 60
 
 	# Icon path
 	var icon_row = HBoxContainer.new()
-	icon_row.add_child(_make_label_small("Icon:"))
+	_make_label_small(icon_row, "Icon:")
 	_icon_path_edit = LineEdit.new()
 	_icon_path_edit.placeholder_text = "res://art/icons/skills/kindling.png"
 	_icon_path_edit.size_flags_horizontal = SIZE_EXPAND_FILL
@@ -298,7 +297,7 @@ func _build_tree_position_section() -> VBoxContainer:
 	var vbox = VBoxContainer.new()
 
 	var row1 = HBoxContainer.new()
-	row1.add_child(_make_label_small("Tier:"))
+	_make_label_small(row1, "Tier:")
 	_tier_spin = SpinBox.new()
 	_tier_spin.min_value = 1
 	_tier_spin.max_value = 10
@@ -306,7 +305,7 @@ func _build_tree_position_section() -> VBoxContainer:
 	_tier_spin.size_flags_horizontal = SIZE_EXPAND_FILL
 	row1.add_child(_tier_spin)
 
-	row1.add_child(_make_label_small("Col:"))
+	_make_label_small(row1, "Col:")
 	_column_spin = SpinBox.new()
 	_column_spin.min_value = 0
 	_column_spin.max_value = 6
@@ -316,7 +315,7 @@ func _build_tree_position_section() -> VBoxContainer:
 	vbox.add_child(row1)
 
 	var row2 = HBoxContainer.new()
-	row2.add_child(_make_label_small("SP Cost:"))
+	_make_label_small(row2, "SP Cost:")
 	_cost_spin = SpinBox.new()
 	_cost_spin.min_value = 1
 	_cost_spin.max_value = 5
@@ -334,7 +333,7 @@ func _build_requirements_section() -> VBoxContainer:
 
 	# Tree points required
 	var tp_row = HBoxContainer.new()
-	tp_row.add_child(_make_label_small("Tree Pts:"))
+	_make_label_small(tp_row, "Tree Pts:")
 	_tree_points_spin = SpinBox.new()
 	_tree_points_spin.min_value = 0
 	_tree_points_spin.max_value = 30
@@ -350,7 +349,7 @@ func _build_requirements_section() -> VBoxContainer:
 	vbox.add_child(auto_tp_btn)
 
 	# Prerequisites header
-	vbox.add_child(_make_label_small("Prerequisites:"))
+	_make_label_small(vbox, "Prerequisites:")
 
 	# Dynamic prereq rows container
 	_prereqs_container = VBoxContainer.new()
@@ -387,16 +386,18 @@ func _build_rank_section(rank_index: int) -> VBoxContainer:
 # HELPER UI BUILDERS
 # ============================================================================
 
-func _make_section_header(text: String, color: Color = HEADER_COLOR) -> Label:
+func _make_section_header(parent: Control, text: String, color: Color = HEADER_COLOR) -> Label:
 	var label = Label.new()
 	label.text = text
+	parent.add_child(label)
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_font_size_override("font_size", 14)
 	return label
 
-func _make_label_small(text: String) -> Label:
+func _make_label_small(parent: Control, text: String) -> Label:
 	var label = Label.new()
 	label.text = text
+	parent.add_child(label)
 	label.custom_minimum_size.x = 65
 	return label
 
@@ -429,8 +430,8 @@ func _add_prereq_row(skill_path: String = "", rank: int = 1):
 	rank_spin.min_value = 1
 	rank_spin.max_value = 5
 	rank_spin.value = rank
-	rank_spin.custom_minimum_size.x = 55
 	row.add_child(rank_spin)
+	rank_spin.custom_minimum_size.x = 55
 
 	# Remove button
 	var remove_btn = Button.new()
@@ -475,16 +476,16 @@ func _add_affix_row(rank_index: int, affix_path: String = "", inline_affix: Affi
 		var extract_btn = Button.new()
 		extract_btn.text = "📤"
 		extract_btn.tooltip_text = "Extract inline affix to standalone .tres file"
-		extract_btn.add_theme_color_override("font_color", Color(1.0, 0.7, 0.2))
 		extract_btn.pressed.connect(func():
 			_extract_inline_affix(row, path_edit, extract_btn, inline_affix, rank_index))
 		row.add_child(extract_btn)
+		extract_btn.add_theme_color_override("font_color", Color(1.0, 0.7, 0.2))
 
 	# Preview label (shows affix name after path is set)
 	var preview = Label.new()
+	row.add_child(preview)
 	preview.custom_minimum_size.x = 80
 	preview.add_theme_color_override("font_color", Color(0.6, 0.8, 0.6))
-	row.add_child(preview)
 
 	# Auto-preview on text change
 	path_edit.text_changed.connect(func(new_text: String):

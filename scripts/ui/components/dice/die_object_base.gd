@@ -40,6 +40,10 @@ var _preview_value_material: Material = null
 # ============================================================================
 var die_resource: DieResource = null
 var draggable: bool = true
+var is_interactable: bool = true :
+	set(value):
+		is_interactable = value
+		mouse_filter = Control.MOUSE_FILTER_STOP if value else Control.MOUSE_FILTER_IGNORE
 var _is_being_dragged: bool = false
 var _was_placed: bool = false
 var _original_position: Vector2 = Vector2.ZERO
@@ -375,6 +379,7 @@ func end_drag_visual(was_placed: bool):
 	_was_placed = was_placed
 	
 	if was_placed:
+		is_interactable = false
 		modulate.a = 0.0
 		if animation_player and animation_player.has_animation("place"):
 			animation_player.play("place")
@@ -408,7 +413,7 @@ func show_reject_feedback():
 
 func show_hover():
 	"""Visual feedback on mouse hover"""
-	if not draggable:
+	if not is_interactable or not draggable:
 		return
 	
 	if animation_player and animation_player.has_animation("hover"):
@@ -525,6 +530,8 @@ func _activate_preview_effects(preview: Control):
 # ============================================================================
 
 func _gui_input(event: InputEvent):
+	if not is_interactable:
+		return
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			clicked.emit(self)
@@ -532,7 +539,7 @@ func _gui_input(event: InputEvent):
 
 func _get_drag_data(_at_position: Vector2) -> Variant:
 	"""Godot's native drag initiation - returns drag data to start dragging"""
-	if not draggable or not die_resource:
+	if not is_interactable or not draggable or not die_resource:
 		return null
 	
 	if die_resource.is_locked:
@@ -604,9 +611,11 @@ func _update_manual_preview_position():
 		_manual_preview.global_position = get_global_mouse_position() - base_size / 2
 
 func _force_cleanup_drag():
-	modulate.a = 1.0
-	mouse_filter = Control.MOUSE_FILTER_STOP
 	"""Emergency cleanup when NOTIFICATION_DRAG_END is missed."""
+	# Only restore visible state if the die was NOT placed (cancelled drag)
+	if not _was_placed:
+		modulate.a = 1.0
+		mouse_filter = Control.MOUSE_FILTER_STOP
 	print("🎲 Drag cleanup: input released but NOTIFICATION_DRAG_END missed — forcing cleanup")
 	if _is_being_dragged:
 		end_drag_visual(_was_placed)
@@ -633,7 +642,7 @@ func _find_top_canvas_layer() -> Node:
 func _notification(what: int):
 	match what:
 		NOTIFICATION_MOUSE_ENTER:
-			if draggable and not _is_being_dragged:
+			if is_interactable and draggable and not _is_being_dragged:
 				show_hover()
 		NOTIFICATION_MOUSE_EXIT:
 			if not _is_being_dragged:

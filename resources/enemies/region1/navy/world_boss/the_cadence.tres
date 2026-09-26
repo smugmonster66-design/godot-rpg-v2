@@ -1,0 +1,118 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=29 format=3 uid="uid://fwx2tdg8isoh"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_4741r"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_yl7n1"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="10_ccofb"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_blunt.tres" id="11_7w84x"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="12_u30fj"]
+[ext_resource type="Resource" uid="uid://1ujkpi2fli2j" path="res://resources/affixes/base_stats/enemy/enemy_health_str_support.tres" id="13_ek25w"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="14_1pd3j"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="15_iktjm"]
+[ext_resource type="PackedScene" uid="uid://c457eolhd5tul" path="res://scenes/ui/components/dice/combat/combat_die_d12.tscn" id="16_ahjit"]
+[ext_resource type="Resource" uid="uid://2a7ntncvy5ij" path="res://resources/affixes/elements/blunt_element.tres" id="17_p42d0"]
+[ext_resource type="Texture2D" uid="uid://r7bikgya1ua8" path="res://assets/dice/d12s/d12-basic-fill.png" id="18_d3x3a"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="19_wj2xv"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="20_k8od7"]
+[ext_resource type="PackedScene" uid="uid://yqcuq20fomfu" path="res://scenes/ui/components/dice/pool/pool_die_d12.tscn" id="20_t31bc"]
+[ext_resource type="Texture2D" uid="uid://d3cgge7kyfsqd" path="res://assets/dice/d12s/d12-basic-stroke.png" id="21_cyntr"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="21_mmx3t"]
+[ext_resource type="Resource" uid="uid://c2p4ewafuqmuw" path="res://resources/enemy_templates/support_str.tres" id="22_oabkf"]
+[ext_resource type="Resource" uid="uid://mj3iecnevnfe" path="res://resources/actions/navy/navy_war_beat.tres" id="32_war_beat"]
+[ext_resource type="Resource" uid="uid://cnqr8l1cgtis" path="res://resources/actions/navy/navy_drumstick.tres" id="33_drumstic"]
+[ext_resource type="Resource" uid="uid://brfltf8cs7w7i" path="res://resources/actions/navy/navy_crescendo.tres" id="34_crescend"]
+
+[sub_resource type="Resource" id="Resource_v2tt2"]
+script = ExtResource("1_4741r")
+element_preference = 0.2
+heal_urgency = 0.4
+status_awareness = 0.4
+coordination_preference = 0.9
+
+
+[sub_resource type="Resource" id="Resource_xcbrn"]
+script = ExtResource("19_wj2xv")
+affix_name = "Steady Rhythm"
+description = "All dice have a minimum value of 3."
+effect_type = 2
+effect_value = 3.0
+
+
+[sub_resource type="Resource" id="Resource_d340b"]
+script = ExtResource("15_iktjm")
+display_name = "Blunt D12"
+die_type = 12
+element = 2
+element_affix = ExtResource("17_p42d0")
+fill_texture = ExtResource("18_d3x3a")
+stroke_texture = ExtResource("21_cyntr")
+combat_die_scene = ExtResource("16_ahjit")
+pool_die_scene = ExtResource("20_t31bc")
+inherent_affixes = Array[ExtResource("19_wj2xv")]([SubResource("Resource_xcbrn")])
+
+
+[sub_resource type="Resource" id="Resource_3nlur"]
+script = ExtResource("19_wj2xv")
+affix_name = "Steady Rhythm"
+description = "All dice have a minimum value of 3."
+effect_type = 2
+effect_value = 3.0
+
+
+[sub_resource type="Resource" id="Resource_gsion"]
+script = ExtResource("15_iktjm")
+display_name = "Blunt D12"
+die_type = 12
+element = 2
+element_affix = ExtResource("17_p42d0")
+fill_texture = ExtResource("18_d3x3a")
+stroke_texture = ExtResource("21_cyntr")
+combat_die_scene = ExtResource("16_ahjit")
+pool_die_scene = ExtResource("20_t31bc")
+inherent_affixes = Array[ExtResource("19_wj2xv")]([SubResource("Resource_3nlur")])
+
+
+[sub_resource type="Resource" id="Resource_nsx1c"]
+script = ExtResource("19_wj2xv")
+affix_name = "Steady Rhythm"
+description = "All dice have a minimum value of 3."
+effect_type = 2
+effect_value = 3.0
+
+
+[sub_resource type="Resource" id="Resource_ccofb"]
+script = ExtResource("15_iktjm")
+display_name = "Blunt D12"
+die_type = 12
+element = 2
+element_affix = ExtResource("17_p42d0")
+fill_texture = ExtResource("18_d3x3a")
+stroke_texture = ExtResource("21_cyntr")
+combat_die_scene = ExtResource("16_ahjit")
+pool_die_scene = ExtResource("20_t31bc")
+inherent_affixes = Array[ExtResource("19_wj2xv")]([SubResource("Resource_nsx1c")])
+
+
+[resource]
+script = ExtResource("14_1pd3j")
+enemy_name = "The Cadence"
+description = "Sanctum Navy The Cadence."
+template = ExtResource("22_oabkf")
+combat_role = 4
+enemy_tags = PackedStringArray("navy", "humanoid")
+max_health = 60
+starting_dice = Array[ExtResource("15_iktjm")]([SubResource("Resource_d340b"), SubResource("Resource_gsion"), SubResource("Resource_ccofb")])
+combat_actions = Array[ExtResource("2_yl7n1")]([ExtResource("32_war_beat"), ExtResource("33_drumstic"), ExtResource("34_crescend")])
+ai_strategy = 1
+ai_config = SubResource("Resource_v2tt2")
+team_aware = true
+action_delay = 0.7
+dice_drag_duration = 0.35
+experience_reward = 500
+gold_reward_min = 150
+gold_reward_max = 500
+enemy_tier = 4
+enemy_archetype = 1
+enemy_level_floor = 12
+level_scaling_multiplier = 1.2
+health_affix = ExtResource("13_ek25w")
+enemy_affixes = Array[ExtResource("10_ccofb")]([ExtResource("11_7w84x")])

@@ -10,6 +10,7 @@ signal location_entered(location_id: StringName, location: LocationNode, first_v
 signal location_unlocked(location_id: StringName, location: LocationNode)
 signal location_revealed(location_id: StringName, location: LocationNode)
 signal travel_blocked(from_id: StringName, to_id: StringName, reason: String)
+signal map_changed(map_def: MapDefinition)   # Fired when map stack is pushed or popped
 
 # ============================================================================
 # LOCATION DEFINITIONS REGISTRY
@@ -17,7 +18,11 @@ signal travel_blocked(from_id: StringName, to_id: StringName, reason: String)
 ## All loaded location definitions: { location_id: LocationNode }
 var _locations: Dictionary = {}
 
-## Path to location definition resources
+## Map navigation stack. Each entry: { map: MapDefinition, return_location: StringName }
+## Index 0 is the root map; back() is the currently displayed map.
+var _map_stack: Array = []
+
+## Path to location definition resources (scanned at startup as a fallback pool)
 const LOCATIONS_PATH := "res://resources/definitions/locations/"
 
 # ============================================================================
@@ -62,6 +67,101 @@ func _connect_signals():
 	GameState.map.location_visited.connect(_on_location_visited)
 	GameState.map.location_unlocked.connect(_on_location_unlocked)
 	GameState.map.location_revealed.connect(_on_location_revealed)
+
+# ============================================================================
+# MAP STACK
+# ============================================================================
+
+func initialize_with_map(map_def: MapDefinition) -> void:
+	"""Set the root map, clearing any prior navigation stack.
+	Call this from GameRoot when entering the map screen."""
+	_map_stack.clear()
+	if map_def == null:
+		map_changed.emit(null)
+		return
+	_register_map_locations(map_def)
+	_map_stack.push_back({"map": map_def, "return_location": &""})
+	# Place player at starting location if not already positioned on this map
+	var start_id = map_def.get_starting_location_id()
+	if start_id != &"" and not map_def.contains_location(GameState.map.current_location):
+		_force_enter_location(start_id)
+	map_changed.emit(map_def)
+
+func push_map(map_def: MapDefinition) -> void:
+	"""Enter a sub-map (town, dungeon approach, etc.).
+	Saves the current location so pop_map() can restore it."""
+	if map_def == null:
+		push_warning("MapManager.push_map: map_def is null")
+		return
+	_register_map_locations(map_def)
+	var return_location = GameState.map.current_location
+	_map_stack.push_back({"map": map_def, "return_location": return_location})
+	# Move player to the sub-map's starting location
+	var start_id = map_def.get_starting_location_id()
+	if start_id != &"":
+		_force_enter_location(start_id)
+	map_changed.emit(map_def)
+
+func pop_map() -> void:
+	"""Leave the current sub-map and return to the parent map."""
+	if _map_stack.size() <= 1:
+		push_warning("MapManager.pop_map: already at root map")
+		return
+	var popped = _map_stack.pop_back()
+	var return_location: StringName = popped.get("return_location", &"")
+	# Restore player to where they were in the parent map
+	if return_location != &"":
+		GameState.map.set_current_location(return_location)
+	map_changed.emit(get_current_map())
+
+func get_current_map() -> MapDefinition:
+	"""The MapDefinition currently being displayed."""
+	if _map_stack.is_empty():
+		return null
+	return _map_stack.back().get("map")
+
+func get_current_map_locations() -> Array[LocationNode]:
+	"""Locations visible on the current map.
+	Falls back to all registered locations if no map is active."""
+	var map = get_current_map()
+	if map == null:
+		return get_all_locations()
+	var result: Array[LocationNode] = []
+	for loc in map.location_nodes:
+		if loc != null:
+			result.append(loc)
+	return result
+
+func is_in_sub_map() -> bool:
+	"""True when a sub-map is on top of the root map."""
+	return _map_stack.size() > 1
+
+func get_map_depth() -> int:
+	return _map_stack.size()
+
+func _register_map_locations(map_def: MapDefinition) -> void:
+	"""Register all of a map's LocationNodes into the global lookup."""
+	for loc in map_def.location_nodes:
+		if loc and loc.location_id != &"":
+			_locations[loc.location_id] = loc
+			# Auto-unlock/reveal starting location
+			if loc.location_id == map_def.starting_location_id:
+				GameState.map.unlock(loc.location_id)
+				GameState.map.reveal(loc.location_id)
+
+func _force_enter_location(location_id: StringName) -> void:
+	"""Move player to a location without checking connection rules."""
+	var first_visit = not GameState.map.has_visited(location_id)
+	GameState.map.set_current_location(location_id)
+	var location = get_location(location_id)
+	if location == null:
+		return
+	if first_visit:
+		_handle_first_visit(location)
+	else:
+		_handle_visit(location)
+	_unlock_connected_locations(location_id)
+	location_entered.emit(location_id, location, first_visit)
 
 # ============================================================================
 # LOCATION ACCESS
@@ -153,6 +253,61 @@ func travel_to(location_id: StringName) -> bool:
 	# Auto-unlock connected locations
 	_unlock_connected_locations(location_id)
 	
+	location_entered.emit(location_id, location, first_visit)
+	return true
+
+func find_path(from_id: StringName, to_id: StringName) -> Array[StringName]:
+	"""BFS shortest path through unlocked nodes. Returns [from_id, …, to_id], or [] if unreachable."""
+	if from_id == to_id:
+		return [from_id]
+	var visited: Dictionary = {}
+	var parent: Dictionary = {}
+	var queue: Array = [from_id]
+	visited[from_id] = true
+	while queue.size() > 0:
+		var current: StringName = queue.pop_front()
+		var loc = get_location(current)
+		if loc == null:
+			continue
+		for neighbor_id in loc.get_all_connections():
+			if neighbor_id in visited:
+				continue
+			if not GameState.map.is_unlocked(neighbor_id):
+				continue
+			visited[neighbor_id] = true
+			parent[neighbor_id] = current
+			if neighbor_id == to_id:
+				var path: Array[StringName] = []
+				var node: StringName = to_id
+				while node != from_id:
+					path.push_front(node)
+					node = parent[node]
+				path.push_front(from_id)
+				return path
+			queue.append(neighbor_id)
+	return []
+
+func can_reach(location_id: StringName) -> bool:
+	"""True if there is any path from current location to location_id through unlocked nodes."""
+	if not GameState.map.is_unlocked(location_id):
+		return false
+	if GameState.map.current_location == location_id:
+		return true
+	return find_path(GameState.map.current_location, location_id).size() > 0
+
+func travel_to_any(location_id: StringName) -> bool:
+	"""Travel to any unlocked location, bypassing the direct-connection requirement.
+	Used for multi-hop travel where the UI handles intermediate waypoint animation."""
+	var location = get_location(location_id)
+	if location == null or not GameState.map.is_unlocked(location_id):
+		return false
+	var first_visit = not GameState.map.has_visited(location_id)
+	GameState.map.set_current_location(location_id)
+	if first_visit:
+		_handle_first_visit(location)
+	else:
+		_handle_visit(location)
+	_unlock_connected_locations(location_id)
 	location_entered.emit(location_id, location, first_visit)
 	return true
 
@@ -313,9 +468,8 @@ func _on_location_revealed(location_id: StringName):
 # ============================================================================
 
 func _fire_event(event_tag: StringName) -> void:
-	"""Fire a game event."""
-	# TODO: Connect to your event system
-	print("MapManager: Event fired - %s" % event_tag)
+	"""Fire a game event through the centralized registry."""
+	GameEventRegistry.fire_event(event_tag)
 
 func _trigger_dialogue(dialogue_id: StringName) -> void:
 	"""Trigger a dialogue encounter."""

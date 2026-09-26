@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_mquxd")
 affix_name = "Thunderhead II"
-description = "Turn start: apply 3 Static to all enemies."
+description = "Turn start: apply 3 [status:static] to all enemies."
 category = 33
 tags = Array[String](["mage", "storm", "voltaic", "static_apply", "aoe", "passive"])
 effect_number = 3.0

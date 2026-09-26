@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://bwa0sm7rr3gu2"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3 uid="uid://bwa0sm7rr3gu2"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_b4tvq"]
 [ext_resource type="Resource" uid="uid://jpm003yl37hf" path="res://resources/actions/enemy_base/arcane_push.tres" id="2_e48k8"]
@@ -10,6 +10,9 @@
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="7_hrcf1"]
 [ext_resource type="Resource" uid="uid://tyqu36n2ctml" path="res://resources/dice/base/d6_shadow.tres" id="8_jt4f2"]
 [ext_resource type="Resource" uid="uid://h35oxp8kc0wd" path="res://resources/enemy_templates/tank_int.tres" id="9_wttui"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_armor_int_tank.tres" id="10_armor"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_barrier_int_tank.tres" id="11_barrier"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_shock.tres" id="12_dmg"]
 
 [resource]
 script = ExtResource("6_3kn68")
@@ -30,3 +33,4 @@ gold_reward_min = 3
 gold_reward_max = 10
 enemy_archetype = 3
 health_affix = ExtResource("5_wdrbf")
+enemy_affixes = Array[ExtResource("4_y2aq8")]([ExtResource("10_armor"), ExtResource("11_barrier"), ExtResource("12_dmg")])

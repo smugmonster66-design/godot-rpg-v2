@@ -13,7 +13,7 @@ class_name DungeonDefinition
 # STRUCTURE
 # ============================================================================
 @export_group("Structure")
-@export_range(6, 15) var floor_count: int = 10
+@export_range(6, 50) var floor_count: int = 10
 @export var dungeon_level: int = 10
 @export_range(1, 6) var dungeon_region: int = 1
 
@@ -38,6 +38,8 @@ class_name DungeonDefinition
 @export_group("Loot & Economy")
 @export var loot_pool: Array[EquippableItem] = []
 @export var shop_pool: Array[EquippableItem] = []
+@export var consumable_shop_pool: Array[ConsumableItem] = []
+@export var consumable_loot_pool: Array[ConsumableItem] = []
 @export var rest_affix_pool: Array[DiceAffix] = []
 @export var gold_per_combat: int = 15
 @export var gold_per_elite: int = 30
@@ -140,6 +142,16 @@ func generate_shop_item() -> EquippableItem:
 	var template = shop_pool[randi() % shop_pool.size()]
 	var result = LootManager.generate_drop(template, dungeon_level, dungeon_region)
 	return result.get("item") as EquippableItem
+
+func generate_shop_consumable() -> ConsumableItem:
+	if consumable_shop_pool.size() == 0: return null
+	var template = consumable_shop_pool[randi() % consumable_shop_pool.size()]
+	return template.duplicate() as ConsumableItem
+
+func generate_loot_consumable() -> ConsumableItem:
+	if consumable_loot_pool.size() == 0: return null
+	var template = consumable_loot_pool[randi() % consumable_loot_pool.size()]
+	return template.duplicate() as ConsumableItem
 
 func generate_first_clear_item() -> EquippableItem:
 	if not first_clear_item: return null

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://bp7mchyn8s4wk"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_85cwe"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_d226x"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_mvmbh"]
+
+[resource]
+script = ExtResource("2_d226x")
+affix_name = "Conflagration: Double Explosions"
+description = "[status:burn] explosions during Conflagration deal 2x damage."
+category = 36
+tags = Array[String](["mage", "flame", "signature", "explosion_amplify"])
+effect_number = 2.0
+effect_data = {
+"applies_during_action": "flame_conflagration",
+"conflagration_explosion_multiplier": 2.0
+}

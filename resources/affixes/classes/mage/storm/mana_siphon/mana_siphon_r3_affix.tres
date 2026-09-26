@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_on7fu")
 affix_name = "Mana Siphon III"
-description = "On shock kill, restore 7 mana."
+description = "On [element:shock] kill, restore 7 mana."
 category = 35
 tags = Array[String](["mage", "storm", "conduit", "mana_restore", "on_kill"])
 effect_number = 7.0

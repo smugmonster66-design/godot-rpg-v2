@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_670ew")
 affix_name = "Gain Armor on Hit Taken"
-description = "+N armor when hit"
+description = "{proc_chance}% chance to gain +N [status:fortified|Fortified] when struck"
 category = 35
 tags = Array[String](["proc", "armor", "defensive"])
 effect_min = 1.0
@@ -16,3 +16,7 @@ effect_data = {
 "effect": "gain_armor"
 }
 proc_trigger = 2
+proc_chance = 0.3
+proc_chance_min = 0.15
+proc_chance_max = 0.5
+power_weight = 50.0

@@ -48,17 +48,35 @@ static func decide(actions: Array, available_dice: Array[DieResource],
 	if available_dice.size() == 0 or actions.size() == 0:
 		return null
 
+	# --- RESTRAINED: Force Escape action with best die ---
+	var escape_action = context.get("escape_action") as Action
+	if escape_action:
+		var best_die: DieResource = available_dice[0]
+		for die in available_dice:
+			if die.current_value > best_die.current_value:
+				best_die = die
+		var decision = Decision.new()
+		decision.action = escape_action.to_dict()
+		decision.dice = [best_die]
+		decision.score = _FORCE_SCORE
+		return decision
+	# --- END RESTRAINED ---
+
 	var config: EnemyAIConfig = context.get("ai_config")
 	var candidates: Array[Decision] = []
 
 	for action in actions:
+		var action_resource: Action = action.get("action_resource")
+
+		# Skip actions with no remaining charges
+		if action_resource and not action_resource.has_charges():
+			continue
+
 		var required: int = action.get("die_slots", 1)
 
 		# Can we afford this action?
 		if available_dice.size() < required:
 			continue
-
-		var action_resource: Action = action.get("action_resource")
 
 		# Select dice — element-aware when possible
 		var selected_dice := _select_dice(available_dice, required, strategy,
@@ -295,9 +313,9 @@ static func _calculate_status_penalty(action_resource: Action,
 
 	for effect in effects_to_check:
 		if effect.effect_type == ActionEffect.EffectType.ADD_STATUS:
-			var status_id: String = effect.get("status_id", "")
-			if status_id != "" and target_tracker.has_status(status_id):
-				penalty -= 40.0
+			if effect.status_affix and effect.status_affix.status_id != "":
+				if target_tracker.has_status(effect.status_affix.status_id):
+					penalty -= 40.0
 
 	return penalty
 

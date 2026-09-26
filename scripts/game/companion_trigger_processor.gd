@@ -243,34 +243,136 @@ func _execute_effects(companion: CompanionCombatant, targets: Array[Combatant],
 	Reuses the existing ActionEffect.execute() pipeline.
 	Provides full ValueSource v2 context for dynamic scaling."""
 	var all_results: Array[Dictionary] = []
+	var effect_context = _build_effect_context(companion, context)
 
 	for effect in companion.companion_data.action_effects:
 		if not effect:
 			continue
-
-		var effect_context: Dictionary = {
-			# Source identity
-			"source": companion,
-			# Source HP (percent + raw)
-			"source_hp_percent": float(companion.current_health) / maxf(float(companion.max_health), 1.0),
-			"source_current_hp": companion.current_health,
-			"source_max_hp": companion.max_health,
-			# Combat state
-			"in_combat": true,
-			"turn_number": _combat_manager.current_round if _combat_manager else 1,
-			# Combatant counts
-			"alive_enemies": _get_alive_enemies().size(),
-			"alive_companions": _companion_manager.get_alive_companions().size(),
-			# Trigger context (for TRIGGER_DAMAGE_AMOUNT)
-			"trigger_damage": context.get("damage_amount", 0),
-		}
-
-		# Companions don't use dice
 		var dice_values: Array = []
 		var results = effect.execute(companion, targets, dice_values, effect_context)
 		all_results.append_array(results)
 
 	return all_results
+
+
+func _build_effect_context(companion: CompanionCombatant, context: Dictionary) -> Dictionary:
+	"""Build the ValueSource v2 context dict for effect execution.
+	Shared between normal companion actions and synergy bonus actions."""
+	return {
+		# Source identity
+		"source": companion,
+		# Source HP (percent + raw)
+		"source_hp_percent": float(companion.current_health) / maxf(float(companion.max_health), 1.0),
+		"source_current_hp": companion.current_health,
+		"source_max_hp": companion.max_health,
+		# Combat state
+		"in_combat": true,
+		"turn_number": _combat_manager.current_round if _combat_manager else 1,
+		# Combatant counts
+		"alive_enemies": _get_alive_enemies().size(),
+		"alive_companions": _companion_manager.get_alive_companions().size(),
+		# Trigger context (for TRIGGER_DAMAGE_AMOUNT)
+		"trigger_damage": context.get("damage_amount", 0),
+	}
+
+# ============================================================================
+# SYNERGY BONUS ACTIONS
+# ============================================================================
+
+func evaluate_synergy_triggers(trigger_type: CompanionData.CompanionTrigger,
+		context: Dictionary = {}) -> Array[Dictionary]:
+	"""Evaluate active synergy bonus actions for a trigger type.
+	Returns fire entries for synergies whose bonus_trigger matches and
+	whose bonus_action_effects are non-empty.
+	Targets are resolved per-effect at execution time, not here."""
+	var fire_entries: Array[Dictionary] = []
+
+	var active_synergies = CompanionSynergyManager.get_active_synergies()
+	for synergy in active_synergies:
+		if synergy.bonus_action_effects.is_empty():
+			continue
+		if synergy.bonus_trigger != trigger_type:
+			continue
+
+		# Check cooldown
+		if CompanionSynergyManager.get_bonus_cooldown(synergy.synergy_id) > 0:
+			continue
+
+		# Pick a source companion (first alive member of the synergy)
+		var source_companion = _find_synergy_source(synergy)
+		if not source_companion:
+			continue
+
+		# Condition gate
+		if synergy.bonus_condition:
+			var cond_context = _build_condition_context(source_companion, context)
+			if synergy.bonus_condition.evaluate(cond_context).blocked:
+				continue
+
+		fire_entries.append({
+			"synergy": synergy,
+			"companion": source_companion,
+			"slot_index": source_companion.slot_index,
+			"context": context,
+			"is_synergy_bonus": true,
+		})
+
+	return fire_entries
+
+
+func execute_synergy_fire(fire_entry: Dictionary) -> Array[Dictionary]:
+	"""Execute effects for a synergy bonus action.
+	Each effect resolves its own targets via ActionEffect.resolve_targets()."""
+	var synergy: CompanionSynergyDefinition = fire_entry["synergy"]
+	var companion: CompanionCombatant = fire_entry["companion"]
+	var context: Dictionary = fire_entry["context"]
+
+	var all_results: Array[Dictionary] = []
+	var effect_context = _build_effect_context(companion, context)
+	var combat_ctx = _build_combat_context(companion, context)
+
+	for effect in synergy.bonus_action_effects:
+		if not effect:
+			continue
+		var targets = ActionEffect.resolve_targets(effect.target, companion, combat_ctx)
+		if targets.is_empty():
+			continue
+		var dice_values: Array = []
+		var results = effect.execute(companion, targets, dice_values, effect_context)
+		all_results.append_array(results)
+
+	# Set cooldown
+	if synergy.bonus_cooldown_turns > 0:
+		CompanionSynergyManager.set_bonus_cooldown(
+			synergy.synergy_id, synergy.bonus_cooldown_turns)
+
+	companion_fired.emit(companion, fire_entry["slot_index"])
+	print("  [Synergy] %s bonus FIRED (%d results)" % [
+		synergy.synergy_name, all_results.size()])
+
+	return all_results
+
+
+func _find_synergy_source(synergy: CompanionSynergyDefinition) -> CompanionCombatant:
+	"""Pick the first alive companion that's part of this synergy (for effect context)."""
+	for slot_idx in FIRING_ORDER:
+		var companion = _companion_manager.get_slot(slot_idx)
+		if not companion or not companion.is_alive():
+			continue
+		if CompanionSynergyManager._companion_is_in_synergy(synergy, companion.companion_data):
+			return companion
+	return null
+
+
+func _build_combat_context(source: CompanionCombatant, trigger_context: Dictionary) -> Dictionary:
+	"""Build the combat context dict for ActionEffect.resolve_targets()."""
+	return {
+		"alive_enemies": _get_alive_enemies(),
+		"alive_companions": _companion_manager.get_alive_companions(),
+		"player_combatant": _get_player_combatant(),
+		"trigger_source": trigger_context.get("trigger_source"),
+		"damaged_target": trigger_context.get("damaged_target"),
+	}
 
 # ============================================================================
 # CONTEXT BUILDING

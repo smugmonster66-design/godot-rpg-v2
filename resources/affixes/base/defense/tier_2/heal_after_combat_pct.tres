@@ -17,3 +17,4 @@ effect_data = {
 "effect": "heal_percent_max_hp"
 }
 proc_trigger = 6
+power_weight = 45.0

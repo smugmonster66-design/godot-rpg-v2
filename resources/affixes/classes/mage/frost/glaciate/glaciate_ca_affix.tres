@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_yw5fm")
 affix_name = "Glaciate: Chromatic Bolt Chill"
-description = "Chromatic Bolt applies 2 Chill on hit (requires ice die)."
+description = "Chromatic Bolt applies 2 [status:chill] on hit (requires [element:ice] die)."
 category = 54
 tags = Array[String](["mage", "frost", "class_action_mod", "chill_apply"])
 effect_data = {

@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="Action" load_steps=12 format=3 uid="uid://b44jlysb1qdoq"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_fx6ru"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_5eb1r"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_8aeax"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_5eb1r"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_h2dj1"]
+[ext_resource type="Resource" uid="uid://chgprsba6wfw2" path="res://resources/statuses/fortified.tres" id="5_bs7bc"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_3klyc"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_88a3u"]
+
+[sub_resource type="Resource" id="Resource_fx6ru"]
+script = ExtResource("1_fx6ru")
+condition = 1
+threshold = 0.4
+effect = 2
+
+[sub_resource type="Resource" id="Resource_8aeax"]
+script = ExtResource("3_5eb1r")
+effect_name = "Emergency Heal"
+target = 3
+effect_type = 1
+value_source = 1
+heal_multiplier = 1.8
+heal_uses_dice = true
+
+[sub_resource type="Resource" id="Resource_5eb1r"]
+script = ExtResource("3_5eb1r")
+effect_name = "Emergency Fortify"
+target = 3
+effect_type = 2
+status_affix = ExtResource("5_bs7bc")
+stack_count = 2
+
+[resource]
+script = ExtResource("7_88a3u")
+action_id = "navy_emergency_procedure"
+action_name = "Emergency Procedure"
+action_description = "Powerful emergency heal with fortification."
+action_category = 3
+charge_type = 1
+effects = Array[ExtResource("3_5eb1r")]([SubResource("Resource_8aeax"), SubResource("Resource_5eb1r")])
+ai_hints = Array[ExtResource("1_fx6ru")]([SubResource("Resource_fx6ru")])
+action_type = 2

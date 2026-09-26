@@ -12,3 +12,4 @@ category = 10
 tags = Array[String](["damage", "multiplier"])
 effect_min = 1.05
 effect_max = 1.6
+power_weight = 160.0

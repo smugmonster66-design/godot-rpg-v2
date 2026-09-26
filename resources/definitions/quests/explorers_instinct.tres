@@ -1,0 +1,62 @@
+[gd_resource type="Resource" script_class="QuestDefinition" load_steps=13 format=3 uid="uid://dob04yqxubhgy"]
+
+[ext_resource type="Script" uid="uid://b6qj5w0fgevno" path="res://resources/data/quest_definition.gd" id="1_def"]
+[ext_resource type="Script" uid="uid://bi7t57lj6p7f4" path="res://resources/data/quest_objective.gd" id="2_obj"]
+[ext_resource type="Script" uid="uid://lgoecdg43x3d" path="res://resources/data/game_condition.gd" id="2_xienw"]
+[ext_resource type="Script" uid="uid://dfrd5du3khv1p" path="res://resources/data/quest_rewards.gd" id="3_rew"]
+[ext_resource type="Script" uid="uid://dh5jn3duyowt6" path="res://resources/data/single_check.gd" id="3_v5mes"]
+
+[sub_resource type="Resource" id="obj_visit_1"]
+script = ExtResource("2_obj")
+objective_id = &"visit_docks"
+description = "Visit the Docks"
+objective_type = 3
+target_id = &"docks"
+notify_on_progress = false
+
+[sub_resource type="Resource" id="obj_visit_2"]
+script = ExtResource("2_obj")
+objective_id = &"visit_camp"
+description = "Visit the Camp"
+objective_type = 3
+target_id = &"camp"
+notify_on_progress = false
+
+[sub_resource type="Resource" id="obj_visit_3"]
+script = ExtResource("2_obj")
+objective_id = &"visit_outpost"
+description = "Visit the Outpost"
+objective_type = 3
+target_id = &"outpost"
+notify_on_progress = false
+
+[sub_resource type="Resource" id="Resource_l0rvd"]
+script = ExtResource("3_v5mes")
+check_type = 6
+key = &"harbor_masters_request"
+
+[sub_resource type="Resource" id="Resource_rv6kg"]
+script = ExtResource("2_xienw")
+condition_type = 2
+single_check = SubResource("Resource_l0rvd")
+
+[sub_resource type="GDScript" id="GDScript_2v6sp"]
+
+[sub_resource type="Resource" id="rewards"]
+script = ExtResource("3_rew")
+experience = 40
+unlock_flags = Array[StringName]([&"explorer_instinct_complete"])
+unlock_locations = Array[StringName]([&"hidden_cove"])
+
+[resource]
+script = ExtResource("1_def")
+quest_id = &"explorers_instinct"
+display_name = "Explorer's Instinct"
+quest_type = 5
+summary = "Explore the key locations of Region 1."
+description = "There's a whole world to discover. Visit the major landmarks of the region to unlock hidden paths."
+objectives = Array[ExtResource("2_obj")]([SubResource("obj_visit_1"), SubResource("obj_visit_2"), SubResource("obj_visit_3")])
+objectives_unordered = true
+rewards = SubResource("rewards")
+prerequisites = SubResource("Resource_rv6kg")
+auto_complete = true

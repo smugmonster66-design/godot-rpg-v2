@@ -7,14 +7,16 @@
 [resource]
 script = ExtResource("2_nd3w4")
 affix_name = "Firestorm II: Chain"
-description = "Fire dice chain 35% to 2 enemies."
+description = "Chain to 1 enemy for 40% damage. Chain hits heal 1 HP."
 use_global_element_visuals = true
 global_element_type = 3
 trigger = 1
 effect_type = 24
-effect_value = 0.35
+effect_value = 1.0
+value_source = 1
 effect_data = {
-"chains": 2,
-"decay": 1.0,
-"element": "FIRE"
+"chains": 1,
+"decay": 0.4,
+"element": "FIRE",
+"chain_heal": 1
 }

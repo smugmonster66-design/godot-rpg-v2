@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="Action" load_steps=12 format=3 uid="uid://d0ae4gpcbb1em"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_kfn4a"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_jxhek"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_twaff"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_jxhek"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_0trvf"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="5_y3jrd"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="6_d0hp7"]
+
+[sub_resource type="Resource" id="Resource_kfn4a"]
+script = ExtResource("1_kfn4a")
+condition = 7
+threshold = 0.0
+status_id = "taunt"
+bonus_value = 35.0
+
+[sub_resource type="Resource" id="Resource_twaff"]
+script = ExtResource("1_kfn4a")
+condition = 1
+bonus_value = 15.0
+
+[sub_resource type="Resource" id="Resource_jxhek"]
+script = ExtResource("3_jxhek")
+effect_name = "Immovable Reflect"
+target = 0
+effect_type = 8
+reflect_duration = 1
+
+[sub_resource type="Resource" id="Resource_0trvf"]
+script = ExtResource("3_jxhek")
+effect_name = "Immovable DR"
+target = 0
+effect_type = 7
+reduction_amount = 0.25
+reduction_is_percent = true
+
+[resource]
+script = ExtResource("6_d0hp7")
+action_id = "navy_immovable_object"
+action_name = "Immovable Object"
+action_description = "Become an unyielding bulwark."
+action_category = 1
+damage_element = 1
+charge_type = 1
+effects = Array[ExtResource("3_jxhek")]([SubResource("Resource_jxhek"), SubResource("Resource_0trvf")])
+ai_hints = Array[ExtResource("1_kfn4a")]([SubResource("Resource_kfn4a"), SubResource("Resource_twaff")])
+action_type = 1

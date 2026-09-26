@@ -1,18 +1,18 @@
-[gd_resource type="Resource" script_class="AffixTable" load_steps=11 format=3 uid="uid://cgr2120ydytqr"]
+[gd_resource type="Resource" script_class="AffixTable" load_steps=10 format=3 uid="uid://cgr2120ydytqr"]
 
-[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_g3tr7"]
-[ext_resource type="Resource" uid="uid://ceei5xmn8o77p" path="res://resources/affixes/base/offense/tier_1/strength_bonus.tres" id="2_iv73y"]
-[ext_resource type="Resource" uid="uid://dq6e1mdn3g7fk" path="res://resources/affixes/base/offense/tier_1/agility_bonus.tres" id="3_rc6ox"]
-[ext_resource type="Resource" uid="uid://cpebgbfs43oxc" path="res://resources/affixes/base/offense/tier_1/intellect_bonus.tres" id="4_e1k4o"]
-[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="4_x1ly4"]
-[ext_resource type="Resource" uid="uid://dfly53sir6i1m" path="res://resources/affixes/base/offense/tier_1/luck_bonus.tres" id="5_yv7q1"]
-[ext_resource type="Resource" uid="uid://dwp1tftf4h5ni" path="res://resources/affixes/base/offense/tier_1/global_damage_bonus.tres" id="6_wc8lq"]
-[ext_resource type="Resource" uid="uid://o1pn8l73ep3i" path="res://resources/affixes/base/offense/tier_1/slashing_damage_bonus.tres" id="7_lobbx"]
-[ext_resource type="Resource" uid="uid://cc4lxdf30usle" path="res://resources/affixes/base/offense/tier_1/blunt_damage_bonus.tres" id="8_f87xl"]
-[ext_resource type="Resource" uid="uid://onwd3d2dhnid" path="res://resources/affixes/base/offense/tier_1/piercing_damage_bonus.tres" id="9_0lpvs"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="affix_script"]
+[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="table_script"]
+[ext_resource type="Resource" uid="uid://ceei5xmn8o77p" path="res://resources/affixes/base/offense/tier_1/strength_bonus.tres" id="affix_1"]
+[ext_resource type="Resource" uid="uid://dq6e1mdn3g7fk" path="res://resources/affixes/base/offense/tier_1/agility_bonus.tres" id="affix_2"]
+[ext_resource type="Resource" uid="uid://cpebgbfs43oxc" path="res://resources/affixes/base/offense/tier_1/intellect_bonus.tres" id="affix_3"]
+[ext_resource type="Resource" uid="uid://dfly53sir6i1m" path="res://resources/affixes/base/offense/tier_1/luck_bonus.tres" id="affix_4"]
+[ext_resource type="Resource" uid="uid://dwp1tftf4h5ni" path="res://resources/affixes/base/offense/tier_1/global_damage_bonus.tres" id="affix_5"]
+[ext_resource type="Resource" uid="uid://o1pn8l73ep3i" path="res://resources/affixes/base/offense/tier_1/slashing_damage_bonus.tres" id="affix_6"]
+[ext_resource type="Resource" uid="uid://cc4lxdf30usle" path="res://resources/affixes/base/offense/tier_1/blunt_damage_bonus.tres" id="affix_7"]
+[ext_resource type="Resource" uid="uid://onwd3d2dhnid" path="res://resources/affixes/base/offense/tier_1/piercing_damage_bonus.tres" id="affix_8"]
 
 [resource]
-script = ExtResource("4_x1ly4")
+script = ExtResource("table_script")
 table_name = "Offense Tier 1"
-description = "Base offense affixes, tier 1. Auto-generated."
-available_affixes = Array[ExtResource("1_g3tr7")]([ExtResource("2_iv73y"), ExtResource("3_rc6ox"), ExtResource("4_e1k4o"), ExtResource("5_yv7q1"), ExtResource("6_wc8lq"), ExtResource("7_lobbx"), ExtResource("8_f87xl"), ExtResource("9_0lpvs")])
+description = "Flat stat and physical damage bonuses."
+available_affixes = Array[ExtResource("affix_script")]([ExtResource("affix_1"), ExtResource("affix_2"), ExtResource("affix_3"), ExtResource("affix_4"), ExtResource("affix_5"), ExtResource("affix_6"), ExtResource("affix_7"), ExtResource("affix_8")])

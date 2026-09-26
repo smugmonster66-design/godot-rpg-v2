@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_u1lc0")
 affix_name = "Rime Dice I: Last Chill"
-description = "Last-position ice die applies 2 Chill."
+description = "Last-position [element:ice] die applies 2 [status:chill]."
 use_global_element_visuals = true
 global_element_type = 4
 trigger = 1

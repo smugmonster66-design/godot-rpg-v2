@@ -1,0 +1,126 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=30 format=3 uid="uid://b637xj3w2j6jo"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_bqgr4"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_tjain"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="9_pq8im"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_armor_int_tank.tres" id="10_s13to"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_barrier_int_tank.tres" id="11_h20ip"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_shadow.tres" id="12_gl8y6"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="13_7kg13"]
+[ext_resource type="Resource" uid="uid://sjtscukc8qjh" path="res://resources/affixes/base_stats/enemy/enemy_health_int_tank.tres" id="14_l303d"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="15_501sv"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="16_xg2sr"]
+[ext_resource type="PackedScene" uid="uid://b4wyrmm8bfq20" path="res://scenes/ui/components/dice/combat/combat_die_d8.tscn" id="17_mqv4o"]
+[ext_resource type="Resource" uid="uid://c2pgrap71kn5v" path="res://resources/affixes/elements/shadow_element.tres" id="18_qjj8d"]
+[ext_resource type="Texture2D" uid="uid://der0rcr1m1pb2" path="res://assets/dice/d8s/d8-fill-basic.png" id="19_8fuk1"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="20_ttl2g"]
+[ext_resource type="PackedScene" uid="uid://lx27hjqny6b8" path="res://scenes/ui/components/dice/pool/pool_die_d8.tscn" id="21_n60wj"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="21_ukmov"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="22_7plvp"]
+[ext_resource type="Texture2D" uid="uid://ccv17kswol4os" path="res://assets/dice/d8s/d8-stroke-basic.png" id="22_qacyg"]
+[ext_resource type="Resource" uid="uid://h35oxp8kc0wd" path="res://resources/enemy_templates/tank_int.tres" id="23_rmusk"]
+[ext_resource type="Resource" uid="uid://chcounbmwlmxa" path="res://resources/actions/navy/navy_ward_bolt.tres" id="33_ward_bol"]
+[ext_resource type="Resource" uid="uid://2wulvuc82qbm" path="res://resources/actions/navy/navy_project_barrier.tres" id="34_project_"]
+[ext_resource type="Resource" uid="uid://c78g4f4jc6qec" path="res://resources/actions/navy/navy_barrier_overcharge.tres" id="35_barrier_"]
+
+[sub_resource type="Resource" id="Resource_giph6"]
+script = ExtResource("1_bqgr4")
+heal_urgency = 0.6
+heal_threshold = 0.6
+status_awareness = 0.7
+coordination_preference = 0.8
+
+[sub_resource type="Resource" id="Resource_torvt"]
+script = ExtResource("20_ttl2g")
+affix_name = "Passive Ward"
+description = "First die rolled grants Warded."
+position_requirement = 1
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "warded",
+"target": "self"
+}
+
+[sub_resource type="Resource" id="Resource_yn0ds"]
+script = ExtResource("16_xg2sr")
+display_name = "Shadow D8"
+die_type = 8
+element = 8
+element_affix = ExtResource("18_qjj8d")
+fill_texture = ExtResource("19_8fuk1")
+stroke_texture = ExtResource("22_qacyg")
+combat_die_scene = ExtResource("17_mqv4o")
+pool_die_scene = ExtResource("21_n60wj")
+inherent_affixes = Array[ExtResource("20_ttl2g")]([SubResource("Resource_torvt")])
+
+[sub_resource type="Resource" id="Resource_6b61g"]
+script = ExtResource("20_ttl2g")
+affix_name = "Passive Ward"
+description = "First die rolled grants Warded."
+position_requirement = 1
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "warded",
+"target": "self"
+}
+
+[sub_resource type="Resource" id="Resource_pq8im"]
+script = ExtResource("16_xg2sr")
+display_name = "Shadow D8"
+die_type = 8
+element = 8
+element_affix = ExtResource("18_qjj8d")
+fill_texture = ExtResource("19_8fuk1")
+stroke_texture = ExtResource("22_qacyg")
+combat_die_scene = ExtResource("17_mqv4o")
+pool_die_scene = ExtResource("21_n60wj")
+inherent_affixes = Array[ExtResource("20_ttl2g")]([SubResource("Resource_6b61g")])
+
+[sub_resource type="Resource" id="Resource_s13to"]
+script = ExtResource("20_ttl2g")
+affix_name = "Passive Ward"
+description = "First die rolled grants Warded."
+position_requirement = 1
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "warded",
+"target": "self"
+}
+
+[sub_resource type="Resource" id="Resource_h20ip"]
+script = ExtResource("16_xg2sr")
+display_name = "Shadow D8"
+die_type = 8
+element = 8
+element_affix = ExtResource("18_qjj8d")
+fill_texture = ExtResource("19_8fuk1")
+stroke_texture = ExtResource("22_qacyg")
+combat_die_scene = ExtResource("17_mqv4o")
+pool_die_scene = ExtResource("21_n60wj")
+inherent_affixes = Array[ExtResource("20_ttl2g")]([SubResource("Resource_s13to")])
+
+[resource]
+script = ExtResource("15_501sv")
+enemy_name = "Senior Ward Officer"
+description = "Sanctum Navy Senior Ward Officer."
+template = ExtResource("23_rmusk")
+combat_role = 3
+max_health = 15
+starting_dice = Array[ExtResource("16_xg2sr")]([SubResource("Resource_yn0ds"), SubResource("Resource_pq8im"), SubResource("Resource_h20ip")])
+combat_actions = Array[ExtResource("2_tjain")]([ExtResource("33_ward_bol"), ExtResource("34_project_"), ExtResource("35_barrier_")])
+ai_strategy = 1
+ai_config = SubResource("Resource_giph6")
+action_delay = 0.7
+dice_drag_duration = 0.35
+experience_reward = 30
+gold_reward_min = 10
+gold_reward_max = 30
+enemy_tier = 1
+enemy_archetype = 3
+enemy_level_floor = 3
+level_scaling_multiplier = 0.95
+health_affix = ExtResource("14_l303d")
+enemy_affixes = Array[ExtResource("9_pq8im")]([ExtResource("10_s13to"), ExtResource("11_h20ip"), ExtResource("12_gl8y6")])

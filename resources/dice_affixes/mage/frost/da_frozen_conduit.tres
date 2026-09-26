@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_m8icd")
 affix_name = "Frozen Conduit: Chill Scaling"
-description = "Ice die +1 value per 3 Chill stacks on target."
+description = "[element:ice] die +1 value per 3 [status:chill] stacks on target."
 use_global_element_visuals = true
 global_element_type = 4
 trigger = 1

@@ -7,7 +7,15 @@
 [resource]
 script = ExtResource("2_u22ek")
 affix_name = "Accelerant I"
-description = "Burn applications add +1 bonus stack."
-category = 36
-tags = Array[String](["mage", "flame", "burn_stack_bonus"])
+description = "End of turn: gain 1 [status:warded] per [status:burn] stack across all enemies."
+category = 35
+tags = Array[String](["mage", "flame", "defense", "burn_exploit", "proc"])
 effect_number = 1.0
+effect_data = {
+"proc_effect": "apply_status",
+"proc_trigger": "ON_TURN_END",
+"stacks_from_enemy_status": "burn",
+"status_id": "warded",
+"status_target": "self"
+}
+proc_trigger = 4

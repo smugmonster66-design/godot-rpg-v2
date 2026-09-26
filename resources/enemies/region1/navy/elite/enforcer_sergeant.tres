@@ -1,0 +1,110 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=29 format=3 uid="uid://bstk4gbocsuxc"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_coy8u"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_mapef"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="10_7t6hk"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_armor_str_brute.tres" id="11_64teh"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_blunt.tres" id="12_xlou8"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="13_xkwmt"]
+[ext_resource type="Resource" uid="uid://chmejcvma7x2j" path="res://resources/affixes/base_stats/enemy/enemy_health_str_brute.tres" id="14_rt5y2"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="15_x6dlg"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="16_u25w2"]
+[ext_resource type="PackedScene" uid="uid://dx08yqjhk2hu0" path="res://scenes/ui/components/dice/combat/combat_die_d10.tscn" id="17_7nxtv"]
+[ext_resource type="Resource" uid="uid://2a7ntncvy5ij" path="res://resources/affixes/elements/blunt_element.tres" id="18_bowfa"]
+[ext_resource type="Texture2D" uid="uid://klk23dga0emp" path="res://assets/dice/d10s/d10-fill-basic.png" id="19_d5yri"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="20_j4gc1"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="21_e7nyn"]
+[ext_resource type="PackedScene" uid="uid://biqti34m42xcy" path="res://scenes/ui/components/dice/pool/pool_die_d10.tscn" id="21_mjkrv"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="22_3ax3l"]
+[ext_resource type="Texture2D" uid="uid://bnn478mo72l40" path="res://assets/dice/d10s/d10-stroke-basic.png" id="22_wgs76"]
+[ext_resource type="Resource" uid="uid://b8a0hafcgbsq3" path="res://resources/enemy_templates/brute_str.tres" id="23_cqigt"]
+[ext_resource type="Resource" uid="uid://d334v2dd3go0r" path="res://resources/actions/navy/navy_compliance_strike.tres" id="33_complian"]
+[ext_resource type="Resource" uid="uid://7l54e8ttg6gc" path="res://resources/actions/navy/navy_subdue.tres" id="34_subdue"]
+[ext_resource type="Resource" uid="uid://bmk8w7ujmhvsb" path="res://resources/actions/navy/navy_judgment_strike.tres" id="35_judgment"]
+
+[sub_resource type="Resource" id="Resource_58xpm"]
+script = ExtResource("1_coy8u")
+element_preference = 0.6
+heal_urgency = 0.3
+
+[sub_resource type="Resource" id="Resource_0xokq"]
+script = ExtResource("20_j4gc1")
+affix_name = "Weighted Head"
+description = "First die used gets +1 value."
+trigger = 1
+position_requirement = 1
+effect_value = 1.0
+
+[sub_resource type="Resource" id="Resource_t6c7e"]
+script = ExtResource("16_u25w2")
+display_name = "Blunt D10"
+die_type = 10
+element = 2
+element_affix = ExtResource("18_bowfa")
+fill_texture = ExtResource("19_d5yri")
+stroke_texture = ExtResource("22_wgs76")
+combat_die_scene = ExtResource("17_7nxtv")
+pool_die_scene = ExtResource("21_mjkrv")
+inherent_affixes = Array[ExtResource("20_j4gc1")]([SubResource("Resource_0xokq")])
+
+[sub_resource type="Resource" id="Resource_ayrmm"]
+script = ExtResource("20_j4gc1")
+affix_name = "Weighted Head"
+description = "First die used gets +1 value."
+trigger = 1
+position_requirement = 1
+effect_value = 1.0
+
+[sub_resource type="Resource" id="Resource_c6gk7"]
+script = ExtResource("16_u25w2")
+display_name = "Blunt D10"
+die_type = 10
+element = 2
+element_affix = ExtResource("18_bowfa")
+fill_texture = ExtResource("19_d5yri")
+stroke_texture = ExtResource("22_wgs76")
+combat_die_scene = ExtResource("17_7nxtv")
+pool_die_scene = ExtResource("21_mjkrv")
+inherent_affixes = Array[ExtResource("20_j4gc1")]([SubResource("Resource_ayrmm")])
+
+[sub_resource type="Resource" id="Resource_7t6hk"]
+script = ExtResource("20_j4gc1")
+affix_name = "Weighted Head"
+description = "First die used gets +1 value."
+trigger = 1
+position_requirement = 1
+effect_value = 1.0
+
+[sub_resource type="Resource" id="Resource_64teh"]
+script = ExtResource("16_u25w2")
+display_name = "Blunt D10"
+die_type = 10
+element = 2
+element_affix = ExtResource("18_bowfa")
+fill_texture = ExtResource("19_d5yri")
+stroke_texture = ExtResource("22_wgs76")
+combat_die_scene = ExtResource("17_7nxtv")
+pool_die_scene = ExtResource("21_mjkrv")
+inherent_affixes = Array[ExtResource("20_j4gc1")]([SubResource("Resource_7t6hk")])
+
+[resource]
+script = ExtResource("15_x6dlg")
+enemy_name = "Enforcer Sergeant"
+description = "Sanctum Navy Enforcer Sergeant."
+template = ExtResource("23_cqigt")
+max_health = 15
+starting_dice = Array[ExtResource("16_u25w2")]([SubResource("Resource_t6c7e"), SubResource("Resource_c6gk7"), SubResource("Resource_64teh")])
+combat_actions = Array[ExtResource("2_mapef")]([ExtResource("33_complian"), ExtResource("34_subdue"), ExtResource("35_judgment")])
+ai_strategy = 0
+ai_config = SubResource("Resource_58xpm")
+action_delay = 0.7
+dice_drag_duration = 0.35
+experience_reward = 30
+gold_reward_min = 10
+gold_reward_max = 30
+enemy_tier = 1
+enemy_archetype = 1
+enemy_level_floor = 3
+level_scaling_multiplier = 0.95
+health_affix = ExtResource("14_rt5y2")
+enemy_affixes = Array[ExtResource("10_7t6hk")]([ExtResource("11_64teh"), ExtResource("12_xlou8")])

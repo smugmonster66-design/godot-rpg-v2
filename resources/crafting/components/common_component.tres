@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CraftingComponentDefinition" load_steps=2 format=3 uid="uid://ccraft_common"]
+
+[ext_resource type="Script" path="res://resources/data/crafting_component_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+component_id = &"common"
+display_name = "Common Component"
+abbreviation = "Cmn"
+rarity_tier = 0
+description = "A basic crafting material salvaged from common equipment."

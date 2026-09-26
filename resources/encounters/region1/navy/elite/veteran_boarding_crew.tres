@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=6 format=3 uid="uid://crw60nnbgsdpv"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_wwniu"]
+[ext_resource type="Resource" uid="uid://d5o0wcgr5evj" path="res://resources/enemies/region1/navy/elite/veteran_boarder.tres" id="2_w2oun"]
+[ext_resource type="Resource" uid="uid://cg23ej0mnoj0c" path="res://resources/enemies/region1/navy/elite/topman.tres" id="3_07utb"]
+[ext_resource type="Resource" uid="uid://bk10yj7f6wa3a" path="res://resources/enemies/region1/navy/elite/senior_chirurgeon.tres" id="4_jwsv7"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="5_rpxss"]
+
+[resource]
+script = ExtResource("5_rpxss")
+encounter_name = "Veteran Boarding Crew"
+encounter_id = "navy_veteran_boarding_crew"
+enemies = Array[ExtResource("1_wwniu")]([ExtResource("2_w2oun"), ExtResource("3_07utb"), ExtResource("4_jwsv7")])
+enemy_slots = Array[int]([0, 1, 2])
+difficulty_tier = 5
+level_range_min = 4
+level_range_max = 7

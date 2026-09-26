@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=5 format=3 uid="uid://dul1ythqrb3e"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_nkejs"]
+[ext_resource type="Resource" uid="uid://bvr8fks6kh2ik" path="res://resources/enemies/region1/navy/boss/arcanist_commander.tres" id="2_4av1e"]
+[ext_resource type="Resource" uid="uid://csdyhmdin00qx" path="res://resources/enemies/region1/navy/elite/shieldwall_veteran.tres" id="3_3li5k"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="4_e161u"]
+
+[resource]
+script = ExtResource("4_e161u")
+encounter_name = "Arcanist Commander & Honor Guard"
+encounter_id = "navy_arcanist_commander_guard"
+enemies = Array[ExtResource("1_nkejs")]([ExtResource("2_4av1e"), ExtResource("3_3li5k")])
+enemy_slots = Array[int]([1, 0])
+difficulty_tier = 8
+level_range_min = 7
+level_range_max = 10
+is_boss_encounter = true
+disable_fleeing = true

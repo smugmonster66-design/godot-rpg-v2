@@ -13,28 +13,28 @@
 [ext_resource type="Resource" uid="uid://boo6ws8ee8wlo" path="res://resources/affixes/classes/mage/storm/galvanic_pulse/galvanic_pulse_r1_affix.tres" id="8_88b7l"]
 [ext_resource type="Resource" uid="uid://b0wnapd0vxc4h" path="res://resources/affixes/classes/mage/storm/galvanic_pulse/galvanic_pulse_r2_affix.tres" id="9_rwwcw"]
 
-[sub_resource type="Resource" id="Resource_gwqxq"]
+[sub_resource type="Resource" id="Resource_idtkr"]
 script = ExtResource("6_lsrfy")
 skill_id = "storm_spark"
 skill_name = "Spark"
-description = "Unlock [color=yellow]Shock[/color] mana. Chromatic Bolt applies [color=yellow]1/2/3 Static[/color] on hit (requires shock die)."
+description = "Unlock [element:shock] mana. Chromatic Bolt applies [status:static|1/2/3 Static] on hit (requires shock die)."
 column = 3
 rank_1_affixes = Array[ExtResource("2_bffds")]([ExtResource("3_1i3r0"), ExtResource("4_1u4mw")])
 rank_2_affixes = Array[ExtResource("2_bffds")]([ExtResource("3_1i3r0"), ExtResource("5_uduwa")])
 rank_3_affixes = Array[ExtResource("2_bffds")]([ExtResource("3_1i3r0"), ExtResource("6_ybxca")])
 
-[sub_resource type="Resource" id="Resource_v0wv8"]
+[sub_resource type="Resource" id="Resource_l4a4f"]
 script = ExtResource("1_fpwtt")
-required_skill = SubResource("Resource_gwqxq")
+required_skill = SubResource("Resource_idtkr")
 
 [sub_resource type="Resource" id="Resource_j8h88"]
 script = ExtResource("6_lsrfy")
 skill_id = "storm_galvanic_pulse"
 skill_name = "Galvanic Pulse"
-description = "Shock damage to [color=yellow]Static[/color] target restores [color=yellow]1/2[/color] mana. Max 2 triggers/turn."
+description = "Shock damage to [status:static] target restores [color=yellow]1/2[/color] mana. Max 2 triggers/turn."
 tier = 2
 column = 5
-prerequisites = Array[ExtResource("1_fpwtt")]([SubResource("Resource_v0wv8")])
+prerequisites = Array[ExtResource("1_fpwtt")]([SubResource("Resource_l4a4f")])
 tree_points_required = 1
 rank_1_affixes = Array[ExtResource("2_bffds")]([ExtResource("8_88b7l")])
 rank_2_affixes = Array[ExtResource("2_bffds")]([ExtResource("9_rwwcw")])
@@ -47,7 +47,11 @@ required_skill = SubResource("Resource_j8h88")
 script = ExtResource("6_lsrfy")
 skill_id = "storm_polarity"
 skill_name = "Polarity"
-description = "Shock die gains +[color=yellow]2/3/4[/color] value if no adjacent die is Shock element."
+skill_category = 0
+skill_category = 0
+skill_category = 0
+skill_category = 0
+description = "[element:shock] die gains +[color=yellow]2/3/4[/color] value if no adjacent die is [element:shock] element."
 tier = 3
 column = 6
 prerequisites = Array[ExtResource("1_fpwtt")]([SubResource("Resource_n8875")])

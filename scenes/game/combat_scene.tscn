@@ -30,7 +30,7 @@ layer = 5
 script = ExtResource("4_v0jgu")
 
 [node name="EffectsLayer" type="CanvasLayer" parent="." groups=["effects_layer"]]
-layer = 50
+layer = 300
 
 [node name="CombatAnimationPlayer" type="AnimationPlayer" parent="."]
 script = ExtResource("7_8ldcr")

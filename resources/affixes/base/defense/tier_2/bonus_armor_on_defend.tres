@@ -6,13 +6,17 @@
 
 [resource]
 script = ExtResource("2_icqa5")
-affix_name = "Bonus Armor on Defend"
-description = "+N extra armor when defending"
+affix_name = "Fortified on Hit Taken"
+description = "Gain {value} [status:fortified|Fortified] when struck"
 category = 35
-tags = Array[String](["proc", "armor", "defend"])
+tags = Array[String](["proc", "armor", "on_hit_taken", "defensive"])
 effect_min = 2.0
 effect_max = 25.0
 effect_data = {
-"effect": "gain_armor"
+"effect": "apply_status",
+"status": "fortified",
+"status_stacks_from_value": true,
+"status_target": "self"
 }
-proc_trigger = 10
+proc_trigger = 2
+power_weight = 55.0

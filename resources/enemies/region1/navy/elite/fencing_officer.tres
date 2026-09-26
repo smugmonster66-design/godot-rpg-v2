@@ -1,0 +1,133 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=33 format=3 uid="uid://b3j066jemj115"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_mfoav"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_yrijp"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="10_0pris"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_armor_agi_brute.tres" id="11_lumqa"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_piercing.tres" id="12_70io5"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="13_utmrn"]
+[ext_resource type="Resource" uid="uid://kq714ftw81r7" path="res://resources/affixes/base_stats/enemy/enemy_health_agi_brute.tres" id="14_3a30c"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="15_187p8"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="16_qqsv3"]
+[ext_resource type="PackedScene" uid="uid://dx08yqjhk2hu0" path="res://scenes/ui/components/dice/combat/combat_die_d10.tscn" id="17_rus0r"]
+[ext_resource type="Resource" uid="uid://dc86xxo6gws3l" path="res://resources/affixes/elements/piercing_element.tres" id="18_pla6b"]
+[ext_resource type="Texture2D" uid="uid://klk23dga0emp" path="res://assets/dice/d10s/d10-fill-basic.png" id="19_rlmfa"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="20_tpt53"]
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="21_o7nx0"]
+[ext_resource type="PackedScene" uid="uid://biqti34m42xcy" path="res://scenes/ui/components/dice/pool/pool_die_d10.tscn" id="21_ubqy5"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="22_4q0ot"]
+[ext_resource type="Texture2D" uid="uid://bnn478mo72l40" path="res://assets/dice/d10s/d10-stroke-basic.png" id="22_7s5fc"]
+[ext_resource type="Resource" uid="uid://chq1ry50v1nwr" path="res://resources/enemy_templates/brute_agi.tres" id="23_ky6wx"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="23_p2l54"]
+[ext_resource type="Resource" uid="uid://05x57d5ehmwg" path="res://resources/actions/navy/navy_lunge.tres" id="33_lunge"]
+[ext_resource type="Resource" uid="uid://elyflnkjt04j" path="res://resources/actions/navy/navy_parry.tres" id="34_parry"]
+[ext_resource type="Resource" uid="uid://dnxultdx11i2q" path="res://resources/actions/navy/navy_riposte.tres" id="35_riposte"]
+
+[sub_resource type="Resource" id="Resource_81gxs"]
+script = ExtResource("1_mfoav")
+element_preference = 0.7
+heal_urgency = 0.4
+status_awareness = 0.6
+
+[sub_resource type="Resource" id="Resource_inx1r"]
+script = ExtResource("21_o7nx0")
+type = 1
+threshold = 4.0
+
+[sub_resource type="Resource" id="Resource_oo6y7"]
+script = ExtResource("20_tpt53")
+affix_name = "Precise Form"
+description = "Non-first dice get +15% value when value is 4+."
+trigger = 1
+position_requirement = 3
+condition = SubResource("Resource_inx1r")
+effect_type = 1
+effect_value = 0.15
+
+[sub_resource type="Resource" id="Resource_0pris"]
+script = ExtResource("16_qqsv3")
+display_name = "Piercing D10"
+die_type = 10
+element = 3
+element_affix = ExtResource("18_pla6b")
+fill_texture = ExtResource("19_rlmfa")
+stroke_texture = ExtResource("22_7s5fc")
+combat_die_scene = ExtResource("17_rus0r")
+pool_die_scene = ExtResource("21_ubqy5")
+inherent_affixes = Array[ExtResource("20_tpt53")]([SubResource("Resource_oo6y7")])
+
+[sub_resource type="Resource" id="Resource_lumqa"]
+script = ExtResource("21_o7nx0")
+type = 1
+threshold = 4.0
+
+[sub_resource type="Resource" id="Resource_70io5"]
+script = ExtResource("20_tpt53")
+affix_name = "Precise Form"
+description = "Non-first dice get +15% value when value is 4+."
+trigger = 1
+position_requirement = 3
+condition = SubResource("Resource_lumqa")
+effect_type = 1
+effect_value = 0.15
+
+[sub_resource type="Resource" id="Resource_utmrn"]
+script = ExtResource("16_qqsv3")
+display_name = "Piercing D10"
+die_type = 10
+element = 3
+element_affix = ExtResource("18_pla6b")
+fill_texture = ExtResource("19_rlmfa")
+stroke_texture = ExtResource("22_7s5fc")
+combat_die_scene = ExtResource("17_rus0r")
+pool_die_scene = ExtResource("21_ubqy5")
+inherent_affixes = Array[ExtResource("20_tpt53")]([SubResource("Resource_70io5")])
+
+[sub_resource type="Resource" id="Resource_3a30c"]
+script = ExtResource("21_o7nx0")
+type = 1
+threshold = 4.0
+
+[sub_resource type="Resource" id="Resource_187p8"]
+script = ExtResource("20_tpt53")
+affix_name = "Precise Form"
+description = "Non-first dice get +15% value when value is 4+."
+trigger = 1
+position_requirement = 3
+condition = SubResource("Resource_3a30c")
+effect_type = 1
+effect_value = 0.15
+
+[sub_resource type="Resource" id="Resource_qqsv3"]
+script = ExtResource("16_qqsv3")
+display_name = "Piercing D10"
+die_type = 10
+element = 3
+element_affix = ExtResource("18_pla6b")
+fill_texture = ExtResource("19_rlmfa")
+stroke_texture = ExtResource("22_7s5fc")
+combat_die_scene = ExtResource("17_rus0r")
+pool_die_scene = ExtResource("21_ubqy5")
+inherent_affixes = Array[ExtResource("20_tpt53")]([SubResource("Resource_187p8")])
+
+[resource]
+script = ExtResource("15_187p8")
+enemy_name = "Fencing Officer"
+description = "Sanctum Navy Fencing Officer."
+template = ExtResource("23_ky6wx")
+max_health = 15
+starting_dice = Array[ExtResource("16_qqsv3")]([SubResource("Resource_0pris"), SubResource("Resource_utmrn"), SubResource("Resource_qqsv3")])
+combat_actions = Array[ExtResource("2_yrijp")]([ExtResource("33_lunge"), ExtResource("34_parry"), ExtResource("35_riposte")])
+ai_strategy = 0
+ai_config = SubResource("Resource_81gxs")
+action_delay = 0.7
+dice_drag_duration = 0.35
+experience_reward = 30
+gold_reward_min = 10
+gold_reward_max = 30
+enemy_tier = 1
+enemy_archetype = 2
+enemy_level_floor = 3
+level_scaling_multiplier = 0.95
+health_affix = ExtResource("14_3a30c")
+enemy_affixes = Array[ExtResource("10_0pris")]([ExtResource("11_lumqa"), ExtResource("12_70io5")])

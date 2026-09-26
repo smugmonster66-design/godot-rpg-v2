@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://dub4kit330ivh"]
+
+[ext_resource type="Resource" uid="uid://ctfsngwqcqxsh" path="res://resources/dice_affixes/mage/flame/da_kindling_r2.tres" id="1_u76ih"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_rwuv8"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_i7qs0"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_nd2bx"]
+
+[resource]
+script = ExtResource("3_i7qs0")
+affix_name = "Kindling II"
+description = "[element:fire] die adjacent to another [element:fire] die: +2 value."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "positional", "forge"])
+effect_data = {
+"dice_affix": ExtResource("1_u76ih")
+}

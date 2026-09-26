@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CombatAnimationSet" load_steps=6 format=3 uid="uid://balebew0qila6"]
+
+[ext_resource type="PackedScene" uid="uid://c46527o02ur7l" path="res://scenes/effects/new/00fxstaging/thunderstrike_cast.tscn" id="1_xdu57"]
+[ext_resource type="PackedScene" path="res://scenes/effects/new/00fxstaging/thunderstrike_fire.tscn" id="2_v1g42"]
+[ext_resource type="PackedScene" uid="uid://dtdi7u1tyqi2l" path="res://scenes/effects/impact/lightning_impact_effect.tscn" id="3_pjorg"]
+[ext_resource type="Script" uid="uid://luoa1f4jirnk" path="res://resources/data/combat_animation_set.gd" id="4_n8vfh"]
+[ext_resource type="PackedScene" uid="uid://dqqsh0e2g5v57" path="res://scenes/effects/projectiles/lightning_bolt_strike_above_effect.tscn" id="5_r38in"]
+
+[resource]
+script = ExtResource("4_n8vfh")
+cast_effect = ExtResource("1_xdu57")
+fire_effect = ExtResource("2_v1g42")
+travel_effect = ExtResource("5_r38in")
+impact_effect = ExtResource("3_pjorg")
+metadata/_custom_type_script = "uid://luoa1f4jirnk"

@@ -308,6 +308,23 @@ func get_rarity_color_enum(rarity: int) -> Color:
 # ============================================================================
 
 
+func get_trigger_color() -> Color:
+	return Color.html("FFC825")  # warm gold — shared across all trigger placeholders
+
+
+func get_relationship_color(state: int) -> Color:
+	# Relationships.RelationshipState enum: HOSTILE=0, UNFRIENDLY=1, NEUTRAL=2,
+	# FRIENDLY=3, ALLIED=4, DEVOTED=5
+	match state:
+		0: return Color.html("FF0040")  # hostile — hot red
+		1: return Color.html("E07438")  # unfriendly — orange
+		2: return PALETTE.text_muted     # neutral — gray
+		3: return Color.html("5AC54F")  # friendly — green
+		4: return Color.html("0098DC")  # allied — cyan
+		5: return Color.html("FFC825")  # devoted — gold
+		_: return PALETTE.text_muted
+
+
 func get_status_color(status_name: String) -> Color:
 	# Endesga-64 palette — exact hex matches from endesga-64.hex
 	match status_name.to_lower():

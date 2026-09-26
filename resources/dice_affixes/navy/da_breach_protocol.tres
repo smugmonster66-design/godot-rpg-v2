@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://b0rk1hwdo4pm0"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_4hdoy"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_qs3o0"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_ojwr4"]
+
+[resource]
+script = ExtResource("2_qs3o0")
+affix_name = "Breach Protocol"
+description = "Last die used applies [status:corrode] to the enemy."
+trigger = 1
+position_requirement = 2
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "corrode",
+"target": "enemy"
+}

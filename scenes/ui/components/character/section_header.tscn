@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/components/character/section_header.gd" id="1_script"]
+
+[node name="SectionHeader" type="Label"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"charmenuheader"
+text = "Section"
+script = ExtResource("1_script")

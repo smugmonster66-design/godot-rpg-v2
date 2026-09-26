@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_4trsa")
 affix_name = "Starting Barrier"
-description = "+N barrier at combat start"
+description = "+N [status:warded|Warded] at combat start"
 category = 35
 tags = Array[String](["proc", "barrier", "combat_start"])
 effect_min = 2.0
@@ -16,3 +16,4 @@ effect_data = {
 "effect": "gain_barrier"
 }
 proc_trigger = 5
+power_weight = 45.0

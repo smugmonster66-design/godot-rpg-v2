@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CompanionSynergyDefinition" load_steps=7 format=3 uid="uid://nwl2xya3tece"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_qcpdt"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_rk4my"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_2e55w"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_nfm7w"]
+[ext_resource type="Script" uid="uid://cts3atmne7bb1" path="res://resources/data/companion_synergy_definition.gd" id="3_qcpdt"]
+
+[sub_resource type="Resource" id="Resource_3icnq"]
+script = ExtResource("1_qcpdt")
+metadata/_custom_type_script = "uid://dqmfu54osidoc"
+
+[resource]
+script = ExtResource("3_qcpdt")
+synergy_id = &"manneandmouse"
+synergy_name = "Manne & Mouse"
+description = "GO FOR THE EARS, MOUSE!"
+match_mode = 1
+required_companion_ids = Array[StringName]([&"manne", &"mouse"])
+bonus_action_effects = Array[ExtResource("1_qcpdt")]([SubResource("Resource_3icnq")])
+metadata/_custom_type_script = "uid://cts3atmne7bb1"

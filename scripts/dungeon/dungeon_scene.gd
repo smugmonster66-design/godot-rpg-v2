@@ -14,10 +14,16 @@ signal node_entered(node: DungeonNodeData)
 signal node_completed(node: DungeonNodeData)
 signal combat_requested(encounter: CombatEncounter)
 
+# ── Chain signals ──
+signal chain_dungeon_cemented(run: DungeonRun, chain_runner: DungeonChainRunner)
+signal chain_completed(chain_runner: DungeonChainRunner)
+signal chain_failed(run: DungeonRun, chain_runner: DungeonChainRunner)
+
 # ============================================================================
 # STATE
 # ============================================================================
 var current_run: DungeonRun = null
+var _chain_runner: DungeonChainRunner = null
 var _generator: DungeonMapGenerator = DungeonMapGenerator.new()
 var _player: Player = null
 var _awaiting_combat: bool = false
@@ -111,6 +117,17 @@ func _hide_all_popups():
 # PUBLIC API
 # ============================================================================
 
+func enter_chain(chain: DungeonChain, player: Player):
+	"""Enter a chain of dungeons. Completing each dungeon cements its gains
+	and immediately starts the next one."""
+	_player = player
+	_chain_runner = DungeonChainRunner.new(chain)
+	var first_def = _chain_runner.get_current_definition()
+	if not first_def:
+		push_error("DungeonScene: Chain has no dungeons")
+		return
+	enter_dungeon(first_def, player)
+
 func enter_dungeon(definition: DungeonDefinition, player: Player):
 	_player = player
 
@@ -153,6 +170,7 @@ func exit_dungeon():
 	if dungeon_map:
 		dungeon_map.clear_map()
 	current_run = null
+	_chain_runner = null
 	_player = null
 
 # ============================================================================
@@ -277,14 +295,22 @@ func on_combat_ended(player_won: bool):
 						if item and _player:
 							_player.add_to_inventory(item)
 							current_run.track_item(item)
+							GameEventBus.emit_item_gained(item.item_name, item.rarity, _get_portrait())
 
 		# ── Apply gold/exp ──
 		if gold > 0:
 			_player.add_gold(gold)
 			current_run.track_gold(gold)
+			GameEventBus.emit_gold_gained(gold, _get_portrait())
 		if exp > 0:
 			_player.add_experience(exp)
 			current_run.track_exp(exp)
+			GameEventBus.emit_exp_gained(exp, _get_portrait())
+
+		# ── Award relationship points to active companions ──
+		for inst in _player.active_companions:
+			if inst and inst.companion_data and inst.companion_data.companion_id != &"":
+				GameState.modify_relationship(inst.companion_data.companion_id, 2)
 
 		# ── Roguelite: offer affix after elite or boss ──
 		var _should_offer_affix: bool = false
@@ -312,10 +338,15 @@ func on_combat_ended(player_won: bool):
 		_on_player_died()
 
 func _handle_shop(node: DungeonNodeData):
-	var items: Array[EquippableItem] = []
+	var items: Array = []
 	for i in 3:
 		var item = current_run.definition.generate_shop_item()
 		if item: items.append(item)
+	# Add 1-2 consumables if the pool is populated
+	var consumable_count: int = randi_range(1, 2)
+	for i in consumable_count:
+		var consumable = current_run.definition.generate_shop_consumable()
+		if consumable: items.append(consumable)
 	if shop_popup and shop_popup.has_method("show_popup"):
 		shop_popup.show_popup({"node": node, "items": items, "run": current_run})
 
@@ -339,8 +370,15 @@ func _handle_treasure(node: DungeonNodeData):
 	if item:
 		_player.add_to_inventory(item)
 		current_run.track_item(item)
+		GameEventBus.emit_item_gained(item.item_name, item.rarity, _get_portrait())
+	# 30% chance for a bonus consumable
+	var consumable: ConsumableItem = null
+	if randf() < 0.3:
+		consumable = current_run.definition.generate_loot_consumable()
+		if consumable and _player:
+			_player.add_consumable(consumable)
 	if treasure_popup and treasure_popup.has_method("show_popup"):
-		treasure_popup.show_popup({"node": node, "item": item, "run": current_run})
+		treasure_popup.show_popup({"node": node, "item": item, "consumable": consumable, "run": current_run})
 	else:
 		_complete_and_advance(node)
 
@@ -367,7 +405,10 @@ func _on_popup_closed(result: Dictionary):
 			_apply_event_rewards(node_id, choice, succeeded)
 		"shop":
 			for item in result.get("purchased", []):
-				current_run.track_item(item)
+				if item is EquippableItem:
+					current_run.track_item(item)
+				elif item is ConsumableItem:
+					current_run.track_consumable(item)
 		"rest":
 			var heal: int = result.get("heal_amount", 0)
 			
@@ -425,6 +466,7 @@ func _on_popup_closed(result: Dictionary):
 			if chosen:
 				_apply_run_affix(chosen)
 				current_run.track_run_affix(chosen)
+				GameEventBus.emit_run_affix_chosen(chosen.display_name, _get_portrait())
 				print("🎲 Run affix chosen: %s" % chosen.display_name)
 			elif skipped:
 				current_run.skip_affix_offer()
@@ -432,6 +474,7 @@ func _on_popup_closed(result: Dictionary):
 				if skip_gold > 0 and _player:
 					_player.add_gold(skip_gold)
 					current_run.track_gold(skip_gold)
+					GameEventBus.emit_gold_gained(skip_gold, _get_portrait())
 					print("🎲 Affix skipped (+%d gold)" % skip_gold)
 				else:
 					print("🎲 Affix skipped")
@@ -459,10 +502,13 @@ func _apply_event_rewards(node_id: int, choice: DungeonEventChoice, succeeded: b
 			_player.heal(int(_player.max_health * choice.heal_percent))
 		if choice.gold_reward != 0:
 			_player.add_gold(choice.gold_reward)
-			if choice.gold_reward > 0: current_run.track_gold(choice.gold_reward)
+			if choice.gold_reward > 0:
+				current_run.track_gold(choice.gold_reward)
+				GameEventBus.emit_gold_gained(choice.gold_reward, _get_portrait())
 		if choice.experience_reward != 0:
 			_player.add_experience(choice.experience_reward)
 			current_run.track_exp(choice.experience_reward)
+			GameEventBus.emit_exp_gained(choice.experience_reward, _get_portrait())
 		if choice.grant_item:
 			var item = LootManager.generate_drop(
 				choice.grant_item,
@@ -472,6 +518,7 @@ func _apply_event_rewards(node_id: int, choice: DungeonEventChoice, succeeded: b
 			if item:
 				_player.add_to_inventory(item)
 				current_run.track_item(item)
+				GameEventBus.emit_item_gained(item.item_name, item.rarity, _get_portrait())
 		if choice.grant_temp_affix:
 			_apply_temp_affix(choice.grant_temp_affix)
 	else:
@@ -482,12 +529,26 @@ func _apply_event_rewards(node_id: int, choice: DungeonEventChoice, succeeded: b
 		current_run.track_event(node.event.event_id)
 
 func _apply_shrine(shrine: DungeonShrine):
+	var level: int = current_run.definition.dungeon_level if current_run else 1
+	var scaling_config: AffixScalingConfig = AffixTableRegistry.scaling_config
+	var power_pos: float = scaling_config.get_power_position(level) if scaling_config else -1.0
+
 	if shrine.blessing_affix and _player:
-		_player.affix_manager.add_affix(shrine.blessing_affix)
-		current_run.track_shrine_affix(shrine.blessing_affix)
+		var copy = shrine.blessing_affix.duplicate(true)
+		copy.source_type = "shrine"
+		if copy.has_scaling():
+			copy.roll_value(power_pos, scaling_config)
+		_player.affix_manager.add_affix(copy)
+		current_run.track_shrine_affix(copy)
+		GameEventBus.emit_shrine_applied(copy.affix_name, false, _get_portrait())
 	if shrine.curse_affix and _player:
-		_player.affix_manager.add_affix(shrine.curse_affix)
-		current_run.track_shrine_affix(shrine.curse_affix)
+		var copy = shrine.curse_affix.duplicate(true)
+		copy.source_type = "shrine"
+		if copy.has_scaling():
+			copy.roll_value(power_pos, scaling_config)
+		_player.affix_manager.add_affix(copy)
+		current_run.track_shrine_affix(copy)
+		GameEventBus.emit_shrine_applied(copy.affix_name, true, _get_portrait())
 
 # ============================================================================
 # PROGRESSION HELPERS
@@ -519,17 +580,45 @@ func _update_floor_ui():
 func _on_dungeon_complete():
 	current_run.is_complete = true
 	var def = current_run.definition
+
+	# First-clear bonus (same logic regardless of chain)
 	if def.first_clear_item and not _is_first_cleared(def.dungeon_id):
 		var item = def.generate_first_clear_item()
 		if item and _player:
 			_player.add_to_inventory(item); current_run.track_item(item)
+			GameEventBus.emit_item_gained(item.item_name, item.rarity, _get_portrait())
 		if def.first_clear_gold > 0 and _player:
 			_player.add_gold(def.first_clear_gold); current_run.track_gold(def.first_clear_gold)
+			GameEventBus.emit_gold_gained(def.first_clear_gold, _get_portrait())
 		if def.first_clear_exp > 0 and _player:
 			_player.add_experience(def.first_clear_exp); current_run.track_exp(def.first_clear_exp)
+			GameEventBus.emit_exp_gained(def.first_clear_exp, _get_portrait())
 		_mark_first_cleared(def.dungeon_id)
+
+	# ── Chain: mid-chain transition ──
+	if _chain_runner and _chain_runner.has_next_dungeon():
+		_cement_current_run()
+		_chain_runner.record_completed_run(current_run)
+		chain_dungeon_cemented.emit(current_run, _chain_runner)
+		var next_def = _chain_runner.advance()
+		if next_def:
+			_start_next_chain_dungeon(next_def)
+			return
+
+	# ── Chain: final dungeon completed ──
+	if _chain_runner:
+		_cement_current_run()
+		_chain_runner.record_completed_run(current_run)
+		_chain_runner.is_chain_complete = true
+		_apply_chain_clear_rewards()
+		chain_completed.emit(_chain_runner)
+
+	# ── Show completion popup and emit (single dungeon or chain-final) ──
 	if complete_popup and complete_popup.has_method("show_popup"):
-		complete_popup.show_popup({"type": "complete", "run": current_run})
+		var popup_data = {"type": "complete", "run": current_run}
+		if _chain_runner:
+			popup_data["chain_runner"] = _chain_runner
+		complete_popup.show_popup(popup_data)
 	dungeon_completed.emit(current_run)
 
 func _on_player_died():
@@ -539,6 +628,11 @@ func _on_player_died():
 		for item in current_run.items_earned:
 			_player.remove_from_inventory(item)
 	_cleanup_temp_effects()
+
+	if _chain_runner:
+		_chain_runner.is_chain_failed = true
+		chain_failed.emit(current_run, _chain_runner)
+
 	dungeon_failed.emit(current_run)
 
 # ============================================================================
@@ -632,15 +726,80 @@ func _cleanup_temp_effects():
 	if not _player: return
 	for die in _player.dice_pool.dice:
 		var to_remove = []
-		for a in die.affixes:
+		for a in die.applied_affixes:
 			if a.source_type == "dungeon_temp": to_remove.append(a)
 		for a in to_remove: die.remove_affix(a)
 	if current_run:
 		for affix in current_run.shrine_affixes_applied:
 			_player.affix_manager.remove_affix(affix)
 
+# ============================================================================
+# CHAIN METHODS
+# ============================================================================
 
-# New method in dungeon_scene.gd:
+func _cement_current_run():
+	"""Lock in loot/gold/exp from the current dungeon so the next dungeon's
+	death rollback won't touch them. Run affixes (dice temp + stat) are
+	cleaned up — they are temporary power for one dungeon only."""
+	if not _player or not current_run: return
+
+	# 1. Run affixes are temporary — clean them up between chain links
+	_cleanup_temp_effects()
+
+	# 2. Items/consumables: clear tracking so death rollback won't remove them
+	#    (the items themselves stay in the player's inventory)
+	current_run.items_earned.clear()
+	current_run.consumables_earned.clear()
+
+	print("[Chain] Cemented run: %s" % current_run.definition.dungeon_name)
+
+func _start_next_chain_dungeon(next_def: DungeonDefinition):
+	"""Transition to the next dungeon in the chain without exiting."""
+	# Clear old map (no temp cleanup — already cemented)
+	if dungeon_map:
+		dungeon_map.clear_map()
+
+	# Generate fresh run with new gold snapshot
+	current_run = _generator.generate(next_def)
+	current_run.start(next_def, _player.gold)
+
+	# Update UI
+	if dungeon_name_label:
+		dungeon_name_label.text = next_def.dungeon_name
+	_update_floor_ui()
+
+	if dungeon_map:
+		dungeon_map.build_map(current_run)
+
+	dungeon_started.emit(next_def)
+
+	# Offer entry affix for new dungeon
+	if next_def.has_run_affix_pool() and next_def.offer_on_entry:
+		_pending_advance_node = null
+		_pending_boss_complete = false
+		_show_run_affix_choice("entry")
+	else:
+		_enter_start_node()
+
+func _apply_chain_clear_rewards():
+	"""Grant chain-level bonus rewards on full chain completion."""
+	if not _chain_runner or not _chain_runner.chain or not _player: return
+	var chain = _chain_runner.chain
+	if chain.chain_clear_gold > 0:
+		_player.add_gold(chain.chain_clear_gold)
+		GameEventBus.emit_gold_gained(chain.chain_clear_gold, _get_portrait())
+	if chain.chain_clear_exp > 0:
+		_player.add_experience(chain.chain_clear_exp)
+		GameEventBus.emit_exp_gained(chain.chain_clear_exp, _get_portrait())
+	if chain.chain_clear_item and _player:
+		var item_level = _chain_runner.get_current_definition().dungeon_level if _chain_runner.get_current_definition() else 1
+		var region = _chain_runner.get_current_definition().dungeon_region if _chain_runner.get_current_definition() else 1
+		var result = LootManager.generate_drop(chain.chain_clear_item, item_level, region)
+		var item = result.get("item") as EquippableItem
+		if item:
+			_player.add_to_inventory(item)
+			GameEventBus.emit_item_gained(item.item_name, item.rarity, _get_portrait())
+
 
 func _apply_theme(definition: DungeonDefinition):
 	pass
@@ -691,6 +850,13 @@ func _setup_dust_motes():
 			img.set_pixel(x, y, Color(1, 1, 1, a))
 	var tex = ImageTexture.create_from_image(img)
 	dust.texture = tex
+
+
+func _get_portrait() -> Control:
+	if GameManager and GameManager.game_root:
+		return GameManager.game_root.get_node_or_null(
+			"PersistentUILayer/PortraitVBox/PortraitContainer/PortraitTexture")
+	return null
 
 
 func _is_first_cleared(dungeon_id: String) -> bool:

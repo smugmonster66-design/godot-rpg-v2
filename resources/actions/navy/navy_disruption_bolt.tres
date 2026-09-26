@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="Action" load_steps=10 format=3 uid="uid://b1ppk27q5pu1k"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_f8xrs"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_kalbr"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_xt5rd"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_7ptvi"]
+[ext_resource type="Resource" uid="uid://cfgr6ee2uth1t" path="res://resources/statuses/corrode.tres" id="5_msu2m"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_pieh2"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_gcqvm"]
+
+[sub_resource type="Resource" id="Resource_f8xrs"]
+script = ExtResource("3_xt5rd")
+effect_name = "Disruption Damage"
+value_source = 1
+damage_type = 5
+base_damage = 1
+damage_multiplier = 0.9
+
+[sub_resource type="Resource" id="Resource_kalbr"]
+script = ExtResource("3_xt5rd")
+effect_name = "Disruption Corrode"
+effect_type = 2
+status_affix = ExtResource("5_msu2m")
+
+[resource]
+script = ExtResource("7_gcqvm")
+action_id = "navy_disruption_bolt"
+action_name = "Disruption Bolt"
+action_description = "A [element:shock] bolt that [status:corrode|corrodes] defenses."
+damage_element = 5
+effects = Array[ExtResource("3_xt5rd")]([SubResource("Resource_f8xrs"), SubResource("Resource_kalbr")])

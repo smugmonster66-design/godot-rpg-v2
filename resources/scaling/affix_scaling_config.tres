@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AffixScalingConfig" load_steps=3 format=3 uid="uid://cool78gbrkv1"]
+[gd_resource type="Resource" script_class="AffixScalingConfig" load_steps=4 format=3 uid="uid://cool78gbrkv1"]
 
 [ext_resource type="Script" uid="uid://cluv2jx2qwawn" path="res://resources/data/affix_scaling_config.gd" id="1_r8pqg"]
 
@@ -6,6 +6,13 @@
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
 point_count = 2
 
+[sub_resource type="Curve" id="Curve_power"]
+_data = [Vector2(0, 0.007), 0.0, 0.6, 0, 0, Vector2(0.09, 0.061), 0.6, 0.6, 0, 0, Vector2(0.19, 0.157), 0.8, 0.8, 0, 0, Vector2(0.29, 0.271), 0.9, 0.9, 0, 0, Vector2(0.49, 0.4), 0.8, 0.8, 0, 0, Vector2(0.69, 0.571), 1.0, 1.2, 0, 0, Vector2(1, 1), 1.5, 0.0, 0, 0]
+point_count = 7
+
 [resource]
 script = ExtResource("1_r8pqg")
 global_scaling_curve = SubResource("Curve_27yr3")
+expected_power_curve = SubResource("Curve_power")
+max_expected_power = 1400.0
+min_expected_power = 10.0

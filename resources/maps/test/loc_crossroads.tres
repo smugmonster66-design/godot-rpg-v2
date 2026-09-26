@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="LocationNode" load_steps=3 format=3 uid="uid://r7irqu4arlkh"]
+
+[ext_resource type="Script" uid="uid://dgamp5w74kvwa" path="res://resources/data/location_node.gd" id="1_locscript"]
+[ext_resource type="Script" uid="uid://bvx6wd14mcwlb" path="res://resources/data/map_node_button_def.gd" id="2_hs5ir"]
+
+[resource]
+script = ExtResource("1_locscript")
+location_id = &"loc_crossroads"
+display_name = "Crossroads"
+node_type = 7
+description = "A windswept junction where four paths meet. Travellers linger briefly, then move on."
+map_position = Vector2(1818.3046, 2692.4097)
+connections = Array[StringName]([&"loc_embergate", &"loc_navy_sanctum", &"loc_patrol_grounds", &"loc_zone_gate_docks"])

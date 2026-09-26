@@ -1,0 +1,158 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/quest_manager/widgets/rewards_editor_widget.gd" id="1_script"]
+
+[node name="RewardsEditorWidget" type="VBoxContainer"]
+layout_mode = 2
+script = ExtResource("1_script")
+
+[node name="BasicHeader" type="Label" parent="."]
+layout_mode = 2
+text = "Basic Rewards"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+
+[node name="BasicRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="XPLabel" type="Label" parent="BasicRow"]
+layout_mode = 2
+text = "XP:"
+
+[node name="XPSpin" type="SpinBox" parent="BasicRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 99999.0
+
+[node name="GoldLabel" type="Label" parent="BasicRow"]
+layout_mode = 2
+text = "Gold:"
+
+[node name="GoldSpin" type="SpinBox" parent="BasicRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 99999.0
+
+[node name="Sep1" type="HSeparator" parent="."]
+layout_mode = 2
+
+[node name="ItemsHeader" type="Label" parent="."]
+layout_mode = 2
+text = "Items"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+
+[node name="ItemsList" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AddItemButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+ Add Item"
+
+[node name="Sep2" type="HSeparator" parent="."]
+layout_mode = 2
+
+[node name="ChoiceHeader" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="ChoiceLabel" type="Label" parent="ChoiceHeader"]
+layout_mode = 2
+text = "Choice Items"
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+
+[node name="ChoiceCountLabel" type="Label" parent="ChoiceHeader"]
+layout_mode = 2
+text = "Pick:"
+
+[node name="ChoiceCountSpin" type="SpinBox" parent="ChoiceHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 10.0
+
+[node name="ChoiceItemsList" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AddChoiceItemButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+ Add Choice Item"
+
+[node name="Sep3" type="HSeparator" parent="."]
+layout_mode = 2
+
+[node name="UnlockFlagsHeader" type="Label" parent="."]
+layout_mode = 2
+text = "Unlock Flags"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+
+[node name="UnlockFlagsList" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AddUnlockFlagButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+ Add Flag"
+
+[node name="Sep4" type="HSeparator" parent="."]
+layout_mode = 2
+
+[node name="UnlockLocationsHeader" type="Label" parent="."]
+layout_mode = 2
+text = "Unlock Locations"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+
+[node name="UnlockLocationsList" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AddUnlockLocationButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+ Add Location"
+
+[node name="Sep5" type="HSeparator" parent="."]
+layout_mode = 2
+
+[node name="UnlockQuestsHeader" type="Label" parent="."]
+layout_mode = 2
+text = "Unlock Quests"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+
+[node name="UnlockQuestsList" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AddUnlockQuestButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+ Add Quest"
+
+[node name="Sep6" type="HSeparator" parent="."]
+layout_mode = 2
+
+[node name="RelationshipsHeader" type="Label" parent="."]
+layout_mode = 2
+text = "Relationship Changes"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+
+[node name="RelationshipsList" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AddRelationshipButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+ Add Relationship"

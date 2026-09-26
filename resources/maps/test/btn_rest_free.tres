@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MapNodeButtonDef" load_steps=2 format=3 uid="uid://tm0btnrestp01"]
+
+[ext_resource type="Script" uid="uid://bvx6wd14mcwlb" path="res://resources/data/map_node_button_def.gd" id="1_btnscript"]
+
+[resource]
+script = ExtResource("1_btnscript")
+button_category = 4
+rest_cost_gold = 0
+rest_heal_percent = 1.0
+label = "Rest"
+tooltip = "Rest here to fully restore HP."

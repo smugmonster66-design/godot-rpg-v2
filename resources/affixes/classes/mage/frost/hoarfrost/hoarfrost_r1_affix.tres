@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_cdtea")
 affix_name = "Hoarfrost I"
-description = "End of turn: 1 Chill per unused die."
+description = "End of turn: 1 [status:chill] per unused die."
 category = 35
 tags = Array[String](["mage", "frost", "applier", "chill_apply", "end_turn"])
 effect_number = 1.0

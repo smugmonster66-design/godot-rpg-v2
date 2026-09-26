@@ -58,6 +58,7 @@ custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 placeholder_text = "Enter dialogue text..."
 wrap_mode = 1
+scroll_fit_content_height = true
 
 [node name="SlotsToggleRow" type="HBoxContainer" parent="VBox"]
 layout_mode = 2

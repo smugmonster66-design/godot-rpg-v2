@@ -12,3 +12,4 @@ category = 29
 tags = Array[String](["mana"])
 effect_min = 3.0
 effect_max = 80.0
+power_weight = 70.0

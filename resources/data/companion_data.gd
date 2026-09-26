@@ -10,7 +10,12 @@ class_name CompanionData
 @export var companion_name: String = "Companion"
 @export var companion_id: StringName = &""
 @export_multiline var description: String = ""
+@export var action_name: String = ""
+@export_multiline var action_description: String = ""
 @export var portrait: Texture2D = null
+
+## Tags for synergy matching (e.g., &"frost", &"healer", &"undead")
+@export var synergy_tags: Array[StringName] = []
 
 enum CompanionType { NPC, SUMMON }
 @export var companion_type: CompanionType = CompanionType.NPC
@@ -116,6 +121,14 @@ enum CompanionTarget {
 @export var idle_animation: SpriteFrames = null
 @export var summon_enter_preset: SummonPreset = null
 @export var entry_emanate_preset: EmanatePreset = null
+# ============================================================================
+# BARKS
+# ============================================================================
+@export_group("Barks")
+## This companion's personality bark reactions (speech bubble exclamations).
+## Evaluated by BarkManager when GameEventBus events fire.
+@export var bark_set: BarkSet = null
+
 # ============================================================================
 # DURATION (summons only)
 # ============================================================================

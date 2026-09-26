@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=14 format=3 uid="uid://c3mxcdofxsyud"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=16 format=3 uid="uid://c3mxcdofxsyud"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_sidbm"]
 [ext_resource type="Resource" uid="uid://du8dsjx0ygnhu" path="res://resources/actions/items/region_1/iron_mace_bludgeon_action.tres" id="1_yiugh"]
@@ -8,9 +8,11 @@
 [ext_resource type="Resource" uid="uid://by212c4j0x5gp" path="res://resources/affixes/base_stats/inherent_health.tres" id="3_tly2s"]
 [ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="4_tly2s"]
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="5_yiugh"]
+[ext_resource type="PackedScene" uid="uid://de8q4axqsu2ki" path="res://scenes/ui/components/dice/combat/combat_die_d6.tscn" id="6_e4r4o"]
 [ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="6_gw0i5"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="7_e4r4o"]
 [ext_resource type="Resource" uid="uid://hnmjxghaf5mm" path="res://resources/slot_definitions/main_hand_slot.tres" id="8_hnuin"]
+[ext_resource type="PackedScene" uid="uid://bxqtkedv2ygd3" path="res://scenes/ui/components/dice/pool/pool_die_d6.tscn" id="10_hnuin"]
 [ext_resource type="Texture2D" uid="uid://dvli2s0yckoqo" path="res://assets/items/main hand/Iron Mace.png" id="10_yiugh"]
 
 [sub_resource type="Resource" id="Resource_sidbm"]
@@ -20,6 +22,8 @@ element = 2
 element_affix = ExtResource("3_hpb5h")
 fill_texture = ExtResource("4_tly2s")
 stroke_texture = ExtResource("6_gw0i5")
+combat_die_scene = ExtResource("6_e4r4o")
+pool_die_scene = ExtResource("10_hnuin")
 
 [resource]
 script = ExtResource("7_e4r4o")

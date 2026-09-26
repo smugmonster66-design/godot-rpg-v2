@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MapDefinition" load_steps=5 format=3 uid="uid://tm0mapdckszon"]
+
+[ext_resource type="Script" path="res://resources/data/map_definition.gd" id="1_mapscript"]
+[ext_resource type="Script" uid="uid://dgamp5w74kvwa" path="res://resources/data/location_node.gd" id="2_locscript"]
+[ext_resource type="Resource" uid="uid://tm0locdkcamp1" path="res://resources/maps/test/loc_dockside_camp.tres" id="3_camp"]
+[ext_resource type="Resource" uid="uid://tm0lochbrwtch" path="res://resources/maps/test/loc_harbor_watch.tres" id="4_harbor"]
+
+[resource]
+script = ExtResource("1_mapscript")
+map_id = &"test_docks_zone"
+display_name = "The Docks"
+region_id = &"test_region"
+location_nodes = Array[ExtResource("2_locscript")]([ExtResource("3_camp"), ExtResource("4_harbor")])
+starting_location_id = &"loc_dockside_camp"
+return_location_id = &"loc_zone_gate_docks"

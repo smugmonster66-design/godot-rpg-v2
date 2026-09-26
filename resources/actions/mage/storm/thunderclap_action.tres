@@ -12,7 +12,7 @@
 script = ExtResource("5_hlu03")
 action_id = "storm_thunderclap"
 action_name = "Thunderclap"
-action_description = "Deal shock damage equal to die value. Apply Static stacks equal to die value."
+action_description = "Deal [element:shock] damage equal to die value. Apply [status:static] stacks equal to die value."
 min_dice_required = 1
 accepted_elements = Array[int]([4])
 max_charges = 99

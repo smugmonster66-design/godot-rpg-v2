@@ -17,7 +17,6 @@ signal closed
 @export var description_label: RichTextLabel
 @export var rank_label: Label
 @export var cost_label: Label
-@export var prerequisites_label: Label
 
 @export_group("Visuals")
 @export var icon_rect: TextureRect
@@ -38,6 +37,27 @@ signal closed
 
 ## Reference to the PopupPanel node (auto-found if null)
 @export var popup_panel: PanelContainer
+
+# ============================================================================
+# CATEGORY DISPLAY
+# ============================================================================
+const CATEGORY_NAMES := {
+	SkillResource.SkillCategory.PASSIVE:   "Passive",
+	SkillResource.SkillCategory.TRIGGER:   "Trigger",
+	SkillResource.SkillCategory.ACTION:    "Action",
+	SkillResource.SkillCategory.SIGNATURE: "Signature",
+	SkillResource.SkillCategory.WEAVE:     "Passive",  # Weave shown as Passive to players
+	SkillResource.SkillCategory.CAPSTONE:  "Capstone",
+}
+
+const CATEGORY_COLORS := {
+	SkillResource.SkillCategory.PASSIVE:   Color(0.45, 0.55, 0.75),
+	SkillResource.SkillCategory.TRIGGER:   Color(0.85, 0.55, 0.25),
+	SkillResource.SkillCategory.ACTION:    Color(0.35, 0.70, 0.40),
+	SkillResource.SkillCategory.SIGNATURE: Color(0.65, 0.40, 0.80),
+	SkillResource.SkillCategory.WEAVE:     Color(0.45, 0.55, 0.75),  # Visually treated as Passive
+	SkillResource.SkillCategory.CAPSTONE:  Color(0.90, 0.45, 0.30),
+}
 
 # ============================================================================
 # STATE
@@ -104,7 +124,7 @@ func show_skill(skill: SkillResource, rank: int, skill_can_learn: bool, points_a
 	if description_label:
 		description_label.bbcode_enabled = true
 		description_label.clear()
-		description_label.append_text(skill.description)
+		description_label.append_text(DescriptionParser.parse(skill.description))
 
 	if rank_label:
 		if effective_rank > rank and rank > 0:
@@ -116,41 +136,23 @@ func show_skill(skill: SkillResource, rank: int, skill_can_learn: bool, points_a
 
 	print("🔍 Popup: rank=%d effective=%d max=%d" % [rank, effective_rank, max_rank])
 
-	# Cost
+	# Category (replaces old cost display)
 	if cost_label:
-		cost_label.text = "Cost: %d skill point(s)" % skill.skill_point_cost
-
-	# Prerequisites
-	if prerequisites_label:
-		if skill.prerequisites.size() > 0 or skill.tree_points_required > 0:
-			var lines: Array[String] = []
-
-			if skill.tree_points_required > 0:
-				lines.append("• %d tree points required" % skill.tree_points_required)
-
-			for prereq in skill.prerequisites:
-				if prereq and prereq.required_skill:
-					lines.append("• %s" % prereq.get_display_text())
-
-			prerequisites_label.text = "Requires:\n" + "\n".join(lines)
-			prerequisites_label.show()
-		else:
-			prerequisites_label.text = ""
-			prerequisites_label.hide()
+		var cat_name: String = CATEGORY_NAMES.get(skill.skill_category, "Unknown")
+		var cat_color: Color = CATEGORY_COLORS.get(skill.skill_category, Color.WHITE)
+		cost_label.text = cat_name
+		cost_label.add_theme_color_override("font_color", cat_color)
 
 	# Learn button state
 	if learn_button:
 		if is_maxed:
 			learn_button.text = "Maxed"
 			learn_button.disabled = true
-		elif not skill_can_learn:
-			learn_button.text = "Requirements Not Met"
-			learn_button.disabled = true
-		elif points_available < skill.skill_point_cost:
-			learn_button.text = "Not Enough Points"
+		elif not skill_can_learn or points_available < skill.skill_point_cost:
+			learn_button.text = "Learn"
 			learn_button.disabled = true
 		else:
-			learn_button.text = "Learn (-%d SP)" % skill.skill_point_cost
+			learn_button.text = "Learn"
 			learn_button.disabled = false
 
 	# Size the popup to width_ratio of parent before showing

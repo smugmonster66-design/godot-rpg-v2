@@ -1,0 +1,52 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/dialogue_editor/nodes/action_node.gd" id="1_script"]
+
+[node name="ActionNode" type="GraphNode"]
+offset_right = 280.0
+offset_bottom = 100.0
+title = "ACTION"
+script = ExtResource("1_script")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="TypeRow" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="TypeLabel" type="Label" parent="VBox/TypeRow"]
+layout_mode = 2
+text = "Action:"
+
+[node name="TypeDropdown" type="OptionButton" parent="VBox/TypeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ParamRow" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="ParamLabel" type="Label" parent="VBox/ParamRow"]
+layout_mode = 2
+text = "Resource:"
+
+[node name="ParamEdit" type="LineEdit" parent="VBox/ParamRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "res://resources/encounters/..."
+
+[node name="ParamDropdown" type="OptionButton" parent="VBox/ParamRow"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ObjectiveRow" type="HBoxContainer" parent="VBox"]
+visible = false
+layout_mode = 2
+
+[node name="ObjectiveLabel" type="Label" parent="VBox/ObjectiveRow"]
+layout_mode = 2
+text = "Objective:"
+
+[node name="ObjectiveDropdown" type="OptionButton" parent="VBox/ObjectiveRow"]
+layout_mode = 2
+size_flags_horizontal = 3

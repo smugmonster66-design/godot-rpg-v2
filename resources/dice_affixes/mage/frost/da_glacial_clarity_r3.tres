@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_1b3y2")
 affix_name = "Glacial Clarity III: Reroll"
-description = "Auto-reroll ice die below 4."
+description = "Auto-reroll [element:ice] die below 4."
 use_global_element_visuals = true
 global_element_type = 4
 condition = ExtResource("1_pyow2")

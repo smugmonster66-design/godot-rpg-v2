@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_04a4d")
 affix_name = "Rimestorm: Chain"
-description = "Ice die chains to 1 additional enemy for 60% damage, applying 2 Chill."
+description = "[element:ice] die chains to 1 additional enemy for 60% damage, applying 2 [status:chill]."
 use_global_element_visuals = true
 global_element_type = 4
 trigger = 1

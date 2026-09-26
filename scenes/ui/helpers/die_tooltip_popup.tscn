@@ -28,25 +28,31 @@ layout_mode = 2
 size_flags_vertical = 4
 theme_override_constants/separation = 4
 
-[node name="HeaderLabel" type="Label" parent="TooltipPanel/VBox"]
+[node name="HeaderLabel" type="RichTextLabel" parent="TooltipPanel/VBox"]
 layout_mode = 2
 theme_type_variation = &"TooltipLabel"
-horizontal_alignment = 1
-autowrap_mode = 3
+bbcode_enabled = true
+text = ""
+fit_content = true
+scroll_active = false
 
-[node name="SubtitleLabel" type="Label" parent="TooltipPanel/VBox"]
+[node name="SubtitleLabel" type="RichTextLabel" parent="TooltipPanel/VBox"]
 visible = false
 layout_mode = 2
 theme_type_variation = &"TooltipLabel"
-horizontal_alignment = 1
-autowrap_mode = 3
+bbcode_enabled = true
+text = ""
+fit_content = true
+scroll_active = false
 
-[node name="FlavorLabel" type="Label" parent="TooltipPanel/VBox"]
+[node name="FlavorLabel" type="RichTextLabel" parent="TooltipPanel/VBox"]
 visible = false
 layout_mode = 2
 theme_type_variation = &"TooltipLabel"
-horizontal_alignment = 1
-autowrap_mode = 3
+bbcode_enabled = true
+text = ""
+fit_content = true
+scroll_active = false
 
 [node name="AffixContainer" type="VBoxContainer" parent="TooltipPanel/VBox"]
 layout_mode = 2

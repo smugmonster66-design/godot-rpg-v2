@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MapLightingConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://clmq2wyc5ci6l" path="res://resources/data/map_lighting_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+ambient_color = Color(0, 0, 0, 0)
+light_direction = Vector2(-0.5, -0.9)
+shadow_opacity = 0.65
+shadow_softness = 4.0
+light_rays_enabled = true

@@ -1,0 +1,107 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=30 format=3 uid="uid://bsos4j8v173nx"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_i0ioo"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_25ka3"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="10_eekya"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_barrier_int_caster.tres" id="11_7lb6v"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_shock.tres" id="12_wp04g"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="13_pk82s"]
+[ext_resource type="Resource" uid="uid://dryx3uup40h6u" path="res://resources/affixes/base_stats/enemy/enemy_health_int_caster.tres" id="14_cen4c"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="15_8tjfu"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="16_dq7yv"]
+[ext_resource type="PackedScene" uid="uid://de8q4axqsu2ki" path="res://scenes/ui/components/dice/combat/combat_die_d6.tscn" id="17_ppmbs"]
+[ext_resource type="Resource" uid="uid://bgw24wqldi0fd" path="res://resources/affixes/elements/shock_element.tres" id="18_8tx21"]
+[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="19_8ytwc"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="20_hh1gt"]
+[ext_resource type="PackedScene" uid="uid://bxqtkedv2ygd3" path="res://scenes/ui/components/dice/pool/pool_die_d6.tscn" id="21_qnjh8"]
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="21_rpwbt"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="22_gewek"]
+[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="22_sy43d"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="23_ho5ns"]
+[ext_resource type="Resource" uid="uid://dayw6ar4mjdg7" path="res://resources/enemy_templates/caster_int.tres" id="23_rmrg2"]
+[ext_resource type="Resource" uid="uid://0u71rfmhmmg5" path="res://resources/actions/navy/navy_lightning_strike.tres" id="33_lightnin"]
+[ext_resource type="Resource" uid="uid://caru6ervegfqn" path="res://resources/actions/navy/navy_storm_ward.tres" id="34_storm_wa"]
+
+[sub_resource type="Resource" id="Resource_ub5bn"]
+script = ExtResource("1_i0ioo")
+element_preference = 0.8
+status_awareness = 0.6
+
+
+[sub_resource type="Resource" id="Resource_eekya"]
+script = ExtResource("21_rpwbt")
+type = 4
+
+
+[sub_resource type="Resource" id="Resource_7lb6v"]
+script = ExtResource("20_hh1gt")
+affix_name = "Charged Air"
+description = "On max roll, gain Warded."
+condition = SubResource("Resource_eekya")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "warded",
+"target": "self"
+}
+
+
+[sub_resource type="Resource" id="Resource_wp04g"]
+script = ExtResource("16_dq7yv")
+display_name = "Shock D6"
+element = 6
+element_affix = ExtResource("18_8tx21")
+fill_texture = ExtResource("19_8ytwc")
+stroke_texture = ExtResource("22_sy43d")
+combat_die_scene = ExtResource("17_ppmbs")
+pool_die_scene = ExtResource("21_qnjh8")
+inherent_affixes = Array[ExtResource("20_hh1gt")]([SubResource("Resource_7lb6v")])
+
+
+[sub_resource type="Resource" id="Resource_pk82s"]
+script = ExtResource("21_rpwbt")
+type = 4
+
+
+[sub_resource type="Resource" id="Resource_cen4c"]
+script = ExtResource("20_hh1gt")
+affix_name = "Charged Air"
+description = "On max roll, gain Warded."
+condition = SubResource("Resource_pk82s")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "warded",
+"target": "self"
+}
+
+
+[sub_resource type="Resource" id="Resource_8tjfu"]
+script = ExtResource("16_dq7yv")
+display_name = "Shock D6"
+element = 6
+element_affix = ExtResource("18_8tx21")
+fill_texture = ExtResource("19_8ytwc")
+stroke_texture = ExtResource("22_sy43d")
+combat_die_scene = ExtResource("17_ppmbs")
+pool_die_scene = ExtResource("21_qnjh8")
+inherent_affixes = Array[ExtResource("20_hh1gt")]([SubResource("Resource_cen4c")])
+
+
+[resource]
+script = ExtResource("15_8tjfu")
+enemy_name = "Weather Mage"
+description = "Sanctum Navy Weather Mage."
+template = ExtResource("23_rmrg2")
+combat_role = 2
+enemy_tags = PackedStringArray("navy", "humanoid")
+starting_dice = Array[ExtResource("16_dq7yv")]([SubResource("Resource_wp04g"), SubResource("Resource_8tjfu")])
+combat_actions = Array[ExtResource("2_25ka3")]([ExtResource("33_lightnin"), ExtResource("34_storm_wa")])
+ai_config = SubResource("Resource_ub5bn")
+action_delay = 0.7
+dice_drag_duration = 0.35
+gold_reward_min = 3
+gold_reward_max = 10
+enemy_archetype = 3
+health_affix = ExtResource("14_cen4c")
+enemy_affixes = Array[ExtResource("10_eekya")]([ExtResource("11_7lb6v"), ExtResource("12_wp04g")])

@@ -6,13 +6,14 @@
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_ng7jp"]
 [ext_resource type="Resource" uid="uid://by212c4j0x5gp" path="res://resources/affixes/base_stats/inherent_health.tres" id="3_vengi"]
 [ext_resource type="Resource" uid="uid://baxp7h1tamq4" path="res://resources/slot_definitions/accessory_slot.tres" id="4_vengi"]
-[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="5_vengi"]
+[ext_resource type="Texture2D" uid="uid://b041nfh7356ud" path="res://assets/items/accessory/riders pendant.png" id="5_vengi"]
 
 [resource]
 script = ExtResource("3_ng7jp")
 item_name = "Rider's Pendant"
 description = ""
 flavor_text = "Griffin riders are superstitious. This is the most tasteful expression of that."
+icon = ExtResource("5_vengi")
 rarity = 1
 equip_slot = 7
 slot_definition = ExtResource("4_vengi")

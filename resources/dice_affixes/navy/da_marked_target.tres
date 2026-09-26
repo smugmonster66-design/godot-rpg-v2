@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://d3f6k3j5utj0g"]
+
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_8eobr"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_xfnut"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_nhgx7"]
+
+[resource]
+script = ExtResource("2_xfnut")
+affix_name = "Marked Target"
+description = "Last die used applies [status:expose] to enemy."
+trigger = 1
+position_requirement = 2
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "expose",
+"target": "enemy"
+}

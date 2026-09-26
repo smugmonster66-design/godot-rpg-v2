@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=5 format=3 uid="uid://ll1l1c3nyhcc"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_wixpi"]
+[ext_resource type="Resource" uid="uid://csdyhmdin00qx" path="res://resources/enemies/region1/navy/elite/shieldwall_veteran.tres" id="2_dh6gm"]
+[ext_resource type="Resource" uid="uid://c4k23p187oeuj" path="res://resources/enemies/region1/navy/elite/senior_arcanist.tres" id="3_cf25i"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="4_v43lq"]
+
+[resource]
+script = ExtResource("4_v43lq")
+encounter_name = "Shieldwall Advance"
+encounter_id = "navy_shieldwall_advance"
+enemies = Array[ExtResource("1_wixpi")]([ExtResource("2_dh6gm"), ExtResource("3_cf25i")])
+enemy_slots = Array[int]([0, 2])
+difficulty_tier = 4
+level_range_min = 3
+level_range_max = 6

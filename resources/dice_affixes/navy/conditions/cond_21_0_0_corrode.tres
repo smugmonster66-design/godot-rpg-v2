@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DiceAffixCondition" load_steps=2 format=3 uid="uid://drpnkfnkm2kgx"]
+
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="1_1ybec"]
+
+[resource]
+script = ExtResource("1_1ybec")
+type = 21
+condition_status_id = "corrode"

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="DungeonShrine" load_steps=6 format=3 uid="uid://cly3odt3v6u0u"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_mw4ns"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_nxhqu"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_0t64t"]
+[ext_resource type="Script" uid="uid://dejkynwv48tug" path="res://resources/data/dungeon_shrine.gd" id="4_44i1u"]
+
+[sub_resource type="Resource" id="Resource_ljejp"]
+script = ExtResource("2_nxhqu")
+affix_name = "Navigator's Clarity"
+description = "+N max mana"
+category = 29
+tags = Array[String](["shrine", "utility"])
+source_type = "shrine"
+effect_min = 1.0
+effect_max = 4.0
+
+[resource]
+script = ExtResource("4_44i1u")
+shrine_name = "Shrine of the Navigator"
+description = "A compass rose carved into the floor glows softly, offering clarity. The air around it is still and focused."
+blessing_affix = SubResource("Resource_ljejp")

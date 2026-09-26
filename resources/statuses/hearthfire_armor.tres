@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=6 format=3 uid="uid://dks6ff0a66ytp"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_hf01"]
+[ext_resource type="Script" uid="uid://dfaph2f2anhu0" path="res://resources/data/status_dice_effect.gd" id="1_r3qxf"]
+[ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_hf01"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_hf01"]
+[ext_resource type="Texture2D" uid="uid://cg07lolwmcy1q" path="res://assets/status_effects/hearthfire_status.png" id="3_nqnkw"]
+
+[resource]
+script = ExtResource("2_hf01")
+status_id = "hearthfire_armor"
+duration_type = 1
+default_duration = 1
+max_stacks = 10
+falls_off_between_turns = true
+is_debuff = false
+can_be_cleansed = false
+cleanse_tags = Array[String](["buff", "fire", "defensive_buff"])
+stat_modifier_per_stack = {
+"armor": 1
+}
+affix_name = "Hearthfire"
+description = "+1 armor per stack. Falls off at end of turn."
+icon = ExtResource("3_nqnkw")
+has_elemental_identity = true
+elemental_identity = 3
+category = 33

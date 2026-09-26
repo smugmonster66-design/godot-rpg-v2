@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://cpmo7iwcpx5y3"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_c15f5"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_1tse7"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_347ld"]
+
+[resource]
+script = ExtResource("3_1tse7")
+affix_name = "Mana Flare II"
+description = "Applying [status:burn] to an enemy restores 2 mana. Max 2/turn."
+category = 35
+tags = Array[String](["mage", "flame", "utility", "mana_economy", "burn_exploit", "proc"])
+effect_number = 2.0
+effect_data = {
+"condition_status": "burn",
+"condition_target": "enemy",
+"max_per_turn": 2,
+"proc_effect": "mana_restore",
+"proc_trigger": "ON_STATUS_APPLIED",
+"proc_value": 2
+}
+proc_trigger = 11

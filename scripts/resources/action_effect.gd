@@ -15,7 +15,19 @@ class_name ActionEffect
 # ============================================================================
 # ENUMS
 # ============================================================================
-enum TargetType { SELF, SINGLE_ENEMY, ALL_ENEMIES, SINGLE_ALLY, ALL_ALLIES }
+enum TargetType {
+	SELF,              ## 0 — The source (caster / companion)
+	SINGLE_ENEMY,      ## 1 — First enemy in passed targets (legacy, caller-resolved)
+	ALL_ENEMIES,       ## 2 — Every living enemy
+	SINGLE_ALLY,       ## 3 — First ally in passed targets (legacy, caller-resolved)
+	ALL_ALLIES,        ## 4 — Player + all living companions
+	RANDOM_ENEMY,      ## 5 — One random living enemy
+	LOWEST_HP_ENEMY,   ## 6 — Enemy with lowest current HP
+	LOWEST_HP_ALLY,    ## 7 — Ally (player or companion) with lowest current HP
+	OTHER_COMPANION,   ## 8 — First alive companion that isn't the source
+	TRIGGERING_SOURCE, ## 9 — The combatant that caused the trigger (fallback: random enemy)
+	DAMAGED_ALLY,      ## 10 — The ally that was just damaged (fallback: lowest HP ally)
+}
 
 enum EffectType {
 	DAMAGE, HEAL, ADD_STATUS, REMOVE_STATUS, CLEANSE,
@@ -250,6 +262,99 @@ var value_source_defense: String = "armor"
 @export var sub_effects: Array[ActionEffectSubEffect] = []
 
 # ============================================================================
+# TARGET RESOLUTION
+# ============================================================================
+
+static func resolve_targets(target_type: TargetType, source, combat_context: Dictionary) -> Array:
+	"""Resolve targets for a given TargetType using combat context.
+
+	combat_context keys:
+	  alive_enemies: Array[Combatant]   — all living enemies
+	  alive_companions: Array           — all living companions (CompanionCombatant)
+	  player_combatant: Combatant       — the player combatant
+	  trigger_source: Combatant         — combatant that caused the trigger (optional)
+	  damaged_target: Combatant         — ally that was just damaged (optional)
+
+	Returns Array of combatant targets."""
+	var enemies: Array = combat_context.get("alive_enemies", [])
+	var companions: Array = combat_context.get("alive_companions", [])
+	var player = combat_context.get("player_combatant")
+	var targets: Array = []
+
+	match target_type:
+		TargetType.SELF:
+			if source:
+				targets.append(source)
+
+		TargetType.SINGLE_ENEMY, TargetType.RANDOM_ENEMY:
+			if enemies.size() > 0:
+				targets.append(enemies.pick_random())
+
+		TargetType.ALL_ENEMIES:
+			targets.append_array(enemies)
+
+		TargetType.SINGLE_ALLY:
+			if player:
+				targets.append(player)
+
+		TargetType.ALL_ALLIES:
+			if player:
+				targets.append(player)
+			targets.append_array(companions)
+
+		TargetType.LOWEST_HP_ENEMY:
+			if enemies.size() > 0:
+				var lowest = enemies[0]
+				for e in enemies:
+					if e.current_health < lowest.current_health:
+						lowest = e
+				targets.append(lowest)
+
+		TargetType.LOWEST_HP_ALLY:
+			var candidates: Array = []
+			if player:
+				candidates.append(player)
+			candidates.append_array(companions)
+			if candidates.size() > 0:
+				var lowest = candidates[0]
+				for c in candidates:
+					if c.current_health < lowest.current_health:
+						lowest = c
+				targets.append(lowest)
+
+		TargetType.OTHER_COMPANION:
+			for c in companions:
+				if c != source and c.is_alive():
+					targets.append(c)
+					break
+
+		TargetType.TRIGGERING_SOURCE:
+			var trigger_src = combat_context.get("trigger_source")
+			if trigger_src and trigger_src is Combatant and trigger_src.is_alive():
+				targets.append(trigger_src)
+			elif enemies.size() > 0:
+				targets.append(enemies.pick_random())
+
+		TargetType.DAMAGED_ALLY:
+			var damaged = combat_context.get("damaged_target")
+			if damaged and damaged is Combatant and damaged.is_alive():
+				targets.append(damaged)
+			else:
+				# Fallback: lowest HP ally
+				var candidates: Array = []
+				if player:
+					candidates.append(player)
+				candidates.append_array(companions)
+				if candidates.size() > 0:
+					var lowest = candidates[0]
+					for c in candidates:
+						if c.current_health < lowest.current_health:
+							lowest = c
+					targets.append(lowest)
+
+	return targets
+
+# ============================================================================
 # EXECUTION
 # ============================================================================
 
@@ -277,7 +382,7 @@ func _execute_on_target(source, target_entity, dice_values: Array, context: Dict
 	match effect_type:
 		EffectType.DAMAGE: result.merge(_calculate_damage(dice_values, rbd))
 		EffectType.HEAL: result.merge(_calculate_heal(dice_values, rbh))
-		EffectType.ADD_STATUS: result.merge(_add_status_result())
+		EffectType.ADD_STATUS: result.merge(_add_status_result(dice_values, context, condition_mult))
 		EffectType.REMOVE_STATUS: result.merge(_remove_status_result())
 		EffectType.CLEANSE: result.merge(_cleanse_result())
 		EffectType.SHIELD: result.merge(_calculate_shield(dice_values, context, condition_mult))
@@ -662,7 +767,11 @@ func _calculate_heal_custom(dv: Array, base: int, mult: float, ud: bool, dc: int
 		for i in range(du): dt += dv[i]
 	return {"heal": int((dt + base) * mult), "dice_total": dt, "base_heal": base, "multiplier": mult}
 
-func _add_status_result() -> Dictionary: return {"status_affix": status_affix, "stacks_to_add": stack_count}
+func _add_status_result(dice_values: Array = [], context: Dictionary = {}, condition_mult: float = 1.0) -> Dictionary:
+	var stacks = stack_count
+	if value_source != ValueSource.STATIC:
+		stacks = _resolve_value(stack_count, context, condition_mult)
+	return {"status_affix": status_affix, "stacks_to_add": stacks}
 func _remove_status_result() -> Dictionary: return {"status_affix": status_affix, "stacks_to_remove": stack_count, "remove_all": stack_count == 0}
 func _cleanse_result() -> Dictionary: return {"cleanse_tags": cleanse_tags, "cleanse_max_removals": cleanse_max_removals}
 
@@ -671,7 +780,12 @@ func _cleanse_result() -> Dictionary: return {"cleanse_tags": cleanse_tags, "cle
 # ============================================================================
 
 func get_target_type_name() -> String:
-	return ["Self", "Single Enemy", "All Enemies", "Single Ally", "All Allies"][target] if target < 5 else "Unknown"
+	const NAMES = [
+		"Self", "Single Enemy", "All Enemies", "Single Ally", "All Allies",
+		"Random Enemy", "Lowest HP Enemy", "Lowest HP Ally",
+		"Other Companion", "Triggering Source", "Damaged Ally",
+	]
+	return NAMES[target] if target < NAMES.size() else "Unknown"
 
 func get_effect_type_name() -> String:
 	var names = ["Damage", "Heal", "Add Status", "Remove Status", "Cleanse",

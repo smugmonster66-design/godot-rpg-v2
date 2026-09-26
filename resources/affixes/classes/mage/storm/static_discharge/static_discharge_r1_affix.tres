@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_bsax2")
 affix_name = "Static Discharge"
-description = "When target with Static dies: deal remaining stacks as shock AoE, apply half as Static to all."
+description = "When target with [status:static] dies: deal remaining stacks as [element:shock] AoE, apply half as [status:static] to all."
 category = 35
 tags = Array[String](["mage", "storm", "conduit", "death", "aoe", "chain", "static_apply"])
 effect_data = {

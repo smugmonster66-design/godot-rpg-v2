@@ -1,0 +1,44 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/npc_dialogue_manager/panels/npc_browser_panel.gd" id="1_script"]
+
+[node name="NPCBrowserPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("1_script")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="TopRow" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="BrowserLabel" type="Label" parent="VBox/TopRow"]
+layout_mode = 2
+text = "NPCs"
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+
+[node name="CreateNPCButton" type="Button" parent="VBox/TopRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+ New"
+tooltip_text = "Create a new NPC definition"
+
+[node name="RefreshButton" type="Button" parent="VBox/TopRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "↻"
+tooltip_text = "Refresh NPC list"
+
+[node name="FilterEdit" type="LineEdit" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Filter NPCs..."
+
+[node name="NPCTree" type="Tree" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+hide_root = true

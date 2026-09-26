@@ -1,0 +1,113 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/dialogue_editor/widgets/bbcode_style_menu.gd" id="1_script"]
+
+[node name="BBCodeStyleMenu" type="Window"]
+title = "Text Effects"
+size = Vector2i(340, 400)
+always_on_top = true
+visible = false
+script = ExtResource("1_script")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="AddRow" type="HBoxContainer" parent="MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="StyleDropdown" type="OptionButton" parent="MarginContainer/VBox/AddRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AddButton" type="Button" parent="MarginContainer/VBox/AddRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+ Add"
+tooltip_text = "Add this effect to the stack"
+
+[node name="Sep1" type="HSeparator" parent="MarginContainer/VBox"]
+layout_mode = 2
+
+[node name="StackHeader" type="Label" parent="MarginContainer/VBox"]
+layout_mode = 2
+text = "Effect Stack:"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+
+[node name="StackScroll" type="ScrollContainer" parent="MarginContainer/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 80)
+
+[node name="StackContainer" type="VBoxContainer" parent="MarginContainer/VBox/StackScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="EmptyLabel" type="Label" parent="MarginContainer/VBox/StackScroll/StackContainer"]
+layout_mode = 2
+text = "No effects added yet"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+
+[node name="Sep2" type="HSeparator" parent="MarginContainer/VBox"]
+layout_mode = 2
+
+[node name="PreviewHeader" type="Label" parent="MarginContainer/VBox"]
+layout_mode = 2
+text = "Preview:"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+
+[node name="PreviewLabel" type="RichTextLabel" parent="MarginContainer/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 40)
+bbcode_enabled = true
+text = ""
+fit_content = true
+scroll_active = false
+theme_override_font_sizes/normal_font_size = 18
+
+[node name="Sep3" type="HSeparator" parent="MarginContainer/VBox"]
+layout_mode = 2
+
+[node name="ButtonRow" type="HBoxContainer" parent="MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ApplyButton" type="Button" parent="MarginContainer/VBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Apply"
+tooltip_text = "Wrap selected text with all stacked effects"
+
+[node name="RemoveAllButton" type="Button" parent="MarginContainer/VBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Remove All"
+tooltip_text = "Strip all matching BBCode tags from selected text"
+
+[node name="CloseButton" type="Button" parent="MarginContainer/VBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Close"

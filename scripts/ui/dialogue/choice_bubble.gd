@@ -8,7 +8,7 @@ signal choice_pressed(index: int)
 
 @onready var bubble_panel: PanelContainer = $BubblePanel
 @onready var tail: TextureRect = $BubblePanel/Tail
-@onready var label: Label = $BubblePanel/MarginContainer/Label
+@onready var label: RichTextLabel = $BubblePanel/MarginContainer/Label
 @onready var icon_rect: TextureRect = $BubblePanel/MarginContainer/HBox/Icon
 @onready var lock_icon: TextureRect = $BubblePanel/MarginContainer/HBox/LockIcon
 
@@ -22,14 +22,25 @@ var _is_locked: bool = false
 @export var appear_duration: float = 0.25
 @export var hover_tween_duration: float = 0.12
 
+## Maximum bubble width before text wraps to a new line.
+const MAX_BUBBLE_WIDTH: float = 540.0
+const MARGIN_TOTAL: float = 24.0  # Left 12 + Right 12 from MarginContainer
+
+func _ready() -> void:
+	if label:
+		DialogueTextEffects.register_all(label)
+
 func setup(index: int, choice: DialogueChoice, angle_to_portrait: float) -> void:
 	choice_index = index
 	choice_data = choice
 	_is_locked = not choice.is_available()
-	
+
 	if label:
 		label.text = choice.get_label()
-	
+
+	# Resize bubble width to fit text (up to MAX_BUBBLE_WIDTH)
+	_resize_to_content()
+
 	# Icon
 	if icon_rect:
 		if choice.icon and not _is_locked:
@@ -60,6 +71,24 @@ func setup(index: int, choice: DialogueChoice, angle_to_portrait: float) -> void
 		tooltip_text = ""
 	
 	_orient_tail(angle_to_portrait)
+
+func _resize_to_content() -> void:
+	"""Resize the bubble width to fit text content, capped at MAX_BUBBLE_WIDTH."""
+	if not label:
+		return
+	# Estimate text width using font metrics
+	var font = label.get_theme_font("normal_font")
+	var font_size = label.get_theme_font_size("normal_font_size")
+	var plain_text = choice_data.get_label() if choice_data else label.text
+	if font:
+		var text_width = font.get_string_size(plain_text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+		var ideal_width = text_width + MARGIN_TOTAL + 8.0  # Extra padding for safety
+		var new_width = clampf(ideal_width, custom_minimum_size.x, MAX_BUBBLE_WIDTH)
+		size.x = new_width
+	else:
+		size.x = custom_minimum_size.x
+	# Update pivot to left-center for proper scale animation
+	pivot_offset = Vector2(0, size.y / 2.0)
 
 func _orient_tail(angle: float) -> void:
 	if tail:

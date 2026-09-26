@@ -82,6 +82,20 @@ enum EffectTiming {
 @export var apply_effect_at: EffectTiming = EffectTiming.ON_IMPACT
 
 # ============================================================================
+# Z-ORDERING
+# ============================================================================
+@export_group("Z-Ordering")
+
+enum ZLayer {
+	BEHIND_TARGET,  ## Below the target node (ambient glow)
+	DEFAULT,        ## Standard effects layer (current behavior)
+	ABOVE_TARGET,   ## Above the target node (impact flash)
+}
+
+## Z-ordering: render effects behind, at, or above the target node
+@export var z_layer: ZLayer = ZLayer.DEFAULT
+
+# ============================================================================
 # AUDIO
 # ============================================================================
 @export_group("Audio")

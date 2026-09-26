@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("2_cgqj2")
 affix_name = "Voltaic Surge II"
-description = "Shock dice deal +2 bonus damage per Static stack on target."
+description = "[element:shock] dice deal +2 bonus damage per [status:static] stack on target."
 category = 39
 tags = Array[String](["mage", "storm", "mana_die_affix", "damage", "center", "scaling"])
 effect_data = {

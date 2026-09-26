@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_4uirl")
 affix_name = "Apply Slowed on Hit"
-description = "N% chance to Slow on hit"
+description = "{proc_chance}% chance to [status:slowed|Slow] on hit"
 category = 35
 tags = Array[String](["proc", "status", "on_hit"])
 effect_data = {
@@ -15,6 +15,7 @@ effect_data = {
 "status": "slowed"
 }
 proc_trigger = 1
-proc_chance = 0.24000000000000002
+proc_chance = 0.24
 proc_chance_min = 0.08
 proc_chance_max = 0.4
+power_weight = 95.0

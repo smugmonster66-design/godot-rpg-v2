@@ -7,13 +7,14 @@
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_f2dfk"]
 [ext_resource type="Resource" uid="uid://btsq4gakq82l7" path="res://resources/slot_definitions/off_hand_slot.tres" id="4_jtsio"]
 [ext_resource type="Resource" uid="uid://bo60aqpcko6p6" path="res://resources/affixes/base_stats/inherent_barrier_hybrid.tres" id="4_omoqb"]
-[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="6_3ox1q"]
+[ext_resource type="Texture2D" uid="uid://dofh0l1jr4236" path="res://assets/items/off hand/reinforced naval shield.png" id="6_3ox1q"]
 
 [resource]
 script = ExtResource("3_f2dfk")
 item_name = "Reinforced Naval Shield"
 description = ""
 flavor_text = "Half steel, half sorcery. Sanctum's military budget in physical form."
+icon = ExtResource("6_3ox1q")
 rarity = 1
 equip_slot = 5
 slot_definition = ExtResource("4_jtsio")

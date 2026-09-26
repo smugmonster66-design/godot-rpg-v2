@@ -8,6 +8,11 @@ extends Node
 # ============================================================================
 # DEV MODE
 # ============================================================================
+@export_group("Map")
+## Drag a MapDefinition .tres here to load a specific map on startup.
+## Leave empty to use legacy fallback (displays all registered locations).
+@export var starting_map: MapDefinition = null
+
 @export_group("Dev Mode")
 @export var dev_mode: bool = false
 @export var dev_level: int = 10
@@ -17,7 +22,8 @@ extends Node
 @export_range(1, 100) var dev_item_level: int = 15
 @export_range(1, 6) var dev_item_region: int = 1
 @export_range(1, 6) var debug_region: int = 1
-@export var dev_companions: Array[CompanionData] = []   
+@export var dev_companions: Array[CompanionData] = []
+@export var dev_camp_companions: Array[CompanionData] = []
 
 
 signal combat_intro_ready
@@ -98,6 +104,10 @@ func _ready():
 	
 	
 	
+	# Listen for dialogue events (smithing, etc.)
+	if not DialogueManager.event_triggered.is_connected(_on_dialogue_event):
+		DialogueManager.event_triggered.connect(_on_dialogue_event)
+
 	# Dungeon layer — start hidden and disabled
 	dungeon_layer.visible = false
 	dungeon_layer.process_mode = Node.PROCESS_MODE_DISABLED
@@ -110,6 +120,12 @@ func _ready():
 			dungeon_scene.dungeon_completed.connect(_on_dungeon_completed)
 		if not dungeon_scene.dungeon_failed.is_connected(_on_dungeon_failed):
 			dungeon_scene.dungeon_failed.connect(_on_dungeon_failed)
+		if not dungeon_scene.chain_completed.is_connected(_on_chain_completed):
+			dungeon_scene.chain_completed.connect(_on_chain_completed)
+		if not dungeon_scene.chain_failed.is_connected(_on_chain_failed):
+			dungeon_scene.chain_failed.connect(_on_chain_failed)
+		if not dungeon_scene.chain_dungeon_cemented.is_connected(_on_chain_dungeon_cemented):
+			dungeon_scene.chain_dungeon_cemented.connect(_on_chain_dungeon_cemented)
 		print("  ✅ DungeonScene signals connected")
 	
 	
@@ -210,6 +226,11 @@ func _on_player_created(player: Resource):
 	if portrait_controller and portrait_controller.has_method("set_player"):
 		portrait_controller.set_player(player)
 		print("  ✅ PortraitController initialized with player")
+
+	# Initialize map scene with player
+	if map_scene and map_scene.has_method("initialize_map"):
+		map_scene.initialize_map(player, starting_map)
+		print("  ✅ MapScene initialized with player")
 		
 		
 		
@@ -242,12 +263,27 @@ func _on_player_created(player: Resource):
 				var instance = CompanionInstance.new()
 				instance.companion_data = comp_data
 				player.active_companions.append(instance)
+				player.companion_roster.append(instance)
 				print("  [Dev] Companion: %s" % comp_data.companion_name)
-		
-		
-		print("[Dev] Dev mode — Lv.%d, %d SP, +%d dice, +%d items, +%d companions" % [
+
+		for comp_data in dev_camp_companions:
+			if comp_data:
+				var instance = CompanionInstance.new()
+				instance.companion_data = comp_data
+				player.companion_roster.append(instance)
+				print("  [Dev] Camp companion: %s" % comp_data.companion_name)
+
+		# Sync player.level and recalculate stats so HP/mana/affixes reflect dev_level
+		player.level = pc.level
+		player.recalculate_stats()
+
+		# Refresh bottom UI so it reads the patched level/stats
+		if bottom_ui and bottom_ui.has_method("refresh_stats"):
+			bottom_ui.refresh_stats()
+
+		print("[Dev] Dev mode — Lv.%d, %d SP, +%d dice, +%d items, +%d companions, +%d camp" % [
 			dev_level, dev_skill_points, dev_dice.size(), dev_items.size(),
-			dev_companions.size()])
+			dev_companions.size(), dev_camp_companions.size()])
 	
 	# Populate companion panel (after dev companions are added)
 	if companion_panel and player:
@@ -295,6 +331,9 @@ func start_combat(encounter: Resource = null):
 	if player_menu and player_menu.visible and player_menu.has_method("close_menu"):
 		player_menu.close_menu()
 
+	map_layer.visible = false
+	if map_scene.has_method("set_ui_layer_visible"):
+		map_scene.set_ui_layer_visible(false)
 	map_scene.process_mode = Node.PROCESS_MODE_DISABLED
 	combat_layer.visible = true
 	combat_layer.process_mode = Node.PROCESS_MODE_INHERIT
@@ -345,14 +384,28 @@ func end_combat(player_won: bool = true):
 	if bottom_ui and bottom_ui.has_method("on_combat_ended"):
 		bottom_ui.on_combat_ended(player_won)
 
+	# Report kills to QuestManager for objective tracking
+	if player_won and GameManager and GameManager.pending_encounter:
+		QuestManager.report_combat_kills(GameManager.pending_encounter.enemies)
+
 	if is_in_dungeon:
 		# Dungeon owns rewards — let it apply them, then show summary
 		_handle_dungeon_post_combat(player_won)
 	else:
 		# Map path — GameManager handles rewards + shows summary
+		map_layer.visible = true
+		if map_scene.has_method("set_ui_layer_visible"):
+			map_scene.set_ui_layer_visible(true)
 		map_scene.process_mode = Node.PROCESS_MODE_INHERIT
 		if GameManager:
 			GameManager.on_combat_ended(player_won)
+
+	# If dialogue was suspended for this combat and no summary is shown,
+	# resume dialogue immediately (otherwise _on_summary_closed handles it)
+	var summary_visible = post_combat_summary and post_combat_summary.visible
+	if not summary_visible and DialogueManager.has_pending_resume():
+		print("📊 No summary shown — resuming dialogue directly")
+		DialogueManager.resume_dialogue()
 
 
 
@@ -431,6 +484,9 @@ func enter_dungeon(definition: DungeonDefinition):
 		return
 	print("🏰 GameRoot: Entering dungeon '%s'" % definition.dungeon_name)
 	is_in_dungeon = true
+	map_layer.visible = false
+	if map_scene.has_method("set_ui_layer_visible"):
+		map_scene.set_ui_layer_visible(false)
 	map_scene.process_mode = Node.PROCESS_MODE_DISABLED
 	dungeon_layer.visible = true
 	dungeon_layer.process_mode = Node.PROCESS_MODE_INHERIT
@@ -441,6 +497,25 @@ func enter_dungeon(definition: DungeonDefinition):
 		dmap.camera = camera
 	dungeon_scene.enter_dungeon(definition, GameManager.player)
 
+func enter_dungeon_chain(chain: DungeonChain):
+	if is_in_dungeon or is_in_combat:
+		push_warning("GameRoot: Can't enter dungeon chain now")
+		return
+	print("[Chain] Entering chain '%s' (%d dungeons)" % [
+		chain.get_display_name(), chain.get_dungeon_count()])
+	is_in_dungeon = true
+	map_layer.visible = false
+	if map_scene.has_method("set_ui_layer_visible"):
+		map_scene.set_ui_layer_visible(false)
+	map_scene.process_mode = Node.PROCESS_MODE_DISABLED
+	dungeon_layer.visible = true
+	dungeon_layer.process_mode = Node.PROCESS_MODE_INHERIT
+	camera.set_mode(GameCamera.Mode.DUNGEON)
+	var dmap = dungeon_scene.find_child("DungeonMap", true, false)
+	if dmap:
+		dmap.camera = camera
+	dungeon_scene.enter_chain(chain, GameManager.player)
+
 func exit_dungeon():
 	camera.set_mode(GameCamera.Mode.MAP)
 	print("🏰 GameRoot: Exiting dungeon")
@@ -448,6 +523,9 @@ func exit_dungeon():
 	dungeon_scene.exit_dungeon()
 	dungeon_layer.visible = false
 	dungeon_layer.process_mode = Node.PROCESS_MODE_DISABLED
+	map_layer.visible = true
+	if map_scene.has_method("set_ui_layer_visible"):
+		map_scene.set_ui_layer_visible(true)
 	map_scene.process_mode = Node.PROCESS_MODE_INHERIT
 
 func _on_dungeon_combat_requested(encounter: CombatEncounter):
@@ -492,11 +570,34 @@ func _fade_from_black():
 func _on_dungeon_completed(run: DungeonRun):
 	print("🏰 Complete! Gold: %d, Exp: %d, Items: %d" % [
 		run.gold_earned, run.exp_earned, run.items_earned.size()])
+	# Report dungeon completion to QuestManager for CUSTOM objectives
+	if run.definition and run.definition.dungeon_id != "":
+		QuestManager.report_custom(StringName(run.definition.dungeon_id))
 	exit_dungeon()
+	# Resume dialogue if it was suspended for this dungeon entry
+	if DialogueManager.has_pending_resume():
+		DialogueManager.resume_dialogue()
 
 func _on_dungeon_failed(run: DungeonRun):
 	print("💀 Failed. Gold rolled back to %d" % run.gold_snapshot_on_entry)
 	exit_dungeon()
+	# Resume dialogue if it was suspended for this dungeon entry
+	if DialogueManager.has_pending_resume():
+		DialogueManager.resume_dialogue()
+
+func _on_chain_completed(chain_runner: DungeonChainRunner):
+	print("[Chain] Complete! %d dungeons cleared" % chain_runner.completed_runs.size())
+	if chain_runner.chain and chain_runner.chain.chain_id != &"":
+		QuestManager.report_custom(chain_runner.chain.chain_id)
+
+func _on_chain_failed(run: DungeonRun, chain_runner: DungeonChainRunner):
+	print("[Chain] Failed at dungeon %d/%d" % [
+		chain_runner.current_index + 1, chain_runner.chain.get_dungeon_count()])
+
+func _on_chain_dungeon_cemented(run: DungeonRun, chain_runner: DungeonChainRunner):
+	print("[Chain] Cemented dungeon %d: %s (progress: %s)" % [
+		chain_runner.current_index, run.definition.dungeon_name,
+		chain_runner.get_progress_text()])
 
 func show_dungeon_selection():
 	"""Open the dungeon selection screen. Called from map UI."""
@@ -544,13 +645,70 @@ func get_dice_panel() -> Control:
 func _on_summary_closed():
 	"""Post-combat summary closed — resume the correct scene."""
 	print("📊 Summary closed — transitioning back")
+	print("📊 DialogueManager.has_pending_resume() = %s" % DialogueManager.has_pending_resume())
+	print("📊 _pending_resume_line = %s, _suspended_encounter = %s" % [DialogueManager._pending_resume_line, DialogueManager._suspended_encounter])
 	var info = _pending_post_combat
 	_pending_post_combat = {}
 
 	if info.get("was_dungeon", false):
 		# Re-enable dungeon — floor advancement already happened
 		dungeon_scene.process_mode = Node.PROCESS_MODE_INHERIT
+
+	# Resume dialogue if it was suspended for this combat/dungeon
+	if DialogueManager.has_pending_resume():
+		DialogueManager.resume_dialogue()
 	# Map path already re-enabled in end_combat()
+
+# ============================================================================
+# MAP POPUPS (stubs — implemented as systems are built)
+# ============================================================================
+
+func show_quest_popup(location = null) -> void:
+	"""Stub: opens quest grid for the given location. Implement when quest UI is ready."""
+	push_warning("GameRoot.show_quest_popup: Quest UI not yet implemented (location: %s)" % str(location))
+
+func show_stash_popup() -> void:
+	var popup = preload("res://scenes/ui/stash/stash_popup.tscn").instantiate()
+	dialogue_layer.add_child(popup)
+	popup.stash_closed.connect(func(): popup.queue_free())
+	popup.setup(GameManager.player, GameState.stash)
+
+func show_party_popup() -> void:
+	var popup = preload("res://scenes/ui/popups/party_management_popup.tscn").instantiate()
+	dialogue_layer.add_child(popup)
+	popup.show_party(GameManager.player)
+	popup.party_closed.connect(func(): popup.queue_free())
+
+# ============================================================================
+# DIALOGUE EVENT HANDLER
+# ============================================================================
+
+func _on_dialogue_event(tag: StringName) -> void:
+	var tag_str = str(tag)
+	print("[GameRoot] _on_dialogue_event: '%s'" % tag_str)
+	if tag_str.begins_with("open_smithing:"):
+		var config_path = tag_str.substr("open_smithing:".length())
+		print("[GameRoot] Opening smithing with config: '%s'" % config_path)
+		_show_smithing_popup(config_path)
+
+func _show_smithing_popup(config_path: String) -> void:
+	print("[GameRoot] _show_smithing_popup: config_path='%s'" % config_path)
+	var config = load(config_path) if config_path != "" else null
+	print("[GameRoot] config loaded: %s" % config)
+	if not config:
+		config = load("res://resources/crafting/smithing_config.tres")
+		print("[GameRoot] fallback config: %s" % config)
+	if not config:
+		push_warning("GameRoot: No SmithingConfig found at '%s'" % config_path)
+		return
+	print("[GameRoot] instantiating smithing popup...")
+	var popup = preload("res://scenes/ui/smithing/smithing_popup.tscn").instantiate()
+	print("[GameRoot] popup instantiated: %s" % popup)
+	dialogue_layer.add_child(popup)
+	print("[GameRoot] popup added to DialogueLayer, calling show_smithing")
+	popup.smithing_closed.connect(func(): popup.queue_free())
+	popup.show_smithing(GameManager.player, config)
+	print("[GameRoot] show_smithing completed")
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Ctrl+Shift+= to test dialogue

@@ -19,7 +19,11 @@ var luck: int = 10
 
 @export var gold: int = 0
 
-
+# ============================================================================
+# CRAFTING COMPONENTS
+# ============================================================================
+## Crafting component currencies. Key: StringName (component_id), Value: int (count).
+var crafting_components: Dictionary = {}
 
 # ============================================================================
 # PLAYER LEVEL (for equip requirements)
@@ -219,9 +223,17 @@ func get_barrier() -> int:
 	
 	return maxi(0, total)
 
+func get_power_level() -> float:
+	var total: float = affix_manager.get_total_power()
+	if dice_pool:
+		for die in dice_pool.get_all_dice():
+			for da in die.get_all_affixes():
+				total += da.get_affix_power()
+	return total
+
 func recalculate_stats():
 	# ── Max HP ──
-	var base_hp: int = 100
+	var base_hp: int = active_class.get_stat_at_level("health", active_class.level) if active_class else 100
 	var hp_bonus: int = 0
 	for affix in affix_manager.get_pool(Affix.Category.HEALTH_BONUS):
 		hp_bonus += int(affix.apply_effect())
@@ -231,9 +243,10 @@ func recalculate_stats():
 		max_hp = new_max_hp
 		current_hp = clampi(roundi(current_hp * (float(max_hp) / float(old_max))), 1, max_hp)
 		hp_changed.emit(current_hp, max_hp)
-	
+
 	# ── Max Mana ──
-	var base_mana_val: int = 50 + get_total_stat("intellect") * 2
+	var mana_base: int = active_class.get_stat_at_level("mana", active_class.level) if active_class else 50
+	var base_mana_val: int = mana_base + get_total_stat("intellect") * 2
 	var mana_bonus: int = 0
 	for affix in affix_manager.get_pool(Affix.Category.MANA_BONUS):
 		mana_bonus += int(affix.apply_effect())
@@ -345,7 +358,30 @@ func consume_mana(amount: int) -> bool:
 func add_gold(amount: int):
 	gold += amount
 
+# ============================================================================
+# CRAFTING COMPONENT HELPERS
+# ============================================================================
 
+func get_component_count(component_id: StringName) -> int:
+	return crafting_components.get(component_id, 0)
+
+func add_components(component_id: StringName, amount: int) -> void:
+	crafting_components[component_id] = get_component_count(component_id) + amount
+	inventory_changed.emit()
+
+func can_afford_components(cost: Dictionary) -> bool:
+	for comp_id in cost:
+		if get_component_count(comp_id) < cost[comp_id]:
+			return false
+	return true
+
+func spend_component_dict(cost: Dictionary) -> bool:
+	if not can_afford_components(cost):
+		return false
+	for comp_id in cost:
+		crafting_components[comp_id] = get_component_count(comp_id) - cost[comp_id]
+	inventory_changed.emit()
+	return true
 
 func equip_item(item: EquippableItem, slot: String = "") -> bool:
 	"""Equip an EquippableItem. Returns false if requirements not met."""
@@ -366,9 +402,7 @@ func equip_item(item: EquippableItem, slot: String = "") -> bool:
 	# Handle heavy weapons (occupy both Main Hand and Off Hand)
 	if item.is_heavy_weapon():
 		if equipment["Off Hand"] != null:
-			var offhand = equipment["Off Hand"]
-			equipment["Off Hand"] = null
-			inventory.append(offhand)
+			unequip_item("Off Hand")
 		if equipment["Main Hand"] != null:
 			unequip_item("Main Hand")
 		equipment["Main Hand"] = item
@@ -546,6 +580,9 @@ func add_to_inventory(item: EquippableItem):
 	if item and item not in inventory:
 		inventory.append(item)
 		inventory_changed.emit()
+		# Report to QuestManager for COLLECT objectives
+		var item_id: String = item.resource_path.get_file().get_basename() if item.resource_path != "" else item.item_name.to_snake_case()
+		QuestManager.report_collect(StringName(item_id))
 		print("🎒 Added to inventory: %s" % item.item_name)
 
 func remove_from_inventory(item: EquippableItem):
@@ -562,9 +599,11 @@ func add_consumable(item: ConsumableItem):
 	"""Add a consumable, stacking if possible."""
 	if not item:
 		return
-	# Try to stack with existing
+	# Try to stack with existing (match by resource path for reliability, fall back to name)
 	for existing in consumables:
-		if existing.item_name == item.item_name and existing.current_stack < existing.max_stack:
+		var same_type: bool = (existing.resource_path != "" and existing.resource_path == item.resource_path) \
+			or (existing.resource_path == "" and existing.item_name == item.item_name)
+		if same_type and existing.current_stack < existing.max_stack:
 			existing.current_stack += 1
 			inventory_changed.emit()
 			print("🧪 Stacked %s (%d/%d)" % [item.item_name, existing.current_stack, existing.max_stack])
@@ -598,7 +637,10 @@ func use_consumable(item: ConsumableItem, context: Dictionary = {}) -> Dictionar
 
 func add_experience(amount: int):
 	if active_class:
-		active_class.add_experience(amount)
+		var leveled: bool = active_class.add_experience(amount)
+		if leveled:
+			level = active_class.level
+			recalculate_stats()
 
 
 # ============================================================================

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="LocationNode" load_steps=4 format=3 uid="uid://tm0lochbrwtch"]
+
+[ext_resource type="Script" uid="uid://dgamp5w74kvwa" path="res://resources/data/location_node.gd" id="1_locscript"]
+[ext_resource type="Script" uid="uid://bvx6wd14mcwlb" path="res://resources/data/map_node_button_def.gd" id="2_btnscript"]
+[ext_resource type="Resource" uid="uid://tm0btnnvydun1" path="res://resources/maps/test/btn_enter_navy.tres" id="3_enternavy"]
+
+[resource]
+script = ExtResource("1_locscript")
+location_id = &"loc_harbor_watch"
+display_name = "Harbor Watch Post"
+node_type = 2
+map_node_category = 1
+map_position = Vector2(550, 320)
+connections = [&"loc_dockside_camp"]
+radial_buttons = Array[ExtResource("2_btnscript")]([ExtResource("3_enternavy")])
+safe_zone = false
+initial_visibility = 0

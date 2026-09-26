@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_4y2ka")
 affix_name = "Glaciate: Ice Unlock"
-description = "Unlocks Ice mana element."
+description = "Unlocks [element:ice] mana element."
 category = 37
 tags = Array[String](["mage", "frost", "element_unlock"])
 effect_data = {

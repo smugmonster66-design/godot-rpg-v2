@@ -15,3 +15,4 @@ effect_data = {
 "effect": "grant_extra_die"
 }
 proc_trigger = 3
+power_weight = 80.0

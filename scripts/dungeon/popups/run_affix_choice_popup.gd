@@ -145,9 +145,7 @@ func _create_card(entry: RunAffixEntry, index: int) -> PanelContainer:
 	name_hbox.add_child(rarity_label)
 
 	# Description
-	var desc_label := Label.new()
-	desc_label.text = entry.get_display_text()
-	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var desc_label = DescriptionParser.make_rich_label(entry.get_display_text())
 	desc_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text_vbox.add_child(desc_label)
 

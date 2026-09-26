@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=12 format=3 uid="uid://dskrlamo084ef"]
+
+[ext_resource type="Texture2D" uid="uid://b71qsksjcan2r" path="res://assets/icons/classes/mage/flame/inferno_cascade_skill.png" id="1_51ue2"]
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_52ckv"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_81h5v"]
+[ext_resource type="Resource" uid="uid://cy0t3ci0v4evn" path="res://resources/affixes/classes/mage/flame/inferno_cascade/inferno_cascade_threshold_affix.tres" id="3_w2106"]
+[ext_resource type="Resource" uid="uid://dd60ifm8vlog7" path="res://resources/affixes/classes/mage/flame/inferno_cascade/inferno_cascade_double_affix.tres" id="4_51ue2"]
+[ext_resource type="Resource" uid="uid://hwejebwij2ug" path="res://resources/affixes/classes/mage/flame/inferno_cascade/inferno_cascade_first_affix.tres" id="5_dtdo5"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="6_ucd40"]
+[ext_resource type="Resource" uid="uid://cu82t2vus6uev" path="res://resources/skills/classes/mage/flame/flame_conflagration.tres" id="sk_conflagration"]
+[ext_resource type="Resource" uid="uid://bdo5y8x6fl860" path="res://resources/skills/classes/mage/flame/flame_crucibles_gift.tres" id="sk_crucibles_gift"]
+
+[sub_resource type="Resource" id="Resource_rjtax"]
+script = ExtResource("1_52ckv")
+required_skill = ExtResource("sk_conflagration")
+
+[sub_resource type="Resource" id="Resource_aoibh"]
+script = ExtResource("1_52ckv")
+required_skill = ExtResource("sk_crucibles_gift")
+
+[resource]
+script = ExtResource("6_ucd40")
+skill_id = "flame_inferno_cascade"
+skill_name = "Inferno Cascade"
+icon = ExtResource("1_51ue2")
+description = "[color=yellow]CAPSTONE:[/color] Burn threshold reduced to [color=yellow]4[/color]. FIRST fire die applies 1 [status:burn] to all. Start of turn: gain 1 [status:burn] on self."
+skill_category = 5
+tier = 8
+column = 3
+prerequisites = Array[ExtResource("1_52ckv")]([SubResource("Resource_rjtax"), SubResource("Resource_aoibh")])
+tree_points_required = 20
+rank_1_affixes = Array[ExtResource("2_81h5v")]([ExtResource("3_w2106"), ExtResource("4_51ue2"), ExtResource("5_dtdo5")])

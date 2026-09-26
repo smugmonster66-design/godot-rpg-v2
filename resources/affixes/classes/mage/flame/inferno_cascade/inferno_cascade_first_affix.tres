@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://hwejebwij2ug"]
+
+[ext_resource type="Resource" uid="uid://cam6mhj0wflj5" path="res://resources/dice_affixes/mage/flame/da_inferno_cascade_first.tres" id="1_1tdtw"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_776kj"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_v0db3"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_roeup"]
+
+[resource]
+script = ExtResource("3_v0db3")
+affix_name = "Inferno Cascade: First Burn"
+description = "FIRST [element:fire] die applies 1 [status:burn] to all enemies."
+category = 39
+tags = Array[String](["mage", "flame", "capstone", "burn_apply"])
+effect_data = {
+"dice_affix": ExtResource("1_1tdtw")
+}

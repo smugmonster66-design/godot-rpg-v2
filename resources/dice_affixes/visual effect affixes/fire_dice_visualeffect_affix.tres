@@ -6,5 +6,5 @@
 [resource]
 script = ExtResource("2_u8qkg")
 affix_name = "Fire Die"
-description = "Turns the die into fire damage."
+description = "Turns the die into [element:fire] damage."
 metadata/_custom_type_script = "uid://s6ivem1wgjrx"

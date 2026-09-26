@@ -1,0 +1,57 @@
+[gd_resource type="Resource" script_class="QuestDefinition" load_steps=10 format=3 uid="uid://qqvgmcneafqg"]
+
+[ext_resource type="Script" uid="uid://b6qj5w0fgevno" path="res://resources/data/quest_definition.gd" id="1_def"]
+[ext_resource type="Script" uid="uid://bi7t57lj6p7f4" path="res://resources/data/quest_objective.gd" id="2_obj"]
+[ext_resource type="Script" uid="uid://dfrd5du3khv1p" path="res://resources/data/quest_rewards.gd" id="3_rew"]
+
+[sub_resource type="Resource" id="obj_talk_1"]
+script = ExtResource("2_obj")
+objective_id = &"talk_harbor_master_1"
+description = "Speak with Cate"
+target_id = &"harbor_master"
+
+[sub_resource type="Resource" id="Resource_2v6sp"]
+script = ExtResource("2_obj")
+objective_id = &"defeat_one_navy"
+description = "Defeat {required} Navy foes! {current}/{required}"
+objective_type = 1
+track_tag = &"navy"
+prerequisite_objectives = Array[StringName]([&"talk_harbor_master_1"])
+
+[sub_resource type="Resource" id="obj_kill"]
+script = ExtResource("2_obj")
+objective_id = &"defeat_naval_enemies"
+description = "Defeat naval enemies ({current}/{required})"
+objective_type = 1
+required_count = 3
+track_tag = &"navy"
+prerequisite_objectives = Array[StringName]([&"talk_harbor_master_1", &"defeat_one_navy"])
+
+[sub_resource type="Resource" id="obj_talk_2"]
+script = ExtResource("2_obj")
+objective_id = &"report_harbor_master"
+description = "Report back to the Harbor Master"
+target_id = &"harbor_master"
+hidden_until_previous = true
+prerequisite_objectives = Array[StringName]([&"defeat_naval_enemies"])
+
+[sub_resource type="GDScript" id="GDScript_2v6sp"]
+
+[sub_resource type="Resource" id="rewards"]
+script = ExtResource("3_rew")
+experience = 50
+gold = 100
+unlock_quests = Array[StringName]([&"smugglers_cache"])
+
+[resource]
+script = ExtResource("1_def")
+quest_id = &"harbor_masters_request"
+display_name = "The Harbor Master's Request"
+quest_type = 0
+summary = "The Harbor Master needs help dealing with naval threats."
+description = "The Harbor Master at the docks has been troubled by increasing naval aggression in the area. He's looking for capable adventurers to help thin their numbers."
+quest_giver_id = &"cate"
+quest_giver_location = &"docks"
+turn_in_npc_id = &"cate"
+objectives = Array[ExtResource("2_obj")]([SubResource("obj_talk_1"), SubResource("Resource_2v6sp"), SubResource("obj_kill"), SubResource("obj_talk_2")])
+rewards = SubResource("rewards")

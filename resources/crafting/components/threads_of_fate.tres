@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CraftingComponentDefinition" load_steps=2 format=3 uid="uid://ccraft_legendary"]
+
+[ext_resource type="Script" path="res://resources/data/crafting_component_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+component_id = &"legendary"
+display_name = "Threads of Fate"
+abbreviation = "Fate"
+rarity_tier = 4
+description = "A mythical essence woven from the fabric of destiny. Only found in legendary artifacts."

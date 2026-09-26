@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=5 format=3 uid="uid://dpt0shh6tc4gy"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_4ti3s"]
+[ext_resource type="Resource" uid="uid://bmya8tr4fiil3" path="res://resources/enemies/region1/navy/elite/stormcaller.tres" id="2_ulrtt"]
+[ext_resource type="Resource" uid="uid://b637xj3w2j6jo" path="res://resources/enemies/region1/navy/elite/senior_ward_officer.tres" id="3_ru3y1"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="4_rtfnf"]
+
+[resource]
+script = ExtResource("4_rtfnf")
+encounter_name = "Storm Patrol"
+encounter_id = "navy_storm_patrol"
+enemies = Array[ExtResource("1_4ti3s")]([ExtResource("2_ulrtt"), ExtResource("3_ru3y1")])
+enemy_slots = Array[int]([0, 2])
+difficulty_tier = 4
+level_range_min = 3
+level_range_max = 6

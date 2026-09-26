@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("2_vas2y")
 affix_name = "Ionize III"
-description = "Pulling shock die applies 3 Static to random enemy."
+description = "Pulling [element:shock] die applies 3 [status:static] to random enemy."
 category = 39
 tags = Array[String](["mage", "storm", "mana_die_affix", "static_apply", "voltaic"])
 effect_data = {

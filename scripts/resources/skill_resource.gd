@@ -4,12 +4,25 @@ extends Resource
 class_name SkillResource
 
 # ============================================================================
+# SKILL CATEGORY — visual subcategory for themed button textures
+# ============================================================================
+enum SkillCategory {
+	PASSIVE,    ## Always-on dice/value modifiers, element unlocks
+	TRIGGER,    ## Reactive procs — status application, chain/spread, kill/turn rewards
+	ACTION,     ## Grants a usable combat action (1-die or 2-die)
+	SIGNATURE,  ## 3-die per-combat action — the tree's flashiest move
+	WEAVE,      ## Cross-branch convergence point with dual prerequisites
+	CAPSTONE    ## Tier 8 tree-defining pinnacle
+}
+
+# ============================================================================
 # BASIC INFO
 # ============================================================================
 @export var skill_id: String = ""
 @export var skill_name: String = "New Skill"
 @export var icon: Texture2D = null
 @export_multiline var description: String = ""  ## Supports BBCode
+@export var skill_category: SkillCategory = SkillCategory.PASSIVE
 
 # ============================================================================
 # SKILL TREE PLACEMENT

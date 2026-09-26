@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_yhyxr")
 affix_name = "Avalanche II"
-description = "When Freeze triggers: apply 5 Chill to all other enemies."
+description = "When [status:freeze] triggers: apply 5 [status:chill] to all other enemies."
 category = 35
 tags = Array[String](["mage", "frost", "applier", "chill_apply", "aoe", "chain"])
 effect_number = 5.0

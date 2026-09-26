@@ -203,8 +203,8 @@ func resolve_damage_multiplier(affix_manager: AffixPoolManager, context: Diction
 	Replaces CombatCalculator._calculate_damage_multiplier()."""
 	return resolve_category_product(affix_manager, Affix.Category.DAMAGE_MULTIPLIER, context)
 
-func resolve_defense_multiplier(affix_manager: AffixPoolManager, context: Dictionary) -> float:
-	"""Calculate total defense multiplier from affixes."""
+func resolve_armor_multiplier(affix_manager: AffixPoolManager, context: Dictionary) -> float:
+	"""Calculate total armor multiplier from affixes (category 12, formerly DEFENSE_MULTIPLIER)."""
 	return resolve_category_product(affix_manager, Affix.Category.DEFENSE_MULTIPLIER, context)
 
 # ============================================================================

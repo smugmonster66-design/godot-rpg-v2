@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="Action" load_steps=11 format=3 uid="uid://cx6os6pn4kxxi"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_afsfm"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_vlwkc"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_ldlq1"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_yfgdy"]
+[ext_resource type="Resource" uid="uid://cmbyoht2oxk2n" path="res://resources/statuses/expose.tres" id="5_4p53k"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_f6hop"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_q4vh1"]
+
+[sub_resource type="Resource" id="Resource_afsfm"]
+script = ExtResource("1_afsfm")
+condition = 6
+threshold = 0.0
+status_id = "expose"
+bonus_value = 25.0
+
+[sub_resource type="Resource" id="Resource_vlwkc"]
+script = ExtResource("3_ldlq1")
+effect_name = "Strafe Damage"
+value_source = 1
+damage_multiplier = 0.6
+
+[sub_resource type="Resource" id="Resource_ldlq1"]
+script = ExtResource("3_ldlq1")
+effect_name = "Strafe Expose"
+effect_type = 2
+status_affix = ExtResource("5_4p53k")
+
+[resource]
+script = ExtResource("7_q4vh1")
+action_id = "navy_strafe"
+action_name = "Strafe"
+action_description = "A quick pass that [status:expose|exposes] weaknesses."
+effects = Array[ExtResource("3_ldlq1")]([SubResource("Resource_vlwkc"), SubResource("Resource_ldlq1")])
+ai_hints = Array[ExtResource("1_afsfm")]([SubResource("Resource_afsfm")])

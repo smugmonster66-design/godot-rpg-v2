@@ -561,3 +561,34 @@ func print_pools_v2(context: Dictionary = {}):
 						var resolved = affix.resolve_value(context)
 						status += " (resolved: %.2f)" % resolved
 				print("    - %s%s" % [affix.get_display_text(), status])
+
+# ============================================================================
+# POWER RATING
+# ============================================================================
+
+func get_total_power() -> float:
+	var total: float = 0.0
+	for category in pools:
+		for affix in pools[category]:
+			if affix is Affix:
+				total += affix.get_affix_power()
+	return total
+
+func get_power_by_category(p_category: Affix.Category) -> float:
+	var total: float = 0.0
+	for affix in get_pool(p_category):
+		if affix is Affix:
+			total += affix.get_affix_power()
+	return total
+
+func get_power_breakdown() -> Dictionary:
+	var breakdown: Dictionary = {}
+	for category in pools:
+		var cat_power: float = 0.0
+		for affix in pools[category]:
+			if affix is Affix:
+				cat_power += affix.get_affix_power()
+		if cat_power > 0.0:
+			var cat_name: String = Affix.Category.keys()[category]
+			breakdown[cat_name] = cat_power
+	return breakdown

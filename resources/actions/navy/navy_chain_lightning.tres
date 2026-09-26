@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="Action" load_steps=12 format=3 uid="uid://bs7j7bxobgy7s"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_shya6"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_ga6n8"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_mjj83"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_mjj83"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_0jmqs"]
+[ext_resource type="Resource" uid="uid://chncx582mqst7" path="res://resources/statuses/static.tres" id="5_fj1st"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_4f32r"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_katrm"]
+
+[sub_resource type="Resource" id="Resource_shya6"]
+script = ExtResource("1_shya6")
+threshold = 0.0
+bonus_value = 15.0
+
+[sub_resource type="Resource" id="Resource_ga6n8"]
+script = ExtResource("3_mjj83")
+effect_name = "Chain Damage"
+effect_type = 14
+value_source = 1
+damage_type = 5
+base_damage = 1
+
+[sub_resource type="Resource" id="Resource_mjj83"]
+script = ExtResource("3_mjj83")
+effect_name = "Chain Static"
+effect_type = 2
+status_affix = ExtResource("5_fj1st")
+
+[resource]
+script = ExtResource("7_katrm")
+action_id = "navy_chain_lightning"
+action_name = "Chain Lightning"
+action_description = "Lightning arcs between targets."
+damage_element = 5
+charge_type = 1
+effects = Array[ExtResource("3_mjj83")]([SubResource("Resource_ga6n8"), SubResource("Resource_mjj83")])
+ai_hints = Array[ExtResource("1_shya6")]([SubResource("Resource_shya6")])

@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=14 format=3 uid="uid://bm4ah4u31guax"]
+
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_dp2wh"]
+[ext_resource type="Texture2D" uid="uid://6hopok1gwsfw" path="res://assets/icons/classes/mage/flame/sear_skill.png" id="1_h36lf"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_3x4e6"]
+[ext_resource type="Resource" uid="uid://cmu2md358ocq" path="res://resources/affixes/classes/mage/flame/sear/sear_r1_affix.tres" id="3_0a7ix"]
+[ext_resource type="Resource" uid="uid://bc4chlrrfg7v6" path="res://resources/affixes/classes/mage/flame/ignite/ignite_element_unlock.tres" id="3_h36lf"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="4_irrng"]
+[ext_resource type="Resource" uid="uid://bi5k8byflnlcw" path="res://resources/affixes/classes/mage/flame/ignite/ignite_ca_affix.tres" id="4_uuwn8"]
+[ext_resource type="Resource" uid="uid://dusqy3n42apy7" path="res://resources/affixes/classes/mage/flame/immolate/immolate_r1_affix.tres" id="6_ovbmb"]
+[ext_resource type="Resource" uid="uid://chm3poiws1qm5" path="res://resources/affixes/classes/mage/flame/immolate/immolate_r2_affix.tres" id="7_ay14k"]
+
+[sub_resource type="Resource" id="Resource_dfa1s"]
+script = ExtResource("4_irrng")
+skill_id = "flame_ignite"
+skill_name = "Ignite"
+description = "Unlock [element:fire] mana. Chromatic Bolt applies 1 [status:burn] on hit (requires fire die)."
+column = 3
+rank_1_affixes = Array[ExtResource("2_3x4e6")]([ExtResource("3_h36lf"), ExtResource("4_uuwn8")])
+
+[sub_resource type="Resource" id="Resource_qyg7j"]
+script = ExtResource("1_dp2wh")
+required_skill = SubResource("Resource_dfa1s")
+
+[sub_resource type="Resource" id="Resource_q57fv"]
+script = ExtResource("4_irrng")
+skill_id = "flame_immolate"
+skill_name = "Immolate"
+description = "Dealing [element:fire] damage heals [color=yellow]1/2[/color] HP."
+skill_category = 1
+tier = 2
+column = 1
+prerequisites = Array[ExtResource("1_dp2wh")]([SubResource("Resource_qyg7j")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_3x4e6")]([ExtResource("6_ovbmb")])
+rank_2_affixes = Array[ExtResource("2_3x4e6")]([ExtResource("7_ay14k")])
+
+[sub_resource type="Resource" id="Resource_y020n"]
+script = ExtResource("1_dp2wh")
+required_skill = SubResource("Resource_q57fv")
+
+[resource]
+script = ExtResource("4_irrng")
+skill_id = "flame_sear"
+skill_name = "Sear"
+icon = ExtResource("1_h36lf")
+description = "[color=yellow]ACTION:[/color] 1 fire die -> fire damage + [status:burn] = die value to target. Apply 1 [status:burn] to self. Heal 2 HP. Unlimited."
+skill_category = 2
+tier = 3
+column = 2
+prerequisites = Array[ExtResource("1_dp2wh")]([SubResource("Resource_y020n")])
+tree_points_required = 3
+rank_1_affixes = Array[ExtResource("2_3x4e6")]([ExtResource("3_0a7ix")])

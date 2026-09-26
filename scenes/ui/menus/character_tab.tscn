@@ -1,15 +1,195 @@
-[gd_scene load_steps=2 format=3 uid="uid://crewmd711sj7s"]
+[gd_scene load_steps=7 format=3 uid="uid://crewmd711sj7s"]
 
-[ext_resource type="Script" uid="uid://cdqwy6mxd4qwy" path="res://scripts/ui/menus/character_tab.gd" id="1_xn2sa"]
+[ext_resource type="Script" uid="uid://cdqwy6mxd4qwy" path="res://scripts/ui/menus/character_tab.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/ui/components/character/resource_bar.tscn" id="2_bar"]
+[ext_resource type="PackedScene" path="res://scenes/ui/components/character/stat_row.tscn" id="3_stat"]
+[ext_resource type="PackedScene" path="res://scenes/ui/components/character/section_header.tscn" id="4_header"]
+[ext_resource type="PackedScene" path="res://scenes/ui/components/character/alignment_axis.tscn" id="5_axis"]
+[ext_resource type="PackedScene" path="res://scenes/ui/components/character/collapsible_section.tscn" id="7_collapsible"]
 
-[node name="CharacterTab" type="Control"]
-layout_mode = 3
+[node name="Character" type="Control" groups=["player_menu_tab_content"]]
+layout_mode = 2
+script = ExtResource("1_script")
+metadata/tab_name = "Character"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_xn2sa")
+horizontal_scroll_mode = 0
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
-layout_mode = 0
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="MainVBox" type="VBoxContainer" parent="ScrollContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="ClassLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox" groups=["character_tab_ui"]]
+layout_mode = 2
+theme_type_variation = &"header"
+text = "Class: X"
+metadata/ui_role = "class_label"
+
+[node name="LevelLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox" groups=["character_tab_ui"]]
+layout_mode = 2
+text = "Lvl: X"
+metadata/ui_role = "level_label"
+
+[node name="ExpRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox"]
+layout_mode = 2
+
+[node name="ExpLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/ExpRow" groups=["character_tab_ui"]]
+layout_mode = 2
+text = "Exp:"
+metadata/ui_role = "exp_label"
+
+[node name="Spacer" type="Control" parent="ScrollContainer/MarginContainer/MainVBox/ExpRow"]
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="ExpBar" parent="ScrollContainer/MarginContainer/MainVBox/ExpRow" instance=ExtResource("2_bar") groups=["character_tab_ui"]]
+size_flags_horizontal = 3
+metadata/ui_role = "exp_bar"
+
+[node name="Sep1" type="HSeparator" parent="ScrollContainer/MarginContainer/MainVBox"]
+layout_mode = 2
+
+[node name="VitalsHeader" parent="ScrollContainer/MarginContainer/MainVBox" instance=ExtResource("4_header") groups=["character_tab_ui"]]
+text = "Vitals"
+metadata/ui_role = "header_vitals"
+
+[node name="HPBar" parent="ScrollContainer/MarginContainer/MainVBox" instance=ExtResource("2_bar") groups=["character_tab_ui"]]
+metadata/ui_role = "hp_bar"
+
+[node name="ManaBar" parent="ScrollContainer/MarginContainer/MainVBox" instance=ExtResource("2_bar") groups=["character_tab_ui"]]
+visible = false
+metadata/ui_role = "mana_bar"
+
+[node name="Sep2" type="HSeparator" parent="ScrollContainer/MarginContainer/MainVBox"]
+layout_mode = 2
+
+[node name="StatsHeader" parent="ScrollContainer/MarginContainer/MainVBox" instance=ExtResource("4_header") groups=["character_tab_ui"]]
+text = "Primary Stats"
+metadata/ui_role = "header_stats"
+
+[node name="StrengthRow" parent="ScrollContainer/MarginContainer/MainVBox" instance=ExtResource("3_stat") groups=["character_tab_ui"]]
+metadata/ui_role = "stat_strength"
+
+[node name="AgilityRow" parent="ScrollContainer/MarginContainer/MainVBox" instance=ExtResource("3_stat") groups=["character_tab_ui"]]
+metadata/ui_role = "stat_agility"
+
+[node name="IntellectRow" parent="ScrollContainer/MarginContainer/MainVBox" instance=ExtResource("3_stat") groups=["character_tab_ui"]]
+metadata/ui_role = "stat_intellect"
+
+[node name="LuckRow" parent="ScrollContainer/MarginContainer/MainVBox" instance=ExtResource("3_stat") groups=["character_tab_ui"]]
+metadata/ui_role = "stat_luck"
+
+[node name="Sep3" type="HSeparator" parent="ScrollContainer/MarginContainer/MainVBox"]
+layout_mode = 2
+
+[node name="DefenseHeader" parent="ScrollContainer/MarginContainer/MainVBox" instance=ExtResource("4_header") groups=["character_tab_ui"]]
+text = "Defense"
+metadata/ui_role = "header_defense"
+
+[node name="ArmorRow" parent="ScrollContainer/MarginContainer/MainVBox" instance=ExtResource("3_stat") groups=["character_tab_ui"]]
+metadata/ui_role = "stat_armor"
+
+[node name="BarrierRow" parent="ScrollContainer/MarginContainer/MainVBox" instance=ExtResource("3_stat") groups=["character_tab_ui"]]
+metadata/ui_role = "stat_barrier"
+
+[node name="Sep4" type="HSeparator" parent="ScrollContainer/MarginContainer/MainVBox"]
+layout_mode = 2
+
+[node name="ElementalSection" parent="ScrollContainer/MarginContainer/MainVBox" instance=ExtResource("7_collapsible") groups=["character_tab_ui"]]
+metadata/ui_role = "elemental_section"
+
+[node name="DmgHeader" parent="ScrollContainer/MarginContainer/MainVBox/ElementalSection/ContentContainer" instance=ExtResource("4_header")]
+text = "Damage Bonuses"
+
+[node name="SlashingDmg" parent="ScrollContainer/MarginContainer/MainVBox/ElementalSection/ContentContainer" instance=ExtResource("3_stat") groups=["character_tab_ui"]]
+metadata/ui_role = "elem_slashing_dmg"
+
+[node name="BluntDmg" parent="ScrollContainer/MarginContainer/MainVBox/ElementalSection/ContentContainer" instance=ExtResource("3_stat") groups=["character_tab_ui"]]
+metadata/ui_role = "elem_blunt_dmg"
+
+[node name="PiercingDmg" parent="ScrollContainer/MarginContainer/MainVBox/ElementalSection/ContentContainer" instance=ExtResource("3_stat") groups=["character_tab_ui"]]
+metadata/ui_role = "elem_piercing_dmg"
+
+[node name="FireDmg" parent="ScrollContainer/MarginContainer/MainVBox/ElementalSection/ContentContainer" instance=ExtResource("3_stat") groups=["character_tab_ui"]]
+metadata/ui_role = "elem_fire_dmg"
+
+[node name="IceDmg" parent="ScrollContainer/MarginContainer/MainVBox/ElementalSection/ContentContainer" instance=ExtResource("3_stat") groups=["character_tab_ui"]]
+metadata/ui_role = "elem_ice_dmg"
+
+[node name="ShockDmg" parent="ScrollContainer/MarginContainer/MainVBox/ElementalSection/ContentContainer" instance=ExtResource("3_stat") groups=["character_tab_ui"]]
+metadata/ui_role = "elem_shock_dmg"
+
+[node name="PoisonDmg" parent="ScrollContainer/MarginContainer/MainVBox/ElementalSection/ContentContainer" instance=ExtResource("3_stat") groups=["character_tab_ui"]]
+metadata/ui_role = "elem_poison_dmg"
+
+[node name="ShadowDmg" parent="ScrollContainer/MarginContainer/MainVBox/ElementalSection/ContentContainer" instance=ExtResource("3_stat") groups=["character_tab_ui"]]
+metadata/ui_role = "elem_shadow_dmg"
+
+[node name="ResistHeader" parent="ScrollContainer/MarginContainer/MainVBox/ElementalSection/ContentContainer" instance=ExtResource("4_header")]
+text = "Resistances"
+
+[node name="FireResist" parent="ScrollContainer/MarginContainer/MainVBox/ElementalSection/ContentContainer" instance=ExtResource("3_stat") groups=["character_tab_ui"]]
+metadata/ui_role = "elem_fire_resist"
+
+[node name="IceResist" parent="ScrollContainer/MarginContainer/MainVBox/ElementalSection/ContentContainer" instance=ExtResource("3_stat") groups=["character_tab_ui"]]
+metadata/ui_role = "elem_ice_resist"
+
+[node name="ShockResist" parent="ScrollContainer/MarginContainer/MainVBox/ElementalSection/ContentContainer" instance=ExtResource("3_stat") groups=["character_tab_ui"]]
+metadata/ui_role = "elem_shock_resist"
+
+[node name="PoisonResist" parent="ScrollContainer/MarginContainer/MainVBox/ElementalSection/ContentContainer" instance=ExtResource("3_stat") groups=["character_tab_ui"]]
+metadata/ui_role = "elem_poison_resist"
+
+[node name="ShadowResist" parent="ScrollContainer/MarginContainer/MainVBox/ElementalSection/ContentContainer" instance=ExtResource("3_stat") groups=["character_tab_ui"]]
+metadata/ui_role = "elem_shadow_resist"
+
+[node name="Sep5" type="HSeparator" parent="ScrollContainer/MarginContainer/MainVBox"]
+layout_mode = 2
+
+[node name="AlignmentHeader" parent="ScrollContainer/MarginContainer/MainVBox" instance=ExtResource("4_header") groups=["character_tab_ui"]]
+text = "Alignment"
+metadata/ui_role = "header_alignment"
+
+[node name="VirtueAxis" parent="ScrollContainer/MarginContainer/MainVBox" instance=ExtResource("5_axis") groups=["character_tab_ui"]]
+metadata/ui_role = "alignment_virtue"
+
+[node name="OrderAxis" parent="ScrollContainer/MarginContainer/MainVBox" instance=ExtResource("5_axis") groups=["character_tab_ui"]]
+metadata/ui_role = "alignment_order"
+
+[node name="Sep6" type="HSeparator" parent="ScrollContainer/MarginContainer/MainVBox"]
+layout_mode = 2
+
+[node name="GoldRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox" groups=["character_tab_ui"]]
+layout_mode = 2
+theme_override_constants/separation = 8
+metadata/ui_role = "gold_row"
+
+[node name="GoldIcon" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/GoldRow"]
+layout_mode = 2
+theme_type_variation = &"large"
+text = "🪙"
+
+[node name="GoldAmount" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/GoldRow" groups=["character_tab_ui"]]
+layout_mode = 2
+theme_type_variation = &"large"
+text = "0"
+metadata/ui_role = "gold_amount"
+
+[node name="ComponentsContainer" type="VBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox" groups=["character_tab_ui"]]
+layout_mode = 2
+metadata/ui_role = "components_container"

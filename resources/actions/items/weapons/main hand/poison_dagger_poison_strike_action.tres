@@ -9,6 +9,6 @@
 script = ExtResource("2_sbpig")
 action_id = "poison_strike"
 action_name = "Poison Strike"
-action_description = "Deals 1D+2Poison and applies 3 Poison stacks."
+action_description = "Deals 1D+2 [element:poison] and applies 3 [status:poison] stacks."
 effects = Array[ExtResource("1_sh28g")]([ExtResource("2_7payj"), ExtResource("3_secpa")])
 metadata/_custom_type_script = "uid://b1kctq61bwysh"

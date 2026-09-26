@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3]
+
+[ext_resource type="Curve" path="res://resources/affixes/global_roll_curve.tres" id="1_qjoqs"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_4ib1d"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_x7h5b"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_iv0b5"]
+
+[resource]
+script = ExtResource("3_x7h5b")
+affix_name = "Enemy Piercing Damage"
+description = "+{value} Piercing Damage"
+category = 21
+tags = Array[String](["offense", "inherent", "damage", "enemy", "piercing"])
+effect_min = 1.0
+effect_max = 45.0
+effect_curve = ExtResource("1_qjoqs")

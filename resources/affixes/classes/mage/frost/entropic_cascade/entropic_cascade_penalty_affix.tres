@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_p4fog")
 affix_name = "Entropic Cascade: Enhanced Penalty"
-description = "Chill die-value penalty improved: -2 per 2 stacks (instead of -1)."
+description = "[status:chill] die-value penalty improved: -2 per 2 stacks (instead of -1)."
 category = 36
 tags = Array[String](["mage", "frost", "capstone", "chill_amplify"])
 effect_data = {

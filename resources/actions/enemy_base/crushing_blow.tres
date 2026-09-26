@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="Action" load_steps=10 format=3 uid="uid://j6lnu4bac00v"]
+[gd_resource type="Resource" script_class="Action" load_steps=11 format=3 uid="uid://j6lnu4bac00v"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_ebbh0"]
 [ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_lsfq2"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_darsw"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_wuyvj"]
 [ext_resource type="Resource" uid="uid://cfgr6ee2uth1t" path="res://resources/statuses/corrode.tres" id="3_lsfq2"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_lsfq2"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_wuyvj"]
@@ -26,7 +27,7 @@ status_affix = ExtResource("3_lsfq2")
 script = ExtResource("5_darsw")
 action_id = "crushing_blow"
 action_name = "Crushing Blow"
-action_description = "Heavy Blunt hit. Applies Corrode."
+action_description = "Heavy [element:blunt] hit. Applies [status:corrode]."
 damage_element = 1
 effects = Array[ExtResource("1_ebbh0")]([SubResource("Resource_sovdt"), SubResource("Resource_j85aw")])
 base_damage = 4

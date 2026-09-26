@@ -4,13 +4,13 @@
 
 [resource]
 script = ExtResource("1_7aix6")
+scale_enabled = true
+scale_peak = 1.12
+scale_out_duration = 0.06
+scale_in_duration = 0.15
 flash_enabled = true
 flash_color = Color(1.6, 0.3, 0.3, 1)
 flash_in_duration = 0.04
 flash_out_duration = 0.25
-shake_enabled = true
-shake_intensity = 3.0
-shake_duration = 0.15
-shake_count = 4
 label_enabled = true
 label_theme_type = &"damage_floater"

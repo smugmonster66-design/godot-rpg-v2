@@ -6,8 +6,16 @@
 
 [resource]
 script = ExtResource("2_4qm4x")
-affix_name = "Flashpoint"
-description = "When Burn explodes, splash 50% burst damage to other enemies."
+affix_name = "Flashpoint I"
+description = "When [status:burn] explodes: gain 3 [status:warded] per stack consumed."
 category = 35
-tags = Array[String](["mage", "flame", "flashpoint", "burn_explosion_splash"])
-effect_number = 0.5
+tags = Array[String](["mage", "flame", "defense", "explosion", "warded", "proc"])
+effect_number = 3.0
+effect_data = {
+"condition_status": "burn",
+"proc_effect": "apply_status",
+"proc_trigger": "ON_STATUS_THRESHOLD",
+"status_id": "warded",
+"stacks_per_consumed": 3
+}
+proc_trigger = 12

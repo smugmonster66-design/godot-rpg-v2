@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=6 format=3 uid="uid://c66blikuslhwh"]
+
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="1_1x16j"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_ml1w5"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_4jo8w"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_gpbm2"]
+
+[sub_resource type="Resource" id="Resource_1x16j"]
+script = ExtResource("1_1x16j")
+type = 4
+
+[resource]
+script = ExtResource("3_4jo8w")
+affix_name = "Tidal Surge"
+description = "On max roll, apply [status:chill] to enemy."
+trigger = 1
+condition = SubResource("Resource_1x16j")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "chill",
+"target": "enemy"
+}

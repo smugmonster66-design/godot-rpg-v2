@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://2xpfup2tdcjp"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_dogmm"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_s3u05"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_pdy03"]
+[ext_resource type="Resource" uid="uid://drisovrowajhh" path="res://resources/actions/mage/flame/effects/conflagration_damage.tres" id="4_07ms8"]
+[ext_resource type="Resource" uid="uid://cytp6ki83uwwh" path="res://resources/actions/mage/flame/effects/conflagration_burn.tres" id="5_nq12f"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_xr7du"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_gmayl"]
+
+[resource]
+script = ExtResource("7_gmayl")
+action_id = "flame_conflagration"
+action_name = "Conflagration"
+action_description = "[element:fire] x0.8 to ALL enemies. Apply 3 [status:burn] to all. [status:burn] explosions from this deal double damage."
+die_slots = 3
+min_dice_required = 3
+accepted_elements = Array[int]([4])
+charge_type = 2
+effects = Array[ExtResource("3_pdy03")]([ExtResource("4_07ms8"), ExtResource("5_nq12f")])

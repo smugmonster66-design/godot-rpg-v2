@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_3sd4u")
 affix_name = "Live Wire I"
-description = "Shock dice apply +1 bonus Static if target already has Static."
+description = "[element:shock] dice apply +1 bonus [status:static] if target already has [status:static]."
 category = 39
 tags = Array[String](["mage", "storm", "mana_die_affix", "static_apply", "voltaic", "snowball"])
 effect_data = {

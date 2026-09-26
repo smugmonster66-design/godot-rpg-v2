@@ -159,6 +159,21 @@ enum ThresholdEffect {
 ## For APPLY_OTHER_STATUS: how many stacks of the new status to apply.
 @export var threshold_stacks: int = 1
 
+## Optional CombatAnimationSet to play when the threshold payoff fires.
+## Leave null to show only the damage floater and a source label.
+@export var threshold_anim_set: CombatAnimationSet = null
+
+# ============================================================================
+# CONSUMABLE BUFF (consumed when a matching die is used)
+# ============================================================================
+@export_group("Consumable Buff")
+## When true, this status is removed when a die matching consume_element is
+## used in an action (at action confirm time). The status stacks are applied
+## as a flat value bonus to the first matching die before removal.
+@export var consume_on_die_use: bool = false
+## Element filter for consumption. NONE = any die use consumes.
+@export var consume_element: DieResource.Element = DieResource.Element.NONE
+
 # ============================================================================
 # INSTANCE FACTORY
 # ============================================================================

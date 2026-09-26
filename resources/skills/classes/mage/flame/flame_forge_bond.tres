@@ -1,278 +1,115 @@
-[gd_resource type="Resource" script_class="SkillResource" load_steps=38 format=3 uid="uid://ljplenyem75a"]
+[gd_resource type="Resource" script_class="SkillResource" load_steps=29 format=3 uid="uid://ljplenyem75a"]
 
-[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_yomej"]
-[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_am7m6"]
-[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="3_0pyge"]
-[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="4_vnoow"]
-[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="5_wbqr3"]
-[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="6_knxxj"]
-[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="7_uw8og"]
-[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="8_ql4tg"]
-[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="9_am7m6"]
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_2gusx"]
+[ext_resource type="Texture2D" uid="uid://c2p11uu73mfg" path="res://assets/icons/classes/mage/flame/forge_bond_skill.png" id="1_8x840"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_yomej"]
+[ext_resource type="Resource" uid="uid://bc4chlrrfg7v6" path="res://resources/affixes/classes/mage/flame/ignite/ignite_element_unlock.tres" id="3_8x840"]
+[ext_resource type="Resource" uid="uid://cdxd10d1vc4by" path="res://resources/affixes/classes/mage/flame/forge_bond/forge_bond_first_affix.tres" id="3_am7m6"]
+[ext_resource type="Resource" uid="uid://1w1a7tce552a" path="res://resources/affixes/classes/mage/flame/forge_bond/forge_bond_last_affix.tres" id="4_0pyge"]
+[ext_resource type="Resource" uid="uid://bi5k8byflnlcw" path="res://resources/affixes/classes/mage/flame/ignite/ignite_ca_affix.tres" id="4_wtm8y"]
+[ext_resource type="Resource" uid="uid://2luhdy4fetd0" path="res://resources/affixes/classes/mage/flame/forge_bond/forge_bond_burn_first_affix.tres" id="5_vnoow"]
+[ext_resource type="Resource" uid="uid://dusqy3n42apy7" path="res://resources/affixes/classes/mage/flame/immolate/immolate_r1_affix.tres" id="6_bgq0n"]
+[ext_resource type="Resource" uid="uid://bql43pwe1nkdl" path="res://resources/affixes/classes/mage/flame/forge_bond/forge_bond_burn_last_affix.tres" id="6_wbqr3"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="7_knxxj"]
+[ext_resource type="Resource" uid="uid://chm3poiws1qm5" path="res://resources/affixes/classes/mage/flame/immolate/immolate_r2_affix.tres" id="7_o5073"]
+[ext_resource type="Resource" uid="uid://cmu2md358ocq" path="res://resources/affixes/classes/mage/flame/sear/sear_r1_affix.tres" id="9_avlpv"]
+[ext_resource type="Resource" uid="uid://dvpk14np0sta2" path="res://resources/affixes/classes/mage/flame/accelerant/accelerant_r1_affix.tres" id="10_p3swp"]
+[ext_resource type="Resource" uid="uid://3mjkcbv2p4pk" path="res://resources/affixes/classes/mage/flame/accelerant/accelerant_r2_affix.tres" id="11_4ysmn"]
+[ext_resource type="Resource" uid="uid://dycquyh6p6m1v" path="res://resources/affixes/classes/mage/flame/flashpoint/flashpoint_r1_affix.tres" id="12_8sef8"]
+[ext_resource type="Resource" uid="uid://cn3ixw3j2sm1o" path="res://resources/affixes/classes/mage/flame/flashpoint/flashpoint_r2_affix.tres" id="13_ytd2c"]
 
-[sub_resource type="Resource" id="Resource_lcoba"]
-script = ExtResource("2_am7m6")
-affix_name = "Ignite: Fire Unlock"
-description = "Unlocks the Fire element for your mana die."
-category = 37
-tags = Array[String](["mage", "flame", "element_unlock"])
-effect_data = {
-"element": "FIRE"
-}
-
-[sub_resource type="Resource" id="Resource_uubkb"]
-script = ExtResource("8_ql4tg")
+[sub_resource type="Resource" id="Resource_dfa1s"]
+script = ExtResource("7_knxxj")
 skill_id = "flame_ignite"
 skill_name = "Ignite"
-description = "Unlocks [color=orange]Fire[/color] element for your mana die."
+description = "Unlock [element:fire] mana. Chromatic Bolt applies 1 [status:burn] on hit (requires fire die)."
 column = 3
-rank_1_affixes = Array[ExtResource("2_am7m6")]([SubResource("Resource_lcoba")])
+rank_1_affixes = Array[ExtResource("2_yomej")]([ExtResource("3_8x840"), ExtResource("4_wtm8y")])
 
-[sub_resource type="Resource" id="Resource_x16kn"]
-script = ExtResource("1_yomej")
-required_skill = SubResource("Resource_uubkb")
+[sub_resource type="Resource" id="Resource_qyg7j"]
+script = ExtResource("1_2gusx")
+required_skill = SubResource("Resource_dfa1s")
 
-[sub_resource type="Resource" id="Resource_ly520"]
-script = ExtResource("2_am7m6")
-affix_name = "Searing Force I"
-description = "+3 fire damage."
-category = 22
-tags = Array[String](["mage", "flame", "fire_damage"])
-effect_number = 3.0
-
-[sub_resource type="Resource" id="Resource_ta31r"]
-script = ExtResource("2_am7m6")
-affix_name = "Searing Force II"
-description = "+6 fire damage."
-category = 22
-tags = Array[String](["mage", "flame", "fire_damage"])
-effect_number = 3.0
-
-[sub_resource type="Resource" id="Resource_ngawt"]
-script = ExtResource("2_am7m6")
-affix_name = "Searing Force III"
-description = "+9 fire damage."
-category = 22
-tags = Array[String](["mage", "flame", "fire_damage"])
-effect_number = 3.0
-
-[sub_resource type="Resource" id="Resource_ykmvv"]
-script = ExtResource("8_ql4tg")
-skill_id = "flame_searing_force"
-skill_name = "Searing Force"
-description = "+3/+6/+9 [color=orange]fire damage[/color]."
+[sub_resource type="Resource" id="Resource_q57fv"]
+script = ExtResource("7_knxxj")
+skill_id = "flame_immolate"
+skill_name = "Immolate"
+description = "Dealing [element:fire] damage heals [color=yellow]1/2[/color] HP."
+skill_category = 1
 tier = 2
-column = 3
-prerequisites = Array[ExtResource("1_yomej")]([SubResource("Resource_x16kn")])
+column = 1
+prerequisites = Array[ExtResource("1_2gusx")]([SubResource("Resource_qyg7j")])
 tree_points_required = 1
-rank_1_affixes = Array[ExtResource("2_am7m6")]([SubResource("Resource_ly520")])
-rank_2_affixes = Array[ExtResource("2_am7m6")]([SubResource("Resource_ta31r")])
-rank_3_affixes = Array[ExtResource("2_am7m6")]([SubResource("Resource_ngawt")])
+rank_1_affixes = Array[ExtResource("2_yomej")]([ExtResource("6_bgq0n")])
+rank_2_affixes = Array[ExtResource("2_yomej")]([ExtResource("7_o5073")])
 
-[sub_resource type="Resource" id="Resource_pu8ti"]
-script = ExtResource("1_yomej")
-required_skill = SubResource("Resource_ykmvv")
+[sub_resource type="Resource" id="Resource_y020n"]
+script = ExtResource("1_2gusx")
+required_skill = SubResource("Resource_q57fv")
 
-[sub_resource type="Resource" id="Resource_vn450"]
-script = ExtResource("2_am7m6")
-affix_name = "Pyroclasm: D8 Unlock"
-description = "Unlocks D8 for your mana die."
-category = 38
-tags = Array[String](["mage", "flame", "size_unlock"])
-effect_data = {
-"die_size": 8
-}
-
-[sub_resource type="Resource" id="Resource_6jx5e"]
-script = ExtResource("4_vnoow")
-affix_name = "Pyroclasm: Splash 50%"
-description = "Fire dice splash 50% damage to adjacent enemy."
-use_global_element_visuals = true
-global_element_type = 3
-trigger = 1
-effect_type = 23
-effect_value = 0.5
-effect_data = {
-"element": "FIRE",
-"percent": 0.5
-}
-
-[sub_resource type="Resource" id="Resource_xfda7"]
-script = ExtResource("2_am7m6")
-affix_name = "Pyroclasm: Splash"
-description = "Fire dice splash 50% damage."
-category = 39
-tags = Array[String](["mage", "flame", "mana_die_affix", "splash"])
-effect_data = {
-"dice_affix": SubResource("Resource_6jx5e")
-}
-
-[sub_resource type="Resource" id="Resource_4wo2v"]
-script = ExtResource("8_ql4tg")
-skill_id = "flame_pyroclasm"
-skill_name = "Pyroclasm"
-description = "Unlocks [color=orange]D8[/color]. Fire dice splash 50% damage."
+[sub_resource type="Resource" id="Resource_ayhmi"]
+script = ExtResource("7_knxxj")
+skill_id = "flame_sear"
+skill_name = "Sear"
+description = "[color=yellow]ACTION:[/color] 1 fire die -> fire damage + [status:burn] = die value to target. Apply 1 [status:burn] to self. Heal 2 HP. Unlimited."
+skill_category = 2
 tier = 3
 column = 2
-prerequisites = Array[ExtResource("1_yomej")]([SubResource("Resource_pu8ti")])
+prerequisites = Array[ExtResource("1_2gusx")]([SubResource("Resource_y020n")])
 tree_points_required = 3
-rank_1_affixes = Array[ExtResource("2_am7m6")]([SubResource("Resource_vn450"), SubResource("Resource_xfda7")])
+rank_1_affixes = Array[ExtResource("2_yomej")]([ExtResource("9_avlpv")])
 
-[sub_resource type="Resource" id="Resource_s35pm"]
-script = ExtResource("1_yomej")
-required_skill = SubResource("Resource_4wo2v")
+[sub_resource type="Resource" id="Resource_ke36l"]
+script = ExtResource("1_2gusx")
+required_skill = SubResource("Resource_ayhmi")
 
-[sub_resource type="Resource" id="Resource_x6kcp"]
-script = ExtResource("2_am7m6")
-affix_name = "Conflagrant Surge I"
-description = "Fire damage ×1.05."
-category = 41
-tags = Array[String](["mage", "flame", "fire_mult"])
-effect_number = 1.05
-effect_data = {
-"element": "FIRE"
-}
+[sub_resource type="Resource" id="Resource_8mp5g"]
+script = ExtResource("1_2gusx")
+required_skill = SubResource("Resource_dfa1s")
 
-[sub_resource type="Resource" id="Resource_c28m5"]
-script = ExtResource("2_am7m6")
-affix_name = "Conflagrant Surge II"
-description = "Fire damage ×1.10."
-category = 41
-tags = Array[String](["mage", "flame", "fire_mult"])
-effect_number = 1.05
-effect_data = {
-"element": "FIRE"
-}
-
-[sub_resource type="Resource" id="Resource_o0vy4"]
-script = ExtResource("2_am7m6")
-affix_name = "Conflagrant Surge III"
-description = "Fire damage ×1.15."
-category = 41
-tags = Array[String](["mage", "flame", "fire_mult"])
-effect_number = 1.05
-effect_data = {
-"element": "FIRE"
-}
-
-[sub_resource type="Resource" id="Resource_gsfcd"]
-script = ExtResource("8_ql4tg")
-skill_id = "flame_conflagrant_surge"
-skill_name = "Conflagrant Surge"
-description = "Fire damage ×1.05/×1.10/×1.15."
-tier = 4
-column = 3
-prerequisites = Array[ExtResource("1_yomej")]([SubResource("Resource_s35pm")])
-tree_points_required = 5
-rank_1_affixes = Array[ExtResource("2_am7m6")]([SubResource("Resource_x6kcp")])
-rank_2_affixes = Array[ExtResource("2_am7m6")]([SubResource("Resource_c28m5")])
-rank_3_affixes = Array[ExtResource("2_am7m6")]([SubResource("Resource_o0vy4")])
-
-[sub_resource type="Resource" id="Resource_0pyge"]
-script = ExtResource("1_yomej")
-required_skill = SubResource("Resource_gsfcd")
-required_rank = 2
-
-[sub_resource type="Resource" id="Resource_vffo1"]
-script = ExtResource("1_yomej")
-required_skill = SubResource("Resource_uubkb")
-
-[sub_resource type="Resource" id="Resource_jl002"]
-script = ExtResource("9_am7m6")
-type = 15
-condition_element = "FIRE"
-
-[sub_resource type="Resource" id="Resource_wm8d3"]
-script = ExtResource("4_vnoow")
-affix_name = "Kindling: Fire Neighbor Bonus"
-description = "Adjacent fire dice gain +1."
-use_global_element_visuals = true
-global_element_type = 3
-condition = SubResource("Resource_jl002")
-effect_value = 1.0
-
-[sub_resource type="Resource" id="Resource_6fsqn"]
-script = ExtResource("2_am7m6")
-affix_name = "Kindling: Fire Adjacency"
-description = "Fire dice adjacent to another fire die gain +1."
-category = 39
-tags = Array[String](["mage", "flame", "mana_die_affix"])
-effect_data = {
-"dice_affix": SubResource("Resource_wm8d3")
-}
-
-[sub_resource type="Resource" id="Resource_ecafp"]
-script = ExtResource("8_ql4tg")
-skill_id = "flame_kindling"
-skill_name = "Kindling"
-description = "Adjacent [color=orange]fire[/color] dice both gain +1."
+[sub_resource type="Resource" id="Resource_xmmgi"]
+script = ExtResource("7_knxxj")
+skill_id = "flame_accelerant"
+skill_name = "Accelerant"
+description = "End of turn: gain [color=yellow]1/2[/color] [status:warded] per [status:burn] stack across all enemies."
+skill_category = 1
 tier = 2
 column = 5
-prerequisites = Array[ExtResource("1_yomej")]([SubResource("Resource_vffo1")])
+prerequisites = Array[ExtResource("1_2gusx")]([SubResource("Resource_8mp5g")])
 tree_points_required = 1
-rank_1_affixes = Array[ExtResource("2_am7m6")]([SubResource("Resource_6fsqn")])
+rank_1_affixes = Array[ExtResource("2_yomej")]([ExtResource("10_p3swp")])
+rank_2_affixes = Array[ExtResource("2_yomej")]([ExtResource("11_4ysmn")])
 
-[sub_resource type="Resource" id="Resource_vnoow"]
-script = ExtResource("1_yomej")
-required_skill = SubResource("Resource_ecafp")
+[sub_resource type="Resource" id="Resource_086fg"]
+script = ExtResource("1_2gusx")
+required_skill = SubResource("Resource_xmmgi")
 
-[sub_resource type="Resource" id="Resource_b7eiv"]
-script = ExtResource("4_vnoow")
-affix_name = "Forge Bond: Position Bonus"
-description = "Fire die in first or last position deals +25% damage."
-use_global_element_visuals = true
-global_element_type = 3
-trigger = 1
-position_requirement = 1
-effect_type = 26
-effect_value = 0.25
-effect_data = {
-"element": "FIRE",
-"percent": 0.25
-}
+[sub_resource type="Resource" id="Resource_dfwpb"]
+script = ExtResource("7_knxxj")
+skill_id = "flame_flashpoint"
+skill_name = "Flashpoint"
+description = "When [status:burn] explodes: gain [color=yellow]1/2[/color] [status:warded]."
+skill_category = 1
+tier = 3
+column = 4
+prerequisites = Array[ExtResource("1_2gusx")]([SubResource("Resource_086fg")])
+tree_points_required = 3
+rank_1_affixes = Array[ExtResource("2_yomej")]([ExtResource("12_8sef8")])
+rank_2_affixes = Array[ExtResource("2_yomej")]([ExtResource("13_ytd2c")])
 
-[sub_resource type="Resource" id="Resource_yomej"]
-script = ExtResource("2_am7m6")
-affix_name = "Forge Bond: First"
-description = "+25% damage in first slot."
-category = 39
-tags = Array[String](["mage", "flame", "mana_die_affix", "forge_bond"])
-effect_data = {
-"dice_affix": SubResource("Resource_b7eiv")
-}
-
-[sub_resource type="Resource" id="Resource_8jdtl"]
-script = ExtResource("4_vnoow")
-affix_name = "Forge Bond: Last Position Bonus"
-description = "Fire die in last position deals +25% damage."
-use_global_element_visuals = true
-global_element_type = 3
-trigger = 1
-position_requirement = 2
-effect_type = 26
-effect_value = 0.25
-effect_data = {
-"element": "FIRE",
-"percent": 0.25
-}
-
-[sub_resource type="Resource" id="Resource_am7m6"]
-script = ExtResource("2_am7m6")
-affix_name = "Forge Bond: Last"
-description = "+25% damage in last slot."
-category = 39
-tags = Array[String](["mage", "flame", "mana_die_affix", "forge_bond"])
-effect_data = {
-"dice_affix": SubResource("Resource_8jdtl")
-}
+[sub_resource type="Resource" id="Resource_t8yhq"]
+script = ExtResource("1_2gusx")
+required_skill = SubResource("Resource_dfwpb")
 
 [resource]
-script = ExtResource("8_ql4tg")
+script = ExtResource("7_knxxj")
 skill_id = "flame_forge_bond"
-skill_name = "★ Forge Bond"
-description = "Fire dice in [color=yellow]first/last[/color] position deal +25% damage."
-tier = 6
-column = 4
-prerequisites = Array[ExtResource("1_yomej")]([SubResource("Resource_0pyge"), SubResource("Resource_vnoow")])
-tree_points_required = 11
-rank_1_affixes = Array[ExtResource("2_am7m6")]([SubResource("Resource_yomej"), SubResource("Resource_am7m6")])
+skill_name = "Forge Bond"
+icon = ExtResource("1_8x840")
+description = "[color=yellow]WEAVE:[/color] Fire die in [color=yellow]FIRST[/color] or [color=yellow]LAST[/color] position: +25% damage AND apply 1 [status:burn]."
+skill_category = 4
+tier = 5
+column = 3
+prerequisites = Array[ExtResource("1_2gusx")]([SubResource("Resource_ke36l"), SubResource("Resource_t8yhq")])
+tree_points_required = 9
+rank_1_affixes = Array[ExtResource("2_yomej")]([ExtResource("3_am7m6"), ExtResource("4_0pyge"), ExtResource("5_vnoow"), ExtResource("6_wbqr3")])

@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_8wp1k")
 affix_name = "Live Wire II: Snowball Static"
-description = "+2 bonus Static if target has Static."
+description = "+2 bonus [status:static] if target has [status:static]."
 use_global_element_visuals = true
 global_element_type = 5
 trigger = 1

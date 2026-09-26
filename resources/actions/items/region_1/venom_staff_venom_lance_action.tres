@@ -12,7 +12,7 @@
 script = ExtResource("6_v8wqv")
 action_id = "weapon_venom_staff_venom_lance"
 action_name = "Venom Lance"
-action_description = "Applies 4 Poison."
+action_description = "Applies 4 [status:poison]."
 damage_element = 6
 die_slots = 2
 min_dice_required = 1

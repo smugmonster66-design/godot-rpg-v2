@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=6 format=3 uid="uid://c1s634totl87f"]
+
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="1_101ku"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_1cxvx"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_v8b26"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_72s23"]
+
+[sub_resource type="Resource" id="Resource_101ku"]
+script = ExtResource("1_101ku")
+type = 2
+threshold = 3.0
+
+[resource]
+script = ExtResource("3_v8b26")
+affix_name = "Serrated Edge"
+description = "When die value is 3 or below, apply [status:bleed] to enemy."
+trigger = 1
+condition = SubResource("Resource_101ku")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "bleed",
+"target": "enemy"
+}

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DungeonChain" load_steps=4 format=3 uid="uid://c4mfnnuv3xwph"]
+
+[ext_resource type="Script" uid="uid://bg3nj47jgiftx" path="res://resources/data/dungeon_definition.gd" id="1_bqhm2"]
+[ext_resource type="Resource" uid="uid://djtdc4p7uptai" path="res://resources/dungeon/sanctum_navy.tres" id="2_nuq7x"]
+[ext_resource type="Script" uid="uid://41diecbve3ph" path="res://resources/data/dungeon_chain.gd" id="2_pnc7l"]
+
+[resource]
+script = ExtResource("2_pnc7l")
+chain_id = &"testdungeonchain"
+chain_name = "The Endless Test"
+description = "Or the endless debug. "
+dungeons = Array[ExtResource("1_bqhm2")]([ExtResource("2_nuq7x"), ExtResource("2_nuq7x"), ExtResource("2_nuq7x")])
+metadata/_custom_type_script = "uid://41diecbve3ph"

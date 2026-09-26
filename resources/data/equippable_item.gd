@@ -126,21 +126,22 @@ enum EquipSlot {
 
 ## Affixes rolled or assigned to this item instance (populated at init time).
 ## This is the COMBINED array used by combat, player stats, etc.
-var item_affixes: Array[Affix] = []
+## @export so Godot's ResourceSaver persists them in save.tres sub-resources.
+@export var item_affixes: Array[Affix] = []
 
 ## Base stat affixes — scaled copies of base_stat_affixes template.
 ## Always present on every item regardless of rarity.
-var base_affixes: Array[Affix] = []
+@export var base_affixes: Array[Affix] = []
 
 ## Inherent affixes — baked into the item template (from manual affix slots).
 ## These define the item's identity (e.g. "Venom Dagger always has poison").
 ## Displayed green-tinted in the inventory detail panel.
-var inherent_affixes: Array[Affix] = []
+@export var inherent_affixes: Array[Affix] = []
 
 ## Rolled affixes — generated at item creation from affix tables.
 ## These are the random bonuses that add variety between drops.
 ## Displayed gold-tinted in the inventory detail panel.
-var rolled_affixes: Array[Affix] = []
+@export var rolled_affixes: Array[Affix] = []
 
 # Near the top, after class_name EquippableItem
 const DEFAULT_ICON: Texture2D = preload("res://assets/ui/icons/items/placeholder_item.png")
@@ -596,6 +597,116 @@ func _stamp_source_metadata(affix: Affix) -> void:
 	the source item's properties when generating dice."""
 	affix.source_item_level = item_level
 	affix.source_rarity = rarity
+
+# ============================================================================
+# UPGRADE (Smithing System)
+# ============================================================================
+
+func upgrade_to_level(target_level: int, locked_affix_indices: Array[int] = []) -> void:
+	"""Re-roll this item at a new level, preserving locked affixes.
+
+	Locked affixes keep the same affix type but get new values at the new
+	power position. Unlocked affixes are fully re-rolled from tables.
+	Base stat and inherent affixes are always re-scaled.
+	"""
+	item_level = target_level
+
+	# Get scaling context
+	var registry = _get_registry()
+	var scaling_config: AffixScalingConfig = registry.scaling_config if registry else null
+	var power_pos: float = 0.0
+	if scaling_config:
+		power_pos = scaling_config.get_power_position(item_level)
+	else:
+		power_pos = clampf(float(item_level - 1) / 99.0, 0.0, 1.0)
+
+	# Re-scale base stat affixes
+	base_affixes.clear()
+	if base_stat_affixes.size() > 0:
+		_use_base_stat_affixes()
+
+	# Re-scale inherent affixes
+	inherent_affixes.clear()
+	if manual_first_affix or manual_second_affix or manual_third_affix:
+		_use_manual_affixes()
+
+	# Determine tier mapping for rolled affix slots
+	var tiers = _get_tiers_for_rarity()
+	var sd = _get_slot_definition()
+	if sd and sd.double_affix_rolls:
+		var doubled: Array[int] = []
+		for t in tiers:
+			doubled.append(t)
+			doubled.append(t)
+		tiers = doubled
+
+	# Handle rolled affixes
+	var old_rolled = rolled_affixes.duplicate()
+	rolled_affixes.clear()
+
+	for i in range(old_rolled.size()):
+		# Skip unique affix slot (handled separately for legendary)
+		if rarity == Rarity.LEGENDARY and unique_affix and i >= tiers.size():
+			continue
+
+		if i in locked_affix_indices:
+			# LOCKED: same affix, re-roll value at new level
+			var locked = old_rolled[i]
+			var copy = locked.duplicate_with_source(item_name, "item")
+			_stamp_source_metadata(copy)
+			if copy.has_scaling():
+				copy.roll_value(power_pos, scaling_config)
+			copy.roll_proc_chance(power_pos, scaling_config)
+			rolled_affixes.append(copy)
+		else:
+			# UNLOCKED: fully re-roll from tables for this tier
+			var rolled_new = false
+			if i < tiers.size() and sd and registry:
+				var tier = tiers[i]
+				var tables: Array[AffixTable] = sd.get_tables_for_tier(tier, registry.table_registry)
+				if not tables.is_empty():
+					var table: AffixTable = tables.pick_random()
+					if table and table.is_valid():
+						var base_affix: Affix = table.get_random_affix()
+						if base_affix:
+							var rolled: Affix = base_affix.duplicate_with_source(item_name, "item")
+							_stamp_source_metadata(rolled)
+							if rolled.has_scaling():
+								rolled.roll_value(power_pos, scaling_config)
+							rolled.roll_proc_chance(power_pos, scaling_config)
+							rolled_affixes.append(rolled)
+							rolled_new = true
+
+			if not rolled_new:
+				# Fallback: re-roll value on existing affix
+				var fallback = old_rolled[i].duplicate_with_source(item_name, "item")
+				_stamp_source_metadata(fallback)
+				if fallback.has_scaling():
+					fallback.roll_value(power_pos, scaling_config)
+				fallback.roll_proc_chance(power_pos, scaling_config)
+				rolled_affixes.append(fallback)
+
+	# LEGENDARY: re-roll unique affix value
+	if rarity == Rarity.LEGENDARY and unique_affix:
+		_add_unique_affix()
+
+	_rebuild_combined_affixes()
+	_generate_affix_dice()
+	_generate_inherent_dice()
+
+func _get_tier_for_affix_slot(index: int) -> int:
+	"""Map a rolled affix index to its tier number."""
+	var tiers = _get_tiers_for_rarity()
+	var sd = _get_slot_definition()
+	if sd and sd.double_affix_rolls:
+		var doubled: Array[int] = []
+		for t in tiers:
+			doubled.append(t)
+			doubled.append(t)
+		tiers = doubled
+	if index < tiers.size():
+		return tiers[index]
+	return 1
 
 # ============================================================================
 # EQUIP REQUIREMENT CHECKS

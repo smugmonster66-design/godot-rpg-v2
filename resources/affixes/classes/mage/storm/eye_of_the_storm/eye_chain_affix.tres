@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_yaecu")
 affix_name = "Eye of the Storm: Chains"
-description = "All shock chain effects hit +1 additional target."
+description = "All [element:shock] chain effects hit +1 additional target."
 category = 39
 tags = Array[String](["mage", "storm", "capstone", "chain"])
 effect_data = {

@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="DiceAffixCondition" load_steps=2 format=3 uid="uid://b8nsg45u1mbds"]
+
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="1_57l0d"]
+
+[resource]
+script = ExtResource("1_57l0d")
+type = 4

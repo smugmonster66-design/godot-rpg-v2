@@ -12,3 +12,4 @@ category = 7
 tags = Array[String](["stat", "multiplier", "magical"])
 effect_min = 1.02
 effect_max = 1.5
+power_weight = 130.0

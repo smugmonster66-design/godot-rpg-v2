@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="DungeonShrine" load_steps=7 format=3 uid="uid://bus0ak7s5rl0w"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_8hwst"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_ylelf"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_havql"]
+[ext_resource type="Script" uid="uid://dejkynwv48tug" path="res://resources/data/dungeon_shrine.gd" id="4_jfxgj"]
+
+[sub_resource type="Resource" id="Resource_yaat5"]
+script = ExtResource("2_ylelf")
+affix_name = "Ironclad Blessing"
+description = "+N armor"
+category = 13
+tags = Array[String](["shrine", "defense"])
+source_type = "shrine"
+effect_min = 4.0
+effect_max = 15.0
+
+[sub_resource type="Resource" id="Resource_c0aoa"]
+script = ExtResource("2_ylelf")
+affix_name = "Ironclad Burden"
+description = "Deal N% less damage"
+category = 10
+tags = Array[String](["shrine", "offense"])
+source_type = "shrine"
+effect_min = 0.85
+effect_max = 0.95
+
+[resource]
+script = ExtResource("4_jfxgj")
+shrine_name = "Shrine of the Ironclad"
+description = "An iron-bound altar emanates a protective aura. Runes of fortification glow along its surface, but a faint crimson haze dampens the air around it."
+blessing_affix = SubResource("Resource_yaat5")
+curse_affix = SubResource("Resource_c0aoa")
+curse_description = "Your strikes feel weakened, as if pushing through water."

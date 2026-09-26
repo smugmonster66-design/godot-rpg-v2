@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_mmtc0")
 affix_name = "Galvanic Pulse I"
-description = "Shock damage to Static target restores 1 mana. Max 2/turn."
+description = "[element:shock] damage to [status:static] target restores 1 mana. Max 2/turn."
 category = 35
 tags = Array[String](["mage", "storm", "proc", "mana", "conduit"])
 effect_number = 1.0

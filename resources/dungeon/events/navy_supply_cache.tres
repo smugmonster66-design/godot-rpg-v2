@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="DungeonEvent" load_steps=5 format=3 uid="uid://p7qaw42xc7fn"]
+
+[ext_resource type="Script" uid="uid://bqpkuln0fvmtp" path="res://resources/data/dungeon_event_choice.gd" id="1_7d53j"]
+[ext_resource type="Script" uid="uid://wf1v60wcm56b" path="res://resources/data/dungeon_event.gd" id="2_xi55y"]
+
+[sub_resource type="Resource" id="Resource_yq2gw"]
+script = ExtResource("1_7d53j")
+choice_text = "Pry it open"
+result_text = "The crate cracks open to reveal a generous stash of naval pay!"
+gold_reward = 40
+success_chance = 0.8
+fail_text = "The crate was booby-trapped! A small explosion catches you off guard."
+fail_heal_amount = -8
+
+[sub_resource type="Resource" id="Resource_o4he8"]
+script = ExtResource("1_7d53j")
+choice_text = "Sell the location"
+result_text = "You mark the crate's position for later retrieval. Someone will pay for this information."
+gold_reward = 20
+
+[resource]
+script = ExtResource("2_xi55y")
+event_name = "Naval Supply Cache"
+event_id = "navy_supply_cache"
+description = "You find a sealed supply crate marked with the Navy quartermaster's stamp. The lock is rusted but the contents look intact."
+choices = Array[ExtResource("1_7d53j")]([SubResource("Resource_yq2gw"), SubResource("Resource_o4he8")])

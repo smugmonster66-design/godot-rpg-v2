@@ -1,0 +1,107 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=29 format=3 uid="uid://nbnd8hxwtns5"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_8goty"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_ga1ey"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="10_l7grv"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_armor_str_tank.tres" id="11_4mtxv"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_blunt.tres" id="12_g3lkn"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="13_llcp5"]
+[ext_resource type="Resource" uid="uid://dk58bj3nm6p3k" path="res://resources/affixes/base_stats/enemy/enemy_health_str_tank.tres" id="14_tspje"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="15_tj666"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="16_xttu1"]
+[ext_resource type="PackedScene" uid="uid://b4wyrmm8bfq20" path="res://scenes/ui/components/dice/combat/combat_die_d8.tscn" id="17_nlgow"]
+[ext_resource type="Resource" uid="uid://2a7ntncvy5ij" path="res://resources/affixes/elements/blunt_element.tres" id="18_f73oa"]
+[ext_resource type="Texture2D" uid="uid://der0rcr1m1pb2" path="res://assets/dice/d8s/d8-fill-basic.png" id="19_nhhsx"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="20_2mgby"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="21_42f4d"]
+[ext_resource type="PackedScene" uid="uid://lx27hjqny6b8" path="res://scenes/ui/components/dice/pool/pool_die_d8.tscn" id="21_cupam"]
+[ext_resource type="Texture2D" uid="uid://ccv17kswol4os" path="res://assets/dice/d8s/d8-stroke-basic.png" id="22_kw2i0"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="22_ognsd"]
+[ext_resource type="Resource" uid="uid://cxim1rxv60be5" path="res://resources/enemy_templates/tank_str.tres" id="23_m3msr"]
+[ext_resource type="Resource" uid="uid://1s4wii3234wy" path="res://resources/actions/navy/navy_pavise_strike.tres" id="33_pavise_s"]
+[ext_resource type="Resource" uid="uid://um67dlj4d01o" path="res://resources/actions/navy/navy_dig_in.tres" id="34_dig_in"]
+[ext_resource type="Resource" uid="uid://d0ae4gpcbb1em" path="res://resources/actions/navy/navy_immovable_object.tres" id="35_immovabl"]
+
+[sub_resource type="Resource" id="Resource_my8lu"]
+script = ExtResource("1_8goty")
+element_preference = 0.3
+heal_urgency = 0.7
+heal_threshold = 0.7
+status_awareness = 0.4
+
+[sub_resource type="Resource" id="Resource_kolxy"]
+script = ExtResource("20_2mgby")
+affix_name = "Anchored"
+description = "All dice get +1 value on roll."
+effect_value = 1.0
+
+[sub_resource type="Resource" id="Resource_cgxah"]
+script = ExtResource("16_xttu1")
+display_name = "Blunt D8"
+die_type = 8
+element = 2
+element_affix = ExtResource("18_f73oa")
+fill_texture = ExtResource("19_nhhsx")
+stroke_texture = ExtResource("22_kw2i0")
+combat_die_scene = ExtResource("17_nlgow")
+pool_die_scene = ExtResource("21_cupam")
+inherent_affixes = Array[ExtResource("20_2mgby")]([SubResource("Resource_kolxy")])
+
+[sub_resource type="Resource" id="Resource_81ut1"]
+script = ExtResource("20_2mgby")
+affix_name = "Anchored"
+description = "All dice get +1 value on roll."
+effect_value = 1.0
+
+[sub_resource type="Resource" id="Resource_8hl6r"]
+script = ExtResource("16_xttu1")
+display_name = "Blunt D8"
+die_type = 8
+element = 2
+element_affix = ExtResource("18_f73oa")
+fill_texture = ExtResource("19_nhhsx")
+stroke_texture = ExtResource("22_kw2i0")
+combat_die_scene = ExtResource("17_nlgow")
+pool_die_scene = ExtResource("21_cupam")
+inherent_affixes = Array[ExtResource("20_2mgby")]([SubResource("Resource_81ut1")])
+
+[sub_resource type="Resource" id="Resource_l7grv"]
+script = ExtResource("20_2mgby")
+affix_name = "Anchored"
+description = "All dice get +1 value on roll."
+effect_value = 1.0
+
+[sub_resource type="Resource" id="Resource_4mtxv"]
+script = ExtResource("16_xttu1")
+display_name = "Blunt D8"
+die_type = 8
+element = 2
+element_affix = ExtResource("18_f73oa")
+fill_texture = ExtResource("19_nhhsx")
+stroke_texture = ExtResource("22_kw2i0")
+combat_die_scene = ExtResource("17_nlgow")
+pool_die_scene = ExtResource("21_cupam")
+inherent_affixes = Array[ExtResource("20_2mgby")]([SubResource("Resource_l7grv")])
+
+[resource]
+script = ExtResource("15_tj666")
+enemy_name = "Gate Sentinel"
+description = "Sanctum Navy Gate Sentinel."
+template = ExtResource("23_m3msr")
+combat_role = 3
+max_health = 15
+starting_dice = Array[ExtResource("16_xttu1")]([SubResource("Resource_cgxah"), SubResource("Resource_8hl6r"), SubResource("Resource_4mtxv")])
+combat_actions = Array[ExtResource("2_ga1ey")]([ExtResource("33_pavise_s"), ExtResource("34_dig_in"), ExtResource("35_immovabl")])
+ai_strategy = 1
+ai_config = SubResource("Resource_my8lu")
+action_delay = 1.2
+dice_drag_duration = 0.35
+experience_reward = 30
+gold_reward_min = 10
+gold_reward_max = 30
+enemy_tier = 1
+enemy_archetype = 1
+enemy_level_floor = 3
+level_scaling_multiplier = 0.95
+health_affix = ExtResource("14_tspje")
+enemy_affixes = Array[ExtResource("10_l7grv")]([ExtResource("11_4mtxv"), ExtResource("12_g3lkn")])

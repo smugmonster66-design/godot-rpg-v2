@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/components/character/stat_row.gd" id="1_script"]
+
+[node name="StatRow" type="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+script = ExtResource("1_script")
+
+[node name="NameLabel" type="Label" parent="." groups=["stat_row_ui"]]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Stat"
+metadata/ui_role = "name_label"
+
+[node name="ValueLabel" type="Label" parent="." groups=["stat_row_ui"]]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "0"
+metadata/ui_role = "value_label"

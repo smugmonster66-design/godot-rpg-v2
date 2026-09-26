@@ -16,60 +16,66 @@
 [ext_resource type="Resource" uid="uid://c751ovlwh0rm7" path="res://resources/affixes/classes/mage/storm/ionize/ionize_r2_affix.tres" id="12_4gqlf"]
 [ext_resource type="Resource" uid="uid://cyliqe7yjmr3g" path="res://resources/affixes/classes/mage/storm/ionize/ionize_r3_affix.tres" id="13_vfwhs"]
 
-[sub_resource type="Resource" id="Resource_gwqxq"]
+[sub_resource type="Resource" id="Resource_idtkr"]
 script = ExtResource("5_hucfq")
 skill_id = "storm_spark"
 skill_name = "Spark"
-description = "Unlock [color=yellow]Shock[/color] mana. Chromatic Bolt applies [color=yellow]1/2/3 Static[/color] on hit (requires shock die)."
+description = "Unlock [element:shock] mana. Chromatic Bolt applies [status:static|1/2/3 Static] on hit (requires shock die)."
 column = 3
 rank_1_affixes = Array[ExtResource("2_7i7ax")]([ExtResource("3_lv63t"), ExtResource("4_khhpa")])
 rank_2_affixes = Array[ExtResource("2_7i7ax")]([ExtResource("3_lv63t"), ExtResource("5_xku28")])
 rank_3_affixes = Array[ExtResource("2_7i7ax")]([ExtResource("3_lv63t"), ExtResource("6_qt5yo")])
 
-[sub_resource type="Resource" id="Resource_fhxr0"]
+[sub_resource type="Resource" id="Resource_d34ry"]
 script = ExtResource("1_gsy7l")
-required_skill = SubResource("Resource_gwqxq")
+required_skill = SubResource("Resource_idtkr")
 
-[sub_resource type="Resource" id="Resource_k7tbo"]
+[sub_resource type="Resource" id="Resource_hvf5n"]
 script = ExtResource("5_hucfq")
 skill_id = "storm_arc_pulse"
 skill_name = "Arc Pulse"
-description = "Shock mana dice apply [color=yellow]1/2/3[/color] [color=yellow]Static[/color] on use."
+description = "Shock mana dice apply [color=yellow]1/2/3[/color] [status:static] on use."
+skill_category = 1
 tier = 2
 column = 1
-prerequisites = Array[ExtResource("1_gsy7l")]([SubResource("Resource_fhxr0")])
+prerequisites = Array[ExtResource("1_gsy7l")]([SubResource("Resource_d34ry")])
 tree_points_required = 1
 rank_1_affixes = Array[ExtResource("2_7i7ax")]([ExtResource("8_oil0x")])
 rank_2_affixes = Array[ExtResource("2_7i7ax")]([ExtResource("9_m4s27")])
 rank_3_affixes = Array[ExtResource("2_7i7ax")]([ExtResource("10_dg1is")])
 
-[sub_resource type="Resource" id="Resource_jfjlj"]
+[sub_resource type="Resource" id="Resource_s2iuy"]
 script = ExtResource("1_gsy7l")
-required_skill = SubResource("Resource_k7tbo")
+required_skill = SubResource("Resource_hvf5n")
 
-[sub_resource type="Resource" id="Resource_lv63t"]
+[sub_resource type="Resource" id="Resource_3d21w"]
 script = ExtResource("5_hucfq")
 skill_id = "storm_ionize"
 skill_name = "Ionize"
-description = "Pulling shock mana die applies [color=yellow]1/2/3[/color] [color=yellow]Static[/color] to random enemy."
+description = "Pulling shock mana die applies [color=yellow]1/2/3[/color] [status:static] to random enemy."
+skill_category = 1
 tier = 3
-prerequisites = Array[ExtResource("1_gsy7l")]([SubResource("Resource_jfjlj")])
+prerequisites = Array[ExtResource("1_gsy7l")]([SubResource("Resource_s2iuy")])
 tree_points_required = 3
 rank_1_affixes = Array[ExtResource("2_7i7ax")]([ExtResource("11_a2bp4")])
 rank_2_affixes = Array[ExtResource("2_7i7ax")]([ExtResource("12_4gqlf")])
 rank_3_affixes = Array[ExtResource("2_7i7ax")]([ExtResource("13_vfwhs")])
 
-[sub_resource type="Resource" id="Resource_khhpa"]
+[sub_resource type="Resource" id="Resource_bl2w6"]
 script = ExtResource("1_gsy7l")
-required_skill = SubResource("Resource_lv63t")
+required_skill = SubResource("Resource_3d21w")
 
 [resource]
 script = ExtResource("5_hucfq")
 skill_id = "storm_live_wire"
 skill_name = "Live Wire"
-description = "Shock dice apply +[color=yellow]1/2[/color] bonus [color=yellow]Static[/color] on use if target already has Static."
+skill_category = 1
+skill_category = 1
+skill_category = 1
+description = "Shock dice apply +[color=yellow]1/2[/color] bonus [status:static] on use if target already has Static."
+skill_category = 1
 tier = 4
-prerequisites = Array[ExtResource("1_gsy7l")]([SubResource("Resource_khhpa")])
+prerequisites = Array[ExtResource("1_gsy7l")]([SubResource("Resource_bl2w6")])
 tree_points_required = 6
 rank_1_affixes = Array[ExtResource("2_7i7ax")]([ExtResource("3_8s388")])
 rank_2_affixes = Array[ExtResource("2_7i7ax")]([ExtResource("4_mnabw")])

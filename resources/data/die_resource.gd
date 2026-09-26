@@ -1,3 +1,4 @@
+@tool
 # res://resources/data/die_resource.gd
 # Individual die with type, image, element, and dice affixes
 # Updated to support DieObject scenes for combat and pool displays
@@ -35,10 +36,51 @@ enum Element {
 }
 
 # ============================================================================
+# DEFAULT ASSET PATHS PER DIE TYPE (hardcoded — naming is inconsistent)
+# ============================================================================
+static var _default_assets: Dictionary = {}
+
+static func _get_default_assets() -> Dictionary:
+	if _default_assets.is_empty():
+		_default_assets = {
+			4: {  # D4
+				"fill": "res://assets/dice/d4s/d4-fill-basic.png",
+				"stroke": "res://assets/dice/d4s/d4-stroke-basic.png",
+			},
+			6: {  # D6
+				"fill": "res://assets/dice/D6s/d6-basic-fill.png",
+				"stroke": "res://assets/dice/D6s/d6-basic-stroke.png",
+			},
+			8: {  # D8
+				"fill": "res://assets/dice/d8s/d8-fill-basic.png",
+				"stroke": "res://assets/dice/d8s/d8-stroke-basic.png",
+			},
+			10: {  # D10
+				"fill": "res://assets/dice/d10s/d10-fill-basic.png",
+				"stroke": "res://assets/dice/d10s/d10-stroke-basic.png",
+			},
+			12: {  # D12
+				"fill": "res://assets/dice/d12s/d12-basic-fill.png",
+				"stroke": "res://assets/dice/d12s/d12-basic-stroke.png",
+			},
+			20: {  # D20
+				"fill": "res://assets/dice/d20s/d20-fill-basic.png",
+				"stroke": "res://assets/dice/d20s/d20-stroke-basic.png",
+			},
+		}
+	return _default_assets
+
+# ============================================================================
 # BASIC PROPERTIES
 # ============================================================================
 @export var display_name: String = "Die"
-@export var die_type: DieType = DieType.D6
+@export var die_type: DieType = DieType.D6:
+	set(value):
+		die_type = value
+		if Engine.is_editor_hint():
+			# Defer so deserialization finishes first — avoids overwriting
+			# saved values and lets the Inspector refresh on the next frame.
+			call_deferred("_auto_populate_defaults")
 @export var color: Color = Color.WHITE
 @export var is_mana_die: bool = false
 ## Rarity name for visual glow. Set by DieGenerator at creation time.
@@ -211,6 +253,87 @@ func _get_default_pool_scene() -> PackedScene:
 		return load(path)
 	print("  ⚠️ Pool scene not found: %s — using base" % path)
 	return load("res://scenes/ui/components/dice/pool/pool_die_object_base.tscn")
+
+# ============================================================================
+# AUTO-POPULATE DEFAULTS
+# ============================================================================
+
+func _auto_populate_defaults() -> void:
+	"""Auto-populate fill/stroke textures and combat/pool scenes when die_type
+	changes in the editor. Overwrites values that are null OR still set to a
+	different type's default. Never overwrites user-customized assets.
+	Called deferred so deserialization completes before we check null fields."""
+	var assets = DieResource._get_default_assets()
+	var key: int = int(die_type)
+	if not assets.has(key):
+		return
+	var defaults: Dictionary = assets[key]
+	var changed := false
+
+	# Textures: populate if null or still set to another type's default
+	if fill_texture == null or _is_any_type_default_fill(fill_texture):
+		var path: String = defaults.get("fill", "")
+		if path != "" and ResourceLoader.exists(path):
+			fill_texture = load(path)
+			changed = true
+
+	if stroke_texture == null or _is_any_type_default_stroke(stroke_texture):
+		var path: String = defaults.get("stroke", "")
+		if path != "" and ResourceLoader.exists(path):
+			stroke_texture = load(path)
+			changed = true
+
+	# Scenes: populate if null or still set to another type's default
+	if combat_die_scene == null or _is_any_type_default_scene(combat_die_scene, "combat"):
+		combat_die_scene = _get_default_combat_scene()
+		changed = true
+
+	if pool_die_scene == null or _is_any_type_default_scene(pool_die_scene, "pool"):
+		pool_die_scene = _get_default_pool_scene()
+		changed = true
+
+	if changed:
+		emit_changed()
+		notify_property_list_changed()
+
+
+func _is_any_type_default_fill(tex: Texture2D) -> bool:
+	"""Check if a texture matches any die type's default fill."""
+	if tex == null:
+		return true
+	var path = tex.resource_path
+	for type_defaults in DieResource._get_default_assets().values():
+		if path == type_defaults.get("fill", ""):
+			return true
+	return false
+
+
+func _is_any_type_default_stroke(tex: Texture2D) -> bool:
+	"""Check if a texture matches any die type's default stroke."""
+	if tex == null:
+		return true
+	var path = tex.resource_path
+	for type_defaults in DieResource._get_default_assets().values():
+		if path == type_defaults.get("stroke", ""):
+			return true
+	return false
+
+
+func _is_any_type_default_scene(scene: PackedScene, kind: String) -> bool:
+	"""Check if a scene matches any die type's default combat/pool scene."""
+	if scene == null:
+		return true
+	var path = scene.resource_path
+	for dt in DieType.values():
+		var expected: String
+		if kind == "combat":
+			expected = "res://scenes/ui/components/dice/combat/combat_die_d%d.tscn" % dt
+		else:
+			expected = "res://scenes/ui/components/dice/pool/pool_die_d%d.tscn" % dt
+		if path == expected:
+			return true
+	return false
+
 
 # ============================================================================
 # ROLLING

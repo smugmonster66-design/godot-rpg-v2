@@ -10,6 +10,7 @@
 script = ExtResource("5_avkh7")
 skill_id = "frost_glaciate"
 skill_name = "Glaciate"
-description = "Unlock [color=cyan]Ice[/color] mana. Chromatic Bolt applies [color=cyan]2 Chill[/color] on hit (requires ice die)."
+skill_category = 0
+description = "Unlock [element:ice] mana. Chromatic Bolt applies 2 [status:chill] on hit (requires ice die)."
 column = 3
 rank_1_affixes = Array[ExtResource("2_fy4tp")]([ExtResource("3_t6474"), ExtResource("4_dvu4f")])

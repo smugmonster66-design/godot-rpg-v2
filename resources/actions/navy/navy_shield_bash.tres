@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="Action" load_steps=12 format=3 uid="uid://bd0d810nqyk55"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_yq60h"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_8sjw2"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_dbk1o"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_8sjw2"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_jx7u3"]
+[ext_resource type="Resource" uid="uid://i0gx0hubkmmx" path="res://resources/statuses/slowed.tres" id="5_thbat"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_o0tr4"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_n6p4a"]
+
+[sub_resource type="Resource" id="Resource_yq60h"]
+script = ExtResource("1_yq60h")
+condition = 6
+threshold = 0.0
+status_id = "slowed"
+bonus_value = 15.0
+
+[sub_resource type="Resource" id="Resource_dbk1o"]
+script = ExtResource("3_8sjw2")
+effect_name = "Bash Damage"
+value_source = 1
+damage_type = 1
+damage_multiplier = 0.7
+
+[sub_resource type="Resource" id="Resource_8sjw2"]
+script = ExtResource("3_8sjw2")
+effect_name = "Bash Slow"
+effect_type = 2
+status_affix = ExtResource("5_thbat")
+
+[resource]
+script = ExtResource("7_n6p4a")
+action_id = "navy_shield_bash"
+action_name = "Shield Bash"
+action_description = "Bash with a heavy shield."
+damage_element = 1
+effects = Array[ExtResource("3_8sjw2")]([SubResource("Resource_dbk1o"), SubResource("Resource_8sjw2")])
+ai_hints = Array[ExtResource("1_yq60h")]([SubResource("Resource_yq60h")])

@@ -127,7 +127,7 @@ func _update_item_details():
 	
 	var name_labels = item_details_panel.find_children("*Name*", "Label", true, false)
 	var image_rects = item_details_panel.find_children("*Image*", "TextureRect", true, false)
-	var desc_labels = item_details_panel.find_children("*Desc*", "Label", true, false)
+	var desc_labels = item_details_panel.find_children("*Desc*", "RichTextLabel", true, false)
 	var affix_containers = item_details_panel.find_children("*Affix*", "VBoxContainer", true, false)
 	var unequip_buttons = item_details_panel.find_children("*Unequip*", "Button", true, false)
 	
@@ -137,7 +137,7 @@ func _update_item_details():
 		if image_rects.size() > 0:
 			image_rects[0].texture = null
 		if desc_labels.size() > 0:
-			desc_labels[0].text = "Select an equipped item to view details"
+			DescriptionParser.set_bbcode(desc_labels[0], "Select an equipped item to view details")
 		if affix_containers.size() > 0:
 			for child in affix_containers[0].get_children():
 				child.queue_free()
@@ -160,7 +160,7 @@ func _update_item_details():
 	
 	# Description
 	if desc_labels.size() > 0:
-		desc_labels[0].text = selected_item.description
+		DescriptionParser.set_bbcode(desc_labels[0], selected_item.description)
 	
 	# Affixes + set info
 	if affix_containers.size() > 0:
@@ -195,11 +195,8 @@ func _add_affix_label(container: VBoxContainer, affix: Affix, color: Color):
 	style.content_margin_bottom = 4
 	affix_panel.add_theme_stylebox_override("panel", style)
 	
-	var desc_label = Label.new()
-	desc_label.text = affix.get_resolved_description()
+	var desc_label = DescriptionParser.make_rich_label(affix.get_resolved_description(), color)
 	desc_label.theme_type_variation = &"caption"
-	desc_label.add_theme_color_override("font_color", color)
-	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	affix_panel.add_child(desc_label)
 	
 	container.add_child(affix_panel)
@@ -213,21 +210,20 @@ func _add_set_info(container: VBoxContainer, set_def: SetDefinition):
 		equipped_count = player.set_tracker.get_equipped_count(set_def.set_id)
 	
 	# Set header
-	var set_header = Label.new()
-	set_header.text = "%s (%d/%d)" % [set_def.set_name, equipped_count, set_def.get_total_pieces()]
-	set_header.add_theme_color_override("font_color", set_def.set_color)
-	set_header.add_theme_font_size_override("font_size", 14)
+	var set_header = DescriptionParser.make_rich_label(
+		"%s (%d/%d)" % [set_def.set_name, equipped_count, set_def.get_total_pieces()],
+		set_def.set_color)
+	set_header.add_theme_font_size_override("normal_font_size", 14)
 	container.add_child(set_header)
-	
+
 	# Threshold bonuses
 	for threshold in set_def.thresholds:
 		var is_active = player and player.set_tracker and player.set_tracker.is_threshold_active(set_def.set_id, threshold.required_pieces)
-		var threshold_label = Label.new()
 		var prefix = "✓" if is_active else "✗"
-		threshold_label.text = "  %s (%d) %s" % [prefix, threshold.required_pieces, threshold.description]
-		threshold_label.add_theme_font_size_override("font_size", 12)
-		threshold_label.add_theme_color_override("font_color", Color.GREEN if is_active else Color(0.4, 0.4, 0.4))
-		threshold_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		var threshold_label = DescriptionParser.make_rich_label(
+			"  %s (%d) %s" % [prefix, threshold.required_pieces, threshold.description],
+			Color.GREEN if is_active else Color(0.4, 0.4, 0.4))
+		threshold_label.add_theme_font_size_override("normal_font_size", 12)
 		container.add_child(threshold_label)
 
 func _get_slot_color(slot_name: String) -> Color:

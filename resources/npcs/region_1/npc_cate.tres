@@ -1,0 +1,81 @@
+[gd_resource type="Resource" script_class="NPCDefinition" load_steps=22 format=3 uid="uid://g8xjiemp0imt"]
+
+[ext_resource type="Script" uid="uid://lgoecdg43x3d" path="res://resources/data/game_condition.gd" id="1_cprkf"]
+[ext_resource type="Script" uid="uid://c0v2n57calmgr" path="res://resources/data/npc_dialogue_entry.gd" id="1_m7jvr"]
+[ext_resource type="Script" uid="uid://bohts7l5a2v12" path="res://resources/data/npc_definition.gd" id="2_bs8mn"]
+[ext_resource type="Resource" uid="uid://cuvp4abo21f1c" path="res://resources/dialogues/test dialogue 3.tres" id="3_0v32l"]
+[ext_resource type="Texture2D" uid="uid://c5tlcvm076pa6" path="res://assets/busts/cate/base.png" id="4_kshwo"]
+[ext_resource type="Resource" uid="uid://dgv1qwtj12q7g" path="res://resources/dialogues/cate/test_cate_receive_quest.tres" id="4_qfr1e"]
+[ext_resource type="Resource" uid="uid://dj8tngj1dy00j" path="res://resources/dialogues/speakers/ds_cate.tres" id="6_0v32l"]
+[ext_resource type="Script" uid="uid://dh5jn3duyowt6" path="res://resources/data/single_check.gd" id="8_sc"]
+[ext_resource type="Texture2D" uid="uid://c4vnu7jqclbwj" path="res://assets/ui/icons/mapbuttons/smithing.png" id="8_tbda8"]
+[ext_resource type="Resource" uid="uid://bksr4cpoj24c" path="res://resources/dialogues/cate/smithing_test.tres" id="9_smith"]
+
+[sub_resource type="Resource" id="Resource_s0xje"]
+script = ExtResource("1_cprkf")
+
+[sub_resource type="Resource" id="Resource_qfr1e"]
+script = ExtResource("8_sc")
+check_type = 6
+key = &"harbor_masters_request"
+quest_state = "available"
+
+[sub_resource type="Resource" id="Resource_tbda8"]
+script = ExtResource("1_cprkf")
+condition_type = 2
+single_check = SubResource("Resource_qfr1e")
+
+[sub_resource type="Resource" id="Resource_eaa3o"]
+script = ExtResource("1_m7jvr")
+encounter_id = &"test_cate_givequest"
+encounter = ExtResource("3_0v32l")
+condition = SubResource("Resource_tbda8")
+metadata/_custom_type_script = "uid://c0v2n57calmgr"
+
+[sub_resource type="Resource" id="Resource_rqcpm"]
+script = ExtResource("8_sc")
+check_type = 6
+key = &"harbor_masters_request"
+quest_state = "active"
+
+[sub_resource type="Resource" id="Resource_2klg3"]
+script = ExtResource("1_cprkf")
+condition_type = 2
+single_check = SubResource("Resource_rqcpm")
+
+[sub_resource type="Resource" id="sc_obj_done"]
+script = ExtResource("8_sc")
+check_type = 8
+key = &"quest_objective:harbor_masters_request:defeat_naval_enemies"
+
+[sub_resource type="Resource" id="cond_obj_done"]
+script = ExtResource("1_cprkf")
+condition_type = 2
+single_check = SubResource("sc_obj_done")
+
+[sub_resource type="Resource" id="cond_turn_in"]
+script = ExtResource("1_cprkf")
+condition_type = 3
+sub_conditions = Array[ExtResource("1_cprkf")]([SubResource("Resource_2klg3"), SubResource("cond_obj_done")])
+
+[sub_resource type="Resource" id="Resource_kshwo"]
+script = ExtResource("1_m7jvr")
+encounter_id = &"test_cate_receive_quest"
+encounter = ExtResource("4_qfr1e")
+condition = SubResource("cond_turn_in")
+
+[sub_resource type="Resource" id="Resource_pv0fk"]
+script = ExtResource("1_m7jvr")
+encounter_id = &"smithing_test"
+encounter = ExtResource("9_smith")
+icon = ExtResource("8_tbda8")
+
+[resource]
+script = ExtResource("2_bs8mn")
+npc_id = &"cate"
+display_name = "Cate"
+portrait = ExtResource("4_kshwo")
+speaker = ExtResource("6_0v32l")
+home_location_id = &"loc_embergate"
+availability_condition = SubResource("Resource_s0xje")
+dialogue_table = Array[ExtResource("1_m7jvr")]([SubResource("Resource_eaa3o"), SubResource("Resource_kshwo"), SubResource("Resource_pv0fk")])

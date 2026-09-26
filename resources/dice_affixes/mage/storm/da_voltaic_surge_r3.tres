@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_16k7a")
 affix_name = "Voltaic Surge III: Per-Stack Damage"
-description = "+3 damage per Static stack."
+description = "+3 damage per [status:static] stack."
 use_global_element_visuals = true
 global_element_type = 5
 trigger = 1

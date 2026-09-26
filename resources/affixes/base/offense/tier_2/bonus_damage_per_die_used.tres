@@ -16,3 +16,4 @@ effect_data = {
 "effect": "bonus_damage_flat"
 }
 proc_trigger = 7
+power_weight = 55.0

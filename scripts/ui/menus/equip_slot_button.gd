@@ -44,6 +44,7 @@ func _ready():
 		style.texture = slot_texture
 		panel.add_theme_stylebox_override("panel", style)
 	
+	slot_button.flat = true
 	slot_button.pressed.connect(func(): slot_clicked.emit(slot_name))
 	_apply_empty_visual()
 
@@ -69,7 +70,7 @@ func apply_equippable(item: EquippableItem):
 	slot_button.text = ""
 	slot_button.icon = null
 	_clear_style_overrides()
-	
+
 	if item.icon:
 		slot_button.icon = item.icon
 		slot_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -77,8 +78,9 @@ func apply_equippable(item: EquippableItem):
 	else:
 		var first_char = item.item_name[0] if item.item_name.length() > 0 else "?"
 		slot_button.text = first_char
-	
+
 	slot_button.tooltip_text = "%s (%s %s)" % [item.item_name, item.get_rarity_name(), item.get_slot_name()]
+	_set_slot_icon_visible(false)
 
 func apply_item(item):
 	"""Apply an EquippableItem to this slot's display."""
@@ -92,6 +94,7 @@ func clear():
 	slot_button.icon = null
 	slot_button.tooltip_text = slot_name
 	_apply_empty_visual()
+	_set_slot_icon_visible(true)
 
 # ============================================================================
 # PRIVATE
@@ -105,3 +108,8 @@ func _clear_style_overrides():
 	slot_button.remove_theme_stylebox_override("normal")
 	slot_button.remove_theme_stylebox_override("hover")
 	slot_button.remove_theme_stylebox_override("pressed")
+
+func _set_slot_icon_visible(visible: bool):
+	var slot_icon = panel.find_child("SlotIcon", false, false)
+	if slot_icon:
+		slot_icon.visible = visible

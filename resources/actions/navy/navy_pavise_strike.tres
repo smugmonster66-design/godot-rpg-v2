@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://1s4wii3234wy"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_7d7sk"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_hf03p"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_muc7m"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_hf03p"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_ed832"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="5_2dty6"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="6_6nbdx"]
+
+[sub_resource type="Resource" id="Resource_7d7sk"]
+script = ExtResource("3_hf03p")
+effect_name = "Pavise Damage"
+value_source = 1
+damage_type = 1
+damage_multiplier = 0.5
+
+[resource]
+script = ExtResource("6_6nbdx")
+action_id = "navy_pavise_strike"
+action_name = "Pavise Strike"
+action_description = "A slow but solid strike."
+damage_element = 1
+effects = Array[ExtResource("3_hf03p")]([SubResource("Resource_7d7sk")])

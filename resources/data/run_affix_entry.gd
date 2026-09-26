@@ -70,6 +70,17 @@ enum Rarity {
 @export_range(1, 100) var offer_weight: int = 10
 
 # ============================================================================
+# PROC VISUALS
+# ============================================================================
+@export_group("Proc Visuals")
+## Color for the floating source label when this run affix announces at combat start.
+## Defaults to gold — distinct from equipment proc labels.
+@export var visual_color: Color = Color(1.0, 0.85, 0.3)
+## Optional CombatAnimationSet to play as a brief intro on the first player turn.
+## Leave null to show only a source floater with no animation.
+@export var combat_start_anim_set: CombatAnimationSet = null
+
+# ============================================================================
 # RARITY COLORS
 # ============================================================================
 

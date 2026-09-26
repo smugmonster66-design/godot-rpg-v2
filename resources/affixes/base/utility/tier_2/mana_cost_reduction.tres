@@ -7,8 +7,9 @@
 [resource]
 script = ExtResource("2_ojog3")
 affix_name = "Mana Cost Reduction"
-description = "Reduce action mana costs by N"
-category = 36
+description = "Reduce action mana costs by 5-30%"
+category = 40
 tags = Array[String](["mana"])
-effect_min = 1.0
-effect_max = 10.0
+effect_min = 0.95
+effect_max = 0.7
+power_weight = 90.0

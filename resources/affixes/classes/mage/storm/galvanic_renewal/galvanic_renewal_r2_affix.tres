@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_lpt0v")
 affix_name = "Galvanic Renewal II"
-description = "On shock kill: gain 2 free shock dice to hand. Max 1/turn."
+description = "On [element:shock] kill: gain 2 free [element:shock] dice to hand. Max 1/turn."
 category = 35
 tags = Array[String](["mage", "storm", "proc", "kill", "die_generation"])
 effect_number = 2.0

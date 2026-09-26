@@ -269,6 +269,22 @@ func _check_proc_config_conditions(config: ProcEffectConfig, context: Dictionary
 # CHANCE ROLLING
 # ============================================================================
 
+func _count_enemy_status_stacks(status_id: String, context: Dictionary) -> int:
+	"""Count total stacks of a status across all living enemies.
+	Requires context to have 'enemy_combatants' and 'get_status_tracker'."""
+	var total := 0
+	var enemies: Array = context.get("enemy_combatants", [])
+	var get_tracker: Callable = context.get("get_status_tracker", Callable())
+	if get_tracker.is_null():
+		return total
+	for enemy in enemies:
+		if not enemy.is_alive():
+			continue
+		var tracker = get_tracker.call(enemy)
+		if tracker and tracker.has_method("get_stacks"):
+			total += tracker.get_stacks(status_id)
+	return total
+
 func _roll_proc_chance(affix: Affix) -> bool:
 	"""Roll against the affix's proc_chance. Returns true if proc fires."""
 	if affix.proc_chance >= 1.0:
@@ -310,7 +326,8 @@ func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 		"heal_percent_damage":
 			var damage_dealt = context.get("damage_dealt", 0)
 			effect.type = "healing"
-			effect["amount"] = damage_dealt * affix.effect_number
+			var heal_amt = damage_dealt * affix.effect_number
+			effect["amount"] = maxi(1, int(heal_amt)) if damage_dealt > 0 else 0
 		
 		"heal_percent_max_hp":
 			var source = context.get("source", null)
@@ -331,7 +348,8 @@ func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 		"bonus_damage_percent":
 			var damage_dealt = context.get("damage_dealt", 0)
 			effect.type = "bonus_damage"
-			effect["amount"] = damage_dealt * affix.effect_number
+			var bonus_amt = damage_dealt * affix.effect_number
+			effect["amount"] = maxi(1, int(bonus_amt)) if damage_dealt > 0 else 0
 		
 		# ── Armor / Barrier ──
 		"gain_armor":
@@ -438,7 +456,18 @@ func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 			else:
 				effect["status"] = {}
 			effect["target"] = resolved_data.get("status_target", "enemy")
-			effect["stacks"] = int(resolved_data.get("status_stacks", 1))
+			# status_stacks_from_value: use the affix's rolled effect_number as stack count
+			if resolved_data.get("status_stacks_from_value", false):
+				effect["stacks"] = int(affix.effect_number)
+			elif resolved_data.has("stacks_from_enemy_status"):
+				# Scale stacks by total stacks of a status across all living enemies
+				# e.g. "stacks_from_enemy_status": "burn" → count all burn stacks on enemies
+				# effect_number acts as multiplier per stack
+				var count_sid: String = resolved_data["stacks_from_enemy_status"]
+				var total_stacks := _count_enemy_status_stacks(count_sid, context)
+				effect["stacks"] = int(total_stacks * affix.effect_number)
+			else:
+				effect["stacks"] = int(resolved_data.get("status_stacks", 1))
 		
 		# ── Status Spread (Storm: spread_static and general) ──
 		"spread_status":

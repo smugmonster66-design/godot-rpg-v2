@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_unk8g")
 affix_name = "Brittle II"
-description = "Ice die: +2 damage per 4 Chill stacks on target."
+description = "[element:ice] die: +2 damage per 4 [status:chill] stacks on target."
 category = 39
 tags = Array[String](["mage", "frost", "mana_die_affix", "exploiter", "damage"])
 effect_data = {

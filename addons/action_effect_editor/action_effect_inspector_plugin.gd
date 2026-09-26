@@ -99,44 +99,48 @@ func _can_handle(object: Object) -> bool:
 
 func _parse_begin(object: Object) -> void:
 	if object is ActionEffect:
-		var banner := _create_action_effect_banner(object as ActionEffect)
-		add_custom_control(banner)
+		_build_action_effect_banner(object as ActionEffect)
 	elif object is ActionEffectSubEffect:
-		var banner := _create_sub_effect_banner(object as ActionEffectSubEffect)
-		add_custom_control(banner)
+		_build_sub_effect_banner(object as ActionEffectSubEffect)
 
 
 # ============================================================================
 # ACTION EFFECT BANNER
 # ============================================================================
 
-func _create_action_effect_banner(effect: ActionEffect) -> Control:
+func _build_action_effect_banner(effect: ActionEffect) -> void:
+	var cat: String = EFFECT_CATEGORIES.get(effect.effect_type, "Core")
+	var cat_color: Color = CATEGORY_COLORS.get(cat, Color(0.5, 0.5, 0.5))
+
 	var container := VBoxContainer.new()
+	add_custom_control(container)
 	container.add_theme_constant_override("separation", 4)
 
 	# --- Main summary panel ---
 	var panel := PanelContainer.new()
 	var style := StyleBoxFlat.new()
-	var cat: String = EFFECT_CATEGORIES.get(effect.effect_type, "Core")
-	var cat_color: Color = CATEGORY_COLORS.get(cat, Color(0.5, 0.5, 0.5))
 	style.bg_color = Color(cat_color.r * 0.15, cat_color.g * 0.15, cat_color.b * 0.15, 0.95)
 	style.border_color = cat_color * Color(0.6, 0.6, 0.6, 0.8)
 	style.set_border_width_all(1)
 	style.border_width_left = 3
 	style.set_corner_radius_all(4)
 	style.set_content_margin_all(8)
+	container.add_child(panel)
 	panel.add_theme_stylebox_override("panel", style)
 
 	var vbox := VBoxContainer.new()
+	panel.add_child(vbox)
 	vbox.add_theme_constant_override("separation", 4)
 
 	# Row 1: Category badge + effect type name
 	var top_row := HBoxContainer.new()
+	vbox.add_child(top_row)
 	top_row.add_theme_constant_override("separation", 8)
 
 	# Category badge
 	var badge := Label.new()
 	badge.text = " %s " % cat.to_upper()
+	top_row.add_child(badge)
 	badge.add_theme_font_size_override("font_size", 10)
 	badge.add_theme_color_override("font_color", Color.WHITE)
 	var badge_style := StyleBoxFlat.new()
@@ -146,20 +150,20 @@ func _create_action_effect_banner(effect: ActionEffect) -> Control:
 	badge_style.content_margin_left = 6
 	badge_style.content_margin_right = 6
 	badge.add_theme_stylebox_override("normal", badge_style)
-	top_row.add_child(badge)
 
 	# Effect type name
 	var type_label := Label.new()
 	var type_color: Color = EFFECT_TYPE_COLORS.get(effect.effect_type, Color.WHITE)
 	type_label.text = effect.get_effect_type_name()
+	top_row.add_child(type_label)
 	type_label.add_theme_color_override("font_color", type_color)
 	type_label.add_theme_font_size_override("font_size", 14)
-	top_row.add_child(type_label)
 
 	# Compound indicator
 	if effect.is_compound():
 		var compound_badge := Label.new()
 		compound_badge.text = " COMPOUND x%d " % effect.sub_effects.size()
+		top_row.add_child(compound_badge)
 		compound_badge.add_theme_font_size_override("font_size", 10)
 		compound_badge.add_theme_color_override("font_color", Color(0.9, 0.9, 0.3))
 		var cb_style := StyleBoxFlat.new()
@@ -169,17 +173,15 @@ func _create_action_effect_banner(effect: ActionEffect) -> Control:
 		cb_style.content_margin_left = 6
 		cb_style.content_margin_right = 6
 		compound_badge.add_theme_stylebox_override("normal", cb_style)
-		top_row.add_child(compound_badge)
 
 	# Spacer
 	var spacer := Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top_row.add_child(spacer)
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	# Target badge
 	var target_badge := Label.new()
 	target_badge.text = " %s " % effect.get_target_type_name()
-	target_badge.add_theme_font_size_override("font_size", 10)
 	var target_colors := {
 		0: Color(0.3, 0.7, 0.3),   # SELF - green
 		1: Color(0.8, 0.3, 0.3),   # SINGLE_ENEMY - red
@@ -188,29 +190,26 @@ func _create_action_effect_banner(effect: ActionEffect) -> Control:
 		4: Color(0.4, 0.6, 0.9),   # ALL_ALLIES - bright blue
 	}
 	var t_color: Color = target_colors.get(effect.target, Color(0.5, 0.5, 0.5))
-	target_badge.add_theme_color_override("font_color", Color.WHITE)
 	var tb_style := StyleBoxFlat.new()
 	tb_style.bg_color = t_color * Color(0.6, 0.6, 0.6, 0.8)
 	tb_style.set_corner_radius_all(3)
 	tb_style.set_content_margin_all(2)
 	tb_style.content_margin_left = 6
 	tb_style.content_margin_right = 6
-	target_badge.add_theme_stylebox_override("normal", tb_style)
 	top_row.add_child(target_badge)
-
-	vbox.add_child(top_row)
+	target_badge.add_theme_font_size_override("font_size", 10)
+	target_badge.add_theme_color_override("font_color", Color.WHITE)
+	target_badge.add_theme_stylebox_override("normal", tb_style)
 
 	# Row 2: Full summary text
 	var summary_label := RichTextLabel.new()
 	summary_label.bbcode_enabled = true
 	summary_label.fit_content = true
 	summary_label.scroll_active = false
+	summary_label.text = effect.get_summary()
+	vbox.add_child(summary_label)
 	summary_label.custom_minimum_size.y = 20
 	summary_label.add_theme_font_size_override("normal_font_size", 12)
-
-	var summary_text := effect.get_summary()
-	summary_label.text = summary_text
-	vbox.add_child(summary_label)
 
 	# Row 3: Condition + Value Source info (if non-default)
 	var info_parts: Array[String] = []
@@ -224,57 +223,52 @@ func _create_action_effect_banner(effect: ActionEffect) -> Control:
 		info_label.bbcode_enabled = true
 		info_label.fit_content = true
 		info_label.scroll_active = false
-		info_label.custom_minimum_size.y = 16
-		info_label.add_theme_font_size_override("normal_font_size", 11)
 		info_label.text = "  ".join(info_parts)
 		vbox.add_child(info_label)
-
-	panel.add_child(vbox)
-	container.add_child(panel)
+		info_label.custom_minimum_size.y = 16
+		info_label.add_theme_font_size_override("normal_font_size", 11)
 
 	# --- Separator ---
 	var sep := HSeparator.new()
-	sep.add_theme_constant_override("separation", 8)
 	container.add_child(sep)
-
-	return container
+	sep.add_theme_constant_override("separation", 8)
 
 
 # ============================================================================
 # SUB-EFFECT BANNER (lighter version)
 # ============================================================================
 
-func _create_sub_effect_banner(sub: ActionEffectSubEffect) -> Control:
-	var panel := PanelContainer.new()
-	var style := StyleBoxFlat.new()
+func _build_sub_effect_banner(sub: ActionEffectSubEffect) -> void:
 	var cat: String = EFFECT_CATEGORIES.get(sub.effect_type, "Core")
 	var cat_color: Color = CATEGORY_COLORS.get(cat, Color(0.5, 0.5, 0.5))
+
+	var panel := PanelContainer.new()
+	var style := StyleBoxFlat.new()
 	style.bg_color = Color(cat_color.r * 0.12, cat_color.g * 0.12, cat_color.b * 0.12, 0.90)
 	style.border_color = cat_color * Color(0.5, 0.5, 0.5, 0.6)
 	style.set_border_width_all(1)
 	style.border_width_left = 2
 	style.set_corner_radius_all(3)
 	style.set_content_margin_all(6)
+	add_custom_control(panel)
 	panel.add_theme_stylebox_override("panel", style)
 
 	var hbox := HBoxContainer.new()
+	panel.add_child(hbox)
 	hbox.add_theme_constant_override("separation", 6)
 
 	# Category mini-badge
 	var badge := Label.new()
 	badge.text = cat.to_upper()
+	hbox.add_child(badge)
 	badge.add_theme_font_size_override("font_size", 9)
 	badge.add_theme_color_override("font_color", cat_color)
-	hbox.add_child(badge)
 
 	# Summary
 	var summary := Label.new()
 	summary.text = sub.get_summary()
+	summary.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	hbox.add_child(summary)
+	summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	summary.add_theme_font_size_override("font_size", 11)
 	summary.add_theme_color_override("font_color", Color(0.85, 0.85, 0.85))
-	summary.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hbox.add_child(summary)
-
-	panel.add_child(hbox)
-	return panel

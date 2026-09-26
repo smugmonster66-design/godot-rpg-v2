@@ -7,8 +7,9 @@
 [resource]
 script = ExtResource("2_l7xnk")
 affix_name = "Shock Damage Bonus"
-description = "+N Shock damage"
+description = "+N [element:shock] damage"
 category = 24
 tags = Array[String](["damage", "elemental", "shock"])
 effect_min = 1.0
 effect_max = 30.0
+power_weight = 50.0

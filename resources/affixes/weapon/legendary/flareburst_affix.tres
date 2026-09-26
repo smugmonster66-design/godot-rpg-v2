@@ -1,12 +1,15 @@
-[gd_resource type="Resource" script_class="Affix" load_steps=2 format=3 uid="uid://ue2sfwflxqox"]
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://ue2sfwflxqox"]
 
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_0hbxc"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_guntx"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_u8mmr"]
 
 [resource]
 script = ExtResource("1_guntx")
 affix_name = "Flare Burst"
-description = "20% chance to deal +10 Fire damage."
+description = "20% chance to deal +10 [element:fire] damage."
 effect_data = {
 "proc_chance": 0.2
 }
+power_weight = 120.0
 metadata/_custom_type_script = "uid://c8ianog20smkw"

@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_mkwww")
 affix_name = "Eye of the Storm: First Strike"
-description = "Shock die in FIRST position applies 2 Static to all enemies on use."
+description = "[element:shock] die in FIRST position applies 2 [status:static] to all enemies on use."
 category = 39
 tags = Array[String](["mage", "storm", "capstone", "static_apply", "aoe", "positional"])
 effect_data = {

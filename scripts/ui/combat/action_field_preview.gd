@@ -61,6 +61,7 @@ func _discover_nodes():
 	action_type_icon = find_child("ActionTypeIcon", true, false) as TextureRect
 	targets_icon = find_child("TargetsIcon", true, false) as TextureRect
 	targets_label = find_child("TargetsLabel", true, false) as Label
+	charges_label = find_child("ChargesLabel", true, false) as Label
 	# Optional shader nodes (may not exist in preview scene yet)
 	fill_texture = find_child("FillTexture", true, false) as NinePatchRect
 	stroke_texture = find_child("StrokeTexture", true, false) as NinePatchRect

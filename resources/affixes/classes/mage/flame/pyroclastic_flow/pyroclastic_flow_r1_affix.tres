@@ -7,7 +7,15 @@
 [resource]
 script = ExtResource("2_41qra")
 affix_name = "Pyroclastic Flow"
-description = "When Burn explodes, apply 3 Burn stacks to all other enemies."
+description = "When you take [status:burn] tick damage: gain 1 [status:pyroclasm] (+2 [element:fire] damage/stack, 2 turns)."
 category = 35
-tags = Array[String](["mage", "flame", "pyroclastic_flow", "burn_explosion_spread"])
-effect_number = 3.0
+tags = Array[String](["mage", "flame", "offense", "self_burn", "pyroclasm", "proc"])
+effect_number = 1.0
+effect_data = {
+"condition_damage_source": "burn_tick",
+"proc_effect": "apply_status",
+"proc_trigger": "ON_TAKE_DAMAGE",
+"stacks": 1,
+"status_id": "pyroclasm"
+}
+proc_trigger = 2

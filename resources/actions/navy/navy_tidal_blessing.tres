@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="Action" load_steps=10 format=3 uid="uid://c4eb8xps38g6k"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_dl0lr"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_5yhaq"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_ex47s"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_ex47s"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_6vx25"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="5_f3cbv"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="6_ipnt0"]
+
+[sub_resource type="Resource" id="Resource_dl0lr"]
+script = ExtResource("1_dl0lr")
+threshold = 0.0
+bonus_value = 15.0
+
+[sub_resource type="Resource" id="Resource_5yhaq"]
+script = ExtResource("3_ex47s")
+effect_name = "Blessing Heal"
+target = 3
+effect_type = 1
+value_source = 1
+heal_multiplier = 1.2
+heal_uses_dice = true
+
+[resource]
+script = ExtResource("6_ipnt0")
+action_id = "navy_tidal_blessing"
+action_name = "Tidal Blessing"
+action_description = "Heal an ally with the power of the tides."
+action_category = 3
+damage_element = 4
+effects = Array[ExtResource("3_ex47s")]([SubResource("Resource_5yhaq")])
+ai_hints = Array[ExtResource("1_dl0lr")]([SubResource("Resource_dl0lr")])
+action_type = 2

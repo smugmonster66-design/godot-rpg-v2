@@ -37,7 +37,16 @@ enum ProjectileDirection {
 	SOURCE_TO_TARGET,  ## e.g. Curse — sending effect outward
 }
 
+enum ZLayer {
+	BEHIND_TARGET,  ## Below the target node (ambient glow behind a die)
+	DEFAULT,        ## Standard effects layer (current behavior)
+	ABOVE_TARGET,   ## Above the target node (impact flash)
+}
+
 @export var animation_type: AnimationType = AnimationType.NONE
+
+## Z-ordering: render effects behind, at, or above the target node
+@export var z_layer: ZLayer = ZLayer.DEFAULT
 
 # ============================================================================
 # PROJECTILE CONFIG (used when animation_type == PROJECTILE)

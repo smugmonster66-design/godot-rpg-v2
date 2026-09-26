@@ -1,26 +1,31 @@
-[gd_scene load_steps=40 format=3 uid="uid://b2w217jydc2gl"]
+[gd_scene load_steps=50 format=3 uid="uid://b2w217jydc2gl"]
 
 [ext_resource type="Script" uid="uid://c2ftibv05ag52" path="res://scripts/game/game_root.gd" id="1_pevc5"]
-[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_cm22q"]
 [ext_resource type="Script" uid="uid://buljuod5rywxy" path="res://scripts/shared/game_camera.gd" id="2_i88f8"]
 [ext_resource type="PackedScene" uid="uid://dg4shmm2jhcnd" path="res://scenes/game/combat_scene.tscn" id="2_n6w2t"]
+[ext_resource type="Resource" uid="uid://yrjkl6sqyipx" path="res://resources/test_world_map.tres" id="2_pwgrr"]
 [ext_resource type="PackedScene" uid="uid://b3hskvtstgnbh" path="res://scenes/dungeon/dungeon_scene.tscn" id="3_a6cr8"]
-[ext_resource type="Resource" uid="uid://cgr5jnuyua814" path="res://resources/dice/test_animation_dice/test_die_autostun.tres" id="3_d0whc"]
 [ext_resource type="PackedScene" uid="uid://cx781vq4omutw" path="res://scenes/game/map_scene.tscn" id="4_0krdv"]
 [ext_resource type="Texture2D" uid="uid://b5idgxy5pjm63" path="res://assets/ui/panels/9patch_bones.png" id="4_n6w2t"]
+[ext_resource type="Resource" uid="uid://bk4bewxkhthmi" path="res://resources/items/region_1/debug/the_testing_staff.tres" id="4_xi4na"]
+[ext_resource type="Script" uid="uid://pc0eo2522dpe" path="res://resources/data/companion_data.gd" id="5_cm22q"]
 [ext_resource type="PackedScene" uid="uid://c0w3t10mfnowo" path="res://scenes/ui/bottom_ui_panel.tscn" id="5_n6w2t"]
 [ext_resource type="Texture2D" uid="uid://bk7srh475afct" path="res://assets/ui/portrait frames/placeholder/placeholder_frame_front.png" id="6_0krdv"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="6_ehhtj"]
 [ext_resource type="Script" uid="uid://dfridktvwqyau" path="res://scripts/ui/portrait_controller.gd" id="6_elccf"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="7_gntp6"]
 [ext_resource type="Shader" uid="uid://bf1gnsw38npcm" path="res://shaders/portrait_mask.gdshader" id="8_cylga"]
-[ext_resource type="Script" uid="uid://pc0eo2522dpe" path="res://resources/data/companion_data.gd" id="9_nmlv8"]
+[ext_resource type="Resource" uid="uid://c5h8lam3n4p5q" path="res://resources/statuses/taunt.tres" id="8_kdqbs"]
+[ext_resource type="Resource" uid="uid://cobnumqwfjfna" path="res://resources/animations/baseline animations/base_combat_animation_set.tres" id="9_onw00"]
+[ext_resource type="Texture2D" uid="uid://cxhxycueqqbp0" path="res://assets/characters/companions/manne_placeholder_bust.png" id="10_mpe48"]
 [ext_resource type="Shader" uid="uid://c81kry17cryo0" path="res://shaders/portrait_frame_glow.gdshader" id="10_ndy65"]
-[ext_resource type="Resource" uid="uid://cyj2w70dyw4v2" path="res://resources/companions/companion_manne.tres" id="10_xskmf"]
 [ext_resource type="PackedScene" uid="uid://b4cwd535525ap" path="res://scenes/ui/menus/player_menu.tscn" id="11_c2lvh"]
 [ext_resource type="PackedScene" uid="uid://c8lkjoshcff88" path="res://scenes/ui/popups/post_combat_summary.tscn" id="12_a6cr8"]
 [ext_resource type="PackedScene" uid="uid://bvb7r5rwfohfr" path="res://resources/ui/dungeon_entrance_button.tscn" id="15_h5onw"]
 [ext_resource type="Resource" uid="uid://bgfv53lpvqk5j" path="res://resources/dungeon/baseline_test.tres" id="16_kdtot"]
 [ext_resource type="Texture2D" uid="uid://kt1dd6uwt7tf" path="res://assets/busts/bones/bones_base.png" id="16_xi4na"]
 [ext_resource type="PackedScene" path="res://scenes/debug/debug_loot_panel.tscn" id="17_kdtot"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="19_ctngu"]
 [ext_resource type="PackedScene" path="res://scenes/ui/menus/dungeon_selection_screen.tscn" id="20_ax1hr"]
 [ext_resource type="Script" uid="uid://bi61p62xy3sjt" path="res://scenes/debug/dialogue_test_button.gd" id="27_rbjkh"]
 [ext_resource type="Theme" uid="uid://b87llggw1n1df" path="res://resources/themes/base_theme.tres" id="27_xi4na"]
@@ -32,6 +37,40 @@
 [ext_resource type="Texture2D" uid="uid://bhdufq5sfxngf" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_stroke_basic.png" id="31_ihw70"]
 [ext_resource type="PackedScene" uid="uid://blpwt3dawinnk" path="res://scenes/ui/dialogue/dialogue_ui.tscn" id="31_pwgrr"]
 [ext_resource type="Texture2D" uid="uid://bgqcm8i82101" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_hp.png" id="32_f7kbw"]
+[ext_resource type="Script" uid="uid://cowftok1eqomp" path="res://scripts/ui/floater_layer.gd" id="33_float"]
+[ext_resource type="Script" uid="uid://4qpgtlym01nh" path="res://scripts/ui/bark_manager.gd" id="34_bark"]
+
+[sub_resource type="Resource" id="Resource_ff43j"]
+script = ExtResource("6_ehhtj")
+effect_name = "Manneslaughter"
+value_source = 15
+base_damage = 20
+dice_count = 0
+metadata/_custom_type_script = "uid://dqmfu54osidoc"
+
+[sub_resource type="Resource" id="Resource_7via1"]
+script = ExtResource("6_ehhtj")
+effect_name = "Taunt All!"
+target = 0
+effect_type = 2
+status_affix = ExtResource("8_kdqbs")
+stack_count = 2
+metadata/_custom_type_script = "uid://dqmfu54osidoc"
+
+[sub_resource type="Resource" id="Resource_jhgyd"]
+script = ExtResource("5_cm22q")
+companion_name = "Manne"
+companion_id = &"manne"
+description = "Wanna armwrestle about it?"
+action_description = "End of Turn: Applies 2 [status:taunt] to all enemies and deals 20% current HP [element:slashing|Slashing Damage]."
+portrait = ExtResource("10_mpe48")
+hp_scaling = 1
+hp_scaling_value = 0.3
+trigger = 1
+action_effects = Array[ExtResource("6_ehhtj")]([SubResource("Resource_ff43j"), SubResource("Resource_7via1")])
+target_rule = 1
+animation_set = ExtResource("9_onw00")
+metadata/_custom_type_script = "uid://pc0eo2522dpe"
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_n6w2t"]
 
@@ -66,11 +105,13 @@ texture = ExtResource("6_0krdv")
 
 [node name="GameRoot" type="Node"]
 script = ExtResource("1_pevc5")
+starting_map = ExtResource("2_pwgrr")
 dev_mode = true
-dev_level = 1
-dev_dice = Array[ExtResource("2_cm22q")]([ExtResource("3_d0whc")])
-dev_item_level = 1
-dev_companions = Array[ExtResource("9_nmlv8")]([ExtResource("10_xskmf")])
+dev_level = 5
+dev_items = Array[ExtResource("19_ctngu")]([ExtResource("4_xi4na")])
+dev_item_level = 5
+dev_companions = Array[ExtResource("5_cm22q")]([SubResource("Resource_jhgyd")])
+dev_camp_companions = Array[ExtResource("5_cm22q")]([SubResource("Resource_jhgyd"), SubResource("Resource_jhgyd")])
 
 [node name="GameCamera" type="Camera2D" parent="."]
 script = ExtResource("2_i88f8")
@@ -79,6 +120,7 @@ extra_offset_y = -200.0
 [node name="MapLayer" type="CanvasLayer" parent="."]
 
 [node name="MapScene" parent="MapLayer" instance=ExtResource("4_0krdv")]
+default_lighting_config = null
 
 [node name="DungeonLayer" type="Node2D" parent="."]
 
@@ -130,6 +172,8 @@ custom_minimum_size = Vector2(400, 400)
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("6_elccf")
+metadata/floater_rise_distance = 300.0
+metadata/floater_origin_y_factor = 0.25
 
 [node name="BackPanel" type="Panel" parent="PersistentUILayer/PortraitVBox/PortraitContainer"]
 layout_mode = 1
@@ -415,6 +459,12 @@ layout_mode = 2
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.5
 
+[node name="FloaterLayer" type="Node" parent="PersistentUILayer"]
+script = ExtResource("33_float")
+
+[node name="BarkManager" type="Node" parent="PersistentUILayer"]
+script = ExtResource("34_bark")
+
 [node name="PlayerMenu" parent="PersistentUILayer" instance=ExtResource("11_c2lvh")]
 visible = false
 
@@ -466,3 +516,7 @@ grow_vertical = 2
 layer = 110
 
 [node name="DialogueUI" parent="DialogueLayer" instance=ExtResource("31_pwgrr")]
+choice_distances = Array[float]([360.0, 320.0, 360.0])
+choice_angles = Array[float]([-30.0, -90.0, 0.0])
+
+[node name="WorldFXLayer" type="CanvasLayer" parent="."]

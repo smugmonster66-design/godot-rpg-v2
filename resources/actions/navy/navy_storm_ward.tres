@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="Action" load_steps=12 format=3 uid="uid://caru6ervegfqn"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_5ru3f"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_s1hgh"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_vyflg"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_vyflg"]
+[ext_resource type="Resource" uid="uid://bau0ilngqxftf" path="res://resources/statuses/warded.tres" id="4_oid78"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="5_qwecd"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_q75ck"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_cryem"]
+
+[sub_resource type="Resource" id="Resource_5ru3f"]
+script = ExtResource("1_5ru3f")
+condition = 1
+threshold = 0.6
+bonus_value = 25.0
+
+[sub_resource type="Resource" id="Resource_s1hgh"]
+script = ExtResource("1_5ru3f")
+condition = 8
+threshold = 0.0
+status_id = "warded"
+bonus_value = 15.0
+
+[sub_resource type="Resource" id="Resource_vyflg"]
+script = ExtResource("3_vyflg")
+effect_name = "Storm Warded"
+target = 0
+effect_type = 2
+status_affix = ExtResource("4_oid78")
+stack_count = 3
+
+[resource]
+script = ExtResource("7_cryem")
+action_id = "navy_storm_ward"
+action_name = "Storm Ward"
+action_description = "Conjure protective wards."
+action_category = 1
+damage_element = 5
+charge_type = 1
+effects = Array[ExtResource("3_vyflg")]([SubResource("Resource_vyflg")])
+ai_hints = Array[ExtResource("1_5ru3f")]([SubResource("Resource_5ru3f"), SubResource("Resource_s1hgh")])
+action_type = 1

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=15 format=3 uid="uid://bi1upc4nqq26l"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=17 format=3 uid="uid://bi1upc4nqq26l"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_qlr4h"]
 [ext_resource type="Resource" uid="uid://b78ugw6eyfk6i" path="res://resources/actions/items/region_1/longbow_volley_action.tres" id="1_t68ls"]
@@ -9,8 +9,10 @@
 [ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="4_jjthk"]
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="5_t68ls"]
 [ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="6_l1b02"]
+[ext_resource type="PackedScene" uid="uid://de8q4axqsu2ki" path="res://scenes/ui/components/dice/combat/combat_die_d6.tscn" id="6_mfubg"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="7_mfubg"]
 [ext_resource type="Resource" uid="uid://dmbm1ao1pu7q4" path="res://resources/slot_definitions/heavy_slot.tres" id="8_fbby6"]
+[ext_resource type="PackedScene" uid="uid://bxqtkedv2ygd3" path="res://scenes/ui/components/dice/pool/pool_die_d6.tscn" id="10_fbby6"]
 [ext_resource type="Texture2D" uid="uid://cmgkqdkirwvcy" path="res://assets/items/heavy/longbow.png" id="10_t68ls"]
 
 [sub_resource type="Resource" id="Resource_qlr4h"]
@@ -20,6 +22,8 @@ element = 3
 element_affix = ExtResource("3_dq1qn")
 fill_texture = ExtResource("4_jjthk")
 stroke_texture = ExtResource("6_l1b02")
+combat_die_scene = ExtResource("6_mfubg")
+pool_die_scene = ExtResource("10_fbby6")
 
 [sub_resource type="Resource" id="Resource_ur0jj"]
 script = ExtResource("2_ur0jj")
@@ -28,6 +32,8 @@ element = 3
 element_affix = ExtResource("3_dq1qn")
 fill_texture = ExtResource("4_jjthk")
 stroke_texture = ExtResource("6_l1b02")
+combat_die_scene = ExtResource("6_mfubg")
+pool_die_scene = ExtResource("10_fbby6")
 
 [resource]
 script = ExtResource("7_mfubg")

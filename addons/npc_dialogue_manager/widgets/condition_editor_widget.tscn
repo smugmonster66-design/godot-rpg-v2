@@ -1,0 +1,169 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/npc_dialogue_manager/widgets/condition_editor_widget.gd" id="1_script"]
+
+[node name="ConditionEditorWidget" type="VBoxContainer"]
+layout_mode = 2
+script = ExtResource("1_script")
+
+[node name="TopRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="ModeLabel" type="Label" parent="TopRow"]
+layout_mode = 2
+text = "Mode:"
+
+[node name="ModeDropdown" type="OptionButton" parent="TopRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="InvertCheck" type="CheckBox" parent="TopRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Invert"
+tooltip_text = "Negate the condition result"
+
+[node name="SingleContainer" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TypeRow" type="HBoxContainer" parent="SingleContainer"]
+layout_mode = 2
+
+[node name="TypeLabel" type="Label" parent="SingleContainer/TypeRow"]
+layout_mode = 2
+text = "Type:"
+
+[node name="TypeDropdown" type="OptionButton" parent="SingleContainer/TypeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="KeyRow" type="HBoxContainer" parent="SingleContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="KeyLabel" type="Label" parent="SingleContainer/KeyRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Key:"
+
+[node name="KeyEdit" type="LineEdit" parent="SingleContainer/KeyRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "key"
+
+[node name="QuestDropdownRow" type="HBoxContainer" parent="SingleContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="QuestLabel" type="Label" parent="SingleContainer/QuestDropdownRow"]
+layout_mode = 2
+text = "Quest:"
+
+[node name="QuestDropdown" type="OptionButton" parent="SingleContainer/QuestDropdownRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ObjectiveRow" type="HBoxContainer" parent="SingleContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="ObjectiveLabel" type="Label" parent="SingleContainer/ObjectiveRow"]
+layout_mode = 2
+text = "Objective:"
+
+[node name="ObjectiveDropdown" type="OptionButton" parent="SingleContainer/ObjectiveRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BoolRow" type="HBoxContainer" parent="SingleContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="BoolLabel" type="Label" parent="SingleContainer/BoolRow"]
+layout_mode = 2
+text = "Check:"
+
+[node name="BoolDropdown" type="OptionButton" parent="SingleContainer/BoolRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OperatorRow" type="HBoxContainer" parent="SingleContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="OperatorLabel" type="Label" parent="SingleContainer/OperatorRow"]
+layout_mode = 2
+text = "Operator:"
+
+[node name="OperatorDropdown" type="OptionButton" parent="SingleContainer/OperatorRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ValueRow" type="HBoxContainer" parent="SingleContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="ValueLabel" type="Label" parent="SingleContainer/ValueRow"]
+layout_mode = 2
+text = "Value:"
+
+[node name="ValueSpin" type="SpinBox" parent="SingleContainer/ValueRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = -999.0
+max_value = 9999.0
+
+[node name="QuestStateRow" type="HBoxContainer" parent="SingleContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="QuestStateLabel" type="Label" parent="SingleContainer/QuestStateRow"]
+layout_mode = 2
+text = "State:"
+
+[node name="QuestStateDropdown" type="OptionButton" parent="SingleContainer/QuestStateRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ClassIdRow" type="HBoxContainer" parent="SingleContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="ClassIdLabel" type="Label" parent="SingleContainer/ClassIdRow"]
+layout_mode = 2
+text = "Class ID:"
+
+[node name="ClassIdEdit" type="LineEdit" parent="SingleContainer/ClassIdRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "class_id"
+
+[node name="CompoundContainer" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="AddSubButton" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "+ Add Sub-Condition"

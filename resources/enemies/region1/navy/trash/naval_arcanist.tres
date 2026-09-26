@@ -1,0 +1,91 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=26 format=3 uid="uid://briapl6oc7k72"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_slu4p"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_eq4ic"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="9_mn3y5"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_barrier_int_caster.tres" id="10_4yjyc"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_fire.tres" id="11_852ok"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="12_0phej"]
+[ext_resource type="Resource" uid="uid://dryx3uup40h6u" path="res://resources/affixes/base_stats/enemy/enemy_health_int_caster.tres" id="13_3xa1e"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="14_co5ma"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="15_53kmc"]
+[ext_resource type="PackedScene" uid="uid://de8q4axqsu2ki" path="res://scenes/ui/components/dice/combat/combat_die_d6.tscn" id="16_l1hj5"]
+[ext_resource type="Resource" uid="uid://7voejwf2ow1m" path="res://resources/affixes/elements/fire_element.tres" id="17_s7quc"]
+[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="18_7sy17"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="19_y21j8"]
+[ext_resource type="PackedScene" uid="uid://bxqtkedv2ygd3" path="res://scenes/ui/components/dice/pool/pool_die_d6.tscn" id="20_bwu2l"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="20_pjdtf"]
+[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="21_8ojqp"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="21_utcki"]
+[ext_resource type="Resource" uid="uid://dayw6ar4mjdg7" path="res://resources/enemy_templates/caster_int.tres" id="22_urfdn"]
+[ext_resource type="Resource" uid="uid://btrq8vayh3p8i" path="res://resources/actions/navy/navy_arcane_barrage.tres" id="32_arcane_b"]
+[ext_resource type="Resource" uid="uid://cac6ab6uv1v37" path="res://resources/actions/navy/navy_focused_salvo.tres" id="33_focused_"]
+
+[sub_resource type="Resource" id="Resource_cd037"]
+script = ExtResource("1_slu4p")
+element_preference = 0.8
+
+[sub_resource type="Resource" id="Resource_mjne8"]
+script = ExtResource("19_y21j8")
+affix_name = "Lingering Flame"
+description = "Last die used applies Burn to enemy."
+trigger = 1
+position_requirement = 2
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "burn",
+"target": "enemy"
+}
+
+[sub_resource type="Resource" id="Resource_mn3y5"]
+script = ExtResource("15_53kmc")
+display_name = "Fire D6"
+element = 4
+element_affix = ExtResource("17_s7quc")
+fill_texture = ExtResource("18_7sy17")
+stroke_texture = ExtResource("21_8ojqp")
+combat_die_scene = ExtResource("16_l1hj5")
+pool_die_scene = ExtResource("20_bwu2l")
+inherent_affixes = Array[ExtResource("19_y21j8")]([SubResource("Resource_mjne8")])
+
+[sub_resource type="Resource" id="Resource_4yjyc"]
+script = ExtResource("19_y21j8")
+affix_name = "Lingering Flame"
+description = "Last die used applies Burn to enemy."
+trigger = 1
+position_requirement = 2
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "burn",
+"target": "enemy"
+}
+
+[sub_resource type="Resource" id="Resource_852ok"]
+script = ExtResource("15_53kmc")
+display_name = "Fire D6"
+element = 4
+element_affix = ExtResource("17_s7quc")
+fill_texture = ExtResource("18_7sy17")
+stroke_texture = ExtResource("21_8ojqp")
+combat_die_scene = ExtResource("16_l1hj5")
+pool_die_scene = ExtResource("20_bwu2l")
+inherent_affixes = Array[ExtResource("19_y21j8")]([SubResource("Resource_4yjyc")])
+
+[resource]
+script = ExtResource("14_co5ma")
+enemy_name = "Naval Arcanist"
+description = "Sanctum Navy Naval Arcanist."
+template = ExtResource("22_urfdn")
+combat_role = 2
+starting_dice = Array[ExtResource("15_53kmc")]([SubResource("Resource_mn3y5"), SubResource("Resource_852ok")])
+combat_actions = Array[ExtResource("2_eq4ic")]([ExtResource("32_arcane_b"), ExtResource("33_focused_")])
+ai_config = SubResource("Resource_cd037")
+action_delay = 0.7
+dice_drag_duration = 0.35
+gold_reward_min = 3
+gold_reward_max = 10
+enemy_archetype = 3
+health_affix = ExtResource("13_3xa1e")
+enemy_affixes = Array[ExtResource("9_mn3y5")]([ExtResource("10_4yjyc"), ExtResource("11_852ok")])

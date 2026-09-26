@@ -90,7 +90,8 @@ func show_for_status(instance: Dictionary, anchor_pos: Vector2) -> void:
 	else:
 		name_label.theme_type_variation = "TooltipBuffLabel"
 
-	desc_label.text = affix.description if affix.description else "No description."
+	desc_label.clear()
+	desc_label.append_text(DescriptionParser.parse(affix.description) if affix.description else "No description.")
 
 	# Stats
 	var stacks: int = instance.get("current_stacks", 0)

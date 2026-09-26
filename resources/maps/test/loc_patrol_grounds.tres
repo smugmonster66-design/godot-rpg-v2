@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="LocationNode" load_steps=3 format=3 uid="uid://bsimp3mgjclgx"]
+
+[ext_resource type="Script" uid="uid://dgamp5w74kvwa" path="res://resources/data/location_node.gd" id="1_locscript"]
+[ext_resource type="Script" uid="uid://bvx6wd14mcwlb" path="res://resources/data/map_node_button_def.gd" id="2_0bkws"]
+
+[resource]
+script = ExtResource("1_locscript")
+location_id = &"loc_patrol_grounds"
+display_name = "Patrol Grounds"
+node_type = 4
+map_node_category = 2
+description = "Open scrubland patrolled by Sanctum soldiers. Dangerous to cross alone."
+map_position = Vector2(2198.8784, 2773.081)
+connections = Array[StringName]([&"loc_crossroads"])
+initial_visibility = 2
+safe_zone = false

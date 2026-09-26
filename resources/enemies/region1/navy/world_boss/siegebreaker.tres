@@ -1,0 +1,224 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=40 format=3 uid="uid://cplmrli8q7qgp"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_ljwdd"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_ul8cu"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="10_uijtg"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_barrier_int_skirmisher.tres" id="11_r8mpl"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_shock.tres" id="12_afb7l"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="13_tb4b6"]
+[ext_resource type="Resource" uid="uid://cneee54ixptk" path="res://resources/affixes/base_stats/enemy/enemy_health_int_skirmisher.tres" id="14_um5yh"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="15_abm18"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="16_ki3jj"]
+[ext_resource type="PackedScene" uid="uid://c457eolhd5tul" path="res://scenes/ui/components/dice/combat/combat_die_d12.tscn" id="17_113ls"]
+[ext_resource type="Resource" uid="uid://bgw24wqldi0fd" path="res://resources/affixes/elements/shock_element.tres" id="18_jsaq0"]
+[ext_resource type="Texture2D" uid="uid://r7bikgya1ua8" path="res://assets/dice/d12s/d12-basic-fill.png" id="19_5qkoh"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="20_42k7n"]
+[ext_resource type="PackedScene" uid="uid://yqcuq20fomfu" path="res://scenes/ui/components/dice/pool/pool_die_d12.tscn" id="21_1euih"]
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="21_kigcv"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="22_bikks"]
+[ext_resource type="Texture2D" uid="uid://d3cgge7kyfsqd" path="res://assets/dice/d12s/d12-basic-stroke.png" id="22_hb2jh"]
+[ext_resource type="Resource" uid="uid://dvrwpotgjid2c" path="res://resources/enemy_templates/skirmisher_int.tres" id="23_cv3co"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="23_e20b0"]
+[ext_resource type="Resource" uid="uid://b1ppk27q5pu1k" path="res://resources/actions/navy/navy_disruption_bolt.tres" id="33_disrupti"]
+[ext_resource type="Resource" uid="uid://0v6245fi38ip" path="res://resources/actions/navy/navy_strip_wards.tres" id="34_strip_wa"]
+[ext_resource type="Resource" uid="uid://cju6bkpgqju" path="res://resources/actions/navy/navy_overload.tres" id="35_overload"]
+
+[sub_resource type="Resource" id="Resource_ux2uo"]
+script = ExtResource("1_ljwdd")
+element_preference = 0.6
+heal_urgency = 0.3
+status_awareness = 0.8
+
+
+[sub_resource type="Resource" id="Resource_o8tq6"]
+script = ExtResource("21_kigcv")
+type = 21
+condition_status_id = "corrode"
+
+
+[sub_resource type="Resource" id="Resource_h8een"]
+script = ExtResource("20_42k7n")
+affix_name = "Disruptor Pulse"
+description = "First die used applies Corrode if target already has Corrode."
+trigger = 1
+position_requirement = 1
+condition = SubResource("Resource_o8tq6")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "corrode",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_7ykks"]
+script = ExtResource("16_ki3jj")
+display_name = "Shock D12"
+die_type = 12
+element = 6
+element_affix = ExtResource("18_jsaq0")
+fill_texture = ExtResource("19_5qkoh")
+stroke_texture = ExtResource("22_hb2jh")
+combat_die_scene = ExtResource("17_113ls")
+pool_die_scene = ExtResource("21_1euih")
+inherent_affixes = Array[ExtResource("20_42k7n")]([SubResource("Resource_h8een")])
+
+
+[sub_resource type="Resource" id="Resource_uijtg"]
+script = ExtResource("21_kigcv")
+type = 21
+condition_status_id = "corrode"
+
+
+[sub_resource type="Resource" id="Resource_r8mpl"]
+script = ExtResource("20_42k7n")
+affix_name = "Disruptor Pulse"
+description = "First die used applies Corrode if target already has Corrode."
+trigger = 1
+position_requirement = 1
+condition = SubResource("Resource_uijtg")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "corrode",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_afb7l"]
+script = ExtResource("16_ki3jj")
+display_name = "Shock D12"
+die_type = 12
+element = 6
+element_affix = ExtResource("18_jsaq0")
+fill_texture = ExtResource("19_5qkoh")
+stroke_texture = ExtResource("22_hb2jh")
+combat_die_scene = ExtResource("17_113ls")
+pool_die_scene = ExtResource("21_1euih")
+inherent_affixes = Array[ExtResource("20_42k7n")]([SubResource("Resource_r8mpl")])
+
+
+[sub_resource type="Resource" id="Resource_tb4b6"]
+script = ExtResource("21_kigcv")
+type = 21
+condition_status_id = "corrode"
+
+
+[sub_resource type="Resource" id="Resource_um5yh"]
+script = ExtResource("20_42k7n")
+affix_name = "Disruptor Pulse"
+description = "First die used applies Corrode if target already has Corrode."
+trigger = 1
+position_requirement = 1
+condition = SubResource("Resource_tb4b6")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "corrode",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_abm18"]
+script = ExtResource("16_ki3jj")
+display_name = "Shock D12"
+die_type = 12
+element = 6
+element_affix = ExtResource("18_jsaq0")
+fill_texture = ExtResource("19_5qkoh")
+stroke_texture = ExtResource("22_hb2jh")
+combat_die_scene = ExtResource("17_113ls")
+pool_die_scene = ExtResource("21_1euih")
+inherent_affixes = Array[ExtResource("20_42k7n")]([SubResource("Resource_um5yh")])
+
+
+[sub_resource type="Resource" id="Resource_ki3jj"]
+script = ExtResource("21_kigcv")
+type = 21
+condition_status_id = "corrode"
+
+
+[sub_resource type="Resource" id="Resource_113ls"]
+script = ExtResource("20_42k7n")
+affix_name = "Disruptor Pulse"
+description = "First die used applies Corrode if target already has Corrode."
+trigger = 1
+position_requirement = 1
+condition = SubResource("Resource_ki3jj")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "corrode",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_jsaq0"]
+script = ExtResource("16_ki3jj")
+display_name = "Shock D12"
+die_type = 12
+element = 6
+element_affix = ExtResource("18_jsaq0")
+fill_texture = ExtResource("19_5qkoh")
+stroke_texture = ExtResource("22_hb2jh")
+combat_die_scene = ExtResource("17_113ls")
+pool_die_scene = ExtResource("21_1euih")
+inherent_affixes = Array[ExtResource("20_42k7n")]([SubResource("Resource_113ls")])
+
+
+[sub_resource type="Resource" id="Resource_5qkoh"]
+script = ExtResource("21_kigcv")
+type = 21
+condition_status_id = "corrode"
+
+
+[sub_resource type="Resource" id="Resource_42k7n"]
+script = ExtResource("20_42k7n")
+affix_name = "Disruptor Pulse"
+description = "First die used applies Corrode if target already has Corrode."
+trigger = 1
+position_requirement = 1
+condition = SubResource("Resource_5qkoh")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "corrode",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_1euih"]
+script = ExtResource("16_ki3jj")
+display_name = "Shock D12"
+die_type = 12
+element = 6
+element_affix = ExtResource("18_jsaq0")
+fill_texture = ExtResource("19_5qkoh")
+stroke_texture = ExtResource("22_hb2jh")
+combat_die_scene = ExtResource("17_113ls")
+pool_die_scene = ExtResource("21_1euih")
+inherent_affixes = Array[ExtResource("20_42k7n")]([SubResource("Resource_42k7n")])
+
+
+[resource]
+script = ExtResource("15_abm18")
+enemy_name = "Siegebreaker"
+description = "Sanctum Navy Siegebreaker."
+template = ExtResource("23_cv3co")
+combat_role = 1
+enemy_tags = PackedStringArray("navy", "humanoid")
+max_health = 60
+starting_dice = Array[ExtResource("16_ki3jj")]([SubResource("Resource_7ykks"), SubResource("Resource_afb7l"), SubResource("Resource_abm18"), SubResource("Resource_jsaq0"), SubResource("Resource_1euih")])
+combat_actions = Array[ExtResource("2_ul8cu")]([ExtResource("33_disrupti"), ExtResource("34_strip_wa"), ExtResource("35_overload")])
+ai_config = SubResource("Resource_ux2uo")
+action_delay = 0.6
+dice_drag_duration = 0.35
+experience_reward = 500
+gold_reward_min = 150
+gold_reward_max = 500
+enemy_tier = 4
+enemy_archetype = 3
+enemy_level_floor = 12
+level_scaling_multiplier = 1.2
+health_affix = ExtResource("14_um5yh")
+enemy_affixes = Array[ExtResource("10_uijtg")]([ExtResource("11_r8mpl"), ExtResource("12_afb7l")])

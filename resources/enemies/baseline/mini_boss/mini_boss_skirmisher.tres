@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://d1wtwajyqh8vw"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3 uid="uid://d1wtwajyqh8vw"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_vlm7l"]
 [ext_resource type="Resource" uid="uid://bbxydxonqjqr1" path="res://resources/actions/enemy_base/stab.tres" id="2_0x24n"]
@@ -11,6 +11,9 @@
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_qqwtk"]
 [ext_resource type="Resource" uid="uid://cd5t4lgwe543g" path="res://resources/dice/base/d8_slashing.tres" id="9_oiyew"]
 [ext_resource type="Resource" uid="uid://cupp6q7klqtkq" path="res://resources/enemy_templates/skirmisher_agi.tres" id="10_vajdd"]
+
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_armor_agi_skirmisher.tres" id="11_armor"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_slashing.tres" id="12_dmg"]
 
 [resource]
 script = ExtResource("7_e7uyd")
@@ -33,3 +36,4 @@ enemy_archetype = 2
 enemy_level_floor = 5
 level_scaling_multiplier = 1.0
 health_affix = ExtResource("6_ycmp3")
+enemy_affixes = Array[ExtResource("5_4n338")]([ExtResource("11_armor"), ExtResource("12_dmg")])

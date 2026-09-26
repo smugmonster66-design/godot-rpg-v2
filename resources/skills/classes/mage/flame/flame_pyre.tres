@@ -1,0 +1,55 @@
+[gd_resource type="Resource" script_class="SkillResource" load_steps=15 format=3 uid="uid://xjd6kfs72o3"]
+
+[ext_resource type="Texture2D" uid="uid://bscudf75ns0ci" path="res://assets/icons/classes/mage/flame/pyre_skill.png" id="1_oh0ht"]
+[ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_ydlvv"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_sxiq8"]
+[ext_resource type="Resource" uid="uid://qrimi5gsmaum" path="res://resources/affixes/classes/mage/flame/pyre/pyre_r1_affix.tres" id="3_4c30n"]
+[ext_resource type="Resource" uid="uid://bc4chlrrfg7v6" path="res://resources/affixes/classes/mage/flame/ignite/ignite_element_unlock.tres" id="3_6rna8"]
+[ext_resource type="Resource" uid="uid://bmdqsm1xpullf" path="res://resources/affixes/classes/mage/flame/pyre/pyre_r2_affix.tres" id="4_ci7ia"]
+[ext_resource type="Resource" uid="uid://bi5k8byflnlcw" path="res://resources/affixes/classes/mage/flame/ignite/ignite_ca_affix.tres" id="4_oh0ht"]
+[ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="5_6rna8"]
+[ext_resource type="Resource" uid="uid://dvpk14np0sta2" path="res://resources/affixes/classes/mage/flame/accelerant/accelerant_r1_affix.tres" id="6_yr8qx"]
+[ext_resource type="Resource" uid="uid://3mjkcbv2p4pk" path="res://resources/affixes/classes/mage/flame/accelerant/accelerant_r2_affix.tres" id="7_qw7ef"]
+
+[sub_resource type="Resource" id="Resource_dfa1s"]
+script = ExtResource("5_6rna8")
+skill_id = "flame_ignite"
+skill_name = "Ignite"
+description = "Unlock [element:fire] mana. Chromatic Bolt applies 1 [status:burn] on hit (requires fire die)."
+column = 3
+rank_1_affixes = Array[ExtResource("2_sxiq8")]([ExtResource("3_6rna8"), ExtResource("4_oh0ht")])
+
+[sub_resource type="Resource" id="Resource_8mp5g"]
+script = ExtResource("1_ydlvv")
+required_skill = SubResource("Resource_dfa1s")
+
+[sub_resource type="Resource" id="Resource_xmmgi"]
+script = ExtResource("5_6rna8")
+skill_id = "flame_accelerant"
+skill_name = "Accelerant"
+description = "End of turn: gain [color=yellow]1/2[/color] [status:warded] per [status:burn] stack across all enemies."
+skill_category = 1
+tier = 2
+column = 5
+prerequisites = Array[ExtResource("1_ydlvv")]([SubResource("Resource_8mp5g")])
+tree_points_required = 1
+rank_1_affixes = Array[ExtResource("2_sxiq8")]([ExtResource("6_yr8qx")])
+rank_2_affixes = Array[ExtResource("2_sxiq8")]([ExtResource("7_qw7ef")])
+
+[sub_resource type="Resource" id="Resource_36m2p"]
+script = ExtResource("1_ydlvv")
+required_skill = SubResource("Resource_xmmgi")
+
+[resource]
+script = ExtResource("5_6rna8")
+skill_id = "flame_pyre"
+skill_name = "Pyre"
+icon = ExtResource("1_oh0ht")
+description = "When you take [status:burn] tick damage: heal [color=yellow]1/2[/color] HP."
+skill_category = 1
+tier = 4
+column = 5
+prerequisites = Array[ExtResource("1_ydlvv")]([SubResource("Resource_36m2p")])
+tree_points_required = 6
+rank_1_affixes = Array[ExtResource("2_sxiq8")]([ExtResource("3_4c30n")])
+rank_2_affixes = Array[ExtResource("2_sxiq8")]([ExtResource("4_ci7ia")])

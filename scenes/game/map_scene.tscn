@@ -1,36 +1,211 @@
-[gd_scene load_steps=2 format=3 uid="uid://cx781vq4omutw"]
+[gd_scene load_steps=22 format=3 uid="uid://cx781vq4omutw"]
 
-[ext_resource type="Script" uid="uid://ex7lxpkjwyaa" path="res://scripts/game/map_manager.gd" id="1_yjpty"]
+[ext_resource type="Script" uid="uid://b7ndi1vf6qo2p" path="res://scripts/game/map_scene.gd" id="1_script"]
+[ext_resource type="Resource" path="res://resources/maps/default_lighting_config.tres" id="8_default_lighting"]
+[ext_resource type="Script" uid="uid://c5cbol06e8xfc" path="res://scripts/ui/map/map_paths_drawer.gd" id="2_paths"]
+[ext_resource type="Shader" uid="uid://3tgb4sc3yx4q" path="res://shaders/map_lighting.gdshader" id="3_lighting"]
+[ext_resource type="Texture2D" uid="uid://b2gdw88v14eng" path="res://assets/spriteframes/effects/293.png" id="4_3c4m5"]
+[ext_resource type="PackedScene" uid="uid://co2swkgmc6f5l" path="res://scenes/ui/map/map_top_bar.tscn" id="4_top_bar"]
+[ext_resource type="Shader" uid="uid://bgun0mfi4n8w8" path="res://shaders/map_light_rays.gdshader" id="5_rays"]
+[ext_resource type="Shader" uid="uid://cqdp5iyg45skj" path="res://shaders/map_drop_shadow.gdshader" id="6_shadow"]
 
-[node name="MapScene" type="Node2D"]
-script = ExtResource("1_yjpty")
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_player_shadow"]
+shader = ExtResource("6_shadow")
+shader_parameter/shadow_direction = Vector2(-0.707, -0.707)
+shader_parameter/shadow_offset_px = 6.0
+shader_parameter/shadow_opacity = 0.4
+shader_parameter/shadow_softness_px = 2.0
 
-[node name="MapNodesContainer" type="Node2D" parent="."]
+[sub_resource type="AtlasTexture" id="AtlasTexture_bg5j8"]
+atlas = ExtResource("4_3c4m5")
+region = Rect2(0, 128, 64, 64)
 
-[node name="TownNode" type="Node2D" parent="MapNodesContainer"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_t547c"]
+atlas = ExtResource("4_3c4m5")
+region = Rect2(64, 128, 64, 64)
 
-[node name="Sprite2D" type="Sprite2D" parent="MapNodesContainer/TownNode"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_o83tl"]
+atlas = ExtResource("4_3c4m5")
+region = Rect2(128, 128, 64, 64)
 
-[node name="Area2D" type="Area2D" parent="MapNodesContainer/TownNode"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_5osyn"]
+atlas = ExtResource("4_3c4m5")
+region = Rect2(192, 128, 64, 64)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="MapNodesContainer/TownNode/Area2D"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_exaij"]
+atlas = ExtResource("4_3c4m5")
+region = Rect2(256, 128, 64, 64)
 
-[node name="ForestNode" type="Node2D" parent="MapNodesContainer"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_pbivx"]
+atlas = ExtResource("4_3c4m5")
+region = Rect2(320, 128, 64, 64)
 
-[node name="Sprite2D" type="Sprite2D" parent="MapNodesContainer/ForestNode"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_myjuj"]
+atlas = ExtResource("4_3c4m5")
+region = Rect2(384, 128, 64, 64)
 
-[node name="Area2D" type="Area2D" parent="MapNodesContainer/ForestNode"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_6le5m"]
+atlas = ExtResource("4_3c4m5")
+region = Rect2(448, 128, 64, 64)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="MapNodesContainer/ForestNode/Area2D"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_p04q1"]
+atlas = ExtResource("4_3c4m5")
+region = Rect2(512, 128, 64, 64)
 
-[node name="DungeonNode" type="Node2D" parent="MapNodesContainer"]
+[sub_resource type="SpriteFrames" id="SpriteFrames_ye86k"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bg5j8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t547c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_o83tl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5osyn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_exaij")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pbivx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_myjuj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6le5m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p04q1")
+}],
+"loop": true,
+"name": &"default",
+"speed": 24.0
+}]
 
-[node name="Sprite2D" type="Sprite2D" parent="MapNodesContainer/DungeonNode"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rays"]
+shader = ExtResource("5_rays")
+shader_parameter/light_direction = Vector2(-0.707, -0.707)
+shader_parameter/ray_color = Color(1, 0.95, 0.8, 0.3)
+shader_parameter/energy = 0.5
+shader_parameter/ray_density = 6.0
+shader_parameter/ray_softness = 0.5
 
-[node name="Area2D" type="Area2D" parent="MapNodesContainer/DungeonNode"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lighting"]
+shader = ExtResource("3_lighting")
+shader_parameter/ambient_color = Color(0.15, 0.1, 0.2, 0.6)
+shader_parameter/vignette_strength = 0.3
+shader_parameter/vignette_softness = 0.4
+shader_parameter/light_count = 0
+shader_parameter/light_positions = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/light_colors = PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/light_energies = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/light_radii = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="MapNodesContainer/DungeonNode/Area2D"]
+[node name="MapScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_script")
+default_lighting_config = ExtResource("8_default_lighting")
+travel_speed = 400.0
 
-[node name="PathLines" type="Node2D" parent="."]
+[node name="MapContent" type="Control" parent="."]
+anchors_preset = 0
+mouse_filter = 1
 
-[node name="PlayerIcon" type="Node2D" parent="."]
+[node name="MapBackground" type="TextureRect" parent="MapContent"]
+layout_mode = 0
+mouse_filter = 2
+
+[node name="PathsDrawer" type="Control" parent="MapContent"]
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_paths")
+
+[node name="ShadowLayer" type="Control" parent="MapContent"]
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="DecorLayer" type="Control" parent="MapContent"]
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="NodesLayer" type="Control" parent="MapContent"]
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="MarkersLayer" type="Control" parent="MapContent"]
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PlayerMarker" type="Control" parent="MapContent/MarkersLayer"]
+visible = false
+custom_minimum_size = Vector2(32, 32)
+anchors_preset = 0
+
+[node name="PlayerMapSprite" type="AnimatedSprite2D" parent="MapContent/MarkersLayer/PlayerMarker"]
+material = SubResource("ShaderMaterial_player_shadow")
+position = Vector2(16, 16)
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_ye86k")
+autoplay = "default"
+frame_progress = 0.48577026
+
+[node name="LightRaysOverlay" type="ColorRect" parent="MapContent"]
+visible = false
+material = SubResource("ShaderMaterial_rays")
+layout_mode = 0
+offset_right = 4000.0
+offset_bottom = 8000.0
+mouse_filter = 2
+
+[node name="LightingOverlay" type="ColorRect" parent="MapContent"]
+visible = false
+material = SubResource("ShaderMaterial_lighting")
+layout_mode = 0
+offset_right = 4000.0
+offset_bottom = 8000.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="MapTopBar" parent="UILayer" instance=ExtResource("4_top_bar")]
+
+[node name="LeaveZoneButton" type="Button" parent="UILayer"]
+visible = false
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 160.0
+offset_bottom = 60.0
+text = "< Leave Zone"

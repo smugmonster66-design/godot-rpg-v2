@@ -26,6 +26,13 @@ class_name DiceAffixProcessor
 signal affix_activated(die: DieResource, affix: DiceAffix, targets: Array[int])
 signal effect_applied(die: DieResource, effect_type: DiceAffix.EffectType, value)
 
+# DA-9: Per-turn effect counters for max_per_turn enforcement
+var _turn_effect_counters: Dictionary = {}
+
+func reset_turn_counters() -> void:
+	"""Reset per-turn effect counters. Call at the start of each player turn."""
+	_turn_effect_counters.clear()
+
 # ============================================================================
 # MAIN PROCESSING
 # ============================================================================
@@ -90,7 +97,12 @@ func process_trigger(dice: Array[DieResource], trigger: DiceAffix.Trigger, conte
 		for affix in die.get_all_affixes():
 			if affix.trigger != trigger:
 				continue
-			
+
+			# DA-2: trigger_on_pull — only fire when die is being pulled from mana pool
+			if affix.effect_data.get("trigger_on_pull", false):
+				if not context.get("is_pull", false):
+					continue
+
 			# Check position requirement
 			if not affix.check_position(i, total_dice):
 				continue
@@ -114,6 +126,15 @@ func process_trigger(dice: Array[DieResource], trigger: DiceAffix.Trigger, conte
 				"condition_multiplier": condition_multiplier,
 			})
 	
+	# Snapshot modified_value for every die before the second pass.
+	# _apply_value_percent reads this so that multiple MODIFY_VALUE_PERCENT
+	# sources targeting the same die (e.g. two Commanding dice flanking one
+	# target) contribute additively rather than compounding multiplicatively.
+	var _pct_snap: Dictionary = {}
+	for _psi in range(total_dice):
+		_pct_snap[_psi] = dice[_psi].modified_value
+	result["_pct_snap"] = _pct_snap
+
 	# Second pass: apply effects
 	for activation in activations:
 		var affix: DiceAffix = activation.affix
@@ -255,9 +276,20 @@ func _dispatch_effect(dice: Array[DieResource], source_die: DieResource,
 				print("    🛡️ %s: ON_COMBAT_START flat +%.0f → persistent modifier (slot %d)" % [
 					affix_or_parent.affix_name, resolved_value, target_index])
 			else:
-				_apply_value_flat(target_die, target_index, resolved_value, affix_or_parent, result)
-		
-		
+				# DA-5: Status-scaled value bonus (e.g. Frozen Conduit: +1 per 3 Chill).
+				# Can't resolve at roll time — target unknown. Defer to combat resolution.
+				if edata.has("n_stacks") and edata.has("status_id"):
+					var bonus_edata := {
+						"per_n_stacks": int(edata.get("n_stacks", 1)),
+						"status_id": edata.get("status_id", ""),
+						"element": edata.get("element", ""),
+					}
+					var base_damage: float = edata.get("value_per_n_stacks", resolved_value)
+					_apply_emit_bonus_damage(source_die, target_index, base_damage, bonus_edata, result)
+				else:
+					_apply_value_flat(target_die, target_index, resolved_value, affix_or_parent, result)
+
+
 		DiceAffix.EffectType.MODIFY_VALUE_PERCENT:
 			if affix_or_parent.trigger == DiceAffix.Trigger.ON_COMBAT_START:
 				var mod = CombatModifier.new()
@@ -345,8 +377,7 @@ func _dispatch_effect(dice: Array[DieResource], source_die: DieResource,
 			_apply_randomize_element(target_die, target_index, elements, result)
 		
 		DiceAffix.EffectType.LEECH_HEAL:
-			var percent = edata.get("percent", resolved_value)
-			_apply_leech_heal(target_die, target_index, percent, result)
+			_apply_leech_heal(target_die, target_index, resolved_value, edata, result)
 		
 		DiceAffix.EffectType.DESTROY_SELF:
 			_apply_destroy_self(source_die, source_die.slot_index, result)
@@ -380,7 +411,7 @@ func _dispatch_effect(dice: Array[DieResource], source_die: DieResource,
 			_apply_mana_refund(source_die, target_index, resolved_value, result)
 		
 		DiceAffix.EffectType.MANA_GAIN:
-			_apply_mana_gain(source_die, target_index, resolved_value, result)
+			_apply_mana_gain(source_die, target_index, resolved_value, edata, affix_or_parent, result)
 		
 		# --- Dice Manipulation (v4) ---
 		DiceAffix.EffectType.ROLL_KEEP_HIGHEST:
@@ -509,6 +540,9 @@ func _apply_set_roll_value(die: DieResource, index: int, value: float, affix: Di
 	else:
 		final_value = int(value)
 	die.forced_roll_value = final_value
+	# Also set the current value immediately so ON_ROLL processing
+	# (which runs after roll()) can affect conditions like SELF_VALUE_IS_MAX
+	die.set_value(final_value)
 	result.special_effects.append({
 		"type": "set_roll_value",
 		"die_index": index,
@@ -538,22 +572,45 @@ func _apply_value_flat(die: DieResource, index: int, value: float, affix: DiceAf
 
 func _apply_value_percent(die: DieResource, index: int, value: float, affix: DiceAffix, result: Dictionary):
 	"""Apply percentage value modification.
-	Guarantees at least +1/-1 change when value != 1.0 to prevent
-	truncation zeroing out small-die bonuses (e.g. D4 roll 1 × 1.65 = 1)."""
-	var old_value = die.modified_value
-	die.apply_percent_modifier(value)
-	# Floor: if the multiplier should change the value but truncation ate it
-	if die.modified_value == old_value and value != 1.0 and old_value > 0:
-		if value > 1.0:
-			die.modified_value = old_value + 1
-		elif value < 1.0:
-			die.modified_value = maxi(old_value - 1, 0)
-	
+
+	Value encoding:
+	  value >= 2.0  → percent-integer  (e.g. 25 means +25%, multiplier = 1.25)
+	  value <  2.0  → direct multiplier (e.g. 1.65 means ×1.65, legacy format)
+
+	If result["_pct_snap"] is present, the bonus is computed from the snapshot
+	value (pre-pass) and added flat to the current modified_value.  This makes
+	multiple MODIFY_VALUE_PERCENT sources on the same target stack additively
+	instead of compounding multiplicatively.
+
+	Guarantees at least ±1 when the multiplier would otherwise be eaten by
+	integer truncation (e.g. D4 roll 1 × 1.25 = 1.25 → 1, no change)."""
+	# Normalise: percent-integer (25) → multiplier (1.25)
+	var multiplier: float = 1.0 + value / 100.0 if value >= 2.0 else value
+
+	var old_value: int = die.modified_value
+	var snap: Dictionary = result.get("_pct_snap", {})
+	if snap.has(index):
+		# Additive path: each source contributes (multiplier-1) × snapshot_value
+		# as a flat bonus, so two ×1.25 sources give +25%+25% = ×1.5 not ×1.5625.
+		var snap_val: int = snap[index]
+		var bonus: int = int(snap_val * (multiplier - 1.0))
+		if bonus == 0 and multiplier != 1.0 and snap_val > 0:
+			bonus = 1 if multiplier > 1.0 else -1
+		die.modified_value = maxi(0, die.modified_value + bonus)
+	else:
+		# Fallback (no snapshot available): legacy multiplicative path
+		die.apply_percent_modifier(multiplier)
+		if die.modified_value == old_value and multiplier != 1.0 and old_value > 0:
+			if multiplier > 1.0:
+				die.modified_value = old_value + 1
+			elif multiplier < 1.0:
+				die.modified_value = maxi(old_value - 1, 0)
+
 	if old_value != die.modified_value:
 		_record_value_change(result, index, old_value, die.modified_value)
 		print("    📊 %s: %d -> %d (x%.2f from %s)" % [
 			die.display_name, old_value, die.modified_value,
-			value, affix.affix_name
+			multiplier, affix.affix_name if affix else "?"
 		])
 
 func _apply_set_minimum(die: DieResource, index: int, value: float, result: Dictionary):
@@ -677,21 +734,36 @@ func _apply_change_type(die: DieResource, index: int, new_type: int, result: Dic
 
 func _apply_copy_value(dice: Array[DieResource], source: DieResource, target: DieResource,
 		index: int, affix: DiceAffix, result: Dictionary):
-	"""Copy percentage of neighbor's value"""
+	"""Copy percentage of neighbor's value.
+	DA-20: Supports copy_from=higher_neighbor (picks the higher-valued neighbor)
+	and round_up for ceiling rounding."""
 	var source_index = source.slot_index
+	var edata: Dictionary = affix.effect_data
 	var neighbor: DieResource = null
-	
-	if affix.neighbor_target == DiceAffix.NeighborTarget.LEFT and source_index > 0:
+
+	# DA-20: Pick the higher-valued neighbor
+	if edata.get("copy_from", "") == "higher_neighbor" or \
+			affix.neighbor_target == DiceAffix.NeighborTarget.BOTH_NEIGHBORS:
+		var left: DieResource = dice[source_index - 1] if source_index > 0 else null
+		var right: DieResource = dice[source_index + 1] if source_index < dice.size() - 1 else null
+		if left and right:
+			neighbor = left if left.get_total_value() >= right.get_total_value() else right
+		elif left:
+			neighbor = left
+		elif right:
+			neighbor = right
+	elif affix.neighbor_target == DiceAffix.NeighborTarget.LEFT and source_index > 0:
 		neighbor = dice[source_index - 1]
 	elif affix.neighbor_target == DiceAffix.NeighborTarget.RIGHT and source_index < dice.size() - 1:
 		neighbor = dice[source_index + 1]
-	
+
 	if neighbor:
 		var percent = affix.get_percent()
-		var bonus = int(neighbor.get_total_value() * percent)
+		var raw_bonus: float = neighbor.get_total_value() * percent
+		var bonus: int = ceili(raw_bonus) if edata.get("round_up", false) else int(raw_bonus)
 		var old_value = target.modified_value
 		target.apply_flat_modifier(bonus)
-		
+
 		if bonus > 0:
 			_record_value_change(result, index, old_value, target.modified_value)
 			print("    📊 %s gained +%d (%.0f%% of %s's %d)" % [
@@ -718,14 +790,33 @@ func _apply_damage_type(die: DieResource, index: int, edata: Dictionary, result:
 	die.add_tag(damage_type)
 
 func _apply_status_effect(die: DieResource, index: int, edata: Dictionary, result: Dictionary):
-	"""Store status effect to apply on use"""
-	var status = edata.get("status", {})
-	
-	result.special_effects.append({
+	"""Store status effect to apply on use.
+	Normalizes two data formats:
+	  - Rollable: edata = {"status": "burn"}
+	  - Mage: edata = {"status_id": "chill", "stacks": 2}
+	"""
+	var status_id: String = edata.get("status_id", "")
+	if status_id == "":
+		status_id = str(edata.get("status", ""))
+	var stacks: int = int(edata.get("stacks", 1))
+
+	var effect_dict := {
 		"type": "status_effect",
 		"die_index": index,
-		"status": status
-	})
+		"status_id": status_id,
+		"stacks": stacks,
+	}
+	# Forward optional target routing so CombatManager can pick random_enemy etc.
+	if edata.has("target"):
+		effect_dict["target"] = edata.get("target", "")
+	# DA-7: Spreading Cold splash support
+	if edata.has("splash_percent"):
+		effect_dict["splash_percent"] = edata.get("splash_percent", 0.0)
+		effect_dict["splash_target"] = edata.get("splash_target", "")
+
+	result.special_effects.append(effect_dict)
+	print("    🎯 GRANT_STATUS_EFFECT: %s ×%d (target=%s) on die [%d] %s" % [
+		status_id, stacks, edata.get("target", "enemy"), index, die.display_name])
 
 # ============================================================================
 # NEW v2 EFFECT IMPLEMENTATIONS
@@ -780,15 +871,24 @@ func _get_element_affix(element: int) -> DiceAffix:
 	return load(path) as DiceAffix
 
 
-func _apply_leech_heal(die: DieResource, index: int, percent: float, result: Dictionary):
-	"""Store leech heal data for combat resolution.
-	The CombatManager/Calculator reads this from special_effects after damage."""
-	result.special_effects.append({
+func _apply_leech_heal(die: DieResource, index: int, resolved_value: float, edata: Dictionary, result: Dictionary):
+	"""Store leech/heal data for combat resolution.
+	DA-14: Supports two modes:
+	  - percent (default): heal % of damage dealt (Vampiric)
+	  - flat: heal a fixed amount (Siphoning)"""
+	var mode: String = edata.get("mode", "percent")
+	var effect_dict := {
 		"type": "leech_heal",
 		"die_index": index,
-		"percent": percent
-	})
-	print("    💚 %s will leech %.0f%% of damage as healing" % [die.display_name, percent * 100])
+		"mode": mode,
+	}
+	if mode == "flat":
+		effect_dict["amount"] = int(resolved_value)
+		print("    💚 %s will heal %d flat on use" % [die.display_name, int(resolved_value)])
+	else:
+		effect_dict["percent"] = resolved_value
+		print("    💚 %s will leech %.0f%% of damage as healing" % [die.display_name, resolved_value * 100])
+	result.special_effects.append(effect_dict)
 
 func _apply_destroy_self(die: DieResource, index: int, result: Dictionary):
 	"""Mark this die for permanent removal from the pool after use.
@@ -891,21 +991,43 @@ func _apply_emit_splash(source_die: DieResource, index: int,
 
 func _apply_emit_chain(source_die: DieResource, index: int,
 		resolved_value: float, edata: Dictionary, result: Dictionary):
-	"""Emit a chain damage event. Chains to N targets with decay."""
+	"""Emit a chain damage event. Chains to N targets with decay.
+	DA-3: Meta-effect (applies_to=all_chain_effects) emits modifier instead.
+	DA-8/DA-12: Reads mage keys (chain_count, chain_damage_mult, chain_stacks, etc).
+	DA-16: value_is_fraction multiplies resolved_value by die's total value."""
+	# DA-3: Eye of Storm meta-effect — modifies other chains, not a chain itself
+	if edata.get("applies_to", "") == "all_chain_effects":
+		result.special_effects.append({
+			"type": "chain_modifier",
+			"extra_chain_targets": int(edata.get("extra_chain_targets", 0)),
+		})
+		print("    ⚡ %s queued chain modifier: +%d targets" % [
+			source_die.display_name, int(edata.get("extra_chain_targets", 0))])
+		return
+
+	# DA-16: Fraction-based chain damage (% of die value)
+	if edata.get("value_is_fraction", false):
+		resolved_value = int(source_die.get_total_value() * resolved_value)
+
+	var chains: int = int(edata.get("chain_count", edata.get("chains", 2)))
+	var decay: float = edata.get("chain_damage_mult", edata.get("decay", 0.7))
 	var event = {
 		"type": "chain",
 		"source_die": source_die.display_name,
 		"die_index": index,
 		"damage": resolved_value,
 		"element": edata.get("element", ""),
-		"chains": int(edata.get("chains", 2)),
-		"decay": edata.get("decay", 0.7),
+		"chains": chains,
+		"decay": decay,
+		"chain_stacks": int(edata.get("chain_stacks", 0)),
+		"chain_status": edata.get("chain_status", ""),
+		"extra_chain_targets": int(edata.get("extra_chain_targets", 0)),
 		"chain_animation": edata.get("chain_animation", null),
 	}
 	result.combat_events.append(event)
 	print("    ⚡ %s queued chain: %.0f %s × %d (%.0f%% decay)" % [
 		source_die.display_name, resolved_value, edata.get("element", "?"),
-		event.chains, event.decay * 100])
+		chains, decay * 100])
 
 func _apply_emit_aoe(source_die: DieResource, index: int,
 		resolved_value: float, edata: Dictionary, result: Dictionary):
@@ -923,13 +1045,18 @@ func _apply_emit_aoe(source_die: DieResource, index: int,
 
 func _apply_emit_bonus_damage(source_die: DieResource, index: int,
 		resolved_value: float, edata: Dictionary, result: Dictionary):
-	"""Emit a bonus damage event. Added to primary attack damage."""
+	"""Emit a bonus damage event. Added to primary attack damage.
+	DA-4/DA-6: Passes through stack-scaling keys for combat resolution."""
 	var event = {
 		"type": "bonus_damage",
 		"source_die": source_die.display_name,
 		"die_index": index,
 		"damage": resolved_value,
 		"element": edata.get("element", ""),
+		"per_stack_of": edata.get("per_stack_of", ""),
+		"per_n_stacks": int(edata.get("per_n_stacks", 0)),
+		"status_id": edata.get("status_id", ""),
+		"applies_to": edata.get("applies_to", ""),
 	}
 	result.combat_events.append(event)
 	print("    🔥 %s queued bonus damage: %.0f %s" % [
@@ -953,8 +1080,20 @@ func _apply_mana_refund(source_die: DieResource, index: int,
 		source_die.display_name, resolved_value * 100])
 
 func _apply_mana_gain(source_die: DieResource, index: int,
-		resolved_value: float, result: Dictionary):
-	"""Emit a mana gain event. Adds flat mana to the pool."""
+		resolved_value: float, edata: Dictionary, affix: DiceAffix, result: Dictionary):
+	"""Emit a mana gain event. Adds flat mana to the pool.
+	DA-9: Supports max_per_turn cap via _turn_effect_counters."""
+	# DA-9: Check per-turn limit
+	var max_per_turn: int = int(edata.get("max_per_turn", 0))
+	if max_per_turn > 0:
+		var counter_key: String = "%s_%d" % [affix.affix_name, index]
+		var count: int = _turn_effect_counters.get(counter_key, 0)
+		if count >= max_per_turn:
+			print("    🔮 %s: max_per_turn reached (%d/%d), skipping" % [
+				source_die.display_name, count, max_per_turn])
+			return
+		_turn_effect_counters[counter_key] = count + 1
+
 	var event = {
 		"type": "mana_gain",
 		"source_die": source_die.display_name,

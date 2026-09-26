@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="Action" load_steps=10 format=3 uid="uid://dpwq1uu415clt"]
+[gd_resource type="Resource" script_class="Action" load_steps=11 format=3 uid="uid://dpwq1uu415clt"]
 
 [ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_3kfgh"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_cex7f"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_c2j41"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_rxmcl"]
 [ext_resource type="Resource" uid="uid://kilfjnbqkpbi" path="res://resources/statuses/bleed.tres" id="3_3kfgh"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_3kfgh"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="4_rxmcl"]
@@ -26,5 +27,5 @@ status_affix = ExtResource("3_3kfgh")
 script = ExtResource("5_c2j41")
 action_id = "fan_of_blades"
 action_name = "Fan of Blades"
-action_description = "2 random strikes. Applies 1 Bleed."
+action_description = "2 random strikes. Applies 1 [status:bleed]."
 effects = Array[ExtResource("1_cex7f")]([SubResource("Resource_5436r"), SubResource("Resource_2ste2")])

@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_kxlmc")
 affix_name = "Permafrost Rune II"
-description = "Ice die next to another ice die: both get +2 value."
+description = "[element:ice] die next to another [element:ice] die: both get +2 value."
 category = 39
 tags = Array[String](["mage", "frost", "mana_die_affix", "positional", "ice_synergy"])
 effect_data = {

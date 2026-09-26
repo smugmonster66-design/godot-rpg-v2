@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_7by4w")
 affix_name = "Bonus Damage on Kill"
-description = "+N damage on next attack after kill"
+description = "Deal +N damage to another enemy on kill"
 category = 35
 tags = Array[String](["proc", "damage", "on_kill"])
 effect_min = 2.0
@@ -16,3 +16,4 @@ effect_data = {
 "effect": "bonus_damage_flat"
 }
 proc_trigger = 9
+power_weight = 40.0

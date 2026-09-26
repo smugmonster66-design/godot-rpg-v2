@@ -1,0 +1,100 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=29 format=3 uid="uid://cgtqx5j8jiqqk"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_oci6c"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_ytrwh"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="10_0ddy7"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_armor_agi_brute.tres" id="11_ia8sv"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_piercing.tres" id="12_wna8c"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="13_epm3i"]
+[ext_resource type="Resource" uid="uid://kq714ftw81r7" path="res://resources/affixes/base_stats/enemy/enemy_health_agi_brute.tres" id="14_w3fy1"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="15_p4y27"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="16_dbvs7"]
+[ext_resource type="PackedScene" uid="uid://b4wyrmm8bfq20" path="res://scenes/ui/components/dice/combat/combat_die_d8.tscn" id="17_gjf1s"]
+[ext_resource type="Resource" uid="uid://dc86xxo6gws3l" path="res://resources/affixes/elements/piercing_element.tres" id="18_jh4rw"]
+[ext_resource type="Texture2D" uid="uid://der0rcr1m1pb2" path="res://assets/dice/d8s/d8-fill-basic.png" id="19_6hwr1"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="20_pvvgb"]
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="21_etk6g"]
+[ext_resource type="PackedScene" uid="uid://lx27hjqny6b8" path="res://scenes/ui/components/dice/pool/pool_die_d8.tscn" id="21_gwob2"]
+[ext_resource type="Texture2D" uid="uid://ccv17kswol4os" path="res://assets/dice/d8s/d8-stroke-basic.png" id="22_bin1n"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="22_l1e2n"]
+[ext_resource type="Resource" uid="uid://chq1ry50v1nwr" path="res://resources/enemy_templates/brute_agi.tres" id="23_to5pd"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="23_trymm"]
+[ext_resource type="Resource" uid="uid://05x57d5ehmwg" path="res://resources/actions/navy/navy_lunge.tres" id="33_lunge"]
+[ext_resource type="Resource" uid="uid://elyflnkjt04j" path="res://resources/actions/navy/navy_parry.tres" id="34_parry"]
+
+[sub_resource type="Resource" id="Resource_81gxs"]
+script = ExtResource("1_oci6c")
+element_preference = 0.7
+heal_urgency = 0.4
+status_awareness = 0.6
+
+[sub_resource type="Resource" id="Resource_0ddy7"]
+script = ExtResource("21_etk6g")
+type = 1
+threshold = 4.0
+
+[sub_resource type="Resource" id="Resource_ia8sv"]
+script = ExtResource("20_pvvgb")
+affix_name = "Precise Form"
+description = "Non-first dice get +15% value when value is 4+."
+trigger = 1
+position_requirement = 3
+condition = SubResource("Resource_0ddy7")
+effect_type = 1
+effect_value = 0.15
+
+[sub_resource type="Resource" id="Resource_wna8c"]
+script = ExtResource("16_dbvs7")
+display_name = "Piercing D8"
+die_type = 8
+element = 3
+element_affix = ExtResource("18_jh4rw")
+fill_texture = ExtResource("19_6hwr1")
+stroke_texture = ExtResource("22_bin1n")
+combat_die_scene = ExtResource("17_gjf1s")
+pool_die_scene = ExtResource("21_gwob2")
+inherent_affixes = Array[ExtResource("20_pvvgb")]([SubResource("Resource_ia8sv")])
+
+[sub_resource type="Resource" id="Resource_epm3i"]
+script = ExtResource("21_etk6g")
+type = 1
+threshold = 4.0
+
+[sub_resource type="Resource" id="Resource_w3fy1"]
+script = ExtResource("20_pvvgb")
+affix_name = "Precise Form"
+description = "Non-first dice get +15% value when value is 4+."
+trigger = 1
+position_requirement = 3
+condition = SubResource("Resource_epm3i")
+effect_type = 1
+effect_value = 0.15
+
+[sub_resource type="Resource" id="Resource_p4y27"]
+script = ExtResource("16_dbvs7")
+display_name = "Piercing D8"
+die_type = 8
+element = 3
+element_affix = ExtResource("18_jh4rw")
+fill_texture = ExtResource("19_6hwr1")
+stroke_texture = ExtResource("22_bin1n")
+combat_die_scene = ExtResource("17_gjf1s")
+pool_die_scene = ExtResource("21_gwob2")
+inherent_affixes = Array[ExtResource("20_pvvgb")]([SubResource("Resource_w3fy1")])
+
+[resource]
+script = ExtResource("15_p4y27")
+enemy_name = "Navy Fencer"
+description = "Sanctum Navy Navy Fencer."
+template = ExtResource("23_to5pd")
+starting_dice = Array[ExtResource("16_dbvs7")]([SubResource("Resource_wna8c"), SubResource("Resource_p4y27")])
+combat_actions = Array[ExtResource("2_ytrwh")]([ExtResource("33_lunge"), ExtResource("34_parry")])
+ai_strategy = 0
+ai_config = SubResource("Resource_81gxs")
+action_delay = 0.7
+dice_drag_duration = 0.35
+gold_reward_min = 3
+gold_reward_max = 10
+enemy_archetype = 2
+health_affix = ExtResource("14_w3fy1")
+enemy_affixes = Array[ExtResource("10_0ddy7")]([ExtResource("11_ia8sv"), ExtResource("12_wna8c")])

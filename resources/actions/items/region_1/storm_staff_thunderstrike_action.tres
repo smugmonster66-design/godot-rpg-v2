@@ -1,21 +1,30 @@
-[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://erq27l03lphc"]
+[gd_resource type="Resource" script_class="Action" load_steps=12 format=3 uid="uid://erq27l03lphc"]
 
 [ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_lbndf"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="1_rdvr3"]
-[ext_resource type="Resource" uid="uid://balebew0qila6" path="res://resources/animations/baseline animations/elemental anisets/shock/thunderstrike_aniset.tres" id="2_3uuln"]
+[ext_resource type="Resource" uid="uid://balebew0qila6" path="res://resources/animations/baseline animations/elemental anisets/thunderstrike_aniset.tres" id="2_3uuln"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="2_s20om"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="3_ijtst"]
 [ext_resource type="Resource" uid="uid://dxa6mfwjjgli" path="res://resources/actions/items/region_1/effects/storm_staff_static_effect.tres" id="3_lbndf"]
 [ext_resource type="Resource" uid="uid://4a37xahjxw2h" path="res://resources/actions/items/region_1/effects/storm_staff_chain_effect.tres" id="4_3uuln"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="5_ijtst"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="6_sfvla"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="8_ijtst"]
+
+[sub_resource type="Resource" id="Resource_sfvla"]
+script = ExtResource("2_s20om")
+effect_name = "storm strike damage"
+damage_type = 5
+dice_count = 2
+metadata/_custom_type_script = "uid://dqmfu54osidoc"
 
 [resource]
 script = ExtResource("6_sfvla")
 action_id = "weapon_storm_staff_thunderstrike"
 action_name = "Thunderstrike"
-action_description = "Applies 3 Static. Chains to a second target for half damage."
+action_description = "Applies 3 [status:static]. Chains to a second target for half damage."
 damage_element = 5
 die_slots = 2
 min_dice_required = 1
-effects = Array[ExtResource("2_s20om")]([ExtResource("3_lbndf"), ExtResource("4_3uuln")])
+effects = Array[ExtResource("2_s20om")]([ExtResource("3_lbndf"), ExtResource("4_3uuln"), SubResource("Resource_sfvla")])
 animation_set = ExtResource("2_3uuln")

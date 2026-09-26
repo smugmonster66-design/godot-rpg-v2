@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MapNodeButtonDef" load_steps=3 format=3 uid="uid://bxxvd2m5dhu7"]
+
+[ext_resource type="Script" uid="uid://bvx6wd14mcwlb" path="res://resources/data/map_node_button_def.gd" id="1_btnscript"]
+[ext_resource type="Resource" uid="uid://c4mfnnuv3xwph" path="res://resources/dungeon/region_1/dungeons/dungeon chains/test_dungeon_chain.tres" id="1_ij8mi"]
+
+[resource]
+script = ExtResource("1_btnscript")
+label = "Enter"
+tooltip = "Enter the Endless Test."
+dungeon_chain = ExtResource("1_ij8mi")

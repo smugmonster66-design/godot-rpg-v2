@@ -8,8 +8,9 @@
 [resource]
 script = ExtResource("2_dabc5")
 affix_name = "Grant Slashing D6"
-description = "Add a Slashing D6 to your dice pool"
+description = "Add a [element:slashing] D6 to your dice pool"
 category = 32
 tags = Array[String](["dice_grant", "slashing"])
 effect_number = 1.0
 granted_dice = Array[ExtResource("1_f11le")]([ExtResource("2_5ca8u")])
+power_weight = 35.0

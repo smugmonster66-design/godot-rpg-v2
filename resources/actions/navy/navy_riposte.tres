@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="Action" load_steps=12 format=3 uid="uid://dnxultdx11i2q"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_4v2xr"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_4qylo"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_myl2s"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_4qylo"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_l2yag"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="5_kq2vx"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="6_yajsf"]
+
+[sub_resource type="Resource" id="Resource_4v2xr"]
+script = ExtResource("1_4v2xr")
+condition = 2
+threshold = 0.4
+bonus_value = 20.0
+
+[sub_resource type="Resource" id="Resource_myl2s"]
+script = ExtResource("1_4v2xr")
+condition = 11
+threshold = 1.0
+bonus_value = 10.0
+
+[sub_resource type="Resource" id="Resource_4qylo"]
+script = ExtResource("3_4qylo")
+effect_name = "Riposte Counter Damage"
+value_source = 1
+damage_type = 2
+base_damage = 2
+damage_multiplier = 1.1
+
+[sub_resource type="Resource" id="Resource_l2yag"]
+script = ExtResource("3_4qylo")
+effect_name = "Riposte Counter"
+target = 0
+effect_type = 21
+counter_effect = SubResource("Resource_4qylo")
+
+[resource]
+script = ExtResource("6_yajsf")
+action_id = "navy_riposte"
+action_name = "Riposte"
+action_description = "Set up a counter-attack."
+action_category = 1
+damage_element = 2
+charge_type = 1
+effects = Array[ExtResource("3_4qylo")]([SubResource("Resource_l2yag")])
+ai_hints = Array[ExtResource("1_4v2xr")]([SubResource("Resource_4v2xr"), SubResource("Resource_myl2s")])
+action_type = 1

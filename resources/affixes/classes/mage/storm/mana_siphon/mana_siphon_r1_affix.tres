@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_spptp")
 affix_name = "Mana Siphon I"
-description = "On shock kill: restore 4 mana."
+description = "On [element:shock] kill: restore 4 mana."
 category = 35
 tags = Array[String](["mage", "storm", "proc", "mana", "conduit", "kill"])
 effect_number = 4.0

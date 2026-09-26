@@ -1,0 +1,121 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=31 format=3 uid="uid://chfbvbi57q4id"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_ejiw8"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_pj0n5"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="11_v5ogv"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_barrier_int_support.tres" id="12_yuivn"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_ice.tres" id="13_o3tfv"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="14_de8p3"]
+[ext_resource type="Resource" uid="uid://bgo3yy1bl73ml" path="res://resources/affixes/base_stats/enemy/enemy_health_int_support.tres" id="15_l51lb"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="16_r2am4"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="17_fk5ad"]
+[ext_resource type="PackedScene" uid="uid://dx08yqjhk2hu0" path="res://scenes/ui/components/dice/combat/combat_die_d10.tscn" id="18_us5g6"]
+[ext_resource type="Resource" uid="uid://6rsbaoccvjqc" path="res://resources/affixes/elements/ice_element.tres" id="19_0o5eh"]
+[ext_resource type="Texture2D" uid="uid://klk23dga0emp" path="res://assets/dice/d10s/d10-fill-basic.png" id="20_bmjq5"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="21_lvkug"]
+[ext_resource type="PackedScene" uid="uid://biqti34m42xcy" path="res://scenes/ui/components/dice/pool/pool_die_d10.tscn" id="22_0bmt6"]
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="22_vaolq"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="23_8yfco"]
+[ext_resource type="Texture2D" uid="uid://bnn478mo72l40" path="res://assets/dice/d10s/d10-stroke-basic.png" id="23_10fch"]
+[ext_resource type="Resource" uid="uid://syra6v8npt41" path="res://resources/enemy_templates/support_int.tres" id="24_0u4v5"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="24_jme4b"]
+[ext_resource type="Resource" uid="uid://c4eb8xps38g6k" path="res://resources/actions/navy/navy_tidal_blessing.tres" id="34_tidal_bl"]
+[ext_resource type="Resource" uid="uid://ln7lpjlswn3m" path="res://resources/actions/navy/navy_undertow.tres" id="35_undertow"]
+[ext_resource type="Resource" uid="uid://da7fsmj1hfori" path="res://resources/actions/navy/navy_riptide.tres" id="36_riptide"]
+
+[sub_resource type="Resource" id="Resource_70es8"]
+script = ExtResource("1_ejiw8")
+element_preference = 0.6
+heal_urgency = 0.7
+heal_threshold = 0.6
+critical_threshold = 0.35
+status_awareness = 0.7
+
+
+[sub_resource type="Resource" id="Resource_g5ml0"]
+script = ExtResource("22_vaolq")
+type = 4
+
+
+[sub_resource type="Resource" id="Resource_yq7vv"]
+script = ExtResource("21_lvkug")
+affix_name = "Tidal Surge"
+description = "On max roll, apply Chill to enemy."
+trigger = 1
+condition = SubResource("Resource_g5ml0")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "chill",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_wxt5h"]
+script = ExtResource("17_fk5ad")
+display_name = "Ice D10"
+die_type = 10
+element = 5
+element_affix = ExtResource("19_0o5eh")
+fill_texture = ExtResource("20_bmjq5")
+stroke_texture = ExtResource("23_10fch")
+combat_die_scene = ExtResource("18_us5g6")
+pool_die_scene = ExtResource("22_0bmt6")
+inherent_affixes = Array[ExtResource("21_lvkug")]([SubResource("Resource_yq7vv")])
+
+
+[sub_resource type="Resource" id="Resource_5wnux"]
+script = ExtResource("22_vaolq")
+type = 4
+
+
+[sub_resource type="Resource" id="Resource_v5ogv"]
+script = ExtResource("21_lvkug")
+affix_name = "Tidal Surge"
+description = "On max roll, apply Chill to enemy."
+trigger = 1
+condition = SubResource("Resource_5wnux")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "chill",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_yuivn"]
+script = ExtResource("17_fk5ad")
+display_name = "Ice D10"
+die_type = 10
+element = 5
+element_affix = ExtResource("19_0o5eh")
+fill_texture = ExtResource("20_bmjq5")
+stroke_texture = ExtResource("23_10fch")
+combat_die_scene = ExtResource("18_us5g6")
+pool_die_scene = ExtResource("22_0bmt6")
+inherent_affixes = Array[ExtResource("21_lvkug")]([SubResource("Resource_v5ogv")])
+
+
+[resource]
+script = ExtResource("16_r2am4")
+enemy_name = "High Tide Priest"
+description = "Sanctum Navy High Tide Priest."
+template = ExtResource("24_0u4v5")
+combat_role = 4
+enemy_tags = PackedStringArray("navy", "humanoid")
+max_health = 25
+starting_dice = Array[ExtResource("17_fk5ad")]([SubResource("Resource_wxt5h"), SubResource("Resource_yuivn")])
+combat_actions = Array[ExtResource("2_pj0n5")]([ExtResource("34_tidal_bl"), ExtResource("35_undertow"), ExtResource("36_riptide")])
+ai_strategy = 1
+ai_config = SubResource("Resource_70es8")
+action_delay = 0.7
+dice_drag_duration = 0.35
+experience_reward = 75
+gold_reward_min = 25
+gold_reward_max = 75
+enemy_tier = 2
+enemy_archetype = 3
+enemy_level_floor = 5
+level_scaling_multiplier = 1.0
+health_affix = ExtResource("15_l51lb")
+enemy_affixes = Array[ExtResource("11_v5ogv")]([ExtResource("12_yuivn"), ExtResource("13_o3tfv")])

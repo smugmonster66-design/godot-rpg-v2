@@ -1,0 +1,177 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=37 format=3 uid="uid://coviljyxabm1f"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_jpa0r"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_2l16j"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="10_j8xs0"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_barrier_int_caster.tres" id="11_2rhlg"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_shock.tres" id="12_phbmc"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="13_d7dtf"]
+[ext_resource type="Resource" uid="uid://dryx3uup40h6u" path="res://resources/affixes/base_stats/enemy/enemy_health_int_caster.tres" id="14_8fb1o"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="15_ydq5o"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="16_6h6yq"]
+[ext_resource type="PackedScene" uid="uid://c457eolhd5tul" path="res://scenes/ui/components/dice/combat/combat_die_d12.tscn" id="17_qc12o"]
+[ext_resource type="Resource" uid="uid://bgw24wqldi0fd" path="res://resources/affixes/elements/shock_element.tres" id="18_pu7wr"]
+[ext_resource type="Texture2D" uid="uid://r7bikgya1ua8" path="res://assets/dice/d12s/d12-basic-fill.png" id="19_b3w2v"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="20_6rty2"]
+[ext_resource type="PackedScene" uid="uid://yqcuq20fomfu" path="res://scenes/ui/components/dice/pool/pool_die_d12.tscn" id="21_5ulqi"]
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="21_eofa3"]
+[ext_resource type="Texture2D" uid="uid://d3cgge7kyfsqd" path="res://assets/dice/d12s/d12-basic-stroke.png" id="22_llysp"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="22_mhmee"]
+[ext_resource type="Resource" uid="uid://dayw6ar4mjdg7" path="res://resources/enemy_templates/caster_int.tres" id="23_n6dh6"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="23_r5h4w"]
+[ext_resource type="Resource" uid="uid://0u71rfmhmmg5" path="res://resources/actions/navy/navy_lightning_strike.tres" id="33_lightnin"]
+[ext_resource type="Resource" uid="uid://caru6ervegfqn" path="res://resources/actions/navy/navy_storm_ward.tres" id="34_storm_wa"]
+[ext_resource type="Resource" uid="uid://bs7j7bxobgy7s" path="res://resources/actions/navy/navy_chain_lightning.tres" id="35_chain_li"]
+
+[sub_resource type="Resource" id="Resource_ub5bn"]
+script = ExtResource("1_jpa0r")
+element_preference = 0.8
+status_awareness = 0.6
+
+
+[sub_resource type="Resource" id="Resource_lga5w"]
+script = ExtResource("21_eofa3")
+type = 4
+
+
+[sub_resource type="Resource" id="Resource_vgwoq"]
+script = ExtResource("20_6rty2")
+affix_name = "Charged Air"
+description = "On max roll, gain Warded."
+condition = SubResource("Resource_lga5w")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "warded",
+"target": "self"
+}
+
+
+[sub_resource type="Resource" id="Resource_5wpbl"]
+script = ExtResource("16_6h6yq")
+display_name = "Shock D12"
+die_type = 12
+element = 6
+element_affix = ExtResource("18_pu7wr")
+fill_texture = ExtResource("19_b3w2v")
+stroke_texture = ExtResource("22_llysp")
+combat_die_scene = ExtResource("17_qc12o")
+pool_die_scene = ExtResource("21_5ulqi")
+inherent_affixes = Array[ExtResource("20_6rty2")]([SubResource("Resource_vgwoq")])
+
+
+[sub_resource type="Resource" id="Resource_j8xs0"]
+script = ExtResource("21_eofa3")
+type = 4
+
+
+[sub_resource type="Resource" id="Resource_2rhlg"]
+script = ExtResource("20_6rty2")
+affix_name = "Charged Air"
+description = "On max roll, gain Warded."
+condition = SubResource("Resource_j8xs0")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "warded",
+"target": "self"
+}
+
+
+[sub_resource type="Resource" id="Resource_phbmc"]
+script = ExtResource("16_6h6yq")
+display_name = "Shock D12"
+die_type = 12
+element = 6
+element_affix = ExtResource("18_pu7wr")
+fill_texture = ExtResource("19_b3w2v")
+stroke_texture = ExtResource("22_llysp")
+combat_die_scene = ExtResource("17_qc12o")
+pool_die_scene = ExtResource("21_5ulqi")
+inherent_affixes = Array[ExtResource("20_6rty2")]([SubResource("Resource_2rhlg")])
+
+
+[sub_resource type="Resource" id="Resource_d7dtf"]
+script = ExtResource("21_eofa3")
+type = 4
+
+
+[sub_resource type="Resource" id="Resource_8fb1o"]
+script = ExtResource("20_6rty2")
+affix_name = "Charged Air"
+description = "On max roll, gain Warded."
+condition = SubResource("Resource_d7dtf")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "warded",
+"target": "self"
+}
+
+
+[sub_resource type="Resource" id="Resource_ydq5o"]
+script = ExtResource("16_6h6yq")
+display_name = "Shock D12"
+die_type = 12
+element = 6
+element_affix = ExtResource("18_pu7wr")
+fill_texture = ExtResource("19_b3w2v")
+stroke_texture = ExtResource("22_llysp")
+combat_die_scene = ExtResource("17_qc12o")
+pool_die_scene = ExtResource("21_5ulqi")
+inherent_affixes = Array[ExtResource("20_6rty2")]([SubResource("Resource_8fb1o")])
+
+
+[sub_resource type="Resource" id="Resource_6h6yq"]
+script = ExtResource("21_eofa3")
+type = 4
+
+
+[sub_resource type="Resource" id="Resource_qc12o"]
+script = ExtResource("20_6rty2")
+affix_name = "Charged Air"
+description = "On max roll, gain Warded."
+condition = SubResource("Resource_6h6yq")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "warded",
+"target": "self"
+}
+
+
+[sub_resource type="Resource" id="Resource_pu7wr"]
+script = ExtResource("16_6h6yq")
+display_name = "Shock D12"
+die_type = 12
+element = 6
+element_affix = ExtResource("18_pu7wr")
+fill_texture = ExtResource("19_b3w2v")
+stroke_texture = ExtResource("22_llysp")
+combat_die_scene = ExtResource("17_qc12o")
+pool_die_scene = ExtResource("21_5ulqi")
+inherent_affixes = Array[ExtResource("20_6rty2")]([SubResource("Resource_qc12o")])
+
+
+[resource]
+script = ExtResource("15_ydq5o")
+enemy_name = "Hurricane Lord"
+description = "Sanctum Navy Hurricane Lord."
+template = ExtResource("23_n6dh6")
+combat_role = 2
+enemy_tags = PackedStringArray("navy", "humanoid")
+max_health = 60
+starting_dice = Array[ExtResource("16_6h6yq")]([SubResource("Resource_5wpbl"), SubResource("Resource_phbmc"), SubResource("Resource_ydq5o"), SubResource("Resource_pu7wr")])
+combat_actions = Array[ExtResource("2_2l16j")]([ExtResource("33_lightnin"), ExtResource("34_storm_wa"), ExtResource("35_chain_li")])
+ai_config = SubResource("Resource_ub5bn")
+action_delay = 0.7
+dice_drag_duration = 0.35
+experience_reward = 500
+gold_reward_min = 150
+gold_reward_max = 500
+enemy_tier = 4
+enemy_archetype = 3
+enemy_level_floor = 12
+level_scaling_multiplier = 1.2
+health_affix = ExtResource("14_8fb1o")
+enemy_affixes = Array[ExtResource("10_j8xs0")]([ExtResource("11_2rhlg"), ExtResource("12_phbmc")])

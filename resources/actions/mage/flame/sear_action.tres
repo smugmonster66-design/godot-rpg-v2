@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://cnd4b7f0tqbnh"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_85sqw"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_hbbp4"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_njoao"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_hbbp4"]
+[ext_resource type="Resource" uid="uid://cgt0yikdmk60l" path="res://resources/actions/mage/flame/effects/sear_damage.tres" id="4_uodrn"]
+[ext_resource type="Resource" uid="uid://co23i2vaygl17" path="res://resources/actions/mage/flame/effects/sear_burn.tres" id="5_wxtdm"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_52m15"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_ngoth"]
+
+[resource]
+script = ExtResource("7_ngoth")
+action_id = "flame_sear"
+action_name = "Sear"
+action_description = "Deal [element:fire] damage equal to die value. Apply [status:burn] stacks equal to die value."
+damage_element = 3
+min_dice_required = 1
+accepted_elements = Array[int]([4])
+max_charges = 99
+effects = Array[ExtResource("3_hbbp4")]([ExtResource("4_uodrn"), ExtResource("5_wxtdm")])

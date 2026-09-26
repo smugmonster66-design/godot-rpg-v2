@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="GameEventDefinition" load_steps=4 format=3 uid="uid://bv04uhtb5vaow"]
+
+[ext_resource type="Script" uid="uid://cr2ks2mpbaata" path="res://resources/data/game_event_effect.gd" id="1_w4s8t"]
+[ext_resource type="Script" uid="uid://bbagrgu3ope0e" path="res://resources/data/game_event_definition.gd" id="2_7mual"]
+
+[sub_resource type="Resource" id="Resource_w4s8t"]
+script = ExtResource("1_w4s8t")
+key = &"test_ambush_fired"
+metadata/_custom_type_script = "uid://cr2ks2mpbaata"
+
+[resource]
+script = ExtResource("2_7mual")
+event_id = &"test_event_1"
+display_name = "Test Event 1"
+description = "Test event, sets a flag"
+effects = Array[ExtResource("1_w4s8t")]([SubResource("Resource_w4s8t")])

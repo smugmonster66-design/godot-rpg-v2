@@ -38,8 +38,8 @@ enum Category {
 	# Global Combat Modifiers
 	DAMAGE_BONUS,
 	DAMAGE_MULTIPLIER,
-	DEFENSE_BONUS,
-	DEFENSE_MULTIPLIER,
+	DEFENSE_BONUS,        ## DEPRECATED — maps to armor, use ARMOR_BONUS (13) instead
+	DEFENSE_MULTIPLIER,   ## Now used as ARMOR_MULTIPLIER (×N armor scaling)
 	# Physical Defense
 	ARMOR_BONUS,
 	# Elemental Resistances
@@ -135,7 +135,7 @@ enum ProcTrigger {
 	ON_DIE_USED,        ## When any die is consumed from hand
 	ON_ACTION_USED,     ## When any action is executed
 	ON_KILL,            ## When player kills an enemy
-	ON_DEFEND,          ## When player uses a defend action
+	ON_DEFEND,          ## DEPRECATED — no defend action exists. Use ON_TAKE_DAMAGE (2) instead
 	ON_MANA_PULL,       ## When a mana die is pulled from the mana pool
 	ON_STATUS_APPLIED,  ## When a status effect is applied to any target
 }
@@ -284,6 +284,17 @@ enum RoundMode {
 @export var dice_visual_affix: DiceAffix = null
 
 # ============================================================================
+# PROC VISUALS
+# ============================================================================
+@export_group("Proc Visuals")
+## Color used for the floating source label when this affix procs (e.g. "Iron Will").
+## Tints the sourcefloater label so each proc has a distinct identity.
+@export var visual_color: Color = Color.WHITE
+## Optional full CombatAnimationSet to play (cast → travel → impact) when this
+## affix procs. Leave null for floater-only feedback (no projectile arc).
+@export var proc_anim_set: CombatAnimationSet = null
+
+# ============================================================================
 # SUB-EFFECTS (v2) — Compound effects
 # ============================================================================
 @export_group("Sub-Effects (Compound)")
@@ -291,6 +302,25 @@ enum RoundMode {
 ## effect. Each AffixSubEffect has its own category, value, value source,
 ## and optional condition override.
 @export var sub_effects: Array[AffixSubEffect] = []
+
+# ============================================================================
+# POWER RATING (internal, non-player-facing)
+# ============================================================================
+@export_group("Power Rating")
+## Base power weight at maximum roll. Inspector-only, not player-facing.
+## 0.0 = unrated. Reference baseline: ARMOR_BONUS at max = 100.
+@export var power_weight: float = 0.0
+
+func get_affix_power() -> float:
+	if power_weight == 0.0:
+		return 0.0
+	var position: float = 1.0
+	if has_scaling() and (effect_max - effect_min) > 0.0:
+		position = clampf((effect_number - effect_min) / (effect_max - effect_min), 0.0, 1.0)
+	var proc_mod: float = 1.0
+	if is_proc_category() and proc_chance < 1.0:
+		proc_mod = proc_chance
+	return power_weight * position * proc_mod
 
 # ============================================================================
 # EFFECT APPLICATION
@@ -582,7 +612,11 @@ func get_resolved_description() -> String:
 	if is_percent and "N%" not in description and "{value}%" not in description:
 		value_str += "%"
 
-	return description.replace("N", value_str).replace("{value}", value_str)
+	var result := description.replace("N", value_str).replace("{value}", value_str)
+	# Support {proc_chance} placeholder for proc-based affixes
+	if "{proc_chance}" in result:
+		result = result.replace("{proc_chance}", str(int(proc_chance * 100)))
+	return result
 
 
 func _is_multiplier_category() -> bool:

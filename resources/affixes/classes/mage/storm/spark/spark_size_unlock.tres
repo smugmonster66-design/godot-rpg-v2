@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_xvhp6")
 affix_name = "Spark: D4 Unlock"
-description = "Unlocks D4 shock mana die."
+description = "Unlocks D4 [element:shock] mana die."
 category = 38
 tags = Array[String](["mage", "storm", "size_unlock"])
 effect_data = {

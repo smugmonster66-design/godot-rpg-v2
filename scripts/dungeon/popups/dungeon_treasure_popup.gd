@@ -3,11 +3,13 @@
 ## Items are already added to inventory before this popup opens
 ## (handled by DungeonScene._handle_treasure), so this is display-only.
 ##
-## Data in:  { "node": DungeonNodeData, "item": EquippableItem or null, "run": DungeonRun }
+## Data in:  { "node": DungeonNodeData, "item": EquippableItem or null,
+##             "consumable": ConsumableItem or null, "run": DungeonRun }
 ## Result:   {}
 extends DungeonPopupBase
 
 var _item: EquippableItem = null
+var _consumable: ConsumableItem = null
 
 # ============================================================================
 # NODE REFERENCES — match dungeon_treasure_popup.tscn paths exactly
@@ -25,6 +27,7 @@ var _item: EquippableItem = null
 func show_popup(data: Dictionary) -> void:
 	_base_show(data, "treasure")
 	_item = data.get("item") as EquippableItem
+	_consumable = data.get("consumable") as ConsumableItem
 	var run: DungeonRun = data.get("run")
 
 	# --- Gold display ---
@@ -41,6 +44,7 @@ func show_popup(data: Dictionary) -> void:
 			if player:
 				player.add_gold(treasure_gold)
 				run.track_gold(treasure_gold)
+				GameEventBus.emit_gold_gained(treasure_gold)
 	else:
 		if gold_section: gold_section.hide()
 
@@ -49,18 +53,26 @@ func show_popup(data: Dictionary) -> void:
 	for child in loot_grid.get_children():
 		child.queue_free()
 
+	var has_loot := false
+
 	if _item:
-		if loot_section: loot_section.show()
+		has_loot = true
 		var item_panel = _create_item_display(_item)
 		loot_grid.add_child(item_panel)
-	else:
-		if loot_section: loot_section.hide()
+
+	if _consumable:
+		has_loot = true
+		var consumable_panel = _create_consumable_display(_consumable)
+		loot_grid.add_child(consumable_panel)
+
+	if loot_section:
+		loot_section.visible = has_loot
 
 func _build_result() -> Dictionary:
 	return {}
 
 # ============================================================================
-# ITEM DISPLAY HELPER
+# ITEM DISPLAY HELPERS
 # ============================================================================
 
 func _create_item_display(item: EquippableItem) -> PanelContainer:
@@ -87,14 +99,51 @@ func _create_item_display(item: EquippableItem) -> PanelContainer:
 	vbox.add_child(type_label)
 
 	# Affix count hint
-	if item.affixes.size() > 0:
+	if item.rolled_affixes.size() > 0:
 		var affix_label = Label.new()
-		affix_label.text = "%d affix%s" % [item.affixes.size(),
-			"es" if item.affixes.size() != 1 else ""]
+		affix_label.text = "%d affix%s" % [item.rolled_affixes.size(),
+			"es" if item.rolled_affixes.size() != 1 else ""]
 		affix_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		affix_label.add_theme_font_size_override("font_size", 11)
 		affix_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
 		vbox.add_child(affix_label)
+
+	panel.add_child(vbox)
+	return panel
+
+func _create_consumable_display(consumable: ConsumableItem) -> PanelContainer:
+	"""Creates a display panel for a consumable item."""
+	var panel = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(140, 60)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 2)
+
+	# Consumable name
+	var name_label = Label.new()
+	name_label.text = consumable.item_name if consumable.item_name != "" else "Consumable"
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.add_theme_color_override("font_color", Color(0.4, 0.9, 0.6))
+	vbox.add_child(name_label)
+
+	# Tier label
+	var tier_label = Label.new()
+	var tier_names := ["Restorative", "Combat Prep", "Dice Elixir", "Inscription", "Curio"]
+	var tier_idx: int = consumable.tier if "tier" in consumable else 0
+	tier_label.text = tier_names[tier_idx] if tier_idx < tier_names.size() else "Consumable"
+	tier_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	tier_label.add_theme_font_size_override("font_size", 12)
+	vbox.add_child(tier_label)
+
+	# Description
+	if consumable.description != "":
+		var desc_label = Label.new()
+		desc_label.text = consumable.description
+		desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		desc_label.add_theme_font_size_override("font_size", 11)
+		desc_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		vbox.add_child(desc_label)
 
 	panel.add_child(vbox)
 	return panel

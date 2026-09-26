@@ -12,3 +12,4 @@ category = 4
 tags = Array[String](["stat"])
 effect_min = 1.0
 effect_max = 50.0
+power_weight = 62.0

@@ -267,6 +267,16 @@ var rolled_on_rarity: int = -1
 @export var combat_modifier: CombatModifier = null
 
 # ============================================================================
+# PROC VISUALS (Combat)
+# ============================================================================
+@export_group("Proc Visuals")
+## Color used for the floating source label when this dice affix fires a combat event.
+@export var visual_color: Color = Color.WHITE
+## Optional CombatAnimationSet to play when this dice affix fires (e.g. GRANT_STATUS_EFFECT,
+## bonus damage). Leave null for floater-only feedback.
+@export var proc_anim_set: CombatAnimationSet = null
+
+# ============================================================================
 # VISUAL EFFECTS (ORIGINAL - unified, for backwards compatibility)
 # ============================================================================
 @export_group("Visual Effect")
@@ -344,7 +354,21 @@ var rolled_on_rarity: int = -1
 ## Supports projectiles between dice, flash/pulse on source and/or target.
 @export var roll_visual: AffixRollVisual = null
 
+# ============================================================================
+# POWER RATING (internal, non-player-facing)
+# ============================================================================
+@export_group("Power Rating")
+## Base power weight at maximum roll. Inspector-only, not player-facing.
+## 0.0 = unrated. Reference baseline: ARMOR_BONUS at max = 100.
+@export var power_weight: float = 0.0
 
+func get_affix_power() -> float:
+	if power_weight == 0.0:
+		return 0.0
+	var position: float = 1.0
+	if has_scaling() and (effect_value_max - effect_value_min) > 0.0:
+		position = clampf((effect_value - effect_value_min) / (effect_value_max - effect_value_min), 0.0, 1.0)
+	return power_weight * position
 
 # ============================================================================
 # SOURCE TRACKING
@@ -705,7 +729,7 @@ func _round_dice_value(value: float) -> float:
 	if effect_value_max <= 1.0 and effect_value_min >= 0.0:
 		return snappedf(value, 0.01)
 	elif effect_value_max <= 5.0:
-		return snappedf(value, 0.5)
+		return roundf(value)
 	else:
 		return roundf(value)
 

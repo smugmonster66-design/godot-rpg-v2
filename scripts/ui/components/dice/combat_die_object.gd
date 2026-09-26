@@ -10,6 +10,11 @@ class_name CombatDieObject
 var slot_index: int = -1  # Position in hand/action field
 @onready var particle_anchor: Node2D = $ParticleAnchor
 
+# Track active value tweens to prevent conflicts when multiple systems
+# animate the same die (e.g. AffixVisualAnimator + CombatManager mutations)
+var _value_tick_tween: Tween = null
+var _value_flash_tween: Tween = null
+
 # ============================================================================
 # VALUE DISPLAY - Shows rolled value
 # ============================================================================
@@ -104,17 +109,23 @@ func animate_value_to(new_val: int, duration: float = 0.25, flash_color: Color =
 	if current_val == new_val:
 		return
 	
+	# Kill any previous value tweens to prevent conflicts
+	if _value_tick_tween and _value_tick_tween.is_valid():
+		_value_tick_tween.kill()
+	if _value_flash_tween and _value_flash_tween.is_valid():
+		_value_flash_tween.kill()
+
 	# Tick the number through each integer
-	var tick_tween = create_tween()
-	tick_tween.tween_method(
+	_value_tick_tween = create_tween()
+	_value_tick_tween.tween_method(
 		func(v: float):
 			if is_instance_valid(self) and value_label:
 				value_label.text = str(int(v)),
 		float(current_val), float(new_val), duration
 	)
-	
+
 	# Flash the label color
 	if flash_color != Color.WHITE and value_label:
-		var label_tween = value_label.create_tween()
-		label_tween.tween_property(value_label, "modulate", flash_color, duration * 0.3)
-		label_tween.tween_property(value_label, "modulate", Color.WHITE, duration * 0.7)
+		_value_flash_tween = value_label.create_tween()
+		_value_flash_tween.tween_property(value_label, "modulate", flash_color, duration * 0.3)
+		_value_flash_tween.tween_property(value_label, "modulate", Color.WHITE, duration * 0.7)

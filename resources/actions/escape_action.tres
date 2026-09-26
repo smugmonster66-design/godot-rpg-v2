@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Action" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_action"]
+
+[resource]
+script = ExtResource("1_action")
+action_id = "escape"
+action_name = "Escape"
+action_description = "Attempt to break free from restraints. Higher die values give better odds."
+action_category = 5
+die_slots = 1
+min_dice_required = 1
+charge_type = 0
+max_charges = 1
+mana_cost = 0
+cooldown_turns = 0

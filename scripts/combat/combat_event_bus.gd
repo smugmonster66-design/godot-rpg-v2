@@ -206,6 +206,42 @@ func emit_combo_triggered(target: Node, marks_consumed: int, bonus_damage: int, 
 func emit_affix_triggered(target: Node, affix_name: String, source: Node = null) -> void:
 	emit_event(CombatEvent.affix_triggered(target, affix_name, source))
 
+func emit_affix_proc(target: Node, affix_name: String, color: Color,
+		anim_set: CombatAnimationSet = null, source: Node = null,
+		category: String = "proc") -> void:
+	"""Queue an AFFIX_TRIGGERED event with full visual payload.
+	Always deferred (queue_event) so it never fires nested inside an active
+	animation sequence, preventing re-entrant await chains."""
+	var evt = CombatEvent.new()
+	evt.type = CombatEvent.Type.AFFIX_TRIGGERED
+	evt.target_node = target
+	evt.source_node = source
+	evt.source_tag = affix_name
+	evt.values = {
+		"affix_name": affix_name,
+		"affix_color": color,
+		"anim_set": anim_set,
+		"trigger_category": category,
+	}
+	queue_event(evt)
+
+func emit_threshold_reached(target: Node, status_name: String,
+		element: String = "", anim_set: CombatAnimationSet = null,
+		source: Node = null) -> void:
+	"""Queue a THRESHOLD_REACHED event when a status stack threshold fires.
+	Always deferred so it follows the DAMAGE_DEALT event that precedes it."""
+	var evt = CombatEvent.new()
+	evt.type = CombatEvent.Type.THRESHOLD_REACHED
+	evt.target_node = target
+	evt.source_node = source
+	evt.source_tag = status_name
+	evt.values = {
+		"status_name": status_name,
+		"element": element,
+		"anim_set": anim_set,
+	}
+	queue_event(evt)
+
 func emit_action_confirmed(source: Node) -> void:
 	var evt = CombatEvent.new()
 	evt.type = CombatEvent.Type.ACTION_CONFIRMED

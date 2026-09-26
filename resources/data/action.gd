@@ -12,6 +12,7 @@ enum ActionCategory {
 	DEBUFF,   ## Applies detrimental effects to enemies. Description only.
 	HEAL,     ## Restores HP. Shows heal preview.
 	SUMMON,   ## Summons entities. Description only.
+	ESCAPE,   ## Escape from CC. Shows escape chance preview.
 }
 
 enum ChargeType {
@@ -100,6 +101,14 @@ var current_cooldown: int = 0
 @export var placement_event: CombatVisualEvent = null
 
 
+
+# ============================================================================
+# BARKS — speech bubble exclamations on action execution
+# ============================================================================
+@export_group("Barks")
+## Pool of bark lines. One is chosen randomly when this action executes.
+## Fired by CombatManager via BarkManager.show_bark().
+@export var barks_on_use: Array[BarkEntry] = []
 
 # ============================================================================
 # LEGACY SUPPORT (for backwards compatibility)
@@ -218,6 +227,7 @@ func to_dict() -> Dictionary:
 		"max_charges": max_charges,
 		"current_charges": current_charges,
 		"action_resource": self,  # Include reference to self
+		"action_category": action_category,
 		# Legacy fields for backward compatibility
 		"action_type": action_type,
 		"base_damage": base_damage,

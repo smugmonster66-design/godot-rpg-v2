@@ -1,0 +1,32 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/components/character/currency_row.gd" id="1_script"]
+
+[node name="CurrencyRow" type="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+script = ExtResource("1_script")
+
+[node name="IconRect" type="TextureRect" parent="." groups=["currency_row_ui"]]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+stretch_mode = 5
+metadata/ui_role = "icon_rect"
+
+[node name="IconLabel" type="Label" parent="." groups=["currency_row_ui"]]
+visible = false
+layout_mode = 2
+metadata/ui_role = "icon_label"
+
+[node name="CurrencyName" type="Label" parent="." groups=["currency_row_ui"]]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Currency"
+metadata/ui_role = "currency_name"
+
+[node name="Amount" type="Label" parent="." groups=["currency_row_ui"]]
+layout_mode = 2
+horizontal_alignment = 2
+text = "0"
+metadata/ui_role = "amount"

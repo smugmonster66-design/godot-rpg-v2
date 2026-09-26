@@ -14,7 +14,7 @@ stat_modifier_per_stack = {
 "shock_damage_received_bonus": 1
 }
 affix_name = "Static"
-description = "+1 shock damage received per stack. Batches expire independently after 2 turns."
+description = "+1 [element:shock] damage received per stack. Batches expire independently after 2 turns."
 icon = ExtResource("2_fyh8v")
 has_elemental_identity = true
 elemental_identity = 5

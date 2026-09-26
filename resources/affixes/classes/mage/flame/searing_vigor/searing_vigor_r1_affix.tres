@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_sv01"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_sv01"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_sv01"]
+
+[resource]
+script = ExtResource("2_sv01")
+affix_name = "Searing Vigor I"
+description = "When you kill an enemy, restore 3 mana."
+category = 35
+tags = Array[String](["mage", "flame", "utility", "mana_economy", "kill_reward", "proc"])
+effect_number = 3.0
+effect_data = {
+"proc_effect": "mana_restore",
+"proc_trigger": "ON_KILL",
+"proc_value": 3
+}
+proc_trigger = 9

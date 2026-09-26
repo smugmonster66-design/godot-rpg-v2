@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://bger25v2qqcs1"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3 uid="uid://bger25v2qqcs1"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_djber"]
 [ext_resource type="Resource" uid="uid://t07im4pj58ml" path="res://resources/actions/enemy_base/magic_bolt.tres" id="2_75mi1"]
@@ -11,6 +11,9 @@
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_l5ccw"]
 [ext_resource type="Resource" uid="uid://c1nehvjm5t6pu" path="res://resources/dice/base/d12_fire.tres" id="9_n5bba"]
 [ext_resource type="Resource" uid="uid://dayw6ar4mjdg7" path="res://resources/enemy_templates/caster_int.tres" id="10_0cd8o"]
+
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_barrier_int_caster.tres" id="11_barrier"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_fire.tres" id="12_dmg"]
 
 [resource]
 script = ExtResource("7_tpsmu")
@@ -35,3 +38,4 @@ enemy_archetype = 3
 enemy_level_floor = 12
 level_scaling_multiplier = 1.2
 health_affix = ExtResource("6_acx6f")
+enemy_affixes = Array[ExtResource("5_kfi58")]([ExtResource("11_barrier"), ExtResource("12_dmg")])

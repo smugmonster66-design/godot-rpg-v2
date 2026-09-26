@@ -7,15 +7,16 @@
 [resource]
 script = ExtResource("2_wpw0a")
 affix_name = "Thorns: Chill"
-description = "Apply Chill to attacker when hit"
+description = "{proc_chance}% chance to [status:chill|Chill] attacker when struck"
 category = 35
 tags = Array[String](["proc", "thorns", "status", "ice"])
 effect_data = {
 "effect": "apply_status",
 "status": "chill",
-"target": "attacker"
+"status_target": "attacker"
 }
 proc_trigger = 2
 proc_chance = 0.325
 proc_chance_min = 0.15
 proc_chance_max = 0.5
+power_weight = 95.0

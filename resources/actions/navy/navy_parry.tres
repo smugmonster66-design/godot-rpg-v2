@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="Action" load_steps=14 format=3 uid="uid://elyflnkjt04j"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_r6v2b"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_ncy7c"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_s6upk"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_ncy7c"]
+[ext_resource type="Resource" uid="uid://yqkfct3e0w0w" path="res://resources/statuses/braced.tres" id="4_tfxsb"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="5_e8e0m"]
+[ext_resource type="Resource" uid="uid://ctdhnunfkyyr7" path="res://resources/statuses/dodge.tres" id="6_h73mk"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="7_kl04v"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="8_y3q4c"]
+
+[sub_resource type="Resource" id="Resource_r6v2b"]
+script = ExtResource("1_r6v2b")
+condition = 1
+bonus_value = 25.0
+
+[sub_resource type="Resource" id="Resource_s6upk"]
+script = ExtResource("1_r6v2b")
+condition = 8
+threshold = 0.0
+status_id = "braced"
+bonus_value = 10.0
+
+[sub_resource type="Resource" id="Resource_ncy7c"]
+script = ExtResource("3_ncy7c")
+effect_name = "Parry Brace"
+target = 0
+effect_type = 2
+status_affix = ExtResource("4_tfxsb")
+stack_count = 2
+
+[sub_resource type="Resource" id="Resource_tfxsb"]
+script = ExtResource("3_ncy7c")
+effect_name = "Parry Dodge"
+target = 0
+effect_type = 2
+status_affix = ExtResource("6_h73mk")
+
+[resource]
+script = ExtResource("8_y3q4c")
+action_id = "navy_parry"
+action_name = "Parry"
+action_description = "Adopt a defensive stance."
+action_category = 1
+damage_element = 2
+charge_type = 1
+effects = Array[ExtResource("3_ncy7c")]([SubResource("Resource_ncy7c"), SubResource("Resource_tfxsb")])
+ai_hints = Array[ExtResource("1_r6v2b")]([SubResource("Resource_r6v2b"), SubResource("Resource_s6upk")])
+action_type = 1

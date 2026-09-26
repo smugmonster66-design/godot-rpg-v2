@@ -89,6 +89,26 @@ func play_action_animation(
 	animation_sequence_finished.emit()
 
 
+func play_affix_animation(
+	anim_set: CombatAnimationSet,
+	source_position: Vector2,
+	target_position: Vector2,
+	target_node: Node2D = null
+) -> void:
+	"""Play an animation set for an affix proc — fire-and-forget.
+	Does NOT await and does NOT emit apply_effect_now, so it is safe to call
+	from within action animation sequences without causing re-entrant awaits.
+	The game effect has already been applied before this is called."""
+	if not anim_set:
+		return
+	var target_positions: Array[Vector2] = [target_position]
+	var target_nodes: Array[Node2D] = []
+	if target_node:
+		target_nodes.append(target_node)
+	# Intentionally not awaited — fire-and-forget visual
+	play_action_animation(anim_set, source_position, target_positions, target_nodes)
+
+
 # ============================================================================
 # STAGE PLAYERS
 # ============================================================================

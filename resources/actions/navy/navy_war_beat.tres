@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="Action" load_steps=13 format=3 uid="uid://mj3iecnevnfe"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_7xlt2"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_dfo75"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_orjt7"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_orjt7"]
+[ext_resource type="Resource" uid="uid://dryvh1auub4o8" path="res://resources/statuses/empowered.tres" id="4_l4ufs"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="5_sndrx"]
+[ext_resource type="Resource" uid="uid://chgprsba6wfw2" path="res://resources/statuses/fortified.tres" id="6_lc6vj"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="7_e3dmf"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="8_co87l"]
+
+[sub_resource type="Resource" id="Resource_7xlt2"]
+script = ExtResource("1_7xlt2")
+condition = 9
+threshold = 1.0
+
+[sub_resource type="Resource" id="Resource_dfo75"]
+script = ExtResource("3_orjt7")
+effect_name = "Beat Empower"
+target = 4
+effect_type = 2
+status_affix = ExtResource("4_l4ufs")
+
+[sub_resource type="Resource" id="Resource_orjt7"]
+script = ExtResource("3_orjt7")
+effect_name = "Beat Fortify"
+target = 4
+effect_type = 2
+status_affix = ExtResource("6_lc6vj")
+
+[resource]
+script = ExtResource("8_co87l")
+action_id = "navy_war_beat"
+action_name = "War Beat"
+action_description = "Empower and fortify all allies."
+action_category = 1
+damage_element = 1
+charge_type = 1
+effects = Array[ExtResource("3_orjt7")]([SubResource("Resource_dfo75"), SubResource("Resource_orjt7")])
+ai_hints = Array[ExtResource("1_7xlt2")]([SubResource("Resource_7xlt2")])
+action_type = 3

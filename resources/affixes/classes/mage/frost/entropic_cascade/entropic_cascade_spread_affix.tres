@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_ad4rc")
 affix_name = "Entropic Cascade: Chill Spread"
-description = "When Freeze triggers: all Chill on all enemies +3."
+description = "When [status:freeze] triggers: all [status:chill] on all enemies +3."
 category = 35
 tags = Array[String](["mage", "frost", "capstone", "chill_amplify", "aoe"])
 effect_data = {

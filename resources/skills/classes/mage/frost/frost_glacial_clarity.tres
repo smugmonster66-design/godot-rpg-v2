@@ -19,7 +19,7 @@
 script = ExtResource("6_ed2qe")
 skill_id = "frost_glaciate"
 skill_name = "Glaciate"
-description = "Unlock [color=cyan]Ice[/color] mana. Chromatic Bolt applies [color=cyan]2 Chill[/color] on hit (requires ice die)."
+description = "Unlock [element:ice] mana. Chromatic Bolt applies 2 [status:chill] on hit (requires ice die)."
 column = 3
 rank_1_affixes = Array[ExtResource("2_tq13f")]([ExtResource("3_yxgk2"), ExtResource("4_5sr78")])
 
@@ -31,7 +31,7 @@ required_skill = SubResource("Resource_exl55")
 script = ExtResource("6_ed2qe")
 skill_id = "frost_rime_dice"
 skill_name = "Rime Dice"
-description = "Ice die in [color=yellow]FIRST[/color] position: +[color=yellow]2/3[/color] value. In [color=yellow]LAST[/color]: apply [color=cyan]2/3 Chill[/color]."
+description = "Ice die in [color=yellow]FIRST[/color] position: +[color=yellow]2/3[/color] value. In [color=yellow]LAST[/color]: apply 2/3 [status:chill]."
 tier = 2
 column = 3
 prerequisites = Array[ExtResource("1_vy2w7")]([SubResource("Resource_ruqhm")])
@@ -47,7 +47,7 @@ required_skill = SubResource("Resource_b46i2")
 script = ExtResource("6_ed2qe")
 skill_id = "frost_permafrost_rune"
 skill_name = "Permafrost Rune"
-description = "Ice die adjacent to another ice die: both gain +[color=yellow]1/2[/color] value."
+description = "[element:ice] die adjacent to another [element:ice] die: both gain +[color=yellow]1/2[/color] value."
 tier = 3
 column = 3
 prerequisites = Array[ExtResource("1_vy2w7")]([SubResource("Resource_a3gl7")])
@@ -63,7 +63,8 @@ required_skill = SubResource("Resource_1x7bt")
 script = ExtResource("6_ed2qe")
 skill_id = "frost_glacial_clarity"
 skill_name = "Glacial Clarity"
-description = "Ice dice auto-reroll if value below [color=yellow]2/3/4[/color] (once per roll)."
+skill_category = 0
+description = "[element:ice] dice auto-reroll if value below [color=yellow]2/3/4[/color] (once per roll)."
 tier = 4
 column = 3
 prerequisites = Array[ExtResource("1_vy2w7")]([SubResource("Resource_oy8tu")])

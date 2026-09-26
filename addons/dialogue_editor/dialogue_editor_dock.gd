@@ -7,13 +7,10 @@ class_name DialogueEditorDock
 # ============================================================================
 @onready var graph_edit: DialogueGraphEdit = %DialogueGraphEdit
 @onready var speakers_panel: Control = %SpeakersPanel
-@onready var preview_panel: Control = %PreviewPanel
-@onready var validation_panel: Control = %ValidationPanel
 @onready var file_menu: MenuButton = %FileMenu
 @onready var edit_menu: MenuButton = %EditMenu
 @onready var add_menu: MenuButton = %AddMenu
 @onready var current_file_label: Label = %CurrentFileLabel
-@onready var right_tabs: TabContainer = %RightTabs
 
 # ============================================================================
 # STATE
@@ -37,7 +34,6 @@ enum EditMenuID {
 	REDO,
 	DELETE_SELECTED,
 	SELECT_ALL,
-	VALIDATE,
 }
 
 enum AddMenuID {
@@ -46,6 +42,7 @@ enum AddMenuID {
 	CONDITION,
 	SET_FLAG,
 	END,
+	ACTION,
 }
 
 # ============================================================================
@@ -79,8 +76,6 @@ func _setup_menus() -> void:
 	edit_popup.add_separator()
 	edit_popup.add_item("Delete Selected", EditMenuID.DELETE_SELECTED)
 	edit_popup.add_item("Select All", EditMenuID.SELECT_ALL)
-	edit_popup.add_separator()
-	edit_popup.add_item("Validate", EditMenuID.VALIDATE)
 	edit_popup.id_pressed.connect(_on_edit_menu_pressed)
 	
 	# Add node menu
@@ -91,6 +86,7 @@ func _setup_menus() -> void:
 	add_popup.add_separator()
 	add_popup.add_item("Condition Node", AddMenuID.CONDITION)
 	add_popup.add_item("Set Flag Node", AddMenuID.SET_FLAG)
+	add_popup.add_item("Action Node", AddMenuID.ACTION)
 	add_popup.add_separator()
 	add_popup.add_item("End Node", AddMenuID.END)
 	add_popup.id_pressed.connect(_on_add_menu_pressed)
@@ -103,13 +99,6 @@ func _connect_signals() -> void:
 	if speakers_panel:
 		speakers_panel.speaker_selected.connect(_on_speaker_selected)
 		speakers_panel.speakers_changed.connect(_on_speakers_changed)
-	
-	if preview_panel:
-		preview_panel.set_graph(graph_edit)
-	
-	if validation_panel:
-		validation_panel.set_graph(graph_edit)
-		validation_panel.issue_selected.connect(_on_issue_selected)
 
 # ============================================================================
 # FILE OPERATIONS
@@ -146,12 +135,6 @@ func _save_dialogue() -> void:
 	if current_file_path == "":
 		_save_dialogue_as()
 		return
-	
-	# Validate first
-	if validation_panel:
-		validation_panel.validate()
-		if validation_panel.has_errors():
-			push_warning("[DialogueEditor] Saving with errors - check validation panel")
 	
 	_do_save(current_file_path)
 
@@ -219,12 +202,6 @@ func _sync_speakers() -> void:
 	
 	if graph_edit:
 		graph_edit.set_available_speakers(speakers)
-	
-	if preview_panel:
-		preview_panel.set_speakers(speakers)
-	
-	if validation_panel:
-		validation_panel.set_speakers(speakers)
 
 # ============================================================================
 # SIGNAL HANDLERS
@@ -251,13 +228,6 @@ func _on_edit_menu_pressed(id: int) -> void:
 		EditMenuID.SELECT_ALL:
 			if graph_edit:
 				graph_edit.select_all_nodes()
-		EditMenuID.VALIDATE:
-			if validation_panel:
-				validation_panel.validate()
-				# Switch to validation tab
-				if right_tabs:
-					right_tabs.current_tab = 1  # Validation tab
-
 func _on_add_menu_pressed(id: int) -> void:
 	if not graph_edit:
 		return
@@ -271,6 +241,8 @@ func _on_add_menu_pressed(id: int) -> void:
 			graph_edit.add_condition_node()
 		AddMenuID.SET_FLAG:
 			graph_edit.add_set_flag_node()
+		AddMenuID.ACTION:
+			graph_edit.add_action_node()
 		AddMenuID.END:
 			graph_edit.add_end_node()
 
@@ -284,24 +256,16 @@ func _on_graph_modified() -> void:
 	is_dirty = true
 	_update_title()
 
-func _on_node_selected(node: GraphNode) -> void:
-	# Update preview
-	if preview_panel:
-		preview_panel.preview_node(node)
+func _on_node_selected(_node: GraphNode) -> void:
+	pass
 
-func _on_speaker_selected(speaker: DialogueSpeaker) -> void:
+func _on_speaker_selected(_speaker: DialogueSpeaker) -> void:
 	pass
 
 func _on_speakers_changed() -> void:
 	_sync_speakers()
 	is_dirty = true
 	_update_title()
-
-func _on_issue_selected(node: GraphNode) -> void:
-	# When an issue is clicked, select and focus the node
-	if graph_edit and node:
-		# Center view on node
-		graph_edit.scroll_offset = node.position_offset - graph_edit.size / 2
 
 # ============================================================================
 # TEST EXPORT

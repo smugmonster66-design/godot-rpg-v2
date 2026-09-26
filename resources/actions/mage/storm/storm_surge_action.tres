@@ -13,7 +13,7 @@
 script = ExtResource("5_or614")
 action_id = "storm_storm_surge"
 action_name = "Storm Surge"
-action_description = "Deal x0.8 shock damage to ALL enemies. Apply 3 Static to all. Chain returns to primary for an extra hit."
+action_description = "Deal x0.8 [element:shock] damage to ALL enemies. Apply 3 [status:static] to all. Chain returns to primary for an extra hit."
 die_slots = 3
 min_dice_required = 3
 accepted_elements = Array[int]([4])

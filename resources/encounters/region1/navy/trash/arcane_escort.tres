@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=6 format=3 uid="uid://cce3aq8pc5i61"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_w2noe"]
+[ext_resource type="Resource" uid="uid://briapl6oc7k72" path="res://resources/enemies/region1/navy/trash/naval_arcanist.tres" id="2_plc3j"]
+[ext_resource type="Resource" uid="uid://cgtqx5j8jiqqk" path="res://resources/enemies/region1/navy/trash/navy_fencer.tres" id="3_00cy4"]
+[ext_resource type="Resource" uid="uid://dns1e85acxavj" path="res://resources/enemies/region1/navy/trash/navy_scout.tres" id="4_dkb06"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="5_j0xjl"]
+
+[resource]
+script = ExtResource("5_j0xjl")
+encounter_name = "Arcane Escort"
+encounter_id = "navy_arcane_escort"
+enemies = Array[ExtResource("1_w2noe")]([ExtResource("2_plc3j"), ExtResource("3_00cy4"), ExtResource("4_dkb06")])
+enemy_slots = Array[int]([0, 1, 2])
+difficulty_tier = 3
+level_range_min = 2

@@ -1,34 +1,21 @@
-[gd_resource type="Resource" script_class="Action" load_steps=7 format=3 uid="uid://brux5w1ttku8n"]
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://brux5w1ttku8n"]
 
-[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_23fp3"]
-[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_46rf3"]
-[ext_resource type="Resource" uid="uid://behojsm6qvxjl" path="res://resources/statuses/burn.tres" id="3_43kk6"]
-[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_b2464"]
-
-[sub_resource type="Resource" id="Resource_23fp3"]
-script = ExtResource("1_23fp3")
-effect_name = "Detonate: Consume Burn Damage"
-effect_data = {
-"per_stack_bonus": 3,
-"status_id": "burn",
-"value_source": "TARGET_STATUS_STACKS"
-}
-damage_type = 3
-
-[sub_resource type="Resource" id="Resource_46rf3"]
-script = ExtResource("1_23fp3")
-effect_name = "Detonate: Remove Burn"
-effect_type = 3
-damage_type = 3
-status_affix = ExtResource("3_43kk6")
-stack_count = 0
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_y5h1u"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_rn14f"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_2qmgx"]
+[ext_resource type="Resource" uid="uid://cobqjhspthyco" path="res://resources/actions/mage/flame/effects/detonate_damage.tres" id="4_bboki"]
+[ext_resource type="Resource" uid="uid://clb77harykfx" path="res://resources/actions/mage/flame/effects/detonate_stack_bonus.tres" id="5_4r354"]
+[ext_resource type="Resource" uid="uid://btnpgu14bmxnt" path="res://resources/actions/mage/flame/effects/detonate_consume.tres" id="6_qgfew"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="7_m7gsw"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="8_ptrsf"]
 
 [resource]
-script = ExtResource("4_b2464")
+script = ExtResource("8_ptrsf")
 action_id = "flame_detonate"
 action_name = "Detonate"
-action_description = "Consume all Burn on target. Deal die + (stacks × 3) fire damage."
-min_dice_required = 1
+action_description = "Consume all [status:burn] on target. Deal [element:fire] x1.2 + 3 per consumed [status:burn] stack."
+die_slots = 2
+min_dice_required = 2
+accepted_elements = Array[int]([4])
 charge_type = 1
-max_charges = 2
-effects = Array[ExtResource("1_23fp3")]([SubResource("Resource_23fp3"), SubResource("Resource_46rf3")])
+effects = Array[ExtResource("3_2qmgx")]([ExtResource("4_bboki"), ExtResource("5_4r354"), ExtResource("6_qgfew")])

@@ -8,8 +8,9 @@
 [resource]
 script = ExtResource("2_ephr0")
 affix_name = "Grant Shock D4"
-description = "Add a Shock D4 to your dice pool"
+description = "Add a [element:shock] D4 to your dice pool"
 category = 32
 tags = Array[String](["dice_grant", "shock"])
 effect_number = 1.0
 granted_dice = Array[ExtResource("1_h0ya1")]([ExtResource("2_clkdu")])
+power_weight = 20.0

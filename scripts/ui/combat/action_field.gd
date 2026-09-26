@@ -12,7 +12,8 @@ enum ActionType {
 	BUFF,
 	DEBUFF,
 	HEAL,
-	SUMMON
+	SUMMON,
+	ESCAPE
 }
 
 # ============================================================================
@@ -98,6 +99,8 @@ var dice_visuals: Array[Control] = []
 var die_slot_panels: Array[Panel] = []
 var is_disabled: bool = false
 var dice_source_info: Array[Dictionary] = []
+## Stack count for Escape actions — used to calculate escape chance preview
+var restrained_stacks: int = 0
 # Source item visual data (for badge display)
 var source_icon: Texture2D = null
 var source_rarity: String = "Common"
@@ -236,7 +239,11 @@ func _discover_and_swap_dmg_label():
 	rtl.size_flags_horizontal = old_label.size_flags_horizontal
 	rtl.size_flags_vertical = old_label.size_flags_vertical
 	rtl.custom_minimum_size = old_label.custom_minimum_size
-	
+
+	# Copy theme type variation (e.g. "large") so font settings carry over
+	if old_label.theme_type_variation != &"":
+		rtl.theme_type_variation = old_label.theme_type_variation
+
 	# Copy font size override if present
 	if old_label.has_theme_font_size_override("font_size"):
 		rtl.add_theme_font_size_override("normal_font_size",
@@ -265,7 +272,7 @@ func setup_drop_target():
 func _apply_element_shader():
 	"""Apply fill + stroke shader materials from central element config.
 	Chromatic (multi-element) actions get the prismatic shader instead."""
-	
+
 	# Check if this is a chromatic action
 	_detect_chromatic()
 	
@@ -416,6 +423,8 @@ func _update_damage_preview():
 			_update_attack_preview()
 		ActionType.HEAL:
 			_update_heal_preview()
+		ActionType.ESCAPE:
+			_update_escape_preview()
 		ActionType.BUFF, ActionType.DEBUFF, ActionType.SUMMON:
 			if damage_formula_label:
 				damage_formula_label.text = ""
@@ -434,6 +443,31 @@ func _get_category_label() -> String:
 		ActionType.DEBUFF: return "Debuff"
 		ActionType.SUMMON: return "Summon"
 	return ""
+
+
+func _update_escape_preview():
+	"""Escape chance preview: shows % based on die value vs restrained stacks.
+	Uses the same label layout as _update_attack_preview for consistency."""
+	var element_color: Color = ThemeManager.get_element_color_enum(element)
+	var elem_hex: String = element_color.to_html(false)
+
+	dmg_preview_label.text = ""
+
+	if placed_dice.size() == 0:
+		dmg_preview_label.append_text(
+			"[center][color=#%s]—%% Escape[/color][/center]" % elem_hex)
+	else:
+		var die_value: int = placed_dice[0].current_value
+		var stacks: int = maxi(restrained_stacks, 1)
+		var percent: int = clampi(roundi(float(die_value) / float(stacks) * 100.0), 0, 100)
+		dmg_preview_label.append_text(
+			"[center][color=#%s]%d%% Escape[/color][/center]" % [elem_hex, percent])
+
+	if damage_formula_label:
+		damage_formula_label.text = ""
+		damage_formula_label.hide()
+	if damage_floater:
+		damage_floater.hide()
 
 
 func _update_attack_preview():
@@ -664,8 +698,24 @@ func _calculate_preview_power() -> int:
 			
 			dice_total += die_value
 	
+	# Consumable status buffs (e.g., Flashfire: +stacks to matching die)
+	if GameManager and GameManager.player and GameManager.player.status_tracker:
+		var tracker = GameManager.player.status_tracker
+		for instance in tracker.get_all_active():
+			var sa: StatusAffix = instance.get("status_affix")
+			if not sa or not sa.consume_on_die_use:
+				continue
+			# Check if any placed die matches the consume element
+			for die in placed_dice:
+				if not die is DieResource:
+					continue
+				if sa.consume_element == DieResource.Element.NONE \
+						or die.get_effective_element() == sa.consume_element:
+					dice_total += instance.get("current_stacks", 0)
+					break  # Only one die gets the bonus per status
+
 	var power: float = dice_total + float(base_damage)
-	
+
 	# Flat damage bonuses from affixes (mirrors CombatCalculator._apply_damage_bonuses)
 	if GameManager and GameManager.player:
 		var affixes: AffixPoolManager = GameManager.player.affix_manager
@@ -840,6 +890,7 @@ func configure_from_dict(action_data: Dictionary):
 			Action.ActionCategory.DEBUFF: action_type = ActionType.DEBUFF
 			Action.ActionCategory.HEAL: action_type = ActionType.HEAL
 			Action.ActionCategory.SUMMON: action_type = ActionType.SUMMON
+			Action.ActionCategory.ESCAPE: action_type = ActionType.ESCAPE
 	else:
 		# Legacy fallback from dict
 		action_type = action_data.get("action_type", ActionType.ATTACK)
@@ -856,6 +907,8 @@ func configure_from_dict(action_data: Dictionary):
 	# Source item visual data
 	source_icon = action_data.get("source_icon", null)
 	source_rarity = action_data.get("source_rarity", "Common")
+	# Escape action data
+	restrained_stacks = action_data.get("restrained_stacks", 0)
 	
 	# Element resolution — priority chain:
 	# 1. Source item's affix elemental identity
@@ -902,7 +955,7 @@ func refresh_ui():
 	if description_label:
 		if action_description != "":
 			description_label.text = ""
-			description_label.append_text("[center][i]%s[/i][/center]" % action_description)
+			description_label.append_text("[center][i]%s[/i][/center]" % DescriptionParser.parse(action_description))
 			description_label.show()
 		else:
 			description_label.hide()

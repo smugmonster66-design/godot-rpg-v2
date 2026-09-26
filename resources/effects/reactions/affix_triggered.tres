@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AnimationReaction" load_steps=4 format=3 uid="uid://b3vwyatmq6y2r"]
+
+[ext_resource type="Resource" uid="uid://dxm5qa2rift3n" path="res://resources/effects/micro_presets/affix_triggered.tres" id="1_affixrx"]
+[ext_resource type="Script" uid="uid://ccjdw1pfc320o" path="res://resources/data/reaction_condition.gd" id="2_affixrx"]
+[ext_resource type="Script" uid="uid://d31vp50po1w5e" path="res://resources/data/animation_reaction.gd" id="3_affixrx"]
+
+[resource]
+script = ExtResource("3_affixrx")
+event_type = 34
+animation_preset = ExtResource("1_affixrx")
+priority = 8

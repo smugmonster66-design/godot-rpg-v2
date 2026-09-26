@@ -1,0 +1,723 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://addons/companion_builder/panels/companion_detail_panel.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://addons/companion_builder/widgets/hp_preview_widget.tscn" id="2_hp_preview"]
+[ext_resource type="PackedScene" path="res://addons/companion_builder/widgets/effect_row.tscn" id="3_effect_row"]
+
+[node name="CompanionDetailPanel" type="PanelContainer"]
+script = ExtResource("1_script")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="NoSelectionLabel" type="Label" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+text = "Select a companion from the browser, or click New to create one."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TabContainer" type="TabContainer" parent="VBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+
+; ============================================================================
+; TAB 1: IDENTITY
+; ============================================================================
+[node name="Identity" type="ScrollContainer" parent="VBox/TabContainer"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="IdentityVBox" type="VBoxContainer" parent="VBox/TabContainer/Identity"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="IdentityHeader" type="Label" parent="VBox/TabContainer/Identity/IdentityVBox"]
+layout_mode = 2
+text = "Companion Identity"
+theme_override_font_sizes/font_size = 14
+
+[node name="NameRow" type="HBoxContainer" parent="VBox/TabContainer/Identity/IdentityVBox"]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="VBox/TabContainer/Identity/IdentityVBox/NameRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Name:"
+tooltip_text = "Display name shown in combat UI and companion panel"
+
+[node name="CompanionNameEdit" type="LineEdit" parent="VBox/TabContainer/Identity/IdentityVBox/NameRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Display name shown in combat UI and companion panel"
+placeholder_text = "Companion Name"
+
+[node name="IdRow" type="HBoxContainer" parent="VBox/TabContainer/Identity/IdentityVBox"]
+layout_mode = 2
+
+[node name="IdLabel" type="Label" parent="VBox/TabContainer/Identity/IdentityVBox/IdRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "ID:"
+tooltip_text = "Unique snake_case identifier for code and save data"
+
+[node name="CompanionIdEdit" type="LineEdit" parent="VBox/TabContainer/Identity/IdentityVBox/IdRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Unique snake_case identifier for code and save data"
+placeholder_text = "companion_id"
+
+[node name="AutoIdButton" type="Button" parent="VBox/TabContainer/Identity/IdentityVBox/IdRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Gen"
+tooltip_text = "Auto-generate ID from companion name as snake_case"
+
+[node name="DescLabel" type="Label" parent="VBox/TabContainer/Identity/IdentityVBox"]
+layout_mode = 2
+text = "Description:"
+tooltip_text = "Flavor text and mechanical summary. Supports BBCode"
+
+[node name="DescriptionEdit" type="TextEdit" parent="VBox/TabContainer/Identity/IdentityVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 60)
+tooltip_text = "Flavor text and mechanical summary. Supports BBCode"
+placeholder_text = "Companion description..."
+
+[node name="Sep1" type="HSeparator" parent="VBox/TabContainer/Identity/IdentityVBox"]
+layout_mode = 2
+
+[node name="ActionHeader" type="Label" parent="VBox/TabContainer/Identity/IdentityVBox"]
+layout_mode = 2
+text = "Action Info"
+theme_override_font_sizes/font_size = 14
+
+[node name="ActionNameRow" type="HBoxContainer" parent="VBox/TabContainer/Identity/IdentityVBox"]
+layout_mode = 2
+
+[node name="ActionNameLabel" type="Label" parent="VBox/TabContainer/Identity/IdentityVBox/ActionNameRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Action Name:"
+tooltip_text = "Name of the companion's combat action shown in the action log"
+
+[node name="ActionNameEdit" type="LineEdit" parent="VBox/TabContainer/Identity/IdentityVBox/ActionNameRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Name of the companion's combat action shown in the action log"
+placeholder_text = "e.g. Healing Light"
+
+[node name="ActionDescLabel" type="Label" parent="VBox/TabContainer/Identity/IdentityVBox"]
+layout_mode = 2
+text = "Action Description:"
+tooltip_text = "Player-facing description of what the action does"
+
+[node name="ActionDescriptionEdit" type="TextEdit" parent="VBox/TabContainer/Identity/IdentityVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+tooltip_text = "Player-facing description of what the action does. Supports BBCode"
+placeholder_text = "Action description..."
+
+[node name="Sep2" type="HSeparator" parent="VBox/TabContainer/Identity/IdentityVBox"]
+layout_mode = 2
+
+[node name="PortraitHeader" type="Label" parent="VBox/TabContainer/Identity/IdentityVBox"]
+layout_mode = 2
+text = "Portrait"
+theme_override_font_sizes/font_size = 14
+
+[node name="PortraitRow" type="HBoxContainer" parent="VBox/TabContainer/Identity/IdentityVBox"]
+layout_mode = 2
+
+[node name="PortraitPathLabel" type="Label" parent="VBox/TabContainer/Identity/IdentityVBox/PortraitRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "(none)"
+tooltip_text = "Path to the portrait texture"
+
+[node name="PickPortraitButton" type="Button" parent="VBox/TabContainer/Identity/IdentityVBox/PortraitRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Browse"
+tooltip_text = "Select portrait texture for the companion panel and combat UI"
+
+[node name="ClearPortraitButton" type="Button" parent="VBox/TabContainer/Identity/IdentityVBox/PortraitRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Clear"
+tooltip_text = "Remove portrait texture"
+
+[node name="PortraitPreview" type="TextureRect" parent="VBox/TabContainer/Identity/IdentityVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+expand_mode = 3
+stretch_mode = 5
+tooltip_text = "Portrait preview"
+
+[node name="Sep3" type="HSeparator" parent="VBox/TabContainer/Identity/IdentityVBox"]
+layout_mode = 2
+
+[node name="TypeHeader" type="Label" parent="VBox/TabContainer/Identity/IdentityVBox"]
+layout_mode = 2
+text = "Companion Type"
+theme_override_font_sizes/font_size = 14
+
+[node name="TypeRow" type="HBoxContainer" parent="VBox/TabContainer/Identity/IdentityVBox"]
+layout_mode = 2
+
+[node name="TypeLabel" type="Label" parent="VBox/TabContainer/Identity/IdentityVBox/TypeRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Type:"
+tooltip_text = "Whether this is a permanent NPC party member or temporary summon"
+
+[node name="CompanionTypeDropdown" type="OptionButton" parent="VBox/TabContainer/Identity/IdentityVBox/TypeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Whether this is a permanent NPC party member or temporary summon"
+
+[node name="Sep3b" type="HSeparator" parent="VBox/TabContainer/Identity/IdentityVBox"]
+layout_mode = 2
+
+[node name="SynergyHeader" type="Label" parent="VBox/TabContainer/Identity/IdentityVBox"]
+layout_mode = 2
+text = "Synergy Tags"
+theme_override_font_sizes/font_size = 14
+
+[node name="SynergyTagsRow" type="HBoxContainer" parent="VBox/TabContainer/Identity/IdentityVBox"]
+layout_mode = 2
+
+[node name="SynergyTagsLabel" type="Label" parent="VBox/TabContainer/Identity/IdentityVBox/SynergyTagsRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Tags:"
+tooltip_text = "Comma-separated synergy tags (e.g. frost, healer). Used by CompanionSynergyDefinition for tag-based matching"
+
+[node name="SynergyTagsEdit" type="LineEdit" parent="VBox/TabContainer/Identity/IdentityVBox/SynergyTagsRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Comma-separated synergy tags (e.g. frost, healer). Used by CompanionSynergyDefinition for tag-based matching"
+placeholder_text = "frost, healer, undead"
+
+; ============================================================================
+; TAB 2: COMBAT
+; ============================================================================
+[node name="Combat" type="ScrollContainer" parent="VBox/TabContainer"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="CombatVBox" type="VBoxContainer" parent="VBox/TabContainer/Combat"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HealthHeader" type="Label" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+text = "Health"
+theme_override_font_sizes/font_size = 14
+
+[node name="BaseHpRow" type="HBoxContainer" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+
+[node name="BaseHpLabel" type="Label" parent="VBox/TabContainer/Combat/CombatVBox/BaseHpRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Base Max HP:"
+tooltip_text = "Base hit points before scaling is applied"
+
+[node name="BaseMaxHpSpin" type="SpinBox" parent="VBox/TabContainer/Combat/CombatVBox/BaseHpRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Base hit points before scaling is applied"
+min_value = 1.0
+max_value = 9999.0
+value = 50.0
+
+[node name="ScalingRow" type="HBoxContainer" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+
+[node name="ScalingLabel" type="Label" parent="VBox/TabContainer/Combat/CombatVBox/ScalingRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "HP Scaling:"
+tooltip_text = "How this companion's max HP is calculated"
+
+[node name="HpScalingDropdown" type="OptionButton" parent="VBox/TabContainer/Combat/CombatVBox/ScalingRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "How this companion's max HP is calculated"
+
+[node name="ScalingValueRow" type="HBoxContainer" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+
+[node name="ScalingValueLabel" type="Label" parent="VBox/TabContainer/Combat/CombatVBox/ScalingValueRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Scaling Value:"
+tooltip_text = "Scaling factor. For PLAYER_PERCENT: 0.3 = 30%. For PLAYER_LEVEL: HP per level"
+
+[node name="HpScalingValueSpin" type="SpinBox" parent="VBox/TabContainer/Combat/CombatVBox/ScalingValueRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Scaling factor. For PLAYER_PERCENT: 0.3 = 30% of player HP. For PLAYER_LEVEL: HP gained per level"
+max_value = 100.0
+step = 0.01
+
+[node name="HpPreviewWidget" parent="VBox/TabContainer/Combat/CombatVBox" instance=ExtResource("2_hp_preview")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Sep4" type="HSeparator" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+
+[node name="TriggerHeader" type="Label" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+text = "Trigger"
+theme_override_font_sizes/font_size = 14
+
+[node name="TriggerRow" type="HBoxContainer" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+
+[node name="TriggerLabel" type="Label" parent="VBox/TabContainer/Combat/CombatVBox/TriggerRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Trigger:"
+tooltip_text = "When this companion's action fires"
+
+[node name="TriggerDropdown" type="OptionButton" parent="VBox/TabContainer/Combat/CombatVBox/TriggerRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "When this companion's action fires"
+
+[node name="ThresholdRow" type="HBoxContainer" parent="VBox/TabContainer/Combat/CombatVBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="ThresholdLabel" type="Label" parent="VBox/TabContainer/Combat/CombatVBox/ThresholdRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Threshold %:"
+tooltip_text = "HP percentage threshold (0.25 = fires when below 25% HP)"
+
+[node name="ThresholdSpin" type="SpinBox" parent="VBox/TabContainer/Combat/CombatVBox/ThresholdRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "HP percentage threshold (0.25 = fires when below 25% HP)"
+min_value = 0.01
+max_value = 1.0
+step = 0.01
+value = 0.25
+
+[node name="Sep5" type="HSeparator" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+
+[node name="TargetHeader" type="Label" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+text = "Targeting"
+theme_override_font_sizes/font_size = 14
+
+[node name="TargetRow" type="HBoxContainer" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+
+[node name="TargetLabel" type="Label" parent="VBox/TabContainer/Combat/CombatVBox/TargetRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Target Rule:"
+tooltip_text = "Who this companion's action targets"
+
+[node name="TargetRuleDropdown" type="OptionButton" parent="VBox/TabContainer/Combat/CombatVBox/TargetRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Who this companion's action targets"
+
+[node name="Sep6" type="HSeparator" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+
+[node name="ConditionHeader" type="Label" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+text = "Condition (Optional)"
+theme_override_font_sizes/font_size = 14
+
+[node name="ConditionRow" type="HBoxContainer" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+
+[node name="ConditionPathLabel" type="Label" parent="VBox/TabContainer/Combat/CombatVBox/ConditionRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "(none)"
+tooltip_text = "AffixCondition resource path. Empty = always fires"
+
+[node name="PickConditionButton" type="Button" parent="VBox/TabContainer/Combat/CombatVBox/ConditionRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Browse"
+tooltip_text = "Select an AffixCondition resource. Leave empty for unconditional firing"
+
+[node name="ClearConditionButton" type="Button" parent="VBox/TabContainer/Combat/CombatVBox/ConditionRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Clear"
+tooltip_text = "Remove condition gate"
+
+[node name="InspectConditionButton" type="Button" parent="VBox/TabContainer/Combat/CombatVBox/ConditionRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Inspect"
+tooltip_text = "Open condition resource in Inspector for detailed editing"
+
+[node name="Sep7" type="HSeparator" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+
+[node name="LimitsHeader" type="Label" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+text = "Limits"
+theme_override_font_sizes/font_size = 14
+
+[node name="CooldownRow" type="HBoxContainer" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+
+[node name="CooldownLabel" type="Label" parent="VBox/TabContainer/Combat/CombatVBox/CooldownRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Cooldown Turns:"
+tooltip_text = "Turns to wait after firing before the action can fire again. 0 = fires every trigger"
+
+[node name="CooldownSpin" type="SpinBox" parent="VBox/TabContainer/Combat/CombatVBox/CooldownRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Turns to wait after firing before the action can fire again. 0 = fires every trigger"
+max_value = 99.0
+
+[node name="UsesRow" type="HBoxContainer" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+
+[node name="UsesLabel" type="Label" parent="VBox/TabContainer/Combat/CombatVBox/UsesRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Uses/Combat:"
+tooltip_text = "Maximum times this action can fire in a single combat. 0 = unlimited"
+
+[node name="UsesPerCombatSpin" type="SpinBox" parent="VBox/TabContainer/Combat/CombatVBox/UsesRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Maximum times this action can fire in a single combat. 0 = unlimited"
+max_value = 99.0
+
+[node name="FirstTurnRow" type="HBoxContainer" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+
+[node name="FiresOnFirstTurnCheck" type="CheckBox" parent="VBox/TabContainer/Combat/CombatVBox/FirstTurnRow"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "If checked, the action can fire on the very first trigger. If unchecked, the first trigger is skipped"
+button_pressed = true
+text = "Fires on First Turn"
+
+[node name="Sep8" type="HSeparator" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+
+[node name="TauntHeader" type="Label" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+text = "Taunt"
+theme_override_font_sizes/font_size = 14
+
+[node name="TauntCheckRow" type="HBoxContainer" parent="VBox/TabContainer/Combat/CombatVBox"]
+layout_mode = 2
+
+[node name="HasTauntCheck" type="CheckBox" parent="VBox/TabContainer/Combat/CombatVBox/TauntCheckRow"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "If checked, this companion draws enemy attacks while taunt is active"
+text = "Has Taunt"
+
+[node name="TauntDurationRow" type="HBoxContainer" parent="VBox/TabContainer/Combat/CombatVBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="TauntDurLabel" type="Label" parent="VBox/TabContainer/Combat/CombatVBox/TauntDurationRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Taunt Duration:"
+tooltip_text = "How many turns the taunt lasts. 0 = permanent while alive"
+
+[node name="TauntDurationSpin" type="SpinBox" parent="VBox/TabContainer/Combat/CombatVBox/TauntDurationRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "How many turns the taunt lasts. 0 = permanent while alive"
+max_value = 99.0
+
+; ============================================================================
+; TAB 3: EFFECTS
+; ============================================================================
+[node name="Effects" type="ScrollContainer" parent="VBox/TabContainer"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="EffectsVBox" type="VBoxContainer" parent="VBox/TabContainer/Effects"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EffectsInfoLabel" type="Label" parent="VBox/TabContainer/Effects/EffectsVBox"]
+layout_mode = 2
+text = "Effects fire when the trigger activates. Use Inspect (...) to configure advanced options like damage type, sub-effects, and status affixes."
+autowrap_mode = 3
+theme_override_colors/font_color = Color(0.5, 0.55, 0.6, 1)
+theme_override_font_sizes/font_size = 11
+
+[node name="EffectsContainer" type="VBoxContainer" parent="VBox/TabContainer/Effects/EffectsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AddEffectButton" type="Button" parent="VBox/TabContainer/Effects/EffectsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+ Add Effect"
+tooltip_text = "Add a new ActionEffect to this companion's action"
+
+; ============================================================================
+; TAB 4: VISUALS
+; ============================================================================
+[node name="Visuals" type="ScrollContainer" parent="VBox/TabContainer"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="VisualsVBox" type="VBoxContainer" parent="VBox/TabContainer/Visuals"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AnimHeader" type="Label" parent="VBox/TabContainer/Visuals/VisualsVBox"]
+layout_mode = 2
+text = "Combat Animation"
+theme_override_font_sizes/font_size = 14
+
+[node name="AnimSetRow" type="HBoxContainer" parent="VBox/TabContainer/Visuals/VisualsVBox"]
+layout_mode = 2
+
+[node name="AnimSetLabel" type="Label" parent="VBox/TabContainer/Visuals/VisualsVBox/AnimSetRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Animation Set:"
+tooltip_text = "CombatAnimationSet resource for cast -> travel -> impact sequence"
+
+[node name="AnimSetPathLabel" type="Label" parent="VBox/TabContainer/Visuals/VisualsVBox/AnimSetRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "(none)"
+tooltip_text = "CombatAnimationSet resource path"
+
+[node name="PickAnimSetButton" type="Button" parent="VBox/TabContainer/Visuals/VisualsVBox/AnimSetRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Browse"
+tooltip_text = "Select CombatAnimationSet. If empty, companion fires with just a slot flash"
+
+[node name="ClearAnimSetButton" type="Button" parent="VBox/TabContainer/Visuals/VisualsVBox/AnimSetRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Clear"
+
+[node name="InspectAnimSetButton" type="Button" parent="VBox/TabContainer/Visuals/VisualsVBox/AnimSetRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Inspect"
+tooltip_text = "Open animation set in Inspector"
+
+[node name="IdleAnimRow" type="HBoxContainer" parent="VBox/TabContainer/Visuals/VisualsVBox"]
+layout_mode = 2
+
+[node name="IdleAnimLabel" type="Label" parent="VBox/TabContainer/Visuals/VisualsVBox/IdleAnimRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Idle Animation:"
+tooltip_text = "SpriteFrames for the companion's idle/overworld animation"
+
+[node name="IdleAnimPathLabel" type="Label" parent="VBox/TabContainer/Visuals/VisualsVBox/IdleAnimRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "(none)"
+
+[node name="PickIdleAnimButton" type="Button" parent="VBox/TabContainer/Visuals/VisualsVBox/IdleAnimRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Browse"
+tooltip_text = "Select SpriteFrames for idle animation"
+
+[node name="ClearIdleAnimButton" type="Button" parent="VBox/TabContainer/Visuals/VisualsVBox/IdleAnimRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Clear"
+
+[node name="InspectIdleAnimButton" type="Button" parent="VBox/TabContainer/Visuals/VisualsVBox/IdleAnimRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Inspect"
+tooltip_text = "Open idle animation in Inspector"
+
+[node name="Sep9" type="HSeparator" parent="VBox/TabContainer/Visuals/VisualsVBox"]
+layout_mode = 2
+
+[node name="VfxHeader" type="Label" parent="VBox/TabContainer/Visuals/VisualsVBox"]
+layout_mode = 2
+text = "Summon VFX"
+theme_override_font_sizes/font_size = 14
+
+[node name="SummonEnterRow" type="HBoxContainer" parent="VBox/TabContainer/Visuals/VisualsVBox"]
+layout_mode = 2
+
+[node name="SummonEnterLabel" type="Label" parent="VBox/TabContainer/Visuals/VisualsVBox/SummonEnterRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Summon Enter:"
+tooltip_text = "SummonPreset for particle converge animation when entering combat"
+
+[node name="SummonEnterPathLabel" type="Label" parent="VBox/TabContainer/Visuals/VisualsVBox/SummonEnterRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "(none)"
+
+[node name="PickSummonEnterButton" type="Button" parent="VBox/TabContainer/Visuals/VisualsVBox/SummonEnterRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Browse"
+tooltip_text = "Select SummonPreset resource"
+
+[node name="ClearSummonEnterButton" type="Button" parent="VBox/TabContainer/Visuals/VisualsVBox/SummonEnterRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Clear"
+
+[node name="InspectSummonEnterButton" type="Button" parent="VBox/TabContainer/Visuals/VisualsVBox/SummonEnterRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Inspect"
+
+[node name="EmanateRow" type="HBoxContainer" parent="VBox/TabContainer/Visuals/VisualsVBox"]
+layout_mode = 2
+
+[node name="EmanateLabel" type="Label" parent="VBox/TabContainer/Visuals/VisualsVBox/EmanateRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Entry Emanate:"
+tooltip_text = "EmanatePreset for radial burst effect after materializing"
+
+[node name="EmanatePathLabel" type="Label" parent="VBox/TabContainer/Visuals/VisualsVBox/EmanateRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "(none)"
+
+[node name="PickEmanateButton" type="Button" parent="VBox/TabContainer/Visuals/VisualsVBox/EmanateRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Browse"
+tooltip_text = "Select EmanatePreset resource"
+
+[node name="ClearEmanateButton" type="Button" parent="VBox/TabContainer/Visuals/VisualsVBox/EmanateRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Clear"
+
+[node name="InspectEmanateButton" type="Button" parent="VBox/TabContainer/Visuals/VisualsVBox/EmanateRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Inspect"
+
+[node name="Sep10" type="HSeparator" parent="VBox/TabContainer/Visuals/VisualsVBox"]
+layout_mode = 2
+
+[node name="PersonalityHeader" type="Label" parent="VBox/TabContainer/Visuals/VisualsVBox"]
+layout_mode = 2
+text = "Personality"
+theme_override_font_sizes/font_size = 14
+
+[node name="BarkSetRow" type="HBoxContainer" parent="VBox/TabContainer/Visuals/VisualsVBox"]
+layout_mode = 2
+
+[node name="BarkSetLabel" type="Label" parent="VBox/TabContainer/Visuals/VisualsVBox/BarkSetRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Bark Set:"
+tooltip_text = "BarkSet resource for personality speech-bubble reactions"
+
+[node name="BarkSetPathLabel" type="Label" parent="VBox/TabContainer/Visuals/VisualsVBox/BarkSetRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "(none)"
+
+[node name="PickBarkSetButton" type="Button" parent="VBox/TabContainer/Visuals/VisualsVBox/BarkSetRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Browse"
+tooltip_text = "Select BarkSet resource"
+
+[node name="ClearBarkSetButton" type="Button" parent="VBox/TabContainer/Visuals/VisualsVBox/BarkSetRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Clear"
+
+[node name="InspectBarkSetButton" type="Button" parent="VBox/TabContainer/Visuals/VisualsVBox/BarkSetRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Inspect"
+
+; ============================================================================
+; TAB 5: SUMMON
+; ============================================================================
+[node name="Summon" type="ScrollContainer" parent="VBox/TabContainer"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="SummonVBox" type="VBoxContainer" parent="VBox/TabContainer/Summon"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SummonInfoLabel" type="Label" parent="VBox/TabContainer/Summon/SummonVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "These fields only apply to SUMMON-type companions and will be ignored for NPCs."
+autowrap_mode = 3
+theme_override_colors/font_color = Color(0.5, 0.55, 0.6, 1)
+theme_override_font_sizes/font_size = 11
+
+[node name="DurationRow" type="HBoxContainer" parent="VBox/TabContainer/Summon/SummonVBox"]
+layout_mode = 2
+
+[node name="DurationLabel" type="Label" parent="VBox/TabContainer/Summon/SummonVBox/DurationRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
+text = "Duration Turns:"
+tooltip_text = "How many turns this summon lasts before disappearing. 0 = lasts the entire combat"
+
+[node name="DurationTurnsSpin" type="SpinBox" parent="VBox/TabContainer/Summon/SummonVBox/DurationRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "How many turns this summon lasts before disappearing. 0 = lasts the entire combat"
+max_value = 99.0

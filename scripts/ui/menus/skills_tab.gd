@@ -33,6 +33,7 @@ signal skill_learned(skill: SkillResource, new_rank: int)
 # ============================================================================
 var player: Player = null
 var current_tree_index: int = 0
+var _needs_rebuild: bool = false
 
 # ============================================================================
 # INITIALIZATION
@@ -44,6 +45,7 @@ func _ready():
 		skill_canvas.skill_clicked.connect(_on_skill_clicked)
 	if skill_popup:
 		skill_popup.learn_pressed.connect(_on_popup_learn_pressed)
+	visibility_changed.connect(_on_visibility_changed)
 	# Don't call _show_tree(0) here — wait for set_player()
 	print("🌳 SkillsTab: Ready")
 
@@ -71,7 +73,11 @@ func refresh():
 	"""Refresh entire tab display"""
 	_update_header()
 	_update_tree_tabs()
-	_build_skill_grid()
+	if is_visible_in_tree():
+		_build_skill_grid()
+		_needs_rebuild = false
+	else:
+		_needs_rebuild = true
 
 func on_external_data_change():
 	"""Called when other tabs modify player data - OPTIMIZED.
@@ -223,6 +229,11 @@ func _update_tab_highlight():
 			tree_tab_container.global_position.x + tree_tab_container.size.x / 2.0
 		])
 
+
+func _on_visibility_changed():
+	if visible and _needs_rebuild:
+		_needs_rebuild = false
+		_build_skill_grid()
 
 func _on_tree_tab_pressed(index: int):
 	"""Switch to a different skill tree"""

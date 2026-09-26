@@ -156,13 +156,13 @@ func _build_category_lists():
 func _build_ui():
 	# Scroll wrapper
 	_scroll = ScrollContainer.new()
+	add_child(_scroll)
 	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	add_child(_scroll)
 
 	_content = VBoxContainer.new()
-	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_scroll.add_child(_content)
+	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	# ── Preset ──
 	_add_section_label("Template")
@@ -200,9 +200,9 @@ func _build_ui():
 	_add_field_label("Description")
 	_desc_edit = TextEdit.new()
 	_desc_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_desc_edit.custom_minimum_size.y = 48
 	_desc_edit.placeholder_text = "e.g. Grants +1 rank to Kindling"
 	_content.add_child(_desc_edit)
+	_desc_edit.custom_minimum_size.y = 48
 	_add_spacer(8)
 
 	# ── Category ──
@@ -229,6 +229,7 @@ func _build_ui():
 	_add_section_label("Scaling (0 = no scaling)")
 	var scale_hbox = HBoxContainer.new()
 	scale_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_content.add_child(scale_hbox)
 
 	_add_inline_label(scale_hbox, "Min:")
 	_effect_min_spin = SpinBox.new()
@@ -245,8 +246,6 @@ func _build_ui():
 	_effect_max_spin.max_value = 9999.0
 	_effect_max_spin.step = 0.01
 	scale_hbox.add_child(_effect_max_spin)
-
-	_content.add_child(scale_hbox)
 	_add_spacer(8)
 
 	# ── Tags ──
@@ -306,8 +305,8 @@ func _build_ui():
 	# Status label
 	_status_label = Label.new()
 	_status_label.text = "Ready"
-	_status_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 	_content.add_child(_status_label)
+	_status_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 
 # ============================================================================
 # EFFECT DATA ROWS
@@ -316,15 +315,16 @@ func _build_ui():
 func _on_add_data_row(key: String = "", value: String = "", type_idx: int = 0):
 	var hbox = HBoxContainer.new()
 	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_data_container.add_child(hbox)
 
 	# Type selector
 	var type_opt = OptionButton.new()
 	type_opt.add_item("String", 0)
 	type_opt.add_item("Int", 1)
 	type_opt.add_item("Float", 2)
-	type_opt.custom_minimum_size.x = 70
 	type_opt.select(type_idx)
 	hbox.add_child(type_opt)
+	type_opt.custom_minimum_size.x = 70
 
 	# Key
 	var key_edit = LineEdit.new()
@@ -343,11 +343,10 @@ func _on_add_data_row(key: String = "", value: String = "", type_idx: int = 0):
 	# Delete button
 	var del_btn = Button.new()
 	del_btn.text = "✕"
-	del_btn.custom_minimum_size.x = 28
 	del_btn.pressed.connect(_on_delete_data_row.bind(hbox))
 	hbox.add_child(del_btn)
+	del_btn.custom_minimum_size.x = 28
 
-	_data_container.add_child(hbox)
 	_data_rows.append({"hbox": hbox, "key": key_edit, "value": val_edit, "type": type_opt})
 
 func _on_delete_data_row(hbox: HBoxContainer):
@@ -580,26 +579,26 @@ func _on_clear_pressed():
 func _add_section_label(text: String):
 	var label = Label.new()
 	label.text = text
+	_content.add_child(label)
 	label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.4))
 	label.add_theme_font_size_override("font_size", 13)
-	_content.add_child(label)
 
 func _add_field_label(text: String):
 	var label = Label.new()
 	label.text = text
-	label.add_theme_color_override("font_color", Color(0.75, 0.75, 0.75))
 	_content.add_child(label)
+	label.add_theme_color_override("font_color", Color(0.75, 0.75, 0.75))
 
 func _add_inline_label(parent: Control, text: String):
 	var label = Label.new()
 	label.text = text
-	label.add_theme_color_override("font_color", Color(0.75, 0.75, 0.75))
 	parent.add_child(label)
+	label.add_theme_color_override("font_color", Color(0.75, 0.75, 0.75))
 
 func _add_spacer(height: float):
 	var spacer = Control.new()
-	spacer.custom_minimum_size.y = height
 	_content.add_child(spacer)
+	spacer.custom_minimum_size.y = height
 
 func _set_status(text: String, color: Color = Color(0.6, 0.6, 0.6)):
 	if _status_label:

@@ -59,15 +59,13 @@ signal slot_unhovered(slot: EnemySlot)
 # ============================================================================
 # NODE REFERENCES - Found from scene
 # ============================================================================
-@onready var dice_pool_bar: HBoxContainer = $MarginContainer/VBox/DicePoolBar
-@onready var name_label: Label = $MarginContainer/VBox/PortraitSection/NameLabel
-@onready var health_label: Label = $MarginContainer/VBox/HealthLabel
-#@onready var turn_indicator: ColorRect = $MarginContainer/VBox/TurnIndicatorRect
-
-@onready var portrait_rect: TextureRect = $MarginContainer/VBox/PortraitSection/Portrait
-@onready var reticle_rect: ColorRect = $MarginContainer/VBox/PortraitSection/ReticleRect
-@onready var health_bar: TextureProgressBar = $MarginContainer/VBox/PortraitSection/HealthBar
-@onready var background_frame: NinePatchRect = $MarginContainer/VBox/PortraitSection/BackgroundFrame
+var dice_pool_bar: HBoxContainer
+var name_label: Label
+var health_label: Label
+var portrait_rect: TextureRect
+var reticle_rect: ColorRect
+var health_bar: TextureProgressBar
+var background_frame: NinePatchRect
 
 # ============================================================================
 # STATE
@@ -92,10 +90,13 @@ func _slot_color(custom: Color, palette_fallback: Color) -> Color:
 # ============================================================================
 
 func _ready():
+	_find_nodes()
 	_setup_style()
-	var portrait_section = $MarginContainer/VBox/PortraitSection
-	portrait_section.custom_minimum_size = Vector2(portrait_size.x, portrait_size.y + health_overlap)
-	portrait_rect.custom_minimum_size = portrait_size
+	var portrait_section = find_child("PortraitSection", true, false)
+	if portrait_section:
+		portrait_section.custom_minimum_size = Vector2(portrait_size.x, portrait_size.y + health_overlap)
+	if portrait_rect:
+		portrait_rect.custom_minimum_size = portrait_size
 
 	if health_bar:
 		health_bar.offset_left = -portrait_size.x / 2.0
@@ -107,9 +108,19 @@ func _ready():
 	_create_status_display()
 
 
+func _find_nodes():
+	"""Find child nodes by name instead of hardcoded paths."""
+	dice_pool_bar = find_child("DicePoolBar", true, false) as HBoxContainer
+	name_label = find_child("NameLabel", true, false) as Label
+	health_label = find_child("HealthLabel", true, false) as Label
+	portrait_rect = find_child("Portrait", true, false) as TextureRect
+	reticle_rect = find_child("ReticleRect", true, false) as ColorRect
+	health_bar = find_child("HealthBar", true, false) as TextureProgressBar
+	background_frame = find_child("BackgroundFrame", true, false) as NinePatchRect
+
 func _create_status_display():
 	"""Create the status effect icon strip below the health bar."""
-	var vbox = $MarginContainer/VBox
+	var vbox = find_child("VBox", true, false)
 	if not vbox:
 		return
 	status_display = StatusEffectDisplay.new()
@@ -118,7 +129,9 @@ func _create_status_display():
 	vbox.add_child(status_display)
 	
 	# Let input flow through to status icons
-	$MarginContainer.mouse_filter = Control.MOUSE_FILTER_PASS
+	var margin = find_child("MarginContainer", true, false)
+	if margin:
+		margin.mouse_filter = Control.MOUSE_FILTER_PASS
 	vbox.mouse_filter = Control.MOUSE_FILTER_PASS
 
 
@@ -528,7 +541,7 @@ func _update_display():
 			status_display.connect_tracker(tracker)
 		# Bind portrait particle layer
 		if not _particle_layer:
-			var portrait_section := $MarginContainer/VBox/PortraitSection
+			var portrait_section := find_child("PortraitSection", true, false)
 			_particle_layer = PortraitParticleLayer.new()
 			_particle_layer.name = "StatusParticleLayer"
 			portrait_section.add_child(_particle_layer)

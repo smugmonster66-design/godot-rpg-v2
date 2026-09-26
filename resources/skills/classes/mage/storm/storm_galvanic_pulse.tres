@@ -10,28 +10,31 @@
 [ext_resource type="Script" uid="uid://bd327xjbfmua2" path="res://scripts/resources/skill_resource.gd" id="5_v0wv8"]
 [ext_resource type="Resource" uid="uid://cs8flo2oc50ge" path="res://resources/affixes/classes/mage/storm/spark/spark_ca_r3_affix.tres" id="6_vtilg"]
 
-[sub_resource type="Resource" id="Resource_gwqxq"]
+[sub_resource type="Resource" id="Resource_idtkr"]
 script = ExtResource("5_v0wv8")
 skill_id = "storm_spark"
 skill_name = "Spark"
-description = "Unlock [color=yellow]Shock[/color] mana. Chromatic Bolt applies [color=yellow]1/2/3 Static[/color] on hit (requires shock die)."
+description = "Unlock [element:shock] mana. Chromatic Bolt applies [status:static|1/2/3 Static] on hit (requires shock die)."
 column = 3
 rank_1_affixes = Array[ExtResource("2_1sj7v")]([ExtResource("3_v0wv8"), ExtResource("4_nggls")])
 rank_2_affixes = Array[ExtResource("2_1sj7v")]([ExtResource("3_v0wv8"), ExtResource("5_evu62")])
 rank_3_affixes = Array[ExtResource("2_1sj7v")]([ExtResource("3_v0wv8"), ExtResource("6_vtilg")])
 
-[sub_resource type="Resource" id="Resource_v0wv8"]
+[sub_resource type="Resource" id="Resource_l4a4f"]
 script = ExtResource("1_umd67")
-required_skill = SubResource("Resource_gwqxq")
+required_skill = SubResource("Resource_idtkr")
 
 [resource]
 script = ExtResource("5_v0wv8")
 skill_id = "storm_galvanic_pulse"
 skill_name = "Galvanic Pulse"
-description = "Shock damage to [color=yellow]Static[/color] target restores [color=yellow]1/2[/color] mana. Max 2 triggers/turn."
+skill_category = 0
+skill_category = 0
+skill_category = 0
+description = "Shock damage to [status:static] target restores [color=yellow]1/2[/color] mana. Max 2 triggers/turn."
 tier = 2
 column = 5
-prerequisites = Array[ExtResource("1_umd67")]([SubResource("Resource_v0wv8")])
+prerequisites = Array[ExtResource("1_umd67")]([SubResource("Resource_l4a4f")])
 tree_points_required = 1
 rank_1_affixes = Array[ExtResource("2_1sj7v")]([ExtResource("3_2khgs")])
 rank_2_affixes = Array[ExtResource("2_1sj7v")]([ExtResource("4_3m01j")])

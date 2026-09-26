@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_mbvil")
 affix_name = "Apply Corrode on Hit"
-description = "N% chance to Corrode on hit"
+description = "{proc_chance}% chance to [status:corrode|Corrode] on hit"
 category = 35
 tags = Array[String](["proc", "status", "on_hit"])
 effect_data = {
@@ -15,6 +15,7 @@ effect_data = {
 "status": "corrode"
 }
 proc_trigger = 1
-proc_chance = 0.24000000000000002
+proc_chance = 0.24
 proc_chance_min = 0.08
 proc_chance_max = 0.4
+power_weight = 110.0

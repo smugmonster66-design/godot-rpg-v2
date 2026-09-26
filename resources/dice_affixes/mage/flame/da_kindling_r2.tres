@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=5 format=3 uid="uid://ctfsngwqcqxsh"]
+
+[ext_resource type="Resource" uid="uid://bqwpdb8we20so" path="res://resources/dice_affixes/mage/flame/conditions/cond_neighbor_fire.tres" id="1_5wt52"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_jttpj"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_cp0u6"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_lmm0x"]
+
+[resource]
+script = ExtResource("3_cp0u6")
+affix_name = "Kindling II: Adjacent Fire Bonus"
+description = "[element:fire] die adjacent to [element:fire]: +2 value."
+use_global_element_visuals = true
+global_element_type = 3
+trigger = 1
+condition = ExtResource("1_5wt52")
+effect_value = 2.0

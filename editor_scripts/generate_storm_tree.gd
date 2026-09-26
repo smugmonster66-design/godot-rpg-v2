@@ -279,7 +279,8 @@ func _make_action_with_elements(p_id: String, p_name: String, p_desc: String,
 func _make_skill(p_id: String, p_name: String, p_desc: String,
 		p_tier: int, p_col: int, p_tree_pts: int,
 		p_rank_affixes: Dictionary = {},
-		p_cost: int = 1) -> SkillResource:
+		p_cost: int = 1,
+		p_category: SkillResource.SkillCategory = SkillResource.SkillCategory.PASSIVE) -> SkillResource:
 	var s: SkillResource = SkillResource.new()
 	s.skill_id = p_id
 	s.skill_name = p_name
@@ -288,6 +289,7 @@ func _make_skill(p_id: String, p_name: String, p_desc: String,
 	s.column = p_col
 	s.tree_points_required = p_tree_pts
 	s.skill_point_cost = p_cost
+	s.skill_category = p_category
 	if p_rank_affixes.has(1):
 		s.rank_1_affixes.assign(p_rank_affixes[1])
 	if p_rank_affixes.has(2):
@@ -461,7 +463,7 @@ func _create_tier_2():
 	_save_skill(
 		_make_skill("storm_arc_pulse", "Arc Pulse",
 			"Shock mana dice apply [color=yellow]1/2/3[/color] [color=yellow]Static[/color] on use.",
-			2, 1, _tier_pts(2), {1: [ap_r1], 2: [ap_r2], 3: [ap_r3]}),
+			2, 1, _tier_pts(2), {1: [ap_r1], 2: [ap_r2], 3: [ap_r3]}, 1, SkillResource.SkillCategory.TRIGGER),
 		"storm_arc_pulse")
 
 	# ── Conductor (Col 3, Center) — shock dice chain damage on use ──
@@ -498,7 +500,7 @@ func _create_tier_2():
 	_save_skill(
 		_make_skill("storm_conductor", "Conductor",
 			"Shock mana dice chain [color=yellow]30/40/50%[/color] damage to 1 additional enemy on use.",
-			2, 3, _tier_pts(2), {1: [con_r1], 2: [con_r2], 3: [con_r3]}),
+			2, 3, _tier_pts(2), {1: [con_r1], 2: [con_r2], 3: [con_r3]}, 1, SkillResource.SkillCategory.TRIGGER),
 		"storm_conductor")
 
 	# ── Galvanic Pulse (Col 5, Branch B) — mana restore on Static target hit ──
@@ -566,7 +568,7 @@ func _create_tier_3():
 	_save_skill(
 		_make_skill("storm_ionize", "Ionize",
 			"Pulling shock mana die applies [color=yellow]1/2/3[/color] [color=yellow]Static[/color] to random enemy.",
-			3, 0, _tier_pts(3), {1: [ion_r1], 2: [ion_r2], 3: [ion_r3]}),
+			3, 0, _tier_pts(3), {1: [ion_r1], 2: [ion_r2], 3: [ion_r3]}, 1, SkillResource.SkillCategory.TRIGGER),
 		"storm_ionize")
 
 	# ── Thunderclap (Col 1, Branch A) — ACTION: 1 die, unlimited, apply Static = value ──
@@ -607,7 +609,7 @@ func _create_tier_3():
 	_save_skill(
 		_make_skill("storm_thunderclap", "Thunderclap",
 			"[color=yellow]ACTION:[/color] 1 shock die -> shock damage + apply [color=yellow]Static[/color] = die value. Unlimited.",
-			3, 1, _tier_pts(3), {1: [tc_grant]}),
+			3, 1, _tier_pts(3), {1: [tc_grant]}, 1, SkillResource.SkillCategory.ACTION),
 		"storm_thunderclap")
 
 	# ── Storm Sprite (Col 3, Center) — ACTION: summon companion ──
@@ -653,7 +655,7 @@ func _create_tier_3():
 	_save_skill(
 		_make_skill("storm_storm_sprite", "Storm Sprite",
 			"[color=yellow]ACTION:[/color] 1 shock die, per-combat. Summon Sprite (zaps random enemy: 4 shock + 1 [color=yellow]Static[/color]/turn). HP = die value x3.",
-			3, 3, _tier_pts(3), {1: [ss_grant]}),
+			3, 3, _tier_pts(3), {1: [ss_grant]}, 1, SkillResource.SkillCategory.ACTION),
 		"storm_storm_sprite")
 
 	# ── Polarity (Col 6, Branch B) — shock die bonus if no adjacent shock ──
@@ -727,7 +729,7 @@ func _create_tier_4():
 	_save_skill(
 		_make_skill("storm_live_wire", "Live Wire",
 			"Shock dice apply +[color=yellow]1/2[/color] bonus [color=yellow]Static[/color] on use if target already has Static.",
-			4, 0, _tier_pts(4), {1: [lw_r1], 2: [lw_r2]}),
+			4, 0, _tier_pts(4), {1: [lw_r1], 2: [lw_r2]}, 1, SkillResource.SkillCategory.TRIGGER),
 		"storm_live_wire")
 
 	# ── Arc Conduit (Col 2, Center) — chains hit +1 target, bounces apply Static ──
@@ -848,7 +850,7 @@ func _create_tier_5():
 	_save_skill(
 		_make_skill("storm_storm_charge", "Storm Charge",
 			"Applying [color=yellow]Static[/color] to target with 8+ stacks: splash [color=yellow]1/2[/color] Static to all other enemies.",
-			5, 0, _tier_pts(5), {1: [sc_r1], 2: [sc_r2]}),
+			5, 0, _tier_pts(5), {1: [sc_r1], 2: [sc_r2]}, 1, SkillResource.SkillCategory.TRIGGER),
 		"storm_storm_charge")
 
 	# ── Charged Cascade (Col 3, Weave) — chain bounces deal bonus per Static ──
@@ -867,7 +869,7 @@ func _create_tier_5():
 	_save_skill(
 		_make_skill("storm_charged_cascade", "Charged Cascade",
 			"[color=yellow]WEAVE:[/color] Chain bounces deal +3 bonus damage per [color=yellow]Static[/color] stack on bounce target.",
-			5, 3, _tier_pts(5), {1: [cc_affix]}),
+			5, 3, _tier_pts(5), {1: [cc_affix]}, 1, SkillResource.SkillCategory.WEAVE),
 		"storm_charged_cascade")
 
 	# ── Lightning Bolt (Col 5, Branch B) — ACTION: 2 dice, per-stack bonus ──
@@ -914,7 +916,7 @@ func _create_tier_5():
 	_save_skill(
 		_make_skill("storm_lightning_bolt", "Lightning Bolt",
 			"[color=yellow]ACTION:[/color] 2 shock dice -> x1.2 damage + [color=yellow]3 per Static stack[/color]. Chain to 1 at 50%. Per turn.",
-			5, 5, _tier_pts(5), {1: [lb_grant]}),
+			5, 5, _tier_pts(5), {1: [lb_grant]}, 1, SkillResource.SkillCategory.ACTION),
 		"storm_lightning_bolt")
 
 
@@ -945,7 +947,7 @@ func _create_tier_6():
 	_save_skill(
 		_make_skill("storm_thunderhead", "Thunderhead",
 			"Turn start: apply [color=yellow]2/3[/color] [color=yellow]Static[/color] to all enemies.",
-			6, 1, _tier_pts(6), {1: [th_r1], 2: [th_r2]}),
+			6, 1, _tier_pts(6), {1: [th_r1], 2: [th_r2]}, 1, SkillResource.SkillCategory.TRIGGER),
 		"storm_thunderhead")
 
 	# ── Static Discharge (Col 5, Branch B) — death propagation ──
@@ -963,7 +965,7 @@ func _create_tier_6():
 	_save_skill(
 		_make_skill("storm_static_discharge", "Static Discharge",
 			"When [color=yellow]Static[/color] target dies: deal remaining stacks as shock AoE, apply half as [color=yellow]Static[/color] to all.",
-			6, 5, _tier_pts(6), {1: [sd]}),
+			6, 5, _tier_pts(6), {1: [sd]}, 1, SkillResource.SkillCategory.TRIGGER),
 		"storm_static_discharge")
 
 
@@ -994,7 +996,7 @@ func _create_tier_7():
 	_save_skill(
 		_make_skill("storm_galvanic_renewal", "Galvanic Renewal",
 			"On shock kill: gain [color=yellow]1/2[/color] free shock die to hand. Max 1 trigger/turn.",
-			7, 2, _tier_pts(7), {1: [gr_r1], 2: [gr_r2]}),
+			7, 2, _tier_pts(7), {1: [gr_r1], 2: [gr_r2]}, 1, SkillResource.SkillCategory.TRIGGER),
 		"storm_galvanic_renewal")
 
 	# ── Storm Surge (Col 4, Signature) — 3 dice, AoE + Static + chain return ──
@@ -1040,7 +1042,7 @@ func _create_tier_7():
 	_save_skill(
 		_make_skill("storm_storm_surge", "Storm Surge",
 			"[color=yellow]SIGNATURE:[/color] 3 shock dice -> x0.8 AoE shock + 3 [color=yellow]Static[/color] to all. Chain returns to primary. Per combat.",
-			7, 4, _tier_pts(7), {1: [surge_grant]}),
+			7, 4, _tier_pts(7), {1: [surge_grant]}, 1, SkillResource.SkillCategory.SIGNATURE),
 		"storm_storm_surge")
 
 
@@ -1091,7 +1093,7 @@ func _create_tier_8():
 	_save_skill(
 		_make_skill("storm_eye_of_the_storm", "Eye of the Storm",
 			"[color=yellow]CAPSTONE:[/color] [color=yellow]Static[/color] max stacks doubled (40). Chains +1 target. FIRST-position shock die applies 2 Static to all.",
-			8, 3, _tier_pts(8), {1: [eye_max_stacks, eye_chain, eye_first]}),
+			8, 3, _tier_pts(8), {1: [eye_max_stacks, eye_chain, eye_first]}, 1, SkillResource.SkillCategory.CAPSTONE),
 		"storm_eye_of_the_storm")
 
 

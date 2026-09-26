@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=4 format=3 uid="uid://co23i2vaygl17"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_tqmmv"]
+[ext_resource type="Resource" uid="uid://behojsm6qvxjl" path="res://resources/statuses/burn.tres" id="2_7b48f"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="3_t4hhm"]
+
+[resource]
+script = ExtResource("1_tqmmv")
+effect_name = "Sear: Apply Burn"
+effect_type = 2
+value_source = 1
+status_affix = ExtResource("2_7b48f")
+stack_count = 0

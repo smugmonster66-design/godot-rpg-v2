@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_ug2xs")
 affix_name = "Glacial Clarity II"
-description = "Ice dice auto-reroll below 3."
+description = "[element:ice] dice auto-reroll below 3."
 category = 39
 tags = Array[String](["mage", "frost", "mana_die_affix", "reroll", "consistency"])
 effect_data = {

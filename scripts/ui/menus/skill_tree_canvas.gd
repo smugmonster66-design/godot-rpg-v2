@@ -53,6 +53,8 @@ var tree_points_spent: int = 0
 var _center_offset_x: float = 0.0
 ## Pool of inactive SkillButton nodes ready for reuse
 var _button_pool: Array[SkillButton] = []
+## Monotonic build counter — stale awaited builds check this to bail out
+var _build_generation: int = 0
 
 
 ## Line2D nodes for prerequisite connections. Key = "fromId->toId"
@@ -61,6 +63,8 @@ var _prereq_lines: Dictionary = {}
 var _prereq_met_state: Dictionary = {}
 ## Reference to current tree (for line visual config)
 var _current_tree: SkillTree = null
+## Preloaded mask shader for prereq lines
+var _line_mask_shader: Shader = preload("res://shaders/prereq_line_mask.gdshader")
 
 var _player_class_ref: PlayerClass = null
 ## SubViewport that renders the element shader for icon rank fill
@@ -88,6 +92,9 @@ func _ready():
 # ============================================================================
 
 func build(tree: SkillTree, rank_getter: Callable, points_spent: int = 0, player_class: PlayerClass = null):
+	_build_generation += 1
+	var my_gen := _build_generation
+
 	_player_class_ref = player_class
 	skill_rank_getter = rank_getter
 	tree_points_spent = points_spent
@@ -102,6 +109,9 @@ func build(tree: SkillTree, rank_getter: Callable, points_spent: int = 0, player
 
 	if size.x <= 0:
 		await get_tree().process_frame
+		# A newer build started while we were waiting — abort this one
+		if my_gen != _build_generation:
+			return
 
 	_compute_center_offset()
 
@@ -148,6 +158,7 @@ func _recycle_all_buttons():
 	for skill_id in skill_buttons:
 		var btn: SkillButton = skill_buttons[skill_id]
 		btn.skill = null
+		btn.theme_type_variation = &"SkillButton"
 		btn.hide()
 		_button_pool.append(btn)
 	skill_buttons.clear()
@@ -317,6 +328,7 @@ func _clear_prereq_lines():
 
 func _create_prereq_lines():
 	"""Create a Line2D node for each prerequisite connection."""
+	var half_cell = cell_size * 0.5
 	for skill_id in skill_map:
 		var skill: SkillResource = skill_map[skill_id]
 		if skill.prerequisites.is_empty():
@@ -333,21 +345,49 @@ func _create_prereq_lines():
 
 			var from_center = _get_cell_center(prereq_skill.tier, prereq_skill.column)
 			var key = "%s->%s" % [prereq_skill.skill_id, skill_id]
+			var line_length = from_center.distance_to(to_center)
+
+			# Compute distance along line from center to cell rect edge
+			var dir = (to_center - from_center) / line_length
+			var start_exit = _ray_exit_distance(dir, half_cell)
+			var end_exit = _ray_exit_distance(-dir, half_cell)
 
 			var line := Line2D.new()
 			line.points = PackedVector2Array([from_center, from_center])  # starts collapsed
 			line.width = _get_line_width()
 			line.default_color = _get_locked_color()
 			line.antialiased = true
+			line.texture_mode = Line2D.LINE_TEXTURE_STRETCH
 			line.set_meta("from_pos", from_center)
 			line.set_meta("to_pos", to_center)
 			line.set_meta("prereq_ref", prereq)
+
+			# Mask shader hides line inside cell bounds at both endpoints
+			var mask_mat := ShaderMaterial.new()
+			mask_mat.shader = _line_mask_shader
+			mask_mat.set_shader_parameter("line_length", line_length)
+			mask_mat.set_shader_parameter("mask_start", start_exit - 6.0)
+			mask_mat.set_shader_parameter("mask_end", end_exit - 6.0)
+			mask_mat.set_shader_parameter("fade_width", 4.0)
+			line.material = mask_mat
+
 			add_child(line)
 			move_child(line, 0)  # keep behind buttons
 
 			_prereq_lines[key] = line
 			_prereq_met_state[key] = false
 			print("📏 Created %d prereq lines" % _prereq_lines.size())
+
+func _ray_exit_distance(dir: Vector2, half_size: Vector2) -> float:
+	"""Distance along a ray from a rect center to the rect edge."""
+	# For an axis-aligned rect, the exit distance is the minimum of
+	# the distances to the horizontal and vertical edges along the ray.
+	var dist = INF
+	if abs(dir.x) > 0.001:
+		dist = minf(dist, half_size.x / abs(dir.x))
+	if abs(dir.y) > 0.001:
+		dist = minf(dist, half_size.y / abs(dir.y))
+	return dist
 
 func _update_prereq_line_states(animate: bool):
 	"""Check each connection's met status. Animate fill on newly met lines."""
@@ -394,20 +434,22 @@ func _set_line_locked(line: Line2D, from_pos: Vector2, to_pos: Vector2):
 	line.points = PackedVector2Array([from_pos, to_pos])
 	line.default_color = _get_locked_color()
 	line.width = _get_line_width()
-	line.material = null
+	line.texture = null
 
 func _set_line_filled(line: Line2D, from_pos: Vector2, to_pos: Vector2):
-	"""Show full-length line in met style with shader."""
+	"""Show full-length line in met style."""
 	line.points = PackedVector2Array([from_pos, to_pos])
 	line.default_color = _get_met_color()
 	line.width = _get_line_width()
-	_apply_line_shader(line, 1.0)
+	if _fill_viewport:
+		line.texture = _fill_viewport.get_texture()
 
 func _animate_line_fill(line: Line2D, from_pos: Vector2, to_pos: Vector2):
-	"""Tween the line from source to destination with shader."""
+	"""Tween the line from source to destination."""
 	line.default_color = _get_met_color()
 	line.width = _get_line_width()
-	_apply_line_shader(line, 0.0)
+	if _fill_viewport:
+		line.texture = _fill_viewport.get_texture()
 
 	var duration = _get_fill_duration()
 	var tw = create_tween()
@@ -415,24 +457,9 @@ func _animate_line_fill(line: Line2D, from_pos: Vector2, to_pos: Vector2):
 		func(progress: float):
 			if is_instance_valid(line):
 				var current_end = from_pos.lerp(to_pos, progress)
-				line.points = PackedVector2Array([from_pos, current_end])
-				_update_line_shader_progress(line, progress),
+				line.points = PackedVector2Array([from_pos, current_end]),
 		0.0, 1.0, duration
 	).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-
-func _apply_line_shader(line: Line2D, progress: float):
-	"""Apply the tree's shader material to the line (as a unique copy)."""
-	if _current_tree and _current_tree.prereq_line_shader:
-		var mat = _current_tree.prereq_line_shader.duplicate() as ShaderMaterial
-		mat.set_shader_parameter("fill_progress", progress)
-		line.material = mat
-	else:
-		line.material = null
-
-func _update_line_shader_progress(line: Line2D, progress: float):
-	"""Update the fill_progress uniform on the line's shader."""
-	if line.material and line.material is ShaderMaterial:
-		(line.material as ShaderMaterial).set_shader_parameter("fill_progress", progress)
 
 # ── Tree-aware getters (fall back to canvas defaults) ──
 

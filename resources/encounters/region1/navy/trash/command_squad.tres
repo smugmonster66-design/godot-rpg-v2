@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=5 format=3 uid="uid://dsbt04sn81hf"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_dh3ak"]
+[ext_resource type="Resource" uid="uid://b4hygyrq36n2r" path="res://resources/enemies/region1/navy/trash/navy_sergeant.tres" id="2_6vnbv"]
+[ext_resource type="Resource" uid="uid://c2bo71ua4y88t" path="res://resources/enemies/region1/navy/trash/navy_enforcer.tres" id="3_i547a"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="4_6usc4"]
+
+[resource]
+script = ExtResource("4_6usc4")
+encounter_name = "Command Squad"
+encounter_id = "navy_command_squad"
+enemies = Array[ExtResource("1_dh3ak")]([ExtResource("2_6vnbv"), ExtResource("3_i547a")])
+enemy_slots = Array[int]([0, 2])
+difficulty_tier = 2
+level_range_max = 4

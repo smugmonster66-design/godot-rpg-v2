@@ -12,3 +12,4 @@ category = 28
 tags = Array[String](["defense", "health"])
 effect_min = 5.0
 effect_max = 250.0
+power_weight = 110.0

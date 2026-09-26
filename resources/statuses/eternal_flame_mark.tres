@@ -11,6 +11,6 @@ duration_type = 1
 tick_timing = 1
 cleanse_tags = Array[String](["buff", "fire"])
 affix_name = "Eternal Flame"
-description = "Burn cannot expire while this mark is active."
+description = "[status:burn|Burn] cannot expire while this mark is active."
 category = 36
 tags = Array[String](["mage", "flame", "eternal_flame", "mark"])

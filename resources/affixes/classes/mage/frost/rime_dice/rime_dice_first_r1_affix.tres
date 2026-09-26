@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_ewjly")
 affix_name = "Rime Dice I: First"
-description = "Ice die in first position: +2 value."
+description = "[element:ice] die in first position: +2 value."
 category = 39
 tags = Array[String](["mage", "frost", "mana_die_affix", "positional"])
 effect_data = {

@@ -16,6 +16,16 @@ enum NodeType {
 	HIDDEN          # Secret location
 }
 
+## High-level category used for visual grouping and map node icon style.
+## Add new values here freely — existing .tres resources default to OTHER.
+enum MapNodeCategory {
+	TOWN,       # Settlement, hub
+	DUNGEON,    # Dungeon entrance
+	ENCOUNTER,  # Combat encounter
+	ZONE,       # Sub-zone / sub-map entrance
+	OTHER,      # Catch-all
+}
+
 enum VisibilityState {
 	VISIBLE,        # Always shown on map
 	HIDDEN,         # Not shown until reveal condition met
@@ -34,6 +44,15 @@ enum VisibilityState {
 @export var name_key: String = ""
 ## Location type for visual styling
 @export var node_type: NodeType = NodeType.TOWN
+
+# ============================================================================
+# MAP NODE
+# ============================================================================
+@export_group("Map Node")
+## High-level category — controls icon style on the map
+@export var map_node_category: MapNodeCategory = MapNodeCategory.OTHER
+## Buttons to show in this node's radial menu when clicked
+@export var radial_buttons: Array[MapNodeButtonDef] = []
 
 # ============================================================================
 # DESCRIPTION
@@ -57,10 +76,15 @@ enum VisibilityState {
 # CONNECTIONS
 # ============================================================================
 @export_group("Connections")
-## Location IDs this node connects to (bidirectional assumed)
+## Location IDs this node connects to (bidirectional). Use StringNames or drag resources below.
 @export var connections: Array[StringName] = []
-## One-way connections (can travel TO these but not back)
+## One-way connections (can travel TO these but not back). Use StringNames or drag resources below.
 @export var one_way_connections: Array[StringName] = []
+## Inspector shortcut: drag LocationNode .tres files here to add bidirectional connections.
+## IDs are resolved at runtime — no need to also fill the StringName array above.
+@export var connected_node_resources: Array[LocationNode] = []
+## Inspector shortcut: drag LocationNode .tres files here to add one-way connections.
+@export var one_way_connected_node_resources: Array[LocationNode] = []
 
 # ============================================================================
 # VISIBILITY & UNLOCK CONDITIONS
@@ -113,6 +137,9 @@ enum VisibilityState {
 @export_group("Visual")
 ## Icon for map marker
 @export var map_icon: Texture2D = null
+## Base circle/plate texture drawn beneath the map icon. Leave null to use whatever
+## is set as the default in the map_node_button.tscn scene.
+@export var node_circle_texture: Texture2D = null
 ## Background scene for location
 @export var background_scene: PackedScene = null
 ## Ambient music track
@@ -141,16 +168,43 @@ func get_locked_hint() -> String:
 	# TODO: Localization
 	return locked_hint if locked_hint_key == "" else locked_hint
 
-func get_all_connections() -> Array[StringName]:
-	"""Get all outgoing connections (regular + one-way)."""
+func get_bidirectional_connections() -> Array[StringName]:
+	"""Get bidirectional connection IDs (StringName list + resource list merged)."""
 	var result: Array[StringName] = []
 	result.append_array(connections)
-	result.append_array(one_way_connections)
+	for node in connected_node_resources:
+		if node and not node.location_id in result:
+			result.append(node.location_id)
 	return result
 
-func has_connection_to(location_id: StringName) -> bool:
-	"""Check if this node connects to another."""
-	return location_id in connections or location_id in one_way_connections
+func get_one_way_connections_all() -> Array[StringName]:
+	"""Get one-way connection IDs (StringName list + resource list merged)."""
+	var result: Array[StringName] = []
+	result.append_array(one_way_connections)
+	for node in one_way_connected_node_resources:
+		if node and not node.location_id in result:
+			result.append(node.location_id)
+	return result
+
+func get_all_connections() -> Array[StringName]:
+	"""Get all outgoing connection IDs (bidirectional + one-way, both sources)."""
+	var result = get_bidirectional_connections()
+	for id in get_one_way_connections_all():
+		if not id in result:
+			result.append(id)
+	return result
+
+func has_connection_to(target_id: StringName) -> bool:
+	"""Check if this node connects to another (checks both StringName and resource arrays)."""
+	if target_id in connections or target_id in one_way_connections:
+		return true
+	for node in connected_node_resources:
+		if node and node.location_id == target_id:
+			return true
+	for node in one_way_connected_node_resources:
+		if node and node.location_id == target_id:
+			return true
+	return false
 
 func is_dungeon() -> bool:
 	return node_type == NodeType.DUNGEON or node_type == NodeType.BOSS

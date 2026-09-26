@@ -9,6 +9,6 @@
 script = ExtResource("3_f408c")
 action_id = "debug_burn_action"
 action_name = "Flaming Fingies"
-action_description = "Applies a Burn stack with spicy touching."
+action_description = "Applies a [status:burn] stack with spicy touching."
 effects = Array[ExtResource("1_r33pt")]([ExtResource("2_f408c")])
 metadata/_custom_type_script = "uid://b1kctq61bwysh"

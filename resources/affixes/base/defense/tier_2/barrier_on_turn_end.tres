@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_w5yei")
 affix_name = "Barrier on Turn End"
-description = "+N barrier at end of turn"
+description = "+N [status:warded|Warded] at end of turn"
 category = 35
 tags = Array[String](["proc", "barrier", "regen"])
 effect_min = 1.0
@@ -16,3 +16,4 @@ effect_data = {
 "effect": "gain_barrier"
 }
 proc_trigger = 4
+power_weight = 45.0

@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_g8x0k")
 affix_name = "Smoldering"
-description = "+N flat fire damage on use"
+description = "+N flat [element:fire] damage on use"
 affix_tier = 1
 trigger = 1
 effect_type = 15

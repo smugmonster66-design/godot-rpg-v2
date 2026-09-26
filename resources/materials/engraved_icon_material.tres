@@ -5,13 +5,19 @@
 [resource]
 shader = ExtResource("1_qc3xn")
 shader_parameter/engrave_depth = 1.5
-shader_parameter/bevel_softness = 0.4
-shader_parameter/edge_strength = 0.42100001673762
-shader_parameter/recess_darkness = 0.85
-shader_parameter/recess_tint_strength = 0.3
-shader_parameter/recess_tint = Color(0.05, 0.03, 0.01, 1)
+shader_parameter/bevel_softness = 0.126000005985
+shader_parameter/edge_strength = 0.79600003455012
+shader_parameter/base_opacity = 0.75
+shader_parameter/engrave_color = Color(0.09620469, 0.096204765, 0.09620472, 1)
 shader_parameter/light_angle = Vector2(1, -1)
 shader_parameter/fill_progress = 0.0
 shader_parameter/fill_intensity = 1.0
 shader_parameter/has_fill_texture = false
 shader_parameter/fill_color = Color(1, 0.85, 0, 1)
+shader_parameter/glow_color = Color(0.5, 0.5, 0.8, 1)
+shader_parameter/glow_radius = 4.00000019
+shader_parameter/glow_intensity = 2.0
+shader_parameter/glow_softness = 1.5
+shader_parameter/pulse_speed = 1.5
+shader_parameter/pulse_min = 0.7
+shader_parameter/pulse_max = 1.0

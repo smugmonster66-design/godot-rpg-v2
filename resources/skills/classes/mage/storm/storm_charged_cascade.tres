@@ -17,81 +17,87 @@
 [ext_resource type="Resource" uid="uid://dy2lq7u43asd7" path="res://resources/affixes/classes/mage/storm/voltaic_surge/voltaic_surge_r2_affix.tres" id="14_kbgnh"]
 [ext_resource type="Resource" uid="uid://cvcfd1vt222ok" path="res://resources/affixes/classes/mage/storm/voltaic_surge/voltaic_surge_r3_affix.tres" id="15_drayl"]
 
-[sub_resource type="Resource" id="Resource_gwqxq"]
+[sub_resource type="Resource" id="Resource_idtkr"]
 script = ExtResource("4_46db5")
 skill_id = "storm_spark"
 skill_name = "Spark"
-description = "Unlock [color=yellow]Shock[/color] mana. Chromatic Bolt applies [color=yellow]1/2/3 Static[/color] on hit (requires shock die)."
+description = "Unlock [element:shock] mana. Chromatic Bolt applies [status:static|1/2/3 Static] on hit (requires shock die)."
 column = 3
 rank_1_affixes = Array[ExtResource("2_knn2w")]([ExtResource("3_h75p2"), ExtResource("4_clwyt")])
 rank_2_affixes = Array[ExtResource("2_knn2w")]([ExtResource("3_h75p2"), ExtResource("5_d1bjg")])
 rank_3_affixes = Array[ExtResource("2_knn2w")]([ExtResource("3_h75p2"), ExtResource("6_tjs5r")])
 
-[sub_resource type="Resource" id="Resource_l1ipw"]
+[sub_resource type="Resource" id="Resource_ng5yr"]
 script = ExtResource("1_suh7w")
-required_skill = SubResource("Resource_gwqxq")
+required_skill = SubResource("Resource_idtkr")
 
 [sub_resource type="Resource" id="Resource_nocxb"]
 script = ExtResource("4_46db5")
 skill_id = "storm_conductor"
 skill_name = "Conductor"
-description = "Shock mana dice chain [color=yellow]30/40/50%[/color] damage to 1 additional enemy on use."
+description = "[element:shock] mana dice chain [color=yellow]30/40/50%[/color] damage to 1 additional enemy on use."
+skill_category = 1
 tier = 2
 column = 3
-prerequisites = Array[ExtResource("1_suh7w")]([SubResource("Resource_l1ipw")])
+prerequisites = Array[ExtResource("1_suh7w")]([SubResource("Resource_ng5yr")])
 tree_points_required = 1
 rank_1_affixes = Array[ExtResource("2_knn2w")]([ExtResource("8_veppb")])
 rank_2_affixes = Array[ExtResource("2_knn2w")]([ExtResource("9_scf3m")])
 rank_3_affixes = Array[ExtResource("2_knn2w")]([ExtResource("10_ix16o")])
 
-[sub_resource type="Resource" id="Resource_uvsbj"]
+[sub_resource type="Resource" id="Resource_tgts1"]
 script = ExtResource("1_suh7w")
 required_skill = SubResource("Resource_nocxb")
 
-[sub_resource type="Resource" id="Resource_h75p2"]
+[sub_resource type="Resource" id="Resource_b3cv7"]
 script = ExtResource("4_46db5")
 skill_id = "storm_arc_conduit"
 skill_name = "Arc Conduit"
-description = "Shock dice chain to +1 extra target. Chain bounces apply [color=yellow]1/2[/color] [color=yellow]Static[/color]."
+description = "Shock dice chain to +1 extra target. Chain bounces apply [color=yellow]1/2[/color] [status:static]."
 tier = 4
 column = 2
-prerequisites = Array[ExtResource("1_suh7w")]([SubResource("Resource_uvsbj")])
+prerequisites = Array[ExtResource("1_suh7w")]([SubResource("Resource_tgts1")])
 tree_points_required = 6
 rank_1_affixes = Array[ExtResource("2_knn2w")]([ExtResource("11_cmvf7")])
 rank_2_affixes = Array[ExtResource("2_knn2w")]([ExtResource("12_lf25r")])
 
-[sub_resource type="Resource" id="Resource_clwyt"]
+[sub_resource type="Resource" id="Resource_ogoli"]
 script = ExtResource("1_suh7w")
-required_skill = SubResource("Resource_h75p2")
+required_skill = SubResource("Resource_b3cv7")
 
-[sub_resource type="Resource" id="Resource_8sbcy"]
+[sub_resource type="Resource" id="Resource_ugyd0"]
 script = ExtResource("1_suh7w")
 required_skill = SubResource("Resource_nocxb")
 
-[sub_resource type="Resource" id="Resource_d1bjg"]
+[sub_resource type="Resource" id="Resource_noch0"]
 script = ExtResource("4_46db5")
 skill_id = "storm_voltaic_surge"
 skill_name = "Voltaic Surge"
-description = "Shock dice deal +[color=yellow]1/2/3[/color] bonus damage per [color=yellow]Static[/color] stack on target."
+description = "Shock dice deal +[color=yellow]1/2/3[/color] bonus damage per [status:static] stack on target."
 tier = 4
 column = 4
-prerequisites = Array[ExtResource("1_suh7w")]([SubResource("Resource_8sbcy")])
+prerequisites = Array[ExtResource("1_suh7w")]([SubResource("Resource_ugyd0")])
 tree_points_required = 6
 rank_1_affixes = Array[ExtResource("2_knn2w")]([ExtResource("13_ih4gg")])
 rank_2_affixes = Array[ExtResource("2_knn2w")]([ExtResource("14_kbgnh")])
 rank_3_affixes = Array[ExtResource("2_knn2w")]([ExtResource("15_drayl")])
 
-[sub_resource type="Resource" id="Resource_tjs5r"]
+[sub_resource type="Resource" id="Resource_f0xnu"]
 script = ExtResource("1_suh7w")
-required_skill = SubResource("Resource_d1bjg")
+required_skill = SubResource("Resource_noch0")
 
 [resource]
 script = ExtResource("4_46db5")
 skill_id = "storm_charged_cascade"
 skill_name = "Charged Cascade"
-description = "[color=yellow]WEAVE:[/color] Chain bounces deal +3 bonus damage per [color=yellow]Static[/color] stack on bounce target."
+skill_category = 4
+skill_category = 4
+skill_category = 4
+skill_category = 4
+description = "[color=yellow]WEAVE:[/color] Chain bounces deal +3 bonus damage per [status:static] stack on bounce target."
+skill_category = 4
 tier = 5
 column = 3
-prerequisites = Array[ExtResource("1_suh7w")]([SubResource("Resource_clwyt"), SubResource("Resource_tjs5r")])
+prerequisites = Array[ExtResource("1_suh7w")]([SubResource("Resource_ogoli"), SubResource("Resource_f0xnu")])
 tree_points_required = 9
 rank_1_affixes = Array[ExtResource("2_knn2w")]([ExtResource("3_sq1nx")])

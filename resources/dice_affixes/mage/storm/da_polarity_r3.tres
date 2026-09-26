@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_0fgjl")
 affix_name = "Polarity III: Isolation Bonus"
-description = "Shock die +4 value if no adjacent shock."
+description = "[element:shock] die +4 value if no adjacent [element:shock]."
 use_global_element_visuals = true
 global_element_type = 5
 trigger = 1

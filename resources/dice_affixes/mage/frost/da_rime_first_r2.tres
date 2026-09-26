@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_1pmpg")
 affix_name = "Rime Dice II: First Bonus"
-description = "First-position ice die +3 value."
+description = "First-position [element:ice] die +3 value."
 use_global_element_visuals = true
 global_element_type = 4
 trigger = 1

@@ -288,7 +288,8 @@ func _make_action_with_elements(p_id: String, p_name: String, p_desc: String,
 func _make_skill(p_id: String, p_name: String, p_desc: String,
 		p_tier: int, p_col: int, p_tree_pts: int,
 		p_rank_affixes: Dictionary = {},
-		p_cost: int = 1) -> SkillResource:
+		p_cost: int = 1,
+		p_category: SkillResource.SkillCategory = SkillResource.SkillCategory.PASSIVE) -> SkillResource:
 	var s: SkillResource = SkillResource.new()
 	s.skill_id = p_id
 	s.skill_name = p_name
@@ -297,6 +298,7 @@ func _make_skill(p_id: String, p_name: String, p_desc: String,
 	s.column = p_col
 	s.tree_points_required = p_tree_pts
 	s.skill_point_cost = p_cost
+	s.skill_category = p_category
 	if p_rank_affixes.has(1):
 		s.rank_1_affixes.assign(p_rank_affixes[1])
 	if p_rank_affixes.has(2):
@@ -461,7 +463,7 @@ func _create_tier_2():
 	_save_skill(
 		_make_skill("frost_creeping_frost", "Creeping Frost",
 			"Ice mana dice apply [color=yellow]1/2/3[/color] [color=cyan]Chill[/color] on use.",
-			2, 1, _tier_pts(2), {1: [cf_r1], 2: [cf_r2], 3: [cf_r3]}),
+			2, 1, _tier_pts(2), {1: [cf_r1], 2: [cf_r2], 3: [cf_r3]}, 1, SkillResource.SkillCategory.TRIGGER),
 		"frost_creeping_frost")
 
 	# ── Rime Dice (Col 3, Center) — positional bonuses ──
@@ -580,7 +582,7 @@ func _create_tier_3():
 	_save_skill(
 		_make_skill("frost_hoarfrost", "Hoarfrost",
 			"End of turn: apply [color=yellow]1/2[/color] [color=cyan]Chill[/color] to target per unused die in hand.",
-			3, 0, _tier_pts(3), {1: [hf_r1], 2: [hf_r2]}),
+			3, 0, _tier_pts(3), {1: [hf_r1], 2: [hf_r2]}, 1, SkillResource.SkillCategory.TRIGGER),
 		"frost_hoarfrost")
 
 	# ── Permafrost Rune (Col 3, Center) — ice neighbors boost each other ──
@@ -683,7 +685,7 @@ func _create_tier_4():
 	_save_skill(
 		_make_skill("frost_frost_spike", "Frost Spike",
 			"[color=yellow]ACTION:[/color] 1 ice die -> ice damage + apply [color=cyan]Chill[/color] = die value. Unlimited.",
-			4, 1, _tier_pts(4), {1: [fs_grant]}),
+			4, 1, _tier_pts(4), {1: [fs_grant]}, 1, SkillResource.SkillCategory.ACTION),
 		"frost_frost_spike")
 
 	# ── Glacial Clarity (Col 3, Center) — ice dice auto-reroll low values ──
@@ -808,7 +810,7 @@ func _create_tier_5():
 	_save_skill(
 		_make_skill("frost_spreading_cold", "Spreading Cold",
 			"Ice die splashes [color=yellow]30/50%[/color] of [color=cyan]Chill[/color] to all other enemies.",
-			5, 0, _tier_pts(5), {1: [sc_r1], 2: [sc_r2]}),
+			5, 0, _tier_pts(5), {1: [sc_r1], 2: [sc_r2]}, 1, SkillResource.SkillCategory.TRIGGER),
 		"frost_spreading_cold")
 
 	# ── Frozen Conduit (Col 3, Weave) — ice die +1 value per 3 Chill stacks ──
@@ -828,7 +830,7 @@ func _create_tier_5():
 	_save_skill(
 		_make_skill("frost_frozen_conduit", "Frozen Conduit",
 			"[color=yellow]WEAVE:[/color] Ice die value +1 per 3 [color=cyan]Chill[/color] stacks on target.",
-			5, 3, _tier_pts(5), {1: [fc_affix]}),
+			5, 3, _tier_pts(5), {1: [fc_affix]}, 1, SkillResource.SkillCategory.WEAVE),
 		"frost_frozen_conduit")
 
 	# ── Shatter (Col 6, Branch B) — ACTION: 2 ice dice, x1.5 / x4.5 if Frozen ──
@@ -875,7 +877,7 @@ func _create_tier_5():
 	_save_skill(
 		_make_skill("frost_shatter", "Shatter",
 			"[color=yellow]ACTION:[/color] 2 ice dice -> x1.5 ice damage. [color=cyan]Frozen[/color]: x4.5 + consume. Per turn.",
-			5, 6, _tier_pts(5), {1: [sht_grant]}),
+			5, 6, _tier_pts(5), {1: [sht_grant]}, 1, SkillResource.SkillCategory.ACTION),
 		"frost_shatter")
 
 
@@ -908,7 +910,7 @@ func _create_tier_6():
 	_save_skill(
 		_make_skill("frost_avalanche", "Avalanche",
 			"When [color=cyan]Freeze[/color] triggers: apply [color=yellow]3/5[/color] [color=cyan]Chill[/color] to all other enemies.",
-			6, 1, _tier_pts(6), {1: [avl_r1], 2: [avl_r2]}),
+			6, 1, _tier_pts(6), {1: [avl_r1], 2: [avl_r2]}, 1, SkillResource.SkillCategory.TRIGGER),
 		"frost_avalanche")
 
 	# ── Entropy (Col 3, Weave) — start of turn: if 10+ Chill, restore mana + buff ──
@@ -976,7 +978,7 @@ func _create_tier_7():
 	_save_skill(
 		_make_skill("frost_rimestorm", "Rimestorm",
 			"Ice die chains to 1 additional enemy for [color=yellow]60%[/color] damage, applying [color=cyan]2 Chill[/color].",
-			7, 2, _tier_pts(7), {1: [rs_affix]}),
+			7, 2, _tier_pts(7), {1: [rs_affix]}, 1, SkillResource.SkillCategory.TRIGGER),
 		"frost_rimestorm")
 
 	# ── Crystallize (Col 5, Branch B) — on damage to Frozen: barrier + resist shred ──
@@ -994,7 +996,7 @@ func _create_tier_7():
 	_save_skill(
 		_make_skill("frost_crystallize", "Crystallize",
 			"Damage to [color=cyan]Frozen[/color] target: gain [color=yellow]4 Barrier[/color], target loses [color=yellow]2 ice resistance[/color] permanently.",
-			7, 5, _tier_pts(7), {1: [cry]}),
+			7, 5, _tier_pts(7), {1: [cry]}, 1, SkillResource.SkillCategory.TRIGGER),
 		"frost_crystallize")
 
 
@@ -1052,7 +1054,7 @@ func _create_tier_8():
 	_save_skill(
 		_make_skill("frost_absolute_zero", "Absolute Zero",
 			"[color=yellow]SIGNATURE:[/color] 3 ice dice -> AoE ice damage + [color=cyan]Chill[/color] = dice total to all. Freeze resets Shatter. Per combat.",
-			8, 3, _tier_pts(8), {1: [az_grant]}),
+			8, 3, _tier_pts(8), {1: [az_grant]}, 1, SkillResource.SkillCategory.SIGNATURE),
 		"frost_absolute_zero")
 
 	# ── Entropic Cascade (Col 4, Capstone) — Freeze amplifies all Chill ──
@@ -1076,7 +1078,7 @@ func _create_tier_8():
 	_save_skill(
 		_make_skill("frost_entropic_cascade", "Entropic Cascade",
 			"[color=yellow]CAPSTONE:[/color] [color=cyan]Freeze[/color] triggers: +3 [color=cyan]Chill[/color] on ALL enemies. Chill penalty improved to -2 per 2 stacks.",
-			8, 4, _tier_pts(8), {1: [ec_spread, ec_penalty]}),
+			8, 4, _tier_pts(8), {1: [ec_spread, ec_penalty]}, 1, SkillResource.SkillCategory.CAPSTONE),
 		"frost_entropic_cascade")
 
 

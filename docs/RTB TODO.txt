@@ -1,0 +1,12 @@
+RTB TODO TODAY/TOMORROW:
+- Placeholder map art/characters
+- itch.io setup, first dev log content
+- Dungeon select screen
+- Map UI fleshout: party management scene, dungeon select scene, stash scene, shop UI, dice forging system (extant inscription system), class change scene
+- Quest system
+- Crafting/upgrade system (a smithing vendor who can salvage equipment for simple parts and can reroll items to your item level, a specific currency can be used to lock specific affixes so they reroll their value but don't change the affix in that slot).
+- Fix the rest of the player menu (equipment tab, character tab, quests tab)
+- Infinite dungeon chain system setup
+- Dungeon popup UIs
+
+- define a default popup style in theme and spin off variants for each unique popup??

@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="Action" load_steps=15 format=3 uid="uid://brfltf8cs7w7i"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_d2e7r"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_nvyp3"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_w4jg3"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_nvyp3"]
+[ext_resource type="Resource" uid="uid://dryvh1auub4o8" path="res://resources/statuses/empowered.tres" id="4_exh30"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="5_8wgr3"]
+[ext_resource type="Resource" uid="uid://chgprsba6wfw2" path="res://resources/statuses/fortified.tres" id="6_vm2ua"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="7_qyo2b"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="8_gqlt1"]
+
+[sub_resource type="Resource" id="Resource_d2e7r"]
+script = ExtResource("1_d2e7r")
+condition = 9
+threshold = 2.0
+bonus_value = 50.0
+
+[sub_resource type="Resource" id="Resource_w4jg3"]
+script = ExtResource("1_d2e7r")
+condition = 9
+threshold = 1.0
+
+[sub_resource type="Resource" id="Resource_nvyp3"]
+script = ExtResource("1_d2e7r")
+condition = 10
+threshold = 1.0
+effect = 1
+multiplier_value = 0.05
+
+[sub_resource type="Resource" id="Resource_exh30"]
+script = ExtResource("3_nvyp3")
+effect_name = "Crescendo Empower"
+target = 4
+effect_type = 2
+status_affix = ExtResource("4_exh30")
+stack_count = 2
+
+[sub_resource type="Resource" id="Resource_8wgr3"]
+script = ExtResource("3_nvyp3")
+effect_name = "Crescendo Fortify"
+target = 4
+effect_type = 2
+status_affix = ExtResource("6_vm2ua")
+stack_count = 2
+
+[resource]
+script = ExtResource("8_gqlt1")
+action_id = "navy_crescendo"
+action_name = "Crescendo"
+action_description = "A powerful rally that empowers and fortifies all allies."
+action_category = 1
+damage_element = 1
+charge_type = 2
+max_charges = 2
+effects = Array[ExtResource("3_nvyp3")]([SubResource("Resource_exh30"), SubResource("Resource_8wgr3")])
+ai_hints = Array[ExtResource("1_d2e7r")]([SubResource("Resource_d2e7r"), SubResource("Resource_w4jg3"), SubResource("Resource_nvyp3")])
+action_type = 3

@@ -63,8 +63,8 @@ func _ready():
 func _build_ui():
 	# --- Toolbar ---
 	toolbar = HBoxContainer.new()
-	toolbar.custom_minimum_size.y = 36
 	add_child(toolbar)
+	toolbar.custom_minimum_size.y = 36
 
 	_add_toolbar_button("New", _on_new)
 	_add_toolbar_button("Load", _on_load)
@@ -77,8 +77,8 @@ func _build_ui():
 	name_label = Label.new()
 	name_label.text = "No dungeon loaded"
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	name_label.add_theme_font_size_override("font_size", 15)
 	toolbar.add_child(name_label)
+	name_label.add_theme_font_size_override("font_size", 15)
 
 	add_child(HSeparator.new())
 
@@ -99,12 +99,12 @@ func _build_ui():
 	# --- Validation output ---
 	add_child(HSeparator.new())
 	validation_panel = RichTextLabel.new()
-	validation_panel.custom_minimum_size.y = 80
 	validation_panel.bbcode_enabled = true
 	validation_panel.fit_content = true
 	validation_panel.scroll_following = true
 	validation_panel.text = ""
 	add_child(validation_panel)
+	validation_panel.custom_minimum_size.y = 80
 
 	# --- File dialog ---
 	file_dialog = FileDialog.new()
@@ -259,42 +259,43 @@ func _create_tab(title: String) -> VBoxContainer:
 
 func _wrap_in_scroll(tab: VBoxContainer) -> VBoxContainer:
 	var scroll = ScrollContainer.new()
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	tab.add_child(scroll)
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	var inner = VBoxContainer.new()
+	scroll.add_child(inner)
 	inner.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	inner.add_theme_constant_override("separation", 4)
-	scroll.add_child(inner)
 	return inner
 
 func _add_section_header(parent: Control, text: String):
-	var lbl = Label.new()
-	lbl.text = text
-	lbl.add_theme_font_size_override("font_size", 14)
-	lbl.add_theme_color_override("font_color", Color(0.8, 0.85, 0.9))
 	var margin = MarginContainer.new()
+	parent.add_child(margin)
 	margin.add_theme_constant_override("margin_top", 12)
 	margin.add_theme_constant_override("margin_bottom", 4)
+	var lbl = Label.new()
+	lbl.text = text
 	margin.add_child(lbl)
-	parent.add_child(margin)
+	lbl.add_theme_font_size_override("font_size", 14)
+	lbl.add_theme_color_override("font_color", Color(0.8, 0.85, 0.9))
 
 func _add_info_label(parent: Control, text: String):
 	var lbl = Label.new()
 	lbl.text = text
-	lbl.add_theme_color_override("font_color", Color(0.5, 0.55, 0.6))
-	lbl.add_theme_font_size_override("font_size", 11)
 	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
 	parent.add_child(lbl)
+	lbl.add_theme_color_override("font_color", Color(0.5, 0.55, 0.6))
+	lbl.add_theme_font_size_override("font_size", 11)
 
 func _add_line_edit(parent: Control, field: String, placeholder: String):
 	var hbox = HBoxContainer.new()
+	parent.add_child(hbox)
 	var label = Label.new()
 	label.text = placeholder + ":"
-	label.custom_minimum_size.x = 180
 	hbox.add_child(label)
+	label.custom_minimum_size.x = 180
 
 	var edit = LineEdit.new()
 	edit.name = "Field_" + field
@@ -306,7 +307,6 @@ func _add_line_edit(parent: Control, field: String, placeholder: String):
 			_mark_dirty()
 	)
 	hbox.add_child(edit)
-	parent.add_child(hbox)
 
 func _add_text_edit(parent: Control, field: String, placeholder: String, height: int = 60):
 	var label = Label.new()
@@ -315,7 +315,6 @@ func _add_text_edit(parent: Control, field: String, placeholder: String, height:
 
 	var edit = TextEdit.new()
 	edit.name = "Field_" + field
-	edit.custom_minimum_size.y = height
 	edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	edit.placeholder_text = placeholder
 	edit.text_changed.connect(func():
@@ -324,14 +323,16 @@ func _add_text_edit(parent: Control, field: String, placeholder: String, height:
 			_mark_dirty()
 	)
 	parent.add_child(edit)
+	edit.custom_minimum_size.y = height
 
 func _add_spinbox(parent: Control, field: String, label_text: String,
 		min_val: int = 0, max_val: int = 100):
 	var hbox = HBoxContainer.new()
+	parent.add_child(hbox)
 	var label = Label.new()
 	label.text = label_text + ":"
-	label.custom_minimum_size.x = 180
 	hbox.add_child(label)
+	label.custom_minimum_size.x = 180
 
 	var spin = SpinBox.new()
 	spin.name = "Field_" + field
@@ -345,7 +346,6 @@ func _add_spinbox(parent: Control, field: String, label_text: String,
 			_mark_dirty()
 	)
 	hbox.add_child(spin)
-	parent.add_child(hbox)
 
 func _add_checkbox(parent: Control, field: String, label_text: String):
 	var hbox = HBoxContainer.new()
@@ -363,14 +363,16 @@ func _add_checkbox(parent: Control, field: String, label_text: String):
 func _add_pool_list(parent: Control, field: String, color: Color):
 	var container = VBoxContainer.new()
 	container.name = "Pool_" + field
+	parent.add_child(container)
 
 	# Header row: count + buttons
 	var header = HBoxContainer.new()
+	container.add_child(header)
 	var count_label = Label.new()
 	count_label.name = "PoolCount_" + field
 	count_label.text = "0 entries"
-	count_label.add_theme_color_override("font_color", color)
 	header.add_child(count_label)
+	count_label.add_theme_color_override("font_color", color)
 
 	var spacer = Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -386,67 +388,62 @@ func _add_pool_list(parent: Control, field: String, color: Color):
 	refresh_btn.pressed.connect(func(): _refresh_all())
 	header.add_child(refresh_btn)
 
-	container.add_child(header)
-
 	# Item list
 	var item_list = ItemList.new()
 	item_list.name = "PoolItems_" + field
-	item_list.custom_minimum_size.y = 120
 	item_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	item_list.allow_reselect = true
 	item_list.item_clicked.connect(func(index: int, _at: Vector2, _btn: int):
 		_inspect_pool_item(field, index)
 	)
 	container.add_child(item_list)
-	parent.add_child(container)
+	item_list.custom_minimum_size.y = 120
 
 func _add_texture_preview(parent: Control, field: String, label_text: String):
 	var hbox = HBoxContainer.new()
+	parent.add_child(hbox)
 	var label = Label.new()
 	label.text = label_text + ":"
-	label.custom_minimum_size.x = 180
 	hbox.add_child(label)
+	label.custom_minimum_size.x = 180
 
 	var preview = TextureRect.new()
 	preview.name = "TexPreview_" + field
-	preview.custom_minimum_size = Vector2(64, 64)
 	preview.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
 	preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	hbox.add_child(preview)
+	preview.custom_minimum_size = Vector2(64, 64)
 
 	var status = Label.new()
 	status.name = "TexStatus_" + field
 	status.text = "(none)"
-	status.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 	hbox.add_child(status)
-
-	parent.add_child(hbox)
+	status.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 
 func _add_color_row(parent: Control, field: String, label_text: String):
 	var hbox = HBoxContainer.new()
+	parent.add_child(hbox)
 	var label = Label.new()
 	label.text = label_text + ":"
-	label.custom_minimum_size.x = 180
 	hbox.add_child(label)
+	label.custom_minimum_size.x = 180
 
 	var swatch = ColorRect.new()
 	swatch.name = "ColorSwatch_" + field
-	swatch.custom_minimum_size = Vector2(40, 24)
 	swatch.color = Color.BLACK
 	hbox.add_child(swatch)
+	swatch.custom_minimum_size = Vector2(40, 24)
 
 	var hex_label = Label.new()
 	hex_label.name = "ColorHex_" + field
 	hex_label.text = "#000000"
-	hex_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 	hbox.add_child(hex_label)
+	hex_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 
 	var edit_btn = Button.new()
 	edit_btn.text = "Edit"
 	edit_btn.pressed.connect(func(): _inspect_field(field))
 	hbox.add_child(edit_btn)
-
-	parent.add_child(hbox)
 
 # ============================================================================
 # TOOLBAR ACTIONS

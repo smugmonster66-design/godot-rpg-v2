@@ -1,34 +1,22 @@
-[gd_resource type="Resource" script_class="Affix" load_steps=10 format=3 uid="uid://dlefdcdvtdone"]
+[gd_resource type="Resource" script_class="Affix" load_steps=4 format=3 uid="uid://dlefdcdvtdone"]
 
-[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="1_ntenv"]
-[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_724pp"]
-[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_g3b4o"]
-[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_px7mn"]
-[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="5_nlr6w"]
-[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="6_gylxf"]
-[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="7_7k1a8"]
-
-[sub_resource type="Resource" id="Resource_1l2xv"]
-script = ExtResource("1_ntenv")
-type = 2
-threshold = 3.0
-
-[sub_resource type="Resource" id="Resource_ntenv"]
-script = ExtResource("3_g3b4o")
-affix_name = "Mana Flare: Low Roll Refund"
-description = "Refund 1 mana on roll ≤2."
-use_global_element_visuals = true
-global_element_type = 3
-condition = SubResource("Resource_1l2xv")
-effect_type = 28
-effect_value = 1.0
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_xauy5"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_qbrv2"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_ntenv"]
 
 [resource]
-script = ExtResource("6_gylxf")
-affix_name = "Mana Flare"
-description = "Refund 1 mana when a fire die rolls ≤2."
-category = 39
-tags = Array[String](["mage", "flame", "mana_die_affix", "mana_refund"])
+script = ExtResource("3_qbrv2")
+affix_name = "Mana Flare I"
+description = "Applying [status:burn] to an enemy restores 1 mana. Max 2/turn."
+category = 35
+tags = Array[String](["mage", "flame", "utility", "mana_economy", "burn_exploit", "proc"])
+effect_number = 1.0
 effect_data = {
-"dice_affix": SubResource("Resource_ntenv")
+"condition_status": "burn",
+"condition_target": "enemy",
+"max_per_turn": 2,
+"proc_effect": "mana_restore",
+"proc_trigger": "ON_STATUS_APPLIED",
+"proc_value": 1
 }
+proc_trigger = 11

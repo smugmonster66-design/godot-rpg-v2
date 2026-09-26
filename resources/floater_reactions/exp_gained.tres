@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="FloaterReaction" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/data/floater_reaction.gd" id="1_react"]
+[ext_resource type="Script" uid="uid://bucj7x6x47uy5" path="res://resources/data/micro_animation_preset.gd" id="2_preset"]
+
+[sub_resource type="Resource" id="preset"]
+script = ExtResource("2_preset")
+label_enabled = true
+label_color = Color(0.4, 0.6, 1.0, 1)
+label_theme_type = &"sourcefloater"
+label_rise_distance = 45.0
+label_duration = 1.0
+label_start_scale = 1.1
+label_end_scale = 0.85
+
+[resource]
+script = ExtResource("1_react")
+event_type = 1
+animation_preset = SubResource("preset")
+label_text_template = "+{amount} XP"
+priority = 5

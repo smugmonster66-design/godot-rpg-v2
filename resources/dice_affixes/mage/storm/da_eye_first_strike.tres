@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_75ti1")
 affix_name = "Eye of the Storm: First Strike"
-description = "First-position shock die applies 2 Static to all enemies."
+description = "First-position [element:shock] die applies 2 [status:static] to all enemies."
 use_global_element_visuals = true
 global_element_type = 5
 trigger = 1

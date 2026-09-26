@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("3_j62d4")
 affix_name = "Arc Pulse II: Static on Use"
-description = "Apply 2 Static on use."
+description = "Apply 2 [status:static] on use."
 use_global_element_visuals = true
 global_element_type = 5
 trigger = 1

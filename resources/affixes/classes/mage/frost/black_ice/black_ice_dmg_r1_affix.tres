@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_jtwbg")
 affix_name = "Black Ice I: Damage"
-description = "At 8+ Chill: +3 bonus damage."
+description = "At 8+ [status:chill]: +3 bonus damage."
 category = 39
 tags = Array[String](["mage", "frost", "mana_die_affix", "exploiter", "damage"])
 effect_data = {

@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1_e5nns")
 action_name = "Flame Strike"
-action_description = "A slash for 2D+10 [color=red]Fire[/color] damage."
+action_description = "A slash for 2D+10 [element:fire] damage."
 die_slots = 2
 base_damage = 10
 damage_multiplier = 2.0

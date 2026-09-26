@@ -139,6 +139,92 @@ func get_item_level_for_region(region: int, difficulty_bias: float = 0.5) -> int
 	return int(lerpf(float(bounds.min), float(bounds.max), clampf(difficulty_bias, 0.0, 1.0)))
 
 
+# ============================================================================
+# ENEMY POWER SCALING
+# ============================================================================
+
+@export_group("Enemy Power Scaling")
+
+## Curve mapping normalized player level (0.0–1.0) to expected player power
+## as a fraction of max_expected_power. Derived from XP→encounters→loot→power
+## progression chain. Shape in the editor; defaults to quadratic-ish ramp.
+@export var expected_power_curve: Curve = null
+
+## Expected total affix power at level 100 with good (not perfect) gear.
+## Derived: 7 slots × EPIC items × ~200 power/slot at position 1.0 ≈ 1400.
+@export var max_expected_power: float = 1400.0
+
+## Expected power at level 1 with no gear. Prevents division by zero.
+@export var min_expected_power: float = 10.0
+
+@export_subgroup("Scaling Tuning")
+
+## Power ratio below which enemy scaling starts decreasing (undergeared).
+@export var power_dead_zone_low: float = 0.7
+
+## Power ratio above which enemy scaling starts increasing (overgeared).
+@export var power_dead_zone_high: float = 1.4
+
+## Maximum scaling factor for overgeared players (enemies gain at most 35% stats).
+@export_range(1.0, 2.0) var overgeared_max_factor: float = 1.35
+
+## Minimum scaling factor for undergeared players (enemies lose at most 25% stats).
+@export_range(0.5, 1.0) var undergeared_min_factor: float = 0.75
+
+## Power ratio at which maximum overgeared scaling is reached.
+@export var overgeared_cap_ratio: float = 2.5
+
+## Power ratio at which maximum undergeared scaling is reached.
+@export var undergeared_cap_ratio: float = 0.3
+
+
+func get_expected_power(player_level: int) -> float:
+	"""Get the expected total affix power for a normally-geared player at this level.
+
+	Based on the XP→encounters→loot→power progression chain:
+	  Level 1: ~10, Level 10: ~85, Level 20: ~220, Level 50: ~560, Level 100: ~1400
+	"""
+	var t: float = clampf(
+		float(player_level - 1) / float(max(max_item_level - 1, 1)),
+		0.0, 1.0
+	)
+	# Fallback if no curve: power ∝ level^1.5 (matches derived anchor points).
+	# level^1.5 normalized: (t^1.5) since t = normalized level.
+	var curve_value: float = expected_power_curve.sample(t) if expected_power_curve else pow(t, 1.5)
+	return lerpf(min_expected_power, max_expected_power, curve_value)
+
+
+func get_power_ratio(player_level: int, player_power: float) -> float:
+	"""Compare actual player power to expected power. Returns ratio (1.0 = on-curve)."""
+	var expected: float = get_expected_power(player_level)
+	if expected <= 0.0:
+		return 1.0
+	return player_power / expected
+
+
+func get_enemy_scaling_factor(power_ratio: float) -> float:
+	"""Convert a power ratio into an enemy stat scaling factor.
+
+	Enemies scale WITH the player's power:
+	- Overgeared player (ratio > 1.15) → enemies scale UP (up to +50%)
+	- Undergeared player (ratio < 0.85) → enemies scale DOWN (up to -25%)
+	Dead zone around 1.0 prevents jitter from small gear changes.
+	"""
+	if power_ratio >= power_dead_zone_low and power_ratio <= power_dead_zone_high:
+		return 1.0
+
+	if power_ratio > power_dead_zone_high:
+		# Overgeared: enemies scale up to match
+		var over: float = (power_ratio - power_dead_zone_high) / (overgeared_cap_ratio - power_dead_zone_high)
+		over = clampf(over, 0.0, 1.0)
+		return lerpf(1.0, overgeared_max_factor, over)
+	else:
+		# Undergeared: enemies scale down for mercy
+		var under: float = (power_dead_zone_low - power_ratio) / (power_dead_zone_low - undergeared_cap_ratio)
+		under = clampf(under, 0.0, 1.0)
+		return lerpf(1.0, undergeared_min_factor, under)
+
+
 func compute_fuzz_range(center: float, effect_min: float, effect_max: float,
 						fuzz_override: float = -1.0) -> Dictionary:
 	"""Compute the actual min/max roll range after applying fuzz.

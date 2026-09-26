@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_cnc2l")
 affix_name = "Freezing"
-description = "Apply Chill on use"
+description = "Apply [status:chill] on use"
 affix_tier = 2
 trigger = 1
 effect_type = 16

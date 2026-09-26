@@ -1,0 +1,90 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=27 format=3 uid="uid://ct54s47lpvf4p"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_1ur0t"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_grts4"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="9_pysej"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_armor_agi_brute.tres" id="10_6c1ty"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_piercing.tres" id="11_47bym"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="12_plksn"]
+[ext_resource type="Resource" uid="uid://kq714ftw81r7" path="res://resources/affixes/base_stats/enemy/enemy_health_agi_brute.tres" id="13_fgx5c"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="14_cw05n"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="15_uv2y7"]
+[ext_resource type="PackedScene" uid="uid://b4wyrmm8bfq20" path="res://scenes/ui/components/dice/combat/combat_die_d8.tscn" id="16_aeevv"]
+[ext_resource type="Resource" uid="uid://dc86xxo6gws3l" path="res://resources/affixes/elements/piercing_element.tres" id="17_lou5y"]
+[ext_resource type="Texture2D" uid="uid://der0rcr1m1pb2" path="res://assets/dice/d8s/d8-fill-basic.png" id="18_6grbn"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="19_vgmap"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="20_420j1"]
+[ext_resource type="PackedScene" uid="uid://lx27hjqny6b8" path="res://scenes/ui/components/dice/pool/pool_die_d8.tscn" id="20_fm4ih"]
+[ext_resource type="Texture2D" uid="uid://ccv17kswol4os" path="res://assets/dice/d8s/d8-stroke-basic.png" id="21_0bhku"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="21_ono44"]
+[ext_resource type="Resource" uid="uid://chq1ry50v1nwr" path="res://resources/enemy_templates/brute_agi.tres" id="22_rrhw6"]
+[ext_resource type="Resource" uid="uid://4tlwq8ritqol" path="res://resources/actions/navy/navy_diving_strike.tres" id="32_diving_s"]
+[ext_resource type="Resource" uid="uid://cx6os6pn4kxxi" path="res://resources/actions/navy/navy_strafe.tres" id="33_strafe"]
+
+[sub_resource type="Resource" id="Resource_2p6p8"]
+script = ExtResource("1_1ur0t")
+heal_urgency = 0.2
+status_awareness = 0.7
+
+
+[sub_resource type="Resource" id="Resource_altpe"]
+script = ExtResource("19_vgmap")
+affix_name = "Momentum"
+description = "First die used gets +2 value."
+trigger = 1
+position_requirement = 1
+effect_value = 2.0
+
+
+[sub_resource type="Resource" id="Resource_pysej"]
+script = ExtResource("15_uv2y7")
+display_name = "Piercing D8"
+die_type = 8
+element = 3
+element_affix = ExtResource("17_lou5y")
+fill_texture = ExtResource("18_6grbn")
+stroke_texture = ExtResource("21_0bhku")
+combat_die_scene = ExtResource("16_aeevv")
+pool_die_scene = ExtResource("20_fm4ih")
+inherent_affixes = Array[ExtResource("19_vgmap")]([SubResource("Resource_altpe")])
+
+
+[sub_resource type="Resource" id="Resource_6c1ty"]
+script = ExtResource("19_vgmap")
+affix_name = "Momentum"
+description = "First die used gets +2 value."
+trigger = 1
+position_requirement = 1
+effect_value = 2.0
+
+
+[sub_resource type="Resource" id="Resource_47bym"]
+script = ExtResource("15_uv2y7")
+display_name = "Piercing D8"
+die_type = 8
+element = 3
+element_affix = ExtResource("17_lou5y")
+fill_texture = ExtResource("18_6grbn")
+stroke_texture = ExtResource("21_0bhku")
+combat_die_scene = ExtResource("16_aeevv")
+pool_die_scene = ExtResource("20_fm4ih")
+inherent_affixes = Array[ExtResource("19_vgmap")]([SubResource("Resource_6c1ty")])
+
+
+[resource]
+script = ExtResource("14_cw05n")
+enemy_name = "Griffin-Rider Lancer"
+description = "Sanctum Navy Griffin-Rider Lancer."
+template = ExtResource("22_rrhw6")
+enemy_tags = PackedStringArray("navy", "humanoid")
+starting_dice = Array[ExtResource("15_uv2y7")]([SubResource("Resource_pysej"), SubResource("Resource_47bym")])
+combat_actions = Array[ExtResource("2_grts4")]([ExtResource("32_diving_s"), ExtResource("33_strafe")])
+ai_strategy = 0
+ai_config = SubResource("Resource_2p6p8")
+action_delay = 0.7
+dice_drag_duration = 0.35
+gold_reward_min = 3
+gold_reward_max = 10
+enemy_archetype = 2
+health_affix = ExtResource("13_fgx5c")
+enemy_affixes = Array[ExtResource("9_pysej")]([ExtResource("10_6c1ty"), ExtResource("11_47bym")])

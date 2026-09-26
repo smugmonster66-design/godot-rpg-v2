@@ -50,6 +50,9 @@ func initialize(player: Player, combat_manager) -> void:
 	print("  [Companion] Summon slots empty (filled during combat)")
 	print("[Companion] CompanionManager ready (%d companions active)" % get_alive_companions().size())
 
+	# Recalculate synergies at combat start
+	CompanionSynergyManager.recalculate(player)
+
 # ============================================================================
 # SPAWNING
 # ============================================================================
@@ -167,6 +170,11 @@ func on_combat_end() -> void:
 
 	# Clear all slots and free nodes
 	_clear_all_slots()
+
+	# Recalculate synergies after combat (companions may have died)
+	if _player:
+		CompanionSynergyManager.recalculate(_player)
+
 	print("[Companion] CompanionManager combat cleanup complete")
 
 func _clear_all_slots() -> void:
@@ -278,5 +286,8 @@ func tick_round() -> Array[int]:
 		if companion.tick_duration():
 			print("  [Companion] %s duration expired (slot %d)" % [companion.combatant_name, i])
 			expired.append(i)
+
+	# Tick synergy bonus action cooldowns
+	CompanionSynergyManager.tick_bonus_cooldowns()
 
 	return expired

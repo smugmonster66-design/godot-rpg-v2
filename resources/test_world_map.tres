@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="MapDefinition" load_steps=14 format=3 uid="uid://yrjkl6sqyipx"]
+
+[ext_resource type="Texture2D" uid="uid://dpkd8j8e55a7a" path="res://assets/map_locations/test_map/test_map_background_placeholder.png" id="1_gn2x2"]
+[ext_resource type="Script" uid="uid://dvhiijsegn1ae" path="res://resources/data/map_definition.gd" id="1_mapscript"]
+[ext_resource type="Script" uid="uid://bbye857u3dcbx" path="res://resources/data/map_decor_item.gd" id="2_je277"]
+[ext_resource type="Script" uid="uid://dgamp5w74kvwa" path="res://resources/data/location_node.gd" id="2_locscript"]
+[ext_resource type="Script" uid="uid://d1uo10depwig3" path="res://resources/data/map_light_entry.gd" id="3_6rtmh"]
+[ext_resource type="Resource" uid="uid://d2gxdge1tbi3y" path="res://resources/maps/test/loc_embergate.tres" id="3_embergate"]
+[ext_resource type="Script" uid="uid://clmq2wyc5ci6l" path="res://resources/data/map_lighting_config.gd" id="4_5k74r"]
+[ext_resource type="Resource" uid="uid://r7irqu4arlkh" path="res://resources/maps/test/loc_crossroads.tres" id="4_crossroads"]
+[ext_resource type="Resource" uid="uid://c5kuxq478vbuy" path="res://resources/maps/test/loc_navy_sanctum.tres" id="5_navy"]
+[ext_resource type="Resource" uid="uid://bsimp3mgjclgx" path="res://resources/maps/test/loc_patrol_grounds.tres" id="6_patrol"]
+[ext_resource type="Resource" uid="uid://b3o3xilmfi1r5" path="res://resources/maps/test/loc_zone_gate_docks.tres" id="7_docks"]
+
+[sub_resource type="Resource" id="Resource_dto7c"]
+script = ExtResource("3_6rtmh")
+position = Vector2(1401.5189, 2841.9097)
+radius = 400.0
+
+[sub_resource type="Resource" id="Resource_lf52a"]
+script = ExtResource("4_5k74r")
+ambient_color = Color(0, 0, 0, 0)
+lights = Array[ExtResource("3_6rtmh")]([SubResource("Resource_dto7c")])
+light_direction = Vector2(-0.5, -0.9)
+shadow_opacity = 0.65
+shadow_softness = 4.0
+light_rays_enabled = true
+
+[resource]
+script = ExtResource("1_mapscript")
+map_id = &"test_world_map"
+display_name = "Test World"
+region_id = &"test_region"
+location_nodes = Array[ExtResource("2_locscript")]([ExtResource("3_embergate"), ExtResource("4_crossroads"), ExtResource("5_navy"), ExtResource("6_patrol"), ExtResource("7_docks")])
+starting_location_id = &"loc_embergate"
+connection_waypoints = {
+"loc_crossroads<->loc_navy_sanctum": [Vector2(1575.1387, 1945.5505), Vector2(957.1387, 2399.5505)]
+}
+background_texture = ExtResource("1_gn2x2")
+lighting_config = SubResource("Resource_lf52a")

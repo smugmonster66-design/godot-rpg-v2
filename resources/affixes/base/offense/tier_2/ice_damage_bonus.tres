@@ -7,8 +7,9 @@
 [resource]
 script = ExtResource("2_0m0e1")
 affix_name = "Ice Damage Bonus"
-description = "+N Ice damage"
+description = "+N [element:ice] damage"
 category = 23
 tags = Array[String](["damage", "elemental", "ice"])
 effect_min = 1.0
 effect_max = 30.0
+power_weight = 50.0

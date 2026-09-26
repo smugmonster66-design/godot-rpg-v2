@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="Action" load_steps=11 format=3 uid="uid://0u71rfmhmmg5"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_gsl3t"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_a4luj"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_e8s7u"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_e8s7u"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_wxpq3"]
+[ext_resource type="Resource" uid="uid://chncx582mqst7" path="res://resources/statuses/static.tres" id="5_vvif7"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_up07c"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_nsmo4"]
+
+[sub_resource type="Resource" id="Resource_gsl3t"]
+script = ExtResource("3_e8s7u")
+effect_name = "Lightning Damage"
+value_source = 1
+damage_type = 5
+base_damage = 2
+damage_multiplier = 1.1
+
+[sub_resource type="Resource" id="Resource_a4luj"]
+script = ExtResource("3_e8s7u")
+effect_name = "Lightning Static"
+effect_type = 2
+status_affix = ExtResource("5_vvif7")
+stack_count = 2
+
+[resource]
+script = ExtResource("7_nsmo4")
+action_id = "navy_lightning_strike"
+action_name = "Lightning Strike"
+action_description = "A bolt of lightning with residual [status:static|static]."
+damage_element = 5
+effects = Array[ExtResource("3_e8s7u")]([SubResource("Resource_gsl3t"), SubResource("Resource_a4luj")])

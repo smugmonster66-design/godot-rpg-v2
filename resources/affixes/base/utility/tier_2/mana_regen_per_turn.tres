@@ -8,7 +8,12 @@
 script = ExtResource("2_gt28e")
 affix_name = "Mana Regen per Turn"
 description = "+N mana at start of each turn"
-category = 33
+category = 35
 tags = Array[String](["mana", "regen"])
 effect_min = 1.0
 effect_max = 15.0
+effect_data = {
+"effect": "mana_restore"
+}
+proc_trigger = 3
+power_weight = 75.0

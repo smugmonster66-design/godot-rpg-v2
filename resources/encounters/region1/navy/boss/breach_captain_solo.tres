@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=4 format=3 uid="uid://btl1a6ylghdj3"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_6uj25"]
+[ext_resource type="Resource" uid="uid://buptfo6x20gfl" path="res://resources/enemies/region1/navy/boss/breach_captain.tres" id="2_iqlwx"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="3_2ycrv"]
+
+[resource]
+script = ExtResource("3_2ycrv")
+encounter_name = "Breach Captain"
+encounter_id = "navy_breach_captain_solo"
+enemies = Array[ExtResource("1_6uj25")]([ExtResource("2_iqlwx")])
+enemy_slots = Array[int]([1])
+difficulty_tier = 7
+level_range_min = 6
+level_range_max = 9
+is_boss_encounter = true
+disable_fleeing = true

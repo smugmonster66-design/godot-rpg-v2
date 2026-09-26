@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_vmwt4")
 affix_name = "Spark: Shock Unlock"
-description = "Unlocks Shock mana element."
+description = "Unlocks [element:shock] mana element."
 category = 37
 tags = Array[String](["mage", "storm", "element_unlock"])
 effect_data = {

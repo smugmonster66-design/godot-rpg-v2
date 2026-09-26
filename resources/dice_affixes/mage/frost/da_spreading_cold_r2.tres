@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_ugbk0")
 affix_name = "Spreading Cold II: Chill Splash"
-description = "Splash 50% of applied Chill to all other enemies."
+description = "Splash 50% of applied [status:chill] to all other enemies."
 use_global_element_visuals = true
 global_element_type = 4
 trigger = 1

@@ -1,0 +1,133 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=30 format=3 uid="uid://csmjsshkrmogk"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_mmfxg"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_m8oyk"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="9_ty3af"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_armor_str_brute.tres" id="10_njuhw"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_slashing.tres" id="11_26l8u"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="12_ybfym"]
+[ext_resource type="Resource" uid="uid://chmejcvma7x2j" path="res://resources/affixes/base_stats/enemy/enemy_health_str_brute.tres" id="13_2wjj1"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="14_uyork"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="15_85cha"]
+[ext_resource type="PackedScene" uid="uid://dx08yqjhk2hu0" path="res://scenes/ui/components/dice/combat/combat_die_d10.tscn" id="16_el703"]
+[ext_resource type="Resource" uid="uid://bdq7d6do7p3vo" path="res://resources/affixes/elements/slashing_element.tres" id="17_18arj"]
+[ext_resource type="Texture2D" uid="uid://klk23dga0emp" path="res://assets/dice/d10s/d10-fill-basic.png" id="18_lhr3e"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="19_l03y5"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="20_gjhak"]
+[ext_resource type="PackedScene" uid="uid://biqti34m42xcy" path="res://scenes/ui/components/dice/pool/pool_die_d10.tscn" id="20_wf8c1"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="21_m3idj"]
+[ext_resource type="Texture2D" uid="uid://bnn478mo72l40" path="res://assets/dice/d10s/d10-stroke-basic.png" id="21_u37nv"]
+[ext_resource type="Resource" uid="uid://b8a0hafcgbsq3" path="res://resources/enemy_templates/brute_str.tres" id="22_rw1ju"]
+[ext_resource type="Resource" uid="uid://dbjbm2lq6s2la" path="res://resources/actions/navy/navy_boarding_axe.tres" id="32_boarding"]
+[ext_resource type="Resource" uid="uid://cjwv5e3pg1t0j" path="res://resources/actions/navy/navy_breach.tres" id="33_breach"]
+[ext_resource type="Resource" uid="uid://bm8o4pf654kkk" path="res://resources/actions/navy/navy_hull_splitter.tres" id="34_hull_spl"]
+
+[sub_resource type="Resource" id="Resource_b6p8r"]
+script = ExtResource("1_mmfxg")
+heal_urgency = 0.2
+status_awareness = 0.4
+
+
+[sub_resource type="Resource" id="Resource_xt5rj"]
+script = ExtResource("19_l03y5")
+affix_name = "Breach Protocol"
+description = "Last die used applies Corrode to the enemy."
+trigger = 1
+position_requirement = 2
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "corrode",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_ac15c"]
+script = ExtResource("15_85cha")
+display_name = "Slashing D10"
+die_type = 10
+element = 1
+element_affix = ExtResource("17_18arj")
+fill_texture = ExtResource("18_lhr3e")
+stroke_texture = ExtResource("21_u37nv")
+combat_die_scene = ExtResource("16_el703")
+pool_die_scene = ExtResource("20_wf8c1")
+inherent_affixes = Array[ExtResource("19_l03y5")]([SubResource("Resource_xt5rj")])
+
+
+[sub_resource type="Resource" id="Resource_is3d6"]
+script = ExtResource("19_l03y5")
+affix_name = "Breach Protocol"
+description = "Last die used applies Corrode to the enemy."
+trigger = 1
+position_requirement = 2
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "corrode",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_vcqc7"]
+script = ExtResource("15_85cha")
+display_name = "Slashing D10"
+die_type = 10
+element = 1
+element_affix = ExtResource("17_18arj")
+fill_texture = ExtResource("18_lhr3e")
+stroke_texture = ExtResource("21_u37nv")
+combat_die_scene = ExtResource("16_el703")
+pool_die_scene = ExtResource("20_wf8c1")
+inherent_affixes = Array[ExtResource("19_l03y5")]([SubResource("Resource_is3d6")])
+
+
+[sub_resource type="Resource" id="Resource_ty3af"]
+script = ExtResource("19_l03y5")
+affix_name = "Breach Protocol"
+description = "Last die used applies Corrode to the enemy."
+trigger = 1
+position_requirement = 2
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "corrode",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_njuhw"]
+script = ExtResource("15_85cha")
+display_name = "Slashing D10"
+die_type = 10
+element = 1
+element_affix = ExtResource("17_18arj")
+fill_texture = ExtResource("18_lhr3e")
+stroke_texture = ExtResource("21_u37nv")
+combat_die_scene = ExtResource("16_el703")
+pool_die_scene = ExtResource("20_wf8c1")
+inherent_affixes = Array[ExtResource("19_l03y5")]([SubResource("Resource_ty3af")])
+
+
+[resource]
+script = ExtResource("14_uyork")
+enemy_name = "Boarding Chief"
+description = "Sanctum Navy Boarding Chief."
+template = ExtResource("22_rw1ju")
+enemy_tags = PackedStringArray("navy", "humanoid")
+max_health = 25
+starting_dice = Array[ExtResource("15_85cha")]([SubResource("Resource_ac15c"), SubResource("Resource_vcqc7"), SubResource("Resource_njuhw")])
+combat_actions = Array[ExtResource("2_m8oyk")]([ExtResource("32_boarding"), ExtResource("33_breach"), ExtResource("34_hull_spl")])
+ai_strategy = 0
+ai_config = SubResource("Resource_b6p8r")
+action_delay = 0.7
+dice_drag_duration = 0.35
+experience_reward = 75
+gold_reward_min = 25
+gold_reward_max = 75
+enemy_tier = 2
+enemy_archetype = 1
+enemy_level_floor = 5
+level_scaling_multiplier = 1.0
+health_affix = ExtResource("13_2wjj1")
+enemy_affixes = Array[ExtResource("9_ty3af")]([ExtResource("10_njuhw"), ExtResource("11_26l8u")])

@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_e5bns")
 affix_name = "Creeping Frost III"
-description = "Ice dice apply 3 Chill on use."
+description = "[element:ice] dice apply 3 [status:chill] on use."
 category = 39
 tags = Array[String](["mage", "frost", "mana_die_affix", "chill_apply", "applier"])
 effect_data = {

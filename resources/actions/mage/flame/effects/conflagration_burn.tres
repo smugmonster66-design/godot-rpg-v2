@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=4 format=3 uid="uid://cytp6ki83uwwh"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_v1kd1"]
+[ext_resource type="Resource" uid="uid://behojsm6qvxjl" path="res://resources/statuses/burn.tres" id="2_81ckp"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="3_wln1o"]
+
+[resource]
+script = ExtResource("1_v1kd1")
+effect_name = "Conflagration: Apply Burn"
+target = 2
+effect_type = 2
+status_affix = ExtResource("2_81ckp")
+stack_count = 3

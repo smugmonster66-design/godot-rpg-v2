@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="QuestDefinition" load_steps=10 format=3 uid="uid://y1jjarsmweu"]
+
+[ext_resource type="Script" uid="uid://b6qj5w0fgevno" path="res://resources/data/quest_definition.gd" id="1_def"]
+[ext_resource type="Script" uid="uid://bi7t57lj6p7f4" path="res://resources/data/quest_objective.gd" id="2_obj"]
+[ext_resource type="Script" uid="uid://lgoecdg43x3d" path="res://resources/data/game_condition.gd" id="2_xmb7t"]
+[ext_resource type="Script" uid="uid://dh5jn3duyowt6" path="res://resources/data/single_check.gd" id="3_igje1"]
+[ext_resource type="Script" uid="uid://dfrd5du3khv1p" path="res://resources/data/quest_rewards.gd" id="3_rew"]
+
+[sub_resource type="Resource" id="obj_kill"]
+script = ExtResource("2_obj")
+objective_id = &"kill_naval"
+description = "Defeat naval enemies ({current}/{required})"
+objective_type = 1
+required_count = 5
+track_tag = &"naval"
+
+[sub_resource type="Resource" id="Resource_jkhpv"]
+script = ExtResource("3_igje1")
+check_type = 6
+key = &"harbor_masters_request"
+
+[sub_resource type="Resource" id="Resource_h4dtg"]
+script = ExtResource("2_xmb7t")
+condition_type = 2
+single_check = SubResource("Resource_jkhpv")
+
+[sub_resource type="Resource" id="rewards"]
+script = ExtResource("3_rew")
+experience = 25
+gold = 75
+
+[resource]
+script = ExtResource("1_def")
+quest_id = &"navy_bounty"
+display_name = "Navy Bounty"
+quest_type = 3
+summary = "Thin the ranks of hostile naval forces."
+description = "The local authorities have posted a standing bounty on hostile naval forces. Defeat enough of them to claim your reward."
+objectives = Array[ExtResource("2_obj")]([SubResource("obj_kill")])
+rewards = SubResource("rewards")
+prerequisites = SubResource("Resource_h4dtg")
+auto_complete = true
+repeatable = true

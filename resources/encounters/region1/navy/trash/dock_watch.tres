@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=4 format=3 uid="uid://dmeccl57jjov2"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_sto2c"]
+[ext_resource type="Resource" uid="uid://smvwngq0l4kt" path="res://resources/enemies/region1/navy/trash/harbour_sentinel.tres" id="2_f7yqf"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="3_jggws"]
+
+[resource]
+script = ExtResource("3_jggws")
+encounter_name = "Dock Watch"
+encounter_id = "navy_dock_watch"
+enemies = Array[ExtResource("1_sto2c")]([ExtResource("2_f7yqf")])
+enemy_slots = Array[int]([1])
+level_range_max = 3

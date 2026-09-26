@@ -40,6 +40,14 @@ class_name QuestRewards
 @export var relationship_changes: Dictionary = {}
 
 # ============================================================================
+# COUNTER REWARDS
+# ============================================================================
+@export_group("Counters")
+## Counter changes on quest completion: { counter_name: delta }
+## Used for morality shifts (virtue, order) and any other counters.
+@export var counter_changes: Dictionary = {}
+
+# ============================================================================
 # PREVIEW
 # ============================================================================
 

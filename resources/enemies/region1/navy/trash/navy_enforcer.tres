@@ -1,0 +1,85 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=26 format=3 uid="uid://c2bo71ua4y88t"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_6ev71"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_t2hme"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="9_6svl2"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_armor_str_brute.tres" id="10_476r0"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_blunt.tres" id="11_2a46w"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="12_q3vpa"]
+[ext_resource type="Resource" uid="uid://chmejcvma7x2j" path="res://resources/affixes/base_stats/enemy/enemy_health_str_brute.tres" id="13_v48er"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="14_3b7cm"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="15_uc67x"]
+[ext_resource type="PackedScene" uid="uid://b4wyrmm8bfq20" path="res://scenes/ui/components/dice/combat/combat_die_d8.tscn" id="16_h2k2x"]
+[ext_resource type="Resource" uid="uid://2a7ntncvy5ij" path="res://resources/affixes/elements/blunt_element.tres" id="17_1o4ps"]
+[ext_resource type="Texture2D" uid="uid://der0rcr1m1pb2" path="res://assets/dice/d8s/d8-fill-basic.png" id="18_bckwr"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="19_gmqm8"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="20_etxgu"]
+[ext_resource type="PackedScene" uid="uid://lx27hjqny6b8" path="res://scenes/ui/components/dice/pool/pool_die_d8.tscn" id="20_rbmmt"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="21_02ooh"]
+[ext_resource type="Texture2D" uid="uid://ccv17kswol4os" path="res://assets/dice/d8s/d8-stroke-basic.png" id="21_x51g4"]
+[ext_resource type="Resource" uid="uid://b8a0hafcgbsq3" path="res://resources/enemy_templates/brute_str.tres" id="22_lrmkq"]
+[ext_resource type="Resource" uid="uid://d334v2dd3go0r" path="res://resources/actions/navy/navy_compliance_strike.tres" id="32_complian"]
+[ext_resource type="Resource" uid="uid://7l54e8ttg6gc" path="res://resources/actions/navy/navy_subdue.tres" id="33_subdue"]
+
+[sub_resource type="Resource" id="Resource_58xpm"]
+script = ExtResource("1_6ev71")
+element_preference = 0.6
+heal_urgency = 0.3
+
+[sub_resource type="Resource" id="Resource_4rffd"]
+script = ExtResource("19_gmqm8")
+affix_name = "Weighted Head"
+description = "First die used gets +1 value."
+trigger = 1
+position_requirement = 1
+effect_value = 1.0
+
+[sub_resource type="Resource" id="Resource_6svl2"]
+script = ExtResource("15_uc67x")
+display_name = "Blunt D8"
+die_type = 8
+element = 2
+element_affix = ExtResource("17_1o4ps")
+fill_texture = ExtResource("18_bckwr")
+stroke_texture = ExtResource("21_x51g4")
+combat_die_scene = ExtResource("16_h2k2x")
+pool_die_scene = ExtResource("20_rbmmt")
+inherent_affixes = Array[ExtResource("19_gmqm8")]([SubResource("Resource_4rffd")])
+
+[sub_resource type="Resource" id="Resource_476r0"]
+script = ExtResource("19_gmqm8")
+affix_name = "Weighted Head"
+description = "First die used gets +1 value."
+trigger = 1
+position_requirement = 1
+effect_value = 1.0
+
+[sub_resource type="Resource" id="Resource_2a46w"]
+script = ExtResource("15_uc67x")
+display_name = "Blunt D8"
+die_type = 8
+element = 2
+element_affix = ExtResource("17_1o4ps")
+fill_texture = ExtResource("18_bckwr")
+stroke_texture = ExtResource("21_x51g4")
+combat_die_scene = ExtResource("16_h2k2x")
+pool_die_scene = ExtResource("20_rbmmt")
+inherent_affixes = Array[ExtResource("19_gmqm8")]([SubResource("Resource_476r0")])
+
+[resource]
+script = ExtResource("14_3b7cm")
+enemy_name = "Navy Enforcer"
+description = "Sanctum Navy Navy Enforcer."
+template = ExtResource("22_lrmkq")
+enemy_tags = ["navy", "humanoid"]
+starting_dice = Array[ExtResource("15_uc67x")]([SubResource("Resource_6svl2"), SubResource("Resource_2a46w")])
+combat_actions = Array[ExtResource("2_t2hme")]([ExtResource("32_complian"), ExtResource("33_subdue")])
+ai_strategy = 0
+ai_config = SubResource("Resource_58xpm")
+action_delay = 0.7
+dice_drag_duration = 0.35
+gold_reward_min = 3
+gold_reward_max = 10
+enemy_archetype = 1
+health_affix = ExtResource("13_v48er")
+enemy_affixes = Array[ExtResource("9_6svl2")]([ExtResource("10_476r0"), ExtResource("11_2a46w")])

@@ -12,28 +12,29 @@
 [ext_resource type="Resource" uid="uid://de4fox2vomexv" path="res://resources/affixes/classes/mage/storm/conductor/conductor_r2_affix.tres" id="9_faosi"]
 [ext_resource type="Resource" uid="uid://bvo0it3p3iywx" path="res://resources/affixes/classes/mage/storm/conductor/conductor_r3_affix.tres" id="10_4wio8"]
 
-[sub_resource type="Resource" id="Resource_gwqxq"]
+[sub_resource type="Resource" id="Resource_idtkr"]
 script = ExtResource("4_2qvst")
 skill_id = "storm_spark"
 skill_name = "Spark"
-description = "Unlock [color=yellow]Shock[/color] mana. Chromatic Bolt applies [color=yellow]1/2/3 Static[/color] on hit (requires shock die)."
+description = "Unlock [element:shock] mana. Chromatic Bolt applies [status:static|1/2/3 Static] on hit (requires shock die)."
 column = 3
 rank_1_affixes = Array[ExtResource("2_2je6q")]([ExtResource("3_le0v2"), ExtResource("4_hn0pg")])
 rank_2_affixes = Array[ExtResource("2_2je6q")]([ExtResource("3_le0v2"), ExtResource("5_o4nno")])
 rank_3_affixes = Array[ExtResource("2_2je6q")]([ExtResource("3_le0v2"), ExtResource("6_k83fq")])
 
-[sub_resource type="Resource" id="Resource_l1ipw"]
+[sub_resource type="Resource" id="Resource_ng5yr"]
 script = ExtResource("1_tbt7y")
-required_skill = SubResource("Resource_gwqxq")
+required_skill = SubResource("Resource_idtkr")
 
 [sub_resource type="Resource" id="Resource_nocxb"]
 script = ExtResource("4_2qvst")
 skill_id = "storm_conductor"
 skill_name = "Conductor"
-description = "Shock mana dice chain [color=yellow]30/40/50%[/color] damage to 1 additional enemy on use."
+description = "[element:shock] mana dice chain [color=yellow]30/40/50%[/color] damage to 1 additional enemy on use."
+skill_category = 1
 tier = 2
 column = 3
-prerequisites = Array[ExtResource("1_tbt7y")]([SubResource("Resource_l1ipw")])
+prerequisites = Array[ExtResource("1_tbt7y")]([SubResource("Resource_ng5yr")])
 tree_points_required = 1
 rank_1_affixes = Array[ExtResource("2_2je6q")]([ExtResource("8_ounb1")])
 rank_2_affixes = Array[ExtResource("2_2je6q")]([ExtResource("9_faosi")])
@@ -47,7 +48,11 @@ required_skill = SubResource("Resource_nocxb")
 script = ExtResource("4_2qvst")
 skill_id = "storm_storm_sprite"
 skill_name = "Storm Sprite"
-description = "[color=yellow]ACTION:[/color] 1 shock die, per-combat. Summon Sprite (zaps random enemy: 4 shock + 1 [color=yellow]Static[/color]/turn). HP = die value x3."
+skill_category = 2
+skill_category = 2
+skill_category = 2
+description = "[color=yellow]ACTION:[/color] 1 shock die, per-combat. Summon Sprite (zaps random enemy: 4 shock + 1 [status:static]/turn). HP = die value x3."
+skill_category = 2
 tier = 3
 column = 3
 prerequisites = Array[ExtResource("1_tbt7y")]([SubResource("Resource_2wnw8")])

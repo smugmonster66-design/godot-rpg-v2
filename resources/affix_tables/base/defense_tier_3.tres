@@ -1,23 +1,18 @@
-[gd_resource type="Resource" script_class="AffixTable" load_steps=16 format=3 uid="uid://cxxl35mmk0tiv"]
+[gd_resource type="Resource" script_class="AffixTable" load_steps=10 format=3 uid="uid://cxxl35mmk0tiv"]
 
-[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_v1fdn"]
-[ext_resource type="Resource" uid="uid://mc8ntg5rbukv" path="res://resources/affixes/base/defense/tier_3/defense_multiplier.tres" id="2_b1tia"]
-[ext_resource type="Resource" uid="uid://ctkg48wpfegu1" path="res://resources/affixes/base/defense/tier_3/heal_on_hit_taken_pct.tres" id="3_88sf0"]
-[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="4_7tkkg"]
-[ext_resource type="Resource" uid="uid://c6wmsa3rfola6" path="res://resources/affixes/base/defense/tier_3/thorns_apply_status.tres" id="4_rqb61"]
-[ext_resource type="Resource" uid="uid://c84wtyqukx5p" path="res://resources/affixes/base/defense/tier_3/temp_buff_on_hit_taken.tres" id="5_ohbcn"]
-[ext_resource type="Resource" uid="uid://cxmgicr8vv82j" path="res://resources/affixes/base/defense/tier_3/stacking_buff_on_hit_taken.tres" id="6_5firs"]
-[ext_resource type="Resource" uid="uid://bhx4eewtcdijj" path="res://resources/affixes/base/defense/tier_3/thorns_chill.tres" id="7_42212"]
-[ext_resource type="Resource" uid="uid://i5xjefks7eck" path="res://resources/affixes/base/defense/tier_3/thorns_slowed.tres" id="8_8v6e0"]
-[ext_resource type="Resource" uid="uid://ckghl3urxa2wr" path="res://resources/affixes/base/defense/tier_3/thorns_corrode.tres" id="9_o7ko0"]
-[ext_resource type="Resource" uid="uid://r0mdgd7atmon" path="res://resources/affixes/base/defense/tier_3/thorns_enfeeble.tres" id="10_i1m0y"]
-[ext_resource type="Resource" uid="uid://yosfrref1if8" path="res://resources/affixes/base/defense/tier_3/barrier_on_defend.tres" id="11_i2u45"]
-[ext_resource type="Resource" uid="uid://8ymak4uxqlsi" path="res://resources/affixes/base/defense/tier_3/temp_buff_on_defend.tres" id="12_it3ww"]
-[ext_resource type="Resource" uid="uid://1t37yfguityo" path="res://resources/affixes/base/defense/tier_3/heal_on_kill_pct.tres" id="13_h68ep"]
-[ext_resource type="Resource" uid="uid://cbs27g5caqju0" path="res://resources/affixes/base/defense/tier_3/granted_defensive_action.tres" id="14_0buco"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="affix_script"]
+[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="table_script"]
+[ext_resource type="Resource" uid="uid://mc8ntg5rbukv" path="res://resources/affixes/base/defense/tier_3/defense_multiplier.tres" id="affix_1"]
+[ext_resource type="Resource" uid="uid://ctkg48wpfegu1" path="res://resources/affixes/base/defense/tier_3/heal_on_hit_taken_pct.tres" id="affix_2"]
+[ext_resource type="Resource" uid="uid://yosfrref1if8" path="res://resources/affixes/base/defense/tier_3/barrier_on_defend.tres" id="affix_3"]
+[ext_resource type="Resource" uid="uid://1t37yfguityo" path="res://resources/affixes/base/defense/tier_3/heal_on_kill_pct.tres" id="affix_4"]
+[ext_resource type="Resource" uid="uid://ckghl3urxa2wr" path="res://resources/affixes/base/defense/tier_3/thorns_corrode.tres" id="affix_5"]
+[ext_resource type="Resource" uid="uid://r0mdgd7atmon" path="res://resources/affixes/base/defense/tier_3/thorns_enfeeble.tres" id="affix_6"]
+[ext_resource type="Resource" uid="uid://bhx4eewtcdijj" path="res://resources/affixes/base/defense/tier_3/thorns_chill.tres" id="affix_7"]
+[ext_resource type="Resource" uid="uid://i5xjefks7eck" path="res://resources/affixes/base/defense/tier_3/thorns_slowed.tres" id="affix_8"]
 
 [resource]
-script = ExtResource("4_7tkkg")
+script = ExtResource("table_script")
 table_name = "Defense Tier 3"
-description = "Base defense affixes, tier 3. Auto-generated."
-available_affixes = Array[ExtResource("1_v1fdn")]([ExtResource("2_b1tia"), ExtResource("3_88sf0"), ExtResource("4_rqb61"), ExtResource("5_ohbcn"), ExtResource("6_5firs"), ExtResource("7_42212"), ExtResource("8_8v6e0"), ExtResource("9_o7ko0"), ExtResource("10_i1m0y"), ExtResource("11_i2u45"), ExtResource("12_it3ww"), ExtResource("13_h68ep"), ExtResource("14_0buco")])
+description = "Defense multiplier, percentage heals, thorns."
+available_affixes = Array[ExtResource("affix_script")]([ExtResource("affix_1"), ExtResource("affix_2"), ExtResource("affix_3"), ExtResource("affix_4"), ExtResource("affix_5"), ExtResource("affix_6"), ExtResource("affix_7"), ExtResource("affix_8")])

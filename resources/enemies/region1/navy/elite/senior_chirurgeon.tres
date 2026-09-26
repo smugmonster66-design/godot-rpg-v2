@@ -1,0 +1,90 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=26 format=3 uid="uid://bk10yj7f6wa3a"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_fcpfn"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_7om4d"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="9_f2nm0"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_barrier_int_support.tres" id="10_70sbj"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_ice.tres" id="11_bhcxt"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="12_bl5f4"]
+[ext_resource type="Resource" uid="uid://bgo3yy1bl73ml" path="res://resources/affixes/base_stats/enemy/enemy_health_int_support.tres" id="13_u5yd1"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="14_6owui"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="15_rdmt4"]
+[ext_resource type="PackedScene" uid="uid://b4wyrmm8bfq20" path="res://scenes/ui/components/dice/combat/combat_die_d8.tscn" id="16_lw10g"]
+[ext_resource type="Texture2D" uid="uid://der0rcr1m1pb2" path="res://assets/dice/d8s/d8-fill-basic.png" id="17_qfhxi"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="18_7483f"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="19_n7nbr"]
+[ext_resource type="PackedScene" uid="uid://lx27hjqny6b8" path="res://scenes/ui/components/dice/pool/pool_die_d8.tscn" id="19_nsh10"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="20_eh2dy"]
+[ext_resource type="Texture2D" uid="uid://ccv17kswol4os" path="res://assets/dice/d8s/d8-stroke-basic.png" id="20_tras6"]
+[ext_resource type="Resource" uid="uid://syra6v8npt41" path="res://resources/enemy_templates/support_int.tres" id="21_0beea"]
+[ext_resource type="Resource" uid="uid://d3rw6qmhs7ff3" path="res://resources/actions/navy/navy_field_surgery.tres" id="31_field_su"]
+[ext_resource type="Resource" uid="uid://emn4s63mpgq1" path="res://resources/actions/navy/navy_triage.tres" id="32_triage"]
+[ext_resource type="Resource" uid="uid://b44jlysb1qdoq" path="res://resources/actions/navy/navy_emergency_procedure.tres" id="33_emergenc"]
+
+[sub_resource type="Resource" id="Resource_hrfvk"]
+script = ExtResource("1_fcpfn")
+element_preference = 0.2
+heal_urgency = 0.9
+heal_threshold = 0.7
+critical_threshold = 0.4
+status_awareness = 0.6
+
+[sub_resource type="Resource" id="Resource_oea7u"]
+script = ExtResource("18_7483f")
+affix_name = "Triage Training"
+description = "First die rolled has minimum value 2."
+position_requirement = 1
+effect_type = 2
+effect_value = 2.0
+
+[sub_resource type="Resource" id="Resource_ieqy0"]
+script = ExtResource("15_rdmt4")
+display_name = "D8"
+die_type = 8
+fill_texture = ExtResource("17_qfhxi")
+stroke_texture = ExtResource("20_tras6")
+combat_die_scene = ExtResource("16_lw10g")
+pool_die_scene = ExtResource("19_nsh10")
+inherent_affixes = Array[ExtResource("18_7483f")]([SubResource("Resource_oea7u")])
+
+[sub_resource type="Resource" id="Resource_hwyxp"]
+script = ExtResource("18_7483f")
+affix_name = "Triage Training"
+description = "First die rolled has minimum value 2."
+position_requirement = 1
+effect_type = 2
+effect_value = 2.0
+
+[sub_resource type="Resource" id="Resource_f2nm0"]
+script = ExtResource("15_rdmt4")
+display_name = "D8"
+die_type = 8
+fill_texture = ExtResource("17_qfhxi")
+stroke_texture = ExtResource("20_tras6")
+combat_die_scene = ExtResource("16_lw10g")
+pool_die_scene = ExtResource("19_nsh10")
+inherent_affixes = Array[ExtResource("18_7483f")]([SubResource("Resource_hwyxp")])
+
+[resource]
+script = ExtResource("14_6owui")
+enemy_name = "Senior Chirurgeon"
+description = "Sanctum Navy Senior Chirurgeon."
+template = ExtResource("21_0beea")
+combat_role = 4
+max_health = 15
+starting_dice = Array[ExtResource("15_rdmt4")]([SubResource("Resource_ieqy0"), SubResource("Resource_f2nm0")])
+combat_actions = Array[ExtResource("2_7om4d")]([ExtResource("31_field_su"), ExtResource("32_triage"), ExtResource("33_emergenc")])
+ai_strategy = 1
+ai_config = SubResource("Resource_hrfvk")
+team_aware = true
+action_delay = 0.7
+dice_drag_duration = 0.35
+experience_reward = 30
+gold_reward_min = 10
+gold_reward_max = 30
+enemy_tier = 1
+enemy_archetype = 3
+enemy_level_floor = 3
+level_scaling_multiplier = 0.95
+health_affix = ExtResource("13_u5yd1")
+enemy_affixes = Array[ExtResource("9_f2nm0")]([ExtResource("10_70sbj"), ExtResource("11_bhcxt")])

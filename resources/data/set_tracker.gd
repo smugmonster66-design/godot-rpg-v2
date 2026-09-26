@@ -117,8 +117,10 @@ func _apply_threshold(set_def: SetDefinition, threshold):
 			var copy = affix.duplicate_with_source(source_name, "set")
 			player.affix_manager.add_affix(copy)
 	
-	if threshold.has("dice_affix") and threshold.dice_affix:
-		_apply_dice_affixes_for_set(set_def, threshold.dice_affix)
+	if threshold.dice_affixes.size() > 0:
+		for da in threshold.dice_affixes:
+			if da:
+				_apply_dice_affixes_for_set(set_def, da)
 
 func _apply_dice_affixes_for_set(set_def: SetDefinition, dice_affix):
 	if not player or not player.dice_pool:

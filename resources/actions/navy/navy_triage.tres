@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="Action" load_steps=11 format=3 uid="uid://emn4s63mpgq1"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_0p61i"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_5i1lh"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_fglco"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_5i1lh"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_04te5"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="5_ag131"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="6_rq83o"]
+
+[sub_resource type="Resource" id="Resource_0p61i"]
+script = ExtResource("1_0p61i")
+condition = 9
+threshold = 2.0
+bonus_value = 25.0
+
+[sub_resource type="Resource" id="Resource_fglco"]
+script = ExtResource("3_5i1lh")
+effect_name = "Triage Heal"
+target = 4
+effect_type = 1
+value_source = 1
+heal_multiplier = 0.5
+heal_uses_dice = true
+
+[sub_resource type="Resource" id="Resource_5i1lh"]
+script = ExtResource("3_5i1lh")
+effect_name = "Triage Cleanse"
+target = 4
+effect_type = 4
+cleanse_tags = Array[String](["debuff"])
+cleanse_max_removals = 1
+
+[resource]
+script = ExtResource("6_rq83o")
+action_id = "navy_triage"
+action_name = "Triage"
+action_description = "Heal all allies and cleanse a debuff."
+action_category = 3
+effects = Array[ExtResource("3_5i1lh")]([SubResource("Resource_fglco"), SubResource("Resource_5i1lh")])
+ai_hints = Array[ExtResource("1_0p61i")]([SubResource("Resource_0p61i")])
+action_type = 2

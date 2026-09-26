@@ -60,6 +60,29 @@ func serialize(graph: DialogueGraphEdit, speakers: Array[DialogueSpeaker]) -> Di
 			for choice_data in node_data.get("choices", []):
 				var choice = DialogueChoiceScript.new()
 				choice.label = choice_data.get("label", "")
+				# Moral weight → counter_changes
+				var counter_changes = {}
+				var virtue_val = choice_data.get("virtue", 0)
+				var order_val = choice_data.get("order", 0)
+				if virtue_val != 0:
+					counter_changes[&"virtue"] = virtue_val
+				if order_val != 0:
+					counter_changes[&"order"] = order_val
+				if not counter_changes.is_empty():
+					choice.counter_changes = counter_changes
+				# Approval → approval_changes
+				var approval_npc = choice_data.get("approval_npc", "")
+				var approval_val = choice_data.get("approval", 0)
+				if approval_npc != "" and approval_val != 0:
+					choice.approval_changes = {StringName(approval_npc): approval_val}
+				# Per-choice condition
+				var cond = _create_choice_condition(choice_data)
+				if cond:
+					choice.condition = cond
+				choice.show_when_locked = choice_data.get("show_when_locked", false)
+				var hint = choice_data.get("locked_hint", "")
+				if hint != "":
+					choice.locked_hint = hint
 				choices.append(choice)
 			node_to_choices[node] = choices
 			push_warning("[DialogueSerializer]   Created %d choices" % choices.size())
@@ -187,13 +210,56 @@ func _process_node_chain(
 			# Continue to next node
 			var next_node = graph.get_connected_node(node, 0)
 			if next_node:
-				flag_line.next_line = _process_node_chain(next_node, graph, node_to_line, node_to_choices, processed)
-			
+				var next_type = next_node.get_node_type() if next_node.has_method("get_node_type") else ""
+				if next_type == "choice":
+					flag_line.choices.assign(_process_choice_node(next_node, graph, node_to_line, node_to_choices, processed))
+				elif next_type == "end":
+					flag_line.next_line = null
+				else:
+					flag_line.next_line = _process_node_chain(next_node, graph, node_to_line, node_to_choices, processed)
+
 			return flag_line
 		
+		"game_action":
+			# Game action nodes encode action into event_tag and pass through
+			processed.append(node)
+			var node_data = node.get_node_data()
+
+			var action_line = DialogueLineScript.new()
+			action_line.text = ""
+			action_line.auto_advance = true
+			action_line.auto_advance_delay = 0.0
+
+			# Encode: "game_action:<type_int>:<payload>"
+			var action_type = node_data.get("action_type", 0)
+			var param = node_data.get("param", "")
+			action_line.event_tag = StringName("game_action:%d:%s" % [action_type, param])
+
+			# Store for potential re-use
+			node_to_line[node] = action_line
+
+			# Continue to next node — try port 0 first, then fallback
+			var next_node = graph.get_connected_node(node, 0)
+			if next_node == null:
+				for conn in graph.get_connection_list():
+					if str(conn.from_node) == str(node.name):
+						next_node = graph.get_node_or_null(NodePath(str(conn.to_node)))
+						break
+			if next_node:
+				var next_type = next_node.get_node_type() if next_node.has_method("get_node_type") else ""
+				if next_type == "choice":
+					# Wire choices directly onto the action line
+					action_line.choices.assign(_process_choice_node(next_node, graph, node_to_line, node_to_choices, processed))
+				elif next_type == "end":
+					action_line.next_line = null
+				else:
+					action_line.next_line = _process_node_chain(next_node, graph, node_to_line, node_to_choices, processed)
+
+			return action_line
+
 		"end":
 			return null
-		
+
 		_:
 			return null
 
@@ -271,42 +337,103 @@ func _create_condition_resource(node_data: Dictionary) -> GameCondition:
 	var condition_type = node_data.get("condition_type", 0)
 	var flag_name = node_data.get("flag_name", "")
 	var compare_value = node_data.get("compare_value", 0)
-	
-	if flag_name == "":
-		return GameConditionScript.always_true()
-	
+	var op = node_data.get("compare_operator", ">=")
+	var p_expected = node_data.get("expected_bool", true)
+	var quest_state_val = node_data.get("quest_state_value", "complete")
+	var p_class_id = node_data.get("class_id", "")
+	var p_objective_id = node_data.get("objective_id", "")
+	var p_obj_check_mode = node_data.get("objective_check_mode", 0)
+
+	# New enum: FLAG=0, COUNTER=1, RELATIONSHIP=2, HAS_ITEM=3, PLAYER_LEVEL=4,
+	#           CLASS_LEVEL=5, QUEST_STATE=6, QUEST_OBJECTIVE=7, LOCATION_VISITED=8,
+	#           APPROVAL=9
 	match condition_type:
-		0:  # FLAG_SET
-			return GameConditionScript.flag(StringName(flag_name), true)
-		1:  # FLAG_NOT_SET
-			return GameConditionScript.flag(StringName(flag_name), false)
-		2:  # COUNTER_AT_LEAST
-			return GameConditionScript.counter_at_least(StringName(flag_name), compare_value)
-		3:  # COUNTER_LESS_THAN
-			return _create_counter_less_than(StringName(flag_name), compare_value)
-		4:  # COUNTER_EQUALS
-			return _create_counter_equals(StringName(flag_name), compare_value)
-	
+		0:  # FLAG
+			if flag_name == "":
+				return GameConditionScript.always_true()
+			return GameConditionScript.flag(StringName(flag_name), p_expected)
+		1:  # COUNTER
+			if flag_name == "":
+				return GameConditionScript.always_true()
+			return GameConditionScript.counter_compare(StringName(flag_name), op, compare_value)
+		2:  # RELATIONSHIP
+			if flag_name == "":
+				return GameConditionScript.always_true()
+			return GameConditionScript.relationship(StringName(flag_name), op, compare_value)
+		3:  # HAS_ITEM
+			if flag_name == "":
+				return GameConditionScript.always_true()
+			var cond = GameConditionScript.has_item(StringName(flag_name), op, compare_value)
+			if not p_expected:
+				cond.invert = true
+			return cond
+		4:  # PLAYER_LEVEL
+			return GameConditionScript.player_level(op, compare_value)
+		5:  # CLASS_LEVEL
+			if p_class_id == "":
+				return GameConditionScript.always_true()
+			return GameConditionScript.class_level(StringName(p_class_id), op, compare_value)
+		6:  # QUEST_STATE
+			if flag_name == "":
+				return GameConditionScript.always_true()
+			return GameConditionScript.quest_state(StringName(flag_name), quest_state_val)
+		7:  # QUEST_OBJECTIVE
+			if flag_name == "" or p_objective_id == "":
+				return GameConditionScript.always_true()
+			# ObjectiveCheckMode: IS_COMPLETE=0, IS_NOT_COMPLETE=1, PROGRESS_GTE=2, PROGRESS_LT=3, PROGRESS_EQ=4
+			if p_obj_check_mode >= 2:
+				# Progress comparison mode
+				var progress_op = ">="
+				match p_obj_check_mode:
+					2: progress_op = ">="
+					3: progress_op = "<"
+					4: progress_op = "=="
+				return GameConditionScript.quest_objective_progress(
+					StringName(flag_name), StringName(p_objective_id), progress_op, compare_value)
+			else:
+				# Binary completion check
+				var composite_key = "quest_objective:%s:%s" % [flag_name, p_objective_id]
+				var cond = GameConditionScript.quest_objective(StringName(composite_key))
+				if p_obj_check_mode == 1:  # IS_NOT_COMPLETE
+					cond.invert = true
+				return cond
+		8:  # LOCATION_VISITED
+			if flag_name == "":
+				return GameConditionScript.always_true()
+			var cond = GameConditionScript.location_visited(StringName(flag_name))
+			if not p_expected:
+				cond.invert = true
+			return cond
+		9:  # APPROVAL
+			if flag_name == "":
+				return GameConditionScript.always_true()
+			return GameConditionScript.approval(StringName(flag_name), op, compare_value)
+
 	return GameConditionScript.always_true()
 
-func _create_counter_less_than(counter_name: StringName, maximum: int) -> GameCondition:
-	"""Create a counter < value condition manually."""
-	var c = GameConditionScript.new()
-	c.condition_type = GameConditionScript.ConditionType.SINGLE
-	c.single_check = GameConditionScript.SingleCheck.new()
-	c.single_check.check_type = GameConditionScript.SingleCheck.CheckType.COUNTER
-	c.single_check.key = counter_name
-	c.single_check.compare_operator = "<"
-	c.single_check.int_value = maximum
-	return c
+func _create_choice_condition(choice_data: Dictionary) -> GameCondition:
+	"""Create a GameCondition from inline per-choice condition data. Returns null for NONE."""
+	# ChoiceCondType: NONE=0, FLAG=1, COUNTER=2, RELATIONSHIP=3, APPROVAL=4
+	var cond_type = choice_data.get("cond_type", 0)
+	if cond_type == 0:  # NONE
+		return null
 
-func _create_counter_equals(counter_name: StringName, value: int) -> GameCondition:
-	"""Create a counter == value condition manually."""
-	var c = GameConditionScript.new()
-	c.condition_type = GameConditionScript.ConditionType.SINGLE
-	c.single_check = GameConditionScript.SingleCheck.new()
-	c.single_check.check_type = GameConditionScript.SingleCheck.CheckType.COUNTER
-	c.single_check.key = counter_name
-	c.single_check.compare_operator = "=="
-	c.single_check.int_value = value
-	return c
+	var key = choice_data.get("cond_key", "")
+	if key == "":
+		return null
+
+	var op = choice_data.get("cond_op", ">=")
+	var value = choice_data.get("cond_value", 0)
+	var cond_bool = choice_data.get("cond_bool", true)
+
+	match cond_type:
+		1:  # FLAG
+			return GameConditionScript.flag(StringName(key), cond_bool)
+		2:  # COUNTER
+			return GameConditionScript.counter_compare(StringName(key), op, value)
+		3:  # RELATIONSHIP
+			return GameConditionScript.relationship(StringName(key), op, value)
+		4:  # APPROVAL
+			return GameConditionScript.approval(StringName(key), op, value)
+
+	return null

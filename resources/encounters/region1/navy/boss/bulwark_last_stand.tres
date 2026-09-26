@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=6 format=3 uid="uid://b5ww7m1ijhn8k"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_hitqt"]
+[ext_resource type="Resource" uid="uid://ciwco212msmf7" path="res://resources/enemies/region1/navy/boss/bulwark_captain.tres" id="2_bmfb4"]
+[ext_resource type="Resource" uid="uid://c4k23p187oeuj" path="res://resources/enemies/region1/navy/elite/senior_arcanist.tres" id="3_dktfl"]
+[ext_resource type="Resource" uid="uid://bstk4gbocsuxc" path="res://resources/enemies/region1/navy/elite/enforcer_sergeant.tres" id="4_fn1nf"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="5_5xjjb"]
+
+[resource]
+script = ExtResource("5_5xjjb")
+encounter_name = "Bulwark Captain's Last Stand"
+encounter_id = "navy_bulwark_last_stand"
+enemies = Array[ExtResource("1_hitqt")]([ExtResource("2_bmfb4"), ExtResource("3_dktfl"), ExtResource("4_fn1nf")])
+enemy_slots = Array[int]([1, 0, 2])
+difficulty_tier = 9
+level_range_min = 8
+level_range_max = 11
+is_boss_encounter = true
+disable_fleeing = true

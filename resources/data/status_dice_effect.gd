@@ -15,6 +15,7 @@ enum TargetMode {
 	BY_TAG,      # All dice carrying a specific tag
 	HIGHEST_N,   # N dice with the highest current value
 	LOWEST_N,    # N dice with the lowest current value
+	BY_ELEMENT,  # All dice with a specific element (limited to count)
 }
 
 enum EffectType {
@@ -63,6 +64,9 @@ enum FireTrigger {
 
 ## Used only when target_mode = BY_TAG. Tag string to match against die tags.
 @export var target_tag: String = ""
+
+## Used only when target_mode = BY_ELEMENT. Element to match against die element.
+@export var target_element: DieResource.Element = DieResource.Element.NONE
 
 ## What to do to each targeted die.
 @export var effect_type: EffectType = EffectType.LOCK

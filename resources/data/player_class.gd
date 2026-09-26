@@ -171,9 +171,13 @@ func get_main_stat_name() -> String:
 # LEVELING METHODS
 # ============================================================================
 
+static func exp_for_level(p_level: int) -> int:
+	"""XP required to advance from p_level to p_level+1. Single source of truth."""
+	return p_level * 100
+
 func get_exp_for_next_level() -> int:
 	"""Calculate XP needed for next level"""
-	return level * 100
+	return exp_for_level(level)
 
 func get_exp_progress() -> float:
 	"""Get progress toward next level (0.0 to 1.0)"""
@@ -191,6 +195,7 @@ func gain_experience(amount: int) -> bool:
 		skill_points += 1
 		total_skill_points += 1
 		leveled = true
+		level_up.emit(level)
 		print("🎉 Level up! Now level %d" % level)
 	
 	return leveled
@@ -353,6 +358,9 @@ var applied_effective_ranks: Dictionary = {}  # { "flame_eruption": 3 }
 ## Emitted when equipment changes cause effective ranks to shift.
 ## Array contains skill_ids whose effective rank changed.
 signal effective_ranks_changed(changed_skills: Array[String])
+
+## Emitted when a level-up occurs. new_level is the level just reached.
+signal level_up(new_level: int)
 
 func register_skill_action(skill_id: String, action_id: String) -> void:
 	"""Register that a skill grants a specific action."""

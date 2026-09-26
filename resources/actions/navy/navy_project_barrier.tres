@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="Action" load_steps=12 format=3 uid="uid://2wulvuc82qbm"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_c7pxl"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_t5f60"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_tjoq8"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_t5f60"]
+[ext_resource type="Resource" uid="uid://bau0ilngqxftf" path="res://resources/statuses/warded.tres" id="4_78rgr"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="5_fpj2w"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_76xpy"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_73jn6"]
+
+[sub_resource type="Resource" id="Resource_c7pxl"]
+script = ExtResource("1_c7pxl")
+condition = 9
+threshold = 1.0
+
+[sub_resource type="Resource" id="Resource_tjoq8"]
+script = ExtResource("1_c7pxl")
+condition = 10
+threshold = 1.0
+effect = 1
+multiplier_value = 0.2
+
+[sub_resource type="Resource" id="Resource_t5f60"]
+script = ExtResource("3_t5f60")
+effect_name = "Project Ward"
+target = 3
+effect_type = 2
+status_affix = ExtResource("4_78rgr")
+stack_count = 3
+
+[resource]
+script = ExtResource("7_73jn6")
+action_id = "navy_project_barrier"
+action_name = "Project Barrier"
+action_description = "Project wards onto an ally."
+action_category = 1
+damage_element = 7
+charge_type = 1
+effects = Array[ExtResource("3_t5f60")]([SubResource("Resource_t5f60")])
+ai_hints = Array[ExtResource("1_c7pxl")]([SubResource("Resource_c7pxl"), SubResource("Resource_tjoq8")])
+action_type = 1

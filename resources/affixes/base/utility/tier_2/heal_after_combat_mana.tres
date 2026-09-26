@@ -16,3 +16,4 @@ effect_data = {
 "effect": "mana_restore"
 }
 proc_trigger = 6
+power_weight = 30.0

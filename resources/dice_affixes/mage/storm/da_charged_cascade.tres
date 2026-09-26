@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_kp286")
 affix_name = "Charged Cascade: Chain Static Scaling"
-description = "Chain bounces deal +3 damage per Static stack on bounce target."
+description = "Chain bounces deal +3 damage per [status:static] stack on bounce target."
 use_global_element_visuals = true
 global_element_type = 5
 trigger = 1

@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://4tlwq8ritqol"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_ch2ul"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_vlxcy"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_dgmht"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_2fmne"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="5_1bxrr"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="6_1o8vt"]
+
+[sub_resource type="Resource" id="Resource_ch2ul"]
+script = ExtResource("1_ch2ul")
+condition = 5
+threshold = 0.0
+status_id = "expose"
+
+[sub_resource type="Resource" id="Resource_vlxcy"]
+script = ExtResource("3_dgmht")
+effect_name = "Diving Damage"
+value_source = 1
+damage_type = 2
+base_damage = 4
+damage_multiplier = 1.4
+
+[resource]
+script = ExtResource("6_1o8vt")
+action_id = "navy_diving_strike"
+action_name = "Diving Strike"
+action_description = "A devastating aerial attack."
+damage_element = 2
+effects = Array[ExtResource("3_dgmht")]([SubResource("Resource_vlxcy")])
+ai_hints = Array[ExtResource("1_ch2ul")]([SubResource("Resource_ch2ul")])

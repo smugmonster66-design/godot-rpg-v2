@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=9 format=3 uid="uid://ckwt0g0tr5gij"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=10 format=3 uid="uid://ckwt0g0tr5gij"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_bxi3o"]
 [ext_resource type="Resource" uid="uid://c8dyd1d4rmg7g" path="res://resources/actions/enemy/goblins/goblin_stab.tres" id="2_3kmag"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="3_qxlb2"]
 [ext_resource type="Resource" uid="uid://dey1njrhd3r2d" path="res://resources/affixes/base_stats/enemy_inherent_health.tres" id="4_k3uoj"]
 [ext_resource type="Resource" uid="uid://byir7m1xtkf74" path="res://resources/dice/d6_basic.tres" id="5_qxlb2"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_generic.tres" id="11_dmg"]
 
 [resource]
 script = ExtResource("2_eoums")
@@ -18,4 +19,5 @@ starting_dice = Array[ExtResource("3_3kmag")]([ExtResource("5_qxlb2")])
 combat_actions = Array[ExtResource("1_bxi3o")]([ExtResource("2_3kmag")])
 ai_strategy = 0
 experience_reward = 15
+enemy_affixes = Array[ExtResource("3_k3uoj")]([ExtResource("11_dmg")])
 metadata/_custom_type_script = "uid://dgbvtipfph6x3"

@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://dkskjvqg2xh1k"]
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://dkskjvqg2xh1k"]
 
 [ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_0itwq"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_ty2ds"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_k3orc"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_pab1m"]
 [ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="3_0itwq"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_0itwq"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="4_k3orc"]
@@ -19,7 +20,7 @@ damage_multiplier = 0.8
 script = ExtResource("4_k3orc")
 action_id = "frost_shard"
 action_name = "Frost Shard"
-action_description = "Deals 1D+1 Ice damage at 0.8×."
+action_description = "Deals 1D+1 [element:ice] damage at 0.8×."
 damage_element = 4
 effects = Array[ExtResource("1_ty2ds")]([SubResource("Resource_pab1m")])
 base_damage = 1

@@ -1,27 +1,23 @@
-[gd_resource type="Resource" script_class="AffixTable" load_steps=20 format=3 uid="uid://crb15k3pbxl6w"]
+[gd_resource type="Resource" script_class="AffixTable" load_steps=15 format=3 uid="uid://crb15k3pbxl6w"]
 
-[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_egrdb"]
-[ext_resource type="Resource" uid="uid://cky80t02iuc7w" path="res://resources/affixes/base/offense/tier_2/strength_multiplier.tres" id="2_yt1vn"]
-[ext_resource type="Resource" uid="uid://dnhx0efiybe2f" path="res://resources/affixes/base/offense/tier_2/agility_multiplier.tres" id="3_1bbsd"]
-[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="4_rj7fu"]
-[ext_resource type="Resource" uid="uid://bkilnl6usuark" path="res://resources/affixes/base/offense/tier_2/intellect_multiplier.tres" id="4_syi2e"]
-[ext_resource type="Resource" uid="uid://bou7rtjntf31x" path="res://resources/affixes/base/offense/tier_2/luck_multiplier.tres" id="5_paso3"]
-[ext_resource type="Resource" uid="uid://cf2m0frl6pkug" path="res://resources/affixes/base/offense/tier_2/fire_damage_bonus.tres" id="6_owga5"]
-[ext_resource type="Resource" uid="uid://bad4cb8vy2w4g" path="res://resources/affixes/base/offense/tier_2/ice_damage_bonus.tres" id="7_e3l6n"]
-[ext_resource type="Resource" uid="uid://wc3ne0jr2xbr" path="res://resources/affixes/base/offense/tier_2/shock_damage_bonus.tres" id="8_r0qkd"]
-[ext_resource type="Resource" uid="uid://co4qjikx1b2p3" path="res://resources/affixes/base/offense/tier_2/poison_damage_bonus.tres" id="9_ijp1c"]
-[ext_resource type="Resource" uid="uid://c7j5sle4rm2i6" path="res://resources/affixes/base/offense/tier_2/shadow_damage_bonus.tres" id="10_qwwc8"]
-[ext_resource type="Resource" uid="uid://ywyjlku2v5qs" path="res://resources/affixes/base/offense/tier_2/bonus_flat_damage_on_hit.tres" id="11_knpnm"]
-[ext_resource type="Resource" uid="uid://3vqwtxqkppbk" path="res://resources/affixes/base/offense/tier_2/apply_poison_on_hit.tres" id="12_fvs1i"]
-[ext_resource type="Resource" uid="uid://q16bttxs0mck" path="res://resources/affixes/base/offense/tier_2/apply_burn_on_hit.tres" id="13_apah0"]
-[ext_resource type="Resource" uid="uid://cwbxqkd3wy2ug" path="res://resources/affixes/base/offense/tier_2/apply_bleed_on_hit.tres" id="14_hm7xk"]
-[ext_resource type="Resource" uid="uid://cbs04lfqxqexa" path="res://resources/affixes/base/offense/tier_2/apply_chill_on_hit.tres" id="15_pu4i4"]
-[ext_resource type="Resource" uid="uid://smp0ydrkb7ae" path="res://resources/affixes/base/offense/tier_2/bonus_damage_per_die_used.tres" id="16_5hbi1"]
-[ext_resource type="Resource" uid="uid://0std7c1tao4d" path="res://resources/affixes/base/offense/tier_2/bonus_damage_per_action.tres" id="17_vca8e"]
-[ext_resource type="Resource" uid="uid://drsaf3oi3bly4" path="res://resources/affixes/base/offense/tier_2/bonus_damage_on_kill.tres" id="18_p7g0m"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="affix_script"]
+[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="table_script"]
+[ext_resource type="Resource" uid="uid://cf2m0frl6pkug" path="res://resources/affixes/base/offense/tier_2/fire_damage_bonus.tres" id="affix_1"]
+[ext_resource type="Resource" uid="uid://bad4cb8vy2w4g" path="res://resources/affixes/base/offense/tier_2/ice_damage_bonus.tres" id="affix_2"]
+[ext_resource type="Resource" uid="uid://wc3ne0jr2xbr" path="res://resources/affixes/base/offense/tier_2/shock_damage_bonus.tres" id="affix_3"]
+[ext_resource type="Resource" uid="uid://co4qjikx1b2p3" path="res://resources/affixes/base/offense/tier_2/poison_damage_bonus.tres" id="affix_4"]
+[ext_resource type="Resource" uid="uid://c7j5sle4rm2i6" path="res://resources/affixes/base/offense/tier_2/shadow_damage_bonus.tres" id="affix_5"]
+[ext_resource type="Resource" uid="uid://ywyjlku2v5qs" path="res://resources/affixes/base/offense/tier_2/bonus_flat_damage_on_hit.tres" id="affix_6"]
+[ext_resource type="Resource" uid="uid://q16bttxs0mck" path="res://resources/affixes/base/offense/tier_2/apply_burn_on_hit.tres" id="affix_7"]
+[ext_resource type="Resource" uid="uid://cwbxqkd3wy2ug" path="res://resources/affixes/base/offense/tier_2/apply_bleed_on_hit.tres" id="affix_8"]
+[ext_resource type="Resource" uid="uid://cbs04lfqxqexa" path="res://resources/affixes/base/offense/tier_2/apply_chill_on_hit.tres" id="affix_9"]
+[ext_resource type="Resource" uid="uid://3vqwtxqkppbk" path="res://resources/affixes/base/offense/tier_2/apply_poison_on_hit.tres" id="affix_10"]
+[ext_resource type="Resource" uid="uid://smp0ydrkb7ae" path="res://resources/affixes/base/offense/tier_2/bonus_damage_per_die_used.tres" id="affix_11"]
+[ext_resource type="Resource" uid="uid://0std7c1tao4d" path="res://resources/affixes/base/offense/tier_2/bonus_damage_per_action.tres" id="affix_12"]
+[ext_resource type="Resource" uid="uid://drsaf3oi3bly4" path="res://resources/affixes/base/offense/tier_2/bonus_damage_on_kill.tres" id="affix_13"]
 
 [resource]
-script = ExtResource("4_rj7fu")
+script = ExtResource("table_script")
 table_name = "Offense Tier 2"
-description = "Base offense affixes, tier 2. Auto-generated."
-available_affixes = Array[ExtResource("1_egrdb")]([ExtResource("2_yt1vn"), ExtResource("3_1bbsd"), ExtResource("4_syi2e"), ExtResource("5_paso3"), ExtResource("6_owga5"), ExtResource("7_e3l6n"), ExtResource("8_r0qkd"), ExtResource("9_ijp1c"), ExtResource("10_qwwc8"), ExtResource("11_knpnm"), ExtResource("12_fvs1i"), ExtResource("13_apah0"), ExtResource("14_hm7xk"), ExtResource("15_pu4i4"), ExtResource("16_5hbi1"), ExtResource("17_vca8e"), ExtResource("18_p7g0m")])
+description = "Elemental damage bonuses, status-on-hit procs, conditional damage."
+available_affixes = Array[ExtResource("affix_script")]([ExtResource("affix_1"), ExtResource("affix_2"), ExtResource("affix_3"), ExtResource("affix_4"), ExtResource("affix_5"), ExtResource("affix_6"), ExtResource("affix_7"), ExtResource("affix_8"), ExtResource("affix_9"), ExtResource("affix_10"), ExtResource("affix_11"), ExtResource("affix_12"), ExtResource("affix_13")])

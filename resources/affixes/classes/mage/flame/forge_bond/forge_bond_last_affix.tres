@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://1w1a7tce552a"]
+
+[ext_resource type="Resource" uid="uid://culqjy5i5kk6j" path="res://resources/dice_affixes/mage/flame/da_forge_bond_last.tres" id="1_mnq12"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_1afva"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_yri5h"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_tg2ua"]
+
+[resource]
+script = ExtResource("3_yri5h")
+affix_name = "Forge Bond: Last Damage"
+description = "[element:fire] die in LAST position: +25% damage."
+category = 39
+tags = Array[String](["mage", "flame", "mana_die_affix", "positional", "weave"])
+effect_data = {
+"dice_affix": ExtResource("1_mnq12")
+}

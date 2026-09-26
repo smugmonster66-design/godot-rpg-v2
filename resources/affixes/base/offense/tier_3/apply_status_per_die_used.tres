@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_eeid6")
 affix_name = "Apply Status per Die Used"
-description = "Apply status when consuming dice"
+description = "{proc_chance}% chance to debuff when consuming dice"
 category = 35
 tags = Array[String](["proc", "status", "dice"])
 effect_data = {
@@ -17,3 +17,4 @@ proc_trigger = 7
 proc_chance = 0.25
 proc_chance_min = 0.1
 proc_chance_max = 0.4
+power_weight = 105.0

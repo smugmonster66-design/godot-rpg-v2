@@ -1,0 +1,53 @@
+[gd_scene load_steps=10 format=3 uid="uid://buxwc4uu4gik6"]
+
+[ext_resource type="Script" uid="uid://d0vetkry0wbaw" path="res://scripts/ui/map/map_radial_button.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://cy4ll5enmut0t" path="res://assets/ui/icons/mapbuttons/travel.png" id="2_hg1mh"]
+[ext_resource type="Texture2D" uid="uid://d2ti6oy61djms" path="res://assets/ui/icons/mapbuttons/enter_dungeon.png" id="3_kj0uo"]
+[ext_resource type="Texture2D" uid="uid://dxpqydviplf5v" path="res://assets/ui/icons/mapbuttons/enter_zone.png" id="4_ft1aq"]
+[ext_resource type="Texture2D" uid="uid://blu4qreumembx" path="res://assets/ui/icons/mapbuttons/rest.png" id="5_j1p64"]
+[ext_resource type="Texture2D" uid="uid://bptn4h6lh0hqr" path="res://assets/ui/icons/mapbuttons/NPCs.png" id="6_xjj37"]
+[ext_resource type="Texture2D" uid="uid://cd3spd0a83jkp" path="res://assets/ui/icons/navigation/quest.png" id="7_40nl6"]
+[ext_resource type="Texture2D" uid="uid://l11s8ei5unja" path="res://assets/ui/icons/mapbuttons/party.png" id="8_j2d4q"]
+[ext_resource type="Texture2D" uid="uid://rgnvfgx44iwt" path="res://assets/ui/buttons/buttonCircle_black.png" id="9_fy8hy"]
+
+[node name="MapRadialButton" type="Button"]
+flat = true
+script = ExtResource("1_script")
+button_size = Vector2(256, 256)
+icon_size = Vector2(160, 160)
+icon_travel = ExtResource("2_hg1mh")
+icon_enter_dungeon = ExtResource("3_kj0uo")
+icon_enter_zone = ExtResource("4_ft1aq")
+icon_rest = ExtResource("5_j1p64")
+icon_npcs = ExtResource("6_xjj37")
+icon_quests = ExtResource("7_40nl6")
+icon_party = ExtResource("8_j2d4q")
+
+[node name="ButtonTexture" type="TextureRect" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("9_fy8hy")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Icon" type="TextureRect" parent="."]
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[connection signal="pressed" from="." to="." method="_on_pressed"]

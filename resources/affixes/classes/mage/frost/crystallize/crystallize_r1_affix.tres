@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_vsvfc")
 affix_name = "Crystallize"
-description = "Damage to Frozen target: gain 4 Barrier, target loses 2 ice resistance permanently."
+description = "Damage to [status:freeze|Frozen] target: gain 4 [status:warded|Warded], target loses 2 [element:ice] resistance permanently."
 category = 35
 tags = Array[String](["mage", "frost", "exploiter", "defense", "resistance_shred"])
 effect_data = {

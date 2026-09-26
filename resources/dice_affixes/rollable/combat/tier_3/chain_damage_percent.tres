@@ -17,5 +17,6 @@ effect_value_max = 0.8
 effect_data = {
 "chains": 1,
 "decay": 0.5,
-"element": "NONE"
+"element": "NONE",
+"value_is_fraction": true
 }

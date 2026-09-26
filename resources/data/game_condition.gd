@@ -53,7 +53,7 @@ func evaluate(context: ConditionContext) -> bool:
 				result = single_check.evaluate(context)
 			else:
 				push_warning("GameCondition: SINGLE type but no single_check set")
-				result = true
+				result = false
 		
 		ConditionType.AND:
 			result = true
@@ -120,92 +120,105 @@ static func any_of(conditions: Array[GameCondition]) -> GameCondition:
 	c.sub_conditions = conditions
 	return c
 
+static func counter_compare(counter_name: StringName, op: String, value: int) -> GameCondition:
+	var c = GameCondition.new()
+	c.condition_type = ConditionType.SINGLE
+	c.single_check = SingleCheck.new()
+	c.single_check.check_type = SingleCheck.CheckType.COUNTER
+	c.single_check.key = counter_name
+	c.single_check.compare_operator = op
+	c.single_check.int_value = value
+	return c
 
-# ============================================================================
-# SINGLE CHECK - The atomic unit of condition checking
-# ============================================================================
+static func relationship(npc_id: StringName, op: String, value: int) -> GameCondition:
+	var c = GameCondition.new()
+	c.condition_type = ConditionType.SINGLE
+	c.single_check = SingleCheck.new()
+	c.single_check.check_type = SingleCheck.CheckType.RELATIONSHIP
+	c.single_check.key = npc_id
+	c.single_check.compare_operator = op
+	c.single_check.int_value = value
+	return c
 
-class SingleCheck extends Resource:
-	enum CheckType {
-		FLAG,           # Check a StoryFlags boolean
-		COUNTER,        # Compare a counter value
-		RELATIONSHIP,   # Compare relationship value
-		HAS_ITEM,       # Check player inventory
-		PLAYER_LEVEL,   # Check player level
-		CLASS_LEVEL,    # Check specific class level
-		QUEST_STATE,    # Check quest status
-		LOCATION_VISITED, # Check if location was visited
-		CUSTOM          # Emit signal for game-specific logic
-	}
-	
-	@export var check_type: CheckType = CheckType.FLAG
-	
-	## Key - flag name, counter name, NPC id, item id, quest id, location id, etc.
-	@export var key: StringName = &""
-	
-	## For FLAG checks - expected value
-	@export var bool_value: bool = true
-	
-	## For numeric comparisons (COUNTER, RELATIONSHIP, PLAYER_LEVEL, CLASS_LEVEL)
-	@export var compare_operator: String = ">="  # ==, !=, >, <, >=, <=
-	@export var int_value: int = 0
-	
-	## For QUEST_STATE - expected state
-	@export var quest_state: String = "complete"  # locked, available, active, complete, failed
-	
-	## For CLASS_LEVEL - which class
-	@export var class_id: StringName = &""
-	
-	func evaluate(context: ConditionContext) -> bool:
-		"""Evaluate this single check."""
-		match check_type:
-			CheckType.FLAG:
-				return context.get_flag(key) == bool_value
-			
-			CheckType.COUNTER:
-				return _compare(context.get_counter(key), compare_operator, int_value)
-			
-			CheckType.RELATIONSHIP:
-				return _compare(context.get_relationship(key), compare_operator, int_value)
-			
-			CheckType.HAS_ITEM:
-				var count = context.get_item_count(key)
-				if int_value > 0:
-					return _compare(count, compare_operator, int_value)
-				else:
-					return count > 0
-			
-			CheckType.PLAYER_LEVEL:
-				return _compare(context.get_player_level(), compare_operator, int_value)
-			
-			CheckType.CLASS_LEVEL:
-				return _compare(context.get_class_level(class_id), compare_operator, int_value)
-			
-			CheckType.QUEST_STATE:
-				return context.get_quest_state(key) == quest_state
-			
-			CheckType.LOCATION_VISITED:
-				return context.has_visited_location(key)
-			
-			CheckType.CUSTOM:
-				return context.evaluate_custom(key)
-		
-		return false
-	
-	func _compare(value: int, op: String, target: int) -> bool:
-		match op:
-			"==": return value == target
-			"!=": return value != target
-			">":  return value > target
-			"<":  return value < target
-			">=": return value >= target
-			"<=": return value <= target
-		return false
+static func approval(npc_id: StringName, op: String, value: int) -> GameCondition:
+	var c = GameCondition.new()
+	c.condition_type = ConditionType.SINGLE
+	c.single_check = SingleCheck.new()
+	c.single_check.check_type = SingleCheck.CheckType.APPROVAL
+	c.single_check.key = npc_id
+	c.single_check.compare_operator = op
+	c.single_check.int_value = value
+	return c
+
+static func has_item(item_id: StringName, op: String = ">=", count: int = 1) -> GameCondition:
+	var c = GameCondition.new()
+	c.condition_type = ConditionType.SINGLE
+	c.single_check = SingleCheck.new()
+	c.single_check.check_type = SingleCheck.CheckType.HAS_ITEM
+	c.single_check.key = item_id
+	c.single_check.compare_operator = op
+	c.single_check.int_value = count
+	return c
+
+static func player_level(op: String, level: int) -> GameCondition:
+	var c = GameCondition.new()
+	c.condition_type = ConditionType.SINGLE
+	c.single_check = SingleCheck.new()
+	c.single_check.check_type = SingleCheck.CheckType.PLAYER_LEVEL
+	c.single_check.compare_operator = op
+	c.single_check.int_value = level
+	return c
+
+static func class_level(p_class_id: StringName, op: String, level: int) -> GameCondition:
+	var c = GameCondition.new()
+	c.condition_type = ConditionType.SINGLE
+	c.single_check = SingleCheck.new()
+	c.single_check.check_type = SingleCheck.CheckType.CLASS_LEVEL
+	c.single_check.key = p_class_id
+	c.single_check.class_id = p_class_id
+	c.single_check.compare_operator = op
+	c.single_check.int_value = level
+	return c
+
+static func quest_state(quest_id: StringName, state: String) -> GameCondition:
+	var c = GameCondition.new()
+	c.condition_type = ConditionType.SINGLE
+	c.single_check = SingleCheck.new()
+	c.single_check.check_type = SingleCheck.CheckType.QUEST_STATE
+	c.single_check.key = quest_id
+	c.single_check.quest_state = state
+	return c
+
+static func location_visited(location_id: StringName) -> GameCondition:
+	var c = GameCondition.new()
+	c.condition_type = ConditionType.SINGLE
+	c.single_check = SingleCheck.new()
+	c.single_check.check_type = SingleCheck.CheckType.LOCATION_VISITED
+	c.single_check.key = location_id
+	return c
+
+static func quest_objective(composite_key: StringName) -> GameCondition:
+	var c = GameCondition.new()
+	c.condition_type = ConditionType.SINGLE
+	c.single_check = SingleCheck.new()
+	c.single_check.check_type = SingleCheck.CheckType.CUSTOM
+	c.single_check.key = composite_key
+	return c
+
+static func quest_objective_progress(quest_id: StringName, objective_id: StringName, op: String, value: int) -> GameCondition:
+	var c = GameCondition.new()
+	c.condition_type = ConditionType.SINGLE
+	c.single_check = SingleCheck.new()
+	c.single_check.check_type = SingleCheck.CheckType.CUSTOM
+	c.single_check.key = StringName("quest_objective_progress:%s:%s:%s:%d" % [quest_id, objective_id, op, value])
+	return c
 
 
 # ============================================================================
 # CONDITION CONTEXT - Interface for accessing game state
 # ============================================================================
+# NOTE: SingleCheck was extracted to res://resources/data/single_check.gd
+# to fix .tres serialization (Godot loses inner class script references).
 
 class ConditionContext extends RefCounted:
 	"""
@@ -221,7 +234,10 @@ class ConditionContext extends RefCounted:
 	
 	func get_relationship(_npc_id: StringName) -> int:
 		return 0
-	
+
+	func get_approval(_npc_id: StringName) -> int:
+		return 0
+
 	func get_item_count(_item_id: StringName) -> int:
 		return 0
 	

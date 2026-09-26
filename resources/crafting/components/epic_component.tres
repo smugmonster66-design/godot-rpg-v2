@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CraftingComponentDefinition" load_steps=2 format=3 uid="uid://ccraft_epic"]
+
+[ext_resource type="Script" path="res://resources/data/crafting_component_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+component_id = &"epic"
+display_name = "Epic Component"
+abbreviation = "Epc"
+rarity_tier = 3
+description = "An extraordinary crafting material salvaged from epic equipment."

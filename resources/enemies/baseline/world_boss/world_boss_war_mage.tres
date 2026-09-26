@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://ocdpisum4pxb"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=15 format=3 uid="uid://ocdpisum4pxb"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_axurg"]
 [ext_resource type="Resource" uid="uid://jpm003yl37hf" path="res://resources/actions/enemy_base/arcane_push.tres" id="2_xwoq4"]
@@ -11,6 +11,10 @@
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="8_cqcjc"]
 [ext_resource type="Resource" uid="uid://ca11tg3hrcvkt" path="res://resources/dice/base/d10_shadow.tres" id="9_7x7r7"]
 [ext_resource type="Resource" uid="uid://h35oxp8kc0wd" path="res://resources/enemy_templates/tank_int.tres" id="10_do8fb"]
+
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_armor_int_tank.tres" id="11_armor"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_barrier_int_tank.tres" id="12_barrier"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_shock.tres" id="13_dmg"]
 
 [resource]
 script = ExtResource("7_erem3")
@@ -36,3 +40,4 @@ enemy_archetype = 3
 enemy_level_floor = 12
 level_scaling_multiplier = 1.2
 health_affix = ExtResource("6_tkmat")
+enemy_affixes = Array[ExtResource("5_lltgk")]([ExtResource("11_armor"), ExtResource("12_barrier"), ExtResource("13_dmg")])

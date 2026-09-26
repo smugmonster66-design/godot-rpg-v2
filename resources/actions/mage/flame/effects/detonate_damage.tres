@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://cobqjhspthyco"]
+
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_ona8o"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_7gauf"]
+
+[resource]
+script = ExtResource("1_ona8o")
+effect_name = "Detonate: Base Damage"
+damage_type = 3
+damage_multiplier = 1.2
+dice_count = 2

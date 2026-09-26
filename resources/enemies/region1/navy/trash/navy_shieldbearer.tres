@@ -1,0 +1,98 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=27 format=3 uid="uid://dowplslq7p4hl"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_xnrkf"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_kfx4n"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="11_o7gt0"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_armor_str_tank.tres" id="12_7211l"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_blunt.tres" id="13_mu865"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="14_8v5vh"]
+[ext_resource type="Resource" uid="uid://dk58bj3nm6p3k" path="res://resources/affixes/base_stats/enemy/enemy_health_str_tank.tres" id="15_it17w"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="16_jrdah"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="17_jk2vd"]
+[ext_resource type="PackedScene" uid="uid://de8q4axqsu2ki" path="res://scenes/ui/components/dice/combat/combat_die_d6.tscn" id="18_xmihe"]
+[ext_resource type="Resource" uid="uid://2a7ntncvy5ij" path="res://resources/affixes/elements/blunt_element.tres" id="19_0sdvx"]
+[ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="20_y4l2u"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="21_ca3ji"]
+[ext_resource type="PackedScene" uid="uid://bxqtkedv2ygd3" path="res://scenes/ui/components/dice/pool/pool_die_d6.tscn" id="22_iucdt"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="22_ong72"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="23_8p745"]
+[ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="23_yipo7"]
+[ext_resource type="Resource" uid="uid://cxim1rxv60be5" path="res://resources/enemy_templates/tank_str.tres" id="24_egj88"]
+[ext_resource type="Resource" uid="uid://bd0d810nqyk55" path="res://resources/actions/navy/navy_shield_bash.tres" id="34_shield_b"]
+[ext_resource type="Resource" uid="uid://bvky0qbcvmm0e" path="res://resources/actions/navy/navy_iron_wall.tres" id="35_iron_wal"]
+
+[sub_resource type="Resource" id="Resource_wssp5"]
+script = ExtResource("1_xnrkf")
+element_preference = 0.4
+heal_urgency = 0.6
+heal_threshold = 0.6
+
+
+[sub_resource type="Resource" id="Resource_rlvb7"]
+script = ExtResource("21_ca3ji")
+affix_name = "Shield Brace"
+description = "First die rolled grants Fortified."
+position_requirement = 1
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "fortified",
+"target": "self"
+}
+
+
+[sub_resource type="Resource" id="Resource_mamu3"]
+script = ExtResource("17_jk2vd")
+display_name = "Blunt D6"
+element = 2
+element_affix = ExtResource("19_0sdvx")
+fill_texture = ExtResource("20_y4l2u")
+stroke_texture = ExtResource("23_yipo7")
+combat_die_scene = ExtResource("18_xmihe")
+pool_die_scene = ExtResource("22_iucdt")
+inherent_affixes = Array[ExtResource("21_ca3ji")]([SubResource("Resource_rlvb7")])
+
+
+[sub_resource type="Resource" id="Resource_4tgv3"]
+script = ExtResource("21_ca3ji")
+affix_name = "Shield Brace"
+description = "First die rolled grants Fortified."
+position_requirement = 1
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "fortified",
+"target": "self"
+}
+
+
+[sub_resource type="Resource" id="Resource_o7gt0"]
+script = ExtResource("17_jk2vd")
+display_name = "Blunt D6"
+element = 2
+element_affix = ExtResource("19_0sdvx")
+fill_texture = ExtResource("20_y4l2u")
+stroke_texture = ExtResource("23_yipo7")
+combat_die_scene = ExtResource("18_xmihe")
+pool_die_scene = ExtResource("22_iucdt")
+inherent_affixes = Array[ExtResource("21_ca3ji")]([SubResource("Resource_4tgv3")])
+
+
+[resource]
+script = ExtResource("16_jrdah")
+enemy_name = "Navy Shieldbearer"
+description = "Sanctum Navy Navy Shieldbearer."
+template = ExtResource("24_egj88")
+combat_role = 3
+enemy_tags = PackedStringArray("navy", "humanoid")
+starting_dice = Array[ExtResource("17_jk2vd")]([SubResource("Resource_mamu3"), SubResource("Resource_o7gt0")])
+combat_actions = Array[ExtResource("2_kfx4n")]([ExtResource("34_shield_b"), ExtResource("35_iron_wal")])
+ai_strategy = 1
+ai_config = SubResource("Resource_wssp5")
+action_delay = 1.0
+dice_drag_duration = 0.35
+gold_reward_min = 3
+gold_reward_max = 10
+enemy_archetype = 1
+health_affix = ExtResource("15_it17w")
+enemy_affixes = Array[ExtResource("11_o7gt0")]([ExtResource("12_7211l"), ExtResource("13_mu865")])

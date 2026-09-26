@@ -4,7 +4,7 @@
 
 [node name="ConditionNode" type="GraphNode"]
 offset_right = 280.0
-offset_bottom = 160.0
+offset_bottom = 200.0
 title = "CONDITION"
 script = ExtResource("1_script")
 
@@ -34,6 +34,54 @@ layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "flag_name"
 
+[node name="QuestDropdownRow" type="HBoxContainer" parent="VBox"]
+visible = false
+layout_mode = 2
+
+[node name="QuestLabel" type="Label" parent="VBox/QuestDropdownRow"]
+layout_mode = 2
+text = "Quest:"
+
+[node name="QuestDropdown" type="OptionButton" parent="VBox/QuestDropdownRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ObjectiveRow" type="HBoxContainer" parent="VBox"]
+visible = false
+layout_mode = 2
+
+[node name="ObjectiveLabel" type="Label" parent="VBox/ObjectiveRow"]
+layout_mode = 2
+text = "Objective:"
+
+[node name="ObjectiveDropdown" type="OptionButton" parent="VBox/ObjectiveRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ExpectedRow" type="HBoxContainer" parent="VBox"]
+visible = false
+layout_mode = 2
+
+[node name="ExpectedLabel" type="Label" parent="VBox/ExpectedRow"]
+layout_mode = 2
+text = "Check:"
+
+[node name="ExpectedDropdown" type="OptionButton" parent="VBox/ExpectedRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OperatorRow" type="HBoxContainer" parent="VBox"]
+visible = false
+layout_mode = 2
+
+[node name="OperatorLabel" type="Label" parent="VBox/OperatorRow"]
+layout_mode = 2
+text = "Operator:"
+
+[node name="OperatorDropdown" type="OptionButton" parent="VBox/OperatorRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
 [node name="ValueRow" type="HBoxContainer" parent="VBox"]
 visible = false
 layout_mode = 2
@@ -48,17 +96,37 @@ size_flags_horizontal = 3
 min_value = -999.0
 max_value = 9999.0
 
-[node name="OutputLabels" type="HBoxContainer" parent="VBox"]
+[node name="QuestStateRow" type="HBoxContainer" parent="VBox"]
+visible = false
 layout_mode = 2
 
-[node name="TrueLabel" type="Label" parent="VBox/OutputLabels"]
+[node name="QuestStateLabel" type="Label" parent="VBox/QuestStateRow"]
+layout_mode = 2
+text = "State:"
+
+[node name="QuestStateDropdown" type="OptionButton" parent="VBox/QuestStateRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="ClassIdRow" type="HBoxContainer" parent="VBox"]
+visible = false
+layout_mode = 2
+
+[node name="ClassIdLabel" type="Label" parent="VBox/ClassIdRow"]
+layout_mode = 2
+text = "Class ID:"
+
+[node name="ClassIdEdit" type="LineEdit" parent="VBox/ClassIdRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "class_id"
+
+[node name="TrueOutput" type="Label" parent="."]
+layout_mode = 2
 text = "✓ True"
-horizontal_alignment = 1
+horizontal_alignment = 2
 
-[node name="FalseLabel" type="Label" parent="VBox/OutputLabels"]
+[node name="FalseOutput" type="Label" parent="."]
 layout_mode = 2
-size_flags_horizontal = 3
 text = "✗ False"
-horizontal_alignment = 1
+horizontal_alignment = 2

@@ -22,9 +22,7 @@ var region_loot_config: RegionLootConfig = null
 @export_group("Starting Items")
 @export var starting_items: Array[EquippableItem] = []
 
-@export_group("Player Base Classes")
-@export var warrior = load("res://resources/player_classes/warrior.tres") as PlayerClass
-@export var mage = preload("res://resources/player_classes/mage.tres")
+const PLAYER_CLASSES_DIR := "res://resources/player_classes/"
 
 @export_group("Element Visuals")
 ## Central element visual configuration - fill/stroke shaders per element
@@ -140,12 +138,21 @@ func initialize_player():
 	print("  ✅ Dice pool added to scene tree")
 	print("  ✅ Status tracker added to scene tree")
 	
-	# Load warrior class resource
-	player.add_class("Warrior", warrior)
-	player.add_class("Mage", mage)
-	
-	
-	player.switch_class("Mage")
+	# Load all player classes from directory
+	var dir := DirAccess.open(PLAYER_CLASSES_DIR)
+	if dir:
+		dir.list_dir_begin()
+		var file_name := dir.get_next()
+		while file_name != "":
+			if file_name.ends_with(".tres"):
+				var pc := load(PLAYER_CLASSES_DIR + file_name) as PlayerClass
+				if pc:
+					player.add_class(pc.player_class_name, pc)
+			file_name = dir.get_next()
+
+	# Default to first available class
+	if not player.available_classes.is_empty():
+		player.switch_class(player.available_classes.keys()[0])
 	
 	
 	
@@ -154,6 +161,10 @@ func initialize_player():
 	else:
 		print("Player created but no active class")
 	
+	# Restore saved player state if available
+	if GameState and GameState.has_player_state():
+		GameState.restore_player(player, self)
+
 	# Emit signal so other systems can initialize with player
 	player_created.emit(player)
 

@@ -1,0 +1,71 @@
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=20 format=3 uid="uid://bk4bewxkhthmi"]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_qr77i"]
+[ext_resource type="Resource" uid="uid://bgd1cj10leq4p" path="res://resources/actions/mage/frost/frost_spike_action.tres" id="1_r3yuq"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_o5j7s"]
+[ext_resource type="Texture2D" uid="uid://cehygalcjcvxu" path="res://assets/items/weapons/epic/frost-hammer.png" id="3_dppv4"]
+[ext_resource type="Resource" uid="uid://dkc1rc55x04rf" path="res://resources/affixes/base_stats/inherent_intellect.tres" id="3_lnn0i"]
+[ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="4_1x7yc"]
+[ext_resource type="Resource" uid="uid://dbgj0wcg21i0b" path="res://resources/affixes/base_stats/inherent_mana.tres" id="4_kyg1d"]
+[ext_resource type="Resource" uid="uid://ctsfrcjdr4fmn" path="res://resources/dice/item/weapon/epic/d12_frost_hammer_die.tres" id="5_72oke"]
+[ext_resource type="Script" uid="uid://b22o7ui6xfdwt" path="res://resources/data/set_definition.gd" id="6_r3yuq"]
+[ext_resource type="Script" uid="uid://cilhv0qd8ef4n" path="res://resources/data/set_bonus_threshold.gd" id="7_yjtfh"]
+[ext_resource type="Resource" uid="uid://dnja6rs1d6l04" path="res://resources/affixes/base/offense/tier_3/bonus_pct_damage_on_hit.tres" id="8_lnn0i"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="9_kyg1d"]
+[ext_resource type="Resource" uid="uid://cwxp1ts1i4vsa" path="res://resources/actions/navy/navy_tumble.tres" id="10_bmg2s"]
+[ext_resource type="Resource" uid="uid://dmbm1ao1pu7q4" path="res://resources/slot_definitions/heavy_slot.tres" id="11_7q6gb"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="13_yjtfh"]
+
+[sub_resource type="Resource" id="Resource_s2ad8"]
+script = ExtResource("7_yjtfh")
+description = "This is the description text for the 2-set.  "
+affixes = Array[ExtResource("1_qr77i")]([ExtResource("8_lnn0i")])
+metadata/_custom_type_script = "uid://cilhv0qd8ef4n"
+
+[sub_resource type="Resource" id="Resource_fdmap"]
+script = ExtResource("7_yjtfh")
+required_pieces = 4
+description = "This is the description for the 4-set."
+granted_action = ExtResource("10_bmg2s")
+metadata/_custom_type_script = "uid://cilhv0qd8ef4n"
+
+[sub_resource type="Resource" id="Resource_slvbq"]
+script = ExtResource("6_r3yuq")
+set_name = "The Set of Testing"
+set_id = &"testingset1"
+thresholds = Array[ExtResource("7_yjtfh")]([SubResource("Resource_s2ad8"), SubResource("Resource_fdmap")])
+granted_dice = Array[ExtResource("2_o5j7s")]([ExtResource("5_72oke")])
+metadata/_custom_type_script = "uid://b22o7ui6xfdwt"
+
+[sub_resource type="Resource" id="Resource_lnn0i"]
+script = ExtResource("1_qr77i")
+affix_name = "Exam Time!"
+description = "+N% bonus damage on each hit"
+category = 35
+tags = Array[String](["proc", "damage", "on_hit"])
+effect_min = 0.25
+effect_max = 0.25
+rounding_mode = 2
+effect_data = {
+"effect": "bonus_damage_percent"
+}
+proc_trigger = 1
+power_weight = 120.0
+
+[resource]
+script = ExtResource("4_1x7yc")
+item_name = "The Staff of Testing"
+description = ""
+flavor_text = "The runes translate to: \"If we have extra real estate in the item popup window, we might as well fill it with flavour text.\" There's a sticky note attached that reads: \"Translatable does not mean comprehensible.\""
+icon = ExtResource("3_dppv4")
+rarity = 4
+equip_slot = 6
+set_definition = SubResource("Resource_slvbq")
+has_elemental_identity = true
+elemental_identity = 4
+slot_definition = ExtResource("11_7q6gb")
+base_stat_affixes = Array[ExtResource("1_qr77i")]([ExtResource("3_lnn0i"), ExtResource("4_kyg1d")])
+unique_affix = SubResource("Resource_lnn0i")
+grants_dice = Array[ExtResource("2_o5j7s")]([ExtResource("5_72oke")])
+action = ExtResource("1_r3yuq")
+metadata/_custom_type_script = "uid://gax4pbuq25uv"

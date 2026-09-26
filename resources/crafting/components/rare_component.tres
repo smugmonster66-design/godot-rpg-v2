@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CraftingComponentDefinition" load_steps=2 format=3 uid="uid://ccraft_rare"]
+
+[ext_resource type="Script" path="res://resources/data/crafting_component_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+component_id = &"rare"
+display_name = "Rare Component"
+abbreviation = "Rre"
+rarity_tier = 2
+description = "A precious crafting material salvaged from rare equipment."

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="LocationNode" load_steps=5 format=3 uid="uid://bx8p1rbh88w7"]
+
+[ext_resource type="Script" uid="uid://dgamp5w74kvwa" path="res://resources/data/location_node.gd" id="1_locscript"]
+[ext_resource type="Texture2D" uid="uid://br3xe3jj8eoej" path="res://assets/map_locations/test_map/test_camp_map_icon.png" id="2_77cg7"]
+[ext_resource type="Script" uid="uid://bvx6wd14mcwlb" path="res://resources/data/map_node_button_def.gd" id="2_btnscript"]
+[ext_resource type="Resource" uid="uid://bxxvd54ytc77" path="res://resources/maps/test/btn_rest_free.tres" id="3_rest"]
+
+[resource]
+script = ExtResource("1_locscript")
+location_id = &"loc_dockside_camp"
+display_name = "Dockside Camp"
+node_type = 1
+radial_buttons = Array[ExtResource("2_btnscript")]([ExtResource("3_rest")])
+map_position = Vector2(150, 320)
+connections = Array[StringName]([&"loc_harbor_watch"])
+map_icon = ExtResource("2_77cg7")
+allows_rest = true

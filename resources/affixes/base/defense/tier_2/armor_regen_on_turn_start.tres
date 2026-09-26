@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_6jdnd")
 affix_name = "Armor Regen on Turn Start"
-description = "+N armor at start of turn"
+description = "+N [status:fortified|Fortified] at start of turn"
 category = 35
 tags = Array[String](["proc", "armor", "regen"])
 effect_min = 1.0
@@ -16,3 +16,4 @@ effect_data = {
 "effect": "gain_armor"
 }
 proc_trigger = 3
+power_weight = 50.0

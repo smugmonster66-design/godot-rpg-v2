@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="Action" load_steps=11 format=3 uid="uid://bt1fqwr2cvytd"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_lkf3m"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_gpwbe"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_magl7"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_magl7"]
+[ext_resource type="Resource" uid="uid://i0gx0hubkmmx" path="res://resources/statuses/slowed.tres" id="4_41hl4"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="5_ja0jp"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_7ya4v"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_5mpx1"]
+
+[sub_resource type="Resource" id="Resource_lkf3m"]
+script = ExtResource("1_lkf3m")
+condition = 6
+threshold = 0.0
+status_id = "slowed"
+bonus_value = 20.0
+
+[sub_resource type="Resource" id="Resource_gpwbe"]
+script = ExtResource("3_magl7")
+effect_name = "Mirror Slow"
+effect_type = 2
+status_affix = ExtResource("4_41hl4")
+stack_count = 2
+
+[resource]
+script = ExtResource("7_5mpx1")
+action_id = "navy_mirror_trick"
+action_name = "Mirror Trick"
+action_description = "Disorient and slow the target."
+action_category = 2
+damage_element = 2
+charge_type = 1
+effects = Array[ExtResource("3_magl7")]([SubResource("Resource_gpwbe")])
+ai_hints = Array[ExtResource("1_lkf3m")]([SubResource("Resource_lkf3m")])
+action_type = 3

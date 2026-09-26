@@ -42,14 +42,14 @@ proc_trigger = 9
 
 [sub_resource type="Resource" id="Resource_vdq6f"]
 script = ExtResource("1_l6ibn")
-affix_name = "DiagRing: Heal 33 on Defend"
-description = "Debug: ON_DEFEND → heal_flat 33"
+affix_name = "DiagRing: Heal 33 on Hit Taken"
+description = "Debug: ON_TAKE_DAMAGE → heal_flat 33"
 category = 35
 effect_number = 33.0
 effect_data = {
 "proc_effect": "heal_flat"
 }
-proc_trigger = 10
+proc_trigger = 2
 
 [sub_resource type="Resource" id="Resource_e67ps"]
 script = ExtResource("1_l6ibn")

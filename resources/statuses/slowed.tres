@@ -1,10 +1,23 @@
-[gd_resource type="Resource" script_class="StatusAffix" load_steps=6 format=3 uid="uid://i0gx0hubkmmx"]
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=8 format=3 uid="uid://i0gx0hubkmmx"]
 
 [ext_resource type="Script" uid="uid://dfaph2f2anhu0" path="res://resources/data/status_dice_effect.gd" id="1_ix620"]
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_ykvnj"]
 [ext_resource type="Texture2D" uid="uid://sxflisi2dldx" path="res://assets/status_effects/slowed_status_64.png" id="2_7ali5"]
+[ext_resource type="PackedScene" uid="uid://bbmvthrgjhmxh" path="res://scenes/effects/new/buff and debuff/debuff_arrows_impact.tscn" id="2_21r6x"]
 [ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="2_lrrxd"]
 [ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_lrrxd"]
+
+[sub_resource type="Resource" id="Resource_xe6hq"]
+script = ExtResource("1_ix620")
+target_mode = 0
+target_count_equals_stacks = false
+effect_type = 7
+effect_value = -1.0
+apply_particle_scene = ExtResource("2_21r6x")
+conditional_formula = 1
+formula_status_id = "slowed"
+formula_divisor = 2
+metadata/_custom_type_script = "uid://dfaph2f2anhu0"
 
 [resource]
 script = ExtResource("2_lrrxd")
@@ -12,6 +25,7 @@ status_id = "slowed"
 duration_type = 1
 default_duration = 1
 cleanse_tags = Array[String](["debuff", "slow_effect"])
+dice_effects = Array[ExtResource("1_ix620")]([SubResource("Resource_xe6hq")])
 affix_name = "Slowed"
 description = "Reduces die values by stack amount for a set duration."
 icon = ExtResource("2_7ali5")

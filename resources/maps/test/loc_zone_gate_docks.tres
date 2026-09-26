@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="LocationNode" load_steps=4 format=3 uid="uid://b3o3xilmfi1r5"]
+
+[ext_resource type="Script" uid="uid://dgamp5w74kvwa" path="res://resources/data/location_node.gd" id="1_locscript"]
+[ext_resource type="Script" uid="uid://bvx6wd14mcwlb" path="res://resources/data/map_node_button_def.gd" id="2_btnscript"]
+[ext_resource type="Resource" uid="uid://bxxvdq2qsmvt" path="res://resources/maps/test/btn_enter_docks_zone.tres" id="3_enterdocks"]
+
+[resource]
+script = ExtResource("1_locscript")
+location_id = &"loc_zone_gate_docks"
+display_name = "The Docks"
+node_type = 4
+map_node_category = 3
+radial_buttons = Array[ExtResource("2_btnscript")]([ExtResource("3_enterdocks")])
+description = "The harbour district — a dense tangle of warehouses, taverns and Navy supply vessels."
+map_position = Vector2(1955.4167, 3056.158)
+connections = Array[StringName]([&"loc_crossroads"])

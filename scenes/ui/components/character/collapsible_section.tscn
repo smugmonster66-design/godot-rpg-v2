@@ -1,0 +1,19 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/components/character/collapsible_section.gd" id="1_script"]
+
+[node name="CollapsibleSection" type="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("1_script")
+
+[node name="ToggleButton" type="Button" parent="." groups=["collapsible_ui"]]
+layout_mode = 2
+text = "Section [+]"
+alignment = 0
+metadata/ui_role = "toggle_button"
+
+[node name="ContentContainer" type="VBoxContainer" parent="." groups=["collapsible_ui"]]
+visible = false
+layout_mode = 2
+metadata/ui_role = "content_container"

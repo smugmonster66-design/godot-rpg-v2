@@ -1,0 +1,220 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=40 format=3 uid="uid://dv026xb2yxjfk"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_h5ist"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_bktf0"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="12_b2pe3"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_armor_agi_skirmisher.tres" id="13_7ahq8"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_slashing.tres" id="14_6nn7k"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="15_ota0f"]
+[ext_resource type="Resource" uid="uid://cighdri7vsxve" path="res://resources/affixes/base_stats/enemy/enemy_health_agi_skirmisher.tres" id="16_yndre"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="17_pbs1r"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="18_rj8gt"]
+[ext_resource type="PackedScene" uid="uid://c457eolhd5tul" path="res://scenes/ui/components/dice/combat/combat_die_d12.tscn" id="19_4h1wa"]
+[ext_resource type="Resource" uid="uid://bdq7d6do7p3vo" path="res://resources/affixes/elements/slashing_element.tres" id="20_fugw4"]
+[ext_resource type="Texture2D" uid="uid://r7bikgya1ua8" path="res://assets/dice/d12s/d12-basic-fill.png" id="21_j34q2"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="22_lcwth"]
+[ext_resource type="PackedScene" uid="uid://yqcuq20fomfu" path="res://scenes/ui/components/dice/pool/pool_die_d12.tscn" id="23_ex27o"]
+[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="23_gxxec"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="24_jgx0x"]
+[ext_resource type="Texture2D" uid="uid://d3cgge7kyfsqd" path="res://assets/dice/d12s/d12-basic-stroke.png" id="24_nkhg2"]
+[ext_resource type="Resource" uid="uid://cupp6q7klqtkq" path="res://resources/enemy_templates/skirmisher_agi.tres" id="25_ly805"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="25_wmnnc"]
+[ext_resource type="Resource" uid="uid://cmvgqj33ksfu" path="res://resources/actions/navy/navy_flurry.tres" id="35_flurry"]
+[ext_resource type="Resource" uid="uid://cwxp1ts1i4vsa" path="res://resources/actions/navy/navy_tumble.tres" id="36_tumble"]
+[ext_resource type="Resource" uid="uid://b61wbfptus2it" path="res://resources/actions/navy/navy_hamstring_slash.tres" id="37_hamstrin"]
+
+[sub_resource type="Resource" id="Resource_aguur"]
+script = ExtResource("1_h5ist")
+element_preference = 0.4
+heal_urgency = 0.3
+status_awareness = 0.3
+
+
+[sub_resource type="Resource" id="Resource_mp3sv"]
+script = ExtResource("23_gxxec")
+type = 2
+threshold = 3.0
+
+
+[sub_resource type="Resource" id="Resource_oqv2a"]
+script = ExtResource("22_lcwth")
+affix_name = "Serrated Edge"
+description = "When die value is 3 or below, apply Bleed to enemy."
+trigger = 1
+condition = SubResource("Resource_mp3sv")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "bleed",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_q0kb2"]
+script = ExtResource("18_rj8gt")
+display_name = "Slashing D12"
+die_type = 12
+element = 1
+element_affix = ExtResource("20_fugw4")
+fill_texture = ExtResource("21_j34q2")
+stroke_texture = ExtResource("24_nkhg2")
+combat_die_scene = ExtResource("19_4h1wa")
+pool_die_scene = ExtResource("23_ex27o")
+inherent_affixes = Array[ExtResource("22_lcwth")]([SubResource("Resource_oqv2a")])
+
+
+[sub_resource type="Resource" id="Resource_vr6cx"]
+script = ExtResource("23_gxxec")
+type = 2
+threshold = 3.0
+
+
+[sub_resource type="Resource" id="Resource_jssfx"]
+script = ExtResource("22_lcwth")
+affix_name = "Serrated Edge"
+description = "When die value is 3 or below, apply Bleed to enemy."
+trigger = 1
+condition = SubResource("Resource_vr6cx")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "bleed",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_b2pe3"]
+script = ExtResource("18_rj8gt")
+display_name = "Slashing D12"
+die_type = 12
+element = 1
+element_affix = ExtResource("20_fugw4")
+fill_texture = ExtResource("21_j34q2")
+stroke_texture = ExtResource("24_nkhg2")
+combat_die_scene = ExtResource("19_4h1wa")
+pool_die_scene = ExtResource("23_ex27o")
+inherent_affixes = Array[ExtResource("22_lcwth")]([SubResource("Resource_jssfx")])
+
+
+[sub_resource type="Resource" id="Resource_7ahq8"]
+script = ExtResource("23_gxxec")
+type = 2
+threshold = 3.0
+
+
+[sub_resource type="Resource" id="Resource_6nn7k"]
+script = ExtResource("22_lcwth")
+affix_name = "Serrated Edge"
+description = "When die value is 3 or below, apply Bleed to enemy."
+trigger = 1
+condition = SubResource("Resource_7ahq8")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "bleed",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_ota0f"]
+script = ExtResource("18_rj8gt")
+display_name = "Slashing D12"
+die_type = 12
+element = 1
+element_affix = ExtResource("20_fugw4")
+fill_texture = ExtResource("21_j34q2")
+stroke_texture = ExtResource("24_nkhg2")
+combat_die_scene = ExtResource("19_4h1wa")
+pool_die_scene = ExtResource("23_ex27o")
+inherent_affixes = Array[ExtResource("22_lcwth")]([SubResource("Resource_6nn7k")])
+
+
+[sub_resource type="Resource" id="Resource_yndre"]
+script = ExtResource("23_gxxec")
+type = 2
+threshold = 3.0
+
+
+[sub_resource type="Resource" id="Resource_pbs1r"]
+script = ExtResource("22_lcwth")
+affix_name = "Serrated Edge"
+description = "When die value is 3 or below, apply Bleed to enemy."
+trigger = 1
+condition = SubResource("Resource_yndre")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "bleed",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_rj8gt"]
+script = ExtResource("18_rj8gt")
+display_name = "Slashing D12"
+die_type = 12
+element = 1
+element_affix = ExtResource("20_fugw4")
+fill_texture = ExtResource("21_j34q2")
+stroke_texture = ExtResource("24_nkhg2")
+combat_die_scene = ExtResource("19_4h1wa")
+pool_die_scene = ExtResource("23_ex27o")
+inherent_affixes = Array[ExtResource("22_lcwth")]([SubResource("Resource_pbs1r")])
+
+
+[sub_resource type="Resource" id="Resource_4h1wa"]
+script = ExtResource("23_gxxec")
+type = 2
+threshold = 3.0
+
+
+[sub_resource type="Resource" id="Resource_fugw4"]
+script = ExtResource("22_lcwth")
+affix_name = "Serrated Edge"
+description = "When die value is 3 or below, apply Bleed to enemy."
+trigger = 1
+condition = SubResource("Resource_4h1wa")
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "bleed",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_j34q2"]
+script = ExtResource("18_rj8gt")
+display_name = "Slashing D12"
+die_type = 12
+element = 1
+element_affix = ExtResource("20_fugw4")
+fill_texture = ExtResource("21_j34q2")
+stroke_texture = ExtResource("24_nkhg2")
+combat_die_scene = ExtResource("19_4h1wa")
+pool_die_scene = ExtResource("23_ex27o")
+inherent_affixes = Array[ExtResource("22_lcwth")]([SubResource("Resource_fugw4")])
+
+
+[resource]
+script = ExtResource("17_pbs1r")
+enemy_name = "The Spider"
+description = "Sanctum Navy The Spider."
+template = ExtResource("25_ly805")
+combat_role = 1
+enemy_tags = PackedStringArray("navy", "humanoid")
+max_health = 60
+starting_dice = Array[ExtResource("18_rj8gt")]([SubResource("Resource_q0kb2"), SubResource("Resource_b2pe3"), SubResource("Resource_ota0f"), SubResource("Resource_rj8gt"), SubResource("Resource_j34q2")])
+combat_actions = Array[ExtResource("2_bktf0")]([ExtResource("35_flurry"), ExtResource("36_tumble"), ExtResource("37_hamstrin")])
+ai_strategy = 0
+ai_config = SubResource("Resource_aguur")
+action_delay = 0.5
+dice_drag_duration = 0.35
+experience_reward = 500
+gold_reward_min = 150
+gold_reward_max = 500
+enemy_tier = 4
+enemy_archetype = 2
+enemy_level_floor = 12
+level_scaling_multiplier = 1.2
+health_affix = ExtResource("16_yndre")
+enemy_affixes = Array[ExtResource("12_b2pe3")]([ExtResource("13_7ahq8"), ExtResource("14_6nn7k")])

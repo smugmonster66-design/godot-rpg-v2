@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3 uid="uid://bqhrbxkhpn43l"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=12 format=3 uid="uid://bqhrbxkhpn43l"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_xd0pn"]
 [ext_resource type="Resource" uid="uid://mrxvd5tmgbpd" path="res://resources/actions/enemy_base/poke.tres" id="2_lyt7w"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="7_nveuh"]
 [ext_resource type="Resource" uid="uid://by2va8u6atvcb" path="res://resources/dice/base/d6_none.tres" id="8_wq7ii"]
 [ext_resource type="Resource" uid="uid://b5i2xbuayuem8" path="res://resources/enemy_templates/support_agi.tres" id="9_05kvx"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_generic.tres" id="10_dmg"]
 
 [resource]
 script = ExtResource("6_cr1be")
@@ -29,3 +30,4 @@ gold_reward_max = 10
 enemy_archetype = 2
 level_scaling_multiplier = 0.8
 health_affix = ExtResource("5_vu1w5")
+enemy_affixes = Array[ExtResource("4_hrsp1")]([ExtResource("10_dmg")])

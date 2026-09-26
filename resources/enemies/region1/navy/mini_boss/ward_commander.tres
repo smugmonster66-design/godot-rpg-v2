@@ -1,0 +1,134 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=31 format=3 uid="uid://ck7nlfwi7jghs"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_6oi2a"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_u30w6"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="9_2y8f2"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_armor_int_tank.tres" id="10_yh48v"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_barrier_int_tank.tres" id="11_1lmui"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_shadow.tres" id="12_rfbmp"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="13_noy2h"]
+[ext_resource type="Resource" uid="uid://sjtscukc8qjh" path="res://resources/affixes/base_stats/enemy/enemy_health_int_tank.tres" id="14_bkl1b"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="15_d0obl"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="16_rxt3b"]
+[ext_resource type="PackedScene" uid="uid://dx08yqjhk2hu0" path="res://scenes/ui/components/dice/combat/combat_die_d10.tscn" id="17_hkmfh"]
+[ext_resource type="Resource" uid="uid://c2pgrap71kn5v" path="res://resources/affixes/elements/shadow_element.tres" id="18_u0508"]
+[ext_resource type="Texture2D" uid="uid://klk23dga0emp" path="res://assets/dice/d10s/d10-fill-basic.png" id="19_mjcjw"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="20_qnih7"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="21_3ivjy"]
+[ext_resource type="PackedScene" uid="uid://biqti34m42xcy" path="res://scenes/ui/components/dice/pool/pool_die_d10.tscn" id="21_kdfwc"]
+[ext_resource type="Texture2D" uid="uid://bnn478mo72l40" path="res://assets/dice/d10s/d10-stroke-basic.png" id="22_cwp5i"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="22_wfb4m"]
+[ext_resource type="Resource" uid="uid://h35oxp8kc0wd" path="res://resources/enemy_templates/tank_int.tres" id="23_ecyuv"]
+[ext_resource type="Resource" uid="uid://chcounbmwlmxa" path="res://resources/actions/navy/navy_ward_bolt.tres" id="33_ward_bol"]
+[ext_resource type="Resource" uid="uid://2wulvuc82qbm" path="res://resources/actions/navy/navy_project_barrier.tres" id="34_project_"]
+[ext_resource type="Resource" uid="uid://c78g4f4jc6qec" path="res://resources/actions/navy/navy_barrier_overcharge.tres" id="35_barrier_"]
+
+[sub_resource type="Resource" id="Resource_giph6"]
+script = ExtResource("1_6oi2a")
+heal_urgency = 0.6
+heal_threshold = 0.6
+status_awareness = 0.7
+coordination_preference = 0.8
+
+
+[sub_resource type="Resource" id="Resource_pbwp2"]
+script = ExtResource("20_qnih7")
+affix_name = "Passive Ward"
+description = "First die rolled grants Warded."
+position_requirement = 1
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "warded",
+"target": "self"
+}
+
+
+[sub_resource type="Resource" id="Resource_4noke"]
+script = ExtResource("16_rxt3b")
+display_name = "Shadow D10"
+die_type = 10
+element = 8
+element_affix = ExtResource("18_u0508")
+fill_texture = ExtResource("19_mjcjw")
+stroke_texture = ExtResource("22_cwp5i")
+combat_die_scene = ExtResource("17_hkmfh")
+pool_die_scene = ExtResource("21_kdfwc")
+inherent_affixes = Array[ExtResource("20_qnih7")]([SubResource("Resource_pbwp2")])
+
+
+[sub_resource type="Resource" id="Resource_57gcg"]
+script = ExtResource("20_qnih7")
+affix_name = "Passive Ward"
+description = "First die rolled grants Warded."
+position_requirement = 1
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "warded",
+"target": "self"
+}
+
+
+[sub_resource type="Resource" id="Resource_hn5eu"]
+script = ExtResource("16_rxt3b")
+display_name = "Shadow D10"
+die_type = 10
+element = 8
+element_affix = ExtResource("18_u0508")
+fill_texture = ExtResource("19_mjcjw")
+stroke_texture = ExtResource("22_cwp5i")
+combat_die_scene = ExtResource("17_hkmfh")
+pool_die_scene = ExtResource("21_kdfwc")
+inherent_affixes = Array[ExtResource("20_qnih7")]([SubResource("Resource_57gcg")])
+
+
+[sub_resource type="Resource" id="Resource_2y8f2"]
+script = ExtResource("20_qnih7")
+affix_name = "Passive Ward"
+description = "First die rolled grants Warded."
+position_requirement = 1
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "warded",
+"target": "self"
+}
+
+
+[sub_resource type="Resource" id="Resource_yh48v"]
+script = ExtResource("16_rxt3b")
+display_name = "Shadow D10"
+die_type = 10
+element = 8
+element_affix = ExtResource("18_u0508")
+fill_texture = ExtResource("19_mjcjw")
+stroke_texture = ExtResource("22_cwp5i")
+combat_die_scene = ExtResource("17_hkmfh")
+pool_die_scene = ExtResource("21_kdfwc")
+inherent_affixes = Array[ExtResource("20_qnih7")]([SubResource("Resource_2y8f2")])
+
+
+[resource]
+script = ExtResource("15_d0obl")
+enemy_name = "Ward Commander"
+description = "Sanctum Navy Ward Commander."
+template = ExtResource("23_ecyuv")
+combat_role = 3
+enemy_tags = PackedStringArray("navy", "humanoid")
+max_health = 25
+starting_dice = Array[ExtResource("16_rxt3b")]([SubResource("Resource_4noke"), SubResource("Resource_hn5eu"), SubResource("Resource_yh48v")])
+combat_actions = Array[ExtResource("2_u30w6")]([ExtResource("33_ward_bol"), ExtResource("34_project_"), ExtResource("35_barrier_")])
+ai_strategy = 1
+ai_config = SubResource("Resource_giph6")
+action_delay = 0.7
+dice_drag_duration = 0.35
+experience_reward = 75
+gold_reward_min = 25
+gold_reward_max = 75
+enemy_tier = 2
+enemy_archetype = 3
+enemy_level_floor = 5
+level_scaling_multiplier = 1.0
+health_affix = ExtResource("14_bkl1b")
+enemy_affixes = Array[ExtResource("9_2y8f2")]([ExtResource("10_yh48v"), ExtResource("11_1lmui"), ExtResource("12_rfbmp")])

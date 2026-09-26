@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://btrq8vayh3p8i"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_4ks1w"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_2pi22"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_j4jsf"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_2pi22"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_uh82t"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="5_0qs7n"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="6_7qp3p"]
+
+[sub_resource type="Resource" id="Resource_4ks1w"]
+script = ExtResource("3_2pi22")
+effect_name = "Barrage Damage"
+value_source = 1
+damage_type = 3
+base_damage = 2
+damage_multiplier = 1.1
+
+[resource]
+script = ExtResource("6_7qp3p")
+action_id = "navy_arcane_barrage"
+action_name = "Arcane Barrage"
+action_description = "A barrage of arcane [element:fire|fire]."
+damage_element = 3
+effects = Array[ExtResource("3_2pi22")]([SubResource("Resource_4ks1w")])

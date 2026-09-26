@@ -52,6 +52,7 @@ var clear_right: bool = false
 # Available speakers (set by parent graph/dock)
 var _available_speakers: Array[DialogueSpeaker] = []
 var _slots_expanded: bool = false
+var _bbcode_menu = null
 
 # ============================================================================
 # INITIALIZATION
@@ -79,6 +80,15 @@ func _ready() -> void:
 		slot_dropdown.item_selected.connect(_on_slot_selected)
 	if text_edit:
 		text_edit.text_changed.connect(_on_text_changed)
+		text_edit.gui_input.connect(_on_text_edit_gui_input)
+
+	# BBCode style context menu (Window must be child of root, not GraphNode)
+	var menu_scene = load("res://addons/dialogue_editor/widgets/bbcode_style_menu.tscn")
+	if menu_scene:
+		_bbcode_menu = menu_scene.instantiate()
+		# Defer adding to tree root so it's a proper sub-window
+		_add_menu_deferred.call_deferred()
+
 	if slots_toggle:
 		slots_toggle.pressed.connect(_on_slots_toggle_pressed)
 	
@@ -345,10 +355,36 @@ func _on_right_bust_selected(index: int) -> void:
 # TEXT
 # ============================================================================
 
+func _add_menu_deferred() -> void:
+	if _bbcode_menu and not _bbcode_menu.is_inside_tree():
+		EditorInterface.get_base_control().add_child(_bbcode_menu)
+
+func _exit_tree() -> void:
+	if _bbcode_menu and is_instance_valid(_bbcode_menu):
+		_bbcode_menu.queue_free()
+		_bbcode_menu = null
+
 func _on_text_changed() -> void:
 	if text_edit:
 		dialogue_text = text_edit.text
+		_auto_resize_text_edit()
 	_emit_modified()
+
+func _auto_resize_text_edit() -> void:
+	if not text_edit:
+		return
+	var line_count = text_edit.get_line_count()
+	var line_height = text_edit.get_line_height()
+	# Minimum 3 lines, grow with content
+	var target_lines = maxi(line_count + 1, 3)
+	var new_height = target_lines * line_height
+	text_edit.custom_minimum_size.y = new_height
+
+func _on_text_edit_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+		if text_edit and text_edit.has_selection() and _bbcode_menu:
+			_bbcode_menu.show_for_text_edit(text_edit, self)
+			text_edit.accept_event()
 
 # ============================================================================
 # SERIALIZATION
@@ -413,3 +449,4 @@ func set_node_data(data: Dictionary) -> void:
 	
 	if text_edit:
 		text_edit.text = dialogue_text
+		_auto_resize_text_edit()

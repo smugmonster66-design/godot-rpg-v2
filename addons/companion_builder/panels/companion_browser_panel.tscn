@@ -1,0 +1,32 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/companion_builder/panels/companion_browser_panel.gd" id="1_script"]
+
+[node name="CompanionBrowserPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(200, 0)
+script = ExtResource("1_script")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="ButtonRow" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="NewButton" type="Button" parent="VBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "New"
+tooltip_text = "Create a new blank companion resource"
+
+[node name="RefreshButton" type="Button" parent="VBox/ButtonRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Refresh"
+tooltip_text = "Rescan resources/companions/ for companion files"
+
+[node name="CompanionList" type="ItemList" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+tooltip_text = "Available companion resources. Click to load."
+allow_reselect = true

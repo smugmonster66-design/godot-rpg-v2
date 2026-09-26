@@ -40,9 +40,8 @@ signal queue_group_finished(group_name: String)
 ## Evaluated in priority order (highest first), then array order for ties.
 @export var reactions: Array[AnimationReaction] = []
 
-## CanvasLayer index for particle and label effects. Should be above
-## the main combat UI but below modal dialogs.
-@export var effects_layer_index: int = 102
+## CanvasLayer index for particle and label effects (above all UI, layer 300).
+@export var effects_layer_index: int = 300
 
 ## Whether to log reaction matches in debug builds
 @export var debug_logging: bool = false
@@ -71,6 +70,9 @@ var _animation_player: CombatAnimationPlayer = null
 
 ## Tracks the last flash tween per target node to prevent stacking on rapid multi-hits
 var _flash_tweens: Dictionary = {}  # Node -> Tween
+
+## Active floating labels — used for overlap avoidance
+var _active_labels: Array[Label] = []
 
 # ============================================================================
 # SETUP
@@ -115,12 +117,12 @@ func cleanup() -> void:
 	_event_bus = null
 	_queue_groups.clear()
 	_label_last_spawn.clear()
+	_active_labels.clear()
 
 	# Clean up effects container children
 	for child in _effects_container.get_children():
 		child.queue_free()
-		
-	
+
 	_effect_player = null
 	_animation_player = null
 
@@ -197,7 +199,10 @@ func _play_reaction(reaction: AnimationReaction, event: CombatEvent) -> void:
 
 	if preset.combat_effect_preset:
 		_play_combat_effect(target, preset, event)
-	if preset.combat_animation_set and not preset.combat_effect_preset:
+	# Play combat animation if the preset has a static set OR the event carries
+	# a dynamic one (used by AFFIX_TRIGGERED / THRESHOLD_REACHED events).
+	var _has_dyn_anim = event.values.get("anim_set", null) != null
+	if (preset.combat_animation_set or _has_dyn_anim) and not preset.combat_effect_preset:
 		_play_combat_animation_set(target, preset, event)
 
 
@@ -494,12 +499,16 @@ func _spawn_floating_label(target: Node, preset: MicroAnimationPreset, event: Co
 		rise_distance = float(label.get_theme_constant("rise_distance", tv))
 	if tv != &"" and label.has_theme_constant("scatter_x", tv):
 		scatter_x = float(label.get_theme_constant("scatter_x", tv))
+	if target.has_meta("floater_rise_distance"):
+		rise_distance = float(target.get_meta("floater_rise_distance"))
 
 	var center = _get_global_center(target)
 	var scatter = randf_range(-scatter_x, scatter_x)
 	label.global_position = center + Vector2(scatter, 0) - label.size / 2
 	label.scale = Vector2(preset.label_start_scale, preset.label_start_scale)
 	label.pivot_offset = label.size / 2
+	_clamp_to_viewport(label)
+	_avoid_overlap(label)
 
 	# Animate: rise + fade + optional scale
 	var tween = label.create_tween().set_parallel(true)
@@ -514,6 +523,7 @@ func _spawn_floating_label(target: Node, preset: MicroAnimationPreset, event: Co
 			Vector2(preset.label_end_scale, preset.label_end_scale),
 			duration)
 
+	tween.finished.connect(_untrack_label.bind(label))
 	tween.finished.connect(label.queue_free)
 
 func _spawn_label_raw(target: Node, text: String, theme_type: StringName, fallback_color: Color, preset: MicroAnimationPreset) -> void:
@@ -538,11 +548,15 @@ func _spawn_label_raw(target: Node, text: String, theme_type: StringName, fallba
 		rise_distance = float(label.get_theme_constant("rise_distance", tv))
 	if tv != &"" and label.has_theme_constant("scatter_x", tv):
 		scatter_x = float(label.get_theme_constant("scatter_x", tv))
+	if target.has_meta("floater_rise_distance"):
+		rise_distance = float(target.get_meta("floater_rise_distance"))
 	var center = _get_global_center(target)
 	var scatter = randf_range(-scatter_x, scatter_x)
 	label.global_position = center + Vector2(scatter, 0) - label.size / 2
 	label.scale = Vector2(preset.label_start_scale, preset.label_start_scale)
 	label.pivot_offset = label.size / 2
+	_clamp_to_viewport(label)
+	_avoid_overlap(label)
 	var tween = label.create_tween().set_parallel(true)
 	tween.tween_property(label, "global_position:y", center.y - rise_distance, duration) \
 		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
@@ -551,6 +565,7 @@ func _spawn_label_raw(target: Node, text: String, theme_type: StringName, fallba
 	if preset.label_end_scale != preset.label_start_scale:
 		tween.tween_property(label, "scale",
 			Vector2(preset.label_end_scale, preset.label_end_scale), duration)
+	tween.finished.connect(_untrack_label.bind(label))
 	tween.finished.connect(label.queue_free)
 
 
@@ -598,26 +613,32 @@ func _play_combat_effect(target: Node, preset: MicroAnimationPreset, event: Comb
 		)
 
 func _play_combat_animation_set(target: Node, preset: MicroAnimationPreset, event: CombatEvent) -> void:
-	"""Play a full CombatAnimationSet via CombatAnimationPlayer."""
-	if not preset.combat_animation_set or not _animation_player:
+	"""Play a full CombatAnimationSet via CombatAnimationPlayer.
+	Resolves the animation set from the preset first; falls back to
+	event.values["anim_set"] for AFFIX_TRIGGERED / THRESHOLD_REACHED events
+	that carry the set dynamically from the affix resource."""
+	if not _animation_player:
 		return
-	
+
+	# Prefer the statically-authored preset set; fall back to event payload
+	var anim_set = preset.combat_animation_set
+	if not anim_set:
+		anim_set = event.values.get("anim_set", null)
+	if not anim_set:
+		return
+
 	var target_pos = _get_global_center(target)
 	var source_pos = target_pos
-	
+
 	if event.source_node and is_instance_valid(event.source_node):
 		source_pos = _get_global_center(event.source_node)
-	
-	var target_positions: Array[Vector2] = [target_pos]
-	var target_nodes: Array[Node2D] = []
-	if target is Node2D:
-		target_nodes.append(target)
-	
-	_animation_player.play_sequence(
-		preset.combat_animation_set,
+
+	# Use play_affix_animation (fire-and-forget, does not emit apply_effect_now)
+	_animation_player.play_affix_animation(
+		anim_set,
 		source_pos,
-		target_positions,
-		target_nodes
+		target_pos,
+		target if target is Node2D else null
 	)
 
 
@@ -644,6 +665,8 @@ func _resolve_label_text(preset: MicroAnimationPreset, event: CombatEvent) -> St
 
 		CombatEvent.Type.DAMAGE_DEALT:
 			var amount = event.values.get("amount", 0)
+			if amount <= 0:
+				return "Resisted!"
 			return "%s%d" % [preset.label_prefix if preset.label_prefix != "" else "-", amount]
 
 		CombatEvent.Type.HEAL_APPLIED:
@@ -652,7 +675,15 @@ func _resolve_label_text(preset: MicroAnimationPreset, event: CombatEvent) -> St
 
 		CombatEvent.Type.STATUS_APPLIED:
 			return event.values.get("status_name", "")
-	
+
+		CombatEvent.Type.AFFIX_TRIGGERED:
+			# source_tag holds the affix name; label_value_key can expose "amount" if needed
+			return event.values.get("affix_name", event.source_tag)
+
+		CombatEvent.Type.THRESHOLD_REACHED:
+			# source_tag holds the status name; value_key can add the damage amount
+			var sname = event.values.get("status_name", event.source_tag)
+			return sname if sname != "" else event.source_tag
 
 		CombatEvent.Type.STATUS_TICKED:
 			var tick_dmg = event.values.get("tick_damage", 0)
@@ -693,7 +724,8 @@ func _sort_reactions() -> void:
 func _get_global_center(node: Node) -> Vector2:
 	"""Get the global center position of a node, handling both Node2D and Control."""
 	if node is Control:
-		return node.global_position + node.size / 2
+		var y_factor: float = node.get_meta("floater_origin_y_factor", 0.5)
+		return node.global_position + Vector2(node.size.x / 2, node.size.y * y_factor)
 	elif node is Node2D:
 		return node.global_position
 	return Vector2.ZERO
@@ -708,3 +740,40 @@ func add_reaction(reaction: AnimationReaction) -> void:
 func remove_reaction(reaction: AnimationReaction) -> void:
 	"""Remove a reaction at runtime."""
 	reactions.erase(reaction)
+
+
+# ============================================================================
+# FLOATER POSITIONING — VIEWPORT CLAMPING & OVERLAP AVOIDANCE
+# ============================================================================
+
+func _clamp_to_viewport(label: Label) -> void:
+	"""Clamp label position so no part extends beyond the viewport edges."""
+	var vp_size = get_viewport().get_visible_rect().size
+	var pos = label.global_position
+	var label_size = label.size * label.scale
+	pos.x = clampf(pos.x, 0.0, vp_size.x - label_size.x)
+	pos.y = clampf(pos.y, 0.0, vp_size.y - label_size.y)
+	label.global_position = pos
+
+
+func _avoid_overlap(label: Label) -> void:
+	"""Shunt label vertically if it overlaps any active floater, then re-clamp."""
+	# Purge freed labels
+	_active_labels = _active_labels.filter(func(l): return is_instance_valid(l))
+
+	var label_rect = Rect2(label.global_position, label.size * label.scale)
+	for existing in _active_labels:
+		var existing_rect = Rect2(existing.global_position, existing.size * existing.scale)
+		if label_rect.intersects(existing_rect):
+			# Place above the existing label (floaters rise, so this separates naturally)
+			label.global_position.y = existing.global_position.y - label.size.y * label.scale.y - 2.0
+			label_rect.position = label.global_position
+
+	# Re-clamp after shunting
+	_clamp_to_viewport(label)
+	_active_labels.append(label)
+
+
+func _untrack_label(label: Label) -> void:
+	"""Remove a label from active tracking (call on tween finish)."""
+	_active_labels.erase(label)

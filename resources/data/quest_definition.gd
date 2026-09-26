@@ -78,10 +78,16 @@ enum QuestType {
 @export var required_level: int = 0
 ## If true, quest is not shown in log until accepted
 @export var hidden_until_accepted: bool = false
+## If true, quest completes automatically when all objectives are met (no turn-in NPC needed)
+@export var auto_complete: bool = false
 ## If true, quest can be repeated after completion
 @export var repeatable: bool = false
 ## Cooldown in seconds before repeatable quest is available again
 @export var repeat_cooldown: float = 0.0
+## Sort priority for UI display (lower = shown first, MAIN quests should be 0)
+@export var sort_priority: int = 0
+## Suggested level for this quest (display hint only, not a hard gate)
+@export var recommended_level: int = 0
 
 # ============================================================================
 # FAILURE CONDITIONS

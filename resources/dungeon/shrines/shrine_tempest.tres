@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="DungeonShrine" load_steps=7 format=3 uid="uid://db5fkcmvnytb3"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_x4p48"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_6ymr8"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_u44el"]
+[ext_resource type="Script" uid="uid://dejkynwv48tug" path="res://resources/data/dungeon_shrine.gd" id="4_hvm3b"]
+
+[sub_resource type="Resource" id="Resource_w4ajn"]
+script = ExtResource("2_6ymr8")
+affix_name = "Tempest Fury"
+description = "+N damage"
+category = 9
+tags = Array[String](["shrine", "offense"])
+source_type = "shrine"
+effect_min = 2.0
+effect_max = 8.0
+
+[sub_resource type="Resource" id="Resource_8w0jx"]
+script = ExtResource("2_6ymr8")
+affix_name = "Tempest Exposure"
+description = "N% less defense"
+category = 12
+tags = Array[String](["shrine", "defense"])
+source_type = "shrine"
+effect_min = 0.8
+effect_max = 0.9
+
+[resource]
+script = ExtResource("4_hvm3b")
+shrine_name = "Shrine of the Tempest"
+description = "Crackling energy dances across this weathered monument, promising raw power. Static electricity makes your hair stand on end."
+blessing_affix = SubResource("Resource_w4ajn")
+curse_affix = SubResource("Resource_8w0jx")
+curse_description = "The tempest strips away your protection."

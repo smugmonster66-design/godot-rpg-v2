@@ -1,0 +1,128 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/stash/stash_popup.gd" id="1"]
+
+[node name="StashPopup" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.65)
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 16
+
+[node name="MainVBox" type="VBoxContainer" parent="Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="Panel/Margin/MainVBox"]
+layout_mode = 2
+text = "Stash"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="Panel/Margin/MainVBox"]
+layout_mode = 2
+
+[node name="StashSection" type="VBoxContainer" parent="Panel/Margin/MainVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="StashHeader" type="Label" parent="Panel/Margin/MainVBox/StashSection"]
+layout_mode = 2
+text = "Stash (0/50)"
+horizontal_alignment = 1
+
+[node name="StashCategoryCenter" type="CenterContainer" parent="Panel/Margin/MainVBox/StashSection"]
+layout_mode = 2
+
+[node name="StashCategoryTabs" type="GridContainer" parent="Panel/Margin/MainVBox/StashSection/StashCategoryCenter"]
+layout_mode = 2
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+columns = 5
+
+[node name="StashScroll" type="ScrollContainer" parent="Panel/Margin/MainVBox/StashSection"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="StashVBox" type="VBoxContainer" parent="Panel/Margin/MainVBox/StashSection/StashScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="CenterContainer" type="CenterContainer" parent="Panel/Margin/MainVBox/StashSection/StashScroll/StashVBox"]
+layout_mode = 2
+
+[node name="StashGrid" type="GridContainer" parent="Panel/Margin/MainVBox/StashSection/StashScroll/StashVBox/CenterContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 6
+
+[node name="HSeparator2" type="HSeparator" parent="Panel/Margin/MainVBox"]
+layout_mode = 2
+
+[node name="InventorySection" type="VBoxContainer" parent="Panel/Margin/MainVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="InventoryScroll" type="ScrollContainer" parent="Panel/Margin/MainVBox/InventorySection"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="InventoryVBox" type="VBoxContainer" parent="Panel/Margin/MainVBox/InventorySection/InventoryScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="CenterContainer" type="CenterContainer" parent="Panel/Margin/MainVBox/InventorySection/InventoryScroll/InventoryVBox"]
+layout_mode = 2
+
+[node name="InventoryGrid" type="GridContainer" parent="Panel/Margin/MainVBox/InventorySection/InventoryScroll/InventoryVBox/CenterContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 6
+
+[node name="InventoryCategoryCenter" type="CenterContainer" parent="Panel/Margin/MainVBox/InventorySection"]
+layout_mode = 2
+
+[node name="CategoryTabs" type="GridContainer" parent="Panel/Margin/MainVBox/InventorySection/InventoryCategoryCenter"]
+layout_mode = 2
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+columns = 5
+
+[node name="CloseButton" type="Button" parent="Panel/Margin/MainVBox"]
+layout_mode = 2
+text = "Close"

@@ -1,27 +1,24 @@
-[gd_resource type="Resource" script_class="AffixTable" load_steps=20 format=3 uid="uid://bxj4ebsngyqxw"]
+[gd_resource type="Resource" script_class="AffixTable" load_steps=16 format=3 uid="uid://bxj4ebsngyqxw"]
 
-[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_nf1bu"]
-[ext_resource type="Resource" uid="uid://dsyr3kfp5cy73" path="res://resources/affixes/base/defense/tier_2/barrier_bonus.tres" id="2_1ont2"]
-[ext_resource type="Resource" uid="uid://d3oy2v726rlwu" path="res://resources/affixes/base/defense/tier_2/heal_on_hit_taken_flat.tres" id="3_3js3f"]
-[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="4_3orc7"]
-[ext_resource type="Resource" uid="uid://cj7p25d74ek2n" path="res://resources/affixes/base/defense/tier_2/gain_armor_on_hit_taken.tres" id="4_bdmc3"]
-[ext_resource type="Resource" uid="uid://2lwpijcuc2w7" path="res://resources/affixes/base/defense/tier_2/gain_barrier_on_hit_taken.tres" id="5_8jhmc"]
-[ext_resource type="Resource" uid="uid://o34q5q3thh8y" path="res://resources/affixes/base/defense/tier_2/hp_regen_on_turn_start.tres" id="6_fc1q1"]
-[ext_resource type="Resource" uid="uid://df6gt5pesyhrw" path="res://resources/affixes/base/defense/tier_2/barrier_regen_on_turn_start.tres" id="7_tuc5e"]
-[ext_resource type="Resource" uid="uid://c5dfce5gpxsjx" path="res://resources/affixes/base/defense/tier_2/armor_regen_on_turn_start.tres" id="8_3o0u3"]
-[ext_resource type="Resource" uid="uid://bqmjag315taif" path="res://resources/affixes/base/defense/tier_2/heal_on_turn_end.tres" id="9_dj2i3"]
-[ext_resource type="Resource" uid="uid://dsdgsij1jf5wl" path="res://resources/affixes/base/defense/tier_2/barrier_on_turn_end.tres" id="10_gp67p"]
-[ext_resource type="Resource" uid="uid://2hy66oivacld" path="res://resources/affixes/base/defense/tier_2/starting_armor.tres" id="11_c1270"]
-[ext_resource type="Resource" uid="uid://bdv0hmv4p6rup" path="res://resources/affixes/base/defense/tier_2/starting_barrier.tres" id="12_upe02"]
-[ext_resource type="Resource" uid="uid://bbkv38wtx2b1o" path="res://resources/affixes/base/defense/tier_2/bonus_armor_on_defend.tres" id="13_un4cy"]
-[ext_resource type="Resource" uid="uid://bw0tfynb5v6b6" path="res://resources/affixes/base/defense/tier_2/heal_on_defend.tres" id="14_ybdgy"]
-[ext_resource type="Resource" uid="uid://tv5dgwqkwmq" path="res://resources/affixes/base/defense/tier_2/heal_on_kill_flat.tres" id="15_uleap"]
-[ext_resource type="Resource" uid="uid://bsp4o3cce8frp" path="res://resources/affixes/base/defense/tier_2/armor_on_kill.tres" id="16_kxlto"]
-[ext_resource type="Resource" uid="uid://dwwxfcmsntd8s" path="res://resources/affixes/base/defense/tier_2/barrier_on_kill.tres" id="17_rul21"]
-[ext_resource type="Resource" uid="uid://bok34ma467qh0" path="res://resources/affixes/base/defense/tier_2/heal_after_combat_pct.tres" id="18_5smv0"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="affix_script"]
+[ext_resource type="Script" uid="uid://b4fnmvnwdl0i2" path="res://resources/data/affix_table.gd" id="table_script"]
+[ext_resource type="Resource" uid="uid://d3oy2v726rlwu" path="res://resources/affixes/base/defense/tier_2/heal_on_hit_taken_flat.tres" id="affix_1"]
+[ext_resource type="Resource" uid="uid://cj7p25d74ek2n" path="res://resources/affixes/base/defense/tier_2/gain_armor_on_hit_taken.tres" id="affix_2"]
+[ext_resource type="Resource" uid="uid://2lwpijcuc2w7" path="res://resources/affixes/base/defense/tier_2/gain_barrier_on_hit_taken.tres" id="affix_3"]
+[ext_resource type="Resource" uid="uid://o34q5q3thh8y" path="res://resources/affixes/base/defense/tier_2/hp_regen_on_turn_start.tres" id="affix_4"]
+[ext_resource type="Resource" uid="uid://df6gt5pesyhrw" path="res://resources/affixes/base/defense/tier_2/barrier_regen_on_turn_start.tres" id="affix_5"]
+[ext_resource type="Resource" uid="uid://c5dfce5gpxsjx" path="res://resources/affixes/base/defense/tier_2/armor_regen_on_turn_start.tres" id="affix_6"]
+[ext_resource type="Resource" uid="uid://bqmjag315taif" path="res://resources/affixes/base/defense/tier_2/heal_on_turn_end.tres" id="affix_7"]
+[ext_resource type="Resource" uid="uid://dsdgsij1jf5wl" path="res://resources/affixes/base/defense/tier_2/barrier_on_turn_end.tres" id="affix_8"]
+[ext_resource type="Resource" uid="uid://bbkv38wtx2b1o" path="res://resources/affixes/base/defense/tier_2/bonus_armor_on_defend.tres" id="affix_9"]
+[ext_resource type="Resource" uid="uid://bw0tfynb5v6b6" path="res://resources/affixes/base/defense/tier_2/heal_on_defend.tres" id="affix_10"]
+[ext_resource type="Resource" uid="uid://tv5dgwqkwmq" path="res://resources/affixes/base/defense/tier_2/heal_on_kill_flat.tres" id="affix_11"]
+[ext_resource type="Resource" uid="uid://bsp4o3cce8frp" path="res://resources/affixes/base/defense/tier_2/armor_on_kill.tres" id="affix_12"]
+[ext_resource type="Resource" uid="uid://dwwxfcmsntd8s" path="res://resources/affixes/base/defense/tier_2/barrier_on_kill.tres" id="affix_13"]
+[ext_resource type="Resource" uid="uid://bok34ma467qh0" path="res://resources/affixes/base/defense/tier_2/heal_after_combat_pct.tres" id="affix_14"]
 
 [resource]
-script = ExtResource("4_3orc7")
+script = ExtResource("table_script")
 table_name = "Defense Tier 2"
-description = "Base defense affixes, tier 2. Auto-generated."
-available_affixes = Array[ExtResource("1_nf1bu")]([ExtResource("2_1ont2"), ExtResource("3_3js3f"), ExtResource("4_bdmc3"), ExtResource("5_8jhmc"), ExtResource("6_fc1q1"), ExtResource("7_tuc5e"), ExtResource("8_3o0u3"), ExtResource("9_dj2i3"), ExtResource("10_gp67p"), ExtResource("11_c1270"), ExtResource("12_upe02"), ExtResource("13_un4cy"), ExtResource("14_ybdgy"), ExtResource("15_uleap"), ExtResource("16_kxlto"), ExtResource("17_rul21"), ExtResource("18_5smv0")])
+description = "Sustain procs, reactive defense, on-hit/kill healing."
+available_affixes = Array[ExtResource("affix_script")]([ExtResource("affix_1"), ExtResource("affix_2"), ExtResource("affix_3"), ExtResource("affix_4"), ExtResource("affix_5"), ExtResource("affix_6"), ExtResource("affix_7"), ExtResource("affix_8"), ExtResource("affix_9"), ExtResource("affix_10"), ExtResource("affix_11"), ExtResource("affix_12"), ExtResource("affix_13"), ExtResource("affix_14")])

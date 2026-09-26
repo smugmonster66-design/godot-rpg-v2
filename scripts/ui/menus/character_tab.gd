@@ -1,11 +1,10 @@
-# character_tab.gd - Character stats display (v2)
-# Clean player-facing stat summary.
-# Sections: Vitals, Primary Stats, Defense, Gold.
-# Self-registers with parent, emits signals upward.
+# character_tab.gd - Character stats display (v3 — scene-based)
+# Sections: Header, Vitals, Primary Stats, Defense, Elemental Stats,
+#           Alignment, Companions, Currencies.
 extends Control
 
 # ============================================================================
-# SIGNALS (emitted upward)
+# SIGNALS
 # ============================================================================
 signal refresh_requested()
 signal data_changed()
@@ -13,24 +12,93 @@ signal data_changed()
 # ============================================================================
 # CONSTANTS
 # ============================================================================
-## Resource bars
 const BAR_HEIGHT := 40
 const BAR_CORNER_RADIUS := 6
 
-## Stat row label width
-const STAT_LABEL_MIN_WIDTH := 200
+const CurrencyRowScene = preload("res://scenes/ui/components/character/currency_row.tscn")
+
+## Maps ui_role → [Affix.Category, display_element_key] for elemental damage rows
+## Category values are ints since GDScript enums can't be used in const dicts directly.
+## We resolve them once in _ready via _build_elemental_maps().
+var ELEM_DMG_MAP := {}
+var ELEM_RESIST_MAP := {}
+
+func _build_elemental_maps():
+	ELEM_DMG_MAP = {
+		"elem_slashing_dmg": Affix.Category.SLASHING_DAMAGE_BONUS,
+		"elem_blunt_dmg": Affix.Category.BLUNT_DAMAGE_BONUS,
+		"elem_piercing_dmg": Affix.Category.PIERCING_DAMAGE_BONUS,
+		"elem_fire_dmg": Affix.Category.FIRE_DAMAGE_BONUS,
+		"elem_ice_dmg": Affix.Category.ICE_DAMAGE_BONUS,
+		"elem_shock_dmg": Affix.Category.SHOCK_DAMAGE_BONUS,
+		"elem_poison_dmg": Affix.Category.POISON_DAMAGE_BONUS,
+		"elem_shadow_dmg": Affix.Category.SHADOW_DAMAGE_BONUS,
+	}
+	ELEM_RESIST_MAP = {
+		"elem_fire_resist": Affix.Category.FIRE_RESIST_BONUS,
+		"elem_ice_resist": Affix.Category.ICE_RESIST_BONUS,
+		"elem_shock_resist": Affix.Category.SHOCK_RESIST_BONUS,
+		"elem_poison_resist": Affix.Category.POISON_RESIST_BONUS,
+		"elem_shadow_resist": Affix.Category.SHADOW_RESIST_BONUS,
+	}
+
+## Display names for elemental rows
+const ELEM_DISPLAY_NAMES := {
+	"elem_slashing_dmg": "Slashing",
+	"elem_blunt_dmg": "Blunt",
+	"elem_piercing_dmg": "Piercing",
+	"elem_fire_dmg": "Fire",
+	"elem_ice_dmg": "Ice",
+	"elem_shock_dmg": "Shock",
+	"elem_poison_dmg": "Poison",
+	"elem_shadow_dmg": "Shadow",
+	"elem_fire_resist": "Fire",
+	"elem_ice_resist": "Ice",
+	"elem_shock_resist": "Shock",
+	"elem_poison_resist": "Poison",
+	"elem_shadow_resist": "Shadow",
+}
+
+## Element → palette color key
+const ELEM_COLORS := {
+	"slashing": "slashing", "blunt": "blunt", "piercing": "piercing",
+	"fire": "fire", "ice": "ice", "shock": "shock",
+	"poison": "poison", "shadow": "shadow",
+}
 
 # ============================================================================
 # STATE
 # ============================================================================
 var player: Player = null
+var smithing_config: Resource = null
 
-# UI references (discovered dynamically via groups + metadata)
-var stats_container: VBoxContainer
+# UI references (discovered via groups + metadata)
 var class_label: Label
 var level_label: Label
-var exp_bar: ProgressBar
 var exp_label: Label
+var exp_bar  # resource_bar component
+var hp_bar   # resource_bar component
+var mana_bar # resource_bar component
+
+# Primary stat rows
+var stat_rows := {}  # "stat_strength" → stat_row node, etc.
+
+# Defense rows
+var armor_row = null
+var barrier_row = null
+
+# Elemental section
+var elemental_section = null  # collapsible_section
+var elemental_rows := {}  # ui_role → stat_row node
+
+# Alignment
+var virtue_axis = null
+var order_axis = null
+
+# Currencies
+var gold_amount_label: Label = null
+var components_container: VBoxContainer = null
+var _component_row_cache := {}  # component_id → currency_row node
 
 # ============================================================================
 # INITIALIZATION
@@ -38,37 +106,51 @@ var exp_label: Label
 
 func _ready():
 	add_to_group("menu_tabs")
+	_build_elemental_maps()
+	_load_smithing_config()
 	_discover_ui_elements()
-	print("👤 CharacterTab: Ready (v2)")
 
+func _load_smithing_config():
+	if ResourceLoader.exists("res://resources/crafting/smithing_config.tres"):
+		smithing_config = load("res://resources/crafting/smithing_config.tres")
 
 func _discover_ui_elements():
-	"""Discover UI elements scoped to this tab's subtree"""
 	await get_tree().process_frame
 
 	var ui_nodes = find_children("*", "", true, false)
 	for node in ui_nodes:
 		if not node.is_in_group("character_tab_ui"):
 			continue
-		match node.get_meta("ui_role", ""):
+		var role = node.get_meta("ui_role", "")
+		match role:
 			"class_label": class_label = node
 			"level_label": level_label = node
 			"exp_label": exp_label = node
 			"exp_bar": exp_bar = node
-			"stats_container": stats_container = node
+			"hp_bar": hp_bar = node
+			"mana_bar": mana_bar = node
+			"stat_strength", "stat_agility", "stat_intellect", "stat_luck":
+				stat_rows[role] = node
+			"stat_armor": armor_row = node
+			"stat_barrier": barrier_row = node
+			"elemental_section": elemental_section = node
+			"alignment_virtue": virtue_axis = node
+			"alignment_order": order_axis = node
+			"gold_amount": gold_amount_label = node
+			"components_container": components_container = node
 
-	if class_label: print("  ✓ Class label registered")
-	if level_label: print("  ✓ Level label registered")
-	if exp_label: print("  ✓ Exp label registered")
-	if exp_bar: print("  ✓ Exp bar registered")
-	if stats_container: print("  ✓ Stats container registered")
+		# Elemental stat rows
+		if role in ELEM_DMG_MAP or role in ELEM_RESIST_MAP:
+			elemental_rows[role] = node
+
+	if elemental_section:
+		elemental_section.set_title("Elemental Stats")
 
 # ============================================================================
 # PUBLIC API
 # ============================================================================
 
 func set_player(p_player: Player):
-	"""Set player and refresh (called by parent)"""
 	player = p_player
 
 	if player:
@@ -79,25 +161,31 @@ func set_player(p_player: Player):
 		if player.has_signal("equipment_changed") and not player.equipment_changed.is_connected(_on_player_equipment_changed):
 			player.equipment_changed.connect(_on_player_equipment_changed)
 
+	# Connect GameState counter changes for alignment
+	if not GameState.counters.counter_changed.is_connected(_on_counter_changed):
+		GameState.counters.counter_changed.connect(_on_counter_changed)
+
 	refresh()
 
 func refresh():
-	"""Refresh all displayed data"""
 	if not player:
 		return
-	_update_class_info()
-	_update_stats_display()
+	_update_header()
+	_update_vitals()
+	_update_primary_stats()
+	_update_defense()
+	_update_elemental_stats()
+	_update_alignment()
+	_update_currencies()
 
 func on_external_data_change():
-	"""Called when other tabs modify player data"""
 	refresh()
 
 # ============================================================================
 # HEADER — Class / Level / XP
 # ============================================================================
 
-func _update_class_info():
-	"""Update class name, level, and experience"""
+func _update_header():
 	if not player.active_class:
 		if class_label:
 			class_label.text = "No Class Selected"
@@ -111,87 +199,53 @@ func _update_class_info():
 	if level_label:
 		level_label.text = "Level %d" % active_class.level
 
-	if exp_bar and exp_label:
-		exp_bar.show_percentage = false
-		exp_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		exp_bar.custom_minimum_size = Vector2(0, BAR_HEIGHT)
+	if exp_bar:
 		var exp_progress = active_class.get_exp_progress()
-		exp_bar.value = exp_progress * 100
+		var current_exp = active_class.experience
+		var next_level_exp = active_class.get_exp_for_next_level()
+		exp_bar.set_values("Exp", current_exp, next_level_exp,
+			ThemeManager.PALETTE.experience, null)
 
-		# Style exp bar fill — yellow/warning color
-		var exp_fill = StyleBoxFlat.new()
-		exp_fill.bg_color = ThemeManager.PALETTE.warning
-		exp_fill.set_corner_radius_all(BAR_CORNER_RADIUS)
-		exp_bar.add_theme_stylebox_override("fill", exp_fill)
-
-		# Style exp bar background
-		var exp_bg = StyleBoxFlat.new()
-		exp_bg.bg_color = ThemeManager.PALETTE.bg_dark
-		exp_bg.set_corner_radius_all(BAR_CORNER_RADIUS)
-		exp_bg.border_color = ThemeManager.PALETTE.border_subtle
-		exp_bg.set_border_width_all(1)
-		exp_bar.add_theme_stylebox_override("background", exp_bg)
-
-		exp_label.text = "%d / %d" % [
-			active_class.experience,
-			active_class.get_exp_for_next_level()
-		]
+	if exp_label:
+		exp_label.text = "Exp:"
 
 # ============================================================================
-# STATS DISPLAY — Four sections only
+# VITALS — HP + Mana
 # ============================================================================
 
-func _update_stats_display():
-	"""Rebuild the stats container with player-facing sections."""
-	if not stats_container:
-		return
+func _update_vitals():
+	if hp_bar:
+		hp_bar.set_values("HP", player.current_hp, player.max_hp,
+			ThemeManager.PALETTE.health, ThemeManager.PALETTE.health_low)
 
-	for child in stats_container.get_children():
-		child.queue_free()
-
-	_build_vitals_section()
-	_add_separator()
-
-	_build_primary_stats_section()
-	_add_separator()
-
-	_build_defense_section()
-	_add_separator()
-
-	_build_gold_section()
+	if mana_bar:
+		var has_mana = player.active_class and player.active_class.mana_pool_template != null
+		mana_bar.visible = has_mana
+		if has_mana:
+			mana_bar.set_values("Mana", player.current_mana, player.max_mana,
+				ThemeManager.PALETTE.mana, null)
 
 # ============================================================================
-# SECTION BUILDERS
+# PRIMARY STATS — STR / AGI / INT / LCK
 # ============================================================================
 
-func _build_vitals_section():
-	"""HP bar"""
-	_add_section_header("Vitals")
-
-	_add_resource_bar(
-		"HP",
-		player.current_hp,
-		player.max_hp,
-		ThemeManager.PALETTE.health,
-		ThemeManager.PALETTE.health_low
-	)
-
-
-func _build_primary_stats_section():
-	"""STR / AGI / INT / LCK with base (+bonus) breakdown"""
-	_add_section_header("Primary Stats")
-
+func _update_primary_stats():
 	var stat_configs = [
-		["Strength", "strength", ThemeManager.PALETTE.strength],
-		["Agility", "agility", ThemeManager.PALETTE.agility],
-		["Intellect", "intellect", ThemeManager.PALETTE.intellect],
-		["Luck", "luck", ThemeManager.PALETTE.luck],
+		["stat_strength", "Strength", "strength", ThemeManager.PALETTE.strength],
+		["stat_agility", "Agility", "agility", ThemeManager.PALETTE.agility],
+		["stat_intellect", "Intellect", "intellect", ThemeManager.PALETTE.intellect],
+		["stat_luck", "Luck", "luck", ThemeManager.PALETTE.luck],
 	]
 
 	for config in stat_configs:
-		var display_name: String = config[0]
-		var stat_name: String = config[1]
-		var color: Color = config[2]
+		var role: String = config[0]
+		var display_name: String = config[1]
+		var stat_name: String = config[2]
+		var color: Color = config[3]
+
+		var row = stat_rows.get(role)
+		if not row:
+			continue
 
 		var base_val: int = player.get_base_stat(stat_name)
 		var total_val: int = player.get_total_stat(stat_name)
@@ -205,137 +259,152 @@ func _build_primary_stats_section():
 		else:
 			value_text = str(total_val)
 
-		_add_stat_row(display_name, value_text, color)
-
-
-func _build_defense_section():
-	"""Armor and Barrier with raw value + % reduction"""
-	_add_section_header("Defense")
-
-	var armor_val: int = player.get_armor()
-	var barrier_val: int = player.get_barrier()
-	var armor_pct: float = armor_val / (100.0 + armor_val) * 100.0 if armor_val > 0 else 0.0
-	var barrier_pct: float = barrier_val / (100.0 + barrier_val) * 100.0 if barrier_val > 0 else 0.0
-
-	_add_stat_row("Armor", "%d  (%.0f%% phys reduction)" % [armor_val, armor_pct], ThemeManager.PALETTE.armor)
-	_add_stat_row("Barrier", "%d  (%.0f%% magic reduction)" % [barrier_val, barrier_pct], ThemeManager.PALETTE.barrier)
-
-
-func _build_gold_section():
-	"""Gold display with icon placeholder"""
-	var hbox = HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 8)
-
-	# Gold icon — swap for TextureRect when asset exists:
-	# var icon = TextureRect.new()
-	# icon.texture = preload("res://assets/ui/icons/gold.png")
-	# icon.custom_minimum_size = Vector2(32, 32)
-	# icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	var icon_label = Label.new()
-	icon_label.text = "🪙"
-	icon_label.theme_type_variation = "large"
-	hbox.add_child(icon_label)
-
-	var gold_label = Label.new()
-	gold_label.text = str(player.gold)
-	gold_label.theme_type_variation = "large"
-	gold_label.add_theme_color_override("font_color", ThemeManager.PALETTE.warning)
-	hbox.add_child(gold_label)
-
-	stats_container.add_child(hbox)
+		row.set_stat(display_name, value_text, color)
 
 # ============================================================================
-# UI ELEMENT BUILDERS
+# DEFENSE — Armor + Barrier
 # ============================================================================
 
-func _add_section_header(title: String):
-	"""Section header — uses 'header' theme type variation"""
-	var label = Label.new()
-	label.text = title
-	label.theme_type_variation = "header"
-	label.add_theme_color_override("font_color", ThemeManager.PALETTE.warning)
-	stats_container.add_child(label)
+func _update_defense():
+	if armor_row:
+		var armor_val: int = player.get_armor()
+		var armor_pct: float = armor_val / (100.0 + armor_val) * 100.0 if armor_val > 0 else 0.0
+		armor_row.set_stat("Armor", "%d  (%.0f%% phys reduction)" % [armor_val, armor_pct],
+			ThemeManager.PALETTE.armor)
 
-
-func _add_stat_row(stat_name: String, value: String, color: Color = Color.WHITE):
-	"""Stat row — inherits theme default font size, no overrides"""
-	var hbox = HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 10)
-
-	if stat_name != "":
-		var name_label = Label.new()
-		name_label.text = stat_name
-		name_label.custom_minimum_size = Vector2(STAT_LABEL_MIN_WIDTH, 0)
-		name_label.add_theme_color_override("font_color", ThemeManager.PALETTE.text_secondary)
-		hbox.add_child(name_label)
-
-	var value_label = Label.new()
-	value_label.text = value
-	value_label.add_theme_color_override("font_color", color)
-	hbox.add_child(value_label)
-
-	stats_container.add_child(hbox)
-
-
-func _add_resource_bar(bar_label: String, current: int, maximum: int,
-		fill_color: Color, low_color = null):
-	"""Labeled ProgressBar with current/max text overlay"""
-	var bar_holder = Control.new()
-	bar_holder.custom_minimum_size = Vector2(0, BAR_HEIGHT)
-
-	var bar = ProgressBar.new()
-	bar.min_value = 0
-	bar.max_value = maximum if maximum > 0 else 1
-	bar.value = current
-	bar.show_percentage = false
-	bar.set_anchors_preset(Control.PRESET_FULL_RECT)
-
-	var fill_style = StyleBoxFlat.new()
-	var pct: float = float(current) / float(maximum) if maximum > 0 else 0.0
-	if low_color and pct < 0.25:
-		fill_style.bg_color = low_color
-	else:
-		fill_style.bg_color = fill_color
-	fill_style.set_corner_radius_all(BAR_CORNER_RADIUS)
-	bar.add_theme_stylebox_override("fill", fill_style)
-
-	var bg_style = StyleBoxFlat.new()
-	bg_style.bg_color = ThemeManager.PALETTE.bg_dark
-	bg_style.set_corner_radius_all(BAR_CORNER_RADIUS)
-	bg_style.border_color = ThemeManager.PALETTE.border_subtle
-	bg_style.set_border_width_all(1)
-	bar.add_theme_stylebox_override("background", bg_style)
-
-	bar_holder.add_child(bar)
-
-	# Text overlay centered on bar
-	var overlay = Label.new()
-	overlay.text = "%s: %d / %d" % [bar_label, current, maximum]
-	overlay.theme_type_variation = "small"
-	overlay.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	overlay.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	overlay.add_theme_color_override("font_color", ThemeManager.PALETTE.text_primary)
-	overlay.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
-	overlay.add_theme_constant_override("shadow_offset_x", 1)
-	overlay.add_theme_constant_override("shadow_offset_y", 1)
-	bar_holder.add_child(overlay)
-
-	stats_container.add_child(bar_holder)
-
-
-func _add_separator():
-	"""Visible line separator between sections"""
-	var sep = HSeparator.new()
-	sep.add_theme_constant_override("separation", 12)
-	var line_style = StyleBoxLine.new()
-	line_style.color = ThemeManager.PALETTE.border_subtle
-	line_style.thickness = 1
-	sep.add_theme_stylebox_override("separator", line_style)
-	stats_container.add_child(sep)
+	if barrier_row:
+		var barrier_val: int = player.get_barrier()
+		var barrier_pct: float = barrier_val / (100.0 + barrier_val) * 100.0 if barrier_val > 0 else 0.0
+		barrier_row.set_stat("Barrier", "%d  (%.0f%% magic reduction)" % [barrier_val, barrier_pct],
+			ThemeManager.PALETTE.barrier)
 
 # ============================================================================
-# SIGNAL HANDLERS (from player — bubbled up)
+# ELEMENTAL STATS — Damage bonuses + Resistances (collapsible)
+# ============================================================================
+
+func _update_elemental_stats():
+	if not player.affix_manager:
+		return
+
+	var any_visible := false
+
+	# Damage bonuses
+	for role in ELEM_DMG_MAP:
+		var row = elemental_rows.get(role)
+		if not row:
+			continue
+		var category: Affix.Category = ELEM_DMG_MAP[role]
+		var total := _sum_affix_pool(category)
+		row.visible = total != 0
+		if total != 0:
+			any_visible = true
+			var elem_key = ELEM_DISPLAY_NAMES[role].to_lower()
+			var color = ThemeManager.PALETTE.get(elem_key, ThemeManager.PALETTE.text_primary)
+			row.set_stat(ELEM_DISPLAY_NAMES[role], "+%d" % total if total > 0 else str(total), color)
+
+	# Resistances
+	for role in ELEM_RESIST_MAP:
+		var row = elemental_rows.get(role)
+		if not row:
+			continue
+		var category: Affix.Category = ELEM_RESIST_MAP[role]
+		var total := _sum_affix_pool(category)
+		row.visible = total != 0
+		if total != 0:
+			any_visible = true
+			var elem_key = ELEM_DISPLAY_NAMES[role].to_lower()
+			var color = ThemeManager.PALETTE.get(elem_key, ThemeManager.PALETTE.text_primary)
+			row.set_stat(ELEM_DISPLAY_NAMES[role], "+%d" % total if total > 0 else str(total), color)
+
+	# Hide entire section if nothing to show
+	if elemental_section:
+		elemental_section.visible = any_visible
+
+func _sum_affix_pool(category: Affix.Category) -> int:
+	var total := 0.0
+	for affix in player.affix_manager.get_pool(category):
+		total += affix.apply_effect()
+	return int(total)
+
+# ============================================================================
+# ALIGNMENT — Virtue + Order axes
+# ============================================================================
+
+func _update_alignment():
+	if virtue_axis:
+		var virtue_val: int = GameState.counters.get_counter(&"virtue")
+		virtue_axis.set_axis("Evil", "Good", virtue_val)
+
+	if order_axis:
+		var order_val: int = GameState.counters.get_counter(&"order")
+		order_axis.set_axis("Chaotic", "Orderly", order_val)
+
+# ============================================================================
+# CURRENCIES — Gold + Crafting Components
+# ============================================================================
+
+func _update_currencies():
+	# Gold
+	if gold_amount_label:
+		gold_amount_label.text = str(player.gold)
+		gold_amount_label.add_theme_color_override("font_color", ThemeManager.PALETTE.warning)
+
+	# Crafting components
+	if not components_container:
+		return
+
+	var current_components: Dictionary = player.crafting_components if player.crafting_components else {}
+
+	# Remove rows for components that no longer exist
+	for comp_id in _component_row_cache.keys():
+		if not current_components.has(comp_id):
+			_component_row_cache[comp_id].queue_free()
+			_component_row_cache.erase(comp_id)
+
+	# Add or update rows
+	for comp_id in current_components:
+		var amount: int = current_components[comp_id]
+		if amount <= 0:
+			if _component_row_cache.has(comp_id):
+				_component_row_cache[comp_id].visible = false
+			continue
+
+		var row = _component_row_cache.get(comp_id)
+		if not row:
+			row = CurrencyRowScene.instantiate()
+			components_container.add_child(row)
+			_component_row_cache[comp_id] = row
+			# Wait a frame for the row's _ready to fire
+			await get_tree().process_frame
+
+		var comp_def = _find_component_definition(comp_id)
+		var display_name = comp_def.display_name if comp_def else str(comp_id)
+		var icon = comp_def.icon if comp_def else null
+		var fallback = comp_def.abbreviation if comp_def else str(comp_id).left(3)
+		var rarity_color = _get_rarity_color(comp_def.rarity_tier if comp_def else 0)
+
+		row.visible = true
+		row.set_currency(icon, display_name, amount, rarity_color, fallback)
+
+func _find_component_definition(comp_id: StringName):
+	if not smithing_config:
+		return null
+	for comp_def in smithing_config.components:
+		if comp_def.component_id == comp_id:
+			return comp_def
+	return null
+
+func _get_rarity_color(tier: int) -> Color:
+	match tier:
+		0: return ThemeManager.PALETTE.rarity_common
+		1: return ThemeManager.PALETTE.rarity_uncommon
+		2: return ThemeManager.PALETTE.rarity_rare
+		3: return ThemeManager.PALETTE.rarity_epic
+		4: return ThemeManager.PALETTE.rarity_legendary
+		_: return ThemeManager.PALETTE.text_primary
+
+# ============================================================================
+# SIGNAL HANDLERS
 # ============================================================================
 
 func _on_player_hp_changed(_current: int, _maximum: int):
@@ -349,3 +418,7 @@ func _on_player_stat_changed(_stat_name: String, _old_value, _new_value):
 func _on_player_equipment_changed(_slot: String, _item):
 	refresh()
 	data_changed.emit()
+
+func _on_counter_changed(counter_name: StringName, _old_value: int, _new_value: int):
+	if counter_name == &"virtue" or counter_name == &"order":
+		_update_alignment()

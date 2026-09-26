@@ -1,0 +1,161 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=32 format=3 uid="uid://cu0kmodvevgh6"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_klwny"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_26h7c"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="9_icflt"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_armor_agi_skirmisher.tres" id="10_i8c5g"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_piercing.tres" id="11_xjnl6"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="12_i18nf"]
+[ext_resource type="Resource" uid="uid://cighdri7vsxve" path="res://resources/affixes/base_stats/enemy/enemy_health_agi_skirmisher.tres" id="13_vea05"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="14_daq23"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="15_ekcys"]
+[ext_resource type="PackedScene" uid="uid://dx08yqjhk2hu0" path="res://scenes/ui/components/dice/combat/combat_die_d10.tscn" id="16_rqwf4"]
+[ext_resource type="Resource" uid="uid://dc86xxo6gws3l" path="res://resources/affixes/elements/piercing_element.tres" id="17_p62fm"]
+[ext_resource type="Texture2D" uid="uid://klk23dga0emp" path="res://assets/dice/d10s/d10-fill-basic.png" id="18_payyu"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="19_nmso1"]
+[ext_resource type="PackedScene" uid="uid://biqti34m42xcy" path="res://scenes/ui/components/dice/pool/pool_die_d10.tscn" id="20_5el3x"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="20_67dws"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="21_joetr"]
+[ext_resource type="Texture2D" uid="uid://bnn478mo72l40" path="res://assets/dice/d10s/d10-stroke-basic.png" id="21_uop2k"]
+[ext_resource type="Resource" uid="uid://cupp6q7klqtkq" path="res://resources/enemy_templates/skirmisher_agi.tres" id="22_56atc"]
+[ext_resource type="Resource" uid="uid://cwtbdurm1cq0j" path="res://resources/actions/navy/navy_quick_shot.tres" id="32_quick_sh"]
+[ext_resource type="Resource" uid="uid://dxacyp2ejatjy" path="res://resources/actions/navy/navy_smoke_pellet.tres" id="33_smoke_pe"]
+[ext_resource type="Resource" uid="uid://he2k2ol0ybib" path="res://resources/actions/navy/navy_marked_shot.tres" id="34_marked_s"]
+
+[sub_resource type="Resource" id="Resource_35vfu"]
+script = ExtResource("1_klwny")
+element_preference = 0.4
+heal_urgency = 0.3
+status_awareness = 0.7
+
+
+[sub_resource type="Resource" id="Resource_0vfv1"]
+script = ExtResource("19_nmso1")
+affix_name = "Marked Target"
+description = "Last die used applies Expose to enemy."
+trigger = 1
+position_requirement = 2
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "expose",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_ivpxr"]
+script = ExtResource("15_ekcys")
+display_name = "Piercing D10"
+die_type = 10
+element = 3
+element_affix = ExtResource("17_p62fm")
+fill_texture = ExtResource("18_payyu")
+stroke_texture = ExtResource("21_uop2k")
+combat_die_scene = ExtResource("16_rqwf4")
+pool_die_scene = ExtResource("20_5el3x")
+inherent_affixes = Array[ExtResource("19_nmso1")]([SubResource("Resource_0vfv1")])
+
+
+[sub_resource type="Resource" id="Resource_73xfg"]
+script = ExtResource("19_nmso1")
+affix_name = "Marked Target"
+description = "Last die used applies Expose to enemy."
+trigger = 1
+position_requirement = 2
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "expose",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_lg5xu"]
+script = ExtResource("15_ekcys")
+display_name = "Piercing D10"
+die_type = 10
+element = 3
+element_affix = ExtResource("17_p62fm")
+fill_texture = ExtResource("18_payyu")
+stroke_texture = ExtResource("21_uop2k")
+combat_die_scene = ExtResource("16_rqwf4")
+pool_die_scene = ExtResource("20_5el3x")
+inherent_affixes = Array[ExtResource("19_nmso1")]([SubResource("Resource_73xfg")])
+
+
+[sub_resource type="Resource" id="Resource_icflt"]
+script = ExtResource("19_nmso1")
+affix_name = "Marked Target"
+description = "Last die used applies Expose to enemy."
+trigger = 1
+position_requirement = 2
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "expose",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_i8c5g"]
+script = ExtResource("15_ekcys")
+display_name = "Piercing D10"
+die_type = 10
+element = 3
+element_affix = ExtResource("17_p62fm")
+fill_texture = ExtResource("18_payyu")
+stroke_texture = ExtResource("21_uop2k")
+combat_die_scene = ExtResource("16_rqwf4")
+pool_die_scene = ExtResource("20_5el3x")
+inherent_affixes = Array[ExtResource("19_nmso1")]([SubResource("Resource_icflt")])
+
+
+[sub_resource type="Resource" id="Resource_xjnl6"]
+script = ExtResource("19_nmso1")
+affix_name = "Marked Target"
+description = "Last die used applies Expose to enemy."
+trigger = 1
+position_requirement = 2
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "expose",
+"target": "enemy"
+}
+
+
+[sub_resource type="Resource" id="Resource_i18nf"]
+script = ExtResource("15_ekcys")
+display_name = "Piercing D10"
+die_type = 10
+element = 3
+element_affix = ExtResource("17_p62fm")
+fill_texture = ExtResource("18_payyu")
+stroke_texture = ExtResource("21_uop2k")
+combat_die_scene = ExtResource("16_rqwf4")
+pool_die_scene = ExtResource("20_5el3x")
+inherent_affixes = Array[ExtResource("19_nmso1")]([SubResource("Resource_xjnl6")])
+
+
+[resource]
+script = ExtResource("14_daq23")
+enemy_name = "Chief Scout"
+description = "Sanctum Navy Chief Scout."
+template = ExtResource("22_56atc")
+combat_role = 1
+enemy_tags = PackedStringArray("navy", "humanoid")
+max_health = 25
+starting_dice = Array[ExtResource("15_ekcys")]([SubResource("Resource_ivpxr"), SubResource("Resource_lg5xu"), SubResource("Resource_i8c5g"), SubResource("Resource_i18nf")])
+combat_actions = Array[ExtResource("2_26h7c")]([ExtResource("32_quick_sh"), ExtResource("33_smoke_pe"), ExtResource("34_marked_s")])
+ai_config = SubResource("Resource_35vfu")
+action_delay = 0.7
+dice_drag_duration = 0.35
+experience_reward = 75
+gold_reward_min = 25
+gold_reward_max = 75
+enemy_tier = 2
+enemy_archetype = 2
+enemy_level_floor = 5
+level_scaling_multiplier = 1.0
+health_affix = ExtResource("13_vea05")
+enemy_affixes = Array[ExtResource("9_icflt")]([ExtResource("10_i8c5g"), ExtResource("11_xjnl6")])

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=5 format=3 uid="uid://djb4yhs57iwft"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_wtwm5"]
+[ext_resource type="Resource" uid="uid://bstk4gbocsuxc" path="res://resources/enemies/region1/navy/elite/enforcer_sergeant.tres" id="2_lk70i"]
+[ext_resource type="Resource" uid="uid://dmx1mjmpdg3hm" path="res://resources/enemies/region1/navy/elite/staff_sergeant.tres" id="3_bss4p"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="4_bwwko"]
+
+[resource]
+script = ExtResource("4_bwwko")
+encounter_name = "Enforcer Patrol"
+encounter_id = "navy_enforcer_patrol"
+enemies = Array[ExtResource("1_wtwm5")]([ExtResource("2_lk70i"), ExtResource("3_bss4p")])
+enemy_slots = Array[int]([0, 2])
+difficulty_tier = 4
+level_range_min = 3
+level_range_max = 6

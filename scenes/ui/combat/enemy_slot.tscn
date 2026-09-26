@@ -1,13 +1,13 @@
 [gd_scene load_steps=10 format=3 uid="uid://c1kmjpwav45is"]
 
 [ext_resource type="Script" uid="uid://c6e0qeqjwtccy" path="res://scripts/ui/combat/enemy_slot.gd" id="1_8vtss"]
-[ext_resource type="Texture2D" uid="uid://dc5foqfr0fuu4" path="res://assets/ui/panels/enemy_panels/enemy_portrait_bg.png" id="2_d82ij"]
+[ext_resource type="Texture2D" uid="uid://b6k4v1xngvnvq" path="res://assets/ui/PLACEHOLDER UI/darkModalSimple_dark.png" id="2_d82ij"]
 [ext_resource type="Texture2D" uid="uid://bacrlq8i11ylv" path="res://assets/characters/enemies/test_dummy_512.png" id="2_gfm45"]
 [ext_resource type="Texture2D" uid="uid://c6sqtdxnbp2ab" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_bg.png" id="4_gbqgq"]
 [ext_resource type="Texture2D" uid="uid://bhdufq5sfxngf" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_stroke_basic.png" id="5_eor83"]
-[ext_resource type="Texture2D" uid="uid://g0ilrcqtng8h" path="res://assets/ui/panels/enemy_panels/enemy_portrait_frame.png" id="5_f8sju"]
 [ext_resource type="Texture2D" uid="uid://bgqcm8i82101" path="res://assets/ui/progress_bars/basic progress bar/progress_bar_fill_hp.png" id="6_d82ij"]
 [ext_resource type="Material" uid="uid://ds1pontd84jdi" path="res://resources/materials/crosshair_reticle_material.tres" id="8_d82ij"]
+[ext_resource type="Theme" uid="uid://b87llggw1n1df" path="res://resources/themes/base_theme.tres" id="8_f8sju"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_fsuwb"]
 
@@ -18,6 +18,7 @@ theme_override_styles/panel = SubResource("StyleBoxEmpty_fsuwb")
 script = ExtResource("1_8vtss")
 die_icon_size = Vector2(36, 36)
 portrait_size = Vector2(300, 300)
+metadata/floater_origin_y_factor = 0.75
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
@@ -39,6 +40,7 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = 16.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("2_d82ij")
@@ -67,7 +69,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("5_f8sju")
 
 [node name="HealthBar" type="TextureProgressBar" parent="MarginContainer/VBox/PortraitSection"]
 custom_minimum_size = Vector2(100, 16)
@@ -89,20 +90,6 @@ texture_under = ExtResource("4_gbqgq")
 texture_over = ExtResource("5_eor83")
 texture_progress = ExtResource("6_d82ij")
 
-[node name="NameLabel" type="Label" parent="MarginContainer/VBox/PortraitSection"]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -90.0
-offset_top = -24.0
-offset_right = 90.0
-offset_bottom = 53.0
-grow_horizontal = 2
-theme_type_variation = &"normal"
-text = "<Name>"
-horizontal_alignment = 1
-
 [node name="ReticleRect" type="ColorRect" parent="MarginContainer/VBox/PortraitSection"]
 visible = false
 material = ExtResource("8_d82ij")
@@ -117,6 +104,26 @@ offset_bottom = 12.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="MarginContainer/VBox/PortraitSection"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -94.5
+offset_top = -62.53
+offset_right = 94.5
+offset_bottom = 38.47
+grow_horizontal = 2
+theme = ExtResource("8_f8sju")
+theme_type_variation = &"nameplate"
+
+[node name="NameLabel" type="Label" parent="MarginContainer/VBox/PortraitSection/PanelContainer"]
+layout_mode = 2
+theme_type_variation = &"normal"
+text = "<Name>"
+horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="Control" type="Control" parent="MarginContainer/VBox"]
 custom_minimum_size = Vector2(0, 10)

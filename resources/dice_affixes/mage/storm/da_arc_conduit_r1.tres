@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("3_nrsf4")
 affix_name = "Arc Conduit I: Extra Chain"
-description = "Chains hit +1 target. Bounces apply 1 Static."
+description = "Chains hit +1 target. Bounces apply 1 [status:static]."
 use_global_element_visuals = true
 global_element_type = 5
 trigger = 1

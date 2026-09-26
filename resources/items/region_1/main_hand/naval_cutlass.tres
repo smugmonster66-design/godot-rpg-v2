@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=14 format=3 uid="uid://cvaptd3rg4lsg"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=16 format=3 uid="uid://cvaptd3rg4lsg"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_8db64"]
 [ext_resource type="Resource" uid="uid://b2lr4vrn2kmlb" path="res://resources/actions/items/region_1/naval_cutlass_sweep_action.tres" id="1_n5rm6"]
@@ -9,9 +9,11 @@
 [ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="4_n12cx"]
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="5_n5rm6"]
 [ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="6_0mf5p"]
+[ext_resource type="PackedScene" uid="uid://de8q4axqsu2ki" path="res://scenes/ui/components/dice/combat/combat_die_d6.tscn" id="6_i7xfq"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="7_i7xfq"]
 [ext_resource type="Resource" uid="uid://hnmjxghaf5mm" path="res://resources/slot_definitions/main_hand_slot.tres" id="8_g4b4v"]
-[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="9_n12cx"]
+[ext_resource type="PackedScene" uid="uid://bxqtkedv2ygd3" path="res://scenes/ui/components/dice/pool/pool_die_d6.tscn" id="10_g4b4v"]
+[ext_resource type="Texture2D" uid="uid://cilckm38qvwhx" path="res://assets/items/main hand/naval cutlass.png" id="12_i7xfq"]
 
 [sub_resource type="Resource" id="Resource_8db64"]
 script = ExtResource("2_a1tb1")
@@ -20,12 +22,15 @@ element = 1
 element_affix = ExtResource("3_kbm27")
 fill_texture = ExtResource("4_n12cx")
 stroke_texture = ExtResource("6_0mf5p")
+combat_die_scene = ExtResource("6_i7xfq")
+pool_die_scene = ExtResource("10_g4b4v")
 
 [resource]
 script = ExtResource("7_i7xfq")
 item_name = "Naval Cutlass"
 description = ""
 flavor_text = "Standard-issue naval sidearm. Approved for deck combat, corridor fighting, and aggressive negotiation."
+icon = ExtResource("12_i7xfq")
 rarity = 1
 has_elemental_identity = true
 slot_definition = ExtResource("8_g4b4v")

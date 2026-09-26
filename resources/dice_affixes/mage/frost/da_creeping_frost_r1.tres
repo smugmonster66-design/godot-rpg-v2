@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_j2hnd")
 affix_name = "Creeping Frost I: Chill on Use"
-description = "Apply 1 Chill on use."
+description = "Apply 1 [status:chill] on use."
 use_global_element_visuals = true
 global_element_type = 4
 trigger = 1

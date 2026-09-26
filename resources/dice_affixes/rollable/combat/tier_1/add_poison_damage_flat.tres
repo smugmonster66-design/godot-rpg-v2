@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_t52bi")
 affix_name = "Venomous"
-description = "+N flat poison damage on use"
+description = "+N flat [element:poison] damage on use"
 affix_tier = 1
 trigger = 1
 effect_type = 15

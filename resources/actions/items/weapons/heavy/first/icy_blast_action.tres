@@ -9,7 +9,7 @@
 script = ExtResource("2_ef3gx")
 action_id = "icy_blast"
 action_name = "Icy Blast"
-action_description = "A blast of freezing wind that deals 1D Ice damage to all enemies and applies 3 Chill stacks."
+action_description = "A blast of freezing wind that deals 1D [element:ice] damage to all enemies and applies 3 [status:chill] stacks."
 charge_type = 1
 effects = Array[ExtResource("1_872f5")]([ExtResource("2_dmdyt"), ExtResource("3_yd0je")])
 metadata/_custom_type_script = "uid://b1kctq61bwysh"

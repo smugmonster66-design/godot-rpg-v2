@@ -1,0 +1,74 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/npc_dialogue_manager/panels/dialogue_table_panel.gd" id="1_script"]
+
+[node name="DialogueTablePanel" type="PanelContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_script")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="TopBar" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="HeaderLabel" type="Label" parent="VBox/TopBar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Dialogues"
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+
+[node name="AddButton" type="Button" parent="VBox/TopBar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+ Add"
+tooltip_text = "Add a new dialogue entry"
+
+[node name="DeleteButton" type="Button" parent="VBox/TopBar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Delete"
+tooltip_text = "Delete selected entry"
+
+[node name="ColumnHeaders" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="PriHeader" type="Label" parent="VBox/ColumnHeaders"]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+text = "Pri"
+theme_override_font_sizes/font_size = 11
+
+[node name="IdHeader" type="Label" parent="VBox/ColumnHeaders"]
+layout_mode = 2
+text = "Encounter ID"
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+
+[node name="CondHeader" type="Label" parent="VBox/ColumnHeaders"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Condition"
+theme_override_font_sizes/font_size = 11
+
+[node name="OneShotHeader" type="Label" parent="VBox/ColumnHeaders"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+text = "1x"
+tooltip_text = "One-shot"
+theme_override_font_sizes/font_size = 11
+
+[node name="HSeparator" type="HSeparator" parent="VBox"]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="EntryList" type="VBoxContainer" parent="VBox/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3

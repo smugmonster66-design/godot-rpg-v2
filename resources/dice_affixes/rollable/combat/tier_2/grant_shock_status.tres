@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_jual3")
 affix_name = "Jolting"
-description = "Apply Shock on use"
+description = "Apply [status:static|Shock] on use"
 affix_tier = 2
 trigger = 1
 effect_type = 16
@@ -15,5 +15,5 @@ effect_value = 1.0
 effect_data = {
 "duration": 2,
 "stacks": 1,
-"status": "shock"
+"status": "static"
 }

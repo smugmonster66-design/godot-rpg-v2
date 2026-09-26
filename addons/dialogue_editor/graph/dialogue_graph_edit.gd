@@ -16,6 +16,7 @@ const LineNode = preload("res://addons/dialogue_editor/nodes/line_node.tscn")
 const ChoiceNode = preload("res://addons/dialogue_editor/nodes/choice_node.tscn")
 const ConditionNode = preload("res://addons/dialogue_editor/nodes/condition_node.tscn")
 const SetFlagNode = preload("res://addons/dialogue_editor/nodes/set_flag_node.tscn")
+const ActionNode = preload("res://addons/dialogue_editor/nodes/action_node.tscn")
 const EndNode = preload("res://addons/dialogue_editor/nodes/end_node.tscn")
 
 # ============================================================================
@@ -131,6 +132,19 @@ func add_set_flag_node(at_position: Vector2 = Vector2.ZERO) -> GraphNode:
 	
 	var node = SetFlagNode.instantiate()
 	node.name = "SetFlagNode_%d" % _node_counter
+	_node_counter += 1
+	node.position_offset = at_position
+	add_child(node)
+	_connect_node_signals(node)
+	modified.emit()
+	return node
+
+func add_action_node(at_position: Vector2 = Vector2.ZERO) -> GraphNode:
+	if at_position == Vector2.ZERO:
+		at_position = _get_center_position()
+
+	var node = ActionNode.instantiate()
+	node.name = "ActionNode_%d" % _node_counter
 	_node_counter += 1
 	node.position_offset = at_position
 	add_child(node)
@@ -300,6 +314,7 @@ func _show_add_node_popup(at_position: Vector2) -> void:
 	popup.add_separator()
 	popup.add_item("Add Condition Node", 2)
 	popup.add_item("Add Set Flag Node", 3)
+	popup.add_item("Add Action Node", 5)
 	popup.add_separator()
 	popup.add_item("Add End Node", 4)
 	popup.id_pressed.connect(func(id):
@@ -310,6 +325,7 @@ func _show_add_node_popup(at_position: Vector2) -> void:
 			2: add_condition_node(graph_pos)
 			3: add_set_flag_node(graph_pos)
 			4: add_end_node(graph_pos)
+			5: add_action_node(graph_pos)
 		popup.queue_free()
 	)
 	add_child(popup)

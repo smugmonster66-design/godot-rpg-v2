@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_j0cfw")
 affix_name = "Galvanic Renewal I"
-description = "On shock kill: gain 1 free shock die to hand. Max 1/turn."
+description = "On [element:shock] kill: gain 1 free [element:shock] die to hand. Max 1/turn."
 category = 35
 tags = Array[String](["mage", "storm", "proc", "kill", "die_generation"])
 effect_number = 1.0

@@ -63,10 +63,14 @@ func apply_type_multiplier(type: ActionEffect.DamageType, multiplier: float):
 # CALCULATE FINAL DAMAGE
 # ============================================================================
 
-## Tuning constant for percentage defense formula.
-## Higher = defense less effective. Lower = defense more effective.
-## At 100: 50 def = 33% reduction, 100 def = 50%, 200 def = 67%.
-const DEFENSE_CONSTANT: float = 100.0
+## Tuning constant for the percentage portion of the hybrid defense formula.
+## After flat subtraction, remaining damage is reduced by defense/(K + defense).
+## At 50: 10 def = 17% of remainder, 50 def = 50%, 120 def = 71%.
+const DEFENSE_CONSTANT: float = 50.0
+
+## Maximum fraction of damage that flat subtraction can remove.
+## Prevents full immunity at low damage values.
+const FLAT_DEFENSE_CAP: float = 0.75
 
 
 func calculate_final_damage(defender_stats: Dictionary, defense_mult: float = 1.0) -> int:
@@ -98,9 +102,16 @@ func calculate_final_damage(defender_stats: Dictionary, defense_mult: float = 1.
 		# Step 2: Get defense stat (armor for physical, barrier for magical)
 		var defense: float = _get_defense_for_type(type, defender_stats) * defense_mult
 		
-		# Step 3: Percentage reduction with diminishing returns
-		var reduction_pct: float = defense / (DEFENSE_CONSTANT + defense) if defense > 0.0 else 0.0
-		total += damage * (1.0 - reduction_pct)
+		# Step 3: Hybrid defense — flat subtraction then percentage reduction
+		if defense > 0.0:
+			# Flat portion: subtract defense directly, capped at 75% of damage
+			var flat_reduction: float = minf(defense, damage * FLAT_DEFENSE_CAP)
+			var remaining: float = damage - flat_reduction
+			# Percentage portion: diminishing returns on what's left
+			var pct_reduction: float = defense / (DEFENSE_CONSTANT + defense)
+			total += remaining * (1.0 - pct_reduction)
+		else:
+			total += damage
 	
 	return roundi(total)
 

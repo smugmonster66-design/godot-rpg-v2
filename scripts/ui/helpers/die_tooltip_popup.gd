@@ -16,9 +16,9 @@ signal dismissed
 @onready var backdrop: ColorRect = $Backdrop
 @onready var tooltip_panel: PanelContainer = $TooltipPanel
 @onready var vbox: VBoxContainer = $TooltipPanel/VBox
-@onready var header_label: Label = $TooltipPanel/VBox/HeaderLabel
-@onready var subtitle_label: Label = $TooltipPanel/VBox/SubtitleLabel
-@onready var flavor_label: Label = $TooltipPanel/VBox/FlavorLabel
+@onready var header_label: RichTextLabel = $TooltipPanel/VBox/HeaderLabel
+@onready var subtitle_label: RichTextLabel = $TooltipPanel/VBox/SubtitleLabel
+@onready var flavor_label: RichTextLabel = $TooltipPanel/VBox/FlavorLabel
 @onready var affix_container: VBoxContainer = $TooltipPanel/VBox/AffixContainer
 
 # ============================================================================
@@ -68,13 +68,14 @@ func _populate(die_res: DieResource):
 	var is_unique = size_tag not in die_res.display_name
 
 	# Header — always visible
-	header_label.text = die_res.display_name
+	DescriptionParser.set_bbcode(header_label, "[center]%s[/center]" % die_res.display_name)
 
 	# Subtitle — unique dice only
 	if is_unique:
 		var elem_name = die_res.get_element_name() if die_res.has_element() else ""
-		subtitle_label.text = "%s %s" % [elem_name, size_tag] if elem_name else size_tag
-		subtitle_label.add_theme_color_override("font_color", ThemeManager.PALETTE.text_muted)
+		var sub_text = "%s %s" % [elem_name, size_tag] if elem_name else size_tag
+		DescriptionParser.set_bbcode(subtitle_label, "[center]%s[/center]" % sub_text)
+		subtitle_label.add_theme_color_override("default_color", ThemeManager.PALETTE.text_muted)
 		subtitle_label.show()
 	else:
 		subtitle_label.hide()
@@ -83,8 +84,8 @@ func _populate(die_res: DieResource):
 	if is_unique and die_res.has_method("get_flavor_text"):
 		var flavor = die_res.get_flavor_text()
 		if flavor and flavor != "":
-			flavor_label.text = flavor
-			flavor_label.add_theme_color_override("font_color", ThemeManager.PALETTE.danger)
+			DescriptionParser.set_bbcode(flavor_label, "[center]%s[/center]" % flavor)
+			flavor_label.add_theme_color_override("default_color", ThemeManager.PALETTE.danger)
 			flavor_label.show()
 		else:
 			flavor_label.hide()
@@ -97,20 +98,18 @@ func _populate(die_res: DieResource):
 		if not dice_affix:
 			continue
 
-		var affix_label = Label.new()
-		affix_label.theme_type_variation = "DieTooltipDetails"
-		affix_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-
-		# Get description text
+		# Build text first, then create rich label
+		var affix_text: String
 		if dice_affix.has_method("get_formatted_description"):
-			affix_label.text = dice_affix.get_formatted_description()
+			affix_text = dice_affix.get_formatted_description()
 		else:
-			affix_label.text = dice_affix.affix_name
+			affix_text = dice_affix.affix_name
 
 		# Replace N placeholders with stamped values
-		affix_label.text = _replace_placeholders(affix_label.text, dice_affix)
+		affix_text = _replace_placeholders(affix_text, dice_affix)
 
-		affix_label.add_theme_color_override("font_color", ThemeManager.PALETTE.success)
+		var affix_label = DescriptionParser.make_rich_label(affix_text, ThemeManager.PALETTE.success)
+		affix_label.theme_type_variation = "DieTooltipDetails"
 		affix_container.add_child(affix_label)
 
 # ============================================================================

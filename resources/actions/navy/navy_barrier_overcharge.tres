@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="Action" load_steps=13 format=3 uid="uid://c78g4f4jc6qec"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_23jc5"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_gegrk"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_m086m"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_gegrk"]
+[ext_resource type="Resource" uid="uid://bau0ilngqxftf" path="res://resources/statuses/warded.tres" id="4_kv6l1"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="5_0stkq"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="6_10rkr"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="7_7irdu"]
+
+[sub_resource type="Resource" id="Resource_23jc5"]
+script = ExtResource("1_23jc5")
+condition = 9
+threshold = 2.0
+bonus_value = 40.0
+
+[sub_resource type="Resource" id="Resource_m086m"]
+script = ExtResource("1_23jc5")
+condition = 9
+threshold = 1.0
+bonus_value = 20.0
+
+[sub_resource type="Resource" id="Resource_gegrk"]
+script = ExtResource("3_gegrk")
+effect_name = "Overcharge All Wards"
+target = 4
+effect_type = 2
+status_affix = ExtResource("4_kv6l1")
+stack_count = 3
+
+[sub_resource type="Resource" id="Resource_kv6l1"]
+script = ExtResource("3_gegrk")
+effect_name = "Overcharge Self Ward"
+target = 0
+effect_type = 2
+status_affix = ExtResource("4_kv6l1")
+stack_count = 2
+
+[resource]
+script = ExtResource("7_7irdu")
+action_id = "navy_barrier_overcharge"
+action_name = "Barrier Overcharge"
+action_description = "Overcharge all allies with protective wards."
+action_category = 1
+damage_element = 7
+charge_type = 2
+max_charges = 2
+effects = Array[ExtResource("3_gegrk")]([SubResource("Resource_gegrk"), SubResource("Resource_kv6l1")])
+ai_hints = Array[ExtResource("1_23jc5")]([SubResource("Resource_23jc5"), SubResource("Resource_m086m")])
+action_type = 1

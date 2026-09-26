@@ -1,34 +1,16 @@
-[gd_resource type="Resource" script_class="Affix" load_steps=10 format=3 uid="uid://yf3o1l8lqxdf"]
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://yf3o1l8lqxdf"]
 
-[ext_resource type="Script" uid="uid://dr4wi010mkffl" path="res://resources/data/dice_affix_condition.gd" id="1_apkre"]
-[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_4i6mv"]
-[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_dr0a3"]
-[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_3unjr"]
-[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="5_gwbca"]
-[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="6_wmto2"]
-[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="7_2lmsx"]
-
-[sub_resource type="Resource" id="Resource_5g6vy"]
-script = ExtResource("1_apkre")
-type = 15
-invert = true
-condition_element = "FIRE"
-
-[sub_resource type="Resource" id="Resource_apkre"]
-script = ExtResource("3_dr0a3")
-affix_name = "Hearthfire II: Non-Fire Neighbor Bonus"
-description = "Fire die next to a non-fire die gains +2."
-use_global_element_visuals = true
-global_element_type = 3
-condition = SubResource("Resource_5g6vy")
-effect_value = 2.0
+[ext_resource type="Resource" uid="uid://dyd6q8levjixd" path="res://resources/dice_affixes/mage/flame/da_hearthfire_r2.tres" id="1_nls1u"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_k0lrc"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_gvw31"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_apkre"]
 
 [resource]
-script = ExtResource("6_wmto2")
+script = ExtResource("3_gvw31")
 affix_name = "Hearthfire II"
-description = "+2 when adjacent to a non-fire die."
+description = "[element:fire] die next to non-fire die: gain 2 [status:fortified]."
 category = 39
-tags = Array[String](["mage", "flame", "mana_die_affix"])
+tags = Array[String](["mage", "flame", "mana_die_affix", "defense", "positional", "armor"])
 effect_data = {
-"dice_affix": SubResource("Resource_apkre")
+"dice_affix": ExtResource("1_nls1u")
 }

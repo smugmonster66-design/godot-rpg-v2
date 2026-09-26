@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=15 format=3 uid="uid://bs2egaqy2fmij"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=17 format=3 uid="uid://bs2egaqy2fmij"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_h1wbq"]
 [ext_resource type="Resource" uid="uid://2npuvj6x2qqn" path="res://resources/actions/items/region_1/frost_staff_frost_bolt_action.tres" id="1_my3n5"]
@@ -8,10 +8,12 @@
 [ext_resource type="Resource" uid="uid://6rsbaoccvjqc" path="res://resources/affixes/elements/ice_element.tres" id="3_hmfib"]
 [ext_resource type="Texture2D" uid="uid://dr42i14gm0fjv" path="res://assets/dice/D6s/d6-basic-fill.png" id="4_4ywql"]
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="5_my3n5"]
+[ext_resource type="PackedScene" uid="uid://de8q4axqsu2ki" path="res://scenes/ui/components/dice/combat/combat_die_d6.tscn" id="6_2bi5e"]
 [ext_resource type="Texture2D" uid="uid://bur1msy570ruf" path="res://assets/dice/D6s/d6-basic-stroke.png" id="6_qqo26"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="7_2bi5e"]
 [ext_resource type="Resource" uid="uid://dmbm1ao1pu7q4" path="res://resources/slot_definitions/heavy_slot.tres" id="8_bg8u3"]
 [ext_resource type="Texture2D" uid="uid://cmml8rt2ea3gi" path="res://assets/items/main hand/frost staff.png" id="9_4ywql"]
+[ext_resource type="PackedScene" uid="uid://bxqtkedv2ygd3" path="res://scenes/ui/components/dice/pool/pool_die_d6.tscn" id="10_bg8u3"]
 
 [sub_resource type="Resource" id="Resource_h1wbq"]
 script = ExtResource("2_y7i1r")
@@ -20,6 +22,8 @@ element = 5
 element_affix = ExtResource("3_hmfib")
 fill_texture = ExtResource("4_4ywql")
 stroke_texture = ExtResource("6_qqo26")
+combat_die_scene = ExtResource("6_2bi5e")
+pool_die_scene = ExtResource("10_bg8u3")
 
 [sub_resource type="Resource" id="Resource_y7i1r"]
 script = ExtResource("2_y7i1r")
@@ -28,6 +32,8 @@ element = 5
 element_affix = ExtResource("3_hmfib")
 fill_texture = ExtResource("4_4ywql")
 stroke_texture = ExtResource("6_qqo26")
+combat_die_scene = ExtResource("6_2bi5e")
+pool_die_scene = ExtResource("10_bg8u3")
 
 [resource]
 script = ExtResource("7_2bi5e")

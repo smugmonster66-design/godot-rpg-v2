@@ -46,6 +46,9 @@ var affix_manager: AffixPoolManager = null
 # ── Level Scaling ──
 ## Effective level computed at spawn. Used for loot item_level.
 var _effective_level: int = 1
+## Power-based scaling factor applied to HP/armor/barrier at spawn.
+## 1.0 = no adjustment, >1.0 = player undergeared, <1.0 = player overgeared.
+var _power_scaling_factor: float = 1.0
 
 # ============================================================================
 # NODE REFERENCES
@@ -129,27 +132,61 @@ func _initialize_from_enemy_data():
 		
 		# Apply flat stat bonuses from affix categories
 		match affix.category:
-			Affix.Category.ARMOR_BONUS:
+			Affix.Category.ARMOR_BONUS, Affix.Category.DEFENSE_BONUS:
 				armor += int(affix.effect_number)
 			Affix.Category.BARRIER_BONUS:
 				barrier += int(affix.effect_number)
-			Affix.Category.DEFENSE_BONUS:
-				armor += int(affix.effect_number)
 			# Health is already handled via health_bonus
 			# Other categories (STRENGTH_BONUS, DAMAGE_BONUS, etc.) live in
 			# the affix_manager for resolution during combat calculations.
 	
+	# Apply armor multiplier (category 12 / DEFENSE_MULTIPLIER, now serves as ARMOR_MULTIPLIER)
+	var armor_mult: float = 1.0
+	for affix: Affix in rolled_affixes:
+		if affix.category == Affix.Category.DEFENSE_MULTIPLIER:
+			armor_mult *= affix.effect_number
+	if armor_mult != 1.0:
+		armor = int(armor * armor_mult)
+
+	# ── Power-based enemy scaling ──
+	# Compare player's actual affix power to expected power at their level.
+	# Adjusts enemy HP/armor/barrier to compensate for gear quality differences.
+	var player_power: float = 0.0
+	if GameManager and GameManager.player:
+		player_power = GameManager.player.get_power_level()
+
+	var scaling_config: AffixScalingConfig = null
+	var tree := Engine.get_main_loop()
+	if tree is SceneTree:
+		var root: Node = tree.root
+		if root.has_node("AffixTableRegistry"):
+			var registry: Node = root.get_node("AffixTableRegistry")
+			if registry.scaling_config:
+				scaling_config = registry.scaling_config
+
+	if scaling_config:
+		var power_ratio: float = scaling_config.get_power_ratio(player_level, player_power)
+		_power_scaling_factor = scaling_config.get_enemy_scaling_factor(power_ratio)
+
+		if _power_scaling_factor != 1.0:
+			max_health = maxi(1, int(max_health * _power_scaling_factor))
+			current_health = max_health
+			armor = maxi(0, int(armor * _power_scaling_factor))
+			barrier = maxi(0, int(barrier * _power_scaling_factor))
+
 	# Store effective level for loot drops
 	_effective_level = roll_result.get("effective_level", enemy_data.enemy_level_floor)
 	
-	print("  ✅ %s: HP=%d (%d base + %d affix), Armor=%d, Barrier=%d, Dice=%d, Actions=%d, EffLv=%d" % [
+	print("  ✅ %s: HP=%d (%d base + %d affix), Armor=%d, Barrier=%d, Dice=%d, Actions=%d, EffLv=%d, PwrScale=%.2f" % [
 		combatant_name, max_health, enemy_data.max_health,
 		roll_result.get("health_bonus", 0),
 		armor, barrier,
 		dice_collection.get_pool_count() if dice_collection else 0,
-		actions.size(), _effective_level
+		actions.size(), _effective_level, _power_scaling_factor
 	])
-	
+	if _power_scaling_factor != 1.0:
+		print("    ⚖️ Power scaling: player_power=%.0f, factor=%.2f" % [player_power, _power_scaling_factor])
+
 	# Debug: print stat breakdown
 	var stat_totals: Dictionary = roll_result.get("stat_totals", {})
 	for cat_name: String in stat_totals:

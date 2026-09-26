@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_2dq51")
 affix_name = "Entropy"
-description = "Start of turn: if any enemy has 10+ Chill, restore 2 mana and next ice die +3."
+description = "Start of turn: if any enemy has 10+ [status:chill], restore 2 mana and next [element:ice] die +3."
 category = 33
 tags = Array[String](["mage", "frost", "weave", "mana", "sustain"])
 effect_data = {

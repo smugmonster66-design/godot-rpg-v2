@@ -38,12 +38,33 @@ var _icon_shader_template: ShaderMaterial = null
 var _fill_texture: Texture2D = null
 
 # ============================================================================
+# CATEGORY GLOW COLORS
+# ============================================================================
+# ============================================================================
 # STYLING
 # ============================================================================
 @export_group("State Colors")
 @export var color_locked: Color = Color(0.5, 0.5, 0.5, 1.0)
 @export var color_available: Color = Color(1.0, 1.0, 1.0, 1.0)
 @export var color_maxed: Color = Color(1.0, 0.85, 0.0, 1.0)
+
+@export_group("Category Glow Colors")
+@export var color_passive: Color = Color(0.45, 0.55, 0.75)
+@export var color_trigger: Color = Color(0.85, 0.55, 0.25)
+@export var color_action: Color = Color(0.35, 0.70, 0.40)
+@export var color_signature: Color = Color(0.65, 0.40, 0.80)
+@export var color_capstone: Color = Color(0.90, 0.45, 0.30)
+
+var CATEGORY_COLORS: Dictionary:
+	get:
+		return {
+			SkillResource.SkillCategory.PASSIVE:   color_passive,
+			SkillResource.SkillCategory.TRIGGER:   color_trigger,
+			SkillResource.SkillCategory.ACTION:    color_action,
+			SkillResource.SkillCategory.SIGNATURE: color_signature,
+			SkillResource.SkillCategory.WEAVE:     color_passive,
+			SkillResource.SkillCategory.CAPSTONE:  color_capstone,
+		}
 
 
 # ============================================================================
@@ -75,7 +96,7 @@ func set_fill_texture(tex: Texture2D):
 	_update_icon_shader()
 
 func _update_icon_shader():
-	"""Apply engraving shader with element fill from viewport texture."""
+	"""Apply engraving shader with element fill, and category glow as next_pass."""
 	if not icon_rect:
 		return
 
@@ -84,8 +105,8 @@ func _update_icon_shader():
 		return
 
 	var mat = _icon_shader_template.duplicate() as ShaderMaterial
-	mat.next_pass = null
 
+	# Fill progress based on rank
 	var max_rank = skill.get_max_rank()
 	if max_rank > 0 and current_rank > 0:
 		var progress = clampf(float(current_rank) / float(max_rank), 0.0, 1.0)
@@ -97,6 +118,17 @@ func _update_icon_shader():
 		mat.set_shader_parameter("fill_progress", 0.0)
 		mat.set_shader_parameter("has_fill_texture", false)
 
+	# Category glow outline (integrated into engraving shader)
+	var cat_color: Color = CATEGORY_COLORS.get(skill.skill_category, Color.WHITE)
+
+	match current_state:
+		State.LOCKED:
+			mat.set_shader_parameter("glow_color", Color(cat_color.r, cat_color.g, cat_color.b, 0.4))
+			mat.set_shader_parameter("pulse_speed", 0.0)
+		State.AVAILABLE:
+			mat.set_shader_parameter("glow_color", cat_color)
+		State.MAXED:
+			mat.set_shader_parameter("glow_color", cat_color)
 	icon_rect.material = mat
 
 func _setup_input():
@@ -112,20 +144,21 @@ func _setup_input():
 func _update_display():
 	if not is_node_ready():
 		return
-	
+
 	if not skill:
 		_show_empty()
 		return
-	
+
+	# Reset modulate in case this button was recycled from _show_empty()
+	modulate = Color.WHITE
+
 	# Update icon
 	if icon_rect:
 		icon_rect.texture = skill.icon if skill.icon else default_icon
-	
-	
-	
+
 	# Update rank display
 	_update_rank_display()
-	
+
 	# Update visual state
 	_update_visual_state()
 
@@ -170,18 +203,7 @@ func _update_rank_display():
 func _update_visual_state():
 	if not skill:
 		return
-	
-	var button_texture = $ButtonTexture if has_node("ButtonTexture") else null
-	var target = button_texture if button_texture else self
-	match current_state:
-		State.LOCKED:
-			target.modulate = color_locked
-		State.AVAILABLE:
-			target.modulate = color_available
-		State.MAXED:
-			target.modulate = color_maxed
-	
-	_update_icon_shader() 
+	_update_icon_shader()
 	
 
 # ============================================================================

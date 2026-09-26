@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=6 format=3 uid="uid://ci4be4c6mpjyx"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_71du6"]
+[ext_resource type="Resource" uid="uid://csdyhmdin00qx" path="res://resources/enemies/region1/navy/elite/shieldwall_veteran.tres" id="2_32rum"]
+[ext_resource type="Resource" uid="uid://b3j066jemj115" path="res://resources/enemies/region1/navy/elite/fencing_officer.tres" id="3_8287b"]
+[ext_resource type="Resource" uid="uid://ujx2f46td7av" path="res://resources/enemies/region1/navy/elite/senior_signalman.tres" id="4_aarwo"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="5_p1wtr"]
+
+[resource]
+script = ExtResource("5_p1wtr")
+encounter_name = "Officer's Guard"
+encounter_id = "navy_officers_guard"
+enemies = Array[ExtResource("1_71du6")]([ExtResource("2_32rum"), ExtResource("3_8287b"), ExtResource("4_aarwo")])
+enemy_slots = Array[int]([0, 1, 2])
+difficulty_tier = 5
+level_range_min = 4
+level_range_max = 7

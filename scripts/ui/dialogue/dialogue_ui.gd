@@ -74,20 +74,25 @@ func _get_dim_overlay_color(intensity: float) -> Color:
 func _ready():
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	
+
 	_choice_bubble_scene = load("res://scenes/ui/dialogue/choice_bubble.tscn")
 	_create_choice_bubble_pool()
-	
+
+	# Register custom BBCode text effects (pulse, appear, tremble, ghost)
+	DialogueTextEffects.register_all(dialogue_text)
+	if name_label:
+		DialogueTextEffects.register_all(name_label)
+
 	DialogueManager.dialogue_started.connect(_on_dialogue_started)
 	DialogueManager.line_displayed.connect(_on_line_displayed)
 	DialogueManager.choices_presented.connect(_on_choices_presented)
 	DialogueManager.dialogue_ended.connect(_on_dialogue_ended)
-	
+
 	click_catcher.gui_input.connect(_on_click_catcher_input)
-	
+
 	_hide_all_busts()
 	_hide_all_choices()
-	
+
 	if continue_indicator:
 		continue_indicator.visible = false
 
@@ -367,21 +372,36 @@ func _arrange_and_show_choices(choices: Array[DialogueChoice]) -> void:
 	var count = mini(choices.size(), MAX_CHOICES)
 	var portrait_center = _get_portrait_center()
 	choice_ring.global_position = portrait_center
-	
+	var vp_width = get_viewport_rect().size.x
+	var screen_margin = 16.0
+
 	for i in count:
 		var bubble = _choice_bubbles[i]
 		var choice = choices[i]
-		
+
 		# Get distance and angle for this slot from arrays
 		var distance = choice_distances[i] if i < choice_distances.size() else 180.0
 		var angle_deg = choice_angles[i] if i < choice_angles.size() else -90.0
-		
+
 		var angle_rad = deg_to_rad(angle_deg)
 		var pos = Vector2(cos(angle_rad), sin(angle_rad)) * distance
-		bubble.position = pos - Vector2(0, bubble.size.y / 2)
+
+		# Setup first so bubble resizes to fit its text content
 		bubble.setup(i, choice, angle_rad + PI)
+
+		# Left-align: bubble's left edge at the polar coordinate point, vertically centered
+		bubble.position = pos - Vector2(0, bubble.size.y / 2)
+
+		# Clamp to screen bounds so bubbles don't extend off-screen
+		var global_left = portrait_center.x + bubble.position.x
+		if global_left < screen_margin:
+			bubble.position.x += screen_margin - global_left
+		var global_right = portrait_center.x + bubble.position.x + bubble.size.x
+		if global_right > vp_width - screen_margin:
+			bubble.position.x -= global_right - (vp_width - screen_margin)
+
 		bubble.appear(i * choice_stagger_delay)
-	
+
 	for i in range(count, _choice_bubbles.size()):
 		_choice_bubbles[i].visible = false
 
@@ -402,12 +422,13 @@ func _on_choice_bubble_pressed(index: int) -> void:
 	DialogueManager.select_choice(index)
 
 func _get_portrait_center() -> Vector2:
-	# Try to get portrait position from bottom UI
+	# Use main dialogue bubble's left edge as X origin so choices align with it
+	var origin_x: float = main_bubble.global_position.x if main_bubble else 200.0
+	# Use portrait vertical center as Y origin
 	if GameManager and GameManager.game_root:
-		var bottom_ui = GameManager.game_root.get_node_or_null("PersistentUILayer/BottomUIPanel")
-		if bottom_ui and bottom_ui.has_node("PortraitContainer"):
-			var portrait = bottom_ui.get_node("PortraitContainer")
-			return portrait.global_position + portrait.size / 2
+		var portrait = GameManager.game_root.get_node_or_null("PersistentUILayer/PortraitVBox/PortraitContainer")
+		if portrait:
+			return Vector2(origin_x, portrait.global_position.y + portrait.size.y / 2)
 	# Fallback position
 	var vp = get_viewport_rect().size
-	return Vector2(200, vp.y - 200)
+	return Vector2(origin_x, vp.y - 200)

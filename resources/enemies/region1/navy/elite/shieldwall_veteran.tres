@@ -1,0 +1,124 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=29 format=3 uid="uid://csdyhmdin00qx"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_8v581"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_1oh54"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="11_oewlc"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_armor_str_tank.tres" id="12_tferq"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_blunt.tres" id="13_qq6j1"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="14_aw20m"]
+[ext_resource type="Resource" uid="uid://dk58bj3nm6p3k" path="res://resources/affixes/base_stats/enemy/enemy_health_str_tank.tres" id="15_kgatb"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="16_nytvl"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="17_6mw0d"]
+[ext_resource type="PackedScene" uid="uid://b4wyrmm8bfq20" path="res://scenes/ui/components/dice/combat/combat_die_d8.tscn" id="18_e3rqh"]
+[ext_resource type="Resource" uid="uid://2a7ntncvy5ij" path="res://resources/affixes/elements/blunt_element.tres" id="19_x3dqs"]
+[ext_resource type="Texture2D" uid="uid://der0rcr1m1pb2" path="res://assets/dice/d8s/d8-fill-basic.png" id="20_0yd3l"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="21_2amgf"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="22_vuq6j"]
+[ext_resource type="PackedScene" uid="uid://lx27hjqny6b8" path="res://scenes/ui/components/dice/pool/pool_die_d8.tscn" id="22_yc6ew"]
+[ext_resource type="Texture2D" uid="uid://ccv17kswol4os" path="res://assets/dice/d8s/d8-stroke-basic.png" id="23_50dq7"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="23_ekadw"]
+[ext_resource type="Resource" uid="uid://cxim1rxv60be5" path="res://resources/enemy_templates/tank_str.tres" id="24_wjkga"]
+[ext_resource type="Resource" uid="uid://bd0d810nqyk55" path="res://resources/actions/navy/navy_shield_bash.tres" id="34_shield_b"]
+[ext_resource type="Resource" uid="uid://bvky0qbcvmm0e" path="res://resources/actions/navy/navy_iron_wall.tres" id="35_iron_wal"]
+[ext_resource type="Resource" uid="uid://bdowrvwvt5tu7" path="res://resources/actions/navy/navy_shield_charge.tres" id="36_shield_c"]
+
+[sub_resource type="Resource" id="Resource_wssp5"]
+script = ExtResource("1_8v581")
+element_preference = 0.4
+heal_urgency = 0.6
+heal_threshold = 0.6
+
+[sub_resource type="Resource" id="Resource_iijjd"]
+script = ExtResource("21_2amgf")
+affix_name = "Shield Brace"
+description = "First die rolled grants Fortified."
+position_requirement = 1
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "fortified",
+"target": "self"
+}
+
+[sub_resource type="Resource" id="Resource_ig4t1"]
+script = ExtResource("17_6mw0d")
+display_name = "Blunt D8"
+die_type = 8
+element = 2
+element_affix = ExtResource("19_x3dqs")
+fill_texture = ExtResource("20_0yd3l")
+stroke_texture = ExtResource("23_50dq7")
+combat_die_scene = ExtResource("18_e3rqh")
+pool_die_scene = ExtResource("22_yc6ew")
+inherent_affixes = Array[ExtResource("21_2amgf")]([SubResource("Resource_iijjd")])
+
+[sub_resource type="Resource" id="Resource_luvmp"]
+script = ExtResource("21_2amgf")
+affix_name = "Shield Brace"
+description = "First die rolled grants Fortified."
+position_requirement = 1
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "fortified",
+"target": "self"
+}
+
+[sub_resource type="Resource" id="Resource_drgag"]
+script = ExtResource("17_6mw0d")
+display_name = "Blunt D8"
+die_type = 8
+element = 2
+element_affix = ExtResource("19_x3dqs")
+fill_texture = ExtResource("20_0yd3l")
+stroke_texture = ExtResource("23_50dq7")
+combat_die_scene = ExtResource("18_e3rqh")
+pool_die_scene = ExtResource("22_yc6ew")
+inherent_affixes = Array[ExtResource("21_2amgf")]([SubResource("Resource_luvmp")])
+
+[sub_resource type="Resource" id="Resource_fw1q4"]
+script = ExtResource("21_2amgf")
+affix_name = "Shield Brace"
+description = "First die rolled grants Fortified."
+position_requirement = 1
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "fortified",
+"target": "self"
+}
+
+[sub_resource type="Resource" id="Resource_oewlc"]
+script = ExtResource("17_6mw0d")
+display_name = "Blunt D8"
+die_type = 8
+element = 2
+element_affix = ExtResource("19_x3dqs")
+fill_texture = ExtResource("20_0yd3l")
+stroke_texture = ExtResource("23_50dq7")
+combat_die_scene = ExtResource("18_e3rqh")
+pool_die_scene = ExtResource("22_yc6ew")
+inherent_affixes = Array[ExtResource("21_2amgf")]([SubResource("Resource_fw1q4")])
+
+[resource]
+script = ExtResource("16_nytvl")
+enemy_name = "Shieldwall Veteran"
+description = "Sanctum Navy Shieldwall Veteran."
+template = ExtResource("24_wjkga")
+combat_role = 3
+max_health = 15
+starting_dice = Array[ExtResource("17_6mw0d")]([SubResource("Resource_ig4t1"), SubResource("Resource_drgag"), SubResource("Resource_oewlc")])
+combat_actions = Array[ExtResource("2_1oh54")]([ExtResource("34_shield_b"), ExtResource("35_iron_wal"), ExtResource("36_shield_c")])
+ai_strategy = 1
+ai_config = SubResource("Resource_wssp5")
+action_delay = 1.0
+dice_drag_duration = 0.35
+experience_reward = 30
+gold_reward_min = 10
+gold_reward_max = 30
+enemy_tier = 1
+enemy_archetype = 1
+enemy_level_floor = 3
+level_scaling_multiplier = 0.95
+health_affix = ExtResource("15_kgatb")
+enemy_affixes = Array[ExtResource("11_oewlc")]([ExtResource("12_tferq"), ExtResource("13_qq6j1")])

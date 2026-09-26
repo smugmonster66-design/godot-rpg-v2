@@ -15,7 +15,7 @@
 script = ExtResource("5_c4jtb")
 skill_id = "frost_glaciate"
 skill_name = "Glaciate"
-description = "Unlock [color=cyan]Ice[/color] mana. Chromatic Bolt applies [color=cyan]2 Chill[/color] on hit (requires ice die)."
+description = "Unlock [element:ice] mana. Chromatic Bolt applies 2 [status:chill] on hit (requires ice die)."
 column = 3
 rank_1_affixes = Array[ExtResource("2_kl3iv")]([ExtResource("3_sg0el"), ExtResource("4_t12nc")])
 
@@ -27,7 +27,8 @@ required_skill = SubResource("Resource_exl55")
 script = ExtResource("5_c4jtb")
 skill_id = "frost_creeping_frost"
 skill_name = "Creeping Frost"
-description = "Ice mana dice apply [color=yellow]1/2/3[/color] [color=cyan]Chill[/color] on use."
+description = "Ice mana dice apply [color=yellow]1/2/3[/color] [status:chill] on use."
+skill_category = 1
 tier = 2
 column = 1
 prerequisites = Array[ExtResource("1_fhaeu")]([SubResource("Resource_3jtiw")])
@@ -44,7 +45,9 @@ required_skill = SubResource("Resource_klixn")
 script = ExtResource("5_c4jtb")
 skill_id = "frost_hoarfrost"
 skill_name = "Hoarfrost"
-description = "End of turn: apply [color=yellow]1/2[/color] [color=cyan]Chill[/color] to target per unused die in hand."
+skill_category = 1
+description = "End of turn: apply [color=yellow]1/2[/color] [status:chill] to target per unused die in hand."
+skill_category = 1
 tier = 3
 prerequisites = Array[ExtResource("1_fhaeu")]([SubResource("Resource_iae0c")])
 tree_points_required = 3

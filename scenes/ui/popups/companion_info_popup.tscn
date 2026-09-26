@@ -1,0 +1,107 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/popups/companion_info_popup.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/ui/components/character/resource_bar.tscn" id="2_bar"]
+
+[node name="CompanionInfoPopup" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.65)
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 16
+
+[node name="MainVBox" type="VBoxContainer" parent="Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CompanionNameLabel" type="Label" parent="Panel/Margin/MainVBox"]
+layout_mode = 2
+text = "Companion Name"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="Panel/Margin/MainVBox"]
+layout_mode = 2
+
+[node name="DetailsScroll" type="ScrollContainer" parent="Panel/Margin/MainVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="DetailsVBox" type="VBoxContainer" parent="Panel/Margin/MainVBox/DetailsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="PortraitCenter" type="CenterContainer" parent="Panel/Margin/MainVBox/DetailsScroll/DetailsVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(200, 200)
+
+[node name="Portrait" type="TextureRect" parent="Panel/Margin/MainVBox/DetailsScroll/DetailsVBox/PortraitCenter"]
+custom_minimum_size = Vector2(160, 160)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HPBar" parent="Panel/Margin/MainVBox/DetailsScroll/DetailsVBox" instance=ExtResource("2_bar")]
+
+[node name="RelationshipLabel" type="RichTextLabel" parent="Panel/Margin/MainVBox/DetailsScroll/DetailsVBox"]
+layout_mode = 2
+fit_content = true
+scroll_active = false
+
+[node name="DescriptionMargin" type="MarginContainer" parent="Panel/Margin/MainVBox/DetailsScroll/DetailsVBox"]
+layout_mode = 2
+theme_override_constants/margin_top = 10
+
+[node name="DescriptionLabel" type="RichTextLabel" parent="Panel/Margin/MainVBox/DetailsScroll/DetailsVBox/DescriptionMargin"]
+layout_mode = 2
+fit_content = true
+scroll_active = false
+
+[node name="HSeparator2" type="HSeparator" parent="Panel/Margin/MainVBox/DetailsScroll/DetailsVBox"]
+layout_mode = 2
+
+[node name="ActionDescLabel" type="RichTextLabel" parent="Panel/Margin/MainVBox/DetailsScroll/DetailsVBox"]
+layout_mode = 2
+fit_content = true
+scroll_active = false
+
+[node name="SynergyLabel" type="RichTextLabel" parent="Panel/Margin/MainVBox/DetailsScroll/DetailsVBox"]
+layout_mode = 2
+fit_content = true
+scroll_active = false
+
+[node name="HSeparator3" type="HSeparator" parent="Panel/Margin/MainVBox"]
+layout_mode = 2
+
+[node name="ButtonBar" type="HBoxContainer" parent="Panel/Margin/MainVBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 12

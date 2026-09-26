@@ -36,6 +36,10 @@ enum ObjectiveType {
 @export var target_id: StringName = &""
 ## How many times this must be done (1 for talk_to, N for kill/collect)
 @export var required_count: int = 1
+## For KILL objectives: match against enemy tags instead of (or in addition to) target_id
+@export var track_tag: StringName = &""
+## Whether to show a notification banner when progress increments
+@export var notify_on_progress: bool = true
 
 # ============================================================================
 # FLOW CONTROL

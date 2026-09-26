@@ -7,8 +7,9 @@
 [resource]
 script = ExtResource("2_x6ync")
 affix_name = "Poison Damage Bonus"
-description = "+N Poison damage"
+description = "+N [element:poison] damage"
 category = 25
 tags = Array[String](["damage", "elemental", "poison"])
 effect_min = 1.0
 effect_max = 30.0
+power_weight = 50.0

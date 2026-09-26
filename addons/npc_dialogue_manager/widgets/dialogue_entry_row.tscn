@@ -1,0 +1,42 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/npc_dialogue_manager/widgets/dialogue_entry_row.gd" id="1_script"]
+
+[node name="DialogueEntryRow" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+mouse_filter = 0
+script = ExtResource("1_script")
+
+[node name="HBox" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="PriLabel" type="Label" parent="HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+text = "0"
+theme_override_font_sizes/font_size = 12
+
+[node name="IdLabel" type="Label" parent="HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "(unnamed)"
+size_flags_horizontal = 3
+text_overrun_behavior = 3
+theme_override_font_sizes/font_size = 12
+
+[node name="ConditionLabel" type="Label" parent="HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "(always)"
+text_overrun_behavior = 3
+theme_override_font_sizes/font_size = 12
+
+[node name="OneShotLabel" type="Label" parent="HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="LocationNode" load_steps=9 format=3 uid="uid://d2gxdge1tbi3y"]
+
+[ext_resource type="Script" uid="uid://dgamp5w74kvwa" path="res://resources/data/location_node.gd" id="1_locscript"]
+[ext_resource type="Script" uid="uid://bvx6wd14mcwlb" path="res://resources/data/map_node_button_def.gd" id="2_btnscript"]
+[ext_resource type="Texture2D" uid="uid://bhutvpcs8m2da" path="res://assets/map_locations/test_map/medievalStructure_21.png" id="2_je764"]
+[ext_resource type="Resource" uid="uid://bxxvd54ytc77" path="res://resources/maps/test/btn_rest_free.tres" id="3_rest"]
+[ext_resource type="Resource" uid="uid://bxxvd2gism8g" path="res://resources/maps/test/btn_npcs.tres" id="4_npcs"]
+[ext_resource type="Resource" uid="uid://bxxvd5lksg07" path="res://resources/maps/test/btn_quests.tres" id="5_quests"]
+[ext_resource type="Resource" uid="uid://bxxvd30xtlw7" path="res://resources/maps/test/btn_party.tres" id="6_party"]
+[ext_resource type="Resource" path="res://resources/maps/test/btn_stash.tres" id="7_stash"]
+
+[resource]
+script = ExtResource("1_locscript")
+location_id = &"loc_embergate"
+display_name = "Embergate"
+map_node_category = 0
+radial_buttons = Array[ExtResource("2_btnscript")]([ExtResource("3_rest"), ExtResource("4_npcs"), ExtResource("5_quests"), ExtResource("6_party"), ExtResource("7_stash")])
+description = "A fortified coastal settlement. Merchants, soldiers and sailors pass through daily."
+map_position = Vector2(1491.5189, 2879.9097)
+connections = Array[StringName]([&"loc_crossroads"])
+map_icon = ExtResource("2_je764")
+allows_rest = true

@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_ky05n")
 affix_name = "Sparking"
-description = "+N flat shock damage on use"
+description = "+N flat [element:shock] damage on use"
 affix_tier = 1
 trigger = 1
 effect_type = 15

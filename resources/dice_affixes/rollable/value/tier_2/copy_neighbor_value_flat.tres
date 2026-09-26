@@ -12,9 +12,9 @@ affix_tier = 2
 position_requirement = 3
 neighbor_target = 1
 effect_type = 14
-effect_value = 2.5
+effect_value = 1.0
 effect_value_min = 1.0
-effect_value_max = 4.0
+effect_value_max = 1.0
 value_source = 4
 effect_data = {
 "percent": 0.5

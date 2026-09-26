@@ -1,0 +1,60 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/components/character/alignment_axis.gd" id="1_script"]
+
+[node name="AlignmentAxis" type="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("1_script")
+
+[node name="LabelRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="NegLabel" type="Label" parent="LabelRow" groups=["alignment_axis_ui"]]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Evil"
+theme_type_variation = &"small"
+metadata/ui_role = "neg_label"
+
+[node name="ValueLabel" type="Label" parent="LabelRow" groups=["alignment_axis_ui"]]
+layout_mode = 2
+horizontal_alignment = 1
+metadata/ui_role = "value_label"
+
+[node name="PosLabel" type="Label" parent="LabelRow" groups=["alignment_axis_ui"]]
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_alignment = 2
+text = "Good"
+theme_type_variation = &"small"
+metadata/ui_role = "pos_label"
+
+[node name="BarHolder" type="Control" parent="."]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AxisBar" type="ProgressBar" parent="BarHolder" groups=["alignment_axis_ui"]]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+min_value = -100.0
+max_value = 100.0
+show_percentage = false
+metadata/ui_role = "axis_bar"
+
+[node name="CenterMarker" type="ColorRect" parent="BarHolder" groups=["alignment_axis_ui"]]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -1.0
+offset_right = 1.0
+grow_horizontal = 2
+color = Color(0.78, 0.812, 0.867, 1)
+metadata/ui_role = "center_marker"

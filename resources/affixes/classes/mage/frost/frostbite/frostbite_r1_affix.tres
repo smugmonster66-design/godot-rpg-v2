@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_t7p1k")
 affix_name = "Frostbite I"
-description = "Chill Freeze threshold reduced by 2."
+description = "[status:chill] [status:freeze|Freeze] threshold reduced by 2."
 category = 36
 tags = Array[String](["mage", "frost", "freeze", "threshold"])
 effect_data = {

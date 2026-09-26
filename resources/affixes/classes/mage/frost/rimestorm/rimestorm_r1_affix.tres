@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_tyj72")
 affix_name = "Rimestorm"
-description = "Ice die chains to 1 extra enemy (60% damage, 2 Chill)."
+description = "[element:ice] die chains to 1 extra enemy (60% damage, 2 [status:chill])."
 category = 39
 tags = Array[String](["mage", "frost", "mana_die_affix", "chain", "aoe"])
 effect_data = {

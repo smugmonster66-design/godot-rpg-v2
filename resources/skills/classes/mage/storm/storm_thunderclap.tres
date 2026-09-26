@@ -12,44 +12,50 @@
 [ext_resource type="Resource" uid="uid://c3gm4vr2txv7f" path="res://resources/affixes/classes/mage/storm/arc_pulse/arc_pulse_r2_affix.tres" id="9_mi6jw"]
 [ext_resource type="Resource" uid="uid://bdf1nbal6xnma" path="res://resources/affixes/classes/mage/storm/arc_pulse/arc_pulse_r3_affix.tres" id="10_pjutn"]
 
-[sub_resource type="Resource" id="Resource_gwqxq"]
+[sub_resource type="Resource" id="Resource_idtkr"]
 script = ExtResource("4_vg1ts")
 skill_id = "storm_spark"
 skill_name = "Spark"
-description = "Unlock [color=yellow]Shock[/color] mana. Chromatic Bolt applies [color=yellow]1/2/3 Static[/color] on hit (requires shock die)."
+description = "Unlock [element:shock] mana. Chromatic Bolt applies [status:static|1/2/3 Static] on hit (requires shock die)."
 column = 3
 rank_1_affixes = Array[ExtResource("2_glexn")]([ExtResource("3_cpfve"), ExtResource("4_771hp")])
 rank_2_affixes = Array[ExtResource("2_glexn")]([ExtResource("3_cpfve"), ExtResource("5_1ay84")])
 rank_3_affixes = Array[ExtResource("2_glexn")]([ExtResource("3_cpfve"), ExtResource("6_adaxr")])
 
-[sub_resource type="Resource" id="Resource_fhxr0"]
+[sub_resource type="Resource" id="Resource_d34ry"]
 script = ExtResource("1_vhp53")
-required_skill = SubResource("Resource_gwqxq")
+required_skill = SubResource("Resource_idtkr")
 
-[sub_resource type="Resource" id="Resource_k7tbo"]
+[sub_resource type="Resource" id="Resource_hvf5n"]
 script = ExtResource("4_vg1ts")
 skill_id = "storm_arc_pulse"
 skill_name = "Arc Pulse"
-description = "Shock mana dice apply [color=yellow]1/2/3[/color] [color=yellow]Static[/color] on use."
+description = "Shock mana dice apply [color=yellow]1/2/3[/color] [status:static] on use."
+skill_category = 1
 tier = 2
 column = 1
-prerequisites = Array[ExtResource("1_vhp53")]([SubResource("Resource_fhxr0")])
+prerequisites = Array[ExtResource("1_vhp53")]([SubResource("Resource_d34ry")])
 tree_points_required = 1
 rank_1_affixes = Array[ExtResource("2_glexn")]([ExtResource("8_stfjr")])
 rank_2_affixes = Array[ExtResource("2_glexn")]([ExtResource("9_mi6jw")])
 rank_3_affixes = Array[ExtResource("2_glexn")]([ExtResource("10_pjutn")])
 
-[sub_resource type="Resource" id="Resource_cpfve"]
+[sub_resource type="Resource" id="Resource_isals"]
 script = ExtResource("1_vhp53")
-required_skill = SubResource("Resource_k7tbo")
+required_skill = SubResource("Resource_hvf5n")
 
 [resource]
 script = ExtResource("4_vg1ts")
 skill_id = "storm_thunderclap"
 skill_name = "Thunderclap"
-description = "[color=yellow]ACTION:[/color] 1 shock die -> shock damage + apply [color=yellow]Static[/color] = die value. Unlimited."
+skill_category = 2
+skill_category = 2
+skill_category = 2
+skill_category = 2
+description = "[color=yellow]ACTION:[/color] 1 shock die -> shock damage + apply [status:static] = die value. Unlimited."
+skill_category = 2
 tier = 3
 column = 1
-prerequisites = Array[ExtResource("1_vhp53")]([SubResource("Resource_cpfve")])
+prerequisites = Array[ExtResource("1_vhp53")]([SubResource("Resource_isals")])
 tree_points_required = 3
 rank_1_affixes = Array[ExtResource("2_glexn")]([ExtResource("3_x0v4r")])

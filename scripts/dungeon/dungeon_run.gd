@@ -14,6 +14,7 @@ var gold_snapshot_on_entry: int = 0
 var gold_earned: int = 0
 var exp_earned: int = 0
 var items_earned: Array[EquippableItem] = []
+var consumables_earned: Array[ConsumableItem] = []
 var temp_affixes_applied: Array[DiceAffix] = []
 var shrine_affixes_applied: Array[Affix] = []
 var events_seen: Array[String] = []
@@ -72,6 +73,7 @@ func complete_node(node_id: int):
 func track_gold(amount: int): gold_earned += amount
 func track_exp(amount: int): exp_earned += amount
 func track_item(item: EquippableItem): items_earned.append(item)
+func track_consumable(item: ConsumableItem): consumables_earned.append(item)
 func track_temp_affix(affix: DiceAffix): temp_affixes_applied.append(affix)
 func track_shrine_affix(affix: Affix): shrine_affixes_applied.append(affix)
 func track_event(event_id: String): events_seen.append(event_id)

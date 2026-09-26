@@ -39,9 +39,9 @@ anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -480.0
-offset_top = 400.0
+offset_top = 660.0
 offset_right = 480.0
-offset_bottom = 900.0
+offset_bottom = 1160.0
 grow_horizontal = 2
 mouse_filter = 2
 

@@ -11,3 +11,4 @@ description = "Grants a bonus utility action"
 category = 31
 tags = Array[String](["action_grant", "utility"])
 effect_number = 1.0
+power_weight = 100.0

@@ -119,12 +119,15 @@ func _discover_all_nodes():
 	# Ensure scrollable grid exists
 	_ensure_scrollable_grid()
 	
-	# Player health display
-	player_health_display = find_child("PlayerHealth", true, false)
-	if not player_health_display:
-		player_health_display = find_child("PlayerHealthDisplay", true, false)
-	print("    PlayerHealth: %s" % ("✓" if player_health_display else "✗"))
-	
+	# Bottom UI panel — owns combat buttons and the player's health bar
+	_bottom_ui = get_tree().get_first_node_in_group("bottom_ui") as BottomUIPanel
+	print("    BottomUI: %s" % ("✓" if _bottom_ui else "✗"))
+
+	# Player health display — resolved lazily in combat_manager._get_combatant_visual()
+	# via GameManager.game_root.portrait_controller (the persistent PortraitContainer)
+	player_health_display = null
+	print("    PlayerHealth: resolved lazily via portrait_controller")
+
 	# Dice pool display
 	dice_pool_display = find_child("DicePoolDisplay", true, false)
 	if not dice_pool_display:
@@ -136,17 +139,12 @@ func _discover_all_nodes():
 	if dice_pool_area and dice_pool_area is Control:
 		dice_pool_area.mouse_filter = Control.MOUSE_FILTER_PASS
 		print("    🔧 DicePoolArea mouse_filter → PASS (drag-drop fix)")
-	
+
 	# Fix DicePoolScroll — ScrollContainer wrapping DicePoolDisplay
 	var dice_pool_scroll = find_child("DicePoolScroll", true, false)
 	if dice_pool_scroll and dice_pool_scroll is ScrollContainer:
 		dice_pool_scroll.mouse_filter = Control.MOUSE_FILTER_PASS
 		print("    🔧 DicePoolScroll mouse_filter → PASS (drag-drop fix)")
-	
-	
-	# Bottom UI panel — owns combat buttons
-	_bottom_ui = get_tree().get_first_node_in_group("bottom_ui") as BottomUIPanel
-	print("    BottomUI: %s" % ("✓" if _bottom_ui else "✗"))
 	
 	# Enemy panel — start hidden for drop-in animation
 	enemy_panel = find_child("EnemyPanel", true, false) as EnemyPanel
@@ -425,7 +423,10 @@ func initialize_ui(p_player: Player, p_enemies):
 		affix_visual_animator.name = "AffixVisualAnimator"
 		add_child(affix_visual_animator)
 	if player and player.dice_pool and "affix_processor" in player.dice_pool and player.dice_pool.affix_processor:
-		affix_visual_animator.initialize(dice_pool_display, player.dice_pool.affix_processor, roll_animator, effect_player)
+		var cm_for_anim = get_tree().get_first_node_in_group("combat_manager")
+		var cm_anim_player_ref = cm_for_anim.find_child("CombatAnimationPlayer", true, false) as CombatAnimationPlayer if cm_for_anim else null
+		affix_visual_animator.initialize(dice_pool_display, player.dice_pool.affix_processor, roll_animator, effect_player, cm_anim_player_ref)
+		affix_visual_animator.combat_ui = self
 		print("  ✅ AffixVisualAnimator initialized")
 	else:
 		push_warning("CombatUI: Could not initialize AffixVisualAnimator — no affix_processor found")
@@ -838,8 +839,26 @@ func _on_actions_changed():
 	if not is_enemy_turn:
 		refresh_action_fields()
 
+func _refresh_preview_charge_states():
+	"""Update is_disabled and charge labels on all player action previews."""
+	if not action_fields_grid:
+		return
+	for child in action_fields_grid.get_children():
+		var preview = child as ActionFieldPreview
+		if not preview or not preview.action_resource:
+			continue
+		preview.is_disabled = not preview.action_resource.has_charges()
+		preview.refresh_ui()
+
 var _refreshing_action_fields: bool = false
 
+## Preloaded Escape action resource for Restrained status
+var _escape_action_res: Action = null
+
+func _get_escape_action() -> Action:
+	if not _escape_action_res:
+		_escape_action_res = load("res://resources/actions/escape_action.tres") as Action
+	return _escape_action_res
 
 func refresh_action_fields():
 	"""Rebuild action preview grid from player's available actions"""
@@ -871,16 +890,37 @@ func refresh_action_fields():
 	
 	print("🎮 Creating %d action field previews" % all_actions.size())
 	
+	# Check if player is Restrained — inject Escape and disable others
+	var is_restrained: bool = false
+	var restrained_stack_count: int = 0
+	if player and player.status_tracker and player.status_tracker.has_status("restrained"):
+		is_restrained = true
+		restrained_stack_count = player.status_tracker.get_stacks("restrained")
+
+	# If restrained, add Escape preview first
+	if is_restrained:
+		var escape_action = _get_escape_action()
+		if escape_action:
+			var escape_data = escape_action.to_dict()
+			escape_data["restrained_stacks"] = restrained_stack_count
+			var escape_preview = _create_action_preview(escape_data)
+			if escape_preview:
+				action_fields_grid.add_child(escape_preview)
+
 	# Create preview for each action
 	for action_data in all_actions:
 		var preview = _create_action_preview(action_data)
 		if preview:
+			# Disable all normal actions when restrained
+			if is_restrained:
+				preview.is_disabled = true
+				preview._update_disabled_state()
 			action_fields_grid.add_child(preview)
-	
+
 	# Reset scroll position to top
 	if action_fields_scroll:
 		action_fields_scroll.scroll_vertical = 0
-	
+
 	_refreshing_action_fields = false
 
 func _create_action_preview(action_data: Dictionary) -> ActionFieldPreview:
@@ -1083,9 +1123,16 @@ func _create_enemy_action_preview(action_data: Dictionary) -> ActionFieldPreview
 	preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	
 	# Do NOT connect preview_tapped — enemy previews are never tapped by player
-	
+
 	return preview
 
+
+func refresh_enemy_preview_charges():
+	"""Refresh all enemy action previews to reflect current charge state."""
+	for preview in enemy_action_fields:
+		if is_instance_valid(preview) and preview is ActionFieldPreview and preview.action_resource:
+			preview.is_disabled = not preview.action_resource.has_charges()
+			preview.refresh_ui()
 
 
 
@@ -1450,7 +1497,9 @@ func _animate_die_consumed(visual: Control):
 	"""Animate a die being consumed (shrink and fade centered)"""
 	if not is_instance_valid(visual):
 		return
-	
+	if visual is DieObjectBase:
+		visual.is_interactable = false
+
 	# Capture current scale and animate from there
 	var start_scale = visual.scale
 	var vis_ref = weakref(visual)
@@ -1546,26 +1595,26 @@ func _on_roll_pressed():
 
 
 func _apply_combat_charge_state():
-	"""Apply per-combat charge usage from the tracker to current action fields.
+	"""Apply per-combat charge usage from the tracker to current action previews.
 	Prevents charge reset exploits from re-equipping items mid-combat."""
 	var combat_manager = get_tree().get_first_node_in_group("combat_manager")
-	if not combat_manager:
+	if not combat_manager or not action_fields_grid:
 		return
 
-	for field in action_fields:
-		if not is_instance_valid(field) or not field.action_resource:
+	for child in action_fields_grid.get_children():
+		var preview = child as ActionFieldPreview
+		if not preview or not preview.action_resource:
 			continue
-		if field.action_resource.charge_type != Action.ChargeType.LIMITED_PER_COMBAT:
+		if preview.action_resource.charge_type != Action.ChargeType.LIMITED_PER_COMBAT:
 			continue
 
-		var used = combat_manager.get_charges_used(field.action_resource)
+		var used = combat_manager.get_charges_used(preview.action_resource)
 		if used > 0:
-			# Reset to max first (configure_from_dict already called reset_charges_for_combat)
-			# Then burn the tracked charges
 			for i in range(used):
-				field.action_resource.consume_charge()
-			field.refresh_charge_state()
-			print("🔋 Applied %d spent charges to %s" % [used, field.action_resource.action_name])
+				preview.action_resource.consume_charge()
+			preview.is_disabled = not preview.action_resource.has_charges()
+			preview.refresh_ui()
+			print("🔋 Applied %d spent charges to %s" % [used, preview.action_resource.action_name])
 
 func hide_enemy_hand():
 	"""Hide enemy hand display and restore player UI"""
@@ -2032,19 +2081,22 @@ func _animate_expansion(from_preview: ActionFieldPreview, to_field: ActionField)
 	if dim_background:
 		dim_background.visible = true
 	
-	# Create animation
+	# Fade in overlay and dim scroll separately — TRANS_BACK undershoots on fades,
+	# causing a 1-frame pop that reveals the field before it's in position.
+	var fade_tween = create_tween()
+	fade_tween.set_parallel(true)
+	fade_tween.tween_property(expanded_field_overlay, "modulate:a", 1.0, 0.3) \
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	if action_fields_scroll:
+		fade_tween.tween_property(action_fields_scroll, "modulate:a", 0.3, 0.3) \
+			.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+
+	# Expand field with TRANS_BACK spring effect (position/size only)
 	var tween = create_tween()
 	tween.set_parallel(true)
 	tween.set_ease(Tween.EASE_OUT)
 	tween.set_trans(Tween.TRANS_BACK)
-	
-	# Fade in overlay background
-	tween.tween_property(expanded_field_overlay, "modulate:a", 1.0, 0.3)
-	
-	# Dim preview container
-	if action_fields_scroll:
-		tween.tween_property(action_fields_scroll, "modulate:a", 0.3, 0.3)
-	
+
 	# Expand field from visible preview position to center
 	tween.tween_property(to_field, "position", target_pos, 0.35)
 	tween.tween_property(to_field, "size", target_size, 0.35)
@@ -2125,7 +2177,11 @@ func _collapse_expanded_field() -> void:
 	
 	current_expanded_field = null
 	selected_action_field = null
-	
+
+	# Refresh previews to reflect updated charge state
+	if not is_enemy_turn:
+		_refresh_preview_charge_states()
+
 	print("✅ Collapse complete")
 
 func _on_overlay_clicked(event: InputEvent):

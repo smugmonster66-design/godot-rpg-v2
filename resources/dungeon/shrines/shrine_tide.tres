@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="DungeonShrine" load_steps=7 format=3 uid="uid://djxvtutl3vij4"]
+
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="1_7e8a0"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_cayy3"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="3_tvg0h"]
+[ext_resource type="Script" uid="uid://dejkynwv48tug" path="res://resources/data/dungeon_shrine.gd" id="4_tfmys"]
+
+[sub_resource type="Resource" id="Resource_jvxx1"]
+script = ExtResource("2_cayy3")
+affix_name = "Tidal Restoration"
+description = "Healing is N% more effective"
+category = 59
+tags = Array[String](["shrine", "healing"])
+source_type = "shrine"
+effect_min = 1.1
+effect_max = 1.4
+
+[sub_resource type="Resource" id="Resource_nvd7v"]
+script = ExtResource("2_cayy3")
+affix_name = "Tidal Ebb"
+description = "N max health"
+category = 28
+tags = Array[String](["shrine", "health"])
+source_type = "shrine"
+effect_min = -15.0
+effect_max = -5.0
+
+[resource]
+script = ExtResource("4_tfmys")
+shrine_name = "Shrine of the Tide"
+description = "Seawater pools at the base of this coral-encrusted altar, pulsing with restorative energy. Barnacles cling to its surface."
+blessing_affix = SubResource("Resource_jvxx1")
+curse_affix = SubResource("Resource_nvd7v")
+curse_description = "The tide recedes, taking some of your vitality with it."

@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_o4vl5")
 affix_name = "Ionize III: Static on Pull"
-description = "Pulling shock die applies 3 Static."
+description = "Pulling [element:shock] die applies 3 [status:static]."
 use_global_element_visuals = true
 global_element_type = 5
 effect_type = 16

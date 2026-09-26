@@ -1,0 +1,140 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=32 format=3 uid="uid://b2o2ivcgkadt3"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_weg4c"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_sfy8g"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="10_78re3"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_armor_str_brute.tres" id="11_1t6h2"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_blunt.tres" id="12_bdi0q"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="13_tb7s0"]
+[ext_resource type="Resource" uid="uid://chmejcvma7x2j" path="res://resources/affixes/base_stats/enemy/enemy_health_str_brute.tres" id="14_6y5t6"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="15_xja2c"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="16_3cpbq"]
+[ext_resource type="PackedScene" uid="uid://c457eolhd5tul" path="res://scenes/ui/components/dice/combat/combat_die_d12.tscn" id="17_357om"]
+[ext_resource type="Resource" uid="uid://2a7ntncvy5ij" path="res://resources/affixes/elements/blunt_element.tres" id="18_mfc06"]
+[ext_resource type="Texture2D" uid="uid://r7bikgya1ua8" path="res://assets/dice/d12s/d12-basic-fill.png" id="19_ebnvx"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="20_8ye3k"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="21_h788c"]
+[ext_resource type="PackedScene" uid="uid://yqcuq20fomfu" path="res://scenes/ui/components/dice/pool/pool_die_d12.tscn" id="21_yydmo"]
+[ext_resource type="Texture2D" uid="uid://d3cgge7kyfsqd" path="res://assets/dice/d12s/d12-basic-stroke.png" id="22_pqj8l"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="22_r15eh"]
+[ext_resource type="Resource" uid="uid://b8a0hafcgbsq3" path="res://resources/enemy_templates/brute_str.tres" id="23_utlag"]
+[ext_resource type="Resource" uid="uid://d334v2dd3go0r" path="res://resources/actions/navy/navy_compliance_strike.tres" id="33_complian"]
+[ext_resource type="Resource" uid="uid://7l54e8ttg6gc" path="res://resources/actions/navy/navy_subdue.tres" id="34_subdue"]
+[ext_resource type="Resource" uid="uid://bmk8w7ujmhvsb" path="res://resources/actions/navy/navy_judgment_strike.tres" id="35_judgment"]
+
+[sub_resource type="Resource" id="Resource_58xpm"]
+script = ExtResource("1_weg4c")
+element_preference = 0.6
+heal_urgency = 0.3
+
+
+[sub_resource type="Resource" id="Resource_fl13j"]
+script = ExtResource("20_8ye3k")
+affix_name = "Weighted Head"
+description = "First die used gets +1 value."
+trigger = 1
+position_requirement = 1
+effect_value = 1.0
+
+
+[sub_resource type="Resource" id="Resource_lqaja"]
+script = ExtResource("16_3cpbq")
+display_name = "Blunt D12"
+die_type = 12
+element = 2
+element_affix = ExtResource("18_mfc06")
+fill_texture = ExtResource("19_ebnvx")
+stroke_texture = ExtResource("22_pqj8l")
+combat_die_scene = ExtResource("17_357om")
+pool_die_scene = ExtResource("21_yydmo")
+inherent_affixes = Array[ExtResource("20_8ye3k")]([SubResource("Resource_fl13j")])
+
+
+[sub_resource type="Resource" id="Resource_ts3s6"]
+script = ExtResource("20_8ye3k")
+affix_name = "Weighted Head"
+description = "First die used gets +1 value."
+trigger = 1
+position_requirement = 1
+effect_value = 1.0
+
+
+[sub_resource type="Resource" id="Resource_wd0m7"]
+script = ExtResource("16_3cpbq")
+display_name = "Blunt D12"
+die_type = 12
+element = 2
+element_affix = ExtResource("18_mfc06")
+fill_texture = ExtResource("19_ebnvx")
+stroke_texture = ExtResource("22_pqj8l")
+combat_die_scene = ExtResource("17_357om")
+pool_die_scene = ExtResource("21_yydmo")
+inherent_affixes = Array[ExtResource("20_8ye3k")]([SubResource("Resource_ts3s6")])
+
+
+[sub_resource type="Resource" id="Resource_cnmgj"]
+script = ExtResource("20_8ye3k")
+affix_name = "Weighted Head"
+description = "First die used gets +1 value."
+trigger = 1
+position_requirement = 1
+effect_value = 1.0
+
+
+[sub_resource type="Resource" id="Resource_78re3"]
+script = ExtResource("16_3cpbq")
+display_name = "Blunt D12"
+die_type = 12
+element = 2
+element_affix = ExtResource("18_mfc06")
+fill_texture = ExtResource("19_ebnvx")
+stroke_texture = ExtResource("22_pqj8l")
+combat_die_scene = ExtResource("17_357om")
+pool_die_scene = ExtResource("21_yydmo")
+inherent_affixes = Array[ExtResource("20_8ye3k")]([SubResource("Resource_cnmgj")])
+
+
+[sub_resource type="Resource" id="Resource_1t6h2"]
+script = ExtResource("20_8ye3k")
+affix_name = "Weighted Head"
+description = "First die used gets +1 value."
+trigger = 1
+position_requirement = 1
+effect_value = 1.0
+
+
+[sub_resource type="Resource" id="Resource_bdi0q"]
+script = ExtResource("16_3cpbq")
+display_name = "Blunt D12"
+die_type = 12
+element = 2
+element_affix = ExtResource("18_mfc06")
+fill_texture = ExtResource("19_ebnvx")
+stroke_texture = ExtResource("22_pqj8l")
+combat_die_scene = ExtResource("17_357om")
+pool_die_scene = ExtResource("21_yydmo")
+inherent_affixes = Array[ExtResource("20_8ye3k")]([SubResource("Resource_1t6h2")])
+
+
+[resource]
+script = ExtResource("15_xja2c")
+enemy_name = "Grand Enforcer"
+description = "Sanctum Navy Grand Enforcer."
+template = ExtResource("23_utlag")
+enemy_tags = PackedStringArray("navy", "humanoid")
+max_health = 60
+starting_dice = Array[ExtResource("16_3cpbq")]([SubResource("Resource_lqaja"), SubResource("Resource_wd0m7"), SubResource("Resource_78re3"), SubResource("Resource_bdi0q")])
+combat_actions = Array[ExtResource("2_sfy8g")]([ExtResource("33_complian"), ExtResource("34_subdue"), ExtResource("35_judgment")])
+ai_strategy = 0
+ai_config = SubResource("Resource_58xpm")
+action_delay = 0.7
+dice_drag_duration = 0.35
+experience_reward = 500
+gold_reward_min = 150
+gold_reward_max = 500
+enemy_tier = 4
+enemy_archetype = 1
+enemy_level_floor = 12
+level_scaling_multiplier = 1.2
+health_affix = ExtResource("14_6y5t6")
+enemy_affixes = Array[ExtResource("10_78re3")]([ExtResource("11_1t6h2"), ExtResource("12_bdi0q")])

@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_hnwfd")
 affix_name = "Black Ice I: Bonus Damage"
-description = "+3 flat damage at 8+ Chill."
+description = "+3 flat damage at 8+ [status:chill]."
 use_global_element_visuals = true
 global_element_type = 4
 trigger = 1

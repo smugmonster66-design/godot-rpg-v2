@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_35urq")
 affix_name = "Conductor III"
-description = "Shock dice chain 50% damage to 1 enemy on use."
+description = "[element:shock] dice chain 50% damage to 1 enemy on use."
 category = 39
 tags = Array[String](["mage", "storm", "mana_die_affix", "chain", "center"])
 effect_data = {

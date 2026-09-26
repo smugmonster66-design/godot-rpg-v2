@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SmithingConfig" load_steps=7 format=3 uid="uid://csmithing_config"]
+
+[ext_resource type="Script" path="res://resources/data/smithing_config.gd" id="1"]
+[ext_resource type="Resource" uid="uid://ccraft_common" path="res://resources/crafting/components/common_component.tres" id="2"]
+[ext_resource type="Resource" uid="uid://ccraft_uncommon" path="res://resources/crafting/components/uncommon_component.tres" id="3"]
+[ext_resource type="Resource" uid="uid://ccraft_rare" path="res://resources/crafting/components/rare_component.tres" id="4"]
+[ext_resource type="Resource" uid="uid://ccraft_epic" path="res://resources/crafting/components/epic_component.tres" id="5"]
+[ext_resource type="Resource" uid="uid://ccraft_legendary" path="res://resources/crafting/components/threads_of_fate.tres" id="6"]
+
+[resource]
+script = ExtResource("1")
+components = [ExtResource("2"), ExtResource("3"), ExtResource("4"), ExtResource("5"), ExtResource("6")]

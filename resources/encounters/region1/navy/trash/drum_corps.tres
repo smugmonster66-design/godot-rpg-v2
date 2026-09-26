@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=6 format=3 uid="uid://cpk70byopy3rw"]
+
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="1_634om"]
+[ext_resource type="Resource" uid="uid://bklcg34u14wwm" path="res://resources/enemies/region1/navy/trash/drum_major.tres" id="2_aiap1"]
+[ext_resource type="Resource" uid="uid://c2bo71ua4y88t" path="res://resources/enemies/region1/navy/trash/navy_enforcer.tres" id="3_ciroj"]
+[ext_resource type="Resource" uid="uid://cgtqx5j8jiqqk" path="res://resources/enemies/region1/navy/trash/navy_fencer.tres" id="4_je886"]
+[ext_resource type="Script" uid="uid://bbk8nd6ma5i6p" path="res://resources/data/combat_encounter.gd" id="5_7lvre"]
+
+[resource]
+script = ExtResource("5_7lvre")
+encounter_name = "Drum Corps"
+encounter_id = "navy_drum_corps"
+enemies = Array[ExtResource("1_634om")]([ExtResource("2_aiap1"), ExtResource("3_ciroj"), ExtResource("4_je886")])
+enemy_slots = Array[int]([0, 1, 2])
+difficulty_tier = 3
+level_range_min = 2

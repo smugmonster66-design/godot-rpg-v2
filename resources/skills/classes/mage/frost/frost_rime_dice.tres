@@ -14,7 +14,7 @@
 script = ExtResource("7_hrsu8")
 skill_id = "frost_glaciate"
 skill_name = "Glaciate"
-description = "Unlock [color=cyan]Ice[/color] mana. Chromatic Bolt applies [color=cyan]2 Chill[/color] on hit (requires ice die)."
+description = "Unlock [element:ice] mana. Chromatic Bolt applies 2 [status:chill] on hit (requires ice die)."
 column = 3
 rank_1_affixes = Array[ExtResource("2_061sl")]([ExtResource("3_o1yoi"), ExtResource("4_8cfmg")])
 
@@ -26,7 +26,8 @@ required_skill = SubResource("Resource_exl55")
 script = ExtResource("7_hrsu8")
 skill_id = "frost_rime_dice"
 skill_name = "Rime Dice"
-description = "Ice die in [color=yellow]FIRST[/color] position: +[color=yellow]2/3[/color] value. In [color=yellow]LAST[/color]: apply [color=cyan]2/3 Chill[/color]."
+skill_category = 0
+description = "Ice die in [color=yellow]FIRST[/color] position: +[color=yellow]2/3[/color] value. In [color=yellow]LAST[/color]: apply 2/3 [status:chill]."
 tier = 2
 column = 3
 prerequisites = Array[ExtResource("1_fyxyo")]([SubResource("Resource_ruqhm")])

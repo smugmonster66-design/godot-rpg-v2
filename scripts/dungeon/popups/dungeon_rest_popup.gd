@@ -78,7 +78,7 @@ func show_popup(data: Dictionary) -> void:
 		for i in offer_count:
 			var affix: DiceAffix = shuffled[i]
 			var btn = Button.new()
-			btn.text = affix.display_name if affix.display_name != "" else str(affix)
+			btn.text = affix.get_display_text()
 			btn.toggle_mode = true
 			btn.pressed.connect(_on_affix_selected.bind(i, affix, btn))
 			affix_choices.add_child(btn)

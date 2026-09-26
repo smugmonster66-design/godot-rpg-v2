@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://bi5k8byflnlcw"]
+
+[ext_resource type="Resource" uid="uid://wo548q0afahc" path="res://resources/actions/mage/flame/effects/ignite_apply_burn.tres" id="1_as184"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_brqom"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_8k62n"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_kncby"]
+
+[resource]
+script = ExtResource("3_8k62n")
+affix_name = "Ignite: Chromatic Bolt Burn"
+description = "Chromatic Bolt applies 1 [status:burn] on hit (requires [element:fire] die)."
+category = 54
+tags = Array[String](["mage", "flame", "class_action_mod", "burn_apply"])
+effect_data = {
+"action_effect": ExtResource("1_as184"),
+"fire_die_condition": true
+}

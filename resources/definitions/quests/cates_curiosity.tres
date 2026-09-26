@@ -1,0 +1,55 @@
+[gd_resource type="Resource" script_class="QuestDefinition" load_steps=11 format=3 uid="uid://cwkwdb0ax0tpp"]
+
+[ext_resource type="Script" uid="uid://b6qj5w0fgevno" path="res://resources/data/quest_definition.gd" id="1_def"]
+[ext_resource type="Script" uid="uid://bi7t57lj6p7f4" path="res://resources/data/quest_objective.gd" id="2_obj"]
+[ext_resource type="Script" uid="uid://dfrd5du3khv1p" path="res://resources/data/quest_rewards.gd" id="3_rew"]
+[ext_resource type="Script" uid="uid://lgoecdg43x3d" path="res://resources/data/game_condition.gd" id="4_cond"]
+[ext_resource type="Script" uid="uid://dh5jn3duyowt6" path="res://resources/data/single_check.gd" id="5_sc"]
+
+[sub_resource type="Resource" id="obj_talk"]
+script = ExtResource("2_obj")
+objective_id = &"talk_to_cate"
+description = "Talk to Cate about her past"
+target_id = &"cate"
+
+[sub_resource type="Resource" id="obj_collect"]
+script = ExtResource("2_obj")
+objective_id = &"find_keepsake"
+description = "Find Cate's keepsake"
+objective_type = 2
+target_id = &"cates_keepsake"
+prerequisite_objectives = Array[StringName]([&"talk_to_cate"])
+hint_text = "Could be anywhere — dungeon treasure, shop, or a chance drop."
+
+[sub_resource type="Resource" id="sc_relationship"]
+script = ExtResource("5_sc")
+check_type = 2
+key = &"cate"
+compare_operator = ">="
+int_value = 25
+
+[sub_resource type="Resource" id="prereq"]
+script = ExtResource("4_cond")
+condition_type = 2
+single_check = SubResource("sc_relationship")
+
+[sub_resource type="Resource" id="rewards"]
+script = ExtResource("3_rew")
+experience = 100
+gold = 50
+relationship_changes = {
+"cate": 15
+}
+
+[resource]
+script = ExtResource("1_def")
+quest_id = &"cates_curiosity"
+display_name = "Cate's Curiosity"
+quest_type = 2
+summary = "Cate has been hinting at something from her past."
+description = "Now that you've built some trust with Cate, she's willing to open up about a keepsake she lost. Help her find it to deepen your bond."
+quest_giver_id = &"cate"
+quest_giver_location = &"camp"
+objectives = Array[ExtResource("2_obj")]([SubResource("obj_talk"), SubResource("obj_collect")])
+rewards = SubResource("rewards")
+prerequisites = SubResource("prereq")

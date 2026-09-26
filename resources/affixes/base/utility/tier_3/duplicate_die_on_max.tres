@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_tu16t")
 affix_name = "Duplicate Die on Max Roll"
-description = "N% chance to duplicate die on max value"
+description = "{proc_chance}% chance to duplicate die on max value"
 category = 35
 tags = Array[String](["dice_manipulation"])
 effect_data = {
@@ -15,6 +15,7 @@ effect_data = {
 "effect": "duplicate_die"
 }
 proc_trigger = 7
-proc_chance = 0.22499999999999998
+proc_chance = 0.225
 proc_chance_min = 0.1
 proc_chance_max = 0.35
+power_weight = 120.0

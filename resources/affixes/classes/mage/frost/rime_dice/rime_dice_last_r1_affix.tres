@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_svxog")
 affix_name = "Rime Dice I: Last"
-description = "Ice die in last position: apply 2 Chill."
+description = "[element:ice] die in last position: apply 2 [status:chill]."
 category = 39
 tags = Array[String](["mage", "frost", "mana_die_affix", "positional", "chill_apply"])
 effect_data = {

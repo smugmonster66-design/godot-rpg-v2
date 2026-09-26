@@ -79,6 +79,7 @@ enum TargetType {
 @export_group("Dice Elixir")
 @export var granted_dice_affixes: Array[DiceAffix] = []
 @export var dice_target_filter: String = "all"
+@export var dice_elixir_duration: int = 1  ## Combats the dice affixes persist
 
 # ============================================================================
 # T4: INSCRIPTION (Permanent DiceAffix)
@@ -136,7 +137,7 @@ func can_use(player, context: Dictionary = {}) -> bool:
 			pass  # Always allowed
 
 	# T4: check if a valid die target exists
-	if tier == ConsumableTier.INSCRIPTION and inscription_affix:
+	if tier == ConsumableTier.INSCRIPTION:
 		if target_type == TargetType.SINGLE_DIE:
 			var valid_dice = _get_valid_inscription_targets(player)
 			if valid_dice.is_empty():
@@ -205,7 +206,7 @@ func _use_restorative(player) -> Dictionary:
 		effects.append("Healed %d HP" % heal_amount)
 
 	if heal_percent > 0.0:
-		var amount = int(player.max_hp * heal_percent)
+		var amount = maxi(1, int(player.max_hp * heal_percent))
 		player.heal(amount)
 		effects.append("Healed %d HP (%d%%)" % [amount, int(heal_percent * 100)])
 
@@ -214,13 +215,16 @@ func _use_restorative(player) -> Dictionary:
 		effects.append("Restored %d Mana" % mana_amount)
 
 	if mana_percent > 0.0 and player.has_method("restore_mana"):
-		var amount = int(player.max_mana * mana_percent)
+		var amount = maxi(1, int(player.max_mana * mana_percent))
 		player.restore_mana(amount)
 		effects.append("Restored %d Mana" % amount)
 
 	if barrier_amount > 0:
-		player.base_barrier += barrier_amount
-		effects.append("+%d Barrier" % barrier_amount)
+		var max_barrier: int = player.max_hp * 2
+		var actual: int = mini(barrier_amount, max_barrier - player.base_barrier)
+		if actual > 0:
+			player.base_barrier += actual
+		effects.append("+%d Barrier" % actual)
 
 	if cleanse_debuffs and player.status_tracker:
 		if cleanse_count > 0:
@@ -261,7 +265,7 @@ func _use_dice_elixir(player, selected_die: DieResource = null) -> Dictionary:
 
 	var buff_entry: Dictionary = {
 		"consumable": self,
-		"remaining_combats": combat_duration if combat_duration > 0 else 1,
+		"remaining_combats": dice_elixir_duration if dice_elixir_duration > 0 else 1,
 		"type": "dice_affix",
 	}
 
@@ -280,10 +284,22 @@ func _use_dice_elixir(player, selected_die: DieResource = null) -> Dictionary:
 
 
 func _use_inscription(player, die: DieResource) -> Dictionary:
-	if not inscription_affix:
-		return {"success": false, "message": "No inscription affix configured.", "effects": []}
 	if not die:
 		return {"success": false, "message": "No die selected.", "effects": []}
+
+	# Erasure mode: no inscription_affix + can_overwrite = remove last inscription
+	if not inscription_affix:
+		if can_overwrite and die.inscribed_affixes.size() > 0:
+			var removed: DiceAffix = die.inscribed_affixes.pop_back()
+			return {
+				"success": true,
+				"message": "Erased %s from %s." % [removed.affix_name, die.get_display_name()],
+				"effects": ["Removed: %s" % removed.description],
+			}
+		elif can_overwrite:
+			return {"success": false, "message": "Die has no inscriptions to erase.", "effects": []}
+		else:
+			return {"success": false, "message": "No inscription affix configured.", "effects": []}
 
 	# Check slot capacity
 	var max_slots: int = _get_max_inscription_slots(die)
@@ -321,16 +337,22 @@ func _use_curio(player, context: Dictionary) -> Dictionary:
 # ============================================================================
 
 func _get_valid_inscription_targets(player) -> Array[DieResource]:
-	"""Get dice that can receive this inscription."""
+	"""Get dice that can receive this inscription (or have inscriptions to erase)."""
 	var valid: Array[DieResource] = []
 	if not player.dice_pool:
 		return valid
+	var is_erasure: bool = not inscription_affix and can_overwrite
 	for die in player.dice_pool.get_all_dice():
 		if not _die_matches_filter(die):
 			continue
-		var max_slots = _get_max_inscription_slots(die)
-		if die.inscribed_affixes.size() < max_slots or can_overwrite:
-			valid.append(die)
+		if is_erasure:
+			# Erasure mode: only dice that have inscriptions to remove
+			if die.inscribed_affixes.size() > 0:
+				valid.append(die)
+		else:
+			var max_slots = _get_max_inscription_slots(die)
+			if die.inscribed_affixes.size() < max_slots or can_overwrite:
+				valid.append(die)
 	return valid
 
 
@@ -356,7 +378,7 @@ func _die_matches_filter(die: DieResource) -> bool:
 
 static func _get_max_inscription_slots(die: DieResource) -> int:
 	"""Inscription slot limit by die type."""
-	if "max_inscription_slots" in die:
+	if die.max_inscription_slots >= 0:
 		return die.max_inscription_slots
 	# Fallback based on die type
 	match die.die_type:

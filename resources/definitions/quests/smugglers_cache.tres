@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="QuestDefinition" load_steps=11 format=3 uid="uid://cajlm4iatqcpm"]
+
+[ext_resource type="Script" uid="uid://b6qj5w0fgevno" path="res://resources/data/quest_definition.gd" id="1_def"]
+[ext_resource type="Script" uid="uid://bi7t57lj6p7f4" path="res://resources/data/quest_objective.gd" id="2_obj"]
+[ext_resource type="Script" uid="uid://lgoecdg43x3d" path="res://resources/data/game_condition.gd" id="2_s8q56"]
+[ext_resource type="Script" uid="uid://dh5jn3duyowt6" path="res://resources/data/single_check.gd" id="3_0fwce"]
+[ext_resource type="Script" uid="uid://dfrd5du3khv1p" path="res://resources/data/quest_rewards.gd" id="3_rew"]
+
+[sub_resource type="Resource" id="obj_visit"]
+script = ExtResource("2_obj")
+objective_id = &"find_hidden_cove"
+description = "Find the hidden cove"
+objective_type = 3
+target_id = &"hidden_cove"
+hint_text = "Somewhere along the coast..."
+
+[sub_resource type="Resource" id="obj_interact"]
+script = ExtResource("2_obj")
+objective_id = &"open_cache"
+description = "Open the smuggler's cache"
+objective_type = 5
+target_id = &"smugglers_cache"
+prerequisite_objectives = Array[StringName]([&"find_hidden_cove"])
+
+[sub_resource type="Resource" id="Resource_ur64v"]
+script = ExtResource("3_0fwce")
+check_type = 6
+key = &"harbor_masters_request"
+
+[sub_resource type="Resource" id="Resource_6insd"]
+script = ExtResource("2_s8q56")
+condition_type = 2
+single_check = SubResource("Resource_ur64v")
+
+[sub_resource type="Resource" id="rewards"]
+script = ExtResource("3_rew")
+experience = 75
+gold = 150
+unlock_flags = Array[StringName]([&"smugglers_cache_found"])
+
+[resource]
+script = ExtResource("1_def")
+quest_id = &"smugglers_cache"
+display_name = "The Smuggler's Cache"
+summary = "A rumored cache of contraband lies hidden along the coast."
+description = "Sailors at the docks whisper about a smuggler who hid a cache of valuable goods in a hidden cove. Finding it could yield useful equipment."
+quest_giver_id = &"harbor_master"
+quest_giver_location = &"docks"
+objectives = Array[ExtResource("2_obj")]([SubResource("obj_visit"), SubResource("obj_interact")])
+rewards = SubResource("rewards")
+prerequisites = SubResource("Resource_6insd")

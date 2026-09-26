@@ -16,3 +16,4 @@ effect_data = {
 "effect": "heal_flat"
 }
 proc_trigger = 9
+power_weight = 40.0

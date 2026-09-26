@@ -1,17 +1,16 @@
-[gd_resource type="Resource" script_class="DiceAffix" load_steps=4 format=3 uid="uid://dhmksb1y68052"]
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=5 format=3 uid="uid://dhmksb1y68052"]
 
-[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_lkay8"]
-[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_wv4pd"]
-[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_d1ij4"]
+[ext_resource type="Resource" uid="uid://dohdigpupqotc" path="res://resources/dice_affixes/mage/flame/conditions/cond_self_value_below_3.tres" id="1_wv4pd"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_d1ij4"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_03xbj"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_77lve"]
 
 [resource]
-script = ExtResource("2_wv4pd")
+script = ExtResource("3_03xbj")
 affix_name = "Heat Shimmer II: Reroll"
-description = "Auto-reroll fire die below 3."
+description = "Auto-reroll [element:fire] die below 3."
 use_global_element_visuals = true
 global_element_type = 3
+condition = ExtResource("1_wv4pd")
 effect_type = 10
 effect_value = 1.0
-effect_data = {
-"threshold": 2
-}

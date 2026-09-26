@@ -1,0 +1,548 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://addons/quest_manager/panels/quest_detail_panel.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://addons/npc_dialogue_manager/widgets/condition_editor_widget.tscn" id="2_condition"]
+[ext_resource type="PackedScene" path="res://addons/quest_manager/widgets/rewards_editor_widget.tscn" id="3_rewards"]
+[ext_resource type="PackedScene" path="res://addons/quest_manager/widgets/events_editor_widget.tscn" id="4_events"]
+
+[node name="QuestDetailPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("1_script")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 2
+
+[node name="MainVBox" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NoSelectionLabel" type="Label" parent="ScrollContainer/MainVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Select a quest from the browser"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="QuestDetailContainer" type="VBoxContainer" parent="ScrollContainer/MainVBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="QuestHeader" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+text = "Quest Properties"
+theme_override_font_sizes/font_size = 14
+
+[node name="QuestIdRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="QuestIdLabel" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer/QuestIdRow"]
+layout_mode = 2
+text = "Quest ID:"
+
+[node name="QuestIdEdit" type="LineEdit" parent="ScrollContainer/MainVBox/QuestDetailContainer/QuestIdRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "quest_id"
+
+[node name="DisplayNameRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="DisplayNameLabel" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer/DisplayNameRow"]
+layout_mode = 2
+text = "Name:"
+
+[node name="DisplayNameEdit" type="LineEdit" parent="ScrollContainer/MainVBox/QuestDetailContainer/DisplayNameRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Display Name"
+
+[node name="QuestTypeRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="QuestTypeLabel" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer/QuestTypeRow"]
+layout_mode = 2
+text = "Type:"
+
+[node name="QuestTypeDropdown" type="OptionButton" parent="ScrollContainer/MainVBox/QuestDetailContainer/QuestTypeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Sep1" type="HSeparator" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="DescHeader" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+text = "Description"
+theme_override_font_sizes/font_size = 13
+
+[node name="SummaryLabel" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+text = "Summary:"
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+
+[node name="SummaryEdit" type="TextEdit" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+placeholder_text = "Short quest summary..."
+wrap_mode = 1
+
+[node name="DescriptionLabel" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+text = "Description:"
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+
+[node name="DescriptionEdit" type="TextEdit" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+placeholder_text = "Full quest description..."
+wrap_mode = 1
+
+[node name="Sep2" type="HSeparator" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="GiverHeader" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+text = "Quest Giver"
+theme_override_font_sizes/font_size = 13
+
+[node name="GiverRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="GiverLabel" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer/GiverRow"]
+layout_mode = 2
+text = "Giver:"
+
+[node name="QuestGiverDropdown" type="OptionButton" parent="ScrollContainer/MainVBox/QuestDetailContainer/GiverRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GiverLocRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="GiverLocLabel" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer/GiverLocRow"]
+layout_mode = 2
+text = "Giver Loc:"
+
+[node name="QuestGiverLocationDropdown" type="OptionButton" parent="ScrollContainer/MainVBox/QuestDetailContainer/GiverLocRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TurnInRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="TurnInLabel" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer/TurnInRow"]
+layout_mode = 2
+text = "Turn-in:"
+
+[node name="TurnInNpcDropdown" type="OptionButton" parent="ScrollContainer/MainVBox/QuestDetailContainer/TurnInRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TurnInLocRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="TurnInLocLabel" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer/TurnInLocRow"]
+layout_mode = 2
+text = "Turn-in Loc:"
+
+[node name="TurnInLocationDropdown" type="OptionButton" parent="ScrollContainer/MainVBox/QuestDetailContainer/TurnInLocRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Sep3" type="HSeparator" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="PrereqHeader" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+text = "Prerequisites"
+theme_override_font_sizes/font_size = 13
+
+[node name="LevelRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="ReqLevelLabel" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer/LevelRow"]
+layout_mode = 2
+text = "Req Level:"
+
+[node name="RequiredLevelSpin" type="SpinBox" parent="ScrollContainer/MainVBox/QuestDetailContainer/LevelRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+
+[node name="RecLevelLabel" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer/LevelRow"]
+layout_mode = 2
+text = "Rec:"
+
+[node name="RecommendedLevelSpin" type="SpinBox" parent="ScrollContainer/MainVBox/QuestDetailContainer/LevelRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+
+[node name="SortRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="SortLabel" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer/SortRow"]
+layout_mode = 2
+text = "Sort Priority:"
+
+[node name="SortPrioritySpin" type="SpinBox" parent="ScrollContainer/MainVBox/QuestDetailContainer/SortRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = -999.0
+max_value = 9999.0
+
+[node name="PrerequisitesWidget" parent="ScrollContainer/MainVBox/QuestDetailContainer" instance=ExtResource("2_condition")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Sep4" type="HSeparator" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="FlagsHeader" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+text = "Flags"
+theme_override_font_sizes/font_size = 13
+
+[node name="ObjectivesUnorderedCheck" type="CheckBox" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Objectives Unordered"
+
+[node name="HiddenUntilAcceptedCheck" type="CheckBox" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Hidden Until Accepted"
+
+[node name="AutoCompleteCheck" type="CheckBox" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Auto-Complete (no turn-in)"
+
+[node name="RepeatableCheck" type="CheckBox" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Repeatable"
+
+[node name="CooldownRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="CooldownLabel" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer/CooldownRow"]
+layout_mode = 2
+text = "Repeat Cooldown:"
+
+[node name="RepeatCooldownSpin" type="SpinBox" parent="ScrollContainer/MainVBox/QuestDetailContainer/CooldownRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 99999.0
+suffix = "s"
+
+[node name="Sep5" type="HSeparator" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="FailureHeader" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+text = "Failure"
+theme_override_font_sizes/font_size = 13
+
+[node name="CanFailCheck" type="CheckBox" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Can Fail"
+
+[node name="TimeLimitRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="TimeLimitLabel" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer/TimeLimitRow"]
+layout_mode = 2
+text = "Time Limit:"
+
+[node name="TimeLimitSpin" type="SpinBox" parent="ScrollContainer/MainVBox/QuestDetailContainer/TimeLimitRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 99999.0
+suffix = "s"
+
+[node name="FailConditionLabel" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+text = "Fail Condition:"
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+
+[node name="FailConditionWidget" parent="ScrollContainer/MainVBox/QuestDetailContainer" instance=ExtResource("2_condition")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Sep6" type="HSeparator" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="RewardsHeader" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+text = "Rewards"
+theme_override_font_sizes/font_size = 13
+
+[node name="RewardsWidget" parent="ScrollContainer/MainVBox/QuestDetailContainer" instance=ExtResource("3_rewards")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Sep7" type="HSeparator" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="EventsHeader" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+text = "Events"
+theme_override_font_sizes/font_size = 13
+
+[node name="EventsWidget" parent="ScrollContainer/MainVBox/QuestDetailContainer" instance=ExtResource("4_events")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Sep8" type="HSeparator" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="VisualHeader" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+text = "Visual"
+theme_override_font_sizes/font_size = 13
+
+[node name="IconRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="IconLabel" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer/IconRow"]
+layout_mode = 2
+text = "Icon:"
+
+[node name="IconPathLabel" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer/IconRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "(none)"
+size_flags_horizontal = 3
+text_overrun_behavior = 3
+theme_override_font_sizes/font_size = 11
+
+[node name="PickIconButton" type="Button" parent="ScrollContainer/MainVBox/QuestDetailContainer/IconRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Pick"
+
+[node name="ClearIconButton" type="Button" parent="ScrollContainer/MainVBox/QuestDetailContainer/IconRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "×"
+
+[node name="MarkerIconRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/QuestDetailContainer"]
+layout_mode = 2
+
+[node name="MarkerIconLabel" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer/MarkerIconRow"]
+layout_mode = 2
+text = "Marker:"
+
+[node name="MarkerIconPathLabel" type="Label" parent="ScrollContainer/MainVBox/QuestDetailContainer/MarkerIconRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "(none)"
+size_flags_horizontal = 3
+text_overrun_behavior = 3
+theme_override_font_sizes/font_size = 11
+
+[node name="PickMarkerIconButton" type="Button" parent="ScrollContainer/MainVBox/QuestDetailContainer/MarkerIconRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Pick"
+
+[node name="ClearMarkerIconButton" type="Button" parent="ScrollContainer/MainVBox/QuestDetailContainer/MarkerIconRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "×"
+
+[node name="ObjectiveDetailContainer" type="VBoxContainer" parent="ScrollContainer/MainVBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="ObjHeader" type="Label" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+layout_mode = 2
+text = "Objective Detail"
+theme_override_font_sizes/font_size = 14
+
+[node name="BackToQuestButton" type="Button" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "← Back to Quest Properties"
+
+[node name="ObjSep0" type="HSeparator" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+layout_mode = 2
+
+[node name="ObjIdRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+layout_mode = 2
+
+[node name="ObjIdLabel" type="Label" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer/ObjIdRow"]
+layout_mode = 2
+text = "Objective ID:"
+
+[node name="ObjectiveIdEdit" type="LineEdit" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer/ObjIdRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "objective_id"
+
+[node name="ObjDescLabel" type="Label" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+layout_mode = 2
+text = "Description:"
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+
+[node name="ObjDescriptionEdit" type="TextEdit" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+placeholder_text = "Objective description... use {current}/{required}"
+wrap_mode = 1
+
+[node name="ObjSep1" type="HSeparator" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+layout_mode = 2
+
+[node name="ObjTypeRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+layout_mode = 2
+
+[node name="ObjTypeLabel" type="Label" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer/ObjTypeRow"]
+layout_mode = 2
+text = "Type:"
+
+[node name="ObjectiveTypeDropdown" type="OptionButton" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer/ObjTypeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TargetIdRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+layout_mode = 2
+
+[node name="TargetIdLabel" type="Label" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer/TargetIdRow"]
+layout_mode = 2
+text = "Target ID:"
+
+[node name="TargetIdEdit" type="LineEdit" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer/TargetIdRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "npc_id / enemy_type / item_id / location_id"
+
+[node name="CountRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+layout_mode = 2
+
+[node name="CountLabel" type="Label" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer/CountRow"]
+layout_mode = 2
+text = "Required Count:"
+
+[node name="RequiredCountSpin" type="SpinBox" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer/CountRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 1.0
+max_value = 9999.0
+
+[node name="TrackTagRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+layout_mode = 2
+
+[node name="TrackTagLabel" type="Label" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer/TrackTagRow"]
+layout_mode = 2
+text = "Track Tag:"
+
+[node name="TrackTagEdit" type="LineEdit" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer/TrackTagRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "enemy tag (for KILL objectives)"
+
+[node name="ObjSep2" type="HSeparator" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+layout_mode = 2
+
+[node name="FlowHeader" type="Label" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+layout_mode = 2
+text = "Flow Control"
+theme_override_font_sizes/font_size = 13
+
+[node name="OptionalCheck" type="CheckBox" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Optional"
+
+[node name="HiddenUntilPreviousCheck" type="CheckBox" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Hidden Until Previous Complete"
+
+[node name="NotifyOnProgressCheck" type="CheckBox" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Notify On Progress"
+
+[node name="ObjSep3" type="HSeparator" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+layout_mode = 2
+
+[node name="PrereqObjHeader" type="Label" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+layout_mode = 2
+text = "Prerequisite Objectives"
+theme_override_font_sizes/font_size = 13
+
+[node name="PrereqObjHint" type="Label" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+layout_mode = 2
+text = "Must complete before this objective activates:"
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+
+[node name="PrereqObjList" type="VBoxContainer" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ObjSep4" type="HSeparator" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+layout_mode = 2
+
+[node name="HintsHeader" type="Label" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+layout_mode = 2
+text = "Hints"
+theme_override_font_sizes/font_size = 13
+
+[node name="HintLocRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+layout_mode = 2
+
+[node name="HintLocLabel" type="Label" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer/HintLocRow"]
+layout_mode = 2
+text = "Hint Location:"
+
+[node name="HintLocationEdit" type="LineEdit" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer/HintLocRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "location_id"
+
+[node name="HintTextRow" type="HBoxContainer" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer"]
+layout_mode = 2
+
+[node name="HintTextLabel" type="Label" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer/HintTextRow"]
+layout_mode = 2
+text = "Hint Text:"
+
+[node name="HintTextEdit" type="LineEdit" parent="ScrollContainer/MainVBox/ObjectiveDetailContainer/HintTextRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Additional hint..."

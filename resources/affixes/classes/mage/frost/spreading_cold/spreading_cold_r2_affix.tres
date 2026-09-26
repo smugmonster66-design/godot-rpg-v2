@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_brr2q")
 affix_name = "Spreading Cold II"
-description = "Ice die splashes 50% of Chill applied to all other enemies."
+description = "[element:ice] die splashes 50% of [status:chill] applied to all other enemies."
 category = 39
 tags = Array[String](["mage", "frost", "mana_die_affix", "chill_apply", "aoe", "spread"])
 effect_data = {

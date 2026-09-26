@@ -171,8 +171,7 @@ func _animate_xp(results: Dictionary) -> void:
 		if current_xp >= current_needed and xp_remaining > 0:
 			current_level += 1
 			current_xp = 0
-			# Get new needed XP from the class formula: level * 100
-			current_needed = current_level * 100
+			current_needed = PlayerClass.exp_for_level(current_level)
 
 			# Flash level up
 			_flash_level_up(current_level)

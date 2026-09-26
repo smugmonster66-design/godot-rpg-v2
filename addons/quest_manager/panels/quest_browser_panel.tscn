@@ -1,0 +1,50 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/quest_manager/panels/quest_browser_panel.gd" id="1_script"]
+
+[node name="QuestBrowserPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("1_script")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="TopRow" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="BrowserLabel" type="Label" parent="VBox/TopRow"]
+layout_mode = 2
+text = "Quests"
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+
+[node name="CreateQuestButton" type="Button" parent="VBox/TopRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+ New"
+tooltip_text = "Create a new quest definition"
+
+[node name="DeleteQuestButton" type="Button" parent="VBox/TopRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Delete"
+tooltip_text = "Delete selected quest"
+
+[node name="RefreshButton" type="Button" parent="VBox/TopRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "↻"
+tooltip_text = "Refresh quest list"
+
+[node name="FilterEdit" type="LineEdit" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Filter quests..."
+
+[node name="QuestTree" type="Tree" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+hide_root = true

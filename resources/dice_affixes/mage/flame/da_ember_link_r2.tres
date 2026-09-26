@@ -7,12 +7,14 @@
 [resource]
 script = ExtResource("2_31seo")
 affix_name = "Ember Link II: Copy Neighbor"
-description = "Copy 25% of neighbor's value."
+description = "Copy 25% of higher neighbor's value."
 use_global_element_visuals = true
 global_element_type = 3
+trigger = 1
 neighbor_target = 3
-effect_type = 14
 effect_value = 0.25
+value_source = 4
 effect_data = {
-"percent": 0.25
+"copy_from": "higher_neighbor",
+"round_up": true
 }

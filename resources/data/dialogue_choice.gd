@@ -49,6 +49,12 @@ class_name DialogueChoice
 @export var set_flags: Array[StringName] = []
 ## Relationship changes when selected: { npc_id: delta }
 @export var relationship_changes: Dictionary = {}
+## Counter changes when selected: { counter_name: delta }
+## Used for morality shifts (virtue, order) and any other counters.
+@export var counter_changes: Dictionary = {}
+## Hidden NPC approval changes when selected: { npc_id: delta }
+## Unlike relationships, approval is never shown to the player.
+@export var approval_changes: Dictionary = {}
 
 # ============================================================================
 # API
@@ -95,6 +101,18 @@ func apply_effects() -> void:
 		var delta = relationship_changes[npc_id]
 		if Engine.has_singleton("GameState") or has_node("/root/GameState"):
 			GameState.modify_relationship(npc_id, delta)
+
+	# Apply counter changes (morality, etc.)
+	for counter_name in counter_changes:
+		var delta = counter_changes[counter_name]
+		if Engine.has_singleton("GameState") or has_node("/root/GameState"):
+			GameState.counters.increment(counter_name, delta)
+
+	# Apply hidden approval changes
+	for npc_id in approval_changes:
+		var delta = approval_changes[npc_id]
+		if Engine.has_singleton("GameState") or has_node("/root/GameState"):
+			GameState.modify_approval(npc_id, delta)
 
 func has_node(path: String) -> bool:
 	"""Helper to check if a node exists."""

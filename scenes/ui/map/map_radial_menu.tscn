@@ -1,0 +1,34 @@
+[gd_scene load_steps=2 format=3 uid="uid://ds4vvsa5llkiv"]
+
+[ext_resource type="Script" uid="uid://db0b2o082omc6" path="res://scripts/ui/map/map_radial_menu.gd" id="1_script"]
+
+[node name="MapRadialMenu" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Dimmer" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0)
+
+[node name="RadialContainer" type="Control" parent="."]
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="BackButton" type="Button" parent="RadialContainer"]
+visible = false
+layout_mode = 0
+offset_left = -60.0
+offset_top = 300.0
+offset_right = 60.0
+offset_bottom = 340.0
+text = "Back"

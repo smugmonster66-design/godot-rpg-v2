@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_y0oar")
 affix_name = "Apply Status per Action"
-description = "Chance to apply status per action"
+description = "{proc_chance}% chance to apply debuff per action"
 category = 35
 tags = Array[String](["proc", "status"])
 effect_data = {
@@ -17,3 +17,4 @@ proc_trigger = 8
 proc_chance = 0.25
 proc_chance_min = 0.1
 proc_chance_max = 0.4
+power_weight = 100.0

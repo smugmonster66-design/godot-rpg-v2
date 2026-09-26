@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="Action" load_steps=8 format=3 uid="uid://bgd1cj10leq4p"]
+[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://bgd1cj10leq4p"]
 
 [ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_ndmxx"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_rrpa4"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_t2bdm"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_rrpa4"]
 [ext_resource type="Resource" uid="uid://bi34um1vx7efh" path="res://resources/actions/mage/frost/effects/frost_spike_damage.tres" id="4_sdptm"]
@@ -12,7 +13,8 @@
 script = ExtResource("7_1koo0")
 action_id = "frost_frost_spike"
 action_name = "Frost Spike"
-action_description = "Deal ice damage equal to die value. Apply Chill stacks equal to die value."
+action_description = "Deal [element:ice] damage equal to die value. Apply [status:chill] stacks equal to die value."
+damage_element = 4
 min_dice_required = 1
 accepted_elements = Array[int]([5])
 max_charges = 99

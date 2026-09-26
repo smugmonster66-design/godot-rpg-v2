@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("1_dbl10")
 action_name = "Stab"
-action_description = "Deals 1D Piercing damage."
+action_description = "Deals 1D [element:piercing] damage."
 confirm_event = ExtResource("1_r4sco")
 action_category = 1
 base_damage = 2

@@ -1,7 +1,9 @@
-[gd_resource type="Theme" load_steps=47 format=3 uid="uid://b87llggw1n1df"]
+[gd_resource type="Theme" load_steps=69 format=3 uid="uid://b87llggw1n1df"]
 
 [ext_resource type="Texture2D" uid="uid://hwffuipvgxdx" path="res://assets/ui/panels/9patch fill basic.png" id="1_0u5ek"]
 [ext_resource type="FontFile" uid="uid://cs3nxhvedwvkv" path="res://assets/fonts/Stoke.otf" id="2_0u5ek"]
+[ext_resource type="Texture2D" uid="uid://c2d8q8qmb02bs" path="res://assets/ui/panels/9P plain new 400x400.png" id="3_eeyjl"]
+[ext_resource type="Texture2D" uid="uid://kyuuv2cl4d8l" path="res://assets/ui/PLACEHOLDER UI/panel_red.png" id="4_xeojp"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_phtau"]
 content_margin_left = 2.0
@@ -468,53 +470,131 @@ corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dvjkx"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxFlat_dvjkx"]
 content_margin_left = 4.0
 content_margin_top = 4.0
 content_margin_right = 4.0
 content_margin_bottom = 4.0
-bg_color = Color(0.045, 0.075, 0.120000005, 0.9)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.3, 0.5, 0.8, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xi5td"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxFlat_xi5td"]
 content_margin_left = 4.0
 content_margin_top = 4.0
 content_margin_right = 4.0
 content_margin_bottom = 4.0
-bg_color = Color(0.12, 0.12, 0.14, 0.8)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.4, 0.4, 0.4, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pk2a4"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxFlat_pk2a4"]
 content_margin_left = 4.0
 content_margin_top = 4.0
 content_margin_right = 4.0
 content_margin_bottom = 4.0
-bg_color = Color(0.12, 0.102000006, 0.024, 0.9)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(1, 0.85, 0.2, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxEmpty" id="sb_action_available"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="sb_action_locked"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="sb_action_maxed"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="sb_capstone_available"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="sb_capstone_locked"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="sb_capstone_maxed"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="sb_passive_available"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="sb_passive_locked"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="sb_passive_maxed"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="sb_signature_available"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="sb_signature_locked"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="sb_signature_maxed"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="sb_trigger_available"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="sb_trigger_locked"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="sb_trigger_maxed"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="sb_weave_available"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="sb_weave_locked"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxEmpty" id="sb_weave_maxed"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jdaux"]
 content_margin_left = 4.0
@@ -633,6 +713,20 @@ border_width_right = 2
 border_width_bottom = 2
 corner_detail = 1
 
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_xeojp"]
+texture = ExtResource("3_eeyjl")
+texture_margin_left = 66.0
+texture_margin_top = 48.0
+texture_margin_right = 48.0
+texture_margin_bottom = 48.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fgx4b"]
+texture = ExtResource("4_xeojp")
+texture_margin_left = 10.0
+texture_margin_top = 25.0
+texture_margin_right = 10.0
+texture_margin_bottom = 25.0
+
 [resource]
 default_font = ExtResource("2_0u5ek")
 default_font_size = 32
@@ -665,7 +759,7 @@ DialogueChoiceBubble/base_type = &"PanelContainer"
 DialogueChoiceBubble/styles/panel = SubResource("StyleBoxFlat_pxhl2")
 DialogueChoiceLabel/base_type = &"Label"
 DialogueChoiceLabel/colors/font_color = Color(1, 1, 1, 1)
-DialogueChoiceLabel/font_sizes/font_size = 24
+DialogueChoiceLabel/font_sizes/font_size = 40
 DialogueSpeakerName/base_type = &"RichTextLabel"
 DialogueSpeakerName/colors/default_color = Color(1, 0.9309246, 0.48452926, 1)
 DialogueSpeakerName/font_sizes/normal_font_size = 45
@@ -684,6 +778,7 @@ EnemyPanel/colors/font_color = Color(1, 1, 1, 1)
 EnemyPanel/styles/panel = SubResource("StyleBoxTexture_eeyjl")
 FlavorLabel/base_type = &"Label"
 FlavorLabel/font_sizes/font_size = 24
+FloaterLabel/base_type = &"floater"
 IconButton/colors/font_active_color = Color(1, 1, 1, 1)
 IconButton/colors/font_inactive_color = Color(0.5, 0.5, 0.55, 1)
 IconButton/styles/hover = SubResource("StyleBoxFlat_7ybn2")
@@ -696,7 +791,7 @@ ItemSlotPanel/styles/panel_selected = SubResource("StyleBoxFlat_pax38")
 Label/colors/font_color = Color(1, 1, 1, 1)
 Label/colors/font_outline_color = Color(0, 0, 0, 1)
 Label/colors/font_shadow_color = Color(0, 0, 0, 0.5)
-Label/constants/outline_size = 7
+Label/constants/outline_size = 16
 Label/constants/shadow_offset_x = 1
 Label/constants/shadow_offset_y = 1
 Label/font_sizes/Flavour_Font_Size = 20
@@ -704,17 +799,64 @@ MenuHeader/colors/font_color = Color(1, 0.85, 0.2, 1)
 MenuHeader/font_sizes/font_size = 24
 MenuHeader/styles/panel = SubResource("StyleBoxFlat_rcal2")
 MenuPanel/styles/panel = SubResource("StyleBoxFlat_sfbe5")
+ObjText/base_type = &"Label"
+ObjText/colors/font_color = Color(0.78, 0.812, 0.867, 1)
+ObjText/font_sizes/font_size = 40
 Panel/styles/panel = SubResource("StyleBoxFlat_14spp")
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_8dmp8")
 ProgressBar/styles/background = SubResource("StyleBoxFlat_u3ksq")
 ProgressBar/styles/fill = SubResource("StyleBoxFlat_j2sib")
 RichTextLabel/constants/outline_size = 7
+SkillButton/base_type = &"PanelContainer"
 SkillButton/colors/font_available_color = Color(1, 1, 1, 1)
 SkillButton/colors/font_locked_color = Color(0.5, 0.5, 0.55, 1)
 SkillButton/colors/font_maxed_color = Color(1, 0.85, 0.2, 1)
 SkillButton/styles/available = SubResource("StyleBoxFlat_dvjkx")
 SkillButton/styles/locked = SubResource("StyleBoxFlat_xi5td")
 SkillButton/styles/maxed = SubResource("StyleBoxFlat_pk2a4")
+SkillButton/styles/panel = SubResource("StyleBoxFlat_dvjkx")
+SkillButtonAction/base_type = &"SkillButton"
+SkillButtonAction/colors/font_available_color = Color(0.55, 0.9, 0.6, 1)
+SkillButtonAction/colors/font_locked_color = Color(0.5, 0.5, 0.55, 1)
+SkillButtonAction/colors/font_maxed_color = Color(1, 0.85, 0.2, 1)
+SkillButtonAction/styles/available = SubResource("sb_action_available")
+SkillButtonAction/styles/locked = SubResource("sb_action_locked")
+SkillButtonAction/styles/maxed = SubResource("sb_action_maxed")
+SkillButtonCapstone/base_type = &"SkillButton"
+SkillButtonCapstone/colors/font_available_color = Color(1, 0.65, 0.5, 1)
+SkillButtonCapstone/colors/font_locked_color = Color(0.5, 0.5, 0.55, 1)
+SkillButtonCapstone/colors/font_maxed_color = Color(1, 0.85, 0.2, 1)
+SkillButtonCapstone/styles/available = SubResource("sb_capstone_available")
+SkillButtonCapstone/styles/locked = SubResource("sb_capstone_locked")
+SkillButtonCapstone/styles/maxed = SubResource("sb_capstone_maxed")
+SkillButtonPassive/base_type = &"SkillButton"
+SkillButtonPassive/colors/font_available_color = Color(0.65, 0.75, 0.95, 1)
+SkillButtonPassive/colors/font_locked_color = Color(0.5, 0.5, 0.55, 1)
+SkillButtonPassive/colors/font_maxed_color = Color(1, 0.85, 0.2, 1)
+SkillButtonPassive/styles/available = SubResource("sb_passive_available")
+SkillButtonPassive/styles/locked = SubResource("sb_passive_locked")
+SkillButtonPassive/styles/maxed = SubResource("sb_passive_maxed")
+SkillButtonSignature/base_type = &"SkillButton"
+SkillButtonSignature/colors/font_available_color = Color(0.85, 0.6, 1, 1)
+SkillButtonSignature/colors/font_locked_color = Color(0.5, 0.5, 0.55, 1)
+SkillButtonSignature/colors/font_maxed_color = Color(1, 0.85, 0.2, 1)
+SkillButtonSignature/styles/available = SubResource("sb_signature_available")
+SkillButtonSignature/styles/locked = SubResource("sb_signature_locked")
+SkillButtonSignature/styles/maxed = SubResource("sb_signature_maxed")
+SkillButtonTrigger/base_type = &"SkillButton"
+SkillButtonTrigger/colors/font_available_color = Color(1, 0.75, 0.45, 1)
+SkillButtonTrigger/colors/font_locked_color = Color(0.5, 0.5, 0.55, 1)
+SkillButtonTrigger/colors/font_maxed_color = Color(1, 0.85, 0.2, 1)
+SkillButtonTrigger/styles/available = SubResource("sb_trigger_available")
+SkillButtonTrigger/styles/locked = SubResource("sb_trigger_locked")
+SkillButtonTrigger/styles/maxed = SubResource("sb_trigger_maxed")
+SkillButtonWeave/base_type = &"SkillButton"
+SkillButtonWeave/colors/font_available_color = Color(0.5, 0.9, 0.9, 1)
+SkillButtonWeave/colors/font_locked_color = Color(0.5, 0.5, 0.55, 1)
+SkillButtonWeave/colors/font_maxed_color = Color(1, 0.85, 0.2, 1)
+SkillButtonWeave/styles/available = SubResource("sb_weave_available")
+SkillButtonWeave/styles/locked = SubResource("sb_weave_locked")
+SkillButtonWeave/styles/maxed = SubResource("sb_weave_maxed")
 TabContainer/colors/font_hovered_color = Color(0.78, 0.78, 0.82, 1)
 TabContainer/colors/font_selected_color = Color(1, 1, 1, 1)
 TabContainer/colors/font_unselected_color = Color(0.5, 0.5, 0.55, 1)
@@ -734,6 +876,9 @@ VScrollBar/styles/grabber_highlight = SubResource("StyleBoxFlat_k16lf")
 VScrollBar/styles/scroll = SubResource("StyleBoxFlat_rlewp")
 caption/base_type = &"Label"
 caption/font_sizes/font_size = 36
+charmenuheader/base_type = &"Label"
+charmenuheader/colors/font_color = Color(1, 0.784, 0.145, 1)
+charmenuheader/font_sizes/font_size = 42
 combo_floater/base_type = &"floater"
 combo_floater/colors/font_color = Color(0.85, 0.3, 1, 1)
 crit_floater/base_type = &"floater"
@@ -742,8 +887,16 @@ damage_floater/base_type = &"floater"
 damage_floater/colors/font_color = Color(1, 0.2, 0.2, 1)
 die_value_grew_floater/base_type = &"floater"
 die_value_grew_floater/colors/font_color = Color(0.4, 1, 0.4, 1)
+die_value_grew_floater/constants/duration_ms = 700
+die_value_grew_floater/constants/rise_distance = 80
+die_value_grew_floater/constants/scatter_x = 60
+die_value_grew_floater/font_sizes/font_size = 80
 die_value_shrunk_floater/base_type = &"floater"
 die_value_shrunk_floater/colors/font_color = Color(1, 0.3, 0.3, 1)
+die_value_shrunk_floater/constants/duration_ms = 700
+die_value_shrunk_floater/constants/rise_distance = 80
+die_value_shrunk_floater/constants/scatter_x = 60
+die_value_shrunk_floater/font_sizes/font_size = 80
 display/base_type = &"Label"
 display/colors/font_color = Color(0, 0, 0, 1)
 display/colors/font_outline_color = Color(0, 0, 0, 1)
@@ -757,18 +910,62 @@ display/font_sizes/font_size = 36
 display/styles/focus = SubResource("StyleBoxFlat_m48fx")
 display/styles/normal = SubResource("StyleBoxFlat_m48fx")
 floater/base_type = &"Label"
-floater/constants/duration_ms = 700
-floater/constants/rise_distance = 100
-floater/constants/scatter_x = 0
-floater/font_sizes/font_size = 80
+floater/constants/duration_ms = 1000
+floater/constants/outline_size = 35
+floater/constants/rise_distance = -200
+floater/constants/scatter_x = 128
+floater/font_sizes/font_size = 100
 header/base_type = &"Label"
 header/font_sizes/font_size = 60
 heal_floater/base_type = &"floater"
 heal_floater/colors/font_color = Color(0.3, 1, 0.4, 1)
+itempopup_action/base_type = &"RichTextLabel"
+itempopup_action/font_sizes/normal_font_size = 30
+itempopup_affix_base/base_type = &"RichTextLabel"
+itempopup_affix_base/font_sizes/normal_font_size = 30
+itempopup_affix_inherent/base_type = &"RichTextLabel"
+itempopup_affix_inherent/font_sizes/normal_font_size = 30
+itempopup_affix_rolled/base_type = &"RichTextLabel"
+itempopup_affix_rolled/colors/default_color = Color(0.9, 0.7, 0.3, 1)
+itempopup_affix_rolled/font_sizes/normal_font_size = 30
+itempopup_description/base_type = &"RichTextLabel"
+itempopup_description/font_sizes/normal_font_size = 30
+itempopup_dice_header/base_type = &"Label"
+itempopup_dice_header/colors/font_color = Color(0.573, 0.631, 0.725, 1)
+itempopup_dice_header/font_sizes/font_size = 30
+itempopup_element/base_type = &"Label"
+itempopup_element/font_sizes/font_size = 30
+itempopup_flavor/base_type = &"RichTextLabel"
+itempopup_flavor/font_sizes/normal_font_size = 26
+itempopup_legendaryaffixname/base_type = &"RichTextLabel"
+itempopup_legendaryaffixname/colors/default_color = Color(0.8, 0.267, 0.267, 1)
+itempopup_legendaryaffixname/font_sizes/normal_font_size = 26
+itempopup_requirement/base_type = &"Label"
+itempopup_requirement/font_sizes/font_size = 28
+itempopup_section_header/base_type = &"Label"
+itempopup_section_header/colors/font_color = Color(0.573, 0.631, 0.725, 1)
+itempopup_section_header/font_sizes/font_size = 30
+itempopup_sellvalue/base_type = &"Label"
+itempopup_sellvalue/font_sizes/font_size = 28
+itempopup_set_header/base_type = &"RichTextLabel"
+itempopup_set_header/font_sizes/normal_font_size = 32
+itempopup_set_threshold/base_type = &"RichTextLabel"
+itempopup_set_threshold/font_sizes/normal_font_size = 28
+itempopup_subtitle/base_type = &"Label"
+itempopup_subtitle/colors/font_color = Color(0.573, 0.631, 0.725, 1)
+itempopup_subtitle/font_sizes/font_size = 30
+itempopup_title/base_type = &"Label"
+itempopup_title/font_sizes/font_size = 60
 large/base_type = &"Label"
 large/font_sizes/font_size = 60
 mana_gained_floater/base_type = &"floater"
 mana_gained_floater/colors/font_color = Color(0.4, 0.6, 1, 1)
+maplocationlabel/base_type = &"Label"
+maplocationlabel/font_sizes/font_size = 60
+menupanel/base_type = &"PanelContainer"
+menupanel/styles/panel = SubResource("StyleBoxTexture_xeojp")
+nameplate/base_type = &"PanelContainer"
+nameplate/styles/panel = SubResource("StyleBoxTexture_fgx4b")
 normal/base_type = &"Label"
 normal/font_sizes/font_size = 40
 shield_broken_floater/base_type = &"floater"
@@ -776,7 +973,25 @@ shield_broken_floater/colors/font_color = Color(0.6, 0.9, 1, 1)
 shield_gained_floater/base_type = &"floater"
 shield_gained_floater/colors/font_color = Color(0.5, 0.8, 1, 1)
 small/base_type = &"Label"
-small/font_sizes/font_size = 50
+small/font_sizes/font_size = 35
+smithing_affix/base_type = &"RichTextLabel"
+smithing_affix/font_sizes/normal_font_size = 32
+smithing_button/base_type = &"Label"
+smithing_button/font_sizes/font_size = 28
+smithing_component/base_type = &"Label"
+smithing_component/font_sizes/font_size = 30
+smithing_cost/base_type = &"Label"
+smithing_cost/font_sizes/font_size = 28
+smithing_header/base_type = &"Label"
+smithing_header/font_sizes/font_size = 48
+smithing_label/base_type = &"Label"
+smithing_label/font_sizes/font_size = 36
+smithing_subtitle/base_type = &"Label"
+smithing_subtitle/colors/font_color = Color(0.573, 0.631, 0.725, 1)
+smithing_subtitle/font_sizes/font_size = 30
+smithing_title/base_type = &"Label"
+smithing_title/colors/font_color = Color(0.95, 0.85, 0.4, 1)
+smithing_title/font_sizes/font_size = 56
 sourcefloater/base_type = &"Label"
 sourcefloater/colors/Burn = Color(0.776, 0.271, 0.141, 1)
 sourcefloater/colors/Chill = Color(0, 0.804, 0.976, 1)

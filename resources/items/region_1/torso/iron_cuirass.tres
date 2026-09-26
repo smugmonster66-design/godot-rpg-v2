@@ -7,13 +7,14 @@
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="3_v66mx"]
 [ext_resource type="Resource" uid="uid://cbv0pogyu7y55" path="res://resources/slot_definitions/torso_slot.tres" id="4_hfvoh"]
 [ext_resource type="Resource" uid="uid://bvlqcx16ejx" path="res://resources/affixes/base_stats/inherent_armor.tres" id="4_m5g56"]
-[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="6_2rtlj"]
+[ext_resource type="Texture2D" uid="uid://ffw7kh75kpbt" path="res://assets/items/torso/iron cuirass.png" id="6_2rtlj"]
 
 [resource]
 script = ExtResource("3_v66mx")
 item_name = "Iron Cuirass"
 description = ""
 flavor_text = "They make them tough in Sanctum. The cuirass, that is."
+icon = ExtResource("6_2rtlj")
 rarity = 1
 equip_slot = 1
 slot_definition = ExtResource("4_hfvoh")

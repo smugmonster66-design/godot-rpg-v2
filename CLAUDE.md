@@ -87,6 +87,12 @@ See `docs/DIALOGUE_SYSTEM.md`. Signal-based with speech bubbles, character busts
 
 - **Find-replace delivery** — When proposing code changes, provide a FIND code block and a separate REPLACE code block so the user can copy-paste the replacement directly. Do not edit files directly.
 
+## GDScript Pitfalls
+
+- **Verify class names before using them** — Godot built-in class names assumed to exist (e.g. `FoldableContainerGroup`, `ButtonGroup` variants) may not be declared. Using an unknown class with `:=` type inference produces a *cascade* of two errors: "Identifier not declared" AND "Cannot infer the type … value doesn't have a set type". Always confirm a class exists in the project or Godot docs before referencing it.
+- **Prefer `var x = Foo.new()` over `var x := Foo.new()`** when there is any doubt about whether `Foo` is a recognised type — the untyped form gives a cleaner single error if `Foo` is missing.
+- **Typed arrays on duplicated resources are read-only** — reassign with a fresh `Array[T]` rather than mutating in place (see feedback memory).
+
 ## Key Conventions
 
 - **Composition over inheritance** — Most features added via affixes/effects, not deep class hierarchies
@@ -95,6 +101,7 @@ See `docs/DIALOGUE_SYSTEM.md`. Signal-based with speech bubbles, character busts
 - **Resource paths** follow `resources/{type}/{region_or_category}/` pattern
 - **Action definitions** in `resources/actions/` with effects defined as ActionEffect arrays in ActionEffectSlots
 - **Enemies** defined in `resources/enemies/` with EnemyData resources containing actions, dice, AI strategy
+- **Dynamic node discovery** — Scripts must find scene children via `find_child("NodeName", true, false)` in a `_discover_nodes()` method called from `_ready()`, never hardcoded paths like `$Panel/Margin/MainVBox/Label`. This lets the scene tree be freely restructured without breaking the script. Node names must be unique within their scene.
 
 ## Custom Editor Addons
 

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EquippableItem" load_steps=12 format=3 uid="uid://bsik173yxjwnj"]
+[gd_resource type="Resource" script_class="EquippableItem" load_steps=16 format=3 uid="uid://bsik173yxjwnj"]
 
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_e6poo"]
 [ext_resource type="Resource" uid="uid://c16ue6hpnwlnb" path="res://resources/actions/items/region_1/parrying_blade_parry_action.tres" id="1_fgxe3"]
@@ -8,8 +8,12 @@
 [ext_resource type="Resource" uid="uid://ckylwdt2phbob" path="res://resources/affixes/base_stats/inherent_damage.tres" id="3_qpl2g"]
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="4_qpl2g"]
 [ext_resource type="Script" uid="uid://gax4pbuq25uv" path="res://resources/data/equippable_item.gd" id="5_fgxe3"]
+[ext_resource type="PackedScene" uid="uid://deihcv1lv01sk" path="res://scenes/ui/components/dice/combat/combat_die_d4.tscn" id="6_oyxod"]
 [ext_resource type="Resource" uid="uid://btsq4gakq82l7" path="res://resources/slot_definitions/off_hand_slot.tres" id="6_phf52"]
-[ext_resource type="Texture2D" uid="uid://blk2cbojeo4s0" path="res://assets/ui/icons/items/placeholder_item.png" id="7_qpl2g"]
+[ext_resource type="Texture2D" uid="uid://b0vo6kryy0h8k" path="res://assets/dice/d4s/d4-fill-basic.png" id="8_n3e48"]
+[ext_resource type="PackedScene" uid="uid://dmhagoi26ilhr" path="res://scenes/ui/components/dice/pool/pool_die_d4.tscn" id="10_v6f50"]
+[ext_resource type="Texture2D" uid="uid://chvsl8icqe00h" path="res://assets/dice/d4s/d4-stroke-basic.png" id="11_cw8rc"]
+[ext_resource type="Texture2D" uid="uid://bwfl377s8fjwb" path="res://assets/items/off hand/parrying blade.png" id="12_oyxod"]
 
 [sub_resource type="Resource" id="Resource_e6poo"]
 script = ExtResource("2_pgo5v")
@@ -17,12 +21,17 @@ display_name = "D4"
 die_type = 4
 element = 3
 element_affix = ExtResource("3_41ntu")
+fill_texture = ExtResource("8_n3e48")
+stroke_texture = ExtResource("11_cw8rc")
+combat_die_scene = ExtResource("6_oyxod")
+pool_die_scene = ExtResource("10_v6f50")
 
 [resource]
 script = ExtResource("5_fgxe3")
 item_name = "Parrying Blade"
 description = ""
 flavor_text = "The best defense is a good offense. The second best defense is a blade in the other hand."
+icon = ExtResource("12_oyxod")
 rarity = 1
 equip_slot = 5
 has_elemental_identity = true

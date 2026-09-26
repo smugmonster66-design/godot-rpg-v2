@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="DialogueEncounter" load_steps=11 format=3 uid="uid://cuvp4abo21f1c"]
+[gd_resource type="Resource" script_class="DialogueEncounter" load_steps=22 format=3 uid="uid://cuvp4abo21f1c"]
 
 [ext_resource type="Script" uid="uid://bo4owbm81mlc6" path="res://resources/data/dialogue_choice.gd" id="1_rclkl"]
 [ext_resource type="Script" uid="uid://bw7tg7tcax8cj" path="res://resources/data/dialogue_line.gd" id="2_ev6nw"]
@@ -6,36 +6,105 @@
 [ext_resource type="Script" uid="uid://08ijmdrudpd1" path="res://resources/data/dialogue_speaker.gd" id="4_1puqc"]
 [ext_resource type="Resource" uid="uid://dj8tngj1dy00j" path="res://resources/dialogues/speakers/ds_cate.tres" id="5_0low1"]
 
-[sub_resource type="Resource" id="Resource_1oqw8"]
+[sub_resource type="Resource" id="Resource_rclkl"]
+script = ExtResource("1_rclkl")
+label = "SIGH."
+
+[sub_resource type="Resource" id="Resource_defeat1"]
+script = ExtResource("2_ev6nw")
+choices = Array[ExtResource("1_rclkl")]([SubResource("Resource_rclkl")])
+auto_advance = true
+auto_advance_delay = 0.0
+event_tag = &"game_action:6:harbor_masters_request:defeat_one_navy"
+
+[sub_resource type="Resource" id="Resource_ev6nw"]
 script = ExtResource("2_ev6nw")
 speaker_id = &"cate"
-text = "MEOW"
+text = "You heard me, Bones. Go. Shank. A. MARINE. In fact, go shank [shake rate=10 level=5]three[/shake]. "
+set_right_bust = &"cate"
+next_line = SubResource("Resource_defeat1")
+
+[sub_resource type="Resource" id="Resource_56i8u"]
+script = ExtResource("1_rclkl")
+label = "Go WHAT?!"
+next_line = SubResource("Resource_ev6nw")
+
+[sub_resource type="Resource" id="Resource_1puqc"]
+script = ExtResource("2_ev6nw")
+choices = Array[ExtResource("1_rclkl")]([SubResource("Resource_56i8u")])
+auto_advance = true
+auto_advance_delay = 0.0
+event_tag = &"game_action:6:harbor_masters_request:talk_harbor_master_1"
+
+[sub_resource type="Resource" id="Resource_0low1"]
+script = ExtResource("2_ev6nw")
+speaker_id = &"cate"
+text = "Now go shank a Marine!"
 mood = &"amused"
 set_right_bust = &"cate"
+next_line = SubResource("Resource_1puqc")
+
+[sub_resource type="Resource" id="Resource_1oqw8"]
+script = ExtResource("2_ev6nw")
+next_line = SubResource("Resource_0low1")
+auto_advance = true
+auto_advance_delay = 0.0
+event_tag = &"game_action:4:harbor_masters_request"
 
 [sub_resource type="Resource" id="Resource_83n0n"]
 script = ExtResource("1_rclkl")
-label = "Hi Cate!"
+label = "That's some fancy text. I'm in."
 next_line = SubResource("Resource_1oqw8")
 
 [sub_resource type="Resource" id="Resource_sbruc"]
-script = ExtResource("1_rclkl")
-label = "Hi Kitty!"
-next_line = SubResource("Resource_1oqw8")
+script = ExtResource("2_ev6nw")
+speaker_id = &"cate"
+text = "You'll be back. They always come back. [tremble rate=15 amp=2]ALWAYS[/tremble]."
+set_right_bust = &"cate"
 
 [sub_resource type="Resource" id="Resource_ps04i"]
 script = ExtResource("1_rclkl")
-label = "Hi Catey!"
-next_line = SubResource("Resource_1oqw8")
+label = "Not sure I really care, Cate."
+next_line = SubResource("Resource_sbruc")
 
 [sub_resource type="Resource" id="Resource_wrshd"]
 script = ExtResource("2_ev6nw")
 speaker_id = &"cate"
-text = "Hi!"
+text = "Just kidding. It's a surprise [wave amp=30 freq=2][rainbow freq=0.2]quest[/rainbow][/wave] this time. "
 set_right_bust = &"cate"
-choices = Array[ExtResource("1_rclkl")]([SubResource("Resource_83n0n"), SubResource("Resource_sbruc"), SubResource("Resource_ps04i")])
+choices = Array[ExtResource("1_rclkl")]([SubResource("Resource_83n0n"), SubResource("Resource_ps04i")])
+
+[sub_resource type="Resource" id="Resource_h3yr3"]
+script = ExtResource("2_ev6nw")
+speaker_id = &"cate"
+text = "SURPRISE ATTACK!"
+mood = &"amused"
+set_right_bust = &"cate"
+next_line = SubResource("Resource_wrshd")
+
+[sub_resource type="Resource" id="Resource_rbo3w"]
+script = ExtResource("1_rclkl")
+label = "Ooh, I love surprises!"
+next_line = SubResource("Resource_h3yr3")
+
+[sub_resource type="Resource" id="Resource_fur1r"]
+script = ExtResource("1_rclkl")
+label = "Isn't that ... surprising?"
+next_line = SubResource("Resource_h3yr3")
+
+[sub_resource type="Resource" id="Resource_g5eui"]
+script = ExtResource("1_rclkl")
+label = "You know what? I don't trust you."
+next_line = SubResource("Resource_h3yr3")
+
+[sub_resource type="Resource" id="Resource_skec6"]
+script = ExtResource("2_ev6nw")
+speaker_id = &"cate"
+text = "Oh! Hi! You made it to Embergate! It's time for a surprise."
+set_right_bust = &"cate"
+choices = Array[ExtResource("1_rclkl")]([SubResource("Resource_rbo3w"), SubResource("Resource_fur1r"), SubResource("Resource_g5eui")])
 
 [resource]
 script = ExtResource("3_56i8u")
 speakers = Array[ExtResource("4_1puqc")]([ExtResource("5_0low1")])
-first_line = SubResource("Resource_wrshd")
+first_line = SubResource("Resource_skec6")

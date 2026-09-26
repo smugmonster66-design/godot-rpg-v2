@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="DiceAffix" load_steps=8 format=3 uid="uid://dv6ftaw6ek77h"]
+
+[ext_resource type="Resource" uid="uid://b8nsg45u1mbds" path="res://resources/dice_affixes/mage/flame/conditions/cond_self_value_is_max.tres" id="1_nqn35"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="2_rps4x"]
+[ext_resource type="PackedScene" uid="uid://cf03pfvr05lfo" path="res://scenes/effects/new/fire/fire_impact.tscn" id="3_kb48i"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="3_ygyph"]
+[ext_resource type="Script" uid="uid://luoa1f4jirnk" path="res://resources/data/combat_animation_set.gd" id="4_633oj"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="4_kb48i"]
+
+[sub_resource type="Resource" id="Resource_ws77n"]
+script = ExtResource("4_633oj")
+impact_effect = ExtResource("3_kb48i")
+metadata/_custom_type_script = "uid://luoa1f4jirnk"
+
+[resource]
+script = ExtResource("3_ygyph")
+affix_name = "Flashfire I: Max Roll Cascade"
+description = "Max roll: next [element:fire] die this turn gains +3 value."
+use_global_element_visuals = true
+global_element_type = 3
+trigger = 1
+condition = ExtResource("1_nqn35")
+effect_type = 16
+effect_data = {
+"stacks": 3,
+"status_id": "flashfire_buff",
+"target": "self"
+}
+proc_anim_set = SubResource("Resource_ws77n")

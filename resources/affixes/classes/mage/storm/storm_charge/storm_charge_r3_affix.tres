@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_5kigr")
 affix_name = "Storm Charge III"
-description = "Applying Static to 10+ target spreads 3 to others."
+description = "Applying [status:static] to 10+ target spreads 3 to others."
 category = 35
 tags = Array[String](["mage", "storm", "voltaic", "static_spread"])
 effect_number = 3.0

@@ -6,9 +6,10 @@
 
 [resource]
 script = ExtResource("2_ebf7k")
-affix_name = "Inherent Defense"
-description = "+{value} Defense"
-category = 11
-tags = Array[String](["defense", "inherent"])
+affix_name = "Inherent Armor"
+description = "+{value} Armor"
+category = 13
+tags = Array[String](["armor", "inherent"])
 effect_min = 1.0
 effect_max = 50.0
+power_weight = 100.0

@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="Action" load_steps=10 format=3 uid="uid://cju6bkpgqju"]
+
+[ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_hut7u"]
+[ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_y6lix"]
+[ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_4qkua"]
+[ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="4_m1r1e"]
+[ext_resource type="Script" uid="uid://klf77hgcwdfc" path="res://resources/data/element_animation_override.gd" id="5_lbh7x"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="6_vc753"]
+
+[sub_resource type="Resource" id="Resource_hut7u"]
+script = ExtResource("1_hut7u")
+condition = 5
+threshold = 0.0
+status_id = "corrode"
+effect = 1
+multiplier_value = 3.0
+
+[sub_resource type="Resource" id="Resource_y6lix"]
+script = ExtResource("1_hut7u")
+condition = 6
+threshold = 0.0
+status_id = "corrode"
+effect = 1
+multiplier_value = 0.1
+
+[sub_resource type="Resource" id="Resource_4qkua"]
+script = ExtResource("3_4qkua")
+effect_name = "Overload Damage"
+value_source = 8
+value_source_status_id = "corrode"
+damage_type = 5
+base_damage = 4
+damage_multiplier = 2.0
+
+[resource]
+script = ExtResource("6_vc753")
+action_id = "navy_overload"
+action_name = "Overload"
+action_description = "Devastating attack that scales with corrosion."
+damage_element = 5
+charge_type = 2
+max_charges = 2
+effects = Array[ExtResource("3_4qkua")]([SubResource("Resource_4qkua")])
+ai_hints = Array[ExtResource("1_hut7u")]([SubResource("Resource_hut7u"), SubResource("Resource_y6lix")])

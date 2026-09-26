@@ -313,7 +313,10 @@ func _on_dice_shattered(shattered_indices: Array[int]):
 		
 		if not visual:
 			continue
-		
+
+		if visual is DieObjectBase:
+			visual.is_interactable = false
+
 		var center = visual.global_position + visual.size / 2
 		
 		# Get die texture/tint for fragments

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="StatusAffix" load_steps=6 format=3 uid="uid://brdk5run2hsbb"]
+
+[ext_resource type="Script" uid="uid://dfaph2f2anhu0" path="res://resources/data/status_dice_effect.gd" id="1_i6n6r"]
+[ext_resource type="Script" uid="uid://f3smt3r2ujm7" path="res://resources/data/status_affix.gd" id="1_status"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_o6n2v"]
+[ext_resource type="Texture2D" uid="uid://ciccej5h7mjpt" path="res://assets/status_effects/restrained_status.png" id="3_tnsv0"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="5_vdnsh"]
+
+[resource]
+script = ExtResource("1_status")
+status_id = "restrained"
+max_stacks = 20
+refresh_on_reapply = false
+cleanse_tags = Array[String](["debuff", "cc", "restrained"])
+affix_name = "Restrained"
+description = "Cannot use normal actions."
+icon = ExtResource("3_tnsv0")
+show_in_summary = false
+category = 33

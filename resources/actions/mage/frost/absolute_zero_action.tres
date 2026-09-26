@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="Action" load_steps=9 format=3 uid="uid://bddlm0y7s6qlj"]
+[gd_resource type="Resource" script_class="Action" load_steps=10 format=3 uid="uid://bddlm0y7s6qlj"]
 
 [ext_resource type="Script" uid="uid://c0y1bucyhd1a7" path="res://resources/data/action_ai_hint.gd" id="1_hddqv"]
+[ext_resource type="Script" uid="uid://ctj6qk4pb7ur3" path="res://resources/data/bark_entry.gd" id="2_1veij"]
 [ext_resource type="Script" uid="uid://bysxmunj1xc0u" path="res://scripts/resources/action_effect_slot.gd" id="2_24eij"]
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="3_1veij"]
 [ext_resource type="Resource" uid="uid://c2yh103e3rg8d" path="res://resources/actions/mage/frost/effects/absolute_zero_damage.tres" id="4_3ig44"]
@@ -13,7 +14,8 @@
 script = ExtResource("8_l4cdd")
 action_id = "frost_absolute_zero"
 action_name = "Absolute Zero"
-action_description = "Deal ice damage to ALL enemies equal to dice total. Apply Chill = dice total to all. If any Freeze triggers, reset Shatter charge."
+action_description = "Deal [element:ice] damage to ALL enemies equal to dice total. Apply [status:chill] = dice total to all. If any [status:freeze] triggers, reset Shatter charge."
+damage_element = 4
 die_slots = 3
 min_dice_required = 3
 accepted_elements = Array[int]([5])

@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_orv0g")
 affix_name = "Apply Burn on Hit"
-description = "N% chance to Burn on hit"
+description = "{proc_chance}% chance to [status:burn|Burn] on hit"
 category = 35
 tags = Array[String](["proc", "status", "fire", "on_hit"])
 effect_data = {
@@ -18,3 +18,4 @@ proc_trigger = 1
 proc_chance = 0.3
 proc_chance_min = 0.1
 proc_chance_max = 0.5
+power_weight = 85.0

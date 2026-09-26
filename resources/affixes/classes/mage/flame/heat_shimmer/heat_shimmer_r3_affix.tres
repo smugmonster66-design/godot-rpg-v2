@@ -1,30 +1,16 @@
-[gd_resource type="Resource" script_class="Affix" load_steps=8 format=3 uid="uid://ddbghn5e8ikqv"]
+[gd_resource type="Resource" script_class="Affix" load_steps=5 format=3 uid="uid://ddbghn5e8ikqv"]
 
-[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="1_nk2uw"]
-[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="2_dt6ua"]
-[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="3_ct3ra"]
-[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="4_y25s2"]
-[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="5_uy17r"]
-[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="6_pch5n"]
-
-[sub_resource type="Resource" id="Resource_nk2uw"]
-script = ExtResource("2_dt6ua")
-affix_name = "Heat Shimmer III: Reroll"
-description = "Auto-reroll fire die below 4."
-use_global_element_visuals = true
-global_element_type = 3
-effect_type = 10
-effect_value = 1.0
-effect_data = {
-"threshold": 3
-}
+[ext_resource type="Resource" uid="uid://byonluuhwrx87" path="res://resources/dice_affixes/mage/flame/da_heat_shimmer_r3.tres" id="1_0ih3j"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="2_5hrb1"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="3_nk2uw"]
+[ext_resource type="Script" uid="uid://dkreqxqothbj6" path="res://resources/data/affix_sub_effect.gd" id="4_dt6ua"]
 
 [resource]
-script = ExtResource("5_uy17r")
+script = ExtResource("3_nk2uw")
 affix_name = "Heat Shimmer III"
-description = "Auto-reroll fire dice that roll ≤3."
+description = "[element:fire] dice auto-reroll below 4."
 category = 39
-tags = Array[String](["mage", "flame", "mana_die_affix", "reroll"])
+tags = Array[String](["mage", "flame", "mana_die_affix", "reroll", "forge"])
 effect_data = {
-"dice_affix": SubResource("Resource_nk2uw")
+"dice_affix": ExtResource("1_0ih3j")
 }

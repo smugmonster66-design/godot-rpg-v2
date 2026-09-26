@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("3_b5dgo")
 affix_name = "Brittle II: Chill Damage"
-description = "+2 damage per 4 Chill on target."
+description = "+2 damage per 4 [status:chill] on target."
 use_global_element_visuals = true
 global_element_type = 4
 trigger = 1

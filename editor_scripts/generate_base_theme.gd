@@ -47,6 +47,13 @@ const P := {
 	locked    = Color(0.40, 0.40, 0.40),
 	available = Color(0.30, 0.50, 0.80),
 	maxed     = Color(1.0, 0.85, 0.20),
+	# Skill categories
+	cat_passive   = Color(0.45, 0.55, 0.75),   # Steel blue — steady, always-on
+	cat_trigger   = Color(0.85, 0.55, 0.25),   # Amber — reactive, proc-based
+	cat_action    = Color(0.35, 0.70, 0.40),   # Green — usable combat action
+	cat_signature = Color(0.65, 0.40, 0.80),   # Purple — flashiest move
+	cat_weave     = Color(0.30, 0.70, 0.70),   # Teal — cross-branch convergence
+	cat_capstone  = Color(0.90, 0.45, 0.30),   # Crimson-orange — pinnacle
 	# Health bars
 	health     = Color(0.20, 0.75, 0.25),
 	health_low = Color(0.85, 0.25, 0.25),
@@ -84,8 +91,10 @@ func _run() -> void:
 	# Game-specific type variations
 	_setup_action_field_type(theme)
 	_setup_skill_button_type(theme)
+	_setup_skill_button_category_types(theme)
 	_setup_combat_panel_types(theme)
 	_setup_menu_types(theme)
+	_setup_floater_label_type(theme)
 
 	# Save
 	DirAccess.make_dir_recursive_absolute("res://resources/themes")
@@ -343,6 +352,55 @@ func _setup_skill_button_type(t: Theme) -> void:
 
 
 # ============================================================================
+# CUSTOM TYPE VARIATIONS: SkillButton categories
+# ============================================================================
+
+func _setup_skill_button_category_types(t: Theme) -> void:
+	var categories := {
+		"Passive":   P.cat_passive,
+		"Trigger":   P.cat_trigger,
+		"Action":    P.cat_action,
+		"Signature": P.cat_signature,
+		"Weave":     P.cat_weave,
+		"Capstone":  P.cat_capstone,
+	}
+
+	for cat_name in categories:
+		var col: Color = categories[cat_name]
+		var type_name := "SkillButton%s" % cat_name
+
+		# Register as a type variation inheriting from SkillButton
+		t.set_type_variation(type_name, "SkillButton")
+
+		# Locked — dark base, desaturated category border
+		var locked_border := Color(col.r * 0.6, col.g * 0.6, col.b * 0.6, 0.6)
+		var locked_sb := _flat(Color(0.12, 0.12, 0.14, 0.8), locked_border, 6, 2, 4)
+		t.set_stylebox("locked", type_name, locked_sb)
+
+		# Available — category-tinted background, full category border
+		var avail_bg := Color(col.r * 0.15, col.g * 0.15, col.b * 0.15, 0.9)
+		var avail_sb := _flat(avail_bg, col, 6, 2, 4)
+		t.set_stylebox("available", type_name, avail_sb)
+
+		# Maxed — warm tint, border blends category + gold
+		var maxed_border := col.lerp(P.maxed, 0.5)
+		var maxed_bg := Color(col.r * 0.12, col.g * 0.12, col.b * 0.12, 0.9)
+		var maxed_sb := _flat(maxed_bg, maxed_border, 6, 3, 4)
+		t.set_stylebox("maxed", type_name, maxed_sb)
+
+		# Font colors
+		var avail_font := Color(
+			minf(col.r + 0.2, 1.0),
+			minf(col.g + 0.2, 1.0),
+			minf(col.b + 0.2, 1.0))
+		t.set_color("font_locked_color",    type_name, P.text_muted)
+		t.set_color("font_available_color", type_name, avail_font)
+		t.set_color("font_maxed_color",     type_name, P.maxed)
+
+	print("  🔮 SkillButton categories: %d type variations" % categories.size())
+
+
+# ============================================================================
 # CUSTOM TYPES: Combat panels
 # ============================================================================
 
@@ -414,3 +472,14 @@ func _setup_menu_types(t: Theme) -> void:
 	t.set_color("font_inactive_color", "IconButton", P.text_muted)
 
 	print("  📋 Menu types: MenuPanel, MenuHeader, ItemSlotPanel, IconButton")
+
+
+# ============================================================================
+# CUSTOM TYPE VARIATION: FloaterLabel
+# ============================================================================
+
+func _setup_floater_label_type(t: Theme) -> void:
+	t.set_type_variation("FloaterLabel", "Label")
+	t.set_constant("outline_size", "FloaterLabel", 3)
+	t.set_color("font_outline_color", "FloaterLabel", Color(0.0, 0.0, 0.0, 0.85))
+	print("  🏷️ FloaterLabel: outline_size=3, black outline")

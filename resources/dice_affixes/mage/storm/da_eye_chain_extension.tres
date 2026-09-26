@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_emkth")
 affix_name = "Eye of the Storm: Chain Extension"
-description = "All shock chain effects hit +1 additional target."
+description = "All [element:shock] chain effects hit +1 additional target."
 use_global_element_visuals = true
 global_element_type = 5
 trigger = 2

@@ -8,8 +8,9 @@
 [resource]
 script = ExtResource("2_k4wjs")
 affix_name = "Grant Piercing D4"
-description = "Add a Piercing D4 to your dice pool"
+description = "Add a [element:piercing] D4 to your dice pool"
 category = 32
 tags = Array[String](["dice_grant", "piercing"])
 effect_number = 1.0
 granted_dice = Array[ExtResource("1_6xss6")]([ExtResource("2_mixn3")])
+power_weight = 20.0

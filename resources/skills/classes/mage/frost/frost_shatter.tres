@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SkillResource" load_steps=20 format=3 uid="uid://c2xlpbc2ae0lk"]
+[gd_resource type="Resource" script_class="SkillResource" load_steps=18 format=3 uid="uid://c2xlpbc2ae0lk"]
 
 [ext_resource type="Script" uid="uid://b1rglmix7t4d5" path="res://scripts/resources/skill_prerequisite.gd" id="1_bm2vn"]
 [ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_bfw5w"]
@@ -9,16 +9,14 @@
 [ext_resource type="Resource" uid="uid://3tgxqv1ft8fm" path="res://resources/affixes/classes/mage/frost/brittle/brittle_r1_affix.tres" id="6_mn1q2"]
 [ext_resource type="Resource" uid="uid://1scs1enyv8af" path="res://resources/affixes/classes/mage/frost/brittle/brittle_r2_affix.tres" id="7_4albf"]
 [ext_resource type="Resource" uid="uid://hfbu13ujgwft" path="res://resources/affixes/classes/mage/frost/brittle/brittle_r3_affix.tres" id="8_h046u"]
-[ext_resource type="Resource" uid="uid://8vwd751g553c" path="res://resources/affixes/classes/mage/frost/black_ice/black_ice_resist_r1_affix.tres" id="9_2octc"]
 [ext_resource type="Resource" uid="uid://dnnd77nwfs144" path="res://resources/affixes/classes/mage/frost/black_ice/black_ice_dmg_r1_affix.tres" id="10_gqcgp"]
-[ext_resource type="Resource" uid="uid://cjv703e1tne4j" path="res://resources/affixes/classes/mage/frost/black_ice/black_ice_resist_r2_affix.tres" id="11_yll60"]
 [ext_resource type="Resource" uid="uid://c38g8bq185ksm" path="res://resources/affixes/classes/mage/frost/black_ice/black_ice_dmg_r2_affix.tres" id="12_bwdah"]
 
 [sub_resource type="Resource" id="Resource_exl55"]
 script = ExtResource("4_41cqf")
 skill_id = "frost_glaciate"
 skill_name = "Glaciate"
-description = "Unlock [color=cyan]Ice[/color] mana. Chromatic Bolt applies [color=cyan]2 Chill[/color] on hit (requires ice die)."
+description = "Unlock [element:ice] mana. Chromatic Bolt applies 2 [status:chill] on hit (requires ice die)."
 column = 3
 rank_1_affixes = Array[ExtResource("2_bfw5w")]([ExtResource("3_5ihnh"), ExtResource("4_am32e")])
 
@@ -30,7 +28,7 @@ required_skill = SubResource("Resource_exl55")
 script = ExtResource("4_41cqf")
 skill_id = "frost_brittle"
 skill_name = "Brittle"
-description = "Ice die deals +[color=yellow]1/2/3[/color] bonus damage per 4 [color=cyan]Chill[/color] stacks on target."
+description = "Ice die deals +[color=yellow]1/2/3[/color] bonus damage per 4 [status:chill] stacks on target."
 tier = 2
 column = 5
 prerequisites = Array[ExtResource("1_bm2vn")]([SubResource("Resource_nyv6m")])
@@ -47,13 +45,13 @@ required_skill = SubResource("Resource_6tl5h")
 script = ExtResource("4_41cqf")
 skill_id = "frost_black_ice"
 skill_name = "Black Ice"
-description = "At 8+ [color=cyan]Chill[/color]: ice die ignores resistance and deals +[color=yellow]3/5[/color] bonus damage."
+description = "At 8+ [status:chill]: ice die deals +[color=yellow]3/5[/color] bonus damage."
 tier = 4
 column = 5
 prerequisites = Array[ExtResource("1_bm2vn")]([SubResource("Resource_5ulx8")])
 tree_points_required = 6
-rank_1_affixes = Array[ExtResource("2_bfw5w")]([ExtResource("9_2octc"), ExtResource("10_gqcgp")])
-rank_2_affixes = Array[ExtResource("2_bfw5w")]([ExtResource("11_yll60"), ExtResource("12_bwdah")])
+rank_1_affixes = Array[ExtResource("2_bfw5w")]([ExtResource("10_gqcgp")])
+rank_2_affixes = Array[ExtResource("2_bfw5w")]([ExtResource("12_bwdah")])
 
 [sub_resource type="Resource" id="Resource_qaaew"]
 script = ExtResource("1_bm2vn")
@@ -63,7 +61,9 @@ required_skill = SubResource("Resource_jjy8a")
 script = ExtResource("4_41cqf")
 skill_id = "frost_shatter"
 skill_name = "Shatter"
-description = "[color=yellow]ACTION:[/color] 2 ice dice -> x1.5 ice damage. [color=cyan]Frozen[/color]: x4.5 + consume. Per turn."
+skill_category = 2
+description = "[color=yellow]ACTION:[/color] 2 ice dice -> x1.5 ice damage. [status:freeze|Frozen]: x4.5 + consume. Per turn."
+skill_category = 2
 tier = 5
 column = 6
 prerequisites = Array[ExtResource("1_bm2vn")]([SubResource("Resource_qaaew")])

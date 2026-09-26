@@ -1,0 +1,94 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=26 format=3 uid="uid://bivjr0cb1en8c"]
+
+[ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_qog6l"]
+[ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_r45j8"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="9_1tcon"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_armor_str_brute.tres" id="10_eab3l"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_slashing.tres" id="11_agm5i"]
+[ext_resource type="Script" uid="uid://ckwflxxly11ty" path="res://resources/data/ai_escalation_rule.gd" id="12_nex0u"]
+[ext_resource type="Resource" uid="uid://chmejcvma7x2j" path="res://resources/affixes/base_stats/enemy/enemy_health_str_brute.tres" id="13_wkqge"]
+[ext_resource type="Script" uid="uid://dgbvtipfph6x3" path="res://resources/data/enemy_data.gd" id="14_iy7cr"]
+[ext_resource type="Script" uid="uid://d3l85pyscg85h" path="res://resources/data/die_resource.gd" id="15_il0e6"]
+[ext_resource type="PackedScene" uid="uid://b4wyrmm8bfq20" path="res://scenes/ui/components/dice/combat/combat_die_d8.tscn" id="16_6dikc"]
+[ext_resource type="Resource" uid="uid://bdq7d6do7p3vo" path="res://resources/affixes/elements/slashing_element.tres" id="17_8u3vr"]
+[ext_resource type="Texture2D" uid="uid://der0rcr1m1pb2" path="res://assets/dice/d8s/d8-fill-basic.png" id="18_snelm"]
+[ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="19_3on15"]
+[ext_resource type="Script" uid="uid://cd6s6myukugle" path="res://resources/data/preview_effect.gd" id="20_bt4nk"]
+[ext_resource type="PackedScene" uid="uid://lx27hjqny6b8" path="res://scenes/ui/components/dice/pool/pool_die_d8.tscn" id="20_xg3nv"]
+[ext_resource type="Texture2D" uid="uid://ccv17kswol4os" path="res://assets/dice/d8s/d8-stroke-basic.png" id="21_dfvux"]
+[ext_resource type="Script" uid="uid://dus4mn8lo7dm5" path="res://resources/data/dice_affix_sub_effect.gd" id="21_fj4rk"]
+[ext_resource type="Resource" uid="uid://b8a0hafcgbsq3" path="res://resources/enemy_templates/brute_str.tres" id="22_uul0v"]
+[ext_resource type="Resource" uid="uid://dbjbm2lq6s2la" path="res://resources/actions/navy/navy_boarding_axe.tres" id="32_boarding"]
+[ext_resource type="Resource" uid="uid://cjwv5e3pg1t0j" path="res://resources/actions/navy/navy_breach.tres" id="33_breach"]
+
+[sub_resource type="Resource" id="Resource_b6p8r"]
+script = ExtResource("1_qog6l")
+heal_urgency = 0.2
+status_awareness = 0.4
+
+[sub_resource type="Resource" id="Resource_gji55"]
+script = ExtResource("19_3on15")
+affix_name = "Breach Protocol"
+description = "Last die used applies Corrode to the enemy."
+trigger = 1
+position_requirement = 2
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "corrode",
+"target": "enemy"
+}
+
+[sub_resource type="Resource" id="Resource_1tcon"]
+script = ExtResource("15_il0e6")
+display_name = "Slashing D8"
+die_type = 8
+element = 1
+element_affix = ExtResource("17_8u3vr")
+fill_texture = ExtResource("18_snelm")
+stroke_texture = ExtResource("21_dfvux")
+combat_die_scene = ExtResource("16_6dikc")
+pool_die_scene = ExtResource("20_xg3nv")
+inherent_affixes = Array[ExtResource("19_3on15")]([SubResource("Resource_gji55")])
+
+[sub_resource type="Resource" id="Resource_eab3l"]
+script = ExtResource("19_3on15")
+affix_name = "Breach Protocol"
+description = "Last die used applies Corrode to the enemy."
+trigger = 1
+position_requirement = 2
+effect_type = 16
+effect_data = {
+"stacks": 1,
+"status_id": "corrode",
+"target": "enemy"
+}
+
+[sub_resource type="Resource" id="Resource_agm5i"]
+script = ExtResource("15_il0e6")
+display_name = "Slashing D8"
+die_type = 8
+element = 1
+element_affix = ExtResource("17_8u3vr")
+fill_texture = ExtResource("18_snelm")
+stroke_texture = ExtResource("21_dfvux")
+combat_die_scene = ExtResource("16_6dikc")
+pool_die_scene = ExtResource("20_xg3nv")
+inherent_affixes = Array[ExtResource("19_3on15")]([SubResource("Resource_eab3l")])
+
+[resource]
+script = ExtResource("14_iy7cr")
+enemy_name = "Marine Boarder"
+description = "Sanctum Navy Marine Boarder."
+template = ExtResource("22_uul0v")
+starting_dice = Array[ExtResource("15_il0e6")]([SubResource("Resource_1tcon"), SubResource("Resource_agm5i")])
+combat_actions = Array[ExtResource("2_r45j8")]([ExtResource("32_boarding"), ExtResource("33_breach")])
+ai_strategy = 0
+ai_config = SubResource("Resource_b6p8r")
+action_delay = 0.7
+dice_drag_duration = 0.35
+gold_reward_min = 3
+gold_reward_max = 10
+enemy_archetype = 1
+health_affix = ExtResource("13_wkqge")
+enemy_affixes = Array[ExtResource("9_1tcon")]([ExtResource("10_eab3l"), ExtResource("11_agm5i")])

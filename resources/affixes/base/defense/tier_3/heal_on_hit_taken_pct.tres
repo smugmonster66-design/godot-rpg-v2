@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_dlm1x")
 affix_name = "Heal on Hit Taken (% HP)"
-description = "Heal N% max HP when hit"
+description = "{proc_chance}% chance to heal N% max HP when struck"
 category = 35
 tags = Array[String](["proc", "heal", "defensive"])
 effect_min = 0.02
@@ -17,3 +17,7 @@ effect_data = {
 "effect": "heal_percent_max_hp"
 }
 proc_trigger = 2
+proc_chance = 0.25
+proc_chance_min = 0.1
+proc_chance_max = 0.4
+power_weight = 130.0
