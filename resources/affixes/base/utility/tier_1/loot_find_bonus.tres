@@ -9,6 +9,9 @@ script = ExtResource("2_53dy0")
 affix_name = "Loot Find Bonus"
 description = "+N% loot drop chance"
 category = 36
+effect_data = {
+"effect": "loot_find"
+}
 tags = Array[String](["out_of_combat", "loot"])
 effect_min = 0.05
 effect_max = 0.35

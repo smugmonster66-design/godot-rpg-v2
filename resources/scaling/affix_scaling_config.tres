@@ -14,5 +14,5 @@ point_count = 7
 script = ExtResource("1_r8pqg")
 global_scaling_curve = SubResource("Curve_27yr3")
 expected_power_curve = SubResource("Curve_power")
-max_expected_power = 1400.0
+max_expected_power = 1000.0
 min_expected_power = 10.0

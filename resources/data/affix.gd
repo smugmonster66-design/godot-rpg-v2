@@ -317,6 +317,12 @@ func get_affix_power() -> float:
 	var position: float = 1.0
 	if has_scaling() and (effect_max - effect_min) > 0.0:
 		position = clampf((effect_number - effect_min) / (effect_max - effect_min), 0.0, 1.0)
+	elif source_item_level > 0:
+		# Static affixes (no range) count by their item's level, so one early
+		# drop doesn't read as end-game power (min 10%).
+		var cfg = AffixTableRegistry.scaling_config if Engine.get_main_loop() and Engine.get_main_loop().root.has_node("AffixTableRegistry") else null
+		if cfg:
+			position = maxf(0.1, cfg.get_power_position(source_item_level))
 	var proc_mod: float = 1.0
 	if is_proc_category() and proc_chance < 1.0:
 		proc_mod = proc_chance

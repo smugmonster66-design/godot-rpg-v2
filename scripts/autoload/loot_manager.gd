@@ -197,6 +197,10 @@ func generate_drop(item_template: EquippableItem, source_level: int,
 	item.region = source_region
 	
 	item.required_level = maxi(1, item.item_level - level_grace)
+	# A drop is always equippable when it drops (boss drops roll above the
+	# player's level and used to need a level the player didn't have).
+	if GameManager and GameManager.player:
+		item.required_level = mini(item.required_level, maxi(1, GameManager.player.level))
 	
 	# Roll affixes
 	item.initialize_affixes()
@@ -377,6 +381,10 @@ func _process_item_drop(drop: LootDrop, source: String,
 	
 	# Stamp required_level from item_level
 	item.required_level = maxi(1, item.item_level - level_grace)
+	# A drop is always equippable when it drops (boss drops roll above the
+	# player's level and used to need a level the player didn't have).
+	if GameManager and GameManager.player:
+		item.required_level = mini(item.required_level, maxi(1, GameManager.player.level))
 		
 	
 	# Stamp region
@@ -487,6 +495,11 @@ func roll_loot_from_combat(
 	# ── Step 1: Equipment drops from shared pool ──
 	var shared_pool: LootTable = region_config.shared_item_pool
 	var drop_count: int = tier_config.roll_drop_count()
+	# Loot Find (gear): a chance of one more drop
+	var loot_find: float = _player_find("loot_find")
+	if loot_find > 0.0 and randf() < loot_find:
+		drop_count += 1
+		print("  🔎 Loot Find: +1 drop")
 	
 	if drop_count > 0 and shared_pool and shared_pool.weighted_drops.size() > 0:
 		for i: int in range(drop_count):
@@ -543,6 +556,12 @@ func roll_loot_from_combat(
 	return results
 
 
+func _player_find(effect_key: String) -> float:
+	if GameManager and GameManager.player and GameManager.player.has_method("get_find_bonus"):
+		return GameManager.player.get_find_bonus(effect_key)
+	return 0.0
+
+
 func _pick_and_generate(
 	pool: LootTable,
 	tier_config: EnemyTierLootConfig,
@@ -566,6 +585,12 @@ func _pick_and_generate(
 	
 	# Roll rarity from tier config (or use LootDrop's force_rarity if set)
 	var rarity: int = drop.force_rarity if drop.force_rarity >= 0 else tier_config.roll_rarity()
+	# Rarity Find (gear): a chance to step the rarity up one (up to Epic)
+	if drop.force_rarity < 0 and rarity < EquippableItem.Rarity.EPIC:
+		var rf: float = _player_find("rarity_find")
+		if rf > 0.0 and randf() < rf:
+			rarity += 1
+			print("  🔎 Rarity Find: stepped up")
 	
 	return generate_drop(drop.item_template, enemy_level, region_num, rarity)
 

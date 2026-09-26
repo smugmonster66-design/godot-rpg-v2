@@ -366,7 +366,20 @@ func consume_mana(amount: int) -> bool:
 # ============================================================================
 
 func add_gold(amount: int):
+	# Gold Find (gear) raises gold gained
+	if amount > 0:
+		amount = roundi(amount * (1.0 + get_find_bonus("gold_find")))
 	gold += amount
+
+func get_find_bonus(effect_key: String) -> float:
+	"""Total of a find affix on the player's gear (xp_find, gold_find,
+	loot_find, rarity_find), as a fraction (0.2 = +20%)."""
+	var total := 0.0
+	if affix_manager:
+		for a in affix_manager.get_pool(Affix.Category.MISC):
+			if a and a.get_resolved_effect_data().get("effect", "") == effect_key:
+				total += a.effect_number
+	return total
 
 # ============================================================================
 # CRAFTING COMPONENT HELPERS
@@ -646,6 +659,9 @@ func use_consumable(item: ConsumableItem, context: Dictionary = {}) -> Dictionar
 
 
 func add_experience(amount: int):
+	# XP Find (gear) raises XP gained
+	if amount > 0:
+		amount = roundi(amount * (1.0 + get_find_bonus("xp_find")))
 	if active_class:
 		var leveled: bool = active_class.add_experience(amount)
 		if leveled:

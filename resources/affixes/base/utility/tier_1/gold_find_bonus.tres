@@ -9,6 +9,9 @@ script = ExtResource("2_js1ml")
 affix_name = "Gold Find Bonus"
 description = "+N% gold from encounters"
 category = 36
+effect_data = {
+"effect": "gold_find"
+}
 tags = Array[String](["out_of_combat", "gold"])
 effect_min = 0.05
 effect_max = 0.5

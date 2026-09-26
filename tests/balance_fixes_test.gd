@@ -186,7 +186,68 @@ func _run() -> void:
 
 	_root.end_combat(true)
 	await _frames(10)
+	_test_loot(p)
 	_finish()
+
+
+func _find_affix(file: String, value: float) -> Affix:
+	var a: Affix = load("res://resources/affixes/base/utility/tier_1/%s.tres" % file).duplicate()
+	a.effect_number = value
+	return a
+
+
+func _test_loot(p) -> void:
+	# --- E1: gold and XP find
+	var gf := _find_affix("gold_find_bonus", 0.5)
+	var xf := _find_affix("xp_find_bonus", 0.5)
+	p.affix_manager.add_affix(gf)
+	p.affix_manager.add_affix(xf)
+	var g0: int = p.gold
+	p.add_gold(10)
+	_check(p.gold == g0 + 15, "Gold Find +50%%: 10 gold -> %d" % (p.gold - g0))
+	var lvl0: int = p.active_class.level
+	var x0: int = p.active_class.experience
+	p.add_experience(10)
+	_check(p.active_class.level > lvl0 or p.active_class.experience == x0 + 15, "XP Find +50%: 10 XP -> 15")
+	p.affix_manager.remove_affix(gf)
+	p.affix_manager.remove_affix(xf)
+
+	# --- E2: loot find and rarity find in combat loot
+	var cfg: RegionLootConfig = GameManager.region_loot_config
+	var lf := _find_affix("loot_find_bonus", 1.0)
+	p.affix_manager.add_affix(lf)
+	var every_has_item := true
+	for i in 10:
+		var res: Array = LootManager.roll_loot_from_combat(cfg, EnemyTierLootConfig.EnemyTier.TRASH, EnemyTierLootConfig.Archetype.NONE, 5, 0.0)
+		if res.filter(func(r): return r.get("type") != "currency").is_empty():
+			every_has_item = false
+	_check(every_has_item, "Loot Find 100%: trash always drops an item")
+	p.affix_manager.remove_affix(lf)
+	var rf := _find_affix("rarity_find_bonus", 1.0)
+	p.affix_manager.add_affix(rf)
+	var no_common := true
+	for i in 15:
+		for r in LootManager.roll_loot_from_combat(cfg, EnemyTierLootConfig.EnemyTier.ELITE, EnemyTierLootConfig.Archetype.NONE, 5, 0.0):
+			var it = r.get("item")
+			if it and it.rarity == EquippableItem.Rarity.COMMON:
+				no_common = false
+	_check(no_common, "Rarity Find 100%: every drop steps up from Common")
+	p.affix_manager.remove_affix(rf)
+
+	# --- E3: drops are always equippable when they drop
+	var template: EquippableItem = load("res://resources/items/region_1/head/arcane_circlet.tres")
+	var drop: Dictionary = LootManager.generate_drop(template, 60, 1)
+	var item: EquippableItem = drop.get("item")
+	_check(item != null and item.required_level <= p.level, "a level-60 drop is equippable at level %d (requires %d)" % [p.level, item.required_level if item else -1])
+
+	# --- E4: static affixes count by their item's level
+	var st := Affix.new()
+	st.power_weight = 80.0
+	st.source_item_level = 1
+	var low: float = st.get_affix_power()
+	st.source_item_level = 100
+	var high: float = st.get_affix_power()
+	_check(is_equal_approx(low, 8.0) and is_equal_approx(high, 80.0), "static affix power follows item level (lvl 1: %.0f, lvl 100: %.0f)" % [low, high])
 
 
 func _finish() -> void:
