@@ -57,6 +57,9 @@ class_name SaveData
 ## Each entry is {"path": String (MapDefinition resource path), "return": StringName}.
 ## Written by GameState.save() from MapManager.get_stack_snapshot().
 @export var map_stack: Array = []
+## Where the player last rested on the map (the shellkeepers carry you back
+## here after a loss). {"stack": map stack snapshot, "location": StringName}.
+@export var last_rest: Dictionary = {}
 
 # ============================================================================
 # PLAYER STATE

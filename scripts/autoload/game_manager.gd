@@ -64,6 +64,8 @@ const REGION_LOOT_CONFIGS := {
 # COMBAT ENCOUNTER SYSTEM
 # ============================================================================
 var pending_encounter: CombatEncounter = null
+## Dungeon depth multipliers for the pending fight ({stats, damage}); empty = none.
+var pending_depth: Dictionary = {}
 var completed_encounters: Array[String] = []
 
 # ============================================================================
@@ -306,6 +308,7 @@ func get_pending_encounter() -> CombatEncounter:
 func clear_pending_encounter():
 	"""Clear pending encounter after it's been loaded"""
 	pending_encounter = null
+	pending_depth = {}
 
 func mark_encounter_completed(encounter: CombatEncounter):
 	"""Mark an encounter as completed"""

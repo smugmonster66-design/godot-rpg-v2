@@ -11,6 +11,9 @@ class_name DungeonEventChoice
 @export var experience_reward: int = 0
 @export var grant_item: EquippableItem = null
 @export var grant_temp_affix: DiceAffix = null
+## Choosing this (on success) ends the run: the player leaves the dungeon and
+## keeps everything earned so far.
+@export var ends_run_banked: bool = false
 
 @export_group("Risk")
 @export_range(0.0, 1.0) var success_chance: float = 1.0

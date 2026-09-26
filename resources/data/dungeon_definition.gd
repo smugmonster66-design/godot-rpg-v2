@@ -16,6 +16,11 @@ class_name DungeonDefinition
 @export_range(6, 50) var floor_count: int = 10
 @export var dungeon_level: int = 10
 @export_range(1, 6) var dungeon_region: int = 1
+## Chance that each safe floor also offers a way out (leave with your loot).
+@export_range(0.0, 1.0) var bank_chance: float = 0.5
+## How much later floors toughen enemies (0 = off, 1 = the standard ramp;
+## per-floor rates are in CombatTuning).
+@export_range(0.0, 3.0) var depth_scaling: float = 1.0
 
 # ============================================================================
 # ENCOUNTER POOLS

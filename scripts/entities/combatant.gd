@@ -51,6 +51,8 @@ var _effective_level: int = 1
 var _power_scaling_factor: float = 1.0
 ## Set by EncounterSpawner from CombatEncounter.stat_multiplier before _ready.
 var encounter_stat_multiplier: float = 1.0
+## Enemy damage multiplier from dungeon depth (1.0 outside dungeons).
+var encounter_damage_multiplier: float = 1.0
 
 # ============================================================================
 # NODE REFERENCES

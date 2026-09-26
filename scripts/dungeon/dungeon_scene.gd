@@ -13,6 +13,8 @@ signal dungeon_failed(run: DungeonRun)
 signal node_entered(node: DungeonNodeData)
 signal node_completed(node: DungeonNodeData)
 signal combat_requested(encounter: CombatEncounter)
+## The player took a way out and left with their loot (run banked).
+signal dungeon_left(run: DungeonRun)
 
 # ── Chain signals ──
 signal chain_dungeon_cemented(run: DungeonRun, chain_runner: DungeonChainRunner)
@@ -201,6 +203,7 @@ func _enter_node(node_id: int):
 		DungeonEnums.NodeType.EVENT:    _handle_event(node)
 		DungeonEnums.NodeType.TREASURE: _handle_treasure(node)
 		DungeonEnums.NodeType.SHRINE:   _handle_shrine(node)
+		DungeonEnums.NodeType.EXIT:     _handle_exit(node)
 
 # ============================================================================
 # ENCOUNTER HANDLERS
@@ -377,10 +380,36 @@ func _handle_treasure(node: DungeonNodeData):
 		consumable = current_run.definition.generate_loot_consumable()
 		if consumable and _player:
 			_player.add_consumable(consumable)
+			current_run.track_consumable(consumable)
 	if treasure_popup and treasure_popup.has_method("show_popup"):
 		treasure_popup.show_popup({"node": node, "item": item, "consumable": consumable, "run": current_run})
 	else:
 		_complete_and_advance(node)
+
+func _handle_exit(node: DungeonNodeData):
+	"""A way out: leave with everything earned so far, or press on.
+	Shown through the event popup. The texts are placeholders for review."""
+	var ev := DungeonEvent.new()
+	ev.event_name = "A Way Out"
+	ev.description = "(Placeholder) A way back to the surface. You can leave with what you've found, or press on."
+	var leave := DungeonEventChoice.new()
+	leave.choice_text = "(Placeholder) Leave with your loot"
+	leave.ends_run_banked = true
+	var stay := DungeonEventChoice.new()
+	stay.choice_text = "(Placeholder) Press on"
+	var choices: Array[DungeonEventChoice] = [leave, stay]
+	ev.choices = choices
+	if event_popup and event_popup.has_method("show_popup"):
+		event_popup.show_popup({"node": node, "event": ev, "run": current_run})
+	else:
+		_complete_and_advance(node)
+
+func _bank_and_leave():
+	"""End the run here, keeping everything earned (like a cleared chain link)."""
+	if not current_run:
+		return
+	_cement_current_run()
+	dungeon_left.emit(current_run)
 
 func _handle_shrine(node: DungeonNodeData):
 	if not node.shrine:
@@ -403,6 +432,9 @@ func _on_popup_closed(result: Dictionary):
 			var choice: DungeonEventChoice = result.get("choice")
 			var succeeded: bool = result.get("succeeded", true)
 			_apply_event_rewards(node_id, choice, succeeded)
+			if choice and choice.ends_run_banked and succeeded:
+				_bank_and_leave()
+				return
 		"shop":
 			for item in result.get("purchased", []):
 				if item is EquippableItem:
@@ -582,8 +614,8 @@ func _on_dungeon_complete():
 	var def = current_run.definition
 
 	# First-clear bonus (same logic regardless of chain)
-	if def.first_clear_item and not _is_first_cleared(def.dungeon_id):
-		var item = def.generate_first_clear_item()
+	if not _is_first_cleared(def.dungeon_id):
+		var item = def.generate_first_clear_item() if def.first_clear_item else null
 		if item and _player:
 			_player.add_to_inventory(item); current_run.track_item(item)
 			GameEventBus.emit_item_gained(item.item_name, item.rarity, _get_portrait())
@@ -622,11 +654,19 @@ func _on_dungeon_complete():
 	dungeon_completed.emit(current_run)
 
 func _on_player_died():
+	"""The run is lost: gold earned in it, items and consumables found or
+	bought in it go. Your own spending isn't refunded, and XP is kept
+	(Balance Targets, "Losing")."""
 	current_run.is_failed = true
 	if _player:
-		_player.gold = current_run.gold_snapshot_on_entry
+		# Spending came out of run gold first; any spending beyond it was the
+		# player's own money and stays spent.
+		_player.gold = mini(current_run.gold_snapshot_on_entry, _player.gold)
 		for item in current_run.items_earned:
 			_player.remove_from_inventory(item)
+		for consumable in current_run.consumables_earned:
+			if consumable:
+				ItemGrant.remove_by_name(consumable.item_name, 1)
 	_cleanup_temp_effects()
 
 	if _chain_runner:

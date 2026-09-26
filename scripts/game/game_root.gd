@@ -139,6 +139,8 @@ func _ready():
 			dungeon_scene.dungeon_completed.connect(_on_dungeon_completed)
 		if not dungeon_scene.dungeon_failed.is_connected(_on_dungeon_failed):
 			dungeon_scene.dungeon_failed.connect(_on_dungeon_failed)
+		if dungeon_scene.has_signal("dungeon_left") and not dungeon_scene.dungeon_left.is_connected(_on_dungeon_left):
+			dungeon_scene.dungeon_left.connect(_on_dungeon_left)
 		if not dungeon_scene.chain_completed.is_connected(_on_chain_completed):
 			dungeon_scene.chain_completed.connect(_on_chain_completed)
 		if not dungeon_scene.chain_failed.is_connected(_on_chain_failed):
@@ -504,6 +506,15 @@ func end_combat(player_won: bool = true):
 		if GameManager:
 			GameManager.on_combat_ended(player_won)
 
+	# Losing outside a dungeon (Balance Targets, "Losing"): a story fight's
+	# scene decides what happens, but the player is never left at 0 HP; any
+	# other fight ends with the shellkeepers' rescue and a donation.
+	if not player_won and not is_in_dungeon and GameManager and GameManager.player:
+		if DialogueManager.has_pending_resume():
+			GameManager.player.current_hp = maxi(1, GameManager.player.current_hp)
+		else:
+			rescue_player(CombatTuning.DEFEAT_DONATION_PERCENT, false)
+
 	# If dialogue was suspended for this combat and no summary is shown,
 	# resume dialogue immediately (otherwise _on_summary_closed handles it)
 	var summary_visible = post_combat_summary and post_combat_summary.visible
@@ -644,6 +655,10 @@ func _on_dungeon_combat_requested(encounter: CombatEncounter):
 	combat_layer.process_mode = Node.PROCESS_MODE_INHERIT
 	ui_layer.layer = 5
 	GameManager.pending_encounter = encounter
+	# Later floors are harder (Balance Targets, "Dungeon runs")
+	var run: DungeonRun = dungeon_scene.current_run if dungeon_scene else null
+	if run and run.definition:
+		GameManager.pending_depth = CombatTuning.depth_multipliers(run.current_floor, run.definition.depth_scaling)
 	var cm = combat_scene.find_child("CombatManager", true, false)
 	if not cm: cm = combat_scene
 	if cm and cm.has_method("check_pending_encounter"):
@@ -677,6 +692,8 @@ func _on_dungeon_completed(run: DungeonRun):
 	print("🏰 Complete! Gold: %d, Exp: %d, Items: %d" % [
 		run.gold_earned, run.exp_earned, run.items_earned.size()])
 	GameState.last_dungeon_cleared = true
+	GameState.last_dungeon_failed = false
+	GameState.last_dungeon_left = false
 	# Story flags for clearing this dungeon
 	if run.definition:
 		for flag_name in run.definition.set_flags_on_clear:
@@ -690,12 +707,80 @@ func _on_dungeon_completed(run: DungeonRun):
 		DialogueManager.resume_dialogue()
 
 func _on_dungeon_failed(run: DungeonRun):
-	print("💀 Failed. Gold rolled back to %d" % run.gold_snapshot_on_entry)
+	print("💀 Failed. Run loot lost; gold now %d" % (GameManager.player.gold if GameManager.player else -1))
 	GameState.last_dungeon_cleared = false
+	GameState.last_dungeon_failed = true
+	GameState.last_dungeon_left = false
 	exit_dungeon()
+	# The shellkeepers carry you out, free: the lost run is the price.
+	rescue_player(0.0, true)
 	# Resume dialogue if it was suspended for this dungeon entry
 	if DialogueManager.has_pending_resume():
 		DialogueManager.resume_dialogue()
+
+func _on_dungeon_left(run: DungeonRun):
+	"""The player took a way out and kept their loot."""
+	print("🏰 Left the dungeon with the run's loot (floor %d)" % run.current_floor)
+	GameState.last_dungeon_cleared = false
+	GameState.last_dungeon_failed = false
+	GameState.last_dungeon_left = true
+	exit_dungeon()
+	if DialogueManager.has_pending_resume():
+		DialogueManager.resume_dialogue()
+
+# ============================================================================
+# DEFEAT: THE SHELLKEEPERS' RESCUE (Balance Targets, "Losing"; Engine Gap 51)
+# ============================================================================
+
+## Where a rescued player wakes if they have never rested anywhere.
+@export var rescue_default_zone: MapDefinition = null
+@export var rescue_default_location: StringName = &""
+
+func rescue_player(donation_percent: float, prefer_nearest_rest: bool) -> void:
+	"""Oruun's shellkeepers carry the fallen player to safety: wake at a rest
+	stop, fully healed (companions too). donation_percent of carried gold is
+	given to the shell-house (0 = free). prefer_nearest_rest: wake at the
+	closest rest stop on the current map (after a dungeon); otherwise the last
+	place the player rested, then the default."""
+	var player = GameManager.player if GameManager else null
+	if player == null:
+		return
+	var moved := false
+	if prefer_nearest_rest:
+		var nearest: StringName = MapManager.find_nearest_rest_location()
+		if nearest != &"":
+			moved = MapManager.relocate_in_current_map(nearest)
+	if not moved:
+		var rest: Dictionary = GameState.get_last_rest()
+		if not rest.is_empty():
+			moved = MapManager.relocate(rest.get("stack", []), StringName(rest.get("location", &"")))
+	if not moved and rescue_default_zone != null and rescue_default_location != &"":
+		var root_snapshot: Array = MapManager.get_stack_snapshot().slice(0, 1)
+		root_snapshot.append({"path": rescue_default_zone.resource_path, "return": &""})
+		moved = MapManager.relocate(root_snapshot, rescue_default_location)
+
+	# Heal fully; revive companions
+	player.current_hp = 0
+	player.heal(player.max_hp)
+	for inst in player.active_companions:
+		if inst and inst.companion_data:
+			inst.is_dead = false
+			inst.current_hp = inst.get_max_hp(player.max_hp, player.level)
+
+	# The donation (outside dungeons)
+	var given: int = 0
+	if donation_percent > 0.0 and player.gold > 0:
+		given = maxi(1, int(round(player.gold * donation_percent)))
+		given = mini(given, player.gold)
+		player.gold -= given
+		GameState.increment_counter(&"gold_donated", given)
+	GameState.increment_counter(&"times_rescued")
+
+	# Notices: placeholder text, for review with the shell-house content.
+	NotificationManager.notify("(Placeholder) The shellkeepers carried you to safety.", &"system")
+	if given > 0:
+		NotificationManager.notify("(Placeholder) You leave %d gold in the donation bowl." % given, &"system")
+	GameState.request_autosave()
 
 func _on_chain_completed(chain_runner: DungeonChainRunner):
 	print("[Chain] Complete! %d dungeons cleared" % chain_runner.completed_runs.size())
@@ -708,6 +793,7 @@ func _on_chain_completed(chain_runner: DungeonChainRunner):
 
 func _on_chain_failed(run: DungeonRun, chain_runner: DungeonChainRunner):
 	GameState.last_dungeon_cleared = false
+	GameState.last_dungeon_failed = true
 	print("[Chain] Failed at dungeon %d/%d" % [
 		chain_runner.current_index + 1, chain_runner.chain.get_dungeon_count()])
 

@@ -10,6 +10,7 @@ enum NodeType {
 	EVENT,
 	TREASURE,
 	SHRINE,
+	EXIT,       ## A way out: leave the dungeon with your loot (safe floors, random)
 }
 
 ## Icon texture path per node type — loaded by DungeonDoor scene
@@ -24,6 +25,7 @@ static func get_node_icon_path(type: NodeType) -> String:
 		NodeType.EVENT: return "res://assets/dungeon/icons/event.png"
 		NodeType.TREASURE: return "res://assets/dungeon/icons/treasure.png"
 		NodeType.SHRINE: return "res://assets/dungeon/icons/shrine.png"
+		NodeType.EXIT: return "res://assets/dungeon/icons/start.png"  # placeholder icon
 		_: return ""
 
 ## Display color per node type (door tint, label color, debug)
@@ -38,6 +40,7 @@ static func get_node_color(type: NodeType) -> Color:
 		NodeType.EVENT: return Color(0.6, 0.4, 0.8)
 		NodeType.TREASURE: return Color(1.0, 0.85, 0.0)
 		NodeType.SHRINE: return Color(0.4, 0.8, 0.8)
+		NodeType.EXIT: return Color(0.9, 0.9, 0.9)
 		_: return Color.WHITE
 
 static func get_node_type_name(type: NodeType) -> String:
@@ -51,4 +54,5 @@ static func get_node_type_name(type: NodeType) -> String:
 		NodeType.EVENT: return "Event"
 		NodeType.TREASURE: return "Treasure"
 		NodeType.SHRINE: return "Shrine"
+		NodeType.EXIT: return "Way Out"
 		_: return "Unknown"

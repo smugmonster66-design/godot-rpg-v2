@@ -179,6 +179,14 @@ func new_game() -> void:
 	_session_start = Time.get_unix_time_from_system()
 	state_loaded.emit()
 
+func set_last_rest(stack_snapshot: Array, location_id: StringName) -> void:
+	"""Record the map place the player last rested at."""
+	_save_data.last_rest = {"stack": stack_snapshot.duplicate(true), "location": location_id}
+
+func get_last_rest() -> Dictionary:
+	"""{stack, location} of the last rest, or {} if the player never rested."""
+	return _save_data.last_rest
+
 func get_saved_map_stack() -> Array:
 	"""Map stack recorded in the loaded save (empty for a new game)."""
 	return _save_data.map_stack
@@ -319,6 +327,10 @@ func get_play_time() -> float:
 
 var last_combat_won: bool = false
 var last_dungeon_cleared: bool = false
+## The last dungeon run ended in death (false before any run, unlike
+## "not cleared") / the player left with their loot at a way out.
+var last_dungeon_failed: bool = false
+var last_dungeon_left: bool = false
 
 # ============================================================================
 # CONDITION EVALUATION
@@ -404,7 +416,8 @@ class GameStateConditionContext extends GameCondition.ConditionContext:
 			"last_combat_won": return _game_state.last_combat_won
 			"last_combat_lost": return not _game_state.last_combat_won
 			"last_dungeon_cleared": return _game_state.last_dungeon_cleared
-			"last_dungeon_failed": return not _game_state.last_dungeon_cleared
+			"last_dungeon_failed": return _game_state.last_dungeon_failed
+			"last_dungeon_left": return _game_state.last_dungeon_left
 		push_warning("Custom condition '%s' not implemented" % key)
 		return false
 

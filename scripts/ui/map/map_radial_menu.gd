@@ -379,6 +379,11 @@ func _handle_rest(button_def: MapNodeButtonDef) -> void:
 
 	var heal_amount = int(_player.max_hp * button_def.rest_heal_percent)
 
+	# Remember where the player rested: the shellkeepers bring them back here
+	# after a loss (Balance Targets, "Losing").
+	if _current_location:
+		GameState.set_last_rest(MapManager.get_stack_snapshot(), _current_location.location_id)
+
 	# Compute heal ratio BEFORE healing player (for proportional companion heal)
 	var player_missing = _player.max_hp - _player.current_hp
 	var heal_ratio: float = 1.0

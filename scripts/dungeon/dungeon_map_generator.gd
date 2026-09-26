@@ -66,6 +66,11 @@ func _build_safe_floor(run: DungeonRun, def: DungeonDefinition, f: int):
 		var node = _create_node(f, i, types[i % types.size()])
 		run.add_node(node)
 		run.floors[f].append(node.id)
+	# Sometimes a safe floor also has a way out (bank your loot and leave).
+	if randf() < def.bank_chance:
+		var exit_node = _create_node(f, count, DungeonEnums.NodeType.EXIT)
+		run.add_node(exit_node)
+		run.floors[f].append(exit_node.id)
 
 func _build_elite_floor(run: DungeonRun, def: DungeonDefinition, f: int):
 	for i in randi_range(1, 2):

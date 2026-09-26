@@ -3418,7 +3418,7 @@ func _calculate_damage(action_data: Dictionary, attacker, defender) -> Dictionar
 	var action_dmg_elem: int = -1
 	if action_res is Action:
 		action_dmg_elem = int(action_res.damage_element)
-	var result: Dictionary = CombatCalculator.calculate_attack_damage(
+	var result: Dictionary = _calculate_attack_damage_scaled(attacker,
 		attacker_affixes,
 		effects,
 		placed_dice,
@@ -3471,6 +3471,18 @@ func _calculate_heal(action_data: Dictionary, healer) -> int:
 	
 	# Legacy fallback
 	return int((dice_total + base_heal) * multiplier)
+
+func _calculate_attack_damage_scaled(attacker, attacker_affixes, effects, placed_dice, defender_stats,
+		action_id, accepted_elems, attacker_tracker, defender_tracker, base_crit, crit_mult,
+		action_dmg_elem) -> Dictionary:
+	"""CombatCalculator.calculate_attack_damage, then the enemy's dungeon-depth
+	damage multiplier (1.0 outside dungeons)."""
+	var r: Dictionary = CombatCalculator.calculate_attack_damage(attacker_affixes, effects, placed_dice,
+		defender_stats, action_id, accepted_elems, attacker_tracker, defender_tracker,
+		base_crit, crit_mult, action_dmg_elem)
+	if attacker is Combatant and attacker in enemy_combatants and attacker.encounter_damage_multiplier != 1.0:
+		r["total_damage"] = roundi(r.get("total_damage", 0) * attacker.encounter_damage_multiplier)
+	return r
 
 func _apply_elemental_damage(target, raw_amount: int, element = "", defense_mult: float = 1.0) -> int:
 	"""Apply damage to target using the correct defense stat for the element type.

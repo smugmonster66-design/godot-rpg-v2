@@ -136,6 +136,58 @@ func initialize_with_map(map_def: MapDefinition, stack_snapshot: Array = []) -> 
 		_force_enter_location(start_id)
 	map_changed.emit(top)
 
+func relocate(stack_snapshot: Array, location_id: StringName) -> bool:
+	"""Put the player at a location inside a saved map stack (e.g. a rescue
+	back to the last rest). The stack's root map is loaded from its path."""
+	if stack_snapshot.is_empty():
+		return false
+	var root_path: String = stack_snapshot[0].get("path", "")
+	var root = load(root_path) as MapDefinition if root_path != "" and ResourceLoader.exists(root_path) else null
+	if root == null:
+		return false
+	initialize_with_map(root, stack_snapshot)
+	if location_id != &"" and get_location(location_id) != null:
+		GameState.map.reveal(location_id)
+		GameState.map.unlock(location_id)
+		_force_enter_location(location_id)
+	map_changed.emit(get_current_map())
+	return true
+
+func relocate_in_current_map(location_id: StringName) -> bool:
+	"""Move the player to a location on the current map (no path needed)."""
+	if get_location(location_id) == null:
+		return false
+	GameState.map.unlock(location_id)
+	_force_enter_location(location_id)
+	map_changed.emit(get_current_map())
+	return true
+
+func find_nearest_rest_location(from_id: StringName = &"") -> StringName:
+	"""The closest unlocked location on the current map with a REST button,
+	by path length from from_id (default: the player's location)."""
+	var start: StringName = from_id if from_id != &"" else GameState.map.current_location
+	var best: StringName = &""
+	var best_len: int = 1 << 30
+	var top: MapDefinition = get_current_map()
+	if top == null:
+		return best
+	for loc in top.location_nodes:
+		if loc == null or not GameState.map.is_unlocked(loc.location_id):
+			continue
+		var has_rest := false
+		for b in loc.radial_buttons:
+			if b and b.button_category == MapNodeButtonDef.ButtonCategory.REST:
+				has_rest = true
+		if not has_rest:
+			continue
+		var path: Array[StringName] = find_path(start, loc.location_id)
+		if path.is_empty():
+			continue
+		if path.size() < best_len:
+			best_len = path.size()
+			best = loc.location_id
+	return best
+
 func get_stack_snapshot() -> Array:
 	"""The map stack as plain data for saving: root first."""
 	var out: Array = []

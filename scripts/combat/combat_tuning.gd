@@ -23,6 +23,27 @@ const CRIT_DAMAGE_BONUS_CAP: float = 1.0     ## extra multiplier at infinite Luc
 const CRIT_DAMAGE_HALF_POINT: float = 200.0  ## Luck that gives half the bonus
 
 
+# ---------------------------------------------------------------------------
+# Losing (designer, 2026-09-26; Balance Targets "Losing")
+# ---------------------------------------------------------------------------
+## Share of carried gold donated when the shellkeepers rescue you after a
+## loss outside a dungeon. Dungeon deaths are free (the lost run is the price).
+const DEFEAT_DONATION_PERCENT: float = 0.12
+
+# ---------------------------------------------------------------------------
+# Dungeon depth: later floors are harder (designer, 2026-09-26)
+# Per floor below the entrance, scaled by DungeonDefinition.depth_scaling.
+# ---------------------------------------------------------------------------
+const DEPTH_STATS_PER_FLOOR: float = 0.05   ## enemy HP / armour / barrier
+const DEPTH_DAMAGE_PER_FLOOR: float = 0.03  ## enemy damage
+
+
+static func depth_multipliers(floor_num: int, depth_scaling: float) -> Dictionary:
+	"""{stats, damage} multipliers for enemies on a dungeon floor."""
+	var f := maxf(0.0, float(floor_num)) * maxf(0.0, depth_scaling)
+	return {"stats": 1.0 + DEPTH_STATS_PER_FLOOR * f, "damage": 1.0 + DEPTH_DAMAGE_PER_FLOOR * f}
+
+
 static func die_stat_bonus(stat_value: int) -> int:
 	"""Die value added by a stat (Strength or Intellect)."""
 	return maxi(0, floori(float(stat_value) / STAT_PER_DIE_POINT))

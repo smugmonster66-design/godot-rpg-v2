@@ -104,6 +104,10 @@ func _spawn_single_enemy(enemy_data: EnemyData, index: int, container: Node) -> 
 	# Stat scaling is applied in Combatant._initialize_from_enemy_data (on
 	# _ready); setting HP here was overwritten there.
 	enemy.encounter_stat_multiplier = current_encounter.stat_multiplier
+	# Dungeon depth: later floors are tougher (set by GameRoot per fight)
+	if GameManager and not GameManager.pending_depth.is_empty():
+		enemy.encounter_stat_multiplier *= float(GameManager.pending_depth.get("stats", 1.0))
+		enemy.encounter_damage_multiplier = float(GameManager.pending_depth.get("damage", 1.0))
 	
 	# Add to scene
 	container.add_child(enemy)
