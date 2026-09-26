@@ -66,6 +66,8 @@ var encounter_damage_multiplier: float = 1.0
 # ============================================================================
 signal health_changed(new_health: int, max_health: int)
 signal died()
+## HP lost to one hit (after defenses). Emitted before died() on a killing hit.
+signal damage_taken(amount: int)
 signal turn_completed()
 signal action_executed(action: Dictionary, value: int)
 
@@ -383,6 +385,8 @@ func take_damage(amount: int):
 
 	health_changed.emit(current_health, max_health)
 	update_display()
+	if actual > 0:
+		damage_taken.emit(actual)
 
 	if current_health <= 0:
 		_on_death()

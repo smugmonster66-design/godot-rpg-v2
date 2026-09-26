@@ -19,6 +19,14 @@ var companion_panel: CompanionPanel = null
 var enemy_threat_trackers: Array = []  # Array of ThreatTracker instances
 var _victory_pending: bool = false
 var _pending_summon_data: CompanionData = null
+## Companion reactions fired from inside other reactions nest at most this deep.
+const MAX_REACTION_DEPTH := 2
+var _reaction_depth: int = 0
+## Who is acting right now (trigger_source for companion reactions).
+var _current_attacker = null
+## The player's hand is rolled and usable this turn (Dice-shaper effects).
+var _hand_live: bool = false
+var _taunt_status: StatusAffix = null
 var _pending_chain_hops: Array[Dictionary] = []
 var _chain_hops_running: bool = false
 var debug_panel: CombatDebugPanel = null
@@ -437,6 +445,10 @@ func _finalize_combat_init(p_player: Player):
 			var comp: CompanionCombatant = companion_manager.get_slot(i)
 			if comp and is_instance_valid(comp):
 				companion_panel.set_companion(i, comp)
+				if not comp.is_alive():
+					companion_panel.show_slot_dead(i)
+	if companion_manager:
+		_connect_companion_combat_signals()
 	# Connect cleanup
 	if not combat_ended.is_connected(_on_combat_ended):
 		combat_ended.connect(_on_combat_ended)
@@ -627,7 +639,8 @@ func _start_round():
 		var expired_slots = companion_manager.tick_round()
 		# TODO Phase 2: animate summon dissolve-out for expired slots
 		for slot_idx in expired_slots:
-			companion_manager.remove_summon(slot_idx)
+			companion_manager.remove_summon(slot_idx)  # panel slot clears via companion_removed
+		_fire_companions_sync(CompanionData.CompanionTrigger.ROUND_START, {"round": current_round})
 	# --- END COMPANIONS ---
 	
 	# Check turn limit
@@ -775,6 +788,10 @@ func _start_player_turn():
 		if not player_combatant.is_alive():
 			_check_player_death()
 			return
+	# Companions' statuses tick with the player's turn (Gap 76)
+	await _tick_companion_statuses(true)
+	if combat_state == CombatState.ENDED:
+		return
 	
 	# --- END STATUS ---
 	if event_bus:
@@ -867,6 +884,12 @@ func _on_roll_pressed():
 	# Carry-over locks from previous turns (not captured by mutation queue)
 	if player and player.dice_pool:
 		player.dice_pool.emit_locked_die_events()
+	# --- COMPANIONS: the hand is rolled (Dice-shaper reactions) ---
+	_hand_live = true
+	await _fire_companions_animated(CompanionData.CompanionTrigger.HAND_ROLLED)
+	if combat_state == CombatState.ENDED:
+		return
+	# --- END COMPANIONS ---
 	if combat_ui:
 		combat_ui.enter_action_phase()
 		
@@ -887,6 +910,7 @@ func _on_player_end_turn():
 		combat_ui.set_mana_drag_enabled(false)
 	
 	print("🎮 Player ended turn")
+	_hand_live = false
 	
 	# --- STATUS: End-of-turn processing ---
 	if player and player.status_tracker:
@@ -896,6 +920,9 @@ func _on_player_end_turn():
 		if not player_combatant.is_alive():
 			_check_player_death()
 			return
+	await _tick_companion_statuses(false)
+	if combat_state == CombatState.ENDED:
+		return
 	# --- END STATUS ---
 	
 	# --- PROC: Turn-end procs ---
@@ -1356,6 +1383,16 @@ func _start_enemy_turn(enemy: Combatant):
 				_end_current_turn()
 			return
 	# --- END STATUS ---
+	# --- COMPANIONS: taunt (has_taunt) and ENEMY_TURN_START reactions ---
+	_apply_companion_taunts(enemy)
+	await _fire_companions_animated(CompanionData.CompanionTrigger.ENEMY_TURN_START, {"trigger_source": enemy})
+	if combat_state == CombatState.ENDED:
+		return
+	if not enemy.is_alive():
+		if not _check_combat_end():
+			_end_current_turn()
+		return
+	# --- END COMPANIONS ---
 	if combat_ui and combat_ui.has_method("set_player_turn"):
 		combat_ui.set_player_turn(false)
 	# Tell enemy panel to create dice hidden (same pattern as player)
@@ -1940,7 +1977,12 @@ func serialize_combat() -> Dictionary:
 	if companion_manager:
 		for i in range(2):
 			var c = companion_manager.get_slot(i)
-			comps.append({"hp": c.current_health, "alive": c.is_alive()} if c else {})
+			if c:
+				var cs: Dictionary = c.to_fight_state()
+				cs["statuses"] = _statuses_to_list(c.status_tracker)
+				comps.append(cs)
+			else:
+				comps.append({})
 	return {
 		"encounter": current_encounter.resource_path,
 		"round": current_round,
@@ -1987,10 +2029,14 @@ func _apply_combat_restore(state: Dictionary) -> void:
 			var c = companion_manager.get_slot(i)
 			var cs: Dictionary = comps[i]
 			if c and not cs.is_empty():
-				c.current_health = int(cs.get("hp", c.current_health))
-				if not bool(cs.get("alive", true)):
-					c.current_health = 1
-					c.take_damage(1)
+				# Put the companion back as it was (downed ones silently: the
+				# temperament reactions already happened before the save).
+				c.apply_fight_state(cs)
+				_restore_statuses(c.status_tracker, cs.get("statuses", []))
+				if companion_panel:
+					companion_panel.set_companion(i, c)
+					if not c.is_alive():
+						companion_panel.show_slot_dead(i)
 	current_round = maxi(0, int(state.get("round", 1)) - 1)
 	_restore_to_player_turn = true
 	print("💾 Restored saved fight: round %d" % int(state.get("round", 1)))
@@ -2061,6 +2107,7 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 	# --- END DEBUG PANEL ---
 	
 	
+	_current_attacker = source  # trigger_source for companion reactions
 	var was_already_deferred := _defer_combat_end  # support nested calls
 	_defer_combat_end = true
 	_deferred_combat_end_result = -1
@@ -2791,6 +2838,7 @@ func _apply_status_tick_results(player_ref, combatant: Combatant,
 		combatant: The Combatant node to apply damage/heal to.
 		tick_results: Array from StatusTracker.process_turn_start/end().
 	"""
+	_current_attacker = null  # ticks have no attacker
 	for result in tick_results:
 		var status_name: String = result.get("status_name", "")
 		var damage: int = result.get("damage", 0)
@@ -3237,6 +3285,7 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 						# Update companion panel visual + play summon VFX
 						if companion_panel:
 							_play_summon_visual(spawned, sprite_data)
+						_fire_companions_sync(CompanionData.CompanionTrigger.ON_SUMMON, {"source_companion": spawned})
 					else:
 						# Both summon slots full — prompt replacement
 						_pending_summon_data = sprite_data
@@ -3821,15 +3870,8 @@ func _check_enemy_death(enemy: Combatant):
 		# the slot flash plays but we skip the full animation await.
 		# Full async animation can be added when _check_enemy_death
 		# is refactored to async.
-		if trigger_processor:
-			var fire_entries = trigger_processor.evaluate_trigger(
-				CompanionData.CompanionTrigger.ENEMY_KILLED,
-				{"killed_enemy": enemy})
-			for entry in fire_entries:
-				if companion_panel:
-					companion_panel.play_slot_fire(entry["slot_index"])
-				var results = trigger_processor.execute_fire(entry)
-				_process_companion_results(results)
+		_fire_companions_sync(CompanionData.CompanionTrigger.ENEMY_KILLED,
+			{"killed_enemy": enemy, "trigger_source": enemy})
 		# --- END COMPANIONS ---
 
 		# Clear all statuses from the dead enemy
@@ -3986,6 +4028,8 @@ func end_combat(player_won: bool):
 
 
 	# --- COMPANIONS: Sync NPC state, clear summons, update panel ---
+	_hand_live = false
+	_companion_fight_end_reactions(player_won)
 	if companion_manager:
 		companion_manager.on_combat_end()
 	if companion_panel:
@@ -4563,52 +4607,313 @@ func _get_combatant_visual(combatant: Combatant) -> Node:
 
 
 func _process_companion_results(results: Array[Dictionary]) -> void:
-	"""Process results from CompanionTriggerProcessor.fire_trigger()."""
+	"""Apply a companion ability's results through the shared pipeline
+	(Gap 77): damage goes through armour/barrier, elements, the target's
+	defensive statuses (dodge, Braced, block, overhealth), Expose crits,
+	Empowered/Enfeeble on the companion, and adds threat. SHIELD becomes
+	Overhealth on the target. A HEAL on a downed companion revives them
+	(Wounded). Everything else runs through _process_action_effect_results."""
 	if results.is_empty():
 		return
 	print("  [Companion] Processing %d effect results" % results.size())
 	for result in results:
 		var effect_type = result.get("effect_type", -1)
 		var target = result.get("target", null)
+		var source = result.get("source", null)
+		if effect_type == -1 or result.get("skipped", false):
+			continue  # Dice-shaper results (already applied) / blocked effects
+		if target is Node and not is_instance_valid(target):
+			continue
 		match effect_type:
 			ActionEffect.EffectType.DAMAGE:
-				var dmg: int = maxi(result.get("damage", 0), 1)
-				if target and target.has_method("take_damage"):
-					target.take_damage(dmg)
-					print("  [Companion] %d damage -> %s" % [dmg, target.combatant_name])
-					# ── Reactive emit: Companion damage ──
-					if event_bus:
-						var visual = _get_combatant_visual(target)
-						if visual:
-							event_bus.emit_damage_dealt(visual, dmg, "", false, null)
-					_update_and_check_target(target)
+				_companion_deal_damage(source, target, result)
 			ActionEffect.EffectType.HEAL:
-				var heal: int = result.get("heal", 0)
-				if heal > 0 and target:
-					if target == player_combatant and player:
-						player.heal(heal)
-						_sync_player_health()
-						_update_player_health()
-					elif target.has_method("heal"):
-						target.heal(heal)
-					print("  [Companion] healed %d -> %s" % [heal, target.combatant_name if target else "?"])
-			ActionEffect.EffectType.ADD_STATUS:
-				var sa: StatusAffix = result.get("status_affix")
-				var stacks: int = result.get("stacks_to_add", 1)
-				if sa and target:
-					var tracker = _get_status_tracker(target)
-					if tracker:
-						var source = result.get("source", null)
-						tracker.apply_status(sa, stacks, "companion", 0, 1.0, source)
+				var heal: int = int(result.get("heal", 0))
+				if heal <= 0 or target == null:
+					continue
+				if target is CompanionCombatant and not target.is_alive():
+					if not target.is_summon:
+						_revive_companion(target, heal, false)
+					continue
+				if target == player_combatant and player:
+					player.heal(heal)
+					_sync_player_health()
+					_update_player_health()
+				elif target.has_method("heal"):
+					target.heal(heal)
+				if source is Combatant:
+					_add_threat_to_all_enemies(source, "healing", heal)
+				if event_bus:
+					var hv = _get_combatant_visual(target)
+					if hv:
+						event_bus.emit_heal_applied(hv, heal, _get_combatant_visual(source) if source is Combatant else null)
+				print("  [Companion] healed %d -> %s" % [heal, target.combatant_name])
 			ActionEffect.EffectType.SHIELD:
-				var amount: int = result.get("shield_amount", 0)
-				if amount > 0 and target and target.has_method("add_shield"):
-					target.add_shield(amount, result.get("shield_duration", -1))
-					# ── Reactive emit: Companion shield ──
+				var amount: int = int(result.get("shield_amount", 0))
+				var tracker: StatusTracker = _get_status_tracker(target)
+				if amount > 0 and tracker:
+					var oh: StatusAffix = load("res://resources/statuses/overhealth.tres")
+					tracker.apply_status(oh, amount, source.combatant_name if source is Combatant else "companion", 0, 1.0, source)
 					if event_bus:
-						var visual = _get_combatant_visual(target)
-						if visual:
-							event_bus.emit_shield_gained(visual, amount)
+						var sv = _get_combatant_visual(target)
+						if sv:
+							event_bus.emit_shield_gained(sv, amount)
+					print("  [Companion] shield %d (Overhealth) -> %s" % [amount, target.combatant_name])
+			_:
+				var one: Array[Dictionary] = [result]
+				_process_action_effect_results(one, source if source is Combatant else null)
+	_flush_companion_chain_hops()
+
+
+func _flush_companion_chain_hops() -> void:
+	"""CHAIN hops queued by a companion effect play out like the player's."""
+	if not _pending_chain_hops.is_empty() and not _chain_hops_running:
+		_run_chain_hops_async(null)
+
+
+func _companion_deal_damage(source, target, result: Dictionary) -> void:
+	"""One companion DAMAGE result through the shared damage pipeline."""
+	if target == null or not target.has_method("take_damage") or not target.is_alive():
+		return
+	var eff := ActionEffect.new()
+	eff.effect_type = ActionEffect.EffectType.DAMAGE
+	eff.damage_type = int(result.get("damage_type", ActionEffect.DamageType.SLASHING))
+	eff.base_damage = int(result.get("base_damage", 0))
+	eff.damage_multiplier = float(result.get("multiplier", 1.0))
+	var dice: Array = []
+	if int(result.get("dice_used", 0)) > 0:
+		eff.dice_count = 1
+		dice.append(int(result.get("dice_total", 0)))
+	else:
+		eff.dice_count = 0
+	var effects: Array[ActionEffect] = [eff]
+	var r: Dictionary = CombatCalculator.calculate_attack_damage(null, effects, dice,
+		_get_defender_stats(target), "", [], _get_status_tracker(source), _get_status_tracker(target),
+		0.0, CombatCalculator.CRIT_DAMAGE_MULTIPLIER, -1)
+	var def: Dictionary = _apply_defensive_statuses(target, int(r.get("total_damage", 0)))
+	if def.get("dodged", false):
+		print("  [Companion] %s dodged %s" % [target.combatant_name, source.combatant_name if source else "?"])
+		return
+	var dmg: int = int(def.get("final_damage", 0))
+	var prev_attacker = _current_attacker
+	_current_attacker = source
+	if dmg > 0:
+		target.take_damage(dmg)
+	_current_attacker = prev_attacker
+	if source is Combatant and _is_companion(source):
+		_add_threat_to_all_enemies(source, "damage", dmg)
+	var is_crit: bool = r.get("is_crit", false)
+	print("  [Companion] %d damage -> %s%s" % [dmg, target.combatant_name, " (CRIT)" if is_crit else ""])
+	if event_bus:
+		var visual = _get_combatant_visual(target)
+		if visual:
+			event_bus.emit_damage_dealt(visual, dmg, ActionEffect.DamageType.keys()[eff.damage_type],
+				is_crit, _get_combatant_visual(source) if source is Combatant else null)
+	_update_and_check_target(target)
+
+# ============================================================================
+# COMPANION REACTIONS, DOWNED, REVIVE, TAUNT (Companion System 2026-09-26)
+# ============================================================================
+
+func _connect_companion_combat_signals() -> void:
+	if player_combatant and not player_combatant.damage_taken.is_connected(_on_player_damage_taken):
+		player_combatant.damage_taken.connect(_on_player_damage_taken)
+	if not companion_manager.companion_died.is_connected(_on_companion_downed):
+		companion_manager.companion_died.connect(_on_companion_downed)
+	if not companion_manager.companion_spawned.is_connected(_on_companion_spawned_combat):
+		companion_manager.companion_spawned.connect(_on_companion_spawned_combat)
+	if not companion_manager.companion_removed.is_connected(_on_companion_removed_panel):
+		companion_manager.companion_removed.connect(_on_companion_removed_panel)
+	for i in range(companion_manager.TOTAL_SLOTS):
+		var c: CompanionCombatant = companion_manager.get_slot(i)
+		if c:
+			_hook_companion(c)
+
+
+func _hook_companion(c: CompanionCombatant) -> void:
+	if not c.damage_taken.is_connected(_on_companion_damage_taken):
+		c.damage_taken.connect(_on_companion_damage_taken.bind(c))
+	if c.status_tracker and player:
+		c.status_tracker.set_source_affix_manager(player.affix_manager)
+	if c.status_tracker and not c.status_tracker.status_applied.is_connected(_on_companion_status_applied):
+		c.status_tracker.status_applied.connect(_on_companion_status_applied.bind(c))
+		c.status_tracker.status_removed.connect(_on_companion_status_removed.bind(c))
+
+
+func _on_companion_status_applied(_sid, inst: Dictionary, c: CompanionCombatant) -> void:
+	if event_bus and is_instance_valid(c):
+		var visual = _get_combatant_visual(c)
+		var affix: StatusAffix = inst.get("status_affix")
+		if visual and affix:
+			event_bus.emit_status_applied(visual, affix.affix_name, inst.get("stacks", 1), affix.cleanse_tags)
+
+
+func _on_companion_status_removed(sid, c: CompanionCombatant) -> void:
+	if event_bus and is_instance_valid(c):
+		var visual = _get_combatant_visual(c)
+		if visual:
+			event_bus.emit_status_removed(visual, sid)
+
+
+func _on_companion_spawned_combat(c: CompanionCombatant, _slot: int) -> void:
+	_hook_companion(c)
+
+
+func _on_companion_removed_panel(slot: int) -> void:
+	"""A summon expired, died or was replaced: its panel slot empties (Gap 79)."""
+	if companion_panel:
+		companion_panel.clear_slot(slot)
+
+
+func _fire_companions_sync(trigger_type: CompanionData.CompanionTrigger, context: Dictionary = {}) -> void:
+	"""Fire companion abilities at once (slot flash, no travel animation).
+	Used for reactions that happen in the middle of other actions."""
+	if trigger_processor == null or combat_state == CombatState.ENDED:
+		return
+	if _reaction_depth >= MAX_REACTION_DEPTH:
+		return
+	_reaction_depth += 1
+	for entry in trigger_processor.evaluate_trigger(trigger_type, context):
+		if companion_panel:
+			companion_panel.play_slot_fire(entry["slot_index"])
+		_process_companion_results(trigger_processor.execute_fire(entry))
+	for entry in trigger_processor.evaluate_synergy_triggers(trigger_type, context):
+		if companion_panel:
+			companion_panel.play_slot_fire(entry["slot_index"])
+		_process_companion_results(trigger_processor.execute_synergy_fire(entry))
+	_reaction_depth -= 1
+
+
+func _on_player_damage_taken(amount: int) -> void:
+	"""The player lost HP: PLAYER_DAMAGED, PLAYER_DAMAGED_THRESHOLD,
+	PLAYER_HIT_HARD and ALLY_DAMAGED reactions (Gap 75)."""
+	if trigger_processor == null or combat_state == CombatState.ENDED:
+		return
+	if not player_combatant.is_alive():
+		return
+	var ctx := {"damage_amount": amount, "damaged_target": player_combatant,
+		"trigger_source": _current_attacker}
+	_fire_companions_sync(CompanionData.CompanionTrigger.PLAYER_DAMAGED, ctx)
+	_fire_companions_sync(CompanionData.CompanionTrigger.PLAYER_DAMAGED_THRESHOLD, ctx)
+	_fire_companions_sync(CompanionData.CompanionTrigger.PLAYER_HIT_HARD, ctx)
+	_fire_companions_sync(CompanionData.CompanionTrigger.ALLY_DAMAGED, ctx)
+
+
+func _on_companion_damage_taken(amount: int, c: CompanionCombatant) -> void:
+	"""A companion lost HP (and is still standing): COMPANION_DAMAGED (itself),
+	OTHER_COMPANION_DAMAGED and ALLY_DAMAGED reactions."""
+	if trigger_processor == null or combat_state == CombatState.ENDED:
+		return
+	if not is_instance_valid(c) or not c.is_alive():
+		return
+	var ctx := {"damage_amount": amount, "damaged_target": c, "source_companion": c,
+		"trigger_source": _current_attacker}
+	_fire_companions_sync(CompanionData.CompanionTrigger.COMPANION_DAMAGED, ctx)
+	_fire_companions_sync(CompanionData.CompanionTrigger.OTHER_COMPANION_DAMAGED, ctx)
+	_fire_companions_sync(CompanionData.CompanionTrigger.ALLY_DAMAGED, ctx)
+
+
+func _on_companion_downed(c: CompanionCombatant, slot: int) -> void:
+	"""A companion hit 0 HP. NPC companions are downed, not dead: they stay in
+	their slot, synergies drop, temperaments react; the others' COMPANION_KILLED
+	and its own ON_DEATH fire."""
+	if not c.is_summon:
+		if companion_panel:
+			companion_panel.show_slot_dead(slot)
+		if player:
+			CompanionRoster.on_companion_downed(c.companion_data, player.active_companions)
+			CompanionSynergyManager.recalculate(player)
+	if combat_state == CombatState.ENDED:
+		return
+	_fire_companions_sync(CompanionData.CompanionTrigger.ON_DEATH, {"source_companion": c})
+	_fire_companions_sync(CompanionData.CompanionTrigger.COMPANION_KILLED,
+		{"source_companion": c, "damaged_target": c, "trigger_source": _current_attacker})
+
+
+func _revive_companion(c: CompanionCombatant, hp: int, by_player: bool) -> void:
+	"""Mid-fight revive: back up, Wounded (reduced max HP until a proper rest)."""
+	if c == null or c.is_alive() or c.is_summon:
+		return
+	c.revive(hp, true)
+	CompanionRoster.apply_temperament(c.companion_data, "revived_mid_fight")
+	if by_player:
+		CompanionRoster.apply_temperament(c.companion_data, "revived_by_player")
+	for t in enemy_threat_trackers:
+		t.add_combatant(c, 0.0)
+	if player:
+		CompanionSynergyManager.recalculate(player)
+	if companion_panel:
+		companion_panel.set_companion(c.slot_index, c)
+	if event_bus:
+		var v = _get_combatant_visual(c)
+		if v:
+			event_bus.emit_heal_applied(v, c.current_health)
+
+
+func revive_downed_companions(hp_percent: float = -1.0, by_player: bool = true) -> int:
+	"""Revive every downed companion on the field (revive consumables).
+	Returns how many came back."""
+	if companion_manager == null or combat_state == CombatState.ENDED:
+		return 0
+	var pct := hp_percent if hp_percent > 0.0 else CompanionBondRules.get_rules().revive_hp_percent
+	var n := 0
+	for c in companion_manager.get_downed_npcs():
+		var full: int = c.companion_instance.get_full_max_hp(player.max_hp, player.level) if c.companion_instance else c.max_health
+		_revive_companion(c, maxi(1, roundi(full * pct)), by_player)
+		n += 1
+	return n
+
+
+func is_player_hand_live() -> bool:
+	"""The player's hand is rolled and in play (Dice-shaper effects may act)."""
+	return _hand_live and player != null and player.dice_pool != null and combat_state != CombatState.ENDED
+
+
+func _apply_companion_taunts(enemy: Combatant) -> void:
+	"""has_taunt companions draw this enemy's attacks (Gap 79): the enemy gets
+	one Taunted stack pointing at the companion for its turn."""
+	if companion_manager == null:
+		return
+	var tracker: StatusTracker = _get_status_tracker(enemy)
+	if tracker == null or tracker.has_status("taunt"):
+		return
+	for c in companion_manager.get_alive_companions():
+		if c.taunt_active():
+			if _taunt_status == null:
+				_taunt_status = load("res://resources/statuses/taunt.tres")
+			tracker.apply_status(_taunt_status, 1, c.combatant_name, 0, 1.0, c)
+			print("  [Companion] %s taunts %s" % [c.combatant_name, enemy.combatant_name])
+			return
+
+
+func _tick_companion_statuses(turn_start: bool) -> void:
+	"""Companions' statuses tick with the player's turn (Gap 76)."""
+	if companion_manager == null:
+		return
+	for c in companion_manager.get_alive_companions():
+		if c.status_tracker == null or c.status_tracker.active_statuses.is_empty():
+			continue
+		var r: Array[Dictionary] = c.status_tracker.process_turn_start() if turn_start else c.status_tracker.process_turn_end()
+		if not r.is_empty():
+			await _apply_status_tick_results(null, c, r)
+		if combat_state == CombatState.ENDED:
+			return
+
+
+func _companion_fight_end_reactions(player_won: bool) -> void:
+	"""Temperaments at the end of a fight: Wary companions left downed through
+	a won fight, Steadfast ones still standing when the player went down."""
+	if companion_manager == null:
+		return
+	for i in range(companion_manager.MAX_NPC_SLOTS):
+		var c: CompanionCombatant = companion_manager.get_slot(i)
+		if c == null or c.companion_data == null:
+			continue
+		if player_won and not c.is_alive():
+			CompanionRoster.apply_temperament(c.companion_data, "fight_end_downed")
+		elif not player_won and c.is_alive():
+			CompanionRoster.apply_temperament(c.companion_data, "player_downed_while_standing")
+
 
 func _fire_companions_animated(trigger_type: CompanionData.CompanionTrigger,
 		context: Dictionary = {}) -> void:

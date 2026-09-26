@@ -41,10 +41,12 @@ func initialize(player: Player, combat_manager) -> void:
 	# Spawn NPC companions from player roster
 	for i in range(mini(player.active_companions.size(), MAX_NPC_SLOTS)):
 		var instance: CompanionInstance = player.active_companions[i]
-		if instance and instance.companion_data and not instance.is_dead:
+		if instance and instance.companion_data:
+			# Downed companions take their slot at 0 HP: they don't act or get
+			# targeted, but a revive (consumable, Mender) can bring them back.
 			_spawn_npc(instance, i)
-		elif instance and instance.is_dead:
-			print("  [Companion] NPC slot %d: %s is dead — skipping" % [i, instance.get_display_name()])
+			if instance.is_dead:
+				print("  [Companion] NPC slot %d: %s is downed" % [i, instance.get_display_name()])
 
 	# Summon slots start empty
 	print("  [Companion] Summon slots empty (filled during combat)")
@@ -200,6 +202,11 @@ func _on_companion_died(companion: CompanionCombatant) -> void:
 	if companion.is_taunting():
 		taunt_state_changed.emit()
 
+	# NPC companions are downed, not dead: record it now so synergies, barks
+	# and saves see it mid-fight.
+	if not companion.is_summon:
+		companion.sync_to_instance()
+
 	companion_died.emit(companion, slot)
 
 	# Summons are removed from slot on death
@@ -233,6 +240,14 @@ func get_alive_npcs() -> Array[CompanionCombatant]:
 	var result: Array[CompanionCombatant] = []
 	for i in range(MAX_NPC_SLOTS):
 		if _slots[i] and _slots[i].is_alive():
+			result.append(_slots[i])
+	return result
+
+func get_downed_npcs() -> Array[CompanionCombatant]:
+	"""NPC companions in a slot at 0 HP."""
+	var result: Array[CompanionCombatant] = []
+	for i in range(MAX_NPC_SLOTS):
+		if _slots[i] and not _slots[i].is_alive():
 			result.append(_slots[i])
 	return result
 

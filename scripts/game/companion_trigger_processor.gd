@@ -1,11 +1,18 @@
 # res://scripts/game/companion_trigger_processor.gd
-# Evaluates companion triggers and executes their actions.
-# Owned by CompanionManager. Stateless between calls.
+# Evaluates companion triggers and executes their abilities.
+# Owned by CombatManager. Stateless between calls (per-ability state lives on
+# each CompanionCombatant).
+#
+# Each companion can have up to three abilities (CompanionData.get_abilities):
+# the Signature (always), the Reaction (from Trusted) and the Bond ability
+# (from Devoted, once per fight). Every firing rolls the companion's bond die
+# (d4..d12 by tier, plus the player's primary-stat bonus) and hands it to the
+# effects as their die value.
 extends RefCounted
 class_name CompanionTriggerProcessor
 
 # ============================================================================
-# DEPENDENCIES (set by CompanionManager)
+# DEPENDENCIES (set by CombatManager)
 # ============================================================================
 var _combat_manager = null
 var _companion_manager: CompanionManager = null
@@ -16,10 +23,22 @@ var _companion_manager: CompanionManager = null
 ## Canonical slot evaluation order: NPC0, NPC1, Summon0, Summon1
 const FIRING_ORDER: Array[int] = [0, 1, 2, 3]
 
+## Triggers about one companion: only that companion's abilities answer.
+const SELF_TRIGGERS := [
+	CompanionData.CompanionTrigger.COMPANION_DAMAGED,
+	CompanionData.CompanionTrigger.ON_DEATH,
+	CompanionData.CompanionTrigger.ON_SUMMON,
+]
+## Triggers about one companion that the others answer.
+const OTHERS_TRIGGERS := [
+	CompanionData.CompanionTrigger.OTHER_COMPANION_DAMAGED,
+	CompanionData.CompanionTrigger.COMPANION_KILLED,
+]
+
 # ============================================================================
 # SIGNALS
 # ============================================================================
-## Emitted when a companion fires its action (for UI animation hooks).
+## Emitted when a companion fires an ability (for UI animation hooks).
 signal companion_fired(companion: CompanionCombatant, slot_index: int)
 
 # ============================================================================
@@ -28,66 +47,84 @@ signal companion_fired(companion: CompanionCombatant, slot_index: int)
 
 func evaluate_trigger(trigger_type: CompanionData.CompanionTrigger,
 		context: Dictionary = {}) -> Array[Dictionary]:
-	"""Evaluate all companions for a specific trigger type.
-	Returns an array of fire entries -- one per companion that should fire.
-	Does NOT execute effects or mark companions as fired.
-	
+	"""Evaluate every companion's abilities for a trigger.
+	Returns one fire entry per ability that should fire. Does NOT execute.
+
 	Each entry: {
-		"companion": CompanionCombatant,
-		"slot_index": int,
-		"targets": Array[Combatant],
-		"context": Dictionary,
-	}
-	
-	CombatManager uses these entries to orchestrate animated execution."""
+		"companion": CompanionCombatant, "slot_index": int,
+		"targets": Array[Combatant], "context": Dictionary,
+		"ability": CompanionAbility, "ability_slot": StringName,
+	}"""
 	var fire_entries: Array[Dictionary] = []
+	var subject = context.get("source_companion")
 
 	for slot_idx in FIRING_ORDER:
-		var companion = _companion_manager.get_slot(slot_idx)
-		if not companion or not companion.is_alive():
+		var companion: CompanionCombatant = _companion_manager.get_slot(slot_idx)
+		if not companion or not is_instance_valid(companion) or companion.companion_data == null:
+			continue
+		# Self / others filtering
+		if trigger_type in SELF_TRIGGERS and subject != companion:
+			continue
+		if trigger_type in OTHERS_TRIGGERS and subject == companion:
+			continue
+		# Only ON_DEATH lets a companion at 0 HP act (its last word)
+		var dying_ok: bool = trigger_type == CompanionData.CompanionTrigger.ON_DEATH
+		if not companion.is_alive() and not dying_ok:
+			continue
+		# Frozen companions don't act
+		if not dying_ok and companion.status_tracker and companion.status_tracker.has_status("freeze"):
 			continue
 
-		if companion.companion_data.trigger != trigger_type:
-			continue
-
-		if not companion.can_fire():
-			continue
-
-		if not companion.companion_data.fires_on_first_turn and companion.turns_active == 0:
-			continue
-
-		# Threshold check for PLAYER_DAMAGED_THRESHOLD
-		if trigger_type == CompanionData.CompanionTrigger.PLAYER_DAMAGED_THRESHOLD:
-			var threshold = companion.companion_data.trigger_data.get("threshold_percent", 0.25)
-			var player_hp_pct := _get_player_hp_percent()
-			if player_hp_pct > threshold:
+		for ab_entry in companion.companion_data.get_abilities():
+			var ability: CompanionAbility = ab_entry["ability"]
+			var ab_slot: StringName = ab_entry["slot"]
+			if ability == null or ability.trigger != trigger_type:
+				continue
+			if not companion.is_ability_unlocked(ab_slot, ability):
+				continue
+			if dying_ok and not companion.is_alive():
+				var st: Dictionary = companion.ability_state.get(ab_slot, {})
+				if int(st.get("uses", -1)) == 0:
+					continue
+			elif not companion.can_fire_ability(ab_slot):
 				continue
 
-		# OTHER_COMPANION_DAMAGED -- skip if the damaged companion is self
-		if trigger_type == CompanionData.CompanionTrigger.OTHER_COMPANION_DAMAGED:
-			var source = context.get("source_companion")
-			if source == companion:
+			# Trigger thresholds
+			if trigger_type == CompanionData.CompanionTrigger.PLAYER_DAMAGED_THRESHOLD:
+				var threshold = ability.trigger_data.get("threshold_percent", 0.25)
+				if _get_player_hp_percent() > threshold:
+					continue
+			if trigger_type == CompanionData.CompanionTrigger.PLAYER_HIT_HARD:
+				var min_pct: float = ability.trigger_data.get("min_percent", 0.2)
+				var pc = _get_player_combatant()
+				var max_hp: int = pc.max_health if pc else 1
+				if float(context.get("damage_amount", 0)) < min_pct * float(max_hp):
+					continue
+
+			# fires_on_first_turn = false: skip the first occurrence
+			if companion.consume_first_skip(ab_slot, ability):
 				continue
 
-		# Condition gate
-		if companion.companion_data.condition:
-			var cond_context = _build_condition_context(companion, context)
-			var cond_result = companion.companion_data.condition.evaluate(cond_context)
-			if cond_result.blocked:
+			# Condition gate
+			if ability.condition:
+				var cond_context = _build_condition_context(companion, context)
+				if ability.condition.evaluate(cond_context).blocked:
+					continue
+
+			var targets = _resolve_targets(companion, ability.target_rule, context)
+			if targets.is_empty():
+				print("  [Companion] %s %s matched but no valid targets -- skipped" % [
+					companion.combatant_name, ab_slot])
 				continue
 
-		# Resolve targets
-		var targets = _resolve_targets(companion, context)
-		if targets.is_empty():
-			print("  [Companion] %s trigger matched but no valid targets -- skipped" % companion.combatant_name)
-			continue
-
-		fire_entries.append({
-			"companion": companion,
-			"slot_index": slot_idx,
-			"targets": targets,
-			"context": context,
-		})
+			fire_entries.append({
+				"companion": companion,
+				"slot_index": slot_idx,
+				"targets": targets,
+				"context": context,
+				"ability": ability,
+				"ability_slot": ab_slot,
+			})
 
 	return fire_entries
 
@@ -96,24 +133,24 @@ func evaluate_trigger(trigger_type: CompanionData.CompanionTrigger,
 # ============================================================================
 
 func execute_fire(fire_entry: Dictionary) -> Array[Dictionary]:
-	"""Execute effects for a single fire entry and mark the companion as fired.
-	Called by CombatManager after the animation reaches apply_effect timing.
-	
-	Returns the ActionEffect result dictionaries for the fire."""
+	"""Execute one ability and mark it fired. Returns the ActionEffect result
+	dictionaries (CombatManager applies them through the shared pipeline)."""
 	var companion: CompanionCombatant = fire_entry["companion"]
 	var slot_idx: int = fire_entry["slot_index"]
+	var ability: CompanionAbility = fire_entry.get("ability")
+	var ab_slot: StringName = fire_entry.get("ability_slot", &"signature")
+	if ability == null:
+		ability = companion.companion_data.get_signature()
 	var targets: Array[Combatant] = []
 	targets.assign(fire_entry["targets"])
 	var context: Dictionary = fire_entry["context"]
 
-	var results = _execute_effects(companion, targets, context)
+	var results = _execute_effects(companion, ability, targets, context)
 
-	# Record firing
-	companion.on_fired()
+	companion.on_ability_fired(ab_slot, ability)
 	companion_fired.emit(companion, slot_idx)
-	print("  [Companion] %s FIRED (slot %d, %d results)" % [
-		companion.combatant_name, slot_idx, results.size()])
-
+	print("  [Companion] %s %s FIRED (slot %d, %d results)" % [
+		companion.combatant_name, ab_slot, slot_idx, results.size()])
 	return results
 
 # ============================================================================
@@ -122,26 +159,18 @@ func execute_fire(fire_entry: Dictionary) -> Array[Dictionary]:
 
 func process_trigger(trigger_type: CompanionData.CompanionTrigger,
 		context: Dictionary = {}) -> Array[Dictionary]:
-	"""Evaluate AND immediately execute all matching companions.
-	Legacy path -- used when no animation is needed (or caller handles
-	animation externally). Prefer evaluate_trigger() + execute_fire() for
-	animated companion actions."""
+	"""Evaluate AND immediately execute all matching abilities."""
 	var all_results: Array[Dictionary] = []
-	var fire_entries = evaluate_trigger(trigger_type, context)
-
-	for entry in fire_entries:
-		var results = execute_fire(entry)
-		all_results.append_array(results)
-
+	for entry in evaluate_trigger(trigger_type, context):
+		all_results.append_array(execute_fire(entry))
 	return all_results
 
 # ============================================================================
 # TARGET RESOLUTION
 # ============================================================================
 
-func _resolve_targets(companion: CompanionCombatant, context: Dictionary) -> Array[Combatant]:
-	"""Resolve the target(s) for a companion's action based on its target_rule."""
-	var rule = companion.companion_data.target_rule
+func _resolve_targets(companion: CompanionCombatant, rule: int, context: Dictionary) -> Array[Combatant]:
+	"""Resolve the target(s) for an ability's target rule."""
 	var targets: Array[Combatant] = []
 
 	match rule:
@@ -200,7 +229,8 @@ func _resolve_targets(companion: CompanionCombatant, context: Dictionary) -> Arr
 
 		CompanionData.CompanionTarget.TRIGGERING_SOURCE:
 			var source = context.get("trigger_source")
-			if source and source is Combatant and source.is_alive():
+			if source and source is Combatant and is_instance_valid(source) and source.is_alive() \
+					and source in _get_alive_enemies():
 				targets.append(source)
 			else:
 				var enemies = _get_alive_enemies()
@@ -209,10 +239,16 @@ func _resolve_targets(companion: CompanionCombatant, context: Dictionary) -> Arr
 
 		CompanionData.CompanionTarget.DAMAGED_ALLY:
 			var damaged = context.get("damaged_target")
-			if damaged and damaged is Combatant and damaged.is_alive():
+			if damaged and damaged is Combatant and is_instance_valid(damaged) and damaged.is_alive():
 				targets.append(damaged)
 			else:
 				targets = _resolve_targets_fallback_lowest_hp(companion)
+
+		CompanionData.CompanionTarget.DOWNED_COMPANION:
+			for c in _companion_manager.get_downed_npcs():
+				if c != companion:
+					targets.append(c)
+					break
 
 	return targets
 
@@ -234,30 +270,67 @@ func _resolve_targets_fallback_lowest_hp(companion: CompanionCombatant) -> Array
 	return []
 
 # ============================================================================
-# EFFECT EXECUTION (ValueSource v2)
+# EFFECT EXECUTION (bond die + ValueSource v2)
 # ============================================================================
 
-func _execute_effects(companion: CompanionCombatant, targets: Array[Combatant],
-		context: Dictionary) -> Array[Dictionary]:
-	"""Execute all ActionEffects from the companion's data.
-	Reuses the existing ActionEffect.execute() pipeline.
-	Provides full ValueSource v2 context for dynamic scaling."""
-	var all_results: Array[Dictionary] = []
-	var effect_context = _build_effect_context(companion, context)
+func roll_bond_for(companion: CompanionCombatant) -> Dictionary:
+	"""The bond die roll for one firing (Gap 78)."""
+	var player = _combat_manager.player if _combat_manager else null
+	return CompanionRoster.roll_bond(companion.companion_data, companion.companion_instance, player)
 
-	for effect in companion.companion_data.action_effects:
+
+func _execute_effects(companion: CompanionCombatant, ability: CompanionAbility,
+		targets: Array[Combatant], context: Dictionary) -> Array[Dictionary]:
+	"""Run the ability's ActionEffects (with the bond roll as their die) and
+	its Dice-shaper effects."""
+	var all_results: Array[Dictionary] = []
+	var bond: Dictionary = roll_bond_for(companion)
+	var effect_context = _build_effect_context(companion, context, bond)
+	var dice_values: Array = []
+	if int(bond.get("value", 0)) > 0:
+		dice_values.append(int(bond["value"]))
+		print("  [Companion] %s bond roll: d%d=%d +%d = %d" % [companion.combatant_name,
+			bond["sides"], bond["roll"], bond["bonus"], bond["value"]])
+
+	for effect in ability.action_effects:
 		if not effect:
 			continue
-		var dice_values: Array = []
 		var results = effect.execute(companion, targets, dice_values, effect_context)
+		for r in results:
+			r["bond_value"] = int(bond.get("value", 0))
 		all_results.append_array(results)
 
+	all_results.append_array(_apply_dice_effects(companion, ability, bond))
 	return all_results
 
 
-func _build_effect_context(companion: CompanionCombatant, context: Dictionary) -> Dictionary:
-	"""Build the ValueSource v2 context dict for effect execution.
-	Shared between normal companion actions and synergy bonus actions."""
+func _apply_dice_effects(companion: CompanionCombatant, ability: CompanionAbility,
+		bond: Dictionary) -> Array[Dictionary]:
+	"""Dice-shaper: work on the player's rolled hand (only while it's live)."""
+	var out: Array[Dictionary] = []
+	if ability.dice_effects.is_empty() or _combat_manager == null:
+		return out
+	if not _combat_manager.has_method("is_player_hand_live") or not _combat_manager.is_player_hand_live():
+		print("  [Companion] %s dice effects skipped (no live hand)" % companion.combatant_name)
+		return out
+	var pool: PlayerDiceCollection = _combat_manager.player.dice_pool
+	var sides: int = int(bond.get("sides", 0))
+	var value: int = int(bond.get("value", 0))
+	for de in ability.dice_effects:
+		if de == null:
+			continue
+		var changed: int = de.apply(pool, value, sides, companion.combatant_name)
+		out.append({"effect_type": -1, "dice_shaper": de.kind, "dice_changed": changed,
+			"source": companion, "target": _get_player_combatant()})
+		print("  [Companion] %s dice effect %s changed %d die/dice" % [
+			companion.combatant_name, CompanionDiceEffect.Kind.keys()[de.kind], changed])
+	return out
+
+
+func _build_effect_context(companion: CompanionCombatant, context: Dictionary,
+		bond: Dictionary = {}) -> Dictionary:
+	"""The ValueSource v2 context dict for effect execution.
+	Shared between companion abilities and synergy bonus actions."""
 	return {
 		# Source identity
 		"source": companion,
@@ -273,6 +346,9 @@ func _build_effect_context(companion: CompanionCombatant, context: Dictionary) -
 		"alive_companions": _companion_manager.get_alive_companions().size(),
 		# Trigger context (for TRIGGER_DAMAGE_AMOUNT)
 		"trigger_damage": context.get("damage_amount", 0),
+		# Bond die (Gap 78)
+		"bond_value": int(bond.get("value", 0)),
+		"bond_die_sides": int(bond.get("sides", 0)),
 	}
 
 # ============================================================================
