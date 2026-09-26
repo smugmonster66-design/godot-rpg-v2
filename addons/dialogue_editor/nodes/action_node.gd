@@ -5,8 +5,9 @@ extends "res://addons/dialogue_editor/nodes/base_dialogue_node.gd"
 # CONSTANTS
 # ============================================================================
 const EVENT_ROOT := "res://resources/events/"
-const ENCOUNTER_ROOT := "res://resources/encounters/region1/"
-const DUNGEON_ROOT := "res://resources/dungeons/"
+## Scanned recursively (sub-folders become dropdown categories)
+const ENCOUNTER_ROOT := "res://resources/encounters/"
+const DUNGEON_ROOT := "res://resources/dungeon/"
 const QUEST_ROOT := "res://resources/definitions/quests/"
 
 # ============================================================================
@@ -176,7 +177,7 @@ func _update_param_ui() -> void:
 			_show_dropdown_for(EVENT_ROOT, "event_id", "GameEventDefinition")
 		GameActionType.ENTER_DUNGEON:
 			param_label.text = "Dungeon:"
-			_show_dropdown_for(DUNGEON_ROOT, "dungeon_name", "DungeonDefinition")
+			_show_dropdown_for(DUNGEON_ROOT, "dungeon_name", "DungeonDefinition", "DungeonChain")
 		GameActionType.ACCEPT_QUEST:
 			param_label.text = "Quest:"
 			_show_dropdown_for(QUEST_ROOT, "display_name", "QuestDefinition")
@@ -204,8 +205,10 @@ func _show_line_edit(placeholder: String) -> void:
 # DROPDOWN (shared by START_COMBAT, CUSTOM_EVENT, ENTER_DUNGEON)
 # ============================================================================
 
-func _show_dropdown_for(root_path: String, display_field: String, type_filter: String) -> void:
-	"""Show param_dropdown populated by scanning root_path for resources."""
+func _show_dropdown_for(root_path: String, display_field: String, type_filter: String, disabled_type: String = "") -> void:
+	"""Show param_dropdown populated by scanning root_path for resources.
+	Resources of disabled_type are listed greyed out (e.g. DungeonChain, which
+	the ENTER_DUNGEON runtime action cannot start)."""
 	if param_edit:
 		param_edit.visible = false
 	if not param_dropdown:
@@ -220,6 +223,13 @@ func _show_dropdown_for(root_path: String, display_field: String, type_filter: S
 	if not _scan_cache.has(root_path):
 		var results: Array = []
 		_scan_resource_dir(root_path, "", display_field, type_filter, results)
+		if disabled_type != "":
+			var extra: Array = []
+			_scan_resource_dir(root_path, "", "chain_name", disabled_type, extra)
+			for e in extra:
+				e.display = "%s (chain: not supported by Enter Dungeon)" % e.display
+				e.disabled = true
+			results.append_array(extra)
 		results.sort_custom(func(a, b):
 			if a.category != b.category:
 				return a.category < b.category
@@ -242,6 +252,8 @@ func _populate_dropdown(entries: Array) -> void:
 		var idx = param_dropdown.item_count
 		param_dropdown.add_item(entry.display)
 		param_dropdown.set_item_metadata(idx, entry.id)
+		if entry.get("disabled", false):
+			param_dropdown.set_item_disabled(idx, true)
 
 	if entries.is_empty():
 		param_dropdown.add_item("(none found)")
@@ -252,7 +264,7 @@ func _populate_dropdown(entries: Array) -> void:
 
 	# If nothing was pre-selected, sync param to whichever item is showing
 	# (OptionButton auto-selects item 0 visually but doesn't emit item_selected)
-	if param == "" and param_dropdown.selected >= 0:
+	if param == "" and param_dropdown.selected >= 0 and not param_dropdown.is_item_disabled(param_dropdown.selected):
 		var meta = param_dropdown.get_item_metadata(param_dropdown.selected)
 		if meta != null and str(meta) != "":
 			param = str(meta)
