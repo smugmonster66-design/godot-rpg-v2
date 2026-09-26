@@ -11,6 +11,7 @@ const DUNGEON_ROOT := "res://resources/dungeon/"
 const QUEST_ROOT := "res://resources/definitions/quests/"
 const ITEM_ROOT := "res://resources/items/"
 const CONSUMABLE_ROOT := "res://resources/consumables/"
+const COMPANION_ROOT := "res://resources/companions/"
 
 # ============================================================================
 # ACTION TYPES
@@ -26,6 +27,8 @@ enum GameActionType {
 	OPEN_SMITHING,    # resource path to SmithingConfig .tres
 	GRANT_ITEM,       # res://path/to/item.tres or res://path/to/item.tres:<quantity>
 	HEAL,             # "25" (flat HP), "50%" (of max HP) or "25+50%"
+	RECRUIT_COMPANION, # res://path/to/companion.tres (or companion_id), add :camp to skip the party
+	DISMISS_COMPANION, # companion_id, add :force for a permanent companion
 }
 
 # ============================================================================
@@ -81,6 +84,8 @@ func _ready() -> void:
 		type_dropdown.add_item("Open Smithing", GameActionType.OPEN_SMITHING)
 		type_dropdown.add_item("Grant Item", GameActionType.GRANT_ITEM)
 		type_dropdown.add_item("Heal", GameActionType.HEAL)
+		type_dropdown.add_item("Recruit Companion", GameActionType.RECRUIT_COMPANION)
+		type_dropdown.add_item("Dismiss Companion", GameActionType.DISMISS_COMPANION)
 		type_dropdown.item_selected.connect(_on_type_selected)
 
 	if param_edit:
@@ -260,6 +265,12 @@ func _update_param_ui() -> void:
 		GameActionType.HEAL:
 			param_label.text = "Heal:"
 			_show_line_edit("25, 50% or 25+50%")
+		GameActionType.RECRUIT_COMPANION:
+			param_label.text = "Companion:"
+			_show_line_edit("res://resources/companions/x.tres (add :camp to skip the party)")
+		GameActionType.DISMISS_COMPANION:
+			param_label.text = "Companion ID:"
+			_show_line_edit("companion_id (add :force if permanent)")
 
 func _show_line_edit(placeholder: String) -> void:
 	if param_edit:

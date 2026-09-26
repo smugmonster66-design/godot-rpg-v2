@@ -52,6 +52,8 @@ enum CompanionTrigger {
 	ROUND_START,
 	ON_SUMMON,
 	ON_DEATH,
+	PLAYER_HIT_HARD,   ## one hit took >= trigger_data.min_percent (default 0.2) of the player's max HP
+	HAND_ROLLED,       ## the player's hand was just rolled (Dice-shaper hook)
 }
 @export var trigger: CompanionTrigger = CompanionTrigger.PLAYER_TURN_START
 
@@ -65,6 +67,8 @@ enum CompanionTrigger {
 @export_group("Action")
 ## Reuses the existing ActionEffect system -- all 21 effect types work.
 @export var action_effects: Array[ActionEffect] = []
+## Dice-shaper effects on the player's hand (Signature).
+@export var dice_effects: Array[CompanionDiceEffect] = []
 
 # ============================================================================
 # TARGETING
@@ -80,6 +84,7 @@ enum CompanionTarget {
 	ALL_ALLIES,
 	TRIGGERING_SOURCE,
 	DAMAGED_ALLY,
+	DOWNED_COMPANION,  ## a downed (0 HP) NPC companion; a HEAL revives them (Wounded)
 }
 @export var target_rule: CompanionTarget = CompanionTarget.RANDOM_ENEMY
 
@@ -137,8 +142,91 @@ enum CompanionTarget {
 @export var duration_turns: int = 0
 
 # ============================================================================
+# REACTION AND BOND ABILITY (Companion System, approved 2026-09-26)
+# ============================================================================
+@export_group("Reaction")
+## Second trigger, unlocked at Trusted (CompanionBondRules.reaction_min_tier).
+@export var reaction: CompanionAbility = null
+@export_group("Bond Ability")
+## Unlocked at Devoted. Once per fight unless the ability says otherwise
+## (uses_per_combat 0 here means 1).
+@export var bond_ability: CompanionAbility = null
+
+# ============================================================================
+# BOND (scaling, temperament)
+# ============================================================================
+@export_group("Bond")
+## Roll the bond die (d4..d12 by relationship tier) plus the player's
+## primary-stat bonus and hand it to effects as their die value.
+@export var uses_bond_die: bool = true
+## If > 0, always roll this die instead of the tier's (summons, which have no
+## relationship, roll nothing unless this is set).
+@export var fixed_die_sides: int = 0
+
+enum Temperament { NONE, PROUD, STEADFAST, LOYAL, WARY, BONDED }
+## How relationship reacts to falls (numbers in CompanionBondRules).
+@export var temperament: Temperament = Temperament.NONE
+## BONDED: the companion_id whose fall this companion reacts to.
+@export var bonded_to: StringName = &""
+## Per-companion override of the temperament table: { event: delta }.
+@export var temperament_overrides: Dictionary = {}
+
+# ============================================================================
+# TRAIL PERK (out of combat)
+# ============================================================================
+@export_group("Trail Perk")
+enum TrailPerk {
+	NONE,
+	GOLD_FIND,      ## +value (0.1 = +10%) gold from fights
+	REST_HEALING,   ## +value (0.1 = +10%) healing from rests
+}
+@export var trail_perk: TrailPerk = TrailPerk.NONE
+@export var trail_perk_value: float = 0.0
+## Tier needed for the perk to work (0 = from recruitment).
+@export var trail_perk_min_tier: int = 0
+@export var trail_perk_description: String = ""
+
+# ============================================================================
 # METHODS
 # ============================================================================
+
+var _signature_cache: CompanionAbility = null
+
+func get_signature() -> CompanionAbility:
+	"""The Signature as a CompanionAbility, built from this resource's own
+	trigger/action fields."""
+	if _signature_cache == null:
+		var a := CompanionAbility.new()
+		a.ability_name = action_name
+		a.description = action_description
+		a.trigger = trigger
+		a.trigger_data = trigger_data
+		a.fires_on_first_turn = fires_on_first_turn
+		a.action_effects = action_effects
+		a.dice_effects = dice_effects
+		a.target_rule = target_rule
+		a.condition = condition
+		a.cooldown_turns = cooldown_turns
+		a.uses_per_combat = uses_per_combat
+		a.min_tier = 0
+		a.animation_set = animation_set
+		_signature_cache = a
+	return _signature_cache
+
+
+func get_abilities() -> Array[Dictionary]:
+	"""[{slot, ability}] for signature, reaction and bond (those that exist)."""
+	var out: Array[Dictionary] = [{"slot": &"signature", "ability": get_signature()}]
+	if reaction:
+		out.append({"slot": &"reaction", "ability": reaction})
+	if bond_ability:
+		out.append({"slot": &"bond", "ability": bond_ability})
+	return out
+
+
+func get_temperament_key() -> String:
+	return String(Temperament.keys()[temperament]).to_lower()
+
 
 func calculate_max_hp(player_max_hp: int, player_level: int) -> int:
 	"""Calculate this companion's max HP based on scaling mode."""

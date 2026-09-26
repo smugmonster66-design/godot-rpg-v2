@@ -19,6 +19,9 @@ enum EffectType {
 	GRANT_ITEM,      ## Give `item` (EquippableItem/ConsumableItem) x int_value
 	REMOVE_ITEM,     ## Take int_value items named `key` from the player
 	HEAL_PLAYER,     ## Heal int_value HP plus heal_percent of max HP
+	RECRUIT_COMPANION,  ## Recruit `item` (CompanionData); int_value 1 = join the party if there's room, 0 = camp
+	DISMISS_COMPANION,  ## Dismiss companion `key` (companion_id); int_value 1 = even if permanent
+	UPGRADE_COMPANION_BOND,  ## Companion `key`'s personal quest ending: the bond die becomes the top die
 }
 
 # ============================================================================
@@ -33,7 +36,7 @@ enum EffectType {
 ## GRANT_ITEM / REMOVE_ITEM: quantity. HEAL_PLAYER: flat HP.
 @export var int_value: int = 1
 
-## GRANT_ITEM: the item template to give.
+## GRANT_ITEM: the item template to give. RECRUIT_COMPANION: the CompanionData.
 @export var item: Resource = null
 
 ## HEAL_PLAYER: fraction of max HP to restore (0.0-1.0), added to int_value.
@@ -70,3 +73,12 @@ func apply() -> void:
 			ItemGrant.remove_by_name(String(key), max(1, int_value))
 		EffectType.HEAL_PLAYER:
 			ItemGrant.heal_player(int_value, heal_percent)
+		EffectType.RECRUIT_COMPANION:
+			if item is CompanionData:
+				CompanionRoster.recruit(item, int_value != 0, "event")
+			else:
+				push_warning("GameEventEffect: RECRUIT_COMPANION needs a CompanionData in `item`")
+		EffectType.DISMISS_COMPANION:
+			CompanionRoster.dismiss(key, int_value == 1)
+		EffectType.UPGRADE_COMPANION_BOND:
+			CompanionRoster.upgrade_bond(key)

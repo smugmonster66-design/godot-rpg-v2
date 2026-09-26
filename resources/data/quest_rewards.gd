@@ -47,6 +47,17 @@ class_name QuestRewards
 @export var relationship_changes: Dictionary = {}
 
 # ============================================================================
+# COMPANION REWARDS
+# ============================================================================
+@export_group("Companions")
+## Companions who join on completion (party if there's room, else camp).
+@export var recruit_companions: Array[CompanionData] = []
+## companion_ids who leave on completion.
+@export var dismiss_companions: Array[StringName] = []
+## companion_ids whose bond die is upgraded (a personal quest's ending).
+@export var upgrade_companion_bonds: Array[StringName] = []
+
+# ============================================================================
 # COUNTER REWARDS
 # ============================================================================
 @export_group("Counters")

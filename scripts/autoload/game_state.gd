@@ -448,6 +448,21 @@ class GameStateConditionContext extends GameCondition.ConditionContext:
 		if key_str.begins_with("encounter_won:"):
 			var enc_id: String = key_str.substr("encounter_won:".length())
 			return GameManager != null and GameManager.has_completed_encounter(enc_id)
+		# Companions: "companion_recruited:<id>", "companion_in_party:<id>",
+		# "companion_downed:<id>", "companion_tier:<id>:<op>:<tier 0-3>"
+		if key_str.begins_with("companion_"):
+			var cparts = key_str.split(":")
+			if cparts.size() >= 2:
+				var cid := StringName(cparts[1])
+				match cparts[0]:
+					"companion_recruited": return CompanionRoster.is_recruited(cid)
+					"companion_in_party": return CompanionRoster.is_in_party(cid)
+					"companion_downed":
+						var ci = CompanionRoster.find(cid)
+						return ci != null and ci.is_dead
+					"companion_tier":
+						if cparts.size() >= 4:
+							return _compare_int(CompanionRoster.get_tier(cid), cparts[2], int(cparts[3]))
 		match key_str:
 			"last_combat_won": return _game_state.last_combat_won
 			"last_combat_lost": return not _game_state.last_combat_won

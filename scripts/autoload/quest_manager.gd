@@ -549,6 +549,15 @@ func _grant_rewards(rewards: QuestRewards) -> void:
 		var delta = rewards.relationship_changes[npc_id]
 		GameState.modify_relationship(npc_id, delta)
 
+	# Companions
+	for cdata in rewards.recruit_companions:
+		if cdata:
+			CompanionRoster.recruit(cdata, true, "quest")
+	for cid in rewards.dismiss_companions:
+		CompanionRoster.dismiss(cid)
+	for cid in rewards.upgrade_companion_bonds:
+		CompanionRoster.upgrade_bond(cid)
+
 	# Counter changes (morality, etc.)
 	for counter_name in rewards.counter_changes:
 		var delta = rewards.counter_changes[counter_name]

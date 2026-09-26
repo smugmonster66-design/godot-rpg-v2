@@ -326,6 +326,18 @@ func _handle_game_action(line: DialogueLine) -> void:
 			ItemGrant.heal_player(flat, pct)
 			_auto_advance_or_end(line)
 
+		10:  # RECRUIT_COMPANION  param: <res://path.tres or companion_id>[:camp]
+			if CompanionRoster.recruit_ref(param, "story") == null:
+				push_warning("DialogueManager: RECRUIT_COMPANION could not recruit '%s'" % param)
+			_auto_advance_or_end(line)
+
+		11:  # DISMISS_COMPANION  param: <companion_id>[:force]
+			var cid: String = param.strip_edges()
+			var force := cid.ends_with(":force")
+			cid = cid.trim_suffix(":force")
+			CompanionRoster.dismiss(StringName(cid), force)
+			_auto_advance_or_end(line)
+
 		_:
 			push_warning("DialogueManager: Unknown game_action type: %d" % action_type)
 			_auto_advance_or_end(line)

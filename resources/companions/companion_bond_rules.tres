@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="CompanionBondRules" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://dvqx7otww47vv" path="res://resources/data/companion_bond_rules.gd" id="1_rules"]
+
+[resource]
+script = ExtResource("1_rules")
+tier_names = Array[String](["Acquaintance", "Trusted", "Close", "Devoted"])
+tier_thresholds = Array[int]([0, 20, 50, 80])
+tier_die_sides = Array[int]([4, 6, 8, 10])
+upgraded_die_sides = 12
+reaction_min_tier = 1
+bond_ability_min_tier = 3
+quest_min_tier = 2
+wounded_max_hp_percent = 0.75
+revive_hp_percent = 0.3
+dungeon_fight_relationship = 2
+temperament_reactions = {
+"bonded": {
+"bonded_downed": -2
+},
+"loyal": {
+"revived_by_player": 3
+},
+"proud": {
+"downed": -3,
+"revived_mid_fight": 5
+},
+"steadfast": {
+"player_downed_while_standing": -3
+},
+"wary": {
+"fight_end_downed": -3,
+"rest_while_downed": -2
+}
+}
