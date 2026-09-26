@@ -20,6 +20,10 @@ signal rewards_modified()
 @onready var add_relationship_button: Button = %AddRelationshipButton
 
 var _suppress_signals: bool = false
+## The QuestRewards resource last passed to load_rewards(). build_rewards()
+## starts from a copy of it so fields this widget has no UI for (e.g.
+## counter_changes, ItemReward.item_resource) are preserved on every edit.
+var _loaded_rewards: Resource = null
 
 func _ready() -> void:
 	if xp_spin:
@@ -47,6 +51,7 @@ func _ready() -> void:
 
 func load_rewards(rewards: Resource) -> void:
 	_suppress_signals = true
+	_loaded_rewards = rewards
 
 	# Clear all dynamic lists
 	_clear_list(items_list)
@@ -77,13 +82,13 @@ func load_rewards(rewards: Resource) -> void:
 	var items = rewards.get("items")
 	if items:
 		for item in items:
-			_add_item_row(items_list, str(item.get("item_id")), item.get("quantity") if item.get("quantity") != null else 1)
+			_add_item_row(items_list, str(item.get("item_id")), item.get("quantity") if item.get("quantity") != null else 1, item)
 
 	# Load choice items
 	var choice_items = rewards.get("choice_items")
 	if choice_items:
 		for item in choice_items:
-			_add_item_row(choice_items_list, str(item.get("item_id")), item.get("quantity") if item.get("quantity") != null else 1)
+			_add_item_row(choice_items_list, str(item.get("item_id")), item.get("quantity") if item.get("quantity") != null else 1, item)
 
 	# Load unlock flags
 	var flags = rewards.get("unlock_flags")
@@ -116,15 +121,31 @@ func build_rewards() -> Resource:
 	if not rewards_script:
 		return null
 
-	var rewards = rewards_script.new()
+	# Start from a copy of the loaded rewards so every field without a widget
+	# (counter_changes, and anything added to QuestRewards later) survives.
+	# Collections are deep-copied so the original resource is never mutated;
+	# every field with a widget is overwritten below with a fresh value.
+	var rewards: Resource
+	if _loaded_rewards != null:
+		rewards = _loaded_rewards.duplicate(false)
+		for prop in rewards.get_property_list():
+			if not (prop.usage & PROPERTY_USAGE_STORAGE):
+				continue
+			var v = rewards.get(prop.name)
+			if v is Dictionary or v is Array:
+				rewards.set(prop.name, v.duplicate(true))
+	else:
+		rewards = rewards_script.new()
 	rewards.experience = int(xp_spin.value) if xp_spin else 0
 	rewards.gold = int(gold_spin.value) if gold_spin else 0
 	rewards.choice_count = int(choice_count_spin.value) if choice_count_spin else 1
 
 	# Build items
 	var item_reward_class = rewards_script.ItemReward
-	rewards.items = _build_item_array(items_list, item_reward_class)
-	rewards.choice_items = _build_item_array(choice_items_list, item_reward_class)
+	# items/choice_items are typed Array[ItemReward]: fill a fresh typed copy
+	# (assigning an untyped Array to them fails)
+	rewards.items = _typed_like(rewards.items, _build_item_array(items_list, item_reward_class))
+	rewards.choice_items = _typed_like(rewards.choice_items, _build_item_array(choice_items_list, item_reward_class))
 
 	# Build unlock arrays
 	rewards.unlock_flags = _build_string_array(unlock_flags_list)
@@ -140,8 +161,12 @@ func build_rewards() -> Resource:
 # DYNAMIC ROW HELPERS
 # ============================================================================
 
-func _add_item_row(container: VBoxContainer, item_id: String = "", quantity: int = 1) -> void:
+func _add_item_row(container: VBoxContainer, item_id: String = "", quantity: int = 1, source_item: Resource = null) -> void:
 	var row = HBoxContainer.new()
+	# Keep the original ItemReward so fields without a widget (item_resource)
+	# are carried through when the row is rebuilt.
+	if source_item != null:
+		row.set_meta("source_item", source_item)
 	var id_edit = LineEdit.new()
 	id_edit.placeholder_text = "item_id"
 	id_edit.text = item_id
@@ -217,11 +242,19 @@ func _build_item_array(container: VBoxContainer, item_class) -> Array:
 			var id_edit = child.get_child(0) as LineEdit
 			var qty_spin = child.get_child(1) as SpinBox
 			if id_edit and id_edit.text.strip_edges() != "":
-				var item = item_class.new()
+				var source = child.get_meta("source_item") if child.has_meta("source_item") else null
+				var item = source.duplicate(false) if source != null else item_class.new()
 				item.item_id = StringName(id_edit.text.strip_edges())
 				item.quantity = int(qty_spin.value) if qty_spin else 1
 				result.append(item)
 	return result
+
+func _typed_like(template: Array, values: Array) -> Array:
+	"""A new array with the same element type as template, holding values."""
+	var out = template.duplicate()
+	out.clear()
+	out.append_array(values)
+	return out
 
 func _build_string_array(container: VBoxContainer) -> Array[StringName]:
 	var result: Array[StringName] = []
