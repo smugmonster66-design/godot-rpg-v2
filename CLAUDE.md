@@ -85,7 +85,7 @@ See `docs/DIALOGUE_SYSTEM.md`. Signal-based with speech bubbles, character busts
 
 ## Workflow Conventions
 
-- **Find-replace delivery** — When proposing code changes, provide a FIND code block and a separate REPLACE code block so the user can copy-paste the replacement directly. Do not edit files directly.
+- **Version control** — Work through git/GitHub: make changes directly on a feature branch (never on `main`), commit in logical steps with clear messages, push the branch, and let the user review before anything merges to `main`.
 
 ## GDScript Pitfalls
 
