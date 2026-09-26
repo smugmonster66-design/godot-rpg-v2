@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="ActionEffect" load_steps=3 format=3 uid="uid://0kpgy11dd73p"]
+[gd_resource type="Resource" script_class="ActionEffect" load_steps=4 format=3 uid="uid://0kpgy11dd73p"]
 
 [ext_resource type="Script" uid="uid://dqmfu54osidoc" path="res://scripts/resources/action_effect.gd" id="1_414nt"]
 [ext_resource type="Script" uid="uid://b81fju6xeyqi5" path="res://scripts/resources/action_effect_sub_effect.gd" id="2_eoqmf"]
+[ext_resource type="Resource" uid="uid://do7tfwgkdokyd" path="res://resources/companions/mage/storm/storm_sprite.tres" id="3_sprite"]
 
 [resource]
 script = ExtResource("1_414nt")
@@ -13,3 +14,4 @@ effect_data = {
 "hp_multiplier": 3,
 "hp_source": "DICE_TOTAL"
 }
+companion_data = ExtResource("3_sprite")
