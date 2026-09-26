@@ -13,8 +13,11 @@ default_duration = 2
 max_stacks = 5
 is_debuff = false
 cleanse_tags = Array[String](["buff", "empower", "offensive_buff"])
+stat_modifier_per_stack = {
+"damage_multiplier": 0.1
+}
 affix_name = "Empowered"
-description = "Increases damage dealt. Stacks up to 5 times."
+description = "Increases damage dealt by 10% per stack. Stacks up to 5 times."
 icon = ExtResource("2_llpd0")
 show_in_summary = false
 category = 36

@@ -15,10 +15,10 @@ expire_timing = 0
 is_debuff = false
 cleanse_tags = Array[String](["buff", "defensive_buff", "damage_reduction"])
 stat_modifier_per_stack = {
-"damage_reduction": 1
+"damage_reduction": 0.05
 }
 affix_name = "Braced"
-description = "Reduces incoming damage by 1 per stack. Expires after 1 turn."
+description = "Reduces incoming damage by 5% per stack (up to 75%). Expires after 1 turn."
 icon = ExtResource("2_bbc0r")
 show_in_summary = false
 category = 36

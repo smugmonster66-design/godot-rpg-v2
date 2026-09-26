@@ -322,6 +322,7 @@ func roll_hand():
 		var pool_die = dice[i]
 		var hand_die = _create_hand_die(pool_die, i)
 		hand_die.roll()
+		_apply_status_die_penalty(hand_die)
 		hand_die.is_consumed = false
 		hand.append(hand_die)
 		print("  [%d] %s rolled %d" % [i, hand_die.display_name, hand_die.get_total_value()])
@@ -994,8 +995,17 @@ func restore_die(die: DieResource):
 # ============================================================================
 
 
+func _apply_status_die_penalty(die: DieResource) -> void:
+	"""Slowed (and Chill) lower each die rolled this turn, never below 1."""
+	var penalty: int = _get_status_die_penalty()
+	if penalty > 0 and die:
+		var target: int = maxi(1, die.modified_value - penalty)
+		die.modified_value = target
+
 func _get_status_die_penalty() -> int:
 	"""Query the owner's StatusTracker for die value penalty."""
+	if stat_owner and stat_owner.status_tracker:
+		return stat_owner.status_tracker.get_die_penalty()
 	var tracker: StatusTracker = _get_owner_status_tracker()
 	if tracker:
 		return tracker.get_die_penalty()
@@ -1009,7 +1019,6 @@ func _get_player():
 
 func _get_owner_status_tracker() -> StatusTracker:
 	var parent = get_parent()
-	print("  [TRACKER DEBUG] owner=%s, parent=%s" % [name, parent.name if parent else "NULL"])
 	var tracker = parent.get_node_or_null("StatusTracker") if parent else null
 	if tracker is StatusTracker:
 		return tracker

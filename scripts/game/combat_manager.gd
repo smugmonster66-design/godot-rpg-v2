@@ -1353,6 +1353,10 @@ func _start_enemy_turn(enemy: Combatant):
 		if action_res:
 			action_res.reset_charges_for_turn()
 	enemy.start_turn()
+	# Resolve the enemy's ON_ROLL dice events now (e.g. a die that grants the
+	# enemy a status when rolled); they were queued and never drained.
+	if enemy.dice_collection:
+		_resolve_combat_events(enemy.dice_collection.drain_combat_events(), player_combatant, 0, enemy)
 	if combat_ui and combat_ui.has_method("show_enemy_hand"):
 		combat_ui.show_enemy_hand(enemy)
 		
@@ -1634,6 +1638,9 @@ func _animate_enemy_action(enemy: Combatant, decision: EnemyAI.Decision):
 	action_data["target"] = target
 	action_data["target_index"] = target_index
 
+	# Enemy ON_USE dice affixes (before damage, like the player's)
+	_process_enemy_on_use(enemy, decision.dice, target)
+
 
 	# Derive targeting mode from action_resource (for AoE animation detection)
 	var action_resource = action_data.get("action_resource") as Action
@@ -1770,7 +1777,8 @@ func _execute_enemy_action_immediate(enemy: Combatant, decision: EnemyAI.Decisio
 	# Consume dice
 	for die in decision.dice:
 		enemy.consume_action_die(die)
-	
+
+	_process_enemy_on_use(enemy, decision.dice, target)
 	# Apply effect through unified pipeline
 	_apply_action_effect(action_data, enemy, targets)
 
@@ -1849,6 +1857,22 @@ func _finish_enemy_turn(enemy: Combatant):
 
 	enemy.end_turn()
 	_end_current_turn()
+func _process_enemy_on_use(enemy: Combatant, dice: Array, target) -> void:
+	"""Run an enemy's ON_USE dice affixes (they were never processed)."""
+	if enemy == null or enemy.dice_collection == null:
+		return
+	var ctx: Dictionary = {}
+	if target and target.is_alive():
+		var t_tracker = _get_status_tracker(target)
+		if t_tracker:
+			var ts: Dictionary = {}
+			for inst in t_tracker.get_all_active():
+				var sa = inst.get("status_affix")
+				if sa and sa.status_id != "":
+					ts[sa.status_id] = {"stacks": inst.get("current_stacks", 0)}
+			ctx["target_statuses"] = ts
+	enemy.dice_collection.process_on_use_affixes(dice, ctx)
+
 func _lowest_ally_hp_percent(enemy: Combatant) -> float:
 	"""Lowest HP% among the enemy's other living allies (1.0 if it's alone)."""
 	var lowest := 1.0
@@ -2155,7 +2179,12 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 	# --- END STATUS ---
 	
 	# --- v4 MANA SYSTEM: Resolve queued combat and mana events ---
-	if player and player.dice_pool:
+	if source in enemy_combatants:
+		# Enemy dice affixes (ON_USE / ON_ROLL events) resolve for the enemy
+		if source.dice_collection:
+			var e_primary = targets[0] if targets.size() > 0 else null
+			_resolve_combat_events(source.dice_collection.drain_combat_events(), e_primary, primary_dmg, source)
+	elif player and player.dice_pool:
 		var primary = targets[0] if targets.size() > 0 else null
 		_resolve_combat_events(player.dice_pool.drain_combat_events(), primary, primary_dmg)
 		_resolve_mana_events(player.dice_pool.drain_mana_events())
@@ -2222,11 +2251,26 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 # ============================================================================
 # COMBAT / MANA EVENT RESOLUTION (v4 — Mana System)
 # ============================================================================
-func _resolve_combat_events(events: Array[Dictionary], primary_target, primary_dmg: int = 0) -> void:
+## Who produced the dice events being resolved (player or an enemy).
+var _event_source = null
+
+func _event_actor():
+	return _event_source if _event_source != null else player_combatant
+
+func _opposing_side_of(actor) -> Array:
+	"""Living combatants on the other side from actor."""
+	if actor in enemy_combatants:
+		return _team_of(player_combatant).filter(func(c): return c and c.is_alive())
+	return enemy_combatants.filter(func(e): return e.is_alive())
+
+func _resolve_combat_events(events: Array[Dictionary], primary_target, primary_dmg: int = 0, source = null) -> void:
 	"""Resolve queued combat events from dice affix processing.
-	Called after _apply_action_effect() with the primary attack target."""
+	Called after _apply_action_effect() with the primary attack target.
+	source: who rolled the dice (null = the player). Splash, chain and AoE
+	spread across the target's side; "self" and heals go to the source."""
 	if events.is_empty():
 		return
+	_event_source = source
 
 	# DA-3: Collect chain modifiers before resolving chain events
 	var extra_chain_targets: int = 0
@@ -2261,6 +2305,7 @@ func _resolve_combat_events(events: Array[Dictionary], primary_target, primary_d
 				pass  # Already processed above
 			_:
 				print("    ⚠️ Unknown combat event type: %s" % event.get("type", "?"))
+	_event_source = null
 func _resolve_splash(event: Dictionary, primary_target) -> void:
 	"""Splash damage to enemies adjacent to the primary target in formation.
 	Supports mode=flat (fixed damage) and mode=percent (% of primary damage)."""
@@ -2276,28 +2321,18 @@ func _resolve_splash(event: Dictionary, primary_target) -> void:
 	if splash_damage <= 0:
 		return
 	
-	var primary_index = enemy_combatants.find(primary_target) if primary_target else -1
-	var splash_targets: Array[Combatant] = []
-	
-	# Adjacent enemies in the formation
-	if primary_index > 0 and enemy_combatants[primary_index - 1].is_alive():
-		splash_targets.append(enemy_combatants[primary_index - 1])
-	if primary_index >= 0 and primary_index < enemy_combatants.size() - 1:
-		if enemy_combatants[primary_index + 1].is_alive():
-			splash_targets.append(enemy_combatants[primary_index + 1])
-	
+	# Adjacent combatants on the primary target's side
+	var splash_targets: Array = _get_splash_targets(primary_target, false) if primary_target else []
+
 	for target in splash_targets:
 		var actual_splash := _apply_elemental_damage(target, splash_damage, event.get("element", ""))
-		var idx = enemy_combatants.find(target)
 		print("    💥 Splash: %d %s damage to %s" % [
 			splash_damage, event.get("element", ""), target.combatant_name])
 		if event_bus:
 			var v = _get_combatant_visual(target)
 			if v:
 				event_bus.emit_damage_dealt(v, actual_splash, event.get("element", ""), false)
-		if idx >= 0:
-			_update_enemy_health(idx)
-			_check_enemy_death(target)
+		_update_and_check_target(target)
 func _resolve_chain(event: Dictionary, primary_target) -> void:
 	"""Queue chain hops from a dice affix chain event.
 	Damage and animation are deferred to _execute_pending_chain_hops(),
@@ -2317,9 +2352,9 @@ func _resolve_chain(event: Dictionary, primary_target) -> void:
 		chain_status_res = load("res://resources/statuses/%s.tres" % chain_status_id)
 	# Build ordered target list and pre-calculate decayed damages
 	var eligible: Array[Combatant] = []
-	for enemy in enemy_combatants:
-		if enemy.is_alive() and enemy != primary_target:
-			eligible.append(enemy)
+	for c in _team_of(primary_target):
+		if c and c.is_alive() and c != primary_target:
+			eligible.append(c)
 	var hop_targets: Array[Combatant] = []
 	var hop_damages: Array[int] = []
 	var current_damage = float(base_damage)
@@ -2351,19 +2386,15 @@ func _resolve_aoe(event: Dictionary) -> void:
 	if damage <= 0:
 		return
 	
-	for enemy in enemy_combatants:
-		if enemy.is_alive():
-			var actual_dmg := _apply_elemental_damage(enemy, damage, event.get("element", ""))
-			var idx = enemy_combatants.find(enemy)
-			print("    🌊 AoE: %d %s damage to %s" % [
-				damage, event.get("element", ""), enemy.combatant_name])
-			if event_bus:
-				var v = _get_combatant_visual(enemy)
-				if v:
-					event_bus.emit_damage_dealt(v, actual_dmg, event.get("element", ""), false)
-			if idx >= 0:
-				_update_enemy_health(idx)
-				_check_enemy_death(enemy)
+	for foe in _opposing_side_of(_event_actor()):
+		var actual_dmg := _apply_elemental_damage(foe, damage, event.get("element", ""))
+		print("    🌊 AoE: %d %s damage to %s" % [
+			damage, event.get("element", ""), foe.combatant_name])
+		if event_bus:
+			var v = _get_combatant_visual(foe)
+			if v:
+				event_bus.emit_damage_dealt(v, actual_dmg, event.get("element", ""), false)
+		_update_and_check_target(foe)
 func _resolve_bonus_damage(event: Dictionary, primary_target) -> void:
 	"""Bonus flat damage added to the primary target.
 	DA-4/DA-6: Supports stack-based scaling via per_stack_of / per_n_stacks."""
@@ -2394,16 +2425,13 @@ func _resolve_bonus_damage(event: Dictionary, primary_target) -> void:
 		return
 
 	var actual_dmg := _apply_elemental_damage(primary_target, damage, event.get("element", ""))
-	var idx = enemy_combatants.find(primary_target)
 	print("    🔥 Bonus damage: %d %s to %s" % [
 		damage, event.get("element", ""), primary_target.combatant_name])
 	if event_bus:
 		var v = _get_combatant_visual(primary_target)
 		if v:
 			event_bus.emit_damage_dealt(v, actual_dmg, event.get("element", ""), false)
-	if idx >= 0:
-		_update_enemy_health(idx)
-		_check_enemy_death(primary_target)
+	_update_and_check_target(primary_target)
 
 func _resolve_apply_status(event: Dictionary, primary_target) -> void:
 	"""DA-13: Apply status effect from dice affix to target enemy or player.
@@ -2424,11 +2452,12 @@ func _resolve_apply_status(event: Dictionary, primary_target) -> void:
 
 	var target_key: String = event.get("target", "")
 
-	# Self-targeting: apply to the player's StatusTracker directly
+	# Self-targeting: the one who rolled the dice
 	if target_key == "self":
 		var stacks: int = int(event.get("stacks", 1))
-		if player and player.status_tracker:
-			player.status_tracker.apply_status(status_res, stacks, "dice_affix")
+		var self_tracker: StatusTracker = _get_status_tracker(_event_actor())
+		if self_tracker:
+			self_tracker.apply_status(status_res, stacks, "dice_affix")
 			print("    🎯 Applied %d %s to SELF" % [stacks, status_id])
 		return
 
@@ -2436,12 +2465,12 @@ func _resolve_apply_status(event: Dictionary, primary_target) -> void:
 	var resolved_target = primary_target
 	match target_key:
 		"random_enemy":
-			var alive_enemies = enemy_combatants.filter(func(e): return e.is_alive())
+			var alive_enemies = _opposing_side_of(_event_actor())
 			if alive_enemies.size() > 0:
 				resolved_target = alive_enemies[randi() % alive_enemies.size()]
 		"random_other_enemy":
-			var other_enemies = enemy_combatants.filter(
-				func(e): return e != primary_target and e.is_alive())
+			var other_enemies = _opposing_side_of(_event_actor()).filter(
+				func(e): return e != primary_target)
 			if other_enemies.size() > 0:
 				resolved_target = other_enemies[randi() % other_enemies.size()]
 			elif primary_target and primary_target.is_alive():
@@ -2460,8 +2489,8 @@ func _resolve_apply_status(event: Dictionary, primary_target) -> void:
 	var splash_percent: float = event.get("splash_percent", 0.0)
 	if splash_percent > 0.0 and event.get("splash_target", "") == "ALL_OTHER_ENEMIES":
 		var splash_stacks: int = maxi(1, int(stacks * splash_percent))
-		for enemy in enemy_combatants:
-			if enemy != resolved_target and enemy.is_alive():
+		for enemy in _team_of(resolved_target):
+			if enemy and enemy != resolved_target and enemy.is_alive():
 				var enemy_tracker := _get_status_tracker(enemy)
 				if enemy_tracker:
 					enemy_tracker.apply_status(status_res, splash_stacks, "dice_affix_splash")
@@ -2477,14 +2506,15 @@ func _resolve_heal(event: Dictionary, primary_dmg: int) -> void:
 	else:
 		heal_amount = int(primary_dmg * event.get("percent", 0.0))
 
-	if heal_amount <= 0 or not player_combatant or not player_combatant.is_alive():
+	var healed = _event_actor()
+	if heal_amount <= 0 or not healed or not healed.is_alive():
 		return
 
-	player_combatant.heal(heal_amount)
-	_update_player_health()
-	print("    💚 Dice affix healed player for %d (mode=%s)" % [heal_amount, mode])
+	healed.heal(heal_amount)
+	_update_and_check_target(healed)
+	print("    💚 Dice affix healed %s for %d (mode=%s)" % [healed.combatant_name, heal_amount, mode])
 	if event_bus:
-		var v = _get_combatant_visual(player_combatant)
+		var v = _get_combatant_visual(healed)
 		if v:
 			event_bus.emit_heal_applied(v, heal_amount)
 
@@ -3292,6 +3322,13 @@ func _apply_defensive_statuses(target: Combatant, raw_damage: int) -> Dictionary
 		return result
 	
 	var remaining: int = raw_damage
+
+	# 1b. Braced — % damage reduction (5% per stack, capped at 75%)
+	var braced_pct: float = clampf(tracker.get_total_stat_modifier("damage_reduction"), 0.0, 0.75)
+	if braced_pct > 0.0 and remaining > 0:
+		var reduced: int = roundi(remaining * braced_pct)
+		remaining -= reduced
+		print("  Braced: -%d (%.0f%%)" % [reduced, braced_pct * 100.0])
 	
 	# 2. Block — flat DR equal to stacks (stacks NOT consumed, fall off at turn start)
 	var block_val: int = tracker.get_block_value()

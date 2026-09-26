@@ -468,7 +468,7 @@ func roll_value(power_position: float = -1.0, scaling_config: AffixScalingConfig
 	elif roll_fuzz > 0.0:
 		# No config available — use per-affix fuzz directly
 		var total_range: float = effect_max - effect_min
-		var fuzz_amount: float = maxf(absf(center) * roll_fuzz, 1.0)
+		var fuzz_amount: float = maxf(absf(center) * roll_fuzz, clampf(total_range / 10.0, 0.0, 1.0))
 		roll_min = maxf(effect_min, center - fuzz_amount)
 		roll_max = minf(effect_max, center + fuzz_amount)
 	

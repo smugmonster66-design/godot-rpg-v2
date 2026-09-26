@@ -728,10 +728,11 @@ func _round_dice_value(value: float) -> float:
 	"""
 	if effect_value_max <= 1.0 and effect_value_min >= 0.0:
 		return snappedf(value, 0.01)
-	elif effect_value_max <= 5.0:
-		return roundf(value)
-	else:
-		return roundf(value)
+	# Fractional ranges (multipliers like Titanic x1.5-2.0) keep 2 decimals;
+	# rounding them to integers made x1.5-2.0 always x2.
+	if not (is_equal_approx(effect_value_min, roundf(effect_value_min)) 			and is_equal_approx(effect_value_max, roundf(effect_value_max))):
+		return snappedf(value, 0.01)
+	return roundf(value)
 
 
 func get_value_range_string() -> String:

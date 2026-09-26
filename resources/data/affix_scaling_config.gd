@@ -244,11 +244,17 @@ func compute_fuzz_range(center: float, effect_min: float, effect_max: float,
 	var fuzz_pct: float = fuzz_override if fuzz_override >= 0.0 else default_fuzz_percent
 	var total_range: float = effect_max - effect_min
 	
-	# Percentage-based fuzz
-	var pct_fuzz: float = absf(center) * fuzz_pct
+	# Percentage-based fuzz: a share of the value, but never more than the
+	# same share of the affix's range (so x1.05-1.6 multipliers don't get
+	# +-0.21 of spread around 1.05)
+	var pct_fuzz: float = minf(absf(center) * fuzz_pct, total_range * fuzz_pct)
 	
-	# Absolute minimum fuzz (prevents tiny-range determinism)
-	var actual_fuzz: float = maxf(pct_fuzz, min_absolute_fuzz)
+	# Absolute minimum fuzz (prevents tiny-range determinism). It shrinks with
+	# the affix's range: a full +-1 only for ranges of 10 or more, so narrow
+	# ranges (multipliers like x1.05-1.6, chances, small integers) still follow
+	# item level instead of rolling their whole range at any level.
+	var abs_floor: float = min_absolute_fuzz * clampf(total_range / 10.0, 0.0, 1.0)
+	var actual_fuzz: float = maxf(pct_fuzz, abs_floor)
 	
 	return {
 		"min": maxf(effect_min, center - actual_fuzz),

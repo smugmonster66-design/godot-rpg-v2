@@ -200,6 +200,21 @@ func _generate_from_template_internal(template: DieResource,
 	# Step 1: Duplicate the template (deep copy preserves inherent affixes)
 	var die: DieResource = template.duplicate_die()
 
+	# Regenerating an already-generated die (smithing upgrade): start again
+	# from the plain die, or rolled affixes stack on top of the old ones.
+	if die.tags.has("generated"):
+		var keep: Array[DiceAffix] = []
+		for a in die.applied_affixes:
+			if a and a.source_type != "item_grant":
+				keep.append(a)
+		die.applied_affixes = keep
+		var clean_tags: Array = []
+		for t in die.tags:
+			if t != "generated" and not str(t).begins_with("rarity:"):
+				clean_tags.append(t)
+		die.tags.assign(clean_tags)
+		die.display_name = _strip_rarity_prefixes(die.display_name)
+
 	# Step 2: Stamp metadata
 	die.source = source_name if not source_name.is_empty() else "generated"
 	if not die.tags.has("rarity:%s" % RARITY_NAMES.get(rarity, "common").to_lower()):
@@ -256,6 +271,20 @@ func _generate_from_template_internal(template: DieResource,
 				affix.get_value_range_string() if affix.has_scaling() else "static"])
 
 	return die
+
+
+func _strip_rarity_prefixes(dname: String) -> String:
+	"""Remove leading rarity words ("Rare Rare d6" -> "d6")."""
+	var names: Array = RARITY_NAMES.values()
+	var changed := true
+	var out := dname
+	while changed:
+		changed = false
+		for rn in names:
+			if rn != "" and out.begins_with(str(rn) + " "):
+				out = out.substr(str(rn).length() + 1)
+				changed = true
+	return out
 
 
 # ============================================================================
