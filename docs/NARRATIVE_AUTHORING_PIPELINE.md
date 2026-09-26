@@ -151,7 +151,7 @@ relationship deltas and counter deltas. `auto_complete` skips turn-in (bounties)
 `repeatable` works.
 
 **Tag-based kill tracking is why `enemy_tags` matter.** Write kill objectives
-against factions (`naval`, `smuggler`) unless you mean one specific named foe.
+against factions (`navy`, `smuggler`) unless you mean one specific named foe.
 
 ## 1.6 The world layer
 
@@ -231,7 +231,7 @@ turn_in: cate              # or AUTO
 available_when: flag met_cate
 objectives:
   - id: defeat_naval_enemies
-    kill: tag naval x5
+    kill: tag navy x5
   - id: report_harbor_master
     talk: teague
     after: defeat_naval_enemies
@@ -283,7 +283,7 @@ conversations:                  # the priority stack — highest first
 
 ```yaml
 faction_id: navy
-tags: [naval, humanoid]
+tags: [navy, humanoid]
 region: 1
 enemies:
   - name: Tide Chaplain

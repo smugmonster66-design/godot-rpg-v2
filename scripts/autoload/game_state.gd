@@ -396,6 +396,10 @@ class GameStateConditionContext extends GameCondition.ConditionContext:
 			if parts.size() >= 3:
 				return _game_state.quests.is_objective_complete(StringName(parts[1]), StringName(parts[2]))
 			return false
+		# Fight won at least once: "encounter_won:<CombatEncounter.encounter_id>"
+		if key_str.begins_with("encounter_won:"):
+			var enc_id: String = key_str.substr("encounter_won:".length())
+			return GameManager != null and GameManager.has_completed_encounter(enc_id)
 		match key_str:
 			"last_combat_won": return _game_state.last_combat_won
 			"last_combat_lost": return not _game_state.last_combat_won

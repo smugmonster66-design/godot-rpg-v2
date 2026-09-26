@@ -186,7 +186,7 @@ static func _score_action(action: Dictionary, dice: Array[DieResource],
 	# --- Base value (legacy formula, kept for compat) ---
 	var base: float = action.get("base_damage", 0)
 	var mult: float = action.get("damage_multiplier", 1.0)
-	var action_type: int = action.get("action_type", 0)
+	var action_type: int = _ai_action_type(action)
 
 	var dice_total := 0
 	for die in dice:
@@ -252,7 +252,7 @@ static func _score_action(action: Dictionary, dice: Array[DieResource],
 	if target_combatant and action_resource:
 		var status_aware: float = config.status_awareness if config else _DEFAULT_STATUS_AWARE
 		if status_aware > 0.0:
-			var target_tracker = target_combatant.get_node_or_null("StatusTracker")
+			var target_tracker = _tracker_of(target_combatant)
 			if target_tracker:
 				var penalty := _calculate_status_penalty(action_resource, target_tracker)
 				value += penalty * status_aware * 2.0
@@ -320,12 +320,42 @@ static func _calculate_status_penalty(action_resource: Action,
 	return penalty
 
 
+## The AI's action kind: 0 attack, 1 defend/buff, 2 heal, 3 special.
+## Uses the legacy action_type when an action sets it; otherwise derives it
+## from action_category, so actions authored only with the new field (heal,
+## buff) aren't scored as attacks.
+static func _ai_action_type(action: Dictionary) -> int:
+	var legacy: int = action.get("action_type", 0)
+	if legacy != 0:
+		return legacy
+	match int(action.get("action_category", Action.ActionCategory.ATTACK)):
+		Action.ActionCategory.HEAL:
+			return 2
+		Action.ActionCategory.BUFF:
+			return 1
+		Action.ActionCategory.DEBUFF, Action.ActionCategory.SUMMON, Action.ActionCategory.ESCAPE:
+			return 3
+	return 0
+
+
+## The StatusTracker that actually holds a combatant's statuses. The player's
+## live statuses are on Player.status_tracker, not on the PlayerCombatant node
+## (whose own tracker stays empty), so the AI must look there for the player.
+static func _tracker_of(combatant) -> StatusTracker:
+	if combatant == null:
+		return null
+	if combatant is Combatant and combatant.is_player_controlled 			and GameManager.player and GameManager.player.status_tracker:
+		return GameManager.player.status_tracker
+	return combatant.get_node_or_null("StatusTracker") as StatusTracker
+
+
 ## Calculate synergy bonus based on statuses already on the target.
 ## If the target has a status and this action deals damage of a matching
-## element or has COMBO_MARK / EXECUTE effects, grant a synergy bonus.
+## element or has COMBO_MARK effects, grant a synergy bonus. (No EXECUTE
+## bonus: enemies never get Execute.)
 static func _calculate_synergy_bonus(action_resource: Action,
 		target_combatant) -> float:
-	var target_tracker = target_combatant.get_node_or_null("StatusTracker")
+	var target_tracker = _tracker_of(target_combatant)
 	if not target_tracker:
 		return 0.0
 
@@ -346,9 +376,6 @@ static func _calculate_synergy_bonus(action_resource: Action,
 		if effect.effect_type == ActionEffect.EffectType.COMBO_MARK:
 			if target_tracker.get_active_debuffs().size() > 0:
 				bonus += 20.0
-		elif effect.effect_type == ActionEffect.EffectType.EXECUTE:
-			if target_tracker.get_active_debuffs().size() > 0:
-				bonus += 25.0
 
 	# Element synergy: if target has burn and action deals fire, bonus
 	var _element_status_map := {
@@ -376,10 +403,10 @@ static func _apply_ai_hints(base_score: float, hints: Array,
 	var hint_ctx := {}
 	if enemy_combatant:
 		hint_ctx["self_hp_percent"] = float(enemy_combatant.current_health) / float(maxi(enemy_combatant.max_health, 1))
-		hint_ctx["self_tracker"] = enemy_combatant.get_node_or_null("StatusTracker")
+		hint_ctx["self_tracker"] = _tracker_of(enemy_combatant)
 	if target_combatant:
 		hint_ctx["target_hp_percent"] = float(target_combatant.current_health) / float(maxi(target_combatant.max_health, 1))
-		hint_ctx["target_tracker"] = target_combatant.get_node_or_null("StatusTracker")
+		hint_ctx["target_tracker"] = _tracker_of(target_combatant)
 
 	var allied: Array = context.get("allied_enemies", [])
 	hint_ctx["ally_count"] = allied.size()
@@ -421,7 +448,7 @@ static func preview_intent(actions: Array, strategy: int,
 	var best_score: float = -999.0
 
 	for action in actions:
-		var action_type: int = action.get("action_type", 0)
+		var action_type: int = _ai_action_type(action)
 		var name: String = action.get("name", "")
 
 		var type_score := 0.0

@@ -84,6 +84,7 @@ inherent_affixes = Array[ExtResource("20_pvvgb")]([SubResource("Resource_w3fy1")
 
 [resource]
 script = ExtResource("15_p4y27")
+enemy_tags = PackedStringArray("navy", "humanoid")
 enemy_name = "Navy Fencer"
 description = "Sanctum Navy Navy Fencer."
 template = ExtResource("23_to5pd")

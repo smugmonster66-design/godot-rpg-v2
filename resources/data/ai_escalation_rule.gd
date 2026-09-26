@@ -66,5 +66,5 @@ func evaluate(context: Dictionary) -> bool:
 		EscalationTrigger.ALL_ALLIES_DEAD:
 			return context.get("alive_ally_count", 0) == 0
 		EscalationTrigger.TURN_NUMBER_ABOVE:
-			return context.get("turn_number", 1) >= int(threshold)
+			return context.get("turn_number", 1) > int(threshold)
 	return false

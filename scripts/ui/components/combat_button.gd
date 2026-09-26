@@ -46,7 +46,7 @@ func _ready():
 	print("   goblin.tres: %s" % goblin)
 	
 	# Test loading the encounter
-	var encounter_res = load("res://resources/encounters/goblins_basic.tres")
+	var encounter_res = null  # goblins_basic.tres no longer exists; set `encounter` in the inspector
 	print("   goblins_basic.tres: %s" % encounter_res)
 	
 	if encounter_res and not encounter:

@@ -2027,27 +2027,32 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 		
 		2:  # HEAL
 			var heal_amount = _calculate_heal(action_data, source)
-			print("  💚 %s heals for %d" % [source.combatant_name, heal_amount])
-			source.heal(heal_amount)
-			
-			# Emit heal event for reactive animations (floating labels)
-			if event_bus:
-				var visual = _get_combatant_visual(source)
-				if visual:
-					event_bus.emit_heal_applied(visual, heal_amount, visual)
+			# Enemy group heals (HEAL effect targeting ALL_ALLIES) heal the whole
+			# enemy team; everything else heals the caster (Gap 26).
+			var heal_targets: Array = [source]
+			if source in enemy_combatants and _heal_target_type(action_data) == ActionEffect.TargetType.ALL_ALLIES:
+				heal_targets = enemy_combatants.filter(func(e): return e.is_alive())
+			for healed in heal_targets:
+				print("  💚 %s heals %s for %d" % [source.combatant_name, healed.combatant_name, heal_amount])
+				healed.heal(heal_amount)
+				
+				# Emit heal event for reactive animations (floating labels)
+				if event_bus:
+					var visual = _get_combatant_visual(healed)
+					if visual:
+						event_bus.emit_heal_applied(visual, heal_amount, _get_combatant_visual(source))
+				
+				if healed == player_combatant:
+					_update_player_health()
+				else:
+					var enemy_index = enemy_combatants.find(healed)
+					if enemy_index >= 0:
+						_update_enemy_health(enemy_index)
 			
 			# --- THREAT: Add healing threat ---
 			if source == player_combatant or _is_companion(source):
 				_add_threat_to_all_enemies(source, "healing", heal_amount)
 			# --- END THREAT ---
-	
-			
-			if source == player_combatant:
-				_update_player_health()
-			else:
-				var enemy_index = enemy_combatants.find(source)
-				if enemy_index >= 0:
-					_update_enemy_health(enemy_index)
 		
 		3:  # SPECIAL
 			print("  ✨ %s uses special ability" % source.combatant_name)
@@ -2090,6 +2095,17 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 				if e.is_alive():
 					all_enemies_alive.append(e)
 			var all_allies: Array = [player_combatant] if player_combatant else []
+			# Target types are written from the caster's point of view. For an
+			# enemy caster its allies are the enemy team and its enemies are the
+			# player's side (Gap 25: these were flipped, so enemy buffs and heals
+			# landed on the player).
+			if source in enemy_combatants:
+				var player_side: Array = []
+				if player_combatant and player_combatant.is_alive():
+					player_side.append(player_combatant)
+				player_side.append_array(_get_alive_companions())
+				all_allies = all_enemies_alive
+				all_enemies_alive = player_side
 			
 			var placed_dice: Array = action_data.get("placed_dice", [])
 			var dice_values: Array = []
@@ -2776,6 +2792,11 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 							event_bus.emit_heal_applied(visual, heal_amt, visual)
 				print("  🧛 Lifesteal: %d dmg, %d healed" % [dmg, heal_amt])
 			ActionEffect.EffectType.EXECUTE:
+				# House rule: enemies never get Execute. Refuse it at runtime so
+				# no content (or sub-effect) can slip one through (Gap 56).
+				if source in enemy_combatants:
+					push_warning("CombatManager: enemy '%s' tried an EXECUTE effect; ignored (enemies never get Execute)" % source_name)
+					continue
 				var dmg: int = result.get("damage", 0)
 				var target_node = result.get("target")
 				if result.get("execute_instant_kill", false) and target_node:
@@ -2856,6 +2877,8 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 			# ── Multi-Target ──
 			ActionEffect.EffectType.SPLASH:
 				var primary_dmg: int = result.get("primary_damage", result.get("damage", 0))
+				if primary_dmg <= 0:
+					primary_dmg = last_primary_damage  # the attack this splash rides on
 				var splash_dmg: int = int(primary_dmg * result.get("splash_percent", 0.5))
 				var target_node = result.get("target")
 				if splash_dmg > 0:
@@ -2891,10 +2914,13 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 					_update_and_check_target(target_node)
 				var chain_tgts = _get_chain_targets(target_node, result.get("chain_can_repeat", false))
 				var hop_count = mini(chain_multipliers.size(), chain_tgts.size())
-				if hop_count > 0:
+				# Hops scale from the chain's own damage, else from the attack it
+				# rides on (enemy chains carry no damage of their own; Gap 26).
+				var hop_base: int = primary_dmg if primary_dmg > 0 else last_primary_damage
+				if hop_count > 0 and hop_base > 0:
 					var hop_damages: Array[int] = []
 					for i in range(hop_count):
-						hop_damages.append(maxi(1, int(primary_dmg * chain_multipliers[i])))
+						hop_damages.append(maxi(1, int(hop_base * chain_multipliers[i])))
 					_pending_chain_hops.append({
 						"start_node": target_node,
 						"targets": chain_tgts.slice(0, hop_count),
@@ -3280,6 +3306,27 @@ func _calculate_damage(action_data: Dictionary, attacker, defender) -> Dictionar
 			if effect is ActionEffect:
 				effects.append(effect)
 	
+	# Enemy chain actions (e.g. chain_spark) carry their damage on the CHAIN
+	# effect only. Treat it as the primary hit so the target takes damage and
+	# the hops have something to scale from (Gap 26).
+	if attacker in enemy_combatants:
+		var has_damage := false
+		for effect in effects:
+			if effect and effect.effect_type == ActionEffect.EffectType.DAMAGE:
+				has_damage = true
+		if not has_damage:
+			for effect in effects.duplicate():
+				if effect and effect.effect_type == ActionEffect.EffectType.CHAIN:
+					var hit := ActionEffect.new()
+					hit.effect_type = ActionEffect.EffectType.DAMAGE
+					hit.value_source = effect.value_source
+					hit.base_damage = effect.base_damage
+					hit.damage_multiplier = effect.damage_multiplier
+					hit.damage_type = effect.damage_type
+					hit.dice_count = maxi(effect.dice_count, 1)
+					effects.append(hit)
+					break
+
 	# Legacy fallback - create a basic damage effect if no effects found
 	if effects.is_empty():
 		var legacy_effect = ActionEffect.new()
@@ -3836,25 +3883,49 @@ func reset_combat():
 # HELPERS — Multi-Target & Health
 # ============================================================================
 
+func _heal_target_type(action_data: Dictionary) -> int:
+	"""Target type of the action's first HEAL effect (SELF if none)."""
+	var res = action_data.get("action_resource") as Action
+	if res:
+		for effect in res.effects:
+			if effect and effect.effect_type == ActionEffect.EffectType.HEAL:
+				return effect.target
+	return ActionEffect.TargetType.SELF
+
+func _get_alive_companions() -> Array:
+	return companion_manager.get_alive_companions() if companion_manager else []
+
+func _team_of(primary_target) -> Array:
+	"""The side the primary target is on, in board order: the enemy team, or
+	the player followed by companions. Splash and chain spread within it."""
+	if primary_target == null or primary_target in enemy_combatants:
+		return enemy_combatants
+	var side: Array = []
+	if player_combatant:
+		side.append(player_combatant)
+	side.append_array(_get_alive_companions())
+	return side
+
 func _get_splash_targets(primary_target, splash_all: bool) -> Array:
+	var team: Array = _team_of(primary_target)
 	if splash_all:
 		var targets: Array = []
-		for e in enemy_combatants:
+		for e in team:
 			if e.is_alive() and e != primary_target:
 				targets.append(e)
 		return targets
-	var idx = enemy_combatants.find(primary_target)
+	var idx = team.find(primary_target)
 	var targets: Array = []
-	if idx > 0 and enemy_combatants[idx - 1].is_alive():
-		targets.append(enemy_combatants[idx - 1])
-	if idx >= 0 and idx < enemy_combatants.size() - 1:
-		if enemy_combatants[idx + 1].is_alive():
-			targets.append(enemy_combatants[idx + 1])
+	if idx > 0 and team[idx - 1].is_alive():
+		targets.append(team[idx - 1])
+	if idx >= 0 and idx < team.size() - 1:
+		if team[idx + 1].is_alive():
+			targets.append(team[idx + 1])
 	return targets
 
 func _get_chain_targets(primary_target, can_repeat: bool) -> Array:
 	var others: Array = []
-	for e in enemy_combatants:
+	for e in _team_of(primary_target):
 		if e.is_alive() and e != primary_target:
 			others.append(e)
 	if not can_repeat:

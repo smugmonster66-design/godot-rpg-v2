@@ -12,7 +12,7 @@ objective_id = &"kill_naval"
 description = "Defeat naval enemies ({current}/{required})"
 objective_type = 1
 required_count = 5
-track_tag = &"naval"
+track_tag = &"navy"
 
 [sub_resource type="Resource" id="Resource_jkhpv"]
 script = ExtResource("3_igje1")

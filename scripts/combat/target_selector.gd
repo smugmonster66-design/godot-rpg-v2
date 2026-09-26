@@ -35,44 +35,55 @@ static func select_target(
 	if valid_targets.is_empty():
 		return null
 	
-	# 3. ROLE-BASED SELECTION
-	var role = enemy.get("combat_role")
-	if role == null:
-		# Fallback for enemies without combat_role (legacy)
-		return threat_tracker.get_highest_threat_target()
+	# 3. ROLE-BASED SELECTION (EnemyData.combat_role; Combatant has no role of its own)
+	var enemy_data: EnemyData = enemy.enemy_data
+	if enemy_data == null:
+		# Legacy enemies without data: highest threat
+		return _fallback(threat_tracker, valid_targets)
 	
 	var target: Combatant = null
+	var label := ""
 	
-	match role:
+	match int(enemy_data.combat_role):
 		0:  # BRUTE - Pure aggro, attack highest threat
 			target = threat_tracker.get_highest_threat_target()
-			print("  [Target] BRUTE → highest threat: %s" % target.combatant_name)
+			label = "BRUTE → highest threat"
 		
 		1:  # SKIRMISHER - Opportunistic, weakest with minimum threat
 			target = _lowest_hp_with_min_threat(valid_targets, threat_tracker, 10.0)
-			print("  [Target] SKIRMISHER → weakest (min threat 10): %s" % target.combatant_name)
+			label = "SKIRMISHER → weakest (min threat 10)"
 		
 		2:  # CASTER - Weighted random by threat
 			target = _weighted_random_by_threat(valid_targets, threat_tracker)
-			print("  [Target] CASTER → weighted random: %s" % target.combatant_name)
+			label = "CASTER → weighted random"
 		
 		3:  # TANK - Protect allies by hitting biggest threat
 			target = threat_tracker.get_highest_threat_target()
-			print("  [Target] TANK → highest threat: %s" % target.combatant_name)
+			label = "TANK → highest threat"
 		
-		4:  # SUPPORT - Execute low HP targets (ignore threat)
+		4:  # SUPPORT - Focus the weakest target (ignores threat; no bonus damage)
 			target = _lowest_hp(valid_targets)
-			print("  [Target] SUPPORT → lowest HP: %s" % target.combatant_name)
+			label = "SUPPORT → lowest HP"
 		
 		_:
 			target = threat_tracker.get_highest_threat_target()
-			print("  [Target] UNKNOWN ROLE → highest threat: %s" % target.combatant_name)
+			label = "UNKNOWN ROLE → highest threat"
 	
 	# 4. FALLBACK
-	if not target or not target.is_alive():
-		target = threat_tracker.get_highest_threat_target()
+	if target == null or not target.is_alive():
+		target = _fallback(threat_tracker, valid_targets)
+	if target:
+		print("  [Target] %s: %s" % [label, target.combatant_name])
 	
 	return target
+
+
+static func _fallback(threat_tracker: ThreatTracker, valid_targets: Array[Combatant]) -> Combatant:
+	"""Highest threat, or the first living target if threat has nothing."""
+	var t: Combatant = threat_tracker.get_highest_threat_target() if threat_tracker else null
+	if t and t.is_alive():
+		return t
+	return valid_targets[0] if not valid_targets.is_empty() else null
 
 # ============================================================================
 # TAUNT DETECTION
@@ -118,7 +129,7 @@ static func _get_alive_allies(companion_manager, player_combatant: Combatant) ->
 # ============================================================================
 
 static func _lowest_hp(targets: Array[Combatant]) -> Combatant:
-	"""Get target with lowest current HP (execute role)."""
+	"""Get target with lowest current HP (SUPPORT focus)."""
 	if targets.is_empty():
 		return null
 	

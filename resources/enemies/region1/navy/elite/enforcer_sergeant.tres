@@ -89,6 +89,7 @@ inherent_affixes = Array[ExtResource("20_j4gc1")]([SubResource("Resource_7t6hk")
 
 [resource]
 script = ExtResource("15_x6dlg")
+enemy_tags = PackedStringArray("navy", "humanoid")
 enemy_name = "Enforcer Sergeant"
 description = "Sanctum Navy Enforcer Sergeant."
 template = ExtResource("23_cqigt")

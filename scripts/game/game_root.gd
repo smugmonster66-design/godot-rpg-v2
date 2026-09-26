@@ -487,7 +487,13 @@ func end_combat(player_won: bool = true):
 		GameState.request_autosave()
 
 	if is_in_dungeon:
-		# Dungeon owns rewards — let it apply them, then show summary
+		# Dungeon owns rewards — let it apply them, then show summary.
+		# Record the win and clear the pending fight here (the map path does
+		# this in GameManager.on_combat_ended).
+		if GameManager and GameManager.pending_encounter:
+			if player_won:
+				GameManager.mark_encounter_completed(GameManager.pending_encounter)
+			GameManager.clear_pending_encounter()
 		_handle_dungeon_post_combat(player_won)
 	else:
 		# Map path — GameManager handles rewards + shows summary

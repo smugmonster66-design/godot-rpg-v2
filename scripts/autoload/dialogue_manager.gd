@@ -229,12 +229,24 @@ func _handle_game_action(line: DialogueLine) -> void:
 			print("[DialogueManager] START_COMBAT — _pending_resume_line=%s" % _pending_resume_line)
 			_suspend_dialogue()
 			if GameManager and GameManager.game_root:
-				var encounter = load(param) as Resource
-				if encounter:
+				var encounter: CombatEncounter = null
+				if ResourceLoader.exists(param):
+					encounter = load(param) as CombatEncounter
+				var problem := ""
+				if encounter == null:
+					problem = "not a CombatEncounter"
+				elif encounter.enemies.filter(func(e): return e != null).is_empty():
+					problem = "has no enemies"
+				elif GameManager.game_root.is_in_combat:
+					problem = "a fight is already running"
+				if problem == "":
+					for w in encounter.validate():
+						push_warning("DialogueManager: %s: %s" % [param, w])
 					GameManager.pending_encounter = encounter
 					GameManager.game_root.start_combat(encounter)
 				else:
-					push_warning("DialogueManager: Failed to load combat encounter: %s" % param)
+					# Never leave the conversation suspended on a fight that can't start.
+					push_warning("DialogueManager: START_COMBAT '%s' skipped (%s)" % [param, problem])
 					resume_dialogue()
 			else:
 				push_warning("DialogueManager: No GameManager.game_root for START_COMBAT")

@@ -47,6 +47,7 @@ pool_die_scene = ExtResource("20_i21ru")
 
 [resource]
 script = ExtResource("14_bm1d4")
+enemy_tags = PackedStringArray("navy", "humanoid")
 enemy_name = "Navy Sergeant"
 description = "Sanctum Navy Navy Sergeant."
 template = ExtResource("22_j70d5")

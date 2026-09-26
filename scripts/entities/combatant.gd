@@ -49,6 +49,8 @@ var _effective_level: int = 1
 ## Power-based scaling factor applied to HP/armor/barrier at spawn.
 ## 1.0 = no adjustment, >1.0 = player undergeared, <1.0 = player overgeared.
 var _power_scaling_factor: float = 1.0
+## Set by EncounterSpawner from CombatEncounter.stat_multiplier before _ready.
+var encounter_stat_multiplier: float = 1.0
 
 # ============================================================================
 # NODE REFERENCES
@@ -173,6 +175,13 @@ func _initialize_from_enemy_data():
 			current_health = max_health
 			armor = maxi(0, int(armor * _power_scaling_factor))
 			barrier = maxi(0, int(barrier * _power_scaling_factor))
+
+	# ── Encounter difficulty (CombatEncounter.stat_multiplier) ──
+	if encounter_stat_multiplier != 1.0:
+		max_health = maxi(1, int(max_health * encounter_stat_multiplier))
+		current_health = max_health
+		armor = maxi(0, int(armor * encounter_stat_multiplier))
+		barrier = maxi(0, int(barrier * encounter_stat_multiplier))
 
 	# Store effective level for loot drops
 	_effective_level = roll_result.get("effective_level", enemy_data.enemy_level_floor)

@@ -101,9 +101,9 @@ func _spawn_single_enemy(enemy_data: EnemyData, index: int, container: Node) -> 
 	# Set position
 	#enemy.position = current_encounter.get_enemy_position(index)
 	
-	# Apply stat scaling if needed
-	if current_encounter.stat_multiplier != 1.0:
-		_apply_stat_scaling(enemy, enemy_data)
+	# Stat scaling is applied in Combatant._initialize_from_enemy_data (on
+	# _ready); setting HP here was overwritten there.
+	enemy.encounter_stat_multiplier = current_encounter.stat_multiplier
 	
 	# Add to scene
 	container.add_child(enemy)
@@ -113,11 +113,6 @@ func _spawn_single_enemy(enemy_data: EnemyData, index: int, container: Node) -> 
 	
 	return enemy
 
-func _apply_stat_scaling(enemy: Combatant, enemy_data: EnemyData):
-	"""Apply difficulty scaling to enemy stats"""
-	var mult = current_encounter.stat_multiplier
-	enemy.max_health = int(enemy_data.max_health * mult)
-	enemy.current_health = enemy.max_health
 
 # ============================================================================
 # UTILITY

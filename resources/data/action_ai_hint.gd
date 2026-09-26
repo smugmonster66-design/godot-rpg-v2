@@ -154,6 +154,6 @@ func _check(context: Dictionary) -> bool:
 			return context.get("ally_count", 0) < int(threshold)
 
 		HintCondition.TURN_NUMBER_ABOVE:
-			return context.get("turn_number", 1) >= int(threshold)
+			return context.get("turn_number", 1) > int(threshold)
 
 	return false
