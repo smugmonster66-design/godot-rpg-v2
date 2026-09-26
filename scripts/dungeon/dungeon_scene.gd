@@ -371,9 +371,11 @@ func on_combat_ended(player_won: bool):
 			GameEventBus.emit_exp_gained(exp, _get_portrait())
 
 		# ── Award relationship points to active companions ──
+		# (downed companions don't earn it)
+		var fight_rel: int = CompanionBondRules.get_rules().dungeon_fight_relationship
 		for inst in _player.active_companions:
-			if inst and inst.companion_data and inst.companion_data.companion_id != &"":
-				GameState.modify_relationship(inst.companion_data.companion_id, 2)
+			if inst and inst.companion_data and inst.companion_data.companion_id != &"" and not inst.is_dead:
+				GameState.modify_relationship(inst.companion_data.companion_id, fight_rel)
 
 		# ── Roguelite: offer affix after elite or boss ──
 		var _should_offer_affix: bool = false
@@ -518,27 +520,10 @@ func _on_popup_closed(result: Dictionary):
 			if heal > 0 and _player:
 				_player.heal(heal)
 			
-			# --- Heal companions proportionally ---
-			if _player and heal_ratio > 0.0:
-				for instance in _player.active_companions:
-					if not instance or not instance.companion_data:
-						continue
-					var comp_max: int = instance.get_max_hp(_player.max_hp, _player.level)
-					if instance.is_dead:
-						# Revive at proportional HP
-						instance.is_dead = false
-						instance.current_hp = maxi(int(comp_max * heal_ratio), 1)
-						print("  [Rest] Revived %s at %d/%d HP" % [
-							instance.get_display_name(), instance.current_hp, comp_max])
-					else:
-						if instance.current_hp < 0:
-							instance.initialize_hp(_player.max_hp, _player.level)
-						var comp_missing: int = comp_max - instance.current_hp
-						if comp_missing > 0:
-							var comp_heal: int = maxi(int(comp_missing * heal_ratio), 1)
-							instance.current_hp = mini(instance.current_hp + comp_heal, comp_max)
-							print("  [Rest] Healed %s for %d → %d/%d HP" % [
-								instance.get_display_name(), comp_heal, instance.current_hp, comp_max])
+			# --- Heal the party's companions proportionally ---
+			# A dungeon campfire isn't a proper rest: Wounded stays.
+			if _player:
+				CompanionRoster.rest(_player, heal_ratio, false, true)
 			
 			var affix: DiceAffix = result.get("chosen_affix")
 			if affix: _apply_temp_affix(affix)

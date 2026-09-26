@@ -399,22 +399,8 @@ func _handle_rest(button_def: MapNodeButtonDef) -> void:
 		if actual_heal > 0:
 			GameEventBus.emit_heal_received(actual_heal)
 
-	# Heal companions proportionally (mirrors dungeon_scene.gd rest logic)
-	if heal_ratio > 0.0:
-		for instance in _player.active_companions:
-			if not instance or not instance.companion_data:
-				continue
-			var comp_max = instance.get_max_hp(_player.max_hp, _player.level)
-			if instance.is_dead:
-				instance.is_dead = false
-				instance.current_hp = maxi(int(comp_max * heal_ratio), 1)
-			else:
-				if instance.current_hp < 0:
-					instance.initialize_hp(_player.max_hp, _player.level)
-				var comp_missing = comp_max - instance.current_hp
-				if comp_missing > 0:
-					var comp_heal = maxi(int(comp_missing * heal_ratio), 1)
-					instance.current_hp = mini(instance.current_hp + comp_heal, comp_max)
+	# Heal companions (party and camp) proportionally; a proper rest ends Wounded
+	CompanionRoster.rest(_player, heal_ratio, true)
 
 	hide_radial()
 	action_completed.emit()

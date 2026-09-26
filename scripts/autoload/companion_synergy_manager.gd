@@ -56,7 +56,11 @@ func recalculate(player: Player) -> void:
 		_deactivate_all()
 		return
 
-	var active = player.active_companions if player.active_companions else []
+	# Downed companions don't count toward synergies (Gap 80)
+	var active: Array = []
+	for inst in (player.active_companions if player.active_companions else []):
+		if inst and not inst.is_dead:
+			active.append(inst)
 
 	for def in _definitions:
 		var should_be_active = _is_synergy_met(def, active)

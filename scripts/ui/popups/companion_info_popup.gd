@@ -186,8 +186,21 @@ func _populate_details() -> void:
 			var state = GameState.relationships.get_state(comp_id)
 			var state_name = GameState.relationships.get_state_name(comp_id)
 			var color = ThemeManager.get_relationship_color(state).to_html(false)
+			var extra := ""
+			if _instance is CompanionInstance:
+				var sides := CompanionRoster.bond_die_sides(data, _instance)
+				extra = "
+%s" % CompanionRoster.get_tier_name(comp_id)
+				if sides > 0:
+					extra += "  (bond die d%d)" % sides
+				if _instance.is_dead:
+					extra += "
+Downed"
+				elif _instance.is_wounded:
+					extra += "
+Wounded"
 			DescriptionParser.set_bbcode(_relationship_label,
-				"[center][color=#%s]%s[/color]  (%d/100)[/center]" % [color, state_name, value])
+				"[center][color=#%s]%s[/color]  (%d/100)%s[/center]" % [color, state_name, value, extra])
 			_relationship_label.visible = true
 		else:
 			_relationship_label.visible = false

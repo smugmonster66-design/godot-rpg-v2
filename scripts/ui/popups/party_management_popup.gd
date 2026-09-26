@@ -236,6 +236,8 @@ func _show_companion_popup(instance, is_active: bool) -> void:
 
 	if is_active:
 		buttons.append({"label": "Deactivate", "action": "deactivate"})
+	elif instance.is_dead:
+		pass  # a downed companion can't join the party until they're back up (Gap 80)
 	else:
 		var active_count = _player.active_companions.size() if _player.active_companions else 0
 		if active_count < 2:
@@ -290,7 +292,7 @@ func _do_deactivate(instance) -> void:
 func _do_activate(instance) -> void:
 	if not _player.active_companions:
 		_player.active_companions = []
-	if _player.active_companions.size() >= 2:
+	if _player.active_companions.size() >= 2 or instance.is_dead:
 		return
 	# Ensure not already active
 	if instance in _player.active_companions:
@@ -299,6 +301,8 @@ func _do_activate(instance) -> void:
 
 func _do_swap(camp_instance, slot_index: int) -> void:
 	if not _player.active_companions or slot_index >= _player.active_companions.size():
+		return
+	if camp_instance.is_dead:
 		return
 	# Remove the active companion from slot (stays in roster)
 	_player.active_companions[slot_index] = camp_instance

@@ -97,6 +97,9 @@ func _ready():
 		GameManager.game_root = self
 		if not GameManager.player_created.is_connected(_on_player_created):
 			GameManager.player_created.connect(_on_player_created)
+	# Companion relationship notices
+	if not GameState.relationship_changed.is_connected(CompanionRoster.on_relationship_changed):
+		GameState.relationship_changed.connect(CompanionRoster.on_relationship_changed)
 
 	# Find persistent UI elements
 	_setup_persistent_ui()
@@ -815,13 +818,10 @@ func rescue_player(donation_percent: float, prefer_nearest_rest: bool) -> void:
 		root_snapshot.append({"path": rescue_default_zone.resource_path, "return": &""})
 		moved = MapManager.relocate(root_snapshot, rescue_default_location)
 
-	# Heal fully; revive companions
+	# Heal fully; everyone back up, Wounded cleared
 	player.current_hp = 0
 	player.heal(player.max_hp)
-	for inst in player.active_companions:
-		if inst and inst.companion_data:
-			inst.is_dead = false
-			inst.current_hp = inst.get_max_hp(player.max_hp, player.level)
+	CompanionRoster.full_recovery(player)
 
 	# The donation (outside dungeons)
 	var given: int = 0

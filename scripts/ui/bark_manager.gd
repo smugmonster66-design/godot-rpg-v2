@@ -74,6 +74,8 @@ func _on_game_event(event: GameEvent) -> void:
 		var companion = companions[i]
 		var companion_data: CompanionData = null
 		if companion is CompanionInstance:
+			if companion.is_dead:
+				continue  # downed companions don't bark (Gap 80)
 			companion_data = companion.companion_data
 		elif companion is CompanionData:
 			companion_data = companion
