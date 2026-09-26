@@ -4184,6 +4184,14 @@ func _apply_proc_results(results: Dictionary, proc_target: Combatant = null,
 	for se in results.special_effects:
 		var se_type = se.get("type", "")
 		match se_type:
+			"duplicate_die":
+				# Duplicate Die on Max (gear): the used die comes back as a copy
+				var used: DieResource = se.get("die")
+				if used and player and player.dice_pool:
+					var copy: DieResource = used.duplicate_die()
+					copy.set_meta("stat_bonus_applied", used.get_meta("stat_bonus_applied", 0))
+					player.dice_pool.insert_into_hand(player.dice_pool.hand.size(), copy)
+					print("  🎲 Duplicated %s (rolled max)" % used.display_name)
 			"proc_gain_armor":
 				var amount = int(se.get("amount", 0))
 				if amount > 0 and player_combatant and player_combatant.has_method("add_armor_buff"):

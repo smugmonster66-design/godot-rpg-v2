@@ -322,13 +322,14 @@ func roll_hand():
 		var pool_die = dice[i]
 		var hand_die = _create_hand_die(pool_die, i)
 		hand_die.roll()
-		_apply_status_die_penalty(hand_die)
+		_finish_die_roll(hand_die)
 		hand_die.is_consumed = false
 		hand.append(hand_die)
 		print("  [%d] %s rolled %d" % [i, hand_die.display_name, hand_die.get_total_value()])
 	
+	_apply_gear_turn_start_dice()
 	_original_hand_size = hand.size()
-	
+
 	# === Snapshot base rolled values BEFORE any modifications ===
 	var pre_values: Dictionary = {}
 	for i in range(hand.size()):
@@ -625,12 +626,82 @@ func stat_bonus_for_die(die: DieResource) -> int:
 		stat_name = "intellect"
 	return CombatTuning.die_stat_bonus(stat_owner.get_total_stat(stat_name))
 
+# ── Gear dice effects (utility affixes; the owner's gear) ──
+
+func _gear_affixes(category: int, effect_key: String) -> Array:
+	if stat_owner == null or stat_owner.affix_manager == null:
+		return []
+	var out: Array = []
+	for a in stat_owner.affix_manager.get_pool(category):
+		if a and a.get_resolved_effect_data().get("effect", a.effect_data.get("effect", "")) == effect_key:
+			out.append(a)
+	return out
+
+func _gear_flat_die_bonus() -> int:
+	var total := 0
+	for a in _gear_affixes(Affix.Category.MISC, "bonus_die_value_flat"):
+		total += int(a.effect_number)
+	return total
+
+func _gear_pct_die_bonus() -> float:
+	var total := 0.0
+	for a in _gear_affixes(Affix.Category.MISC, "bonus_die_value_pct"):
+		total += a.effect_number
+	return total
+
+func _finish_die_roll(die: DieResource) -> void:
+	"""After a die is (re)rolled: gear % bonus, then Slowed/Chill penalty."""
+	var pct := _gear_pct_die_bonus()
+	if pct > 0.0:
+		die.modified_value = roundi(die.modified_value * (1.0 + pct))
+	_apply_status_die_penalty(die)
+
+func _apply_gear_turn_start_dice() -> void:
+	"""Utility gear affixes that act on the fresh hand: extra dice, reroll
+	the lowest die, convert a neutral die to the hand's element."""
+	if stat_owner == null or dice.is_empty():
+		return
+	# Extra Die on Turn Start: a copy of a random pool die, rolled
+	for a in _gear_affixes(Affix.Category.PROC, "grant_extra_die"):
+		for n in maxi(1, int(a.effect_number)):
+			var extra := _create_hand_die(dice[randi() % dice.size()], hand.size())
+			extra.roll()
+			_finish_die_roll(extra)
+			extra.is_consumed = false
+			hand.append(extra)
+	# Reroll Lowest Die: once per turn per affix
+	for a in _gear_affixes(Affix.Category.PROC, "reroll_lowest"):
+		var lowest: DieResource = null
+		for d in hand:
+			if lowest == null or d.get_total_value() < lowest.get_total_value():
+				lowest = d
+		if lowest:
+			lowest.roll()
+			_finish_die_roll(lowest)
+	# Convert Die Element: one neutral die takes the hand's most common element
+	for a in _gear_affixes(Affix.Category.PROC, "convert_element"):
+		var counts: Dictionary = {}
+		for d in hand:
+			var el = d.get_effective_element()
+			if el != DieResource.Element.NONE:
+				counts[el] = counts.get(el, 0) + 1
+		if counts.is_empty():
+			break
+		var best_el = counts.keys()[0]
+		for el in counts:
+			if counts[el] > counts[best_el]:
+				best_el = el
+		for d in hand:
+			if d.get_effective_element() == DieResource.Element.NONE:
+				d.element = best_el
+				break
+
 func apply_stat_bonus(die: DieResource) -> void:
 	"""Add the owner's stat bonus to a hand die, once. It rides on the die's
 	flat modifier, so rerolls keep it and it shows on the die face."""
 	if die == null or die.has_meta("stat_bonus_applied"):
 		return
-	var bonus := stat_bonus_for_die(die)
+	var bonus := stat_bonus_for_die(die) + _gear_flat_die_bonus()
 	die.set_meta("stat_bonus_applied", bonus)
 	if bonus > 0:
 		die.modifier += bonus

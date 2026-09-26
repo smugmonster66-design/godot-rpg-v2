@@ -203,6 +203,9 @@ func _check_proc_condition(affix: Affix, context: Dictionary) -> bool:
 				return filled >= required
 			return false
 		
+		"max_roll":
+			var used = context.get("die_used")
+			return used != null and used.has_method("is_max_roll") and used.is_max_roll()
 		"turn_number_above":
 			var threshold = resolved.get("threshold", 0)
 			return context.get("turn_number", 0) > threshold
@@ -505,6 +508,9 @@ func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 				effect["duration"] = resolved_data.get("duration", 1)
 		
 		# ── Action Grant ──
+		"duplicate_die":
+			effect.type = "duplicate_die"
+			effect["die"] = context.get("die_used")
 		"grant_action":
 			if affix.granted_action:
 				effect.type = "granted_action"
@@ -659,6 +665,12 @@ func _merge_effect_result(result: Dictionary, effect: Dictionary):
 			if action:
 				result.granted_actions.append(action)
 		
+		"duplicate_die":
+			result.special_effects.append({
+				"type": "duplicate_die",
+				"die": effect.get("die"),
+				"source": effect.get("affix_name", ""),
+			})
 		"retrigger_dice_affixes":
 			result.special_effects.append({
 				"type": "retrigger_dice_affixes",

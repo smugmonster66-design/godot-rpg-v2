@@ -10,6 +10,9 @@ affix_name = "Bonus Die Value"
 description = "+N to all rolled die values"
 category = 36
 tags = Array[String](["dice_manipulation"])
+effect_data = {
+"effect": "bonus_die_value_flat"
+}
 effect_min = 1.0
 effect_max = 3.0
 power_weight = 60.0

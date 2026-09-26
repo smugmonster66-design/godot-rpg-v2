@@ -1,11 +1,13 @@
-[gd_resource type="Resource" script_class="DiceAffixTable" load_steps=4 format=3 uid="uid://u2n1u7kpr5h1"]
+[gd_resource type="Resource" script_class="DiceAffixTable" load_steps=6 format=3 uid="uid://u2n1u7kpr5h1"]
 
 [ext_resource type="Script" uid="uid://s6ivem1wgjrx" path="res://resources/data/dice_affix.gd" id="1_m78cv"]
 [ext_resource type="Resource" uid="uid://8kkp1oaksvrb" path="res://resources/dice_affixes/rollable/combat/tier_3/leech_heal_percent.tres" id="2_c62q1"]
 [ext_resource type="Script" uid="uid://dx30aajrgj64m" path="res://resources/data/dice_affix_table.gd" id="4_ygwfh"]
+[ext_resource type="Resource" path="res://resources/dice_affixes/rollable/combat/tier_3/chain_damage_percent.tres" id="orph_0"]
+[ext_resource type="Resource" path="res://resources/dice_affixes/rollable/combat/tier_3/mana_refund_on_use.tres" id="orph_1"]
 
 [resource]
 script = ExtResource("4_ygwfh")
 table_name = "Combat Tier 3"
 description = "Rollable dice affixes — combat family, tier 3."
-available_affixes = Array[ExtResource("1_m78cv")]([ExtResource("2_c62q1")])
+available_affixes = Array[ExtResource("1_m78cv")]([ExtResource("2_c62q1"), ExtResource("orph_0"), ExtResource("orph_1")])

@@ -127,6 +127,63 @@ func _run() -> void:
 		print("    Weighted Head: %d -> %d" % [before, die.get_total_value()])
 	_check(ok_on_use, "an enemy's on-use dice affix changes its die (Weighted Head)")
 
+	# --- D1: orphaned dice affixes are in their tables; reroll-needing ones aren't
+	var names: Array = []
+	for t in ["combat_tier_2", "combat_tier_3", "positional_tier_2", "positional_tier_3", "value_tier_3", "value_tier_1"]:
+		var table = load("res://resources/dice_affix_tables/%s.tres" % t)
+		for a in table.available_affixes:
+			if a:
+				names.append(a.affix_name)
+	var want := ["Erupting", "Arcing", "Attuned", "Echoing", "Ascendant", "Persistent", "Fracturing"]
+	var missing := want.filter(func(nm): return not names.has(nm))
+	_check(missing.is_empty(), "orphaned dice affixes now roll (missing: %s)" % [missing])
+	_check(not names.has("Lucky"), "Lucky (needs a reroll button) stays out")
+	var util3 = load("res://resources/affix_tables/base/utility_tier_3.tres")
+	var util_names: Array = []
+	for a in util3.available_affixes:
+		if a:
+			util_names.append(a.affix_name)
+	_check(not util_names.has("Reroll Any Die"), "Reroll Any Die (needs a reroll button) is out of the loot table")
+
+	# --- D2: gear dice effects
+	var flat_aff: Affix = load("res://resources/affixes/base/utility/tier_2/bonus_die_value_flat.tres").duplicate()
+	flat_aff.effect_number = 2.0
+	var pct_aff: Affix = load("res://resources/affixes/base/utility/tier_3/bonus_die_value_pct.tres").duplicate()
+	pct_aff.effect_number = 0.5
+	p.affix_manager.add_affix(flat_aff)
+	p.affix_manager.add_affix(pct_aff)
+	p.status_tracker.remove_status("slowed")
+	var gd: DieResource = load("res://resources/dice/base/d6_none.tres").duplicate_die()
+	var stat_only: int = p.dice_pool.stat_bonus_for_die(gd)
+	p.dice_pool.apply_stat_bonus(gd)
+	gd.set_value(4)   # current 4 + modifier (stat + flat)
+	var before_pct: int = gd.get_total_value()
+	p.dice_pool._finish_die_roll(gd)
+	_check(before_pct == 4 + stat_only + 2, "Bonus Die Value: +2 on the die (%d)" % before_pct)
+	_check(gd.get_total_value() == roundi(before_pct * 1.5), "Bonus Die Value %%: x1.5 (%d -> %d)" % [before_pct, gd.get_total_value()])
+	p.affix_manager.remove_affix(flat_aff)
+	p.affix_manager.remove_affix(pct_aff)
+
+	var extra_aff: Affix = load("res://resources/affixes/base/utility/tier_2/extra_die_on_turn_start.tres").duplicate()
+	p.affix_manager.add_affix(extra_aff)
+	if p.dice_pool.dice.is_empty():
+		p.dice_pool.add_die(load("res://resources/dice/base/d6_fire.tres").duplicate_die())
+	p.dice_pool.roll_hand()
+	_check(p.dice_pool.hand.size() == p.dice_pool.dice.size() + 1, "Extra Die on Turn Start: hand %d from %d dice" % [p.dice_pool.hand.size(), p.dice_pool.dice.size()])
+	p.affix_manager.remove_affix(extra_aff)
+
+	# --- D3: Duplicate Die on Max
+	var dup_aff: Affix = load("res://resources/affixes/base/utility/tier_3/duplicate_die_on_max.tres").duplicate()
+	dup_aff.proc_chance = 1.0
+	p.affix_manager.add_affix(dup_aff)
+	var maxed: DieResource = p.dice_pool.hand[0]
+	maxed.set_value(maxed.die_type)
+	var hand_before: int = p.dice_pool.hand.size()
+	var pres: Dictionary = cm.proc_processor.process_procs(p.affix_manager, Affix.ProcTrigger.ON_DIE_USED, cm._build_proc_context({"die_used": maxed}))
+	cm._apply_proc_results(pres)
+	_check(p.dice_pool.hand.size() == hand_before + 1, "Duplicate Die on Max: a max roll comes back as a copy")
+	p.affix_manager.remove_affix(dup_aff)
+
 	_root.end_combat(true)
 	await _frames(10)
 	_finish()

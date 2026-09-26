@@ -10,6 +10,9 @@ affix_name = "Bonus Die Value %"
 description = "+N% to all rolled die values"
 category = 36
 tags = Array[String](["dice_manipulation"])
+effect_data = {
+"effect": "bonus_die_value_pct"
+}
 effect_min = 0.05
 effect_max = 0.3
 rounding_mode = 2
