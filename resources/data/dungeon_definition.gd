@@ -49,6 +49,11 @@ class_name DungeonDefinition
 # ============================================================================
 # FIRST CLEAR BONUS
 # ============================================================================
+@export_group("Story")
+## Story flags set true every time this dungeon is cleared (boss beaten).
+## Flags must be declared in story_flags.gd.
+@export var set_flags_on_clear: Array[StringName] = []
+
 @export_group("First Clear")
 @export var first_clear_item: EquippableItem = null
 @export var first_clear_gold: int = 100

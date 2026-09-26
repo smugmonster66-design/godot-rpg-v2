@@ -33,6 +33,12 @@ enum QuestState {
 ## For repeatable quests - how many times completed
 @export var completion_count: int = 0
 
+## Play time (seconds, GameState.get_play_time()) when accepted / completed or
+## failed. Time limits and repeat cooldowns count play time, not wall-clock
+## time, so nothing expires while the game is closed.
+@export var accepted_play_time: float = 0.0
+@export var ended_play_time: float = 0.0
+
 # ============================================================================
 # OBJECTIVE PROGRESS
 # ============================================================================

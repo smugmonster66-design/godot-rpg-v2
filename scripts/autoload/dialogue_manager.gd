@@ -12,8 +12,12 @@ signal dialogue_started(encounter: DialogueEncounter)
 signal line_displayed(line: DialogueLine, speaker: DialogueSpeaker)
 ## Emitted when choices should be shown
 signal choices_presented(choices: Array[DialogueChoice])
-## Emitted when dialogue ends
+## Emitted when dialogue ends (also when it's suspended for a fight or dungeon)
 signal dialogue_ended
+## Emitted once when a conversation is really over: completed = false if the
+## player skipped it. Not emitted on suspension; emitted when the resumed
+## conversation ends.
+signal dialogue_finished(encounter: DialogueEncounter, completed: bool)
 ## Emitted when an event tag should be processed
 signal event_triggered(event_tag: StringName)
 
@@ -32,6 +36,8 @@ var _last_visible_line: DialogueLine = null
 
 ## Track one-shot encounters that have been completed
 var _completed_oneshots: Dictionary = {}  # encounter_id -> true
+
+var _ending_by_skip: bool = false
 
 ## Suspend/resume for blocking game actions (combat, dungeon) triggered mid-dialogue
 var _pending_resume_line: DialogueLine = null
@@ -138,6 +144,7 @@ func skip_dialogue() -> void:
 	if current_encounter and not current_encounter.skippable:
 		return
 	
+	_ending_by_skip = true
 	_end_dialogue()
 
 func notify_text_finished() -> void:
@@ -281,6 +288,32 @@ func _handle_game_action(line: DialogueLine) -> void:
 			event_triggered.emit(StringName("open_smithing:%s" % param))
 			_auto_advance_or_end(line)
 
+		8:  # GRANT_ITEM  param: res://path/to/item.tres[:quantity]
+			var item_path: String = param
+			var qty: int = 1
+			var last: int = param.rfind(":")
+			if last > 5 and param.substr(last + 1).is_valid_int():
+				item_path = param.substr(0, last)
+				qty = int(param.substr(last + 1))
+			var template = load(item_path) if ResourceLoader.exists(item_path) else null
+			if template:
+				ItemGrant.grant(template, qty)
+			else:
+				push_warning("DialogueManager: GRANT_ITEM could not load '%s'" % item_path)
+			_auto_advance_or_end(line)
+
+		9:  # HEAL  param: "25" (flat HP), "50%" (of max HP), or "25+50%"
+			var flat: int = 0
+			var pct: float = 0.0
+			for part in param.split("+", false):
+				var p: String = String(part).strip_edges()
+				if p.ends_with("%"):
+					pct += float(p.trim_suffix("%")) / 100.0
+				elif p.is_valid_int():
+					flat += int(p)
+			ItemGrant.heal_player(flat, pct)
+			_auto_advance_or_end(line)
+
 		_:
 			push_warning("DialogueManager: Unknown game_action type: %d" % action_type)
 			_auto_advance_or_end(line)
@@ -325,9 +358,13 @@ func resume_dialogue() -> void:
 		_display_line(_pending_resume_line)
 		_pending_resume_line = null
 	else:
+		# The fight/dungeon was the conversation's last step: it's finished now.
+		var finished_encounter = _suspended_encounter
 		_suspended_encounter = null
 		_pending_resume_line = null
 		_end_dialogue()
+		if finished_encounter and not is_active:
+			dialogue_finished.emit(finished_encounter, true)
 
 func has_pending_resume() -> bool:
 	"""Check if dialogue is waiting to resume after a blocking action."""
@@ -356,7 +393,10 @@ func _end_dialogue() -> void:
 	_last_visible_line = null
 	_speaker_registry.clear()
 
+	var completed := not _ending_by_skip
+	_ending_by_skip = false
 	dialogue_ended.emit()
+	dialogue_finished.emit(ended_encounter, completed)
 
 # ============================================================================
 # SAVE/LOAD INTEGRATION

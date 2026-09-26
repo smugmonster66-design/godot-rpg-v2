@@ -10,6 +10,7 @@ signal quest_became_available(quest_id: StringName, definition: QuestDefinition)
 signal quest_objectives_updated(quest_id: StringName, definition: QuestDefinition)
 signal quest_ready_for_turn_in(quest_id: StringName, definition: QuestDefinition)
 signal quest_auto_completed(quest_id: StringName, definition: QuestDefinition)
+signal quest_failed(quest_id: StringName, definition: QuestDefinition)
 
 # ============================================================================
 # QUEST DEFINITIONS REGISTRY
@@ -29,6 +30,13 @@ func _ready():
 	_connect_to_game_events()
 	# Defer availability check so notification display UI is connected first
 	check_all_quest_availability.call_deferred()
+	# Time limits and repeat cooldowns are checked every couple of seconds.
+	var timer := Timer.new()
+	timer.name = "QuestClock"
+	timer.wait_time = 2.0
+	timer.autostart = true
+	timer.timeout.connect(_on_quest_clock)
+	add_child(timer)
 	print("QuestManager ready - %d quests loaded" % _definitions.size())
 
 func _load_all_definitions():
@@ -65,22 +73,102 @@ func _connect_to_game_events():
 	quest_objectives_updated.connect(_notify_quest_updated)
 	quest_ready_for_turn_in.connect(_notify_quest_ready)
 	quest_auto_completed.connect(_notify_quest_auto_completed)
+	quest_failed.connect(_notify_quest_failed)
 
 # ============================================================================
 # GAME EVENT HANDLERS
 # ============================================================================
 
 func _on_state_changed(_flag_name: StringName, _value: bool) -> void:
-	"""When flags change, check if new quests became available."""
+	"""When flags change, check if new quests became available (or failed)."""
 	check_all_quest_availability()
+	_check_failures()
 
 func _on_counter_changed(_counter_name: StringName, _old_value: int, _new_value: int) -> void:
-	"""When counters change, check if new quests became available."""
+	"""When counters change, check if new quests became available (or failed)."""
 	check_all_quest_availability()
+	_check_failures()
 
 func _on_relationship_changed(_npc_id: StringName, _old_value: int, _new_value: int) -> void:
-	"""When relationships change, check if companion quests unlocked."""
+	"""When relationships change, check if companion quests unlocked (or failed)."""
 	check_all_quest_availability()
+	_check_failures()
+
+# ============================================================================
+# FAILURE, TIME LIMITS, REPEATING
+# ============================================================================
+
+func _on_quest_clock() -> void:
+	if not GameState.session_active:
+		return
+	_check_failures()
+	_check_repeats()
+
+func _check_failures() -> void:
+	"""Fail active quests whose fail_condition is true or whose time_limit
+	(seconds of play time since accepting) has run out. Only quests with
+	can_fail = true can fail."""
+	var now: float = GameState.get_play_time()
+	for quest_id in GameState.quests.get_active_quests():
+		var definition = get_definition(quest_id)
+		if definition == null or not definition.can_fail:
+			continue
+		var progress = GameState.quests.get_progress(quest_id)
+		var failed := false
+		if definition.fail_condition and not definition.fail_condition.is_empty():
+			failed = GameState.evaluate_condition(definition.fail_condition)
+		if not failed and definition.time_limit > 0.0 and progress.accepted_play_time > 0.0:
+			failed = now - progress.accepted_play_time >= definition.time_limit
+		if failed:
+			fail_quest(quest_id)
+
+func fail_quest(quest_id: StringName) -> bool:
+	"""Fail an active quest: fires on_fail_events and notifies. Repeatable
+	quests come back after their cooldown."""
+	var definition = get_definition(quest_id)
+	if definition == null:
+		return false
+	if not GameState.quests.fail_quest(quest_id):
+		return false
+	_mark_ended(quest_id)
+	for event_tag in definition.on_fail_events:
+		_fire_event(event_tag)
+	quest_failed.emit(quest_id, definition)
+	return true
+
+func _check_repeats() -> void:
+	"""Make repeatable quests available again once repeat_cooldown seconds of
+	play time have passed since they were completed or failed."""
+	var now: float = GameState.get_play_time()
+	for quest_id in _definitions:
+		var definition: QuestDefinition = _definitions[quest_id]
+		if not definition.repeatable:
+			continue
+		var progress = GameState.quests.get_progress(quest_id)
+		if progress.state != QuestProgress.QuestState.COMPLETE and progress.state != QuestProgress.QuestState.FAILED:
+			continue
+		if now - progress.ended_play_time < definition.repeat_cooldown:
+			continue
+		if not check_quest_availability(quest_id):
+			continue
+		var old_state = progress.state
+		progress.reset_progress()
+		GameState.quests.quest_state_changed.emit(quest_id, old_state, progress.state)
+		quest_became_available.emit(quest_id, definition)
+
+func _mark_ended(quest_id: StringName) -> void:
+	GameState.quests.get_progress(quest_id).ended_play_time = GameState.get_play_time()
+
+func is_quest_listed(quest_id: StringName) -> bool:
+	"""False for quests that should stay out of the quest log and notifications
+	for now (hidden_until_accepted and not yet accepted)."""
+	var definition = get_definition(quest_id)
+	if definition == null:
+		return false
+	if definition.hidden_until_accepted:
+		var state = GameState.quests.get_state(quest_id)
+		return state != QuestProgress.QuestState.LOCKED and state != QuestProgress.QuestState.AVAILABLE
+	return true
 
 func _on_location_entered(location_id: StringName, _location: LocationNode, _first_visit: bool) -> void:
 	"""When player enters a location, report VISIT objective progress."""
@@ -197,6 +285,7 @@ func try_accept_quest(quest_id: StringName) -> bool:
 
 	if not GameState.quests.accept_quest(quest_id):
 		return false
+	GameState.quests.get_progress(quest_id).accepted_play_time = GameState.get_play_time()
 
 	# Fire accept events
 	for event_tag in definition.on_accept_events:
@@ -227,6 +316,7 @@ func try_complete_quest(quest_id: StringName) -> bool:
 	# Mark complete
 	if not GameState.quests.complete_quest(quest_id):
 		return false
+	_mark_ended(quest_id)
 
 	# Fire complete events
 	for event_tag in definition.on_complete_events:
@@ -258,8 +348,11 @@ func report_objective_progress(objective_type: QuestObjective.ObjectiveType, tar
 		for objective in definition.objectives:
 			if objective.objective_type != objective_type:
 				continue
-			# Match by target_id OR by track_tag (for tag-based kill tracking)
+			# Match by target_id OR by track_tag (for tag-based kill tracking).
+			# SURVIVE with an empty target counts any fight.
 			var matches: bool = objective.target_id == target_id
+			if objective_type == QuestObjective.ObjectiveType.SURVIVE and objective.target_id == &"":
+				matches = true
 			if not matches and objective.track_tag != &"" and objective.track_tag == target_id:
 				matches = true
 			if matches and not GameState.quests.is_objective_complete(quest_id, objective.objective_id):
@@ -275,8 +368,53 @@ func report_objective_progress(objective_type: QuestObjective.ObjectiveType, tar
 			_check_quest_ready_for_turn_in(quest_id)
 
 func report_talk_to(npc_id: StringName) -> void:
-	"""Report talking to an NPC. Auto-checks TALK_TO objectives."""
+	"""Report talking to an NPC. Auto-checks TALK_TO objectives, and DELIVER
+	objectives whose recipient (target_id) is this NPC."""
 	report_objective_progress(QuestObjective.ObjectiveType.TALK_TO, npc_id, 1)
+	_report_deliveries(npc_id)
+
+func _report_deliveries(npc_id: StringName) -> void:
+	"""DELIVER: target_id = recipient npc_id; track_tag = the item's display
+	name (optional). If an item is named, the player must carry required_count
+	of it, and they're taken on delivery. With no item named, talking to the
+	recipient completes it."""
+	for quest_id in GameState.quests.get_active_quests():
+		var definition = get_definition(quest_id)
+		if definition == null:
+			continue
+		for objective in definition.objectives:
+			if objective.objective_type != QuestObjective.ObjectiveType.DELIVER:
+				continue
+			if objective.target_id != npc_id:
+				continue
+			if GameState.quests.is_objective_complete(quest_id, objective.objective_id):
+				continue
+			if not _prerequisites_met(quest_id, objective):
+				continue
+			var needed: int = max(1, objective.required_count) - GameState.quests.get_objective_progress(quest_id, objective.objective_id)
+			if objective.track_tag != &"":
+				var item_name := String(objective.track_tag)
+				var have: int = GameState.create_condition_context().get_item_count(objective.track_tag) + _count_consumables(item_name)
+				if have < needed:
+					continue
+				ItemGrant.remove_by_name(item_name, needed)
+			report_objective_by_id(quest_id, objective.objective_id, needed)
+
+func _count_consumables(item_name: String) -> int:
+	var n := 0
+	if GameManager and GameManager.player:
+		for c in GameManager.player.consumables:
+			if c and c.item_name == item_name:
+				n += c.current_stack
+	return n
+
+func report_combat_won(encounter: Resource) -> void:
+	"""SURVIVE: counts fights won. target_id = a CombatEncounter file name
+	(e.g. keel_brawl) to count only that fight, or empty to count any fight."""
+	var enc_id: StringName = &""
+	if encounter and encounter.resource_path != "":
+		enc_id = StringName(encounter.resource_path.get_file().get_basename())
+	report_objective_progress(QuestObjective.ObjectiveType.SURVIVE, enc_id, 1)
 
 func report_kill(enemy_type: StringName, count: int = 1) -> void:
 	"""Report killing enemies. Auto-checks KILL objectives."""
@@ -287,8 +425,10 @@ func report_collect(item_id: StringName, count: int = 1) -> void:
 	report_objective_progress(QuestObjective.ObjectiveType.COLLECT, item_id, count)
 
 func report_visit(location_id: StringName) -> void:
-	"""Report visiting a location. Auto-checks VISIT objectives."""
+	"""Report visiting a location. Auto-checks VISIT objectives, and ESCORT
+	objectives whose destination (target_id) is this location."""
 	report_objective_progress(QuestObjective.ObjectiveType.VISIT, location_id, 1)
+	report_objective_progress(QuestObjective.ObjectiveType.ESCORT, location_id, 1)
 
 func report_interact(interaction_id: StringName) -> void:
 	"""Report interacting with something. Auto-checks INTERACT objectives."""
@@ -362,6 +502,7 @@ func _check_quest_ready_for_turn_in(quest_id: StringName) -> void:
 				# Auto-complete: skip READY_TO_TURN_IN, go straight to COMPLETE
 				_grant_rewards(definition.rewards)
 				GameState.quests.complete_quest(quest_id)
+				_mark_ended(quest_id)
 				for event_tag in definition.on_complete_events:
 					_fire_event(event_tag)
 				GameState.counters.increment(&"quests_completed")
@@ -384,9 +525,12 @@ func _grant_rewards(rewards: QuestRewards) -> void:
 		GameManager.player.add_gold(rewards.gold)
 
 	# Items
-	for item_reward in rewards.items:
-		if item_reward.item_resource:
-			GameManager.player.add_to_inventory(item_reward.item_resource)
+	for template in rewards.reward_items:
+		if template:
+			ItemGrant.grant(template, 1, rewards.reward_item_level)
+	for item_reward in rewards.items:  # legacy inner-class rewards (code-built only)
+		if item_reward and item_reward.item_resource:
+			ItemGrant.grant(item_reward.item_resource, max(1, item_reward.quantity), rewards.reward_item_level)
 
 	# Unlock flags
 	for flag_name in rewards.unlock_flags:
@@ -410,8 +554,13 @@ func _grant_rewards(rewards: QuestRewards) -> void:
 		var delta = rewards.counter_changes[counter_name]
 		GameState.counters.increment(counter_name, delta)
 
-func _notify_quest_available(_quest_id: StringName, definition: QuestDefinition) -> void:
+func _notify_quest_available(quest_id: StringName, definition: QuestDefinition) -> void:
+	if not is_quest_listed(quest_id):
+		return
 	NotificationManager.notify_quest_available(definition.get_display_name())
+
+func _notify_quest_failed(_quest_id: StringName, definition: QuestDefinition) -> void:
+	NotificationManager.notify("Quest Failed: %s" % definition.get_display_name(), &"quest")
 
 func _notify_objective_completed(_quest_id: StringName, completed_obj: QuestObjective) -> void:
 	"""Show strikethrough notification for the completed objective."""
@@ -502,9 +651,16 @@ func get_quest_display_info(quest_id: StringName) -> Dictionary:
 		return {}
 
 	var objectives_info: Array[Dictionary] = []
+	var previous_complete := true
 	for obj in definition.objectives:
 		var obj_progress = progress.get_objective_progress(obj.objective_id)
 		var obj_complete = progress.is_objective_complete(obj.objective_id)
+		# hidden_until_previous: don't reveal this objective until the one
+		# listed before it is complete.
+		var hide_it: bool = obj.hidden_until_previous and not previous_complete
+		previous_complete = obj_complete
+		if hide_it:
+			continue
 		objectives_info.append({
 			"id": obj.objective_id,
 			"description": obj.get_display_description(obj_progress),

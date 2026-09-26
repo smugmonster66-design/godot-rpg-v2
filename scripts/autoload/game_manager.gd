@@ -419,7 +419,11 @@ func on_combat_ended(player_won: bool):
 # SIGNAL HANDLERS
 # ============================================================================
 
+## Region number (1-6) of the active region. Used to stamp granted items.
+var active_region: int = 1
+
 func set_active_region(region_num: int):
+	active_region = region_num
 	var path: String = REGION_LOOT_CONFIGS.get(region_num, "")
 	if path != "" and ResourceLoader.exists(path):
 		region_loot_config = load(path)

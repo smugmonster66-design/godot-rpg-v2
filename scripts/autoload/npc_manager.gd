@@ -36,7 +36,53 @@ var _seen_encounters: Dictionary = {}  # StringName npc_id → Array[StringName]
 
 func _ready() -> void:
 	_load_all_npcs()
+	DialogueManager.dialogue_finished.connect(_on_dialogue_finished)
 	print("NPCManager: Loaded %d NPCs" % _npcs.size())
+
+# ============================================================================
+# SORTING / SEEN-ON-FINISH
+# ============================================================================
+
+func _sorted_table(npc: NPCDefinition) -> Array[NPCDialogueEntry]:
+	"""The NPC's dialogue table sorted by priority (highest first). Array.sort_custom
+	isn't stable, so ties are broken by position in the table: equal-priority
+	entries always come out in the order the designer listed them."""
+	var indexed: Array = []
+	for i in npc.dialogue_table.size():
+		indexed.append([npc.dialogue_table[i], i])
+	indexed.sort_custom(func(a, b):
+		var pa: int = a[0].priority if a[0] else -999999
+		var pb: int = b[0].priority if b[0] else -999999
+		if pa != pb:
+			return pa > pb
+		return a[1] < b[1])
+	var out: Array[NPCDialogueEntry] = []
+	for pair in indexed:
+		out.append(pair[0])
+	return out
+
+## The NPC conversation currently playing: [npc_id, encounter_id], or [].
+var _playing: Array = []
+
+func begin_npc_encounter(npc_id: StringName, entry: NPCDialogueEntry) -> bool:
+	"""Start an NPC's dialogue entry. The entry is marked seen only when the
+	conversation finishes (not when it's skipped), so Escape doesn't use up a
+	one-shot. Also reports TALK_TO for quest objectives."""
+	if entry == null or entry.encounter == null:
+		return false
+	_playing = [npc_id, entry.encounter_id]
+	if not DialogueManager.start_dialogue(entry.encounter):
+		_playing = []
+		return false
+	QuestManager.report_talk_to(npc_id)
+	return true
+
+func _on_dialogue_finished(_encounter: DialogueEncounter, completed: bool) -> void:
+	if _playing.is_empty():
+		return
+	if completed:
+		mark_encounter_seen(_playing[0], _playing[1])
+	_playing = []
 
 # ============================================================================
 # PUBLIC API — QUERIES
@@ -74,9 +120,7 @@ func get_active_encounter(npc: NPCDefinition) -> NPCDialogueEntry:
 	if npc == null or npc.dialogue_table.is_empty():
 		return null
 
-	# Sort by priority descending (stable sort preserves array order for ties)
-	var sorted_table: Array[NPCDialogueEntry] = npc.dialogue_table.duplicate()
-	sorted_table.sort_custom(func(a, b): return a.priority > b.priority)
+	var sorted_table: Array[NPCDialogueEntry] = _sorted_table(npc)
 
 	for entry in sorted_table:
 		if entry == null:
@@ -99,9 +143,7 @@ func get_active_encounters(npc: NPCDefinition) -> Array[NPCDialogueEntry]:
 	if npc == null or npc.dialogue_table.is_empty():
 		return result
 
-	# Sort by priority descending (stable sort preserves array order for ties)
-	var sorted_table: Array[NPCDialogueEntry] = npc.dialogue_table.duplicate()
-	sorted_table.sort_custom(func(a, b): return a.priority > b.priority)
+	var sorted_table: Array[NPCDialogueEntry] = _sorted_table(npc)
 
 	var highest_priority: int = -999999
 	for entry in sorted_table:

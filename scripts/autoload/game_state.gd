@@ -248,6 +248,10 @@ func get_approval(npc_id: StringName) -> int:
 # ============================================================================
 
 func get_player_level() -> int:
+	"""The player's current level. Reads the live player when there is one;
+	the saved snapshot is only a fallback (it's stale between saves)."""
+	if GameManager and GameManager.player:
+		return int(GameManager.player.level)
 	return _save_data.player_stats.get("level", 1)
 
 func set_player_level(level: int) -> void:
@@ -262,6 +266,13 @@ func restore_player(player: Player, game_manager = null) -> bool:
 	return _save_data.restore_player(player, game_manager)
 
 func get_class_level(class_id: StringName) -> int:
+	"""A class's current level. Live player first, saved snapshot as fallback."""
+	if GameManager and GameManager.player:
+		var pc = GameManager.player.available_classes.get(String(class_id))
+		if pc == null:
+			pc = GameManager.player.available_classes.get(class_id)
+		if pc:
+			return int(pc.level)
 	return _save_data.get_class_level(class_id)
 
 func set_class_level(class_id: StringName, level: int) -> void:
@@ -297,6 +308,17 @@ func get_play_time() -> float:
 	"""Get total play time in seconds, including current session."""
 	var session_time = Time.get_unix_time_from_system() - _session_start
 	return _save_data.play_time + session_time
+
+# ============================================================================
+# LAST FIGHT / DUNGEON RESULT
+# ============================================================================
+# Dialogue that starts a fight or a dungeon resumes afterwards whether the
+# player won or lost. These let the resumed line branch on the result, via
+# CUSTOM conditions: last_combat_won, last_combat_lost, last_dungeon_cleared,
+# last_dungeon_failed. Set by GameRoot.
+
+var last_combat_won: bool = false
+var last_dungeon_cleared: bool = false
 
 # ============================================================================
 # CONDITION EVALUATION
@@ -374,6 +396,11 @@ class GameStateConditionContext extends GameCondition.ConditionContext:
 			if parts.size() >= 3:
 				return _game_state.quests.is_objective_complete(StringName(parts[1]), StringName(parts[2]))
 			return false
+		match key_str:
+			"last_combat_won": return _game_state.last_combat_won
+			"last_combat_lost": return not _game_state.last_combat_won
+			"last_dungeon_cleared": return _game_state.last_dungeon_cleared
+			"last_dungeon_failed": return not _game_state.last_dungeon_cleared
 		push_warning("Custom condition '%s' not implemented" % key)
 		return false
 

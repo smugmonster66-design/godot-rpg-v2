@@ -100,6 +100,16 @@ func has_bust_changes() -> bool:
 
 func apply_effects() -> void:
 	"""Apply side effects when this line is displayed."""
+	var gs := _game_state()
+	if gs == null:
+		return
 	for flag_name in set_flags:
-		if Engine.has_singleton("GameState"):
-			GameState.set_flag(flag_name, true)
+		gs.set_flag(flag_name, true)
+
+static func _game_state() -> Node:
+	"""The GameState autoload, or null outside a running game (e.g. in the editor).
+	Engine.has_singleton() is always false for autoloads, so look it up in the tree."""
+	var loop = Engine.get_main_loop()
+	if loop is SceneTree:
+		return (loop as SceneTree).root.get_node_or_null("GameState")
+	return null

@@ -207,6 +207,13 @@ func _rebuild_quest_list():
 			_quest_list.add_child(entry)
 
 func _get_filtered_quest_ids() -> Array[StringName]:
+	var listed: Array[StringName] = []
+	for qid in _get_filtered_quest_ids_unhidden():
+		if QuestManager.is_quest_listed(qid):
+			listed.append(qid)
+	return listed
+
+func _get_filtered_quest_ids_unhidden() -> Array[StringName]:
 	match _current_filter:
 		Filter.ACTIVE:
 			var result: Array[StringName] = []

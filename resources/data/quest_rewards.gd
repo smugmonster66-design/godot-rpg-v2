@@ -14,7 +14,14 @@ class_name QuestRewards
 # ITEM REWARDS
 # ============================================================================
 @export_group("Items")
-## Guaranteed item rewards
+## Item templates granted on completion (EquippableItem or ConsumableItem).
+## Equipment is rolled like a drop (affixes, level, region); consumables stack.
+## List a template twice to grant two.
+@export var reward_items: Array[Resource] = []
+## Item level for rolled equipment. 0 = the player's level.
+@export var reward_item_level: int = 0
+## LEGACY, don't use: ItemReward is an inner class, which Godot can't save in a
+## .tres, so these never work from a file. Use reward_items.
 @export var items: Array[ItemReward] = []
 ## Items the player can choose from (pick N)
 @export var choice_items: Array[ItemReward] = []
@@ -59,7 +66,9 @@ func get_preview_text() -> String:
 		parts.append("%d XP" % experience)
 	if gold > 0:
 		parts.append("%d Gold" % gold)
-	if items.size() > 0:
+	if reward_items.size() > 0:
+		parts.append("%d item(s)" % reward_items.size())
+	elif items.size() > 0:
 		parts.append("%d item(s)" % items.size())
 	if choice_items.size() > 0:
 		parts.append("Choose %d item(s)" % choice_count)

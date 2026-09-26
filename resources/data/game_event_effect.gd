@@ -16,6 +16,9 @@ enum EffectType {
 	MODIFY_RELATIONSHIP,
 	GIVE_GOLD,
 	GIVE_XP,
+	GRANT_ITEM,      ## Give `item` (EquippableItem/ConsumableItem) x int_value
+	REMOVE_ITEM,     ## Take int_value items named `key` from the player
+	HEAL_PLAYER,     ## Heal int_value HP plus heal_percent of max HP
 }
 
 # ============================================================================
@@ -27,7 +30,14 @@ enum EffectType {
 @export var key: StringName = &""
 
 ## Amount for counters/gold/xp, delta for relationships. Ignored for SET/CLEAR_FLAG.
+## GRANT_ITEM / REMOVE_ITEM: quantity. HEAL_PLAYER: flat HP.
 @export var int_value: int = 1
+
+## GRANT_ITEM: the item template to give.
+@export var item: Resource = null
+
+## HEAL_PLAYER: fraction of max HP to restore (0.0-1.0), added to int_value.
+@export_range(0.0, 1.0) var heal_percent: float = 0.0
 
 # ============================================================================
 # API
@@ -54,3 +64,9 @@ func apply() -> void:
 		EffectType.GIVE_XP:
 			if GameManager and GameManager.player:
 				GameManager.player.add_experience(int_value)
+		EffectType.GRANT_ITEM:
+			ItemGrant.grant(item, max(1, int_value))
+		EffectType.REMOVE_ITEM:
+			ItemGrant.remove_by_name(String(key), max(1, int_value))
+		EffectType.HEAL_PLAYER:
+			ItemGrant.heal_player(int_value, heal_percent)

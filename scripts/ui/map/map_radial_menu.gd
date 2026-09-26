@@ -277,8 +277,7 @@ func _talk_to_npc(npc_id: StringName) -> void:
 	# Single encounter — play directly (current behavior)
 	if entries.size() == 1:
 		var entry = entries[0]
-		NPCManager.mark_encounter_seen(npc_id, entry.encounter_id)
-		DialogueManager.start_dialogue(entry.encounter)
+		NPCManager.begin_npc_encounter(npc_id, entry)
 		hide_radial()
 		return
 
@@ -289,8 +288,9 @@ func _talk_to_npc(npc_id: StringName) -> void:
 		btn_def.button_category = MapNodeButtonDef.ButtonCategory.NPCS
 		btn_def.npc_id = npc_id
 		btn_def.encounter_id = entry.encounter_id
-		# Use the entry's display name from encounter_id
-		btn_def.label = String(entry.encounter_id).capitalize()
+		# Label: the encounter's display_name if set, else the entry id made readable
+		var title: String = entry.encounter.display_name if entry.encounter else ""
+		btn_def.label = title if title != "" else String(entry.encounter_id).capitalize()
 		# Icon: entry icon → NPC default_dialogue_icon → generic NPCS category icon
 		if entry.icon:
 			btn_def.icon = entry.icon
@@ -309,8 +309,7 @@ func _play_encounter(npc_id: StringName, encounter_id: StringName) -> void:
 	if entry == null or entry.encounter == null:
 		push_warning("MapRadialMenu: Encounter '%s' not found on NPC '%s'" % [encounter_id, npc_id])
 		return
-	NPCManager.mark_encounter_seen(npc_id, encounter_id)
-	DialogueManager.start_dialogue(entry.encounter)
+	NPCManager.begin_npc_encounter(npc_id, entry)
 	hide_radial()
 
 func _handle_enter_dungeon(button_def: MapNodeButtonDef) -> void:

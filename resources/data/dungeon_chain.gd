@@ -29,6 +29,10 @@ class_name DungeonChain
 # ============================================================================
 # CHAIN CLEAR REWARDS
 # ============================================================================
+@export_group("Story")
+## Story flags set true when the whole chain is cleared.
+@export var set_flags_on_clear: Array[StringName] = []
+
 @export_group("Chain Clear Rewards")
 ## Bonus gold awarded only when the entire chain is completed in one session
 @export var chain_clear_gold: int = 0

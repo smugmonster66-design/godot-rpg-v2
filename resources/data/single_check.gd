@@ -29,6 +29,9 @@ enum CheckType {
 ## For numeric comparisons (COUNTER, RELATIONSHIP, PLAYER_LEVEL, CLASS_LEVEL)
 @export var compare_operator: String = ">="  # ==, !=, >, <, >=, <=
 @export var int_value: int = 0
+## COUNTER only: if set, compare `key` against this counter's value instead of
+## int_value (e.g. standing_navy > standing_presidium).
+@export var compare_counter: StringName = &""
 
 ## For QUEST_STATE - expected state
 @export var quest_state: String = "complete"  # locked, available, active, complete, failed
@@ -43,7 +46,8 @@ func evaluate(context) -> bool:
 			return context.get_flag(key) == bool_value
 
 		CheckType.COUNTER:
-			return _compare(context.get_counter(key), compare_operator, int_value)
+			var rhs: int = context.get_counter(compare_counter) if compare_counter != &"" else int_value
+			return _compare(context.get_counter(key), compare_operator, rhs)
 
 		CheckType.RELATIONSHIP:
 			return _compare(context.get_relationship(key), compare_operator, int_value)

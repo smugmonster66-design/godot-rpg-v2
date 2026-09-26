@@ -457,6 +457,7 @@ func end_combat(player_won: bool = true):
 		return
 	print("⚔️ GameRoot: Ending combat (won=%s, dungeon=%s)" % [player_won, is_in_dungeon])
 	is_in_combat = false
+	GameState.last_combat_won = player_won
 
 	# Hide combat layer
 	combat_layer.visible = false
@@ -479,6 +480,7 @@ func end_combat(player_won: bool = true):
 	# Report kills to QuestManager for objective tracking
 	if player_won and GameManager and GameManager.pending_encounter:
 		QuestManager.report_combat_kills(GameManager.pending_encounter.enemies)
+		QuestManager.report_combat_won(GameManager.pending_encounter)
 
 	if not is_in_dungeon:
 		GameState.flush_pending_autosave()
@@ -668,6 +670,11 @@ func _fade_from_black():
 func _on_dungeon_completed(run: DungeonRun):
 	print("🏰 Complete! Gold: %d, Exp: %d, Items: %d" % [
 		run.gold_earned, run.exp_earned, run.items_earned.size()])
+	GameState.last_dungeon_cleared = true
+	# Story flags for clearing this dungeon
+	if run.definition:
+		for flag_name in run.definition.set_flags_on_clear:
+			GameState.set_flag(flag_name, true)
 	# Report dungeon completion to QuestManager for CUSTOM objectives
 	if run.definition and run.definition.dungeon_id != "":
 		QuestManager.report_custom(StringName(run.definition.dungeon_id))
@@ -678,6 +685,7 @@ func _on_dungeon_completed(run: DungeonRun):
 
 func _on_dungeon_failed(run: DungeonRun):
 	print("💀 Failed. Gold rolled back to %d" % run.gold_snapshot_on_entry)
+	GameState.last_dungeon_cleared = false
 	exit_dungeon()
 	# Resume dialogue if it was suspended for this dungeon entry
 	if DialogueManager.has_pending_resume():
@@ -685,10 +693,15 @@ func _on_dungeon_failed(run: DungeonRun):
 
 func _on_chain_completed(chain_runner: DungeonChainRunner):
 	print("[Chain] Complete! %d dungeons cleared" % chain_runner.completed_runs.size())
+	GameState.last_dungeon_cleared = true
+	if chain_runner.chain:
+		for flag_name in chain_runner.chain.set_flags_on_clear:
+			GameState.set_flag(flag_name, true)
 	if chain_runner.chain and chain_runner.chain.chain_id != &"":
 		QuestManager.report_custom(chain_runner.chain.chain_id)
 
 func _on_chain_failed(run: DungeonRun, chain_runner: DungeonChainRunner):
+	GameState.last_dungeon_cleared = false
 	print("[Chain] Failed at dungeon %d/%d" % [
 		chain_runner.current_index + 1, chain_runner.chain.get_dungeon_count()])
 

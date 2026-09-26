@@ -515,12 +515,52 @@ func _fire_event(event_tag: StringName) -> void:
 	"""Fire a game event through the centralized registry."""
 	GameEventRegistry.fire_event(event_tag)
 
+## Arrival dialogues waiting for the current conversation to finish.
+var _queued_dialogues: Array[StringName] = []
+
 func _trigger_dialogue(dialogue_id: StringName) -> void:
-	"""Trigger a dialogue encounter."""
-	# TODO: Connect to dialogue system
-	# var encounter = load("res://resources/dialogues/%s.tres" % dialogue_id)
-	# DialogueManager.start_dialogue(encounter)
-	print("MapManager: Dialogue triggered - %s" % dialogue_id)
+	"""Play a location's first_visit_dialogue / visit_dialogue.
+	dialogue_id may be:
+	  - a res:// path to a DialogueEncounter .tres
+	  - "npc_id:entry_id" to play that entry from an NPC's dialogue table
+	  - "npc_id" to play that NPC's current top conversation
+	If a conversation is already running, it plays when that one finishes."""
+	if dialogue_id == &"":
+		return
+	if DialogueManager.is_active or DialogueManager.has_pending_resume():
+		_queued_dialogues.append(dialogue_id)
+		if not DialogueManager.dialogue_finished.is_connected(_on_dialogue_finished_play_queued):
+			DialogueManager.dialogue_finished.connect(_on_dialogue_finished_play_queued)
+		return
+	# Defer so the arrival (marker, radial) settles before the scene opens.
+	_play_arrival_dialogue.call_deferred(dialogue_id)
+
+func _on_dialogue_finished_play_queued(_encounter, _completed) -> void:
+	if _queued_dialogues.is_empty():
+		return
+	var next_id: StringName = _queued_dialogues.pop_front()
+	_trigger_dialogue(next_id)
+
+func _play_arrival_dialogue(dialogue_id: StringName) -> void:
+	var id_str := String(dialogue_id)
+	if id_str.begins_with("res://"):
+		var encounter = load(id_str) as DialogueEncounter if ResourceLoader.exists(id_str) else null
+		if encounter:
+			DialogueManager.start_dialogue(encounter)
+		else:
+			push_warning("MapManager: arrival dialogue '%s' is not a DialogueEncounter" % id_str)
+		return
+	var npc_id := StringName(id_str.get_slice(":", 0))
+	var entry_id := StringName(id_str.get_slice(":", 1)) if id_str.contains(":") else &""
+	var npc = NPCManager.get_npc(npc_id)
+	if npc == null:
+		push_warning("MapManager: arrival dialogue NPC '%s' not found" % npc_id)
+		return
+	var entry = NPCManager.get_encounter_by_id(npc, entry_id) if entry_id != &"" else NPCManager.get_active_encounter(npc)
+	if entry == null:
+		push_warning("MapManager: arrival dialogue '%s' has no playable entry" % id_str)
+		return
+	NPCManager.begin_npc_encounter(npc_id, entry)
 
 # ============================================================================
 # UI HELPERS

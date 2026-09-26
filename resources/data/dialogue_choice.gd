@@ -80,7 +80,7 @@ func is_available() -> bool:
 	if condition == null:
 		return true
 	# Use GameState to evaluate the condition
-	if Engine.has_singleton("GameState") or has_node("/root/GameState"):
+	if _game_state() != null:
 		return GameState.evaluate_condition(condition)
 	# Fallback: if GameState isn't available, allow the choice
 	return true
@@ -93,25 +93,25 @@ func apply_effects() -> void:
 	"""Apply side effects when this choice is selected."""
 	# Set flags
 	for flag_name in set_flags:
-		if Engine.has_singleton("GameState") or has_node("/root/GameState"):
+		if _game_state() != null:
 			GameState.set_flag(flag_name, true)
 	
 	# Apply relationship changes
 	for npc_id in relationship_changes:
 		var delta = relationship_changes[npc_id]
-		if Engine.has_singleton("GameState") or has_node("/root/GameState"):
+		if _game_state() != null:
 			GameState.modify_relationship(npc_id, delta)
 
 	# Apply counter changes (morality, etc.)
 	for counter_name in counter_changes:
 		var delta = counter_changes[counter_name]
-		if Engine.has_singleton("GameState") or has_node("/root/GameState"):
+		if _game_state() != null:
 			GameState.counters.increment(counter_name, delta)
 
 	# Apply hidden approval changes
 	for npc_id in approval_changes:
 		var delta = approval_changes[npc_id]
-		if Engine.has_singleton("GameState") or has_node("/root/GameState"):
+		if _game_state() != null:
 			GameState.modify_approval(npc_id, delta)
 
 func has_node(path: String) -> bool:
@@ -120,3 +120,11 @@ func has_node(path: String) -> bool:
 	if tree is SceneTree:
 		return tree.root.has_node(path)
 	return false
+
+static func _game_state() -> Node:
+	"""The GameState autoload, or null outside a running game (e.g. in the editor).
+	Engine.has_singleton() is always false for autoloads, so look it up in the tree."""
+	var loop = Engine.get_main_loop()
+	if loop is SceneTree:
+		return (loop as SceneTree).root.get_node_or_null("GameState")
+	return null
