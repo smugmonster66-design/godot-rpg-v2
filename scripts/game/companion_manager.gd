@@ -127,10 +127,9 @@ func replace_summon(slot_index: int, new_data: CompanionData) -> CompanionCombat
 		push_error("CompanionManager: replace_summon called on non-summon slot %d" % slot_index)
 		return null
 
-	# Remove old summon
+	# Remove old summon (no death trigger; its died signal goes with the node)
 	var old = _slots[slot_index]
 	if old:
-		old.died.disconnect(_on_companion_died)
 		_slots[slot_index] = null
 		old.queue_free()
 		companion_removed.emit(slot_index)

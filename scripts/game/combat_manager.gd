@@ -4573,6 +4573,7 @@ func _prompt_summon_replacement(comp_data: CompanionData) -> void:
 		# Animate replacement via companion panel (exit old, enter new)
 		if companion_panel:
 			_play_summon_visual(new_spawned, comp_data)
+		_fire_companions_sync(CompanionData.CompanionTrigger.ON_SUMMON, {"source_companion": new_spawned})
 
 
 func _get_combatant_visual(combatant: Combatant) -> Node:
@@ -4936,7 +4937,8 @@ func _fire_companions_animated(trigger_type: CompanionData.CompanionTrigger,
 		if companion_panel:
 			companion_panel.play_slot_fire(slot_idx)
 
-		var anim_set: CombatAnimationSet = companion.companion_data.animation_set
+		var ability: CompanionAbility = entry.get("ability")
+		var anim_set: CombatAnimationSet = ability.animation_set if ability and ability.animation_set else companion.companion_data.animation_set
 		if anim_set:
 			await _execute_companion_action(entry, anim_set)
 		else:

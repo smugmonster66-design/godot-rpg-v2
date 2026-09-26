@@ -4,8 +4,11 @@ extends RefCounted
 
 const CompanionDataScript = preload("res://resources/data/companion_data.gd")
 
-static func serialize(detail_panel) -> Resource:
-	var data = CompanionDataScript.new()
+static func serialize(detail_panel, base: Resource = null) -> Resource:
+	# Start from the resource being edited so fields this builder has no UI
+	# for (Reaction, Bond ability, Dice-shaper effects, bond die, temperament,
+	# Trail perk) survive a save. Only the builder's own fields are overwritten.
+	var data = base.duplicate(false) if base is CompanionData else CompanionDataScript.new()
 
 	# ======================================================================
 	# IDENTITY
@@ -56,10 +59,12 @@ static func serialize(detail_panel) -> Resource:
 	if detail_panel.trigger_dropdown:
 		data.trigger = detail_panel.get_selected_id(detail_panel.trigger_dropdown)
 
-	# Trigger data (threshold)
-	data.trigger_data = {}
+	# Trigger data (threshold); other keys (e.g. min_percent) are kept
+	var td: Dictionary = data.trigger_data.duplicate() if data.trigger_data is Dictionary else {}
+	td.erase("threshold_percent")
 	if int(data.trigger) == 4 and detail_panel.threshold_spin:  # PLAYER_DAMAGED_THRESHOLD
-		data.trigger_data["threshold_percent"] = detail_panel.threshold_spin.value
+		td["threshold_percent"] = detail_panel.threshold_spin.value
+	data.trigger_data = td
 
 	# ======================================================================
 	# TARGETING

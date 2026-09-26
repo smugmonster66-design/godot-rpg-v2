@@ -173,7 +173,7 @@ func _save_to_path(path: String) -> void:
 		push_error("[CompanionBuilder] Detail panel not available")
 		return
 
-	var data = CompanionSerializer.serialize(detail)
+	var data = CompanionSerializer.serialize(detail, _current_companion)
 	if not data:
 		push_error("[CompanionBuilder] Serialization failed")
 		return
@@ -208,7 +208,7 @@ func _on_validate_pressed() -> void:
 	var warnings: Array[String] = []
 
 	# Build temporary data for validation
-	var data = CompanionSerializer.serialize(detail)
+	var data = CompanionSerializer.serialize(detail, _current_companion)
 	if not data:
 		push_error("[CompanionBuilder] Cannot validate: serialization failed")
 		return
