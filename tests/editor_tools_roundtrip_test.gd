@@ -66,6 +66,7 @@ func _run() -> void:
 	_test_condition_widget()
 	_test_action_line_choice_indexing()
 	_test_dropdown_roots()
+	await _test_grant_item_and_heal_actions()
 
 	_cleanup_tmp()
 	print("")
@@ -632,6 +633,63 @@ func _test_dropdown_roots() -> void:
 	_check(dun_results.size() >= 2, "dropdown: dungeon scan found %d DungeonDefinitions" % dun_results.size())
 	print("  dropdown scan: %d combat encounters, %d dungeons" % [enc_results.size(), dun_results.size()])
 	node.queue_free()
+
+# ============================================================================
+# Action types 8 GRANT_ITEM / 9 HEAL
+# ============================================================================
+
+func _test_grant_item_and_heal_actions() -> void:
+	var action_script = load("res://addons/dialogue_editor/nodes/action_node.gd")
+	_check(action_script.split_item_param("res://a/b.tres:3") == ["res://a/b.tres", 3], "grant item: split with quantity")
+	_check(action_script.split_item_param("res://a/b.tres") == ["res://a/b.tres", 1], "grant item: split without quantity")
+
+	# Pick one real equipment item and one consumable
+	var node = load("res://addons/dialogue_editor/nodes/action_node.tscn").instantiate()
+	root.add_child(node)
+	var items: Array = []
+	node._scan_resource_dir("res://resources/items/", "items", "item_name", "EquippableItem", items)
+	var cons: Array = []
+	node._scan_resource_dir("res://resources/consumables/", "consumables", "item_name", "ConsumableItem", cons)
+	node.queue_free()
+	_check(not items.is_empty() and not cons.is_empty(), "grant item: item scan found %d items, %d consumables" % [items.size(), cons.size()])
+	if items.is_empty() or cons.is_empty():
+		return
+
+	# Encounter: action(grant item x3) -> action(grant consumable) -> action(heal) -> line
+	var tags = [
+		"game_action:8:%s:3" % items[0].id,
+		"game_action:8:%s" % cons[0].id,
+		"game_action:9:25+50%",
+	]
+	var enc = EncounterScript.new()
+	var last = LineScript.new()
+	last.text = "Done."
+	var next = last
+	for i in range(tags.size() - 1, -1, -1):
+		var a = LineScript.new()
+		a.auto_advance = true
+		a.auto_advance_delay = 0.0
+		a.event_tag = StringName(tags[i])
+		a.next_line = next
+		next = a
+	enc.first_line = next
+
+	var pair = _new_graph()
+	DeserializerScript.new().deserialize(enc, pair[0], pair[1])
+	# Let the action nodes build their deferred param UI (dropdown + quantity)
+	await process_frame
+	await process_frame
+	var action_nodes = pair[0].get_nodes_by_type("game_action")
+	var types: Array = []
+	for n in action_nodes:
+		types.append(n.get_node_data().action_type)
+	types.sort()
+	_check(types == [8, 8, 9], "grant item/heal: action node types %s" % [types])
+	var ser = SerializerScript.new()
+	var out = ser.serialize(pair[0], pair[1].get_speakers(), enc)
+	_free_graph(pair)
+	_check(ser.errors.is_empty(), "grant item/heal: serializer errors %s" % [ser.errors])
+	_assert_same(enc, out, "roundtrip(grant item / heal actions)")
 
 func _cleanup_tmp() -> void:
 	var d = DirAccess.open(TMP_DIR)
