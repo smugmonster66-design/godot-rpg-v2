@@ -271,7 +271,10 @@ func can_autosave() -> bool:
 	"""Safe moments only: never mid-combat, mid-dungeon-run or mid-dialogue."""
 	if not _session_started:
 		return false
-	if is_in_combat or is_in_dungeon:
+	if is_in_combat:
+		return false
+	# Inside a dungeon, only between nodes (the run is saved with it)
+	if is_in_dungeon and not (dungeon_scene and dungeon_scene.is_at_safe_point()):
 		return false
 	if DialogueManager.is_active:
 		return false
@@ -381,6 +384,11 @@ func _on_player_created(player: Resource):
 	# game can be continued straight away.
 	_session_started = true
 	GameState.session_active = true
+	# Continue into a dungeon run that was in progress
+	if is_continue:
+		var saved_run: Dictionary = GameState.get_saved_dungeon_run()
+		if not saved_run.is_empty():
+			_resume_dungeon_run(saved_run)
 	GameState.request_autosave()
 	
 	
@@ -611,6 +619,23 @@ func enter_dungeon(definition: DungeonDefinition):
 	if dmap:
 		dmap.camera = camera
 	dungeon_scene.enter_dungeon(definition, GameManager.player)
+
+func _resume_dungeon_run(saved_run: Dictionary) -> void:
+	"""Re-open the dungeon layer on a saved run (Continue)."""
+	is_in_dungeon = true
+	map_layer.visible = false
+	if map_scene.has_method("set_ui_layer_visible"):
+		map_scene.set_ui_layer_visible(false)
+	map_scene.process_mode = Node.PROCESS_MODE_DISABLED
+	dungeon_layer.visible = true
+	dungeon_layer.process_mode = Node.PROCESS_MODE_INHERIT
+	camera.set_mode(GameCamera.Mode.DUNGEON)
+	var dmap = dungeon_scene.find_child("DungeonMap", true, false)
+	if dmap:
+		dmap.camera = camera
+	if not dungeon_scene.resume_run(saved_run.get("state", {}), saved_run.get("affixes", []), GameManager.player):
+		push_warning("GameRoot: saved dungeon run could not be resumed; back to the map")
+		exit_dungeon()
 
 func enter_dungeon_chain(chain: DungeonChain):
 	if is_in_dungeon or is_in_combat:

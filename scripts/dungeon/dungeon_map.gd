@@ -71,7 +71,7 @@ var _intro_playing: bool = false
 # BUILD / CLEAR
 # ============================================================================
 
-func build_map(run: DungeonRun):
+func build_map(run: DungeonRun, play_intro: bool = true):
 	clear_map()
 	_run = run
 
@@ -88,7 +88,8 @@ func build_map(run: DungeonRun):
 
 	_fit_camera_zoom()    # ← ADD THIS
 
-	_play_intro()
+	if play_intro:
+		_play_intro()
 	print("🗺️ Map built: %d nodes, %d floors" % [_map_nodes.size(), run.definition.floor_count])
 
 
@@ -269,6 +270,33 @@ func _set_initial_states():
 		if sn: sn.set_state(DungeonMapNode.State.CURRENT)
 	_update_fog_visibility()
 	_update_path_states()
+
+func restore_progress():
+	"""Show a resumed run as it was: completed nodes done, the next doors
+	from the current node open, the token on the current node."""
+	if _run == null:
+		return
+	var done: Array = []
+	for n in _run.nodes.values():
+		if n.completed:
+			done.append(n)
+	done.sort_custom(func(a, b): return a.floor_num < b.floor_num)
+	for n in done:
+		complete_node(n.id)
+	if _run.current_node_id >= 0:
+		complete_node(_run.current_node_id)
+	# Doors on floors already passed stay shut
+	for n in _run.nodes.values():
+		var mn = _map_nodes.get(n.id)
+		if mn and mn.state == DungeonMapNode.State.AVAILABLE and n.floor_num <= _run.current_floor:
+			mn.set_state(DungeonMapNode.State.LOCKED)
+	_current_node_id = _run.current_node_id
+	if player_token and _node_positions.has(_current_node_id):
+		player_token.global_position = _node_positions[_current_node_id]
+		player_token.visible = true
+	_update_fog_visibility()
+	_update_path_states()
+	_camera_follow_node(_current_node_id, true)
 
 func complete_node(node_id: int):
 	print("🗺️ complete_node(%d) called" % node_id)

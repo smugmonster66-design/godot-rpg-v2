@@ -108,3 +108,104 @@ func get_all_run_affix_tags() -> Array[String]:
 
 func skip_affix_offer():
 	affix_offers_given += 1
+
+# ── Save / resume (a run survives closing the app) ──
+# Resources are stored as indices into the definition's pools, so a save
+# stays valid as long as the dungeon's pools keep their order.
+
+func to_dict(player) -> Dictionary:
+	var node_list: Array = []
+	for n: DungeonNodeData in nodes.values():
+		node_list.append({
+			"id": n.id, "floor": n.floor_num, "column": n.column, "type": int(n.node_type),
+			"to": Array(n.connections_to), "from": Array(n.connections_from),
+			"encounter": _encounter_ref(n.encounter),
+			"event": definition.event_pool.find(n.event) if n.event else -1,
+			"shrine": definition.shrine_pool.find(n.shrine) if n.shrine else -1,
+			"visited": n.visited, "completed": n.completed,
+		})
+	var floor_ids: Array = []
+	for f in floors:
+		floor_ids.append(Array(f))
+	var item_idx: Array = []
+	if player:
+		for it in items_earned:
+			var i: int = player.inventory.find(it)
+			if i >= 0:
+				item_idx.append(i)
+	var consumable_names: Array = []
+	for c in consumables_earned:
+		if c:
+			consumable_names.append(c.item_name)
+	var affix_idx: Array = []
+	for e in run_affixes_chosen:
+		affix_idx.append(definition.run_affix_pool.find(e))
+	return {
+		"definition": definition.resource_path,
+		"nodes": node_list, "floors": floor_ids,
+		"current_node_id": current_node_id, "current_floor": current_floor,
+		"gold_snapshot_on_entry": gold_snapshot_on_entry, "gold_earned": gold_earned,
+		"exp_earned": exp_earned, "items": item_idx, "consumables": consumable_names,
+		"events_seen": Array(events_seen), "run_affixes": affix_idx,
+		"affix_offers_given": affix_offers_given, "floors_cleared": floors_cleared,
+	}
+
+func _encounter_ref(enc: CombatEncounter) -> Dictionary:
+	if enc == null:
+		return {}
+	for pool_name in ["combat_encounters", "elite_encounters", "boss_encounters"]:
+		var i: int = definition.get(pool_name).find(enc)
+		if i >= 0:
+			return {"pool": pool_name, "index": i}
+	return {"path": enc.resource_path}
+
+static func from_dict(data: Dictionary, player) -> DungeonRun:
+	var path: String = data.get("definition", "")
+	var def = load(path) as DungeonDefinition if path != "" and ResourceLoader.exists(path) else null
+	if def == null:
+		return null
+	var run := DungeonRun.new()
+	run.definition = def
+	for nd in data.get("nodes", []):
+		var n := DungeonNodeData.new()
+		n.id = int(nd.id); n.floor_num = int(nd.floor); n.column = int(nd.column)
+		n.node_type = int(nd.type) as DungeonEnums.NodeType
+		for t in nd.get("to", []): n.connections_to.append(int(t))
+		for f in nd.get("from", []): n.connections_from.append(int(f))
+		var er: Dictionary = nd.get("encounter", {})
+		if er.has("pool"):
+			var pool: Array = def.get(er.pool)
+			var ei: int = int(er.index)
+			n.encounter = pool[ei] if ei >= 0 and ei < pool.size() else null
+		elif er.has("path") and ResourceLoader.exists(er.path):
+			n.encounter = load(er.path)
+		var evi: int = int(nd.get("event", -1))
+		n.event = def.event_pool[evi] if evi >= 0 and evi < def.event_pool.size() else null
+		var shi: int = int(nd.get("shrine", -1))
+		n.shrine = def.shrine_pool[shi] if shi >= 0 and shi < def.shrine_pool.size() else null
+		n.visited = bool(nd.get("visited", false)); n.completed = bool(nd.get("completed", false))
+		run.add_node(n)
+	for f in data.get("floors", []):
+		var ids: Array = []
+		for i in f: ids.append(int(i))
+		run.floors.append(ids)
+	run.current_node_id = int(data.get("current_node_id", -1))
+	run.current_floor = int(data.get("current_floor", 0))
+	run.gold_snapshot_on_entry = int(data.get("gold_snapshot_on_entry", 0))
+	run.gold_earned = int(data.get("gold_earned", 0))
+	run.exp_earned = int(data.get("exp_earned", 0))
+	if player:
+		for i in data.get("items", []):
+			if int(i) >= 0 and int(i) < player.inventory.size():
+				run.items_earned.append(player.inventory[int(i)])
+	for cname in data.get("consumables", []):
+		var c := ConsumableItem.new()
+		c.item_name = str(cname)
+		run.consumables_earned.append(c)
+	for e in data.get("events_seen", []): run.events_seen.append(str(e))
+	for ai in data.get("run_affixes", []):
+		if int(ai) >= 0 and int(ai) < def.run_affix_pool.size():
+			run.run_affixes_chosen.append(def.run_affix_pool[int(ai)])
+	run.affix_offers_given = int(data.get("affix_offers_given", 0))
+	run.floors_cleared = int(data.get("floors_cleared", 0))
+	return run

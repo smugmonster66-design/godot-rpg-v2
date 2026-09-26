@@ -60,6 +60,10 @@ class_name SaveData
 ## Where the player last rested on the map (the shellkeepers carry you back
 ## here after a loss). {"stack": map stack snapshot, "location": StringName}.
 @export var last_rest: Dictionary = {}
+## A dungeon run in progress (DungeonScene.serialize_run), or {} if none.
+@export var dungeon_run_state: Dictionary = {}
+## Stat affixes from the run's shrines / run affixes, re-applied on resume.
+@export var dungeon_run_affixes: Array[Resource] = []
 
 # ============================================================================
 # PLAYER STATE

@@ -102,6 +102,16 @@ func save() -> Error:
 	# Snapshot the map stack (which zone the player is in)
 	if MapManager:
 		_save_data.map_stack = MapManager.get_stack_snapshot()
+	# A dungeon run in progress (saved only at safe points between nodes)
+	_save_data.dungeon_run_state = {}
+	_save_data.dungeon_run_affixes = []
+	var gr = GameManager.game_root if GameManager else null
+	if gr and gr.is_in_dungeon and gr.dungeon_scene and gr.dungeon_scene.current_run:
+		_save_data.dungeon_run_state = gr.dungeon_scene.serialize_run()
+		var affs: Array[Resource] = []
+		for a in gr.dungeon_scene.get_run_stat_affixes():
+			affs.append(a)
+		_save_data.dungeon_run_affixes = affs
 	# Fold the current session into play time
 	_save_data.play_time = get_play_time()
 	_session_start = Time.get_unix_time_from_system()
@@ -186,6 +196,12 @@ func set_last_rest(stack_snapshot: Array, location_id: StringName) -> void:
 func get_last_rest() -> Dictionary:
 	"""{stack, location} of the last rest, or {} if the player never rested."""
 	return _save_data.last_rest
+
+func get_saved_dungeon_run() -> Dictionary:
+	"""{state, affixes} of a run in progress in the loaded save, or {}."""
+	if _save_data.dungeon_run_state.is_empty():
+		return {}
+	return {"state": _save_data.dungeon_run_state, "affixes": _save_data.dungeon_run_affixes}
 
 func get_saved_map_stack() -> Array:
 	"""Map stack recorded in the loaded save (empty for a new game)."""

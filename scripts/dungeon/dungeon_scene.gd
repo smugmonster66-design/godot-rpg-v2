@@ -167,6 +167,59 @@ func _enter_start_node():
 	if start_nodes.size() > 0:
 		_enter_node(start_nodes[0].id)
 
+# ============================================================================
+# SAVE / RESUME (runs survive closing the app)
+# ============================================================================
+
+func is_at_safe_point() -> bool:
+	"""True between nodes: no fight, popup or affix choice pending."""
+	if current_run == null or _awaiting_combat or _awaiting_affix_choice:
+		return false
+	for popup in [event_popup, shop_popup, rest_popup, shrine_popup,
+				  treasure_popup, complete_popup, run_affix_popup]:
+		if popup and popup.visible:
+			return false
+	return true
+
+func serialize_run() -> Dictionary:
+	if current_run == null:
+		return {}
+	var state: Dictionary = current_run.to_dict(_player)
+	if _chain_runner and _chain_runner.chain:
+		state["chain"] = _chain_runner.chain.resource_path
+		state["chain_index"] = _chain_runner.current_index
+	return state
+
+func get_run_stat_affixes() -> Array:
+	"""Stat affixes from shrines and run affixes (rebuilt from gear on load,
+	so a resumed run re-applies them)."""
+	return current_run.shrine_affixes_applied.duplicate() if current_run else []
+
+func resume_run(state: Dictionary, stat_affixes: Array, player: Player) -> bool:
+	"""Rebuild a saved run and put the player back where they were."""
+	var run: DungeonRun = DungeonRun.from_dict(state, player)
+	if run == null:
+		return false
+	_player = player
+	current_run = run
+	var chain_path: String = state.get("chain", "")
+	if chain_path != "" and ResourceLoader.exists(chain_path):
+		_chain_runner = DungeonChainRunner.new(load(chain_path))
+		_chain_runner.current_index = int(state.get("chain_index", 0))
+	for a in stat_affixes:
+		if a is Affix:
+			_player.affix_manager.add_affix(a)
+			current_run.shrine_affixes_applied.append(a)
+	if dungeon_name_label:
+		dungeon_name_label.text = run.definition.dungeon_name
+	_update_floor_ui()
+	if dungeon_map:
+		dungeon_map.build_map(run, false)
+		dungeon_map.restore_progress()
+	dungeon_started.emit(run.definition)
+	print("🏰 Resumed run: %s, floor %d" % [run.definition.dungeon_name, run.current_floor + 1])
+	return true
+
 func exit_dungeon():
 	_cleanup_temp_effects()
 	if dungeon_map:
@@ -595,6 +648,8 @@ func _complete_and_advance(node: DungeonNodeData):
 	# Tell the map to reveal next-floor nodes
 	if dungeon_map:
 		dungeon_map.complete_node(node.id)
+	# A safe point: save the run so it survives closing the app
+	GameState.request_autosave.call_deferred()
 
 func _update_floor_ui():
 	if not current_run: return
