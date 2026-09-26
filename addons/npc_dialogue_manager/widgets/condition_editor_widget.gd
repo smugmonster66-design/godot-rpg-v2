@@ -16,18 +16,28 @@ enum ConditionMode {
 	OR,             # 3
 }
 
-# Single check types (matches SingleCheck.CheckType)
-enum CheckType {
-	FLAG,               # 0
-	COUNTER,            # 1
-	RELATIONSHIP,       # 2
-	HAS_ITEM,           # 3
-	PLAYER_LEVEL,       # 4
-	CLASS_LEVEL,        # 5
-	QUEST_STATE,        # 6
-	LOCATION_VISITED,   # 7
-	CUSTOM,             # 8
-}
+# Single check types come straight from SingleCheck.CheckType (no local copy,
+# so the widget can never drift from the runtime enum again).
+const SingleCheckScript = preload("res://resources/data/single_check.gd")
+const CheckType = SingleCheckScript.CheckType
+
+## Entries shown in the type dropdown, in order. "Quest Objective" is a
+## convenience that writes CUSTOM with key quest_objective:<quest>:<objective>.
+## The dropdown item id is the index into this array.
+const TYPE_ENTRIES: Array = [
+	{"label": "Flag", "type": CheckType.FLAG, "quest_objective": false},
+	{"label": "Counter", "type": CheckType.COUNTER, "quest_objective": false},
+	{"label": "Relationship", "type": CheckType.RELATIONSHIP, "quest_objective": false},
+	{"label": "Has Item", "type": CheckType.HAS_ITEM, "quest_objective": false},
+	{"label": "Player Level", "type": CheckType.PLAYER_LEVEL, "quest_objective": false},
+	{"label": "Class Level", "type": CheckType.CLASS_LEVEL, "quest_objective": false},
+	{"label": "Quest State", "type": CheckType.QUEST_STATE, "quest_objective": false},
+	{"label": "Location Visited", "type": CheckType.LOCATION_VISITED, "quest_objective": false},
+	{"label": "Approval", "type": CheckType.APPROVAL, "quest_objective": false},
+	{"label": "Custom (raw key)", "type": CheckType.CUSTOM, "quest_objective": false},
+	{"label": "Quest Objective", "type": CheckType.CUSTOM, "quest_objective": true},
+]
+const QUEST_OBJECTIVE_PREFIX := "quest_objective:"
 
 const OPERATOR_OPTIONS: Array[String] = ["==", "!=", ">", "<", ">=", "<="]
 const QUEST_STATE_OPTIONS: Array[String] = ["locked", "available", "active", "ready", "complete", "failed"]
@@ -75,7 +85,9 @@ var _mode: ConditionMode = ConditionMode.ALWAYS_TRUE
 var _invert: bool = false
 
 # Single check state
-var _check_type: CheckType = CheckType.FLAG
+var _check_type: int = CheckType.FLAG
+## True when the CUSTOM check is the "Quest Objective" convenience form.
+var _quest_objective_mode: bool = false
 var _key: String = ""
 var _operator: String = ">="
 var _int_value: int = 0
@@ -185,15 +197,8 @@ func _populate_dropdowns() -> void:
 
 	if type_dropdown:
 		type_dropdown.clear()
-		type_dropdown.add_item("Flag")
-		type_dropdown.add_item("Counter")
-		type_dropdown.add_item("Relationship")
-		type_dropdown.add_item("Has Item")
-		type_dropdown.add_item("Player Level")
-		type_dropdown.add_item("Class Level")
-		type_dropdown.add_item("Quest State")
-		type_dropdown.add_item("Location Visited")
-		type_dropdown.add_item("Quest Objective")
+		for i in TYPE_ENTRIES.size():
+			type_dropdown.add_item(TYPE_ENTRIES[i].label, i)
 
 	if operator_dropdown:
 		operator_dropdown.clear()
@@ -217,6 +222,7 @@ func load_condition(condition: Resource) -> void:
 		_mode = ConditionMode.ALWAYS_TRUE
 		_invert = false
 		_check_type = CheckType.FLAG
+		_quest_objective_mode = false
 		_key = ""
 		_operator = ">="
 		_int_value = 0
@@ -286,27 +292,34 @@ func build_condition() -> Resource:
 func _load_single_check(check: Resource) -> void:
 	if check == null:
 		return
-	_check_type = check.get("check_type") as CheckType
+	_check_type = int(check.get("check_type"))
 	_key = str(check.get("key"))
 	_operator = str(check.get("compare_operator"))
 	_int_value = check.get("int_value") if check.get("int_value") != null else 0
 	_bool_value = check.get("bool_value") == true
 	_quest_state = str(check.get("quest_state"))
 	_class_id = str(check.get("class_id"))
+	_objective_id = ""
+	_quest_objective_mode = false
 
-	# Handle CUSTOM quest_objective keys
-	if _check_type == CheckType.CUSTOM:
-		var key_str = _key
-		if key_str.begins_with("quest_objective:"):
-			var parts = key_str.split(":")
-			if parts.size() >= 3:
-				_key = parts[1]  # quest_id
-				_objective_id = parts[2]
+	# Legacy repair: older versions of this widget wrote "Quest Objective" as
+	# check_type 8, which the runtime reads as APPROVAL. An APPROVAL key can
+	# never start with "quest_objective:", so treat it as the CUSTOM check it was
+	# meant to be (it is written back as 9 on the next save).
+	if _check_type == CheckType.APPROVAL and _key.begins_with(QUEST_OBJECTIVE_PREFIX):
+		push_warning("[ConditionEditor] Repairing legacy quest-objective check saved as APPROVAL (8); it will be saved as CUSTOM (9).")
+		_check_type = CheckType.CUSTOM
+
+	# CUSTOM quest_objective:<quest>:<objective> keys use the convenience UI
+	if _check_type == CheckType.CUSTOM and _key.begins_with(QUEST_OBJECTIVE_PREFIX):
+		var parts = _key.split(":")
+		if parts.size() == 3:
+			_quest_objective_mode = true
+			_key = parts[1]  # quest_id
+			_objective_id = parts[2]
 
 	if type_dropdown:
-		var select_index = _check_type as int
-		if select_index < type_dropdown.item_count:
-			type_dropdown.select(select_index)
+		type_dropdown.select(_type_entry_index())
 	if key_edit:
 		key_edit.text = _key
 	if operator_dropdown:
@@ -324,11 +337,11 @@ func _load_single_check(check: Resource) -> void:
 
 func _build_single_check() -> Resource:
 	var check = SingleCheck.new()
-	check.check_type = _check_type as int
+	check.check_type = _check_type
 
-	# For CUSTOM quest objective checks, reconstruct the composite key
-	if _check_type == CheckType.CUSTOM and _objective_id != "":
-		check.key = StringName("quest_objective:%s:%s" % [_key, _objective_id])
+	# For the Quest Objective convenience, reconstruct the composite CUSTOM key
+	if _check_type == CheckType.CUSTOM and _quest_objective_mode:
+		check.key = StringName("%s%s:%s" % [QUEST_OBJECTIVE_PREFIX, _key, _objective_id])
 	else:
 		check.key = StringName(_key)
 
@@ -461,16 +474,23 @@ func _update_single_ui() -> void:
 		CheckType.LOCATION_VISITED:
 			_show_key_row("Location ID:", "location_id")
 			_show_bool_dropdown(CheckType.LOCATION_VISITED)
+		CheckType.APPROVAL:
+			_show_key_row("NPC ID:", "npc_id")
+			if operator_row: operator_row.visible = true
+			if value_row: value_row.visible = true
 		CheckType.CUSTOM:
-			_show_quest_dropdown()
-			_show_objective_dropdown()
+			if _quest_objective_mode:
+				_show_quest_dropdown()
+				_show_objective_dropdown()
+			else:
+				_show_key_row("Custom Key:", "quest_objective_progress:<quest>:<objective>:>=:1")
 
 func _show_key_row(label_text: String, placeholder: String) -> void:
 	if key_row: key_row.visible = true
 	if key_label: key_label.text = label_text
 	if key_edit: key_edit.placeholder_text = placeholder
 
-func _show_bool_dropdown(ctype: CheckType) -> void:
+func _show_bool_dropdown(ctype: int) -> void:
 	if not bool_row or not bool_dropdown:
 		return
 	bool_row.visible = true
@@ -641,7 +661,12 @@ func _on_invert_toggled(pressed: bool) -> void:
 	_emit_changed()
 
 func _on_type_selected(index: int) -> void:
-	_check_type = index as CheckType
+	var entry_idx = type_dropdown.get_item_id(index) if type_dropdown else index
+	if entry_idx < 0 or entry_idx >= TYPE_ENTRIES.size():
+		return
+	_check_type = TYPE_ENTRIES[entry_idx].type
+	_quest_objective_mode = TYPE_ENTRIES[entry_idx].quest_objective
+	_objective_id = ""
 	_key = ""
 	_operator = ">="
 	_int_value = 0
@@ -681,8 +706,8 @@ func _on_quest_dropdown_selected(index: int) -> void:
 	if quest_dropdown and index >= 0:
 		var meta = quest_dropdown.get_item_metadata(index)
 		_key = str(meta) if meta != null and str(meta) != "" else quest_dropdown.get_item_text(index)
-	# Refresh objective dropdown when quest changes in CUSTOM mode
-	if _check_type == CheckType.CUSTOM:
+	# Refresh objective dropdown when quest changes in Quest Objective mode
+	if _check_type == CheckType.CUSTOM and _quest_objective_mode:
 		_objective_id = ""
 		_show_objective_dropdown()
 	_emit_changed()
@@ -696,6 +721,13 @@ func _on_objective_selected(index: int) -> void:
 func _on_add_sub_pressed() -> void:
 	_add_sub_widget(null)
 	_emit_changed()
+
+func _type_entry_index() -> int:
+	"""Dropdown index for the current check type (+ quest-objective mode)."""
+	for i in TYPE_ENTRIES.size():
+		if TYPE_ENTRIES[i].type == _check_type and TYPE_ENTRIES[i].quest_objective == _quest_objective_mode:
+			return i
+	return 0
 
 func _emit_changed() -> void:
 	if _suppress_signals:

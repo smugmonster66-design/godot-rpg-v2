@@ -17,6 +17,9 @@ class_name DialogueEditorDock
 # ============================================================================
 var current_file_path: String = ""
 var is_dirty: bool = false
+## The encounter the graph was loaded from. Its fields without editor widgets
+## (encounter_id, settings, events, initial busts...) are written back on save.
+var _source_encounter: DialogueEncounter = null
 
 # ============================================================================
 # MENU IDS
@@ -111,6 +114,7 @@ func _new_dialogue() -> void:
 	
 	current_file_path = ""
 	is_dirty = false
+	_source_encounter = null
 	_update_title()
 	
 	if graph_edit:
@@ -150,12 +154,31 @@ func _save_dialogue_as() -> void:
 
 func _do_save(path: String) -> void:
 	var serializer = preload("res://addons/dialogue_editor/io/dialogue_serializer.gd").new()
-	var encounter = serializer.serialize(graph_edit, speakers_panel.get_speakers())
-	
-	var error = ResourceSaver.save(encounter, path)
+	var encounter = serializer.serialize(graph_edit, speakers_panel.get_speakers(), _source_encounter)
+
+	# Refuse to write data the runtime would silently ignore
+	if not serializer.errors.is_empty():
+		var msg = "Not saved. Fix these first:
+
+- " + "
+- ".join(serializer.errors)
+		push_error("[DialogueEditor] " + msg)
+		var dialog = AcceptDialog.new()
+		dialog.title = "Dialogue not saved"
+		dialog.dialog_text = msg
+		dialog.dialog_autowrap = true
+		dialog.min_size = Vector2i(560, 0)
+		dialog.confirmed.connect(dialog.queue_free)
+		dialog.canceled.connect(dialog.queue_free)
+		add_child(dialog)
+		dialog.popup_centered()
+		return
+
+	var error = serializer.save_encounter(encounter, path)
 	if error == OK:
 		current_file_path = path
 		is_dirty = false
+		_source_encounter = encounter
 		_update_title()
 		print("[DialogueEditor] Saved: ", path)
 	else:
@@ -177,7 +200,8 @@ func _do_load(path: String) -> void:
 	
 	var deserializer = preload("res://addons/dialogue_editor/io/dialogue_deserializer.gd").new()
 	deserializer.deserialize(encounter, graph_edit, speakers_panel)
-	
+	_source_encounter = encounter
+
 	current_file_path = path
 	is_dirty = false
 	_update_title()

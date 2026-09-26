@@ -77,6 +77,10 @@ func _ready() -> void:
 		slot_dropdown.add_item("Right", BustSlot.RIGHT)
 		slot_dropdown.add_item("Center", BustSlot.CENTER)
 		slot_dropdown.add_item("Left", BustSlot.LEFT)
+		# NONE: the speaker's bust is not placed automatically; only the explicit
+		# Bust Slots below are written. Loaded lines whose speaker is not in any
+		# slot use this, so a round-trip never moves a bust.
+		slot_dropdown.add_item("No auto slot", BustSlot.NONE)
 		slot_dropdown.item_selected.connect(_on_slot_selected)
 	if text_edit:
 		text_edit.text_changed.connect(_on_text_changed)

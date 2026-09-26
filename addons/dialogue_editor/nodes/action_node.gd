@@ -5,9 +5,12 @@ extends "res://addons/dialogue_editor/nodes/base_dialogue_node.gd"
 # CONSTANTS
 # ============================================================================
 const EVENT_ROOT := "res://resources/events/"
-const ENCOUNTER_ROOT := "res://resources/encounters/region1/"
-const DUNGEON_ROOT := "res://resources/dungeons/"
+## Scanned recursively (sub-folders become dropdown categories)
+const ENCOUNTER_ROOT := "res://resources/encounters/"
+const DUNGEON_ROOT := "res://resources/dungeon/"
 const QUEST_ROOT := "res://resources/definitions/quests/"
+const ITEM_ROOT := "res://resources/items/"
+const CONSUMABLE_ROOT := "res://resources/consumables/"
 
 # ============================================================================
 # ACTION TYPES
@@ -21,6 +24,8 @@ enum GameActionType {
 	COMPLETE_QUEST,   # quest_id from QuestDefinition
 	REPORT_OBJECTIVE, # quest_id:objective_id
 	OPEN_SMITHING,    # resource path to SmithingConfig .tres
+	GRANT_ITEM,       # res://path/to/item.tres or res://path/to/item.tres:<quantity>
+	HEAL,             # "25" (flat HP), "50%" (of max HP) or "25+50%"
 }
 
 # ============================================================================
@@ -40,6 +45,11 @@ var action_type: GameActionType = GameActionType.START_COMBAT
 var param: String = ""
 ## For REPORT_OBJECTIVE: the selected quest_id (objective dropdown is populated from this)
 var _selected_quest_id: String = ""
+## For GRANT_ITEM: the item path and quantity encoded into param
+var _item_path: String = ""
+var _item_qty: int = 1
+var _qty_row: HBoxContainer = null
+var _qty_spin: SpinBox = null
 
 ## Cached scan results per type — avoids re-scanning on every UI update.
 ## Key: scan root path, Value: Array of { id: String, category: String }
@@ -69,6 +79,8 @@ func _ready() -> void:
 		type_dropdown.add_item("Complete Quest", GameActionType.COMPLETE_QUEST)
 		type_dropdown.add_item("Report Objective", GameActionType.REPORT_OBJECTIVE)
 		type_dropdown.add_item("Open Smithing", GameActionType.OPEN_SMITHING)
+		type_dropdown.add_item("Grant Item", GameActionType.GRANT_ITEM)
+		type_dropdown.add_item("Heal", GameActionType.HEAL)
 		type_dropdown.item_selected.connect(_on_type_selected)
 
 	if param_edit:
@@ -94,17 +106,63 @@ func _ready() -> void:
 	if objective_dropdown:
 		objective_dropdown.item_selected.connect(_on_objective_dropdown_selected)
 
+	_create_quantity_row()
+
 	# Defer the UI update so all children are guaranteed in the tree
 	call_deferred("_update_param_ui")
+
+func _create_quantity_row() -> void:
+	"""Quantity row for GRANT_ITEM (built in code; the .tscn has no such row)."""
+	var vbox = find_child("VBox", false, false)
+	if vbox == null or _qty_row != null:
+		return
+	_qty_row = HBoxContainer.new()
+	_qty_row.name = "QuantityRow"
+	_qty_row.visible = false
+	var lbl = Label.new()
+	lbl.text = "Quantity:"
+	_qty_row.add_child(lbl)
+	_qty_spin = SpinBox.new()
+	_qty_spin.min_value = 1
+	_qty_spin.max_value = 999
+	_qty_spin.step = 1
+	_qty_spin.value = _item_qty
+	_qty_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_qty_spin.value_changed.connect(_on_qty_changed)
+	_qty_row.add_child(_qty_spin)
+	vbox.add_child(_qty_row)
+
+func _on_qty_changed(value: float) -> void:
+	_item_qty = int(value)
+	_update_grant_item_param()
+
+func _update_grant_item_param() -> void:
+	"""GRANT_ITEM param: the item path, plus :<quantity> when quantity > 1."""
+	param = _item_path if _item_qty <= 1 else "%s:%d" % [_item_path, _item_qty]
+	_emit_modified()
+
+static func split_item_param(p: String) -> Array:
+	"""'res://x/y.tres:3' -> ['res://x/y.tres', 3]; 'res://x/y.tres' -> [.., 1]."""
+	var idx = p.rfind(":")
+	if idx > 0:
+		var tail = p.substr(idx + 1)
+		var head = p.substr(0, idx)
+		if tail.is_valid_int() and not head.ends_with(":") and head != "res":
+			return [head, maxi(1, int(tail))]
+	return [p, 1]
 
 # ============================================================================
 # UI HANDLERS
 # ============================================================================
 
 func _on_type_selected(index: int) -> void:
-	action_type = index as GameActionType
+	action_type = type_dropdown.get_item_id(index) as GameActionType if type_dropdown else index as GameActionType
 	param = ""
 	_selected_quest_id = ""
+	_item_path = ""
+	_item_qty = 1
+	if _qty_spin:
+		_qty_spin.set_value_no_signal(1)
 	_update_param_ui()
 	_emit_modified()
 
@@ -121,6 +179,9 @@ func _on_param_dropdown_selected(index: int) -> void:
 			# Quest selected — populate objective dropdown
 			_selected_quest_id = value
 			_populate_objective_dropdown_for_quest(value)
+		elif action_type == GameActionType.GRANT_ITEM:
+			_item_path = value
+			_update_grant_item_param()
 		else:
 			param = value
 			_emit_modified()
@@ -163,6 +224,8 @@ func _update_param_ui() -> void:
 	# Hide objective row for all types except REPORT_OBJECTIVE
 	if objective_row:
 		objective_row.visible = (action_type == GameActionType.REPORT_OBJECTIVE)
+	if _qty_row:
+		_qty_row.visible = (action_type == GameActionType.GRANT_ITEM)
 
 	match action_type:
 		GameActionType.START_COMBAT:
@@ -176,7 +239,7 @@ func _update_param_ui() -> void:
 			_show_dropdown_for(EVENT_ROOT, "event_id", "GameEventDefinition")
 		GameActionType.ENTER_DUNGEON:
 			param_label.text = "Dungeon:"
-			_show_dropdown_for(DUNGEON_ROOT, "dungeon_name", "DungeonDefinition")
+			_show_dropdown_for(DUNGEON_ROOT, "dungeon_name", "DungeonDefinition", "DungeonChain")
 		GameActionType.ACCEPT_QUEST:
 			param_label.text = "Quest:"
 			_show_dropdown_for(QUEST_ROOT, "display_name", "QuestDefinition")
@@ -191,6 +254,12 @@ func _update_param_ui() -> void:
 			if param == "":
 				param = "res://resources/crafting/smithing_config.tres"
 			_show_line_edit("res://resources/crafting/smithing_config.tres")
+		GameActionType.GRANT_ITEM:
+			param_label.text = "Item:"
+			_show_grant_item_ui()
+		GameActionType.HEAL:
+			param_label.text = "Heal:"
+			_show_line_edit("25, 50% or 25+50%")
 
 func _show_line_edit(placeholder: String) -> void:
 	if param_edit:
@@ -204,8 +273,10 @@ func _show_line_edit(placeholder: String) -> void:
 # DROPDOWN (shared by START_COMBAT, CUSTOM_EVENT, ENTER_DUNGEON)
 # ============================================================================
 
-func _show_dropdown_for(root_path: String, display_field: String, type_filter: String) -> void:
-	"""Show param_dropdown populated by scanning root_path for resources."""
+func _show_dropdown_for(root_path: String, display_field: String, type_filter: String, disabled_type: String = "") -> void:
+	"""Show param_dropdown populated by scanning root_path for resources.
+	Resources of disabled_type are listed greyed out (e.g. DungeonChain, which
+	the ENTER_DUNGEON runtime action cannot start)."""
 	if param_edit:
 		param_edit.visible = false
 	if not param_dropdown:
@@ -220,6 +291,13 @@ func _show_dropdown_for(root_path: String, display_field: String, type_filter: S
 	if not _scan_cache.has(root_path):
 		var results: Array = []
 		_scan_resource_dir(root_path, "", display_field, type_filter, results)
+		if disabled_type != "":
+			var extra: Array = []
+			_scan_resource_dir(root_path, "", "chain_name", disabled_type, extra)
+			for e in extra:
+				e.display = "%s (chain: not supported by Enter Dungeon)" % e.display
+				e.disabled = true
+			results.append_array(extra)
 		results.sort_custom(func(a, b):
 			if a.category != b.category:
 				return a.category < b.category
@@ -242,6 +320,8 @@ func _populate_dropdown(entries: Array) -> void:
 		var idx = param_dropdown.item_count
 		param_dropdown.add_item(entry.display)
 		param_dropdown.set_item_metadata(idx, entry.id)
+		if entry.get("disabled", false):
+			param_dropdown.set_item_disabled(idx, true)
 
 	if entries.is_empty():
 		param_dropdown.add_item("(none found)")
@@ -252,7 +332,7 @@ func _populate_dropdown(entries: Array) -> void:
 
 	# If nothing was pre-selected, sync param to whichever item is showing
 	# (OptionButton auto-selects item 0 visually but doesn't emit item_selected)
-	if param == "" and param_dropdown.selected >= 0:
+	if param == "" and param_dropdown.selected >= 0 and not param_dropdown.is_item_disabled(param_dropdown.selected):
 		var meta = param_dropdown.get_item_metadata(param_dropdown.selected)
 		if meta != null and str(meta) != "":
 			param = str(meta)
@@ -278,6 +358,47 @@ func _select_dropdown_value(value: String) -> void:
 		param_dropdown.add_item(value)
 		param_dropdown.set_item_metadata(idx, value)
 		param_dropdown.select(idx)
+
+# ============================================================================
+# GRANT ITEM — item picker (equipment + consumables) + quantity
+# ============================================================================
+
+func _show_grant_item_ui() -> void:
+	var parts = split_item_param(param)
+	_item_path = parts[0]
+	_item_qty = parts[1]
+	if _qty_spin:
+		_qty_spin.set_value_no_signal(_item_qty)
+	if param_edit:
+		param_edit.visible = false
+	if not param_dropdown:
+		if param_edit:
+			param_edit.visible = true
+			param_edit.placeholder_text = "res://resources/items/...tres:1"
+			param_edit.text = param
+		return
+	param_dropdown.visible = true
+	var cache_key = "_grant_items"
+	if not _scan_cache.has(cache_key):
+		var results: Array = []
+		_scan_resource_dir(ITEM_ROOT, "items", "item_name", "EquippableItem", results)
+		_scan_resource_dir(CONSUMABLE_ROOT, "consumables", "item_name", "ConsumableItem", results)
+		results.sort_custom(func(a, b):
+			if a.category != b.category:
+				return a.category < b.category
+			return a.display < b.display
+		)
+		_scan_cache[cache_key] = results
+	# _populate_dropdown selects by `param`, so select by the item path, then
+	# re-encode the quantity (auto-picks the first item if none was set)
+	var saved_param = param
+	param = _item_path
+	_populate_dropdown(_scan_cache[cache_key])
+	_item_path = param
+	var new_param = _item_path if _item_qty <= 1 else "%s:%d" % [_item_path, _item_qty]
+	param = new_param
+	if new_param != saved_param:
+		_emit_modified()
 
 # ============================================================================
 # REPORT OBJECTIVE — two-dropdown flow (Quest → Objective)
@@ -472,8 +593,13 @@ func set_node_data(data: Dictionary) -> void:
 	action_type = data.get("action_type", GameActionType.START_COMBAT)
 	param = data.get("param", "")
 
+	if action_type == GameActionType.GRANT_ITEM:
+		var parts = split_item_param(param)
+		_item_path = parts[0]
+		_item_qty = parts[1]
+
 	if type_dropdown:
-		type_dropdown.select(action_type)
+		type_dropdown.select(type_dropdown.get_item_index(action_type))
 
 	# Defer so children are resolved in @tool context
 	call_deferred("_update_param_ui")
