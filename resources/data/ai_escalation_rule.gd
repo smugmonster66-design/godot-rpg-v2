@@ -17,6 +17,7 @@ enum EscalationTrigger {
 	ALLY_DIED,           ## Switch when any allied enemy has died.
 	ALL_ALLIES_DEAD,     ## Switch when this enemy is the last one standing.
 	TURN_NUMBER_ABOVE,   ## Switch after turn X.
+	ALLY_HP_BELOW,       ## Switch when any other living ally's HP% < threshold.
 }
 
 # ============================================================================
@@ -52,6 +53,7 @@ func _validate_property(property: Dictionary) -> void:
 ##   "alive_ally_count"   : int (allied enemies alive, excluding self)
 ##   "total_ally_count"   : int (allied enemies at combat start, excluding self)
 ##   "turn_number"        : int
+##   "ally_lowest_hp_percent": float (0..1) lowest HP% among other living allies (1.0 if none)
 ## Returns true if the trigger condition is met.
 func evaluate(context: Dictionary) -> bool:
 	match trigger:
@@ -67,4 +69,6 @@ func evaluate(context: Dictionary) -> bool:
 			return context.get("alive_ally_count", 0) == 0
 		EscalationTrigger.TURN_NUMBER_ABOVE:
 			return context.get("turn_number", 1) > int(threshold)
+		EscalationTrigger.ALLY_HP_BELOW:
+			return context.get("ally_lowest_hp_percent", 1.0) < threshold
 	return false

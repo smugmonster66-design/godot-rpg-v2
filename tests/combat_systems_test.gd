@@ -53,8 +53,10 @@ func _action(path: String, source: Combatant) -> Dictionary:
 	# Outside its turn an enemy holds no dice; give it one fresh, rolled die.
 	var dice: Array = source.enemy_data.create_dice_copies() if source.enemy_data else []
 	for die in dice:
-		die.roll()
-		die.current_value = maxi(die.current_value, 4)
+		for i in 50:  # reroll until the die shows a useful value
+			die.roll()
+			if die.get_total_value() >= 4:
+				break
 	d["placed_dice"] = dice.slice(0, 1)
 	return d
 
@@ -142,6 +144,67 @@ func _run() -> void:
 	_cm._apply_action_effect(ed, e0, [pc])
 	await _frames(2)
 	_check(pc.current_health == hp_exec, "enemy EXECUTE refused (player HP %d -> %d)" % [hp_exec, pc.current_health])
+
+	# --- 17: every enemy has its own copy of each action (charges per enemy)
+	var a0: Action = e0.actions[0].get("action_resource")
+	var a1: Action = e1.actions[0].get("action_resource")
+	_check(a0 != a1 and a0.action_id == a1.action_id, "each enemy has its own copy of the same action")
+	a0.charge_type = Action.ChargeType.LIMITED_PER_COMBAT
+	a1.charge_type = Action.ChargeType.LIMITED_PER_COMBAT
+	a0.max_charges = 1
+	a1.max_charges = 1
+	a0.reset_charges_for_combat()
+	a1.reset_charges_for_combat()
+	a0.consume_charge()
+	_check(not a0.has_charges() and a1.has_charges(), "one enemy using a limited action doesn't use up another's")
+
+	# --- ally is hurt: context, hint, escalation, heal targeting, heal urgency
+	e1.current_health = maxi(1, int(e1.max_health * 0.2))
+	e0.current_health = e0.max_health
+	var lowest: float = _cm._lowest_ally_hp_percent(e0)
+	_check(lowest < 0.3, "lowest ally HP%% seen from e0 (%.2f)" % lowest)
+	var hint := ActionAIHint.new()
+	hint.condition = ActionAIHint.HintCondition.ALLY_HP_BELOW
+	hint.threshold = 0.5
+	_check(hint.evaluate({"ally_lowest_hp_percent": lowest}) and not hint.evaluate({"ally_lowest_hp_percent": 0.9}), "ALLY_HP_BELOW hint fires only when an ally is hurt")
+	var rule := AIEscalationRule.new()
+	rule.trigger = AIEscalationRule.EscalationTrigger.ALLY_HP_BELOW
+	rule.threshold = 0.5
+	_check(rule.evaluate({"ally_lowest_hp_percent": lowest}), "ALLY_HP_BELOW escalation fires")
+
+	var mend := Action.new()
+	mend.action_id = "test_mend_most_hurt"
+	mend.action_type = 2
+	mend.action_category = Action.ActionCategory.HEAL
+	var he := ActionEffect.new()
+	he.effect_type = ActionEffect.EffectType.HEAL
+	he.target = ActionEffect.TargetType.LOWEST_HP_ALLY
+	he.heal_uses_dice = true
+	he.heal_multiplier = 1.0
+	var heffs: Array[ActionEffect] = [he]
+	mend.effects = heffs
+	var md: Dictionary = mend.to_dict()
+	md["action_resource"] = mend
+	var die_list: Array = e0.enemy_data.create_dice_copies()
+	for die in die_list:
+		for i in 50:
+			die.roll()
+			if die.get_total_value() >= 4:
+				break
+	md["placed_dice"] = die_list.slice(0, 1)
+	e0.current_health = e0.max_health - 1
+	var e1_before: int = e1.current_health
+	_cm._apply_action_effect(md, e0, [pc])
+	await _frames(2)
+	_check(e1.current_health > e1_before and e0.current_health == e0.max_health - 1, "LOWEST_HP_ALLY heal went to the hurt ally (e1 %d -> %d)" % [e1_before, e1.current_health])
+
+	var heal_dict: Dictionary = md.duplicate()
+	var dice_arr: Array[DieResource] = []
+	for die in die_list.slice(0, 1):
+		dice_arr.append(die)
+	var calm: float = EnemyAI._score_action(heal_dict, dice_arr, EnemyAI.BALANCED, {"enemy": e0, "ally_lowest_hp_percent": 1.0})
+	var urgent: float = EnemyAI._score_action(heal_dict, dice_arr, EnemyAI.BALANCED, {"enemy": e0, "ally_lowest_hp_percent": 0.1})
+	_check(urgent > calm, "an ally's heal scores higher when an ally is hurt (%.1f > %.1f)" % [urgent, calm])
 
 	# --- 54: encounter_won condition
 	GameManager.mark_encounter_completed(enc)

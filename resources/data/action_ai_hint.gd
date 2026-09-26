@@ -24,6 +24,7 @@ enum HintCondition {
 	ALLY_COUNT_ABOVE,        ## Trigger when alive allied enemies >= threshold.
 	ALLY_COUNT_BELOW,        ## Trigger when alive allied enemies < threshold.
 	TURN_NUMBER_ABOVE,       ## Trigger after turn X (late-fight abilities).
+	ALLY_HP_BELOW,           ## Trigger when any other living ally's HP% < threshold (healers, protectors).
 }
 
 enum HintEffect {
@@ -104,6 +105,7 @@ func _validate_property(property: Dictionary) -> void:
 ##   "self_tracker"     : StatusTracker (or null)
 ##   "target_tracker"   : StatusTracker (or null)
 ##   "ally_count"       : int (alive allied enemies, excluding self)
+##   "ally_lowest_hp_percent": float (0..1) lowest HP% among other living allies (1.0 if none)
 ##   "turn_number"      : int
 ## Returns true if the condition is met (respecting invert).
 func evaluate(context: Dictionary) -> bool:
@@ -155,5 +157,8 @@ func _check(context: Dictionary) -> bool:
 
 		HintCondition.TURN_NUMBER_ABOVE:
 			return context.get("turn_number", 1) > int(threshold)
+
+		HintCondition.ALLY_HP_BELOW:
+			return context.get("ally_lowest_hp_percent", 1.0) < threshold
 
 	return false

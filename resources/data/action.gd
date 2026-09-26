@@ -280,6 +280,17 @@ func execute_simple(source, primary_target, all_enemies: Array, all_allies: Arra
 				return [source]
 			ActionEffect.TargetType.ALL_ALLIES:
 				return all_allies
+			ActionEffect.TargetType.LOWEST_HP_ALLY:
+				# The most hurt ally by HP% (from the caster's side)
+				var best = null
+				var best_pct := 2.0
+				for a in all_allies:
+					if a and a.is_alive():
+						var pct := float(a.current_health) / float(maxi(a.max_health, 1))
+						if pct < best_pct:
+							best_pct = pct
+							best = a
+				return [best] if best else []
 			_:
 				return []
 

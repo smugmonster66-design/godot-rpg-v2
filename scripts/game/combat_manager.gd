@@ -1468,6 +1468,7 @@ func _process_enemy_turn(enemy: Combatant):
 		var esc_context := {
 			"self_hp_percent": float(enemy.current_health) / float(maxi(enemy.max_health, 1)),
 			"alive_ally_count": _count_alive_enemies_except(enemy),
+			"ally_lowest_hp_percent": _lowest_ally_hp_percent(enemy),
 			"total_ally_count": enemy_combatants.size() - 1,
 			"turn_number": current_round,
 		}
@@ -1485,6 +1486,9 @@ func _process_enemy_turn(enemy: Combatant):
 		"enemy": enemy,
 		"target": target,
 		"turn_number": current_round,
+		# "An ally is hurt": always available (not gated by team_aware), so
+		# healers and protectors can react to their side's health.
+		"ally_lowest_hp_percent": _lowest_ally_hp_percent(enemy),
 	}
 
 	# --- RESTRAINED: Force escape action for restrained enemies ---
@@ -1845,6 +1849,25 @@ func _finish_enemy_turn(enemy: Combatant):
 
 	enemy.end_turn()
 	_end_current_turn()
+func _lowest_ally_hp_percent(enemy: Combatant) -> float:
+	"""Lowest HP% among the enemy's other living allies (1.0 if it's alone)."""
+	var lowest := 1.0
+	for e in _get_alive_enemies_except(enemy):
+		lowest = minf(lowest, float(e.current_health) / float(maxi(e.max_health, 1)))
+	return lowest
+
+func _lowest_hp_enemy() -> Combatant:
+	"""The living enemy with the lowest HP%."""
+	var best: Combatant = null
+	var best_pct := 2.0
+	for e: Combatant in enemy_combatants:
+		if e.is_alive():
+			var pct := float(e.current_health) / float(maxi(e.max_health, 1))
+			if pct < best_pct:
+				best_pct = pct
+				best = e
+	return best
+
 func _get_alive_enemies_except(exclude: Combatant) -> Array:
 	"""Return alive enemy combatants excluding the given one."""
 	var result: Array = []
@@ -2030,8 +2053,14 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 			# Enemy group heals (HEAL effect targeting ALL_ALLIES) heal the whole
 			# enemy team; everything else heals the caster (Gap 26).
 			var heal_targets: Array = [source]
-			if source in enemy_combatants and _heal_target_type(action_data) == ActionEffect.TargetType.ALL_ALLIES:
-				heal_targets = enemy_combatants.filter(func(e): return e.is_alive())
+			if source in enemy_combatants:
+				match _heal_target_type(action_data):
+					ActionEffect.TargetType.ALL_ALLIES:
+						heal_targets = enemy_combatants.filter(func(e): return e.is_alive())
+					ActionEffect.TargetType.LOWEST_HP_ALLY:
+						# The most hurt enemy by HP% (the caster included)
+						var hurt: Combatant = _lowest_hp_enemy()
+						heal_targets = [hurt] if hurt else [source]
 			for healed in heal_targets:
 				print("  💚 %s heals %s for %d" % [source.combatant_name, healed.combatant_name, heal_amount])
 				healed.heal(heal_amount)

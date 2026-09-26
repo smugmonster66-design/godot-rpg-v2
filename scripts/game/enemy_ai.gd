@@ -232,6 +232,9 @@ static func _score_action(action: Dictionary, dice: Array[DieResource],
 
 	if enemy_combatant:
 		var self_hp_pct: float = float(enemy_combatant.current_health) / float(maxi(enemy_combatant.max_health, 1))
+		# A heal that reaches allies is as urgent as the most hurt of them.
+		if action_type == 2 and _heal_reaches_allies(action.get("action_resource")):
+			self_hp_pct = minf(self_hp_pct, context.get("ally_lowest_hp_percent", 1.0))
 		var heal_urgency: float = config.heal_urgency if config else _DEFAULT_HEAL_URGENCY
 		var heal_thresh: float = config.heal_threshold if config else _DEFAULT_HEAL_THRESH
 		var crit_thresh: float = config.critical_threshold if config else _DEFAULT_CRIT_THRESH
@@ -318,6 +321,17 @@ static func _calculate_status_penalty(action_resource: Action,
 					penalty -= 40.0
 
 	return penalty
+
+
+## True if the action's HEAL effect reaches allies (the whole team or the
+## most hurt ally), not just the caster.
+static func _heal_reaches_allies(action_resource) -> bool:
+	if not action_resource is Action:
+		return false
+	for effect in action_resource.effects:
+		if effect and effect.effect_type == ActionEffect.EffectType.HEAL:
+			return effect.target in [ActionEffect.TargetType.ALL_ALLIES, ActionEffect.TargetType.LOWEST_HP_ALLY]
+	return false
 
 
 ## The AI's action kind: 0 attack, 1 defend/buff, 2 heal, 3 special.
@@ -410,6 +424,7 @@ static func _apply_ai_hints(base_score: float, hints: Array,
 
 	var allied: Array = context.get("allied_enemies", [])
 	hint_ctx["ally_count"] = allied.size()
+	hint_ctx["ally_lowest_hp_percent"] = context.get("ally_lowest_hp_percent", 1.0)
 	hint_ctx["turn_number"] = context.get("turn_number", 1)
 
 	for hint in hints:

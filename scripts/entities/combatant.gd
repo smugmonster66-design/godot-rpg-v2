@@ -100,8 +100,17 @@ func _initialize_from_enemy_data():
 	action_delay = enemy_data.action_delay
 	dice_drag_duration = enemy_data.dice_drag_duration
 	
-	# Actions (convert from Action resources to dictionaries)
-	actions = enemy_data.get_actions_as_dicts()
+	# Actions (convert from Action resources to dictionaries). Each combatant
+	# gets its own copy of every Action so charges are per enemy: two enemies
+	# with the same limited action no longer share one pool (Gap 17).
+	actions.clear()
+	for action in enemy_data.combat_actions:
+		if action:
+			var own: Action = action.duplicate()
+			var d: Dictionary = own.to_dict()
+			d["source"] = enemy_data.enemy_name
+			d["action_resource"] = own
+			actions.append(d)
 	
 	# Dice collection
 	_setup_dice_collection_from_enemy_data()
