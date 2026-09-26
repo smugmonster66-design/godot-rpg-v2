@@ -108,6 +108,14 @@ class_name SaveData
 ## Dice pool serialized via PlayerDiceCollection.to_dict()
 @export var dice_pool_data: Dictionary = {}
 
+## Companions (Gap 74): every recruited NPC companion with its HP, downed,
+## Wounded and bond-upgrade state (relationship lives in `relationships`).
+@export var companion_roster: Array[CompanionInstance] = []
+## Indices into companion_roster of the active party (2 max), in slot order.
+@export var active_companion_indices: Array[int] = []
+## False for saves made before companions were saved.
+@export var has_companion_state: bool = false
+
 ## Completed encounter IDs (from GameManager)
 @export var completed_encounters: Array[String] = []
 
@@ -331,6 +339,22 @@ func snapshot_player(player: Player, game_manager = null) -> void:
 	if player.dice_pool:
 		dice_pool_data = player.dice_pool.to_dict()
 
+	# ── Companions ──
+	var roster: Array[CompanionInstance] = []
+	for inst in player.companion_roster:
+		if inst and inst.companion_data and not inst in roster:
+			roster.append(inst)
+	for inst in player.active_companions:
+		if inst and inst.companion_data and not inst in roster:
+			roster.append(inst)
+	companion_roster = roster
+	var idx: Array[int] = []
+	for inst in player.active_companions:
+		if inst and roster.has(inst):
+			idx.append(roster.find(inst))
+	active_companion_indices = idx
+	has_companion_state = true
+
 	# ── GameManager state ──
 	if game_manager:
 		completed_encounters = game_manager.completed_encounters.duplicate()
@@ -425,6 +449,20 @@ func restore_player(player: Player, game_manager = null) -> bool:
 	# ── Dice pool ──
 	if not dice_pool_data.is_empty() and player.dice_pool:
 		player.dice_pool.from_dict(dice_pool_data)
+
+	# ── Companions ──
+	if has_companion_state:
+		var roster: Array[CompanionInstance] = []
+		for inst in companion_roster:
+			if inst and inst.companion_data:
+				roster.append(inst)
+		var active: Array[CompanionInstance] = []
+		for i in active_companion_indices:
+			if i >= 0 and i < companion_roster.size() and companion_roster[i] and companion_roster[i].companion_data:
+				if active.size() < CompanionRoster.MAX_ACTIVE and not companion_roster[i] in active:
+					active.append(companion_roster[i])
+		player.companion_roster = roster
+		player.active_companions = active
 
 	# ── GameManager state ──
 	if game_manager:
