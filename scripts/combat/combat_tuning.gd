@@ -14,7 +14,9 @@ class_name CombatTuning
 # Neutral dice (NONE, FAITH) use the class's primary stat.
 # ---------------------------------------------------------------------------
 ## +1 die value per this many points of the matching stat.
-static var STAT_PER_DIE_POINT: float = 20.0
+## Tuned 2026-09-27 with the simulator: 8 (was 20), so dice (with their stat
+## pips) are at least half of a hit from about level 18 on.
+static var STAT_PER_DIE_POINT: float = 8.0
 
 # ---------------------------------------------------------------------------
 # Crit: Agility adds crit chance, Luck adds crit damage.
@@ -75,9 +77,14 @@ static var STATUS_POTENCY_AT_CAP: float = 45.0
 # Index = EnemyTierLootConfig.EnemyTier: TRASH, ELITE, MINI_BOSS, BOSS, WORLD_BOSS.
 # World bosses aren't tuned yet (they copy the boss values).
 # ---------------------------------------------------------------------------
-static var ENEMY_DAMAGE_GROWTH: float = 3.0
-static var ENEMY_DAMAGE_TIER: Array[float] = [1.0, 1.3, 1.8, 2.5, 2.5]
-static var ENEMY_HP_TIER: Array[float] = [1.0, 1.0, 1.0, 1.0, 1.0]
+# Tuned 2026-09-27 with the simulator against the revised turn targets
+# (trash 2-3, elite 4-5, mini-boss 5-8, boss 10-15 turns). Bosses and
+# mini-bosses act once per die (3-5 dice), so a long fight survivable at
+# 50-80% HP lost needs small hits: the boss damage step ends up at 0.2,
+# far below the 2.5 starting point. See the final sim report.
+static var ENEMY_DAMAGE_GROWTH: float = 0.7
+static var ENEMY_DAMAGE_TIER: Array[float] = [1.25, 0.7, 1.0, 0.2, 0.2]
+static var ENEMY_HP_TIER: Array[float] = [1.0, 2.2, 8.0, 16.0, 16.0]
 
 
 static func enemy_damage_multiplier(tier: int, effective_level: int) -> float:
