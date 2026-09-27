@@ -7,8 +7,9 @@
 [resource]
 script = ExtResource("3_aqoxf")
 item_name = "Hardtack Surplus"
-description = "Heal 30 HP"
+description = "Heal 30 HP + 8% of max HP"
 flavor_text = "Rejected by the Navy for being too hard. For the Navy."
 max_stack = 20
 heal_amount = 30
+heal_percent = 0.08
 base_value = 12

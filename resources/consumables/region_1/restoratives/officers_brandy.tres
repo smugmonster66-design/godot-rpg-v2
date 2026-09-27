@@ -7,7 +7,8 @@
 [resource]
 script = ExtResource("3_urexv")
 item_name = "Officer's Brandy"
-description = "Heal 80 HP"
+description = "Heal 80 HP + 15% of max HP"
 flavor_text = "Reserved for commissioned officers. You look commissioned enough."
 heal_amount = 80
+heal_percent = 0.15
 base_value = 45

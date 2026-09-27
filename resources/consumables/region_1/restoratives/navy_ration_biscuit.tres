@@ -7,8 +7,9 @@
 [resource]
 script = ExtResource("3_4ma5a")
 item_name = "Navy Ration Biscuit"
-description = "Heal 15 HP"
+description = "Heal 15 HP + 5% of max HP"
 flavor_text = "Technically food. The Navy promises."
 max_stack = 20
 heal_amount = 15
+heal_percent = 0.05
 base_value = 5

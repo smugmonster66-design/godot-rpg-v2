@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3 uid="uid://b4lib6neuhxsf"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3 uid="uid://b4lib6neuhxsf"]
 
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="1_rjxs1"]
 [ext_resource type="Resource" uid="uid://c7iy0ygach72r" path="res://resources/actions/enemy_base/mend.tres" id="2_jdt7q"]
@@ -12,6 +12,7 @@
 [ext_resource type="Resource" uid="uid://syra6v8npt41" path="res://resources/enemy_templates/support_int.tres" id="9_w7cft"]
 [ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_barrier_int_support.tres" id="10_barrier"]
 [ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_damage_ice.tres" id="11_dmg"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_healing_support.tres" id="90_healing"]
 
 [resource]
 script = ExtResource("6_r0ed0")
@@ -30,4 +31,4 @@ gold_reward_max = 10
 enemy_archetype = 3
 level_scaling_multiplier = 0.8
 health_affix = ExtResource("5_catm7")
-enemy_affixes = Array[ExtResource("4_u3kiv")]([ExtResource("10_barrier"), ExtResource("11_dmg")])
+enemy_affixes = Array[ExtResource("4_u3kiv")]([ExtResource("10_barrier"), ExtResource("11_dmg"), ExtResource("90_healing")])

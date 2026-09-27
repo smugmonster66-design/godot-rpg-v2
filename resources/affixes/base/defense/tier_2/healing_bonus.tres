@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="1_affix"]
+
+[resource]
+script = ExtResource("1_affix")
+affix_name = "Healing Bonus"
+description = "+N to every heal you get from your gear (regeneration, heal on kill, heal on hit taken ...)"
+category = 58
+tags = Array[String](["defense", "healing"])
+effect_min = 1.0
+effect_max = 30.0
+power_weight = 55.0

@@ -32,6 +32,12 @@ signal status_threshold_triggered(status_id: String, event_data: Dictionary)
 ## Active status instances keyed by status_id
 var active_statuses: Dictionary = {}
 
+## D (designer, 2026-09-27): the level of whoever is applying statuses right
+## now. CombatManager sets it around each action, dice event, proc and
+## companion ability. New statuses store CombatTuning.status_potency() of it
+## as their "potency"; 0 (nobody set) means potency 1.
+static var applier_level: int = 0
+
 ## v5: Reference to the source combatant's AffixPoolManager.
 ## Used for threshold reduction queries. Set by combat_manager at combat start.
 var _source_affix_manager: AffixPoolManager = null
@@ -61,11 +67,15 @@ func apply_status(status_affix: StatusAffix, stacks: int = 1,
 		return
 	
 	var sid: String = status_affix.status_id
+	var potency: float = CombatTuning.status_potency(applier_level) if applier_level > 0 else 1.0
 	
 	if active_statuses.has(sid):
 		# Already active — add stacks
 		var instance: Dictionary = active_statuses[sid]
 		status_affix.add_stacks(instance, stacks)
+		# The stronger applier's potency wins (like damage_mult)
+		if potency > float(instance.get("potency", 1.0)):
+			instance["potency"] = potency
 		# Update damage_mult if the new application has a stronger one
 		var existing_mult: float = instance.get("damage_mult", 1.0)
 		if damage_mult > existing_mult:
@@ -79,6 +89,7 @@ func apply_status(status_affix: StatusAffix, stacks: int = 1,
 		var instance: Dictionary = status_affix.create_instance(
 			stacks, source_name, duration_bonus, damage_mult)
 		instance["source_combatant"] = source_combatant  # Track who applied it (for taunt)
+		instance["potency"] = potency
 		active_statuses[sid] = instance
 		status_applied.emit(sid, instance)
 		print("  ✨ Applied %s (%d stacks, +%d turns, ×%.1f dmg) from %s" % [
@@ -343,7 +354,7 @@ func _trigger_threshold(sid: String, instance: Dictionary, affix: StatusAffix):
 	
 	match affix.threshold_effect:
 		StatusAffix.ThresholdEffect.BURST_DAMAGE:
-			var damage: int = int(affix.damage_per_stack * threshold * affix.threshold_value)
+			var damage: int = int(affix.damage_per_stack * threshold * affix.threshold_value * float(instance.get("potency", 1.0)))
 			var is_magical: bool = affix.tick_damage_type == StatusAffix.StatusDamageType.MAGICAL
 			var event_data: Dictionary = {
 				"effect": "burst_damage",
@@ -409,7 +420,7 @@ func get_active_stat_modifiers() -> Dictionary:
 		var instance: Dictionary = active_statuses[sid]
 		var affix: StatusAffix = instance["status_affix"]
 		for stat_key in affix.stat_modifier_per_stack:
-			var value: float = affix.stat_modifier_per_stack[stat_key] * instance["current_stacks"]
+			var value: float = affix.get_stat_modifier_total(instance, stat_key)
 			if combined.has(stat_key):
 				combined[stat_key] += value
 			else:
@@ -497,8 +508,11 @@ func get_crit_bonus() -> float:
 	return get_stacks("expose") * 2.0
 
 func get_block_value() -> int:
-	"""Get current Block value for damage reduction."""
-	return get_stacks("block")
+	"""Get current Block value for damage reduction (stacks x potency)."""
+	if not active_statuses.has("block"):
+		return 0
+	var inst: Dictionary = active_statuses["block"]
+	return roundi(inst["current_stacks"] * float(inst.get("potency", 1.0)))
 
 func check_dodge() -> bool:
 	"""Roll a dodge check. Each stack = 10% chance."""

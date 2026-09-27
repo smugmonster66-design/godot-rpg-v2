@@ -63,25 +63,19 @@ func apply_type_multiplier(type: ActionEffect.DamageType, multiplier: float):
 # CALCULATE FINAL DAMAGE
 # ============================================================================
 
-## Tuning constant for the percentage portion of the hybrid defense formula.
-## After flat subtraction, remaining damage is reduced by defense/(K + defense).
-## At 50: 10 def = 17% of remainder, 50 def = 50%, 120 def = 71%.
-const DEFENSE_CONSTANT: float = 50.0
-
-## Maximum fraction of damage that flat subtraction can remove.
-## Prevents full immunity at low damage values.
-const FLAT_DEFENSE_CAP: float = 0.75
-
-
 func calculate_final_damage(defender_stats: Dictionary, defense_mult: float = 1.0) -> int:
-	"""Calculate total damage after percentage-based defenses.
-	
+	"""Total damage after defences (A1, hit-relative; CombatTuning).
+
+	For each element pile: element modifier (immunity / resistance /
+	weakness), then reduction = D / (D + K x pile), capped, where D is the
+	armour (physical) or barrier (magical) for that pile, piercing ignoring
+	part of the armour, times defense_mult (0.5 for DoT ticks).
+
 	defender_stats should contain:
-	  - armor: float (physical defense for percentage reduction)
-	  - barrier: float (magical defense for percentage reduction)
+	  - armor: float, barrier: float
 	  - element_modifiers: Dictionary (optional, enemy only)
 		Keys: DamageType name strings e.g. "FIRE", "ICE"
-	    Values: float multiplier — 0.0=immune, 0.5=resistant, 1.5=weak
+	    Values: float multiplier: 0.0=immune, 0.5=resistant, 1.5=weak
 	"""
 	var element_mods: Dictionary = defender_stats.get("element_modifiers", {})
 	var total: float = 0.0
@@ -97,21 +91,13 @@ func calculate_final_damage(defender_stats: Dictionary, defense_mult: float = 1.
 		damage *= elem_mod
 		
 		if damage <= 0.0:
-			continue  # Immune — skip defense calc
+			continue  # Immune: skip defense calc
 		
-		# Step 2: Get defense stat (armor for physical, barrier for magical)
+		# Step 2: Defense stat for this pile (armor or barrier)
 		var defense: float = _get_defense_for_type(type, defender_stats) * defense_mult
 		
-		# Step 3: Hybrid defense — flat subtraction then percentage reduction
-		if defense > 0.0:
-			# Flat portion: subtract defense directly, capped at 75% of damage
-			var flat_reduction: float = minf(defense, damage * FLAT_DEFENSE_CAP)
-			var remaining: float = damage - flat_reduction
-			# Percentage portion: diminishing returns on what's left
-			var pct_reduction: float = defense / (DEFENSE_CONSTANT + defense)
-			total += remaining * (1.0 - pct_reduction)
-		else:
-			total += damage
+		# Step 3: Hit-relative reduction (no flat subtraction)
+		total += damage * (1.0 - CombatTuning.defense_reduction(defense, damage))
 	
 	return roundi(total)
 

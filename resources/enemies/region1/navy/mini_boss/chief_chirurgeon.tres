@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=27 format=3 uid="uid://045x26er58ie"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=28 format=3 uid="uid://045x26er58ie"]
 
 [ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_eqnuv"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_0kx2l"]
@@ -20,6 +20,7 @@
 [ext_resource type="Resource" uid="uid://d3rw6qmhs7ff3" path="res://resources/actions/navy/navy_field_surgery.tres" id="31_field_su"]
 [ext_resource type="Resource" uid="uid://emn4s63mpgq1" path="res://resources/actions/navy/navy_triage.tres" id="32_triage"]
 [ext_resource type="Resource" uid="uid://b44jlysb1qdoq" path="res://resources/actions/navy/navy_emergency_procedure.tres" id="33_emergenc"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_healing_support.tres" id="90_healing"]
 
 [sub_resource type="Resource" id="Resource_hrfvk"]
 script = ExtResource("1_eqnuv")
@@ -93,4 +94,4 @@ enemy_archetype = 3
 enemy_level_floor = 5
 level_scaling_multiplier = 1.0
 health_affix = ExtResource("13_ohb1m")
-enemy_affixes = Array[ExtResource("9_7jjap")]([ExtResource("10_rvw15"), ExtResource("11_xdv7q")])
+enemy_affixes = Array[ExtResource("9_7jjap")]([ExtResource("10_rvw15"), ExtResource("11_xdv7q"), ExtResource("90_healing")])

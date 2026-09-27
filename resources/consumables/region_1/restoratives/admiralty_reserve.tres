@@ -7,11 +7,12 @@
 [resource]
 script = ExtResource("3_ueydf")
 item_name = "Admiralty Reserve"
-description = "Heal 120 HP, cleanse 1 debuff"
+description = "Heal 120 HP + 20% of max HP, cleanse 1 debuff"
 flavor_text = "From the Grand Admiral's personal stock. Don't ask how we got it."
 rarity = 1
 max_stack = 5
 heal_amount = 120
+heal_percent = 0.2
 cleanse_debuffs = true
 cleanse_count = 1
 base_value = 80

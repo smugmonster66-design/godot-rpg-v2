@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=23 format=3 uid="uid://dcqlpi3b871mu"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=24 format=3 uid="uid://dcqlpi3b871mu"]
 
 [ext_resource type="Script" uid="uid://c0susk1vylklb" path="res://resources/data/enemy_ai_config.gd" id="1_0v7au"]
 [ext_resource type="Script" uid="uid://b1kctq61bwysh" path="res://resources/data/action.gd" id="2_2dnc0"]
@@ -19,6 +19,7 @@
 [ext_resource type="Resource" uid="uid://syra6v8npt41" path="res://resources/enemy_templates/support_int.tres" id="20_kb3re"]
 [ext_resource type="Resource" uid="uid://d3rw6qmhs7ff3" path="res://resources/actions/navy/navy_field_surgery.tres" id="30_field_su"]
 [ext_resource type="Resource" uid="uid://emn4s63mpgq1" path="res://resources/actions/navy/navy_triage.tres" id="31_triage"]
+[ext_resource type="Resource" path="res://resources/affixes/base_stats/enemy/enemy_healing_support.tres" id="90_healing"]
 
 [sub_resource type="Resource" id="Resource_hrfvk"]
 script = ExtResource("1_0v7au")
@@ -63,4 +64,4 @@ gold_reward_min = 3
 gold_reward_max = 10
 enemy_archetype = 3
 health_affix = ExtResource("12_k44wt")
-enemy_affixes = Array[ExtResource("8_qmevw")]([ExtResource("9_sul7g"), ExtResource("10_4fnwc")])
+enemy_affixes = Array[ExtResource("8_qmevw")]([ExtResource("9_sul7g"), ExtResource("10_4fnwc"), ExtResource("90_healing")])

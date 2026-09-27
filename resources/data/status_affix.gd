@@ -233,7 +233,7 @@ func apply_tick(instance: Dictionary) -> Dictionary:
 	"""
 	var stacks: int = instance["current_stacks"]
 	var dmg_mult: float = instance.get("damage_mult", 1.0)
-	var raw_damage: int = damage_per_stack * stacks
+	var raw_damage: float = damage_per_stack * stacks * float(instance.get("potency", 1.0))
 	var result: Dictionary = {
 		"status_id": status_id,
 		"status_name": affix_name,
@@ -245,7 +245,7 @@ func apply_tick(instance: Dictionary) -> Dictionary:
 	}
 	
 	for stat_key in stat_modifier_per_stack:
-		result["stat_changes"][stat_key] = stat_modifier_per_stack[stat_key] * stacks
+		result["stat_changes"][stat_key] = get_stat_modifier_total(instance, stat_key)
 	
 	return result
 
@@ -296,14 +296,24 @@ func matches_any_cleanse_tag(tags: Array[String]) -> bool:
 # ============================================================================
 
 func get_stat_modifier_total(instance: Dictionary, stat_key: String) -> float:
-	"""Get the total modifier for a specific stat from this instance."""
+	"""Get the total modifier for a specific stat from this instance.
+	Flat magnitudes (armour, barrier, damage received) scale with the
+	instance's potency (D); percentages and other keys don't."""
 	if stat_key in stat_modifier_per_stack:
-		return stat_modifier_per_stack[stat_key] * instance["current_stacks"]
+		var total: float = stat_modifier_per_stack[stat_key] * instance["current_stacks"]
+		if is_flat_magnitude_key(stat_key):
+			total *= float(instance.get("potency", 1.0))
+		return total
 	return 0.0
+
+
+static func is_flat_magnitude_key(stat_key: String) -> bool:
+	"""Stat modifier keys that are flat amounts and scale with potency (D)."""
+	return stat_key == "armor" or stat_key == "barrier" or stat_key.ends_with("_damage_received_bonus")
 
 func get_total_tick_damage(instance: Dictionary) -> int:
 	"""Get total tick damage for current stacks."""
-	return damage_per_stack * instance["current_stacks"]
+	return roundi(damage_per_stack * instance["current_stacks"] * float(instance.get("potency", 1.0)))
 
 func get_total_tick_heal(instance: Dictionary) -> int:
 	"""Get total tick healing for current stacks."""

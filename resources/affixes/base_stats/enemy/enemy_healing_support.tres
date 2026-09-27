@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Affix" load_steps=3 format=3]
+
+[ext_resource type="Curve" path="res://resources/affixes/global_roll_curve.tres" id="1_curve"]
+[ext_resource type="Script" uid="uid://c8ianog20smkw" path="res://resources/data/affix.gd" id="2_affix"]
+
+[resource]
+script = ExtResource("2_affix")
+affix_name = "Enemy Healing (Support)"
+description = "+{value} to every heal this enemy casts"
+category = 58
+tags = Array[String](["support", "inherent", "healing", "enemy"])
+effect_min = 1.0
+effect_max = 30.0
+effect_curve = ExtResource("1_curve")

@@ -1942,7 +1942,7 @@ func _statuses_to_list(tracker: StatusTracker) -> Array:
 		var sa: StatusAffix = inst.get("status_affix")
 		if sa and sa.resource_path != "":
 			out.append({"path": sa.resource_path, "stacks": int(inst.get("current_stacks", 1)),
-				"turns": int(inst.get("remaining_turns", -1))})
+				"turns": int(inst.get("remaining_turns", -1)), "potency": float(inst.get("potency", 1.0))})
 	return out
 
 func _restore_statuses(tracker: StatusTracker, list: Array) -> void:
@@ -1958,6 +1958,8 @@ func _restore_statuses(tracker: StatusTracker, list: Array) -> void:
 		var inst: Dictionary = tracker.get_instance(sa.status_id)
 		if not inst.is_empty() and int(s.get("turns", -1)) >= 0:
 			inst["remaining_turns"] = int(s.get("turns", -1))
+		if not inst.is_empty():
+			inst["potency"] = float(s.get("potency", 1.0))
 
 func serialize_combat() -> Dictionary:
 	"""The fight as plain data (start of the player's turn)."""
@@ -2081,7 +2083,28 @@ func _on_combatant_turn_completed(_combatant: Combatant):
 # ============================================================================
 # DAMAGE CALCULATION
 # ============================================================================
+# ============================================================================
+# STATUS POTENCY (D): statuses remember the level of whoever applied them
+# ============================================================================
+
+func _level_of(c) -> int:
+	"""Effective level of a combatant for status potency: the player's level
+	for the player and companions, the spawn level for enemies."""
+	if c is Combatant and c != player_combatant and not (c is CompanionCombatant) 			and c.has_method("get_effective_level"):
+		return c.get_effective_level()
+	return player.level if player else 1
+
+
 func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: Array):
+	"""Apply the actual game effect (damage, heal, etc.) from an action.
+	Statuses applied during it take their potency from the source's level."""
+	var prev_level: int = StatusTracker.applier_level
+	StatusTracker.applier_level = _level_of(source)
+	_apply_action_effect_body(action_data, source, targets)
+	StatusTracker.applier_level = prev_level
+
+
+func _apply_action_effect_body(action_data: Dictionary, source: Combatant, targets: Array):
 	"""Apply the actual game effect (damage, heal, etc.) from an action"""
 	# Guard: defer combat end checks until the full sequence completes.
 	# This prevents proc bonus damage / splash / chain kills from ending
@@ -2433,6 +2456,15 @@ func _opposing_side_of(actor) -> Array:
 	return enemy_combatants.filter(func(e): return e.is_alive())
 
 func _resolve_combat_events(events: Array[Dictionary], primary_target, primary_dmg: int = 0, source = null) -> void:
+	if events.is_empty():
+		return
+	var prev_level: int = StatusTracker.applier_level
+	StatusTracker.applier_level = _level_of(source if source != null else player_combatant)
+	_resolve_combat_events_body(events, primary_target, primary_dmg, source)
+	StatusTracker.applier_level = prev_level
+
+
+func _resolve_combat_events_body(events: Array[Dictionary], primary_target, primary_dmg: int = 0, source = null) -> void:
 	"""Resolve queued combat events from dice affix processing.
 	Called after _apply_action_effect() with the primary attack target.
 	source: who rolled the dice (null = the player). Splash, chain and AoE
@@ -3649,7 +3681,8 @@ func _calculate_damage(action_data: Dictionary, attacker, defender) -> Dictionar
 
 
 func _calculate_heal(action_data: Dictionary, healer) -> int:
-	"""Calculate healing amount"""
+	"""Healing amount (C1): (dice + base_heal) x multiplier, plus the healer's
+	HEALING_BONUS, times its HEALING_MULTIPLIER affixes."""
 	var placed_dice: Array = action_data.get("placed_dice", [])
 	
 	# Get dice values
@@ -3675,10 +3708,34 @@ func _calculate_heal(action_data: Dictionary, healer) -> int:
 			var effect_dice_total = 0
 			if effect.heal_uses_dice:
 				effect_dice_total = dice_total
-			return int((effect_dice_total + effect.base_heal) * effect.heal_multiplier)
+			return _apply_healing_mods((effect_dice_total + effect.base_heal) * effect.heal_multiplier, healer)
 	
 	# Legacy fallback
-	return int((dice_total + base_heal) * multiplier)
+	return _apply_healing_mods((dice_total + base_heal) * multiplier, healer)
+
+
+func _healer_affixes(healer) -> AffixPoolManager:
+	if healer == player_combatant and player:
+		return player.affix_manager
+	if healer is Player:
+		return healer.affix_manager
+	if healer is Combatant and healer.has_method("get_affix_manager"):
+		return healer.get_affix_manager()
+	return null
+
+
+func _apply_healing_mods(amount: float, healer) -> int:
+	"""C1: a heal plus the healer's HEALING_BONUS (scaled by
+	CombatTuning.HEALING_BONUS_SCALE), times its HEALING_MULTIPLIER affixes."""
+	var affixes: AffixPoolManager = _healer_affixes(healer)
+	if affixes and amount > 0.0:
+		var bonus := 0.0
+		for affix in affixes.get_pool(Affix.Category.HEALING_BONUS):
+			bonus += float(affix.apply_effect())
+		amount += bonus * CombatTuning.HEALING_BONUS_SCALE
+		for affix in affixes.get_pool(Affix.Category.HEALING_MULTIPLIER):
+			amount *= float(affix.apply_effect())
+	return maxi(0, int(amount))
 
 func _calculate_attack_damage_scaled(attacker, attacker_affixes, effects, placed_dice, defender_stats,
 		action_id, accepted_elems, attacker_tracker, defender_tracker, base_crit, crit_mult,
@@ -3765,6 +3822,12 @@ func _get_defender_stats(defender) -> Dictionary:
 		var stats: Dictionary = defender.get_defense_stats()
 		stats["damage_received_bonuses"] = _get_damage_received_bonuses(defender)
 		return stats
+	elif defender == player_combatant and player:
+		# The player's node holds no armour of its own: use the Player's gear
+		# armour and barrier (with Fortified / Corrode etc. from its tracker).
+		var pstats: Dictionary = player.get_defense_stats()
+		pstats["damage_received_bonuses"] = _get_damage_received_bonuses(defender)
+		return pstats
 	elif defender is Combatant:
 		var elem_mods: Dictionary = {}
 		if defender.enemy_data and defender.enemy_data.element_modifiers.size() > 0:
@@ -4252,6 +4315,15 @@ func _build_combat_context(source: Combatant, targets: Array) -> Dictionary:
 
 func _apply_proc_results(results: Dictionary, proc_target: Combatant = null,
 		action_category: int = Action.ActionCategory.ATTACK) -> void:
+	# The player's gear procs: statuses they apply use the player's level.
+	var prev_level: int = StatusTracker.applier_level
+	StatusTracker.applier_level = _level_of(player_combatant)
+	_apply_proc_results_body(results, proc_target, action_category)
+	StatusTracker.applier_level = prev_level
+
+
+func _apply_proc_results_body(results: Dictionary, proc_target: Combatant = null,
+		action_category: int = Action.ActionCategory.ATTACK) -> void:
 	"""Apply aggregated proc results to game state.
 	Handles all result types from AffixProcProcessor.process_procs().
 
@@ -4269,6 +4341,7 @@ func _apply_proc_results(results: Dictionary, proc_target: Combatant = null,
 
 	# --- Healing ---
 	if results.healing > 0 and player_combatant:
+		results.healing = _apply_healing_mods(results.healing, player_combatant)
 		player_combatant.heal(int(results.healing))
 		if player:
 			player.current_hp = player_combatant.current_health
@@ -4608,6 +4681,14 @@ func _get_combatant_visual(combatant: Combatant) -> Node:
 
 
 func _process_companion_results(results: Array[Dictionary]) -> void:
+	# Companions apply statuses at the player's level.
+	var prev_level: int = StatusTracker.applier_level
+	StatusTracker.applier_level = _level_of(player_combatant)
+	_process_companion_results_body(results)
+	StatusTracker.applier_level = prev_level
+
+
+func _process_companion_results_body(results: Array[Dictionary]) -> void:
 	"""Apply a companion ability's results through the shared pipeline
 	(Gap 77): damage goes through armour/barrier, elements, the target's
 	defensive statuses (dodge, Braced, block, overhealth), Expose crits,
@@ -4630,6 +4711,7 @@ func _process_companion_results(results: Array[Dictionary]) -> void:
 				_companion_deal_damage(source, target, result)
 			ActionEffect.EffectType.HEAL:
 				var heal: int = int(result.get("heal", 0))
+				heal = _apply_healing_mods(heal, source)  # C1 (a companion has no bonus of its own)
 				if heal <= 0 or target == null:
 					continue
 				if target is CompanionCombatant and not target.is_alive():
