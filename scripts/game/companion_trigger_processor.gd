@@ -91,8 +91,11 @@ func evaluate_trigger(trigger_type: CompanionData.CompanionTrigger,
 
 			# Trigger thresholds
 			if trigger_type == CompanionData.CompanionTrigger.PLAYER_DAMAGED_THRESHOLD:
-				var threshold = ability.trigger_data.get("threshold_percent", 0.25)
-				if _get_player_hp_percent() > threshold:
+				# Fires when a hit takes the player from above the threshold to
+				# at or below it (once per crossing, not on every hit below it)
+				var threshold: float = ability.trigger_data.get("threshold_percent", 0.25)
+				var before: float = context.get("hp_percent_before", 1.0)
+				if _get_player_hp_percent() > threshold or before <= threshold:
 					continue
 			if trigger_type == CompanionData.CompanionTrigger.PLAYER_HIT_HARD:
 				var min_pct: float = ability.trigger_data.get("min_percent", 0.2)

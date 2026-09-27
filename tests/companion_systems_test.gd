@@ -294,6 +294,19 @@ func _start() -> void:
 	_check(ptr.get_stacks("overhealth") <= oh1, "below Trusted the Reaction stays locked")
 	GameState.relationships.set_relationship(&"test_guard", 85)
 	ptr.remove_status("overhealth")
+	# PLAYER_DAMAGED_THRESHOLD fires once per crossing
+	var react: CompanionAbility = guard.companion_data.reaction
+	react.trigger = CompanionData.CompanionTrigger.PLAYER_DAMAGED_THRESHOLD
+	react.trigger_data = {"threshold_percent": 0.5}
+	var php: int = pc.current_health
+	pc.current_health = int(pc.max_health * 0.4)
+	var T := CompanionData.CompanionTrigger.PLAYER_DAMAGED_THRESHOLD
+	var crossing: int = cm.trigger_processor.evaluate_trigger(T, {"hp_percent_before": 0.6}).size()
+	var below: int = cm.trigger_processor.evaluate_trigger(T, {"hp_percent_before": 0.45}).size()
+	_check(crossing == 1 and below == 0, "threshold trigger fires on the crossing only (%d, %d)" % [crossing, below])
+	pc.current_health = php
+	react.trigger = CompanionData.CompanionTrigger.PLAYER_DAMAGED
+	react.trigger_data = {}
 
 	# 77: companion damage through the pipeline (armour, threat)
 	e1.armor = 0

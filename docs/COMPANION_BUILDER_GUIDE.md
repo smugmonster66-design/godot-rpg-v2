@@ -174,6 +174,10 @@ This is the core of companion behaviour — **when** does this companion act?
 | **Round Start** | Once per combat round (before anyone acts) | Passive auras, per-round ticking effects |
 | **On Summon** | Once, when this companion enters combat | Entry effects — damage, buffs, area denial. Only meaningful for summons. |
 | **On Death** | Once, when this companion dies | Death rattle effects — explosions, last-gasp heals, curses |
+| **Player Hit Hard** | One hit took at least `trigger_data.min_percent` (default 0.2) of the player's max HP | Protector cover, revenge strikes |
+| **Hand Rolled** | Right after the player rolls their hand, before they place dice | Dice-shaper effects (see below) |
+
+All triggers fire (engine/companions, 2026-09-26). Reactions that happen in the middle of another action (damage, falls, kills) fire at once with a slot flash; turn-boundary triggers (turn start/end, Enemy Turn Start, Hand Rolled) play the full animation. **Companion Damaged** and **On Death** answer only for the companion itself; **Other Companion Damaged** and **Companion Killed** only for the others. **Player Damaged Threshold** fires when a hit takes the player from above the threshold to at or below it.
 
 #### Threshold Percent
 **Field:** Spin box (only visible when trigger = Player Damaged Threshold)
@@ -201,6 +205,7 @@ Who does the companion's action affect?
 | **All Allies** | Player + all living companions | Group heals, party buffs |
 | **Triggering Source** | Whatever caused the trigger event | Counter-attacks (target the enemy that hit the player) |
 | **Damaged Ally** | The specific ally that was just damaged | Reactive shields/heals on the wounded target |
+| **Downed Companion** | A downed (0 HP) NPC companion other than this one | Mender revives: a HEAL on a downed companion brings them back, Wounded |
 
 ### Condition
 **Field:** Browse / Clear / Inspect buttons
@@ -242,7 +247,7 @@ Examples:
 **Field:** Checkbox
 **Maps to:** `fires_on_first_turn`
 
-If unchecked, the companion skips its first trigger opportunity. Useful for summons that shouldn't act immediately on entry (gives enemies a chance to respond).
+If unchecked, the companion skips the first time this ability's trigger matches in a fight. Useful for summons that shouldn't act immediately on entry (gives enemies a chance to respond). Works for NPC companions and summons, per ability.
 
 ### Taunt
 
@@ -250,13 +255,13 @@ If unchecked, the companion skips its first trigger opportunity. Useful for summ
 **Field:** Checkbox
 **Maps to:** `has_taunt`
 
-When checked, this companion draws enemy attacks to itself when it fires. Enemies will preferentially target taunting companions.
+When checked, this companion draws enemy attacks: at the start of each enemy's turn, while the companion stands, the enemy gets one Taunted stack pointing at it and targets it with its attacks (self-buffs and heals are not redirected).
 
 #### Taunt Duration
 **Field:** Spin box (only visible when Has Taunt is checked)
 **Maps to:** `taunt_duration`
 
-How many turns the taunt lasts. 0 = permanent while the companion is alive.
+How many rounds the taunt lasts. 0 = the whole fight while the companion stands.
 
 ---
 
@@ -548,7 +553,8 @@ Each companion with a `companion_id` has a relationship value tracked by the gam
 
 - **Range:** -100 (hostile) to +100 (devoted)
 - **Starting value:** 0 (neutral) by default
-- **Combat XP:** Active companions earn **+2 relationship points** per combat victory, automatically.
+- **Combat XP:** Active, standing companions earn **+2 relationship points** per dungeon fight won (`dungeon_fight_relationship` in the bond rules).
+- A notice shows when a recruited companion's relationship changes, and when they reach a new companion tier (see "Abilities, the bond die and falling" below).
 
 ### Relationship Tiers
 
@@ -569,6 +575,52 @@ The current relationship tier and value are displayed in the companion info popu
 - Relationship tiers can gate synergy activation via `min_relationship`.
 - Relationship tiers effectively replace companion "levels" — they ARE the progression system for companions.
 - A companion that's never taken into combat will stay at Neutral forever.
+
+---
+
+## Abilities, the bond die and falling (engine 2026-09-26)
+
+The approved Companion System (PLOT `Companions/Companion System.md`) added fields the builder has no UI for yet. Edit them in the **Inspector**; the builder keeps them when it saves.
+
+### Three abilities
+- **Signature:** the fields above (Trigger, Target, Effects, Cooldown...). Always available.
+- **Reaction** (`reaction`, a `CompanionAbility`): a second trigger. Unlocks at **Trusted**.
+- **Bond ability** (`bond_ability`, a `CompanionAbility`): unlocks at **Devoted**; once per fight unless its `uses_per_combat` says otherwise.
+
+A `CompanionAbility` has its own trigger, trigger_data, action_effects, dice_effects, target_rule, condition, cooldown, uses, fires_on_first_turn, `min_tier` (-1 = the slot's default) and animation_set. Summons have no relationship, so all their abilities are open.
+
+### Relationship tiers and the bond die
+Companion tiers come from `res://resources/companions/companion_bond_rules.tres`:
+
+| Tier | Relationship | Bond die |
+|---|---|---|
+| Acquaintance | 0+ | d4 |
+| Trusted | 20+ | d6 |
+| Close | 50+ | d8 |
+| Devoted | 80+ | d10 |
+| Personal quest upgrade | (bond_upgraded) | d12 |
+
+Every time an ability fires it rolls the bond die and adds the player's primary-stat bonus (+1 per 20, the same rule as the player's dice). That value is the effects' die: DAMAGE with `dice_count` 1+, HEAL with `heal_uses_dice`, SHIELD with `shield_uses_dice` use it. Turn off `uses_bond_die` to opt out; set `fixed_die_sides` to roll a fixed die (summons roll nothing unless this is set).
+
+### The shared pipeline
+Companion damage goes through the same pipeline as everyone's: armour/barrier by element, the target's dodge, Braced, block and overhealth, Expose crits, Empowered/Enfeeble on the companion, and threat. **SHIELD** gives the target Overhealth. Companions carry a StatusTracker: statuses, DoTs and buffs on them tick with the player's turn.
+
+### Dice-shaper effects
+`dice_effects` (on the Signature or any ability) work on the player's rolled hand, only while it's live (best with **Hand Rolled**): **Raise** (+amount, 0 = the bond roll; lowest/highest/random; capped at the die's top face), **Reroll Minimum** (the 1s), **Set Max**, **Add Die** (a temporary die, gone at the next roll; 0 sides = the bond die's size).
+
+### Downed, Wounded, temperament
+- At 0 HP a companion is **downed**, not dead: out for the fight (still in its slot), no synergies, no barks. Rests, a revive consumable (`revive_companions`), a Mender (HEAL on **Downed Companion**) or the shellkeeper rescue bring them back.
+- Revived mid-fight = **Wounded**: max HP x0.75 until the next proper (map) rest.
+- `temperament` (Proud, Steadfast, Loyal, Wary, Bonded + `bonded_to`) changes relationship on falls and revives; numbers in the bond rules file, per-companion `temperament_overrides`.
+
+### Trail perk
+`trail_perk` + `trail_perk_value` (+ `trail_perk_min_tier`): **Gold Find** (+x fight gold), **Rest Healing** (+x companion rest healing). Only active, standing companions count.
+
+### Recruiting from story
+- Dialogue action 10 `RECRUIT_COMPANION`: `game_action:10:res://resources/companions/x.tres` (or a companion_id). Add `:camp` to skip the party.
+- Dialogue action 11 `DISMISS_COMPANION`: `game_action:11:<companion_id>` (`:force` for a permanent one).
+- GameEventEffect `RECRUIT_COMPANION` / `DISMISS_COMPANION` / `UPGRADE_COMPANION_BOND`; QuestRewards `recruit_companions` / `dismiss_companions` / `upgrade_companion_bonds`.
+- Conditions (CUSTOM): `companion_recruited:<id>`, `companion_in_party:<id>`, `companion_downed:<id>`, `companion_tier:<id>:>=:2`.
 
 ---
 

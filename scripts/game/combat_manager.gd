@@ -4793,7 +4793,8 @@ func _on_player_damage_taken(amount: int) -> void:
 	if not player_combatant.is_alive():
 		return
 	var ctx := {"damage_amount": amount, "damaged_target": player_combatant,
-		"trigger_source": _current_attacker}
+		"trigger_source": _current_attacker,
+		"hp_percent_before": float(player_combatant.current_health + amount) / maxf(1.0, float(player_combatant.max_health))}
 	_fire_companions_sync(CompanionData.CompanionTrigger.PLAYER_DAMAGED, ctx)
 	_fire_companions_sync(CompanionData.CompanionTrigger.PLAYER_DAMAGED_THRESHOLD, ctx)
 	_fire_companions_sync(CompanionData.CompanionTrigger.PLAYER_HIT_HARD, ctx)
