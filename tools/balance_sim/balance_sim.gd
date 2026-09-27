@@ -76,6 +76,7 @@ func _run() -> void:
 	Engine.print_to_stdout = args.get("verbose", "0") == "1"
 	Engine.print_error_messages = args.get("verbose", "0") == "1"
 	factory = Factory.new(self)
+	factory.class_mode = args.get("class", "test")
 	var holder := Node.new()
 	holder.name = "SimCombat"
 	add_child(holder)

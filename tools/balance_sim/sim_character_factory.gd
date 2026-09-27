@@ -14,8 +14,9 @@
 #   min_maxed    item level L, every item Epic, best of 10 drops per slot
 # "Best" = the build score below (affix power, build stats counted double).
 # Every slot is filled. The weapon is drawn uniformly from the build's weapon
-# list; a one-handed weapon gets a random off-hand. Class: Mage (the only
-# class in the game) for both builds; no skill points are spent.
+# list; a one-handed weapon gets a random off-hand. No skill points are spent.
+# Class: the test-only neutral class (sim_test_class.gd, default, class=test)
+# or the Mage, the only real class (class=mage, "current content" check).
 extends RefCounted
 
 const R1 := "res://resources/items/region_1/"
@@ -52,7 +53,11 @@ const PROFILE_ORDER := ["undergeared", "on_curve", "well_geared", "min_maxed"]
 const CONS := "res://resources/consumables/region_1/"
 const ELEMENT_PREP := {"fire": "oil_of_burning", "ice": "frost_resin", "shock": "voltaic_paste", "poison": "toxin_extract", "shadow": "shadow_pitch"}
 
+const SimTestClass = preload("res://tools/balance_sim/sim_test_class.gd")
+
 var holder: Node = null
+## "test" (neutral test-only class) or "mage"
+var class_mode: String = "test"
 var _template_cache: Dictionary = {}
 var _class_res: PlayerClass = null
 
@@ -139,13 +144,16 @@ func _pick_item(paths: Array, level: int, profile: Dictionary, build: String) ->
 	return best
 
 
-func new_player(level: int) -> Player:
+func new_player(level: int, build: String = "int") -> Player:
 	var p := Player.new()
 	holder.add_child(p.dice_pool)
 	holder.add_child(p.status_tracker)
-	var pc: PlayerClass = _class_res.duplicate()
+	var pc: PlayerClass = _class_res.duplicate() if class_mode == "mage" else SimTestClass.make_class(build)
 	p.add_class(pc.player_class_name, pc)
 	p.switch_class(pc.player_class_name)
+	if class_mode != "mage":
+		for a in SimTestClass.extra_action_affixes():
+			p.affix_manager.add_affix(a)
 	pc.level = level
 	p.level = level
 	p.recalculate_stats()
@@ -165,7 +173,7 @@ func free_player(p: Player) -> void:
 func build_character(level: int, profile_name: String, build: String, weapon_index: int = -1) -> Dictionary:
 	"""A geared reference player. Returns {player, weapon, profile, build, level}."""
 	var profile: Dictionary = PROFILES[profile_name]
-	var p := new_player(level)
+	var p := new_player(level, build)
 	var weapons: Array = WEAPONS[build]
 	var w: Array = weapons[weapon_index if weapon_index >= 0 else randi() % weapons.size()]
 	var wpath: String = R1 + w[1] + "/" + w[0] + ".tres"
