@@ -476,6 +476,10 @@ func _finalize_combat_init(p_player: Player):
 	if player:
 		_apply_consumable_buffs()
 	# --- END CONSUMABLES ---
+
+	# --- DICE: combat start (Gap 85): reset the dice turn counter and
+	# combat modifiers, then fire ON_COMBAT_START dice affixes ---
+	_start_dice_combat()
 	
 	
 	
@@ -2140,7 +2144,9 @@ func _apply_action_effect_body(action_data: Dictionary, source: Combatant, targe
 	match action_type:
 		0:  # ATTACK
 			var target: Combatant = targets[0] if targets.size() > 0 else null
-			if not target:
+			if target and _strikes_only(action_data):
+				pass  # the strikes are the damage (Gap 63); no separate primary hit
+			elif not target:
 				print("  ⚠️ ATTACK: no target in targets array")
 			else:
 				var damage_result: Dictionary = _calculate_damage(action_data, source, target)
@@ -2265,42 +2271,15 @@ func _apply_action_effect_body(action_data: Dictionary, source: Combatant, targe
 			print("  🛡️ %s defends" % source.combatant_name)
 		
 		2:  # HEAL
-			var heal_amount = _calculate_heal(action_data, source)
-			# Enemy group heals (HEAL effect targeting ALL_ALLIES) heal the whole
-			# enemy team; everything else heals the caster (Gap 26).
-			var heal_targets: Array = [source]
-			if source in enemy_combatants:
-				match _heal_target_type(action_data):
-					ActionEffect.TargetType.ALL_ALLIES:
-						heal_targets = enemy_combatants.filter(func(e): return e.is_alive())
-					ActionEffect.TargetType.LOWEST_HP_ALLY:
-						# The most hurt enemy by HP% (the caster included)
-						var hurt: Combatant = _lowest_hp_enemy()
-						heal_targets = [hurt] if hurt else [source]
-			for healed in heal_targets:
-				print("  💚 %s heals %s for %d" % [source.combatant_name, healed.combatant_name, heal_amount])
-				healed.heal(heal_amount)
-				
-				# Emit heal event for reactive animations (floating labels)
-				if event_bus:
-					var visual = _get_combatant_visual(healed)
-					if visual:
-						event_bus.emit_heal_applied(visual, heal_amount, _get_combatant_visual(source))
-				
-				if healed == player_combatant:
-					_update_player_health()
-				else:
-					var enemy_index = enemy_combatants.find(healed)
-					if enemy_index >= 0:
-						_update_enemy_health(enemy_index)
-			
-			# --- THREAT: Add healing threat ---
-			if source == player_combatant or _is_companion(source):
-				_add_threat_to_all_enemies(source, "healing", heal_amount)
-			# --- END THREAT ---
+			_apply_heal_action(action_data, source)
 		
 		3:  # SPECIAL
 			print("  ✨ %s uses special ability" % source.combatant_name)
+
+	# A HEAL effect on an action that isn't a heal (Absorb is a Defend with a
+	# heal) used to be ignored (Gap 86): it heals now.
+	if action_type != 2 and _has_heal_effect(action_data):
+		_apply_heal_action(action_data, source)
 	
 	# --- STATUS: Process all ActionEffect types beyond legacy action_type ---
 	var primary_dmg: int = 0
@@ -2999,12 +2978,16 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 					
 			# ── Defensive ──
 			ActionEffect.EffectType.SHIELD:
+				# SHIELD gives the target Overhealth (was a no-op for the player
+				# and enemies: Combatant has no add_shield). Gap 86.
 				var amount: int = result.get("shield_amount", 0)
-				var duration: int = result.get("shield_duration", -1)
-				if amount > 0 and source and source.has_method("add_shield"):
-					source.add_shield(amount, duration)
+				var shield_to = target if target is Combatant else source
+				var sh_tracker: StatusTracker = _get_status_tracker(shield_to)
+				if amount > 0 and sh_tracker:
+					var oh: StatusAffix = load("res://resources/statuses/overhealth.tres")
+					sh_tracker.apply_status(oh, amount, source_name, 0, 1.0, source)
 					if event_bus:
-						var visual = _get_combatant_visual(source)
+						var visual = _get_combatant_visual(shield_to)
 						if visual:
 							event_bus.emit_shield_gained(visual, amount)
 				print("  🛡️ Shield: +%d" % amount)
@@ -3212,7 +3195,8 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 						break
 					var hit = alive[randi() % alive.size()]
 					if hit.has_method("take_damage"):
-						var actual_strike := _apply_elemental_damage(hit, strike_damages[i], result.get("element", ""))
+						var strike_type: int = int(result.get("damage_type", ActionEffect.DamageType.SLASHING))
+						var actual_strike := _deal_strike(source, hit, strike_damages[i], strike_type, i == 0)
 						if event_bus:
 							var visual = _get_combatant_visual(hit)
 							if visual:
@@ -3680,6 +3664,104 @@ func _calculate_damage(action_data: Dictionary, attacker, defender) -> Dictionar
 
 
 
+func _strikes_only(action_data: Dictionary) -> bool:
+	"""An attack whose damage is all RANDOM_STRIKES (e.g. Volley, Flurry)."""
+	var res = action_data.get("action_resource") as Action
+	if res == null:
+		return false
+	var has_strikes := false
+	for effect in res.effects:
+		if effect == null:
+			continue
+		if effect.effect_type == ActionEffect.EffectType.DAMAGE:
+			return false
+		if effect.effect_type == ActionEffect.EffectType.RANDOM_STRIKES:
+			has_strikes = true
+	return has_strikes
+
+
+func _deal_strike(source, target: Combatant, amount: int, dtype: int, first: bool) -> int:
+	"""One RANDOM_STRIKES strike through the damage calculation (Gap 63): the
+	attacker's damage multipliers, crit, defence, defensive statuses and the
+	enemy's level and depth multiplier. Flat damage affixes land once per
+	action, on the first strike, as they do on a normal attack."""
+	var aff: AffixPoolManager = null
+	if source == player_combatant and player:
+		aff = player.affix_manager
+	elif source is Combatant and source.has_method("get_affix_manager"):
+		aff = source.get_affix_manager()
+	var eff := ActionEffect.new()
+	eff.effect_type = ActionEffect.EffectType.DAMAGE
+	eff.damage_type = dtype
+	eff.dice_count = 0
+	eff.base_damage = amount
+	if not first and aff:
+		eff.base_damage = roundi(amount * CombatCalculator._calculate_damage_multiplier(aff))
+	var effects: Array[ActionEffect] = [eff]
+	var base_crit := 0.0
+	var crit_mult: float = CombatCalculator.CRIT_DAMAGE_MULTIPLIER
+	if source == player_combatant and player:
+		base_crit = CombatTuning.crit_chance(player.get_total_stat("agility"))
+		crit_mult = CombatTuning.crit_multiplier(player.get_total_stat("luck"))
+	var no_elements: Array[int] = []
+	var r: Dictionary = _calculate_attack_damage_scaled(source, aff if first else null, effects, [],
+		_get_defender_stats(target), "", no_elements, _get_status_tracker(source), _get_status_tracker(target),
+		base_crit, crit_mult, -1)
+	var d: Dictionary = _apply_defensive_statuses(target, int(r.get("total_damage", 0)))
+	if d.dodged:
+		return 0
+	if d.final_damage > 0:
+		target.take_damage(d.final_damage)
+	return d.final_damage
+
+
+func _has_heal_effect(action_data: Dictionary) -> bool:
+	var res = action_data.get("action_resource") as Action
+	if res == null:
+		return false
+	for effect in res.effects:
+		if effect and effect.effect_type == ActionEffect.EffectType.HEAL:
+			return true
+	return false
+
+
+func _apply_heal_action(action_data: Dictionary, source: Combatant) -> void:
+	"""The heal part of an action (was the action_type 2 branch)."""
+	var heal_amount = _calculate_heal(action_data, source)
+	# Enemy group heals (HEAL effect targeting ALL_ALLIES) heal the whole
+	# enemy team; everything else heals the caster (Gap 26).
+	var heal_targets: Array = [source]
+	if source in enemy_combatants:
+		match _heal_target_type(action_data):
+			ActionEffect.TargetType.ALL_ALLIES:
+				heal_targets = enemy_combatants.filter(func(e): return e.is_alive())
+			ActionEffect.TargetType.LOWEST_HP_ALLY:
+				# The most hurt enemy by HP% (the caster included)
+				var hurt: Combatant = _lowest_hp_enemy()
+				heal_targets = [hurt] if hurt else [source]
+	for healed in heal_targets:
+		print("  💚 %s heals %s for %d" % [source.combatant_name, healed.combatant_name, heal_amount])
+		healed.heal(heal_amount)
+		
+		# Emit heal event for reactive animations (floating labels)
+		if event_bus:
+			var visual = _get_combatant_visual(healed)
+			if visual:
+				event_bus.emit_heal_applied(visual, heal_amount, _get_combatant_visual(source))
+		
+		if healed == player_combatant:
+			_update_player_health()
+		else:
+			var enemy_index = enemy_combatants.find(healed)
+			if enemy_index >= 0:
+				_update_enemy_health(enemy_index)
+	
+	# --- THREAT: Add healing threat ---
+	if source == player_combatant or _is_companion(source):
+		_add_threat_to_all_enemies(source, "healing", heal_amount)
+	# --- END THREAT ---
+
+
 func _calculate_heal(action_data: Dictionary, healer) -> int:
 	"""Healing amount (C1): (dice + base_heal) x multiplier, plus the healer's
 	HEALING_BONUS, times its HEALING_MULTIPLIER affixes."""
@@ -4083,6 +4165,10 @@ func end_combat(player_won: bool):
 		proc_processor.on_combat_end(player.affix_manager)
 	# --- END PROC ---
 
+
+	# --- DICE: combat end (ON_COMBAT_END affixes, undo combat-start die changes) ---
+	if player and player.dice_pool:
+		player.dice_pool.end_combat()
 
 	# --- CONSUMABLES: Strip temporary buffs ---
 	if player:
@@ -5259,6 +5345,17 @@ func _apply_consumable_buffs():
 				player.affix_manager.add_affix(copy)
 				print("  ⚗️ Applied affix: %s (from %s)" % [copy.affix_name, consumable.item_name])
 
+		elif buff_type == "barrier":
+			# Barrier salves: +barrier for this fight (stripped with the tag)
+			var barrier := Affix.new()
+			barrier.affix_name = consumable.item_name
+			barrier.category = Affix.Category.BARRIER_BONUS
+			barrier.effect_number = float(consumable.barrier_amount)
+			barrier.source = consumable.item_name
+			barrier.source_type = "consumable"
+			barrier.add_tag("consumable")
+			player.affix_manager.add_affix(barrier)
+
 		elif buff_type == "dice_affix":
 			# T3: Inject DiceAffixes into matching dice
 			# Single-die targeting: use stored die reference if present
@@ -5277,6 +5374,12 @@ func _apply_consumable_buffs():
 					copy.source_type = "consumable"
 					die.applied_affixes.append(copy)
 					print("  [OK] Applied dice affix: %s to %s" % [copy.affix_name, die.get_display_name()])
+
+
+func _start_dice_combat() -> void:
+	if player and player.dice_pool:
+		player.dice_pool.start_combat()
+		player.dice_pool.process_combat_start_affixes()
 
 
 func _strip_consumable_buffs():

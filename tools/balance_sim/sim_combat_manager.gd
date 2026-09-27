@@ -165,8 +165,6 @@ func run_fight(p_player: Player, encounter: CombatEncounter, start_hp: int = -1)
 		player.current_hp = player.max_hp
 	_sync_player_to_combatant()
 	_hp_seen = player_combatant.current_health
-	# The game never calls dice_pool.start_combat() (or the ON_COMBAT_START
-	# dice affixes); the sim doesn't either, to match.
 
 	# Enemies (real spawn: EnemyData affixes at the player's level, power
 	# matching, encounter multiplier, dungeon depth from GameManager)
@@ -195,6 +193,7 @@ func run_fight(p_player: Player, encounter: CombatEncounter, start_hp: int = -1)
 	if player.has_mana_pool() and player.mana_pool.refill_on_combat_start:
 		player.mana_pool.refill()
 	_apply_consumable_buffs()
+	_start_dice_combat()
 	proc_processor.on_combat_start(player.affix_manager)
 	_apply_proc_results(proc_processor.process_combat_start(player.affix_manager, _build_proc_context()))
 	player.status_tracker.set_source_affix_manager(player.affix_manager)

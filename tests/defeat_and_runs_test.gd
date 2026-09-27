@@ -173,7 +173,8 @@ func _run() -> void:
 	if cm == null:
 		cm = _root.combat_scene
 	var e0: Combatant = cm.enemy_combatants[0] if cm and cm.enemy_combatants.size() > 0 else null
-	_check(e0 != null and is_equal_approx(e0.encounter_stat_multiplier, 1.2) and is_equal_approx(e0.encounter_damage_multiplier, 1.12), "a floor-4 enemy spawns tougher")
+	_check(e0 != null and is_equal_approx(e0.encounter_stat_multiplier, 1.2) and is_equal_approx(e0.encounter_damage_multiplier,
+		1.12 * CombatTuning.enemy_damage_multiplier(int(e0.enemy_data.enemy_tier), e0.get_effective_level())), "a floor-4 enemy spawns tougher (depth x tier/level damage)")
 	_root.end_combat(true)
 	await _frames(10)
 	_check(GameManager.pending_depth.is_empty(), "depth cleared after the fight")

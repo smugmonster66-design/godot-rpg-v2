@@ -189,6 +189,14 @@ func _initialize_from_enemy_data():
 			armor = maxi(0, int(armor * _power_scaling_factor))
 			barrier = maxi(0, int(barrier * _power_scaling_factor))
 
+	# ── Enemy tier and level (CombatTuning, designer 2026-09-27) ──
+	var eff_level: int = roll_result.get("effective_level", enemy_data.enemy_level_floor)
+	var hp_tier: float = CombatTuning.enemy_hp_multiplier(int(enemy_data.enemy_tier))
+	if hp_tier != 1.0:
+		max_health = maxi(1, int(max_health * hp_tier))
+		current_health = max_health
+	encounter_damage_multiplier *= CombatTuning.enemy_damage_multiplier(int(enemy_data.enemy_tier), eff_level)
+
 	# ── Encounter difficulty (CombatEncounter.stat_multiplier) ──
 	if encounter_stat_multiplier != 1.0:
 		max_health = maxi(1, int(max_health * encounter_stat_multiplier))

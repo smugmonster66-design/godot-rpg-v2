@@ -3,13 +3,13 @@
 # markdown report and a summary CSV, with PASS/FAIL against Balance Targets.
 extends RefCounted
 
-## Balance Targets (approved 2026-09-26), on-curve player vs on-level content.
+## Balance Targets (approved 2026-09-26, turns revised 2026-09-27), on-curve player vs on-level content.
 ## [low, high] on the median fight; win rate on the mean.
 const TARGETS := {
 	"trash": {"turns": [2.0, 3.0], "apk": [1.0, 2.0], "hp_lost": [0.05, 0.12], "hit_pct": [0.03, 0.06], "win": [0.95, 1.0]},
 	"elite": {"turns": [4.0, 5.0], "apk": [3.0, 4.0], "hp_lost": [0.15, 0.30], "hit_pct": [0.05, 0.10], "win": [0.85, 0.95]},
-	"miniboss": {"turns": [5.0, 7.0], "apk": [6.0, 10.0], "hp_lost": [0.30, 0.50], "hit_pct": [0.08, 0.15], "win": [0.75, 0.85]},
-	"boss": {"turns": [8.0, 12.0], "apk": [15.0, 25.0], "hp_lost": [0.50, 0.80], "hit_pct": [0.10, 0.20], "win": [0.55, 0.75]},
+	"miniboss": {"turns": [5.0, 8.0], "apk": [6.0, 10.0], "hp_lost": [0.30, 0.50], "hit_pct": [0.08, 0.15], "win": [0.75, 0.85]},
+	"boss": {"turns": [10.0, 15.0], "apk": [15.0, 25.0], "hp_lost": [0.50, 0.80], "hit_pct": [0.10, 0.20], "win": [0.55, 0.75]},
 }
 const TIERS := ["trash", "elite", "miniboss", "boss"]
 const PROFILES := ["undergeared", "on_curve", "well_geared", "min_maxed"]

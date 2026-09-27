@@ -66,6 +66,39 @@ static var STATUS_POTENCY_ENABLED: bool = true
 static var STATUS_POTENCY_AT_CAP: float = 45.0
 
 # ---------------------------------------------------------------------------
+# Enemy strength by tier and level (designer, 2026-09-27)
+# Enemy damage grows on the same curve as gear, with a step per tier:
+#     damage x ENEMY_DAMAGE_TIER[tier] x (1 + ENEMY_DAMAGE_GROWTH x pos)
+# where pos is the affix power position (smoothstep) at the enemy's
+# effective level. Enemy HP x ENEMY_HP_TIER[tier]. Applied at spawn
+# (Combatant), on top of power matching, the encounter multiplier and depth.
+# Index = EnemyTierLootConfig.EnemyTier: TRASH, ELITE, MINI_BOSS, BOSS, WORLD_BOSS.
+# World bosses aren't tuned yet (they copy the boss values).
+# ---------------------------------------------------------------------------
+static var ENEMY_DAMAGE_GROWTH: float = 3.0
+static var ENEMY_DAMAGE_TIER: Array[float] = [1.0, 1.3, 1.8, 2.5, 2.5]
+static var ENEMY_HP_TIER: Array[float] = [1.0, 1.0, 1.0, 1.0, 1.0]
+
+
+static func enemy_damage_multiplier(tier: int, effective_level: int) -> float:
+	var step: float = ENEMY_DAMAGE_TIER[clampi(tier, 0, ENEMY_DAMAGE_TIER.size() - 1)]
+	return step * (1.0 + ENEMY_DAMAGE_GROWTH * _power_position(effective_level))
+
+
+static func enemy_hp_multiplier(tier: int) -> float:
+	return ENEMY_HP_TIER[clampi(tier, 0, ENEMY_HP_TIER.size() - 1)]
+
+
+static func _power_position(level: int) -> float:
+	var pos := clampf(float(level - 1) / 99.0, 0.0, 1.0)
+	var tree := Engine.get_main_loop()
+	if tree is SceneTree and (tree as SceneTree).root.has_node("AffixTableRegistry"):
+		var cfg = (tree as SceneTree).root.get_node("AffixTableRegistry").scaling_config
+		if cfg:
+			pos = cfg.get_power_position(level)
+	return pos
+
+# ---------------------------------------------------------------------------
 # Losing (designer, 2026-09-26; Balance Targets "Losing")
 # ---------------------------------------------------------------------------
 ## Share of carried gold donated when the shellkeepers rescue you after a
@@ -115,13 +148,7 @@ static func status_potency(level: int) -> float:
 	(1.0 at level 1, STATUS_POTENCY_AT_CAP at level 100)."""
 	if not STATUS_POTENCY_ENABLED or level <= 1:
 		return 1.0
-	var pos := clampf(float(level - 1) / 99.0, 0.0, 1.0)
-	var tree := Engine.get_main_loop()
-	if tree is SceneTree and (tree as SceneTree).root.has_node("AffixTableRegistry"):
-		var cfg = (tree as SceneTree).root.get_node("AffixTableRegistry").scaling_config
-		if cfg:
-			pos = cfg.get_power_position(level)
-	return 1.0 + (STATUS_POTENCY_AT_CAP - 1.0) * pos
+	return 1.0 + (STATUS_POTENCY_AT_CAP - 1.0) * _power_position(level)
 
 
 static func set_knob(knob: String, value: String) -> bool:
@@ -135,5 +162,16 @@ static func set_knob(knob: String, value: String) -> bool:
 		"STATUS_POTENCY_AT_CAP": STATUS_POTENCY_AT_CAP = float(value)
 		"DEPTH_STATS_PER_FLOOR": DEPTH_STATS_PER_FLOOR = float(value)
 		"DEPTH_DAMAGE_PER_FLOOR": DEPTH_DAMAGE_PER_FLOOR = float(value)
+		"ENEMY_DAMAGE_GROWTH": ENEMY_DAMAGE_GROWTH = float(value)
+		"ENEMY_DAMAGE_TIER": ENEMY_DAMAGE_TIER = _float_list(value)
+		"ENEMY_HP_TIER": ENEMY_HP_TIER = _float_list(value)
 		_: return false
 	return true
+
+
+static func _float_list(value: String) -> Array[float]:
+	"""'1;1.5;3;5;5' -> [1.0, 1.5, 3.0, 5.0, 5.0] (simulator knobs)."""
+	var out: Array[float] = []
+	for part in value.split(";"):
+		out.append(float(part))
+	return out

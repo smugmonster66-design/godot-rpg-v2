@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("3_k7eor")
 item_name = "Quarterdeck Barrier Salve"
-description = "+20 Barrier"
+description = "+20 Barrier for your next fight"
 flavor_text = "Naval-grade protective wax. Also works on ship hulls."
 max_stack = 15
 barrier_amount = 20

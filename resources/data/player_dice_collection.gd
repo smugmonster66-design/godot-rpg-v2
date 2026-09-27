@@ -180,6 +180,11 @@ func end_combat():
 	
 	print("⚔️ Combat ended — processing ON_COMBAT_END affixes")
 	process_combat_end_affixes()
+	# Undo combat-start die size changes
+	for d in dice:
+		if d and d.has_meta("pre_combat_die_type"):
+			d.die_type = int(d.get_meta("pre_combat_die_type"))
+			d.remove_meta("pre_combat_die_type")
 	
 	hand_changed.emit()
 
@@ -193,10 +198,24 @@ func end_turn():
 # POOL MANAGEMENT (Persistent)
 # ============================================================================
 
+## Dice that didn't fit (pool at max_dice). They wait here, in order, and
+## join the pool as soon as a slot frees up (Gap 90: they used to be dropped
+## silently). Saved with the pool.
+var overflow_dice: Array[DieResource] = []
+## A die didn't fit and went to overflow_dice.
+signal pool_overflow(die: DieResource)
+
+
 func add_die(die: DieResource, at_index: int = -1):
-	"""Add a die to the POOL at a specific position"""
+	"""Add a die to the POOL at a specific position. When the pool is full
+	the die waits in overflow_dice and joins when there's room."""
 	if dice.size() >= max_dice:
-		push_warning("Cannot add die: pool full (%d/%d)" % [dice.size(), max_dice])
+		overflow_dice.append(die)
+		push_warning("Dice pool full (%d/%d): %s waits until a slot frees up" % [dice.size(), max_dice, die.display_name])
+		pool_overflow.emit(die)
+		if stat_owner != null and Engine.get_main_loop() is SceneTree 				and (Engine.get_main_loop() as SceneTree).root.has_node("NotificationManager"):
+			(Engine.get_main_loop() as SceneTree).root.get_node("NotificationManager").notify(
+				"Dice pool full (%d): %s's die waits until a slot frees up" % [max_dice, die.source if die.source != "" else die.display_name])
 		return
 	
 	if at_index < 0 or at_index >= dice.size():
@@ -214,10 +233,23 @@ func add_die(die: DieResource, at_index: int = -1):
 
 func remove_die(die: DieResource):
 	"""Remove a specific die from POOL"""
+	if overflow_dice.has(die):
+		overflow_dice.erase(die)
+		return
 	dice.erase(die)
 	_update_slot_indices()
 	print("🎲 Pool: Removed %s (total: %d)" % [die.display_name, dice.size()])
 	dice_changed.emit()
+	_fill_from_overflow()
+
+
+func _fill_from_overflow() -> void:
+	"""Waiting dice join the pool, in order, while there's room."""
+	while dice.size() < max_dice and not overflow_dice.is_empty():
+		var d: DieResource = overflow_dice.pop_front()
+		dice.append(d)
+		_update_slot_indices()
+		dice_changed.emit()
 
 func remove_die_at(index: int) -> DieResource:
 	"""Remove and return die at specific index from POOL"""
@@ -228,11 +260,15 @@ func remove_die_at(index: int) -> DieResource:
 	dice.remove_at(index)
 	_update_slot_indices()
 	dice_changed.emit()
+	_fill_from_overflow()
 	return die
 
 func remove_dice_by_source(source: String):
 	"""Remove all dice from a specific source from POOL"""
 	var to_remove: Array[DieResource] = []
+	for die in overflow_dice:
+		if die.source == source:
+			to_remove.append(die)
 	for die in dice:
 		if die.source == source:
 			to_remove.append(die)
@@ -245,6 +281,7 @@ func remove_dice_by_source(source: String):
 func clear_pool():
 	"""Remove all dice from POOL"""
 	dice.clear()
+	overflow_dice.clear()
 	_update_slot_indices()
 	dice_changed.emit()
 
@@ -1238,9 +1275,13 @@ func get_hand_dice_with_tag(tag: String) -> Array[DieResource]:
 	return result
 
 func get_dice_by_source(source: String) -> Array[DieResource]:
-	"""Get POOL dice from a specific source"""
+	"""Get POOL dice from a specific source (waiting overflow dice included,
+	so unequipping keeps them with their item)."""
 	var result: Array[DieResource] = []
 	for die in dice:
+		if die.source == source:
+			result.append(die)
+	for die in overflow_dice:
 		if die.source == source:
 			result.append(die)
 	return result
@@ -1273,6 +1314,12 @@ func process_combat_start_affixes():
 	on turn 1 after the event bus is live."""
 	if not affix_processor:
 		return
+	# Combat-start effects last one fight: remember each pool die's size so
+	# end_combat() can undo a size change (Ascendant), which used to stack
+	# up fight after fight.
+	for d in dice:
+		if d and not d.has_meta("pre_combat_die_type"):
+			d.set_meta("pre_combat_die_type", d.die_type)
 	# Temporarily capture which affixes actually fired via the affix_activated signal
 	var _fired: Array = []
 	var _capture = func(_die, affix, _targets): _fired.append(affix)
@@ -1407,8 +1454,12 @@ func to_dict() -> Dictionary:
 	for die in dice:
 		dice_data.append(die.to_dict())
 	
+	var overflow_data: Array[Dictionary] = []
+	for die in overflow_dice:
+		overflow_data.append(die.to_dict())
 	return {
 		"dice": dice_data,
+		"overflow": overflow_data,
 		"max_dice": max_dice
 	}
 
@@ -1422,6 +1473,9 @@ func from_dict(data: Dictionary):
 	for die_data in data.get("dice", []):
 		var die = DieResource.from_dict(die_data)
 		dice.append(die)
+	overflow_dice.clear()
+	for die_data in data.get("overflow", []):
+		overflow_dice.append(DieResource.from_dict(die_data))
 	
 	_update_slot_indices()
 	dice_changed.emit()

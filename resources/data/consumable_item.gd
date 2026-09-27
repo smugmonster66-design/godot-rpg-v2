@@ -224,11 +224,14 @@ func _use_restorative(player) -> Dictionary:
 		effects.append("Restored %d Mana" % amount)
 
 	if barrier_amount > 0:
-		var max_barrier: int = player.max_hp * 2
-		var actual: int = mini(barrier_amount, max_barrier - player.base_barrier)
-		if actual > 0:
-			player.base_barrier += actual
-		effects.append("+%d Barrier" % actual)
+		# Barrier lasts your next fight (Gap 87). It used to add to
+		# base_barrier for good, so salves stacked up forever.
+		player.active_consumable_buffs.append({
+			"consumable": self,
+			"remaining_combats": 1,
+			"type": "barrier",
+		})
+		effects.append("+%d Barrier for your next fight" % barrier_amount)
 
 	if revive_companions:
 		var n: int = CompanionRoster.revive_downed(revive_hp_percent, true)

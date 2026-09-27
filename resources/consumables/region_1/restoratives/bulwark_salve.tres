@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("3_2dm3a")
 item_name = "Bulwark Salve"
-description = "+40 Barrier"
+description = "+40 Barrier for your next fight"
 flavor_text = "Thick enough to stop a blade. Or at least slow it down."
 barrier_amount = 40
 base_value = 35
