@@ -35,7 +35,10 @@ const CRIT_DAMAGE_HALF_POINT: float = 200.0  ## Luck that gives half the bonus
 # growing together keep the same reduction. Piercing still halves armour.
 # Applies to the player, enemies and companions (DamagePacket).
 # ---------------------------------------------------------------------------
-static var DEFENSE_K: float = 5.0
+## Tuned 2026-09-27 with the simulator: 8 (started at 5). Higher K lets more
+## of each hit through; 8 moved enemy hits toward the targets at little cost
+## to kill speed. The cap rarely binds (0.75 and 0.85 ran the same).
+static var DEFENSE_K: float = 8.0
 static var DEFENSE_CAP: float = 0.85
 
 # ---------------------------------------------------------------------------

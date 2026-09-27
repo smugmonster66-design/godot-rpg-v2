@@ -33,6 +33,9 @@ var spawn_as: Player = null
 ##   opt_b: enemy flat damage affixes x opt_b (wider affix ranges).
 var opt_a: float = 0.0
 var opt_b: float = 1.0
+## opt_a curve: false = the affix smoothstep power position, true = linear
+## in level ((level - 1) / 99, like player HP from class growth).
+var opt_a_linear: bool = false
 var _hp_seen: int = 0
 var _ended: bool = false
 var _won: bool = false
@@ -254,6 +257,8 @@ func _apply_enemy_damage_options() -> void:
 		Affix.Category.SHOCK_DAMAGE_BONUS, Affix.Category.POISON_DAMAGE_BONUS, Affix.Category.SHADOW_DAMAGE_BONUS]
 	for e in enemy_combatants:
 		var pos: float = cfg.get_power_position(e.get_effective_level()) if cfg else 0.0
+		if opt_a_linear:
+			pos = clampf(float(e.get_effective_level() - 1) / 99.0, 0.0, 1.0)
 		if opt_a != 0.0:
 			e.encounter_damage_multiplier *= 1.0 + opt_a * pos
 		if opt_b != 1.0 and e.affix_manager:

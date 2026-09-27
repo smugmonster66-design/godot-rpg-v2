@@ -97,6 +97,7 @@ func _run() -> void:
 			_progress("knob %s = %s%s" % [str(k).substr(5), args[k], "" if ok else " (UNKNOWN)"])
 	cm.opt_a = float(args.get("opt_a", "0"))
 	cm.opt_b = float(args.get("opt_b", "1"))
+	cm.opt_a_linear = args.get("opt_a_curve", "pos") == "lin"
 	if mode == "run":
 		await _run_cells()
 	elif mode == "smoke":

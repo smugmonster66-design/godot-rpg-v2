@@ -52,7 +52,9 @@ func _run() -> void:
 	var F := ActionEffect.DamageType.FIRE
 
 	# ------------------------------------------------------------------ A1
-	_check(CombatTuning.DEFENSE_K == 5.0 and CombatTuning.DEFENSE_CAP == 0.85, "defence knobs at K=5, cap 85%")
+	_check(CombatTuning.DEFENSE_K == 8.0 and CombatTuning.DEFENSE_CAP == 0.85, "defence knobs at K=8 (tuned), cap 85%")
+	var k_default: float = CombatTuning.DEFENSE_K
+	CombatTuning.DEFENSE_K = 5.0  # the formula checks below are written for K = 5
 	var arm50 := {"armor": 50.0, "barrier": 0.0}
 	_check(_packet({S: 10}).calculate_final_damage(arm50) == 5, "10 slashing vs 50 armour -> 5 (armour = 5x the hit halves it)")
 	_check(_packet({S: 100}).calculate_final_damage({"armor": 500.0, "barrier": 0.0}) == 50, "100 vs 500 armour -> 50 (scale-free)")
@@ -63,6 +65,8 @@ func _run() -> void:
 	_check(_packet({F: 10}).calculate_final_damage({"armor": 0.0, "barrier": 50.0}) == 5, "barrier works the same on magical piles")
 	_check(_packet({S: 10}).calculate_final_damage(arm50, 0.5) == 7, "DoT ticks: half defence (25 vs 10 -> 7)")
 	_check(_packet({S: 5}).calculate_final_damage({"armor": 3.0, "barrier": 0.0}) == 4, "no flat subtraction step: 5 vs 3 armour -> 4 (11% off; the old formula gave 2)")
+	CombatTuning.DEFENSE_K = k_default
+	_check(_packet({S: 10}).calculate_final_damage(arm50) == 6, "at K=8: 10 vs 50 armour -> 6 (38% off)")
 
 	# A real fight: the player's gear armour now reaches enemy hits
 	var enc := CombatEncounter.new()
