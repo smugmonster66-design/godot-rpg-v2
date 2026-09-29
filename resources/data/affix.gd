@@ -137,7 +137,16 @@ enum ProcTrigger {
 	ON_KILL,            ## When player kills an enemy
 	ON_DEFEND,          ## DEPRECATED — no defend action exists. Use ON_TAKE_DAMAGE (2) instead
 	ON_MANA_PULL,       ## When a mana die is pulled from the mana pool
-	ON_STATUS_APPLIED,  ## When a status effect is applied to any target
+	ON_STATUS_APPLIED,  ## When the player's side applies a status to anyone
+	# --- Combat event hub (engine/triggers, 2026-09-29); append only ---
+	ON_STATUS_BURST,    ## A status on an enemy reaches its threshold (Burn bursts, Chill freezes)
+	ON_FREEZE,          ## An enemy becomes Frozen
+	ON_ENEMY_ACTS,      ## After an enemy uses an action
+	ON_ENEMY_TURN_END,  ## After an enemy's turn ends
+	ON_SACRIFICE,       ## The player sacrifices a die (Warlock Offer and similar)
+	ON_HEFT,            ## The player combines dice (Warrior Heft)
+	ON_COMPANION_ACTS,  ## After a companion uses an action
+	ON_ENEMY_DEATH,     ## Any enemy dies (whoever killed it)
 }
 
 

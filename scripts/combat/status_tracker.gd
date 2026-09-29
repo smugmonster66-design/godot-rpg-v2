@@ -23,6 +23,8 @@ signal statuses_cleansed(removed_ids: Array[String])
 signal tick_phase_complete(timing: StatusAffix.TickTiming, results: Array[Dictionary])
 ## v4 — Emitted when a status reaches its stack threshold
 signal status_threshold_triggered(status_id: String, event_data: Dictionary)
+## Emitted after any application (new or added stacks), with the stacks added.
+signal status_added(status_id: String, stacks_added: int, instance: Dictionary)
 
 
 # ============================================================================
@@ -96,6 +98,9 @@ func apply_status(status_affix: StatusAffix, stacks: int = 1,
 			status_affix.affix_name, stacks, duration_bonus,
 			damage_mult, source_name
 		])
+	
+	if active_statuses.has(sid):
+		status_added.emit(sid, stacks, active_statuses[sid])
 	
 	# v4 — Check stack threshold (v5: supports threshold reduction from skills)
 	if status_affix.stack_threshold > 0 and active_statuses.has(sid):

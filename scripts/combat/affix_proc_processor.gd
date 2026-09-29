@@ -83,11 +83,21 @@ func process_procs(
 		# 2. Check optional conditions
 		if not _check_proc_condition(affix, context):
 			continue
+		if not _check_extra_proc_keys(affix, context):
+			continue
+		if affix.condition and affix.condition.evaluate(context).blocked:
+			continue
+		var cap: int = int(affix.get_resolved_effect_data().get("max_per_turn", 0))
+		if cap > 0 and int(_fired_this_turn.get(affix.get_instance_id(), 0)) >= cap:
+			continue
 		
 		# 3. Roll proc chance
 		if not _roll_proc_chance(affix):
 			continue
 		
+		if cap > 0:
+			_fired_this_turn[affix.get_instance_id()] = int(_fired_this_turn.get(affix.get_instance_id(), 0)) + 1
+
 		# 4. Apply effect
 		var effect_result = _apply_proc_effect(affix, context)
 		_merge_effect_result(result, effect_result)
@@ -433,7 +443,7 @@ func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 				effect["duration"] = resolved_data.get("duration", 1)
 		
 		# ── Status Effects ──
-		"apply_status":
+		"apply_status", "apply_status_to_all_enemies", "apply_status_to_all_others", "splash_status_to_all_others":
 			effect.type = "status_effect"
 			var raw = resolved_data.get("status", null)
 			if raw == null:
@@ -458,7 +468,10 @@ func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 				effect["status"] = raw
 			else:
 				effect["status"] = {}
-			effect["target"] = resolved_data.get("status_target", "enemy")
+			effect["target"] = resolved_data.get("status_target", resolved_data.get("target", "enemy"))
+			match proc_effect:
+				"apply_status_to_all_enemies": effect["target"] = "all_enemies"
+				"apply_status_to_all_others", "splash_status_to_all_others": effect["target"] = "all_other_enemies"
 			# status_stacks_from_value: use the affix's rolled effect_number as stack count
 			if resolved_data.get("status_stacks_from_value", false):
 				effect["stacks"] = int(affix.effect_number)
@@ -470,7 +483,7 @@ func _apply_proc_effect(affix: Affix, context: Dictionary) -> Dictionary:
 				var total_stacks := _count_enemy_status_stacks(count_sid, context)
 				effect["stacks"] = int(total_stacks * affix.effect_number)
 			else:
-				effect["stacks"] = int(resolved_data.get("status_stacks", 1))
+				effect["stacks"] = int(resolved_data.get("status_stacks", resolved_data.get("stacks", 1)))
 		
 		# ── Status Spread (Storm: spread_static and general) ──
 		"spread_status":
@@ -740,8 +753,48 @@ func _merge_effect_result(result: Dictionary, effect: Dictionary):
 # COMBAT LIFECYCLE — Call these to reset state between combats
 # ============================================================================
 
+## Times each proc affix fired this turn (for max_per_turn), keyed by instance id.
+var _fired_this_turn: Dictionary = {}
+
+func reset_turn_counters() -> void:
+	"""Call at the start of each player turn."""
+	_fired_this_turn.clear()
+
+
+func _check_extra_proc_keys(affix: Affix, context: Dictionary) -> bool:
+	"""Condition keys written in effect_data by content (Audit E2):
+	proc_condition_element (the die or damage element), proc_condition_status /
+	condition_status (the target has it), proc_condition_action (action id)."""
+	var d: Dictionary = affix.get_resolved_effect_data()
+	var elem: String = str(d.get("proc_condition_element", "")).to_upper()
+	if elem != "":
+		var seen := ""
+		var die = context.get("die_used")
+		if die is DieResource:
+			seen = DieResource.Element.keys()[die.get_effective_element()]
+		elif context.has("damage_type"):
+			var dt = context.get("damage_type")
+			seen = ActionEffect.DamageType.keys()[dt] if dt is int and dt >= 0 and dt < ActionEffect.DamageType.size() else str(dt).to_upper()
+		if seen != elem:
+			return false
+	var sid: String = str(d.get("proc_condition_status", d.get("condition_status", "")))
+	if sid != "":
+		var target = context.get("target")
+		var getter = context.get("get_status_tracker")
+		var tr = getter.call(target) if getter is Callable and target else null
+		if tr == null or not tr.has_status(sid):
+			return false
+	var act: String = str(d.get("proc_condition_action", ""))
+	if act != "":
+		var res = context.get("action_resource")
+		if not (res is Action and res.action_id == act):
+			return false
+	return true
+
+
 func on_combat_start(affix_manager: AffixPoolManager):
 	"""Reset stacking buffs and other per-combat state."""
+	_fired_this_turn.clear()
 	_reset_stacking_buffs(affix_manager)
 
 func on_combat_end(affix_manager: AffixPoolManager):

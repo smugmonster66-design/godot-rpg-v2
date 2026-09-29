@@ -510,6 +510,12 @@ func _finalize_combat_init(p_player: Player):
 					_on_enemy_threshold_triggered.bind(enemy))
 	
 	
+	# --- Combat event hub: statuses and mana pulls (engine/triggers) ---
+	_register_all_combatant_events()
+	if player and player.has_method("has_mana_pool") and player.has_mana_pool() and player.mana_pool:
+		if not player.mana_pool.mana_die_pulled.is_connected(_on_mana_die_pulled):
+			player.mana_pool.mana_die_pulled.connect(_on_mana_die_pulled)
+
 	# --- Reactive Animation: Bridge status signals to event bus ---
 	if event_bus:
 		_connect_status_event_bridges()
@@ -798,6 +804,8 @@ func _start_player_turn():
 		return
 	
 	# --- END STATUS ---
+	if proc_processor:
+		proc_processor.reset_turn_counters()  # max_per_turn caps (Audit E2)
 	if event_bus:
 			event_bus.emit_round_started(current_round)
 	# --- COMPANIONS: Player turn start triggers ---
@@ -1858,6 +1866,7 @@ func _execute_enemy_action_immediate(enemy: Combatant, decision: EnemyAI.Decisio
 	_process_enemy_turn(enemy)
 func _finish_enemy_turn(enemy: Combatant):
 	"""Finish enemy's turn"""
+	emit_combat_event(&"enemy_turn_end", {"enemy": enemy, "source": enemy})
 	print("  %s's turn complete" % enemy.combatant_name)
 	
 	# Safety: collapse any lingering expanded field from the enemy turn
@@ -2103,9 +2112,124 @@ func _apply_action_effect(action_data: Dictionary, source: Combatant, targets: A
 	"""Apply the actual game effect (damage, heal, etc.) from an action.
 	Statuses applied during it take their potency from the source's level."""
 	var prev_level: int = StatusTracker.applier_level
+	var prev_source = _acting_source
 	StatusTracker.applier_level = _level_of(source)
+	var prev_action = _acting_action
+	_acting_source = source
+	_acting_action = action_data.get("action_resource")
 	_apply_action_effect_body(action_data, source, targets)
+	_acting_source = prev_source
+	_acting_action = prev_action
 	StatusTracker.applier_level = prev_level
+	var ev := {"source": source, "targets": targets, "action_data": action_data,
+		"action_resource": action_data.get("action_resource")}
+	emit_combat_event(&"action_used", ev)
+	if source in enemy_combatants:
+		emit_combat_event(&"enemy_acted", ev)
+	elif _is_companion(source):
+		emit_combat_event(&"companion_acted", ev)
+
+
+# ============================================================================
+# COMBAT EVENT HUB (engine/triggers, 2026-09-29)
+# One signal every system can listen to: gear procs, companions, bosses,
+# biome rules, items. Kinds: action_used, enemy_acted, companion_acted,
+# status_applied, freeze, status_burst, enemy_died, enemy_turn_end,
+# mana_pulled, sacrifice, heft, player_hit.
+# ============================================================================
+
+signal combat_event(kind: StringName, data: Dictionary)
+
+## Who is acting right now (set while an action resolves).
+var _acting_source = null
+var _acting_action = null
+## Last hit on each combatant (instance id -> {element, source}), for
+## "killed by fire or holy" checks (They Rise, Plant, Rest Easy).
+var _last_hit: Dictionary = {}
+
+const _EVENT_PROC_TRIGGERS := {
+	&"status_applied": Affix.ProcTrigger.ON_STATUS_APPLIED,
+	&"status_burst": Affix.ProcTrigger.ON_STATUS_BURST,
+	&"freeze": Affix.ProcTrigger.ON_FREEZE,
+	&"enemy_acted": Affix.ProcTrigger.ON_ENEMY_ACTS,
+	&"enemy_turn_end": Affix.ProcTrigger.ON_ENEMY_TURN_END,
+	&"sacrifice": Affix.ProcTrigger.ON_SACRIFICE,
+	&"heft": Affix.ProcTrigger.ON_HEFT,
+	&"companion_acted": Affix.ProcTrigger.ON_COMPANION_ACTS,
+	&"enemy_died": Affix.ProcTrigger.ON_ENEMY_DEATH,
+	&"mana_pulled": Affix.ProcTrigger.ON_MANA_PULL,
+}
+
+
+func emit_combat_event(kind: StringName, data: Dictionary = {}) -> void:
+	"""Broadcast a combat event and fire the player's matching gear procs.
+	status_applied fires procs only for statuses the player's side applied."""
+	combat_event.emit(kind, data)
+	if not _EVENT_PROC_TRIGGERS.has(kind):
+		return
+	if kind == &"status_applied" and not data.get("by_player", false):
+		return
+	if player and player.affix_manager and proc_processor and combat_state != CombatState.INITIALIZING:
+		var ctx := _build_proc_context(data)
+		var results = proc_processor.process_procs(player.affix_manager, _EVENT_PROC_TRIGGERS[kind], ctx)
+		_apply_proc_results(results, data.get("target"))
+
+
+func note_hit(target, element: int, source = null) -> void:
+	"""Remember the element of the latest hit on a combatant."""
+	if target:
+		_last_hit[target.get_instance_id()] = {"element": element, "source": source}
+
+
+func last_hit_element(target) -> int:
+	"""Element (ActionEffect.DamageType) of the last hit on a combatant; -1 if none."""
+	if target == null:
+		return -1
+	return int(_last_hit.get(target.get_instance_id(), {}).get("element", -1))
+
+
+func killed_by_fire_or_holy(target) -> bool:
+	var e := last_hit_element(target)
+	return e == ActionEffect.DamageType.FIRE or e == ActionEffect.DamageType.FAITH
+
+
+func register_combatant_events(c) -> void:
+	"""Hook a combatant's statuses into the event hub. Safe to call twice;
+	call it for anyone who joins mid-fight (summons, reinforcements)."""
+	var tr: StatusTracker = _get_status_tracker(c)
+	if tr == null or tr.has_meta("event_hub_hooked"):
+		return
+	tr.set_meta("event_hub_hooked", true)
+	tr.status_added.connect(func(sid: String, stacks: int, _inst: Dictionary):
+		var by_player: bool = _acting_source == player_combatant or _is_companion(_acting_source) \
+			or (_acting_source == null and turn_phase != TurnPhase.NONE and c != player_combatant)
+		var data := {"target": c, "status_id": sid, "stacks": stacks, "by_player": by_player,
+			"source": _acting_source}
+		emit_combat_event(&"status_applied", data)
+		if sid == "freeze":
+			emit_combat_event(&"freeze", data))
+
+
+func _register_all_combatant_events() -> void:
+	register_combatant_events(player_combatant)
+	for e in enemy_combatants:
+		register_combatant_events(e)
+	for comp in _get_alive_companions():
+		register_combatant_events(comp)
+
+
+func _dominant_element(damage_result: Dictionary, fallback: int = -1) -> int:
+	"""The element that dealt the most of a hit (from element_breakdown)."""
+	var best := fallback
+	var most := -1.0
+	var eb: Dictionary = damage_result.get("element_breakdown", {})
+	for k in eb:
+		var v := float(eb[k])
+		var idx: int = int(k) if (k is int) else ActionEffect.DamageType.keys().find(str(k).to_upper())
+		if idx >= 0 and v > most:
+			most = v
+			best = idx
+	return best
 
 
 func _apply_action_effect_body(action_data: Dictionary, source: Combatant, targets: Array):
@@ -2173,6 +2297,7 @@ func _apply_action_effect_body(action_data: Dictionary, source: Combatant, targe
 							source.combatant_name, damage, target.combatant_name,
 							" (CRIT!)" if is_crit else ""])
 						if damage > 0:
+							note_hit(target, _dominant_element(damage_result), source)
 							target.take_damage(damage)
 						
 					
@@ -2223,6 +2348,7 @@ func _apply_action_effect_body(action_data: Dictionary, source: Combatant, targe
 							var hit_results = proc_processor.process_on_hit(
 								player.affix_manager, _build_proc_context({
 									"damage_dealt": damage,
+									"damage_type": _dominant_element(damage_result),
 									"target": target,
 									"action_resource": action_data.get("action_resource"),
 									"placed_dice": action_data.get("placed_dice", []),
@@ -2876,6 +3002,11 @@ func _apply_status_tick_results(player_ref, combatant: Combatant,
 			# Map is_magical to a damage type for proper armor/barrier routing
 			# Magical ticks → FIRE (barrier), Physical ticks → SLASHING (armor)
 			var tick_element: int = ActionEffect.DamageType.FIRE if is_magical else ActionEffect.DamageType.SLASHING
+			match str(result.get("status_id", status_name)).to_lower():
+				"burn": tick_element = ActionEffect.DamageType.FIRE
+				"poison": tick_element = ActionEffect.DamageType.POISON
+				"shadow": tick_element = ActionEffect.DamageType.SHADOW
+				"bleed": tick_element = ActionEffect.DamageType.SLASHING
 
 			print("  🔥 %s takes %d %s damage from %s (half defense)" % [
 				combatant.combatant_name,
@@ -2885,9 +3016,14 @@ func _apply_status_tick_results(player_ref, combatant: Combatant,
 			])
 
 			# Route through DamagePacket with 0.5 defense_mult (DoTs pierce half defense)
-			_apply_elemental_damage(combatant, damage, tick_element, 0.5)
+			var tick_dealt: int = _apply_elemental_damage(combatant, damage, tick_element, 0.5)
 			if player_ref:
 				_sync_player_health()
+				# Audit E16: self damage-over-time fires on-take-damage procs
+				if tick_dealt > 0 and player and player.affix_manager and proc_processor:
+					var td := proc_processor.process_on_take_damage(player.affix_manager, _build_proc_context({
+						"damage_dealt": tick_dealt, "damage_type": tick_element, "source": null, "from_status": status_name}))
+					_apply_proc_results(td, null)
 		
 		if heal > 0:
 			print("  💚 %s heals %d from %s" % [
@@ -3266,6 +3402,11 @@ func _process_action_effect_results(results: Array[Dictionary], source: Combatan
 						if action.charge_type == Action.ChargeType.UNLIMITED:
 							continue
 						if target_id != "" and action.action_id != target_id:
+							continue
+						# Audit E18 (no-loop rule): an untargeted refund never
+						# refunds the action that is casting it.
+						var casting = _acting_action
+						if target_id == "" and casting is Action and action.action_id == casting.action_id:
 							continue
 						var old = action.current_charges
 						action.current_charges = mini(old + refund, action.max_charges)
@@ -3972,6 +4113,7 @@ func _apply_elemental_damage(target, raw_amount: int, element = "", defense_mult
 			packet.add_damage(bonus_dt, float(drb[bonus_dt]))
 
 	var final_dmg: int = packet.calculate_final_damage(def_stats, defense_mult)
+	note_hit(target, dtype, _acting_source)
 	target.take_damage(final_dmg)
 	return final_dmg
 
@@ -4131,6 +4273,10 @@ func _check_enemy_death(enemy: Combatant):
 		_fire_companions_sync(CompanionData.CompanionTrigger.ENEMY_KILLED,
 			{"killed_enemy": enemy, "trigger_source": enemy})
 		# --- END COMPANIONS ---
+
+		emit_combat_event(&"enemy_died", {"target": enemy, "enemy": enemy,
+			"element": last_hit_element(enemy), "by_fire_or_holy": killed_by_fire_or_holy(enemy),
+			"killer": _last_hit.get(enemy.get_instance_id(), {}).get("source")})
 
 		# Clear all statuses from the dead enemy
 		if enemy.has_node("StatusTracker"):
@@ -4601,6 +4747,13 @@ func _apply_proc_results_body(results: Dictionary, proc_target: Combatant = null
 		if not sa:
 			continue
 		
+		if status_target_type in ["all_enemies", "all_other_enemies"]:
+			for foe in enemy_combatants:
+				if foe and foe.is_alive() and not (status_target_type == "all_other_enemies" and foe == proc_target):
+					var ftr: StatusTracker = _get_status_tracker(foe)
+					if ftr:
+						ftr.apply_status(sa, stacks, source_name)
+			continue
 		if status_target_type == "self":
 			if player and player.status_tracker:
 				player.status_tracker.apply_status(sa, stacks, source_name)
@@ -4784,6 +4937,7 @@ func _play_combat_start_affix_intros() -> void:
 # ============================================================================
 
 func _on_enemy_threshold_triggered(status_id: String, data: Dictionary, source_enemy) -> void:
+	emit_combat_event(&"status_burst", {"target": source_enemy, "status_id": status_id, "burst": data})
 	"""Handle status threshold events on enemies for player skill procs.
 	
 	- Flashpoint: When Burn explodes, splash 50% burst to other enemies.
@@ -5784,3 +5938,7 @@ func _resolve_action_damage_type(action_data: Dictionary) -> int:
 
 func _get_bottom_ui() -> Control:
 	return get_tree().get_first_node_in_group("bottom_ui")
+
+
+func _on_mana_die_pulled(die: DieResource) -> void:
+	emit_combat_event(&"mana_pulled", {"die": die, "die_used": die, "source": player_combatant})
