@@ -2143,129 +2143,134 @@ func _apply_action_effect_body(action_data: Dictionary, source: Combatant, targe
 	
 	match action_type:
 		0:  # ATTACK
-			var target: Combatant = targets[0] if targets.size() > 0 else null
-			if target and _strikes_only(action_data):
+			# Area attacks hit every target on the other side (Audit E12: they
+			# used to damage targets[0] only); single-target attacks hit one.
+			var hit_targets: Array = _attack_targets(action_data, source, targets)
+			if not hit_targets.is_empty() and _strikes_only(action_data):
 				pass  # the strikes are the damage (Gap 63); no separate primary hit
-			elif not target:
+			elif hit_targets.is_empty():
 				print("  ⚠️ ATTACK: no target in targets array")
 			else:
-				var damage_result: Dictionary = _calculate_damage(action_data, source, target)
-				action_data["_last_damage_result"] = damage_result
-				var raw_damage: int = damage_result.total_damage
+				for target in hit_targets:
+					if not is_instance_valid(target) or not target.is_alive():
+						continue
+					var damage_result: Dictionary = _calculate_damage(action_data, source, target)
+					action_data["_last_damage_result"] = damage_result
+					var raw_damage: int = damage_result.total_damage
 				
-				# --- DEFENSIVE STATUSES: Dodge, Block, Overhealth ---
-				var def_result: Dictionary = _apply_defensive_statuses(target, raw_damage)
-				var damage: int = def_result.final_damage
-				var was_dodged: bool = def_result.dodged
-				# --- END DEFENSIVE STATUSES ---
+					# --- DEFENSIVE STATUSES: Dodge, Block, Overhealth ---
+					var def_result: Dictionary = _apply_defensive_statuses(target, raw_damage)
+					var damage: int = def_result.final_damage
+					var was_dodged: bool = def_result.dodged
+					# --- END DEFENSIVE STATUSES ---
 				
-				if was_dodged:
-					print("  DODGE! %s evades %s's attack!" % [target.combatant_name, source.combatant_name])
-				else:
-					var is_crit: bool = damage_result.get("is_crit", false)
+					if was_dodged:
+						print("  DODGE! %s evades %s's attack!" % [target.combatant_name, source.combatant_name])
+					else:
+						var is_crit: bool = damage_result.get("is_crit", false)
 					
-					print("  💥 %s deals %d damage to %s%s" % [
-						source.combatant_name, damage, target.combatant_name,
-						" (CRIT!)" if is_crit else ""])
-					if damage > 0:
-						target.take_damage(damage)
+						print("  💥 %s deals %d damage to %s%s" % [
+							source.combatant_name, damage, target.combatant_name,
+							" (CRIT!)" if is_crit else ""])
+						if damage > 0:
+							target.take_damage(damage)
 						
 					
-					# --- THREAT: Add damage threat to all enemies ---
-					if source == player_combatant or _is_companion(source):
-						_add_threat_to_all_enemies(source, "damage", damage)
-					# --- END THREAT ---
+						# --- THREAT: Add damage threat to all enemies ---
+						if source == player_combatant or _is_companion(source):
+							_add_threat_to_all_enemies(source, "damage", damage)
+						# --- END THREAT ---
 					
-					# --- TAUNT: Consume taunt stack if enemy attacked the taunter ---
-					if source != player_combatant and source is Combatant and source.has_node("StatusTracker"):
-						var src_tracker: StatusTracker = source.get_node("StatusTracker")
-						if src_tracker.has_status("taunt"):
-							var taunt_inst = src_tracker.get_instance("taunt")
-							var taunter = taunt_inst.get("source_combatant") if taunt_inst else null
-							if taunter == target:
-								src_tracker.remove_stacks("taunt", 1)
-								var remaining_taunt = src_tracker.get_stacks("taunt")
-								print("  🎯 Taunt intercepted! (%d stacks remain)" % remaining_taunt)
-					# --- END TAUNT ---
+						# --- TAUNT: Consume taunt stack if enemy attacked the taunter ---
+						if source != player_combatant and source is Combatant and source.has_node("StatusTracker"):
+							var src_tracker: StatusTracker = source.get_node("StatusTracker")
+							if src_tracker.has_status("taunt"):
+								var taunt_inst = src_tracker.get_instance("taunt")
+								var taunter = taunt_inst.get("source_combatant") if taunt_inst else null
+								if taunter == target:
+									src_tracker.remove_stacks("taunt", 1)
+									var remaining_taunt = src_tracker.get_stacks("taunt")
+									print("  🎯 Taunt intercepted! (%d stacks remain)" % remaining_taunt)
+						# --- END TAUNT ---
 					
-					# Emit reactive animation event
-					if event_bus:
-						var visual = _get_combatant_visual(target)
-						if visual:
-							var element_str = ""
-							var action_resource = action_data.get("action_resource") as Action
-							if action_resource and action_resource.effects.size() > 0:
-								element_str = ActionEffect.DamageType.keys()[action_resource.effects[0].damage_type]
-							event_bus.emit_damage_dealt(visual, damage, element_str, is_crit, _get_combatant_visual(source))
+						# Emit reactive animation event
+						if event_bus:
+							var visual = _get_combatant_visual(target)
+							if visual:
+								var element_str = ""
+								var action_resource = action_data.get("action_resource") as Action
+								if action_resource and action_resource.effects.size() > 0:
+									element_str = ActionEffect.DamageType.keys()[action_resource.effects[0].damage_type]
+								event_bus.emit_damage_dealt(visual, damage, element_str, is_crit, _get_combatant_visual(source))
 
-					# Bridge crit to GameEventBus for bark reactions
-					if is_crit:
-						var crit_visual = _get_combatant_visual(target)
-						if crit_visual:
-							GameEventBus.emit_combat_crit(damage, crit_visual, _get_combatant_visual(source))
+						# Bridge crit to GameEventBus for bark reactions
+						if is_crit:
+							var crit_visual = _get_combatant_visual(target)
+							if crit_visual:
+								GameEventBus.emit_combat_crit(damage, crit_visual, _get_combatant_visual(source))
 
-					# Emit source floaters for damage_received_bonuses (e.g. Static)
-					var eb_keys: Array = damage_result.get("element_breakdown", {}).keys()
-					if not eb_keys.is_empty():
-						_emit_received_bonus_floaters(target, eb_keys)
+						# Emit source floaters for damage_received_bonuses (e.g. Static)
+						var eb_keys: Array = damage_result.get("element_breakdown", {}).keys()
+						if not eb_keys.is_empty():
+							_emit_received_bonus_floaters(target, eb_keys)
 					
-					# v5: Track unique enemies hit for Crucible's Gift
-					if source == player_combatant and target not in _enemies_hit_this_turn:
-						_enemies_hit_this_turn.append(target)
+						# v5: Track unique enemies hit for Crucible's Gift
+						if source == player_combatant and target not in _enemies_hit_this_turn:
+							_enemies_hit_this_turn.append(target)
 					
-					# --- PROC: On-hit procs (player attacks only) ---
-					if damage > 0 and source == player_combatant and player and player.affix_manager and proc_processor:
-						var hit_results = proc_processor.process_on_hit(
-							player.affix_manager, _build_proc_context({
-								"damage_dealt": damage,
-								"target": target,
-								"action_resource": action_data.get("action_resource"),
-								"placed_dice": action_data.get("placed_dice", []),
-							}))
-						_apply_proc_results(hit_results, target)
-					# --- END PROC ---
+						# --- PROC: On-hit procs (player attacks only) ---
+						if damage > 0 and source == player_combatant and player and player.affix_manager and proc_processor:
+							var hit_results = proc_processor.process_on_hit(
+								player.affix_manager, _build_proc_context({
+									"damage_dealt": damage,
+									"target": target,
+									"action_resource": action_data.get("action_resource"),
+									"placed_dice": action_data.get("placed_dice", []),
+								}))
+							_apply_proc_results(hit_results, target)
+						# --- END PROC ---
 
-					# --- PROC: On-take-damage procs (player receives damage) ---
-					if damage > 0 and target == player_combatant and player and player.affix_manager and proc_processor:
-						var take_dmg_results = proc_processor.process_on_take_damage(
-							player.affix_manager, _build_proc_context({
-								"damage_dealt": damage,
-								"source": source,
-							}))
-						_apply_proc_results(take_dmg_results, source)
-					# --- END PROC ---
+						# --- PROC: On-take-damage procs (player receives damage) ---
+						if damage > 0 and target == player_combatant and player and player.affix_manager and proc_processor:
+							var take_dmg_results = proc_processor.process_on_take_damage(
+								player.affix_manager, _build_proc_context({
+									"damage_dealt": damage,
+									"source": source,
+								}))
+							_apply_proc_results(take_dmg_results, source)
+						# --- END PROC ---
 					
-					# Update appropriate health display
-					if target == player_combatant:
-						_update_player_health()
-					elif _is_companion(target):
-						# Companion was hit - update companion panel
-						if companion_manager and companion_panel:
-							var comp = target as CompanionCombatant
-							companion_panel.update_health(
-								comp.slot_index,
-								comp.current_health,
-								comp.max_health
-							)
-					else:
-						var enemy_index = enemy_combatants.find(target)
-						if enemy_index >= 0:
-							_update_enemy_health(enemy_index)
-							_check_enemy_death(target)
+						# Update appropriate health display
+						if target == player_combatant:
+							_update_player_health()
+						elif _is_companion(target):
+							# Companion was hit - update companion panel
+							if companion_manager and companion_panel:
+								var comp = target as CompanionCombatant
+								companion_panel.update_health(
+									comp.slot_index,
+									comp.current_health,
+									comp.max_health
+								)
+						else:
+							var enemy_index = enemy_combatants.find(target)
+							if enemy_index >= 0:
+								_update_enemy_health(enemy_index)
+								_check_enemy_death(target)
 							
-							# --- PROC: On-kill procs ---
-							if not target.is_alive() and source == player_combatant:
-								if player and player.affix_manager and proc_processor:
-									var kill_results = proc_processor.process_procs(
-										player.affix_manager,
-										Affix.ProcTrigger.ON_KILL,
-										_build_proc_context({
-											"target": target,
-											"action_resource": action_data.get("action_resource"),
-											"placed_dice": action_data.get("placed_dice", []),
-										}))
-									_apply_proc_results(kill_results, target)
-							# --- END ON_KILL ---
+								# --- PROC: On-kill procs ---
+								if not target.is_alive() and source == player_combatant:
+									if player and player.affix_manager and proc_processor:
+										var kill_results = proc_processor.process_procs(
+											player.affix_manager,
+											Affix.ProcTrigger.ON_KILL,
+											_build_proc_context({
+												"target": target,
+												"action_resource": action_data.get("action_resource"),
+												"placed_dice": action_data.get("placed_dice", []),
+											}))
+										_apply_proc_results(kill_results, target)
+								# --- END ON_KILL ---
 		
 		1:  # DEFEND
 			print("  🛡️ %s defends" % source.combatant_name)
@@ -2542,9 +2547,8 @@ func _resolve_chain(event: Dictionary, primary_target) -> void:
 		if hop_targets.size() >= chains:
 			break
 		current_damage *= decay
-		var dmg = int(current_damage)
-		if dmg <= 0:
-			break
+		# Each hop deals at least 1 (Audit E9: decay truncated hops to 0)
+		var dmg = maxi(1, roundi(current_damage))
 		hop_targets.append(target)
 		hop_damages.append(dmg)
 	if hop_targets.is_empty():
@@ -2655,6 +2659,18 @@ func _resolve_apply_status(event: Dictionary, primary_target) -> void:
 				resolved_target = other_enemies[randi() % other_enemies.size()]
 			elif primary_target and primary_target.is_alive():
 				resolved_target = primary_target  # fallback when only one enemy alive
+		"all_enemies", "ALL_ENEMIES":
+			# Every living enemy of the actor (Audit E8: used to hit only the
+			# primary target).
+			var every := _opposing_side_of(_event_actor())
+			var n: int = int(event.get("stacks", 1))
+			for foe in every:
+				if foe and foe.is_alive():
+					var ft := _get_status_tracker(foe)
+					if ft:
+						ft.apply_status(status_res, n, "dice_affix")
+						print("    🎯 Applied %d %s to %s" % [n, status_id, foe.combatant_name])
+			return
 
 	if not resolved_target or not resolved_target.is_alive():
 		return
@@ -3615,6 +3631,10 @@ func _calculate_damage(action_data: Dictionary, attacker, defender) -> Dictionar
 					modified_effects.append(effect)
 			effects = modified_effects
 	
+	# Damage effects honour their value source and condition (Audit E13,
+	# Gap 26): "+2 per Burn stack on the target", "only below half HP" ...
+	effects = _resolve_damage_effects(effects, attacker, defender, placed_dice)
+
 	# Get defender stats
 	var defender_stats = _get_defender_stats(defender)
 	
@@ -3819,6 +3839,94 @@ func _apply_healing_mods(amount: float, healer) -> int:
 			amount *= float(affix.apply_effect())
 	return maxi(0, int(amount))
 
+func _damage_effect_context(attacker, defender, placed_dice: Array) -> Dictionary:
+	"""Context for resolving a DAMAGE effect's value source and condition."""
+	var ctx := _build_combat_context(attacker, [defender] if defender else [])
+	var total := 0
+	for d in placed_dice:
+		if d is DieResource:
+			total += d.get_total_value()
+		elif d is int:
+			total += d
+	ctx["dice_total"] = total
+	ctx["dice_count"] = placed_dice.size()
+	ctx["source_tracker"] = _get_status_tracker(attacker)
+	if attacker and "current_health" in attacker and "max_health" in attacker:
+		ctx["source_hp_percent"] = float(attacker.current_health) / maxf(float(attacker.max_health), 1.0)
+		ctx["source_current_hp"] = attacker.current_health
+		ctx["source_max_hp"] = attacker.max_health
+	if defender and "current_health" in defender and "max_health" in defender:
+		ctx["target_current_hp"] = defender.current_health
+		ctx["target_max_hp"] = defender.max_health
+	ctx["alive_companions"] = _get_alive_companions().size()
+	return ctx
+
+
+func _resolve_damage_effects(effects: Array[ActionEffect], attacker, defender,
+		placed_dice: Array) -> Array[ActionEffect]:
+	"""Copies of the DAMAGE effects with their value source resolved into
+	base_damage and their condition applied (blocked = dropped, scaling =
+	damage multiplier). STATIC and DICE_TOTAL keep the classic behaviour
+	(dice + base_damage), which all existing content uses."""
+	var needs := false
+	for e in effects:
+		if e and e.effect_type == ActionEffect.EffectType.DAMAGE and (e.has_condition() \
+				or e.value_source not in [ActionEffect.ValueSource.STATIC, ActionEffect.ValueSource.DICE_TOTAL]):
+			needs = true
+			break
+	if not needs:
+		return effects
+	var ctx := _damage_effect_context(attacker, defender, placed_dice)
+	var out: Array[ActionEffect] = []
+	for e in effects:
+		if e == null or e.effect_type != ActionEffect.EffectType.DAMAGE:
+			out.append(e)
+			continue
+		var copy: ActionEffect = e.duplicate()
+		var cm := 1.0
+		if e.has_condition():
+			var cond: Dictionary = e.condition.evaluate(ctx)
+			if cond.get("blocked", false):
+				continue
+			cm = float(cond.get("multiplier", 1.0))
+		if e.value_source not in [ActionEffect.ValueSource.STATIC, ActionEffect.ValueSource.DICE_TOTAL]:
+			copy.value_source = ActionEffect.ValueSource.STATIC
+			copy.base_damage = e._resolve_value(e.base_damage, ctx, 1.0)
+		copy.damage_multiplier = e.damage_multiplier * cm
+		out.append(copy)
+	return out
+
+
+func _is_area_attack(action_data: Dictionary) -> bool:
+	"""An attack whose DAMAGE effect targets every enemy of the caster."""
+	var res = action_data.get("action_resource") as Action
+	if res == null:
+		return false
+	for e in res.effects:
+		if e and e.effect_type == ActionEffect.EffectType.DAMAGE \
+				and e.target == ActionEffect.TargetType.ALL_ENEMIES:
+			return true
+	return false
+
+
+func _attack_targets(action_data: Dictionary, source, targets: Array) -> Array:
+	"""Who an ATTACK damages. Area attacks: every living combatant on the
+	caster's other side (for an enemy caster: the player and companions).
+	Otherwise the chosen target only."""
+	if not _is_area_attack(action_data):
+		return [targets[0]] if targets.size() > 0 and targets[0] != null else []
+	var out: Array = []
+	if source in enemy_combatants:
+		if player_combatant and player_combatant.is_alive():
+			out.append(player_combatant)
+		out.append_array(_get_alive_companions())
+	else:
+		for e in enemy_combatants:
+			if e and e.is_alive():
+				out.append(e)
+	return out
+
+
 func _calculate_attack_damage_scaled(attacker, attacker_affixes, effects, placed_dice, defender_stats,
 		action_id, accepted_elems, attacker_tracker, defender_tracker, base_crit, crit_mult,
 		action_dmg_elem) -> Dictionary:
@@ -3848,6 +3956,9 @@ func _apply_elemental_damage(target, raw_amount: int, element = "", defense_mult
 		var parsed = element.to_int()
 		if str(parsed) == element:  # valid numeric string
 			dtype = parsed
+		else:
+			# Named element ("FIRE", "shock") (Audit E23: these fell to physical)
+			dtype = ActionEffect.DamageType.keys().find(element.to_upper())
 	if dtype < 0:
 		# Untyped — default to SLASHING (physical) so armor still applies
 		dtype = ActionEffect.DamageType.SLASHING
@@ -3880,6 +3991,7 @@ func _emit_received_bonus_floaters(target: Combatant, element_keys: Array) -> vo
 		ActionEffect.DamageType.ICE: "ice",
 		ActionEffect.DamageType.POISON: "poison",
 		ActionEffect.DamageType.SHADOW: "shadow",
+		ActionEffect.DamageType.FAITH: "faith",
 		ActionEffect.DamageType.SLASHING: "slashing",
 		ActionEffect.DamageType.BLUNT: "blunt",
 		ActionEffect.DamageType.PIERCING: "piercing",
@@ -3948,6 +4060,7 @@ func _get_damage_received_bonuses(target) -> Dictionary:
 		"shock": ActionEffect.DamageType.SHOCK,
 		"poison": ActionEffect.DamageType.POISON,
 		"shadow": ActionEffect.DamageType.SHADOW,
+		"faith": ActionEffect.DamageType.FAITH,
 	}
 	
 	for element_name: String in element_keys:

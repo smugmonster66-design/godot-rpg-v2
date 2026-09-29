@@ -1005,9 +1005,14 @@ func _apply_emit_chain(source_die: DieResource, index: int,
 			source_die.display_name, int(edata.get("extra_chain_targets", 0))])
 		return
 
-	# DA-16: Fraction-based chain damage (% of die value)
-	if edata.get("value_is_fraction", false):
-		resolved_value = int(source_die.get_total_value() * resolved_value)
+	# DA-16: Fraction-based chain damage (% of die value). A value below 1
+	# is always a fraction (Audit E9: 0.3 used to truncate to 0), with a
+	# floor of 1 damage.
+	if edata.get("value_is_fraction", false) or (resolved_value > 0.0 and resolved_value < 1.0):
+		resolved_value = maxf(1.0, roundf(source_die.get_total_value() * resolved_value))
+	var chain_element = edata.get("element", "")
+	if str(chain_element) == "":
+		chain_element = str(int(source_die.get_effective_damage_type(ActionEffect.DamageType.SHOCK)))
 
 	var chains: int = int(edata.get("chain_count", edata.get("chains", 2)))
 	var decay: float = edata.get("chain_damage_mult", edata.get("decay", 0.7))
@@ -1016,7 +1021,7 @@ func _apply_emit_chain(source_die: DieResource, index: int,
 		"source_die": source_die.display_name,
 		"die_index": index,
 		"damage": resolved_value,
-		"element": edata.get("element", ""),
+		"element": chain_element,
 		"chains": chains,
 		"decay": decay,
 		"chain_stacks": int(edata.get("chain_stacks", 0)),

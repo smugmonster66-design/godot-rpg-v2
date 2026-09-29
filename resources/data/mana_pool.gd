@@ -292,6 +292,7 @@ static func _damage_type_to_element(damage_type: int) -> DieResource.Element:
 		ActionEffect.DamageType.SHOCK: return DieResource.Element.SHOCK
 		ActionEffect.DamageType.POISON: return DieResource.Element.POISON
 		ActionEffect.DamageType.SHADOW: return DieResource.Element.SHADOW
+		ActionEffect.DamageType.FAITH: return DieResource.Element.FAITH
 		_: return DieResource.Element.NONE
 
 func cycle_element(direction: int) -> void:

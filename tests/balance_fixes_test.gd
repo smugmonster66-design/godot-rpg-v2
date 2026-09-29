@@ -154,9 +154,9 @@ func _run() -> void:
 	p.affix_manager.add_affix(pct_aff)
 	p.status_tracker.remove_status("slowed")
 	var gd: DieResource = load("res://resources/dice/base/d6_none.tres").duplicate_die()
-	var stat_only: int = p.dice_pool.stat_bonus_for_die(gd)
 	p.dice_pool.apply_stat_bonus(gd)
-	gd.set_value(4)   # current 4 + modifier (stat + flat)
+	gd.set_value(4)   # face 4 + stat (dice formula, from the face) + flat
+	var stat_only: int = CombatTuning.die_stat_bonus(p.dice_pool.stat_value_for_die(gd), 4)
 	var before_pct: int = gd.get_total_value()
 	p.dice_pool._finish_die_roll(gd)
 	_check(before_pct == 4 + stat_only + 2, "Bonus Die Value: +2 on the die (%d)" % before_pct)

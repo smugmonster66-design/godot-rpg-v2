@@ -38,7 +38,8 @@ enum EffectType {
 	CHANNEL, COUNTER_SETUP, SUMMON_COMPANION,
 }
 
-enum DamageType { SLASHING, BLUNT, PIERCING, FIRE, ICE, SHOCK, POISON, SHADOW }
+## FAITH (holy) appended 2026-09-29 (magical: barrier). Keep the order: .tres files store ints.
+enum DamageType { SLASHING, BLUNT, PIERCING, FIRE, ICE, SHOCK, POISON, SHADOW, FAITH }
 
 enum ValueSource {
 	# --- Original 12 (unchanged integer values 0–11) ---

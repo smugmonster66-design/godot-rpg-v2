@@ -121,7 +121,8 @@ func _get_defense_for_type(type: ActionEffect.DamageType, stats: Dictionary) -> 
 		ActionEffect.DamageType.ICE, \
 		ActionEffect.DamageType.SHOCK, \
 		ActionEffect.DamageType.POISON, \
-		ActionEffect.DamageType.SHADOW:
+		ActionEffect.DamageType.SHADOW, \
+		ActionEffect.DamageType.FAITH:
 			return maxf(0.0, stats.get("barrier", 0))
 		_:
 			return 0.0

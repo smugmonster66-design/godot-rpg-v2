@@ -13,10 +13,13 @@ class_name CombatTuning
 # Strength adds to physical-element dice, Intellect to magical-element dice.
 # Neutral dice (NONE, FAITH) use the class's primary stat.
 # ---------------------------------------------------------------------------
-## +1 die value per this many points of the matching stat.
-## Tuned 2026-09-27 with the simulator: 8 (was 20), so dice (with their stat
-## pips) are at least half of a hit from about level 18 on.
-static var STAT_PER_DIE_POINT: float = 8.0
+## Dice formula (designer, 2026-09-27, "middle"; built 2026-09-29):
+##     value = face x (1 + stat / STAT_DIE_SCALE) + stat / STAT_DIE_FLAT
+## rounded once. The rolled face stays on the die (DieResource.current_value)
+## so skills written in faces still read the face. Replaces the old flat
+## "+1 per STAT_PER_DIE_POINT".
+static var STAT_DIE_SCALE: float = 88.0
+static var STAT_DIE_FLAT: float = 16.0
 
 # ---------------------------------------------------------------------------
 # Crit: Agility adds crit chance, Luck adds crit damage.
@@ -126,9 +129,18 @@ static func depth_multipliers(floor_num: int, depth_scaling: float) -> Dictionar
 	return {"stats": 1.0 + DEPTH_STATS_PER_FLOOR * f, "damage": 1.0 + DEPTH_DAMAGE_PER_FLOOR * f}
 
 
-static func die_stat_bonus(stat_value: int) -> int:
-	"""Die value added by a stat (Strength or Intellect)."""
-	return maxi(0, floori(float(stat_value) / STAT_PER_DIE_POINT))
+static func die_stat_bonus(stat_value: int, face: int = 0) -> int:
+	"""Die value a stat (Strength or Intellect) adds to a die showing `face`:
+	face x stat / STAT_DIE_SCALE + stat / STAT_DIE_FLAT, rounded."""
+	var s := maxf(0.0, float(stat_value))
+	return maxi(0, roundi(float(maxi(0, face)) * s / STAT_DIE_SCALE + s / STAT_DIE_FLAT))
+
+
+static func at_least(percent_value: float, minimum: float) -> float:
+	"""Whichever is bigger (Class Framework rule): a percentage-based amount
+	with a flat minimum, e.g. "+20% (at least +2)". Works for penalties too
+	(the one with the larger size wins, keeping its sign)."""
+	return percent_value if absf(percent_value) >= absf(minimum) else minimum
 
 
 static func crit_chance(agility: int) -> float:
@@ -161,7 +173,8 @@ static func status_potency(level: int) -> float:
 static func set_knob(knob: String, value: String) -> bool:
 	"""Balance simulator only: set a knob by name for one run."""
 	match knob:
-		"STAT_PER_DIE_POINT": STAT_PER_DIE_POINT = float(value)
+		"STAT_DIE_SCALE": STAT_DIE_SCALE = float(value)
+		"STAT_DIE_FLAT": STAT_DIE_FLAT = float(value)
 		"DEFENSE_K": DEFENSE_K = float(value)
 		"DEFENSE_CAP": DEFENSE_CAP = float(value)
 		"HEALING_BONUS_SCALE": HEALING_BONUS_SCALE = float(value)

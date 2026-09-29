@@ -69,10 +69,12 @@ func _run(root_scene: Node) -> void:
 	var fire: DieResource = load("res://resources/dice/base/d6_fire.tres").duplicate_die()
 	var slash: DieResource = load("res://resources/dice/base/d6_slashing.tres").duplicate_die()
 	var plain: DieResource = load("res://resources/dice/base/d6_none.tres").duplicate_die()
-	var ib: int = CombatTuning.die_stat_bonus(p.get_total_stat("intellect"))
-	var sb: int = CombatTuning.die_stat_bonus(p.get_total_stat("strength"))
 	for d in [fire, slash, plain]:
 		d.roll()
+	var istat: int = p.get_total_stat("intellect")
+	var ib: int = CombatTuning.die_stat_bonus(istat, fire.current_value)
+	var sb: int = CombatTuning.die_stat_bonus(p.get_total_stat("strength"), slash.current_value)
+	var pb: int = CombatTuning.die_stat_bonus(istat, plain.current_value)
 	var fv: int = fire.get_total_value()
 	var sv: int = slash.get_total_value()
 	var pv: int = plain.get_total_value()
@@ -81,11 +83,18 @@ func _run(root_scene: Node) -> void:
 	p.dice_pool.apply_stat_bonus(plain)
 	_check(fire.get_total_value() == fv + ib, "fire die gets the Intellect bonus (+%d)" % ib)
 	_check(slash.get_total_value() == sv + sb, "slashing die gets the Strength bonus (+%d)" % sb)
-	_check(plain.get_total_value() == pv + ib, "neutral die follows the primary stat, Intellect (+%d)" % ib)
+	_check(plain.get_total_value() == pv + pb, "neutral die follows the primary stat, Intellect (+%d)" % pb)
 	p.dice_pool.apply_stat_bonus(fire)
 	_check(fire.get_total_value() == fv + ib, "the bonus is applied only once")
 	fire.roll()
-	_check(fire.get_total_value() >= 1 + ib, "a reroll keeps the bonus")
+	_check(fire.get_total_value() == fire.current_value + CombatTuning.die_stat_bonus(istat, fire.current_value),
+		"a reroll recomputes the bonus for the new face")
+	# The formula: face x (1 + stat/88) + stat/16
+	_check(CombatTuning.die_stat_bonus(88, 6) == 12, "stat 88 on a 6: +6 +5.5 -> +12 (value 18)")
+	_check(CombatTuning.die_stat_bonus(0, 6) == 0, "stat 0 adds nothing")
+	_check(CombatTuning.die_stat_bonus(16, 1) == 1, "stat 16 on a 1: +0.18 +1 -> +1")
+	_check(is_equal_approx(CombatTuning.at_least(0.5, 2.0), 2.0) and is_equal_approx(CombatTuning.at_least(5.0, 2.0), 5.0),
+		"whichever is bigger picks the larger amount")
 
 	var enemy_pool := PlayerDiceCollection.new()
 	var edie: DieResource = load("res://resources/dice/base/d6_fire.tres").duplicate_die()

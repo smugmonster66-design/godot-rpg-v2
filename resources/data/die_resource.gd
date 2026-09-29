@@ -149,6 +149,11 @@ signal shattered()
 var current_value: int = 1          # Current rolled value (before affixes)
 var modified_value: int = 1         # Value after affix modifications
 var modifier: int = 0               # Flat modifier from external sources
+## Owner stat that powers this die (the dice formula); -1 = none (enemy and
+## pool dice). stat_bonus is what it adds on the current face and is part of
+## modified_value; it is recomputed whenever the die is rolled or set.
+var stat_power: int = -1
+var stat_bonus: int = 0
 var source: String = ""             # Where this die came from
 var tags: Array[String] = []        # Tags on this die (fire, holy, etc.)
 var slot_index: int = -1            # Position in pool (for affix requirements)
@@ -180,6 +185,7 @@ const ELEMENT_NAMES = {
 	Element.SHOCK: "Shock",
 	Element.POISON: "Poison",
 	Element.SHADOW: "Shadow",
+	Element.FAITH: "Holy",
 }
 
 # ============================================================================
@@ -346,12 +352,33 @@ func roll() -> int:
 	else:
 		current_value = randi_range(1, die_type)
 	modified_value = current_value + modifier
+	_add_stat_bonus()
 	return modified_value
 
 func set_value(value: int):
 	"""Manually set the die value"""
 	current_value = clampi(value, 1, die_type)
 	modified_value = current_value + modifier
+	_add_stat_bonus()
+
+func apply_stat_power(stat_value: int) -> void:
+	"""Power this die with an owner stat (the dice formula). Adjusts the
+	current value by the difference, so it works before or after a roll."""
+	var old := stat_bonus
+	stat_power = maxi(0, stat_value)
+	stat_bonus = CombatTuning.die_stat_bonus(stat_power, current_value)
+	modified_value += stat_bonus - old
+	if has_meta("stat_bonus_applied"):
+		set_meta("stat_bonus_applied", stat_bonus)
+
+func _add_stat_bonus() -> void:
+	if stat_power < 0:
+		stat_bonus = 0
+		return
+	stat_bonus = CombatTuning.die_stat_bonus(stat_power, current_value)
+	modified_value += stat_bonus
+	if has_meta("stat_bonus_applied"):
+		set_meta("stat_bonus_applied", stat_bonus)
 
 func get_total_value() -> int:
 	"""Get the final value after all modifications"""
@@ -503,6 +530,7 @@ const ELEMENT_TO_DAMAGE_TYPE = {
 	Element.SHOCK: ActionEffect.DamageType.SHOCK,
 	Element.POISON: ActionEffect.DamageType.POISON,
 	Element.SHADOW: ActionEffect.DamageType.SHADOW,
+	Element.FAITH: ActionEffect.DamageType.FAITH,
 }
 
 func get_effective_element() -> Element:
@@ -561,6 +589,7 @@ static func _string_to_element(type_str: String) -> Element:
 		"SHOCK": return Element.SHOCK
 		"POISON": return Element.POISON
 		"SHADOW": return Element.SHADOW
+		"FAITH", "HOLY": return Element.FAITH
 		_: return Element.NONE
 
 # ============================================================================
@@ -582,6 +611,8 @@ func duplicate_die() -> DieResource:
 	copy.current_value = current_value
 	copy.modified_value = modified_value
 	copy.modifier = modifier
+	copy.stat_power = stat_power
+	copy.stat_bonus = stat_bonus
 	copy.tags = tags.duplicate()
 	copy.is_locked = is_locked
 	copy.can_reroll = can_reroll

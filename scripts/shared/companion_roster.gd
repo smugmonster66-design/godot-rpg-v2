@@ -214,14 +214,15 @@ static func bond_die_sides(data: CompanionData, inst: CompanionInstance = null) 
 	return rules().die_sides_for(get_tier(data.companion_id), upgraded)
 
 
-static func primary_stat_bonus(player) -> int:
-	"""+1 per 20 of the class's primary stat (same rule as the player's dice)."""
+static func primary_stat_bonus(player, face: int = 0) -> int:
+	"""The class's primary stat on a die showing `face` (the dice formula,
+	same rule as the player's dice)."""
 	if player == null:
 		return 0
 	var stat := "strength"
 	if player.active_class and player.active_class.has_method("get_main_stat_name"):
 		stat = player.active_class.get_main_stat_name()
-	return CombatTuning.die_stat_bonus(player.get_total_stat(stat))
+	return CombatTuning.die_stat_bonus(player.get_total_stat(stat), face)
 
 
 static func roll_bond(data: CompanionData, inst: CompanionInstance = null, player = null) -> Dictionary:
@@ -230,7 +231,7 @@ static func roll_bond(data: CompanionData, inst: CompanionInstance = null, playe
 	if sides <= 0:
 		return {"sides": 0, "roll": 0, "bonus": 0, "value": 0}
 	var r := randi_range(1, sides)
-	var b := primary_stat_bonus(player if player else _player())
+	var b := primary_stat_bonus(player if player else _player(), r)
 	return {"sides": sides, "roll": r, "bonus": b, "value": r + b}
 
 # ============================================================================

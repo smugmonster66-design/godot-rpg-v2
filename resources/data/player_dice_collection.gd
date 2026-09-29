@@ -644,11 +644,18 @@ var stat_owner = null
 const _PHYSICAL_ELEMENTS := [DieResource.Element.SLASHING, DieResource.Element.BLUNT, DieResource.Element.PIERCING]
 
 func stat_bonus_for_die(die: DieResource) -> int:
-	"""Die value this pool's owner adds to a die: Strength for physical
-	dice, Intellect for magical dice, the class's primary stat for neutral
-	(NONE / FAITH) dice. 0 for enemies."""
+	"""Die value this pool's owner adds to a die at its current face (the
+	dice formula). 0 for enemies."""
+	var stat := stat_value_for_die(die)
+	return CombatTuning.die_stat_bonus(stat, die.current_value) if stat >= 0 else 0
+
+
+func stat_value_for_die(die: DieResource) -> int:
+	"""The owner stat that powers a die: Strength for physical dice,
+	Intellect for magical dice, the class's primary stat for neutral
+	(NONE / FAITH) dice. -1 for enemies."""
 	if stat_owner == null or die == null:
-		return 0
+		return -1
 	var element = die.get_effective_element()
 	var stat_name: String
 	if element in _PHYSICAL_ELEMENTS:
@@ -661,7 +668,7 @@ func stat_bonus_for_die(die: DieResource) -> int:
 				stat_name = primary
 	else:
 		stat_name = "intellect"
-	return CombatTuning.die_stat_bonus(stat_owner.get_total_stat(stat_name))
+	return stat_owner.get_total_stat(stat_name)
 
 # ── Gear dice effects (utility affixes; the owner's gear) ──
 
@@ -738,11 +745,14 @@ func apply_stat_bonus(die: DieResource) -> void:
 	flat modifier, so rerolls keep it and it shows on the die face."""
 	if die == null or die.has_meta("stat_bonus_applied"):
 		return
-	var bonus := stat_bonus_for_die(die) + _gear_flat_die_bonus()
-	die.set_meta("stat_bonus_applied", bonus)
-	if bonus > 0:
-		die.modifier += bonus
-		die.modified_value += bonus
+	var gear := _gear_flat_die_bonus()
+	if gear > 0:
+		die.modifier += gear
+		die.modified_value += gear
+	die.set_meta("stat_bonus_applied", 0)
+	var stat := stat_value_for_die(die)
+	if stat >= 0:
+		die.apply_stat_power(stat)
 
 
 func emit_locked_die_events() -> void:
