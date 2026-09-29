@@ -1352,11 +1352,22 @@ func _handle_affix_results(result: Dictionary):
 	for effect in result.special_effects:
 		match effect.type:
 			"duplicate":
+				# A duplicate lives in the HAND for this turn only (the hand is
+				# rebuilt from the pool next turn), is marked as a copy so it
+				# can't duplicate again, and respects the dice cap (Gap 94).
 				var source_die: DieResource = effect.source_die
+				if hand.size() >= max_dice:
+					print("    ✨ Duplicate skipped: hand is at the dice cap")
+					continue
 				var new_die = source_die.duplicate_die()
+				new_die.is_duplicate = true
 				new_die.source = "Duplicated from " + source_die.display_name
-				add_die(new_die)
-				print("    ✨ Created duplicate die!")
+				new_die.set_meta("stat_bonus_applied", source_die.get_meta("stat_bonus_applied", 0))
+				new_die.slot_index = hand.size()
+				new_die.is_consumed = false
+				hand.append(new_die)
+				hand_changed.emit()
+				print("    ✨ Created duplicate die (this turn only)")
 			
 			"lock":
 				# Die is already locked by DiceAffixProcessor._apply_lock_die()

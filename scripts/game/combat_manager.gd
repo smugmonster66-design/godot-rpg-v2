@@ -4512,8 +4512,10 @@ func _apply_proc_results_body(results: Dictionary, proc_target: Combatant = null
 			"duplicate_die":
 				# Duplicate Die on Max (gear): the used die comes back as a copy
 				var used: DieResource = se.get("die")
-				if used and player and player.dice_pool:
+				# Copies can't copy themselves again, and the hand respects the cap (Gap 94)
+				if used and not used.is_duplicate and player and player.dice_pool 						and player.dice_pool.hand.size() < player.dice_pool.max_dice:
 					var copy: DieResource = used.duplicate_die()
+					copy.is_duplicate = true
 					copy.set_meta("stat_bonus_applied", used.get_meta("stat_bonus_applied", 0))
 					player.dice_pool.insert_into_hand(player.dice_pool.hand.size(), copy)
 					print("  🎲 Duplicated %s (rolled max)" % used.display_name)

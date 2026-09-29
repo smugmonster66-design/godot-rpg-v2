@@ -89,9 +89,14 @@ class_name SlotDefinition
 # ============================================================================
 @export_group("Heavy Weapon")
 
-## If true, this slot gets double affix rolls (6 total instead of 3).
-## Only relevant for HEAVY slot.
+## DEPRECATED (designer, 2026-09-29): heavies now roll the normal count with
+## doubled values (affix_value_multiplier). Kept for old data; leave false.
 @export var double_affix_rolls: bool = false
+
+## Multiplies the values of rolled and inherent affixes on items in this slot
+## (not base stats, not the legendary unique affix). HEAVY uses 2.0: two-handed
+## weapons fill both hands, so their affixes count double (Gap 96).
+@export var affix_value_multiplier: float = 1.0
 
 # ============================================================================
 # PUBLIC API

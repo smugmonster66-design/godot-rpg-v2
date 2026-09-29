@@ -9,4 +9,4 @@ slot_type = 6
 tier_1_offense = true
 tier_2_offense = true
 tier_3_offense = true
-double_affix_rolls = true
+affix_value_multiplier = 2.0

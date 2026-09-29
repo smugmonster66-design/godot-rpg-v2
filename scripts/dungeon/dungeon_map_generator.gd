@@ -132,12 +132,21 @@ func _connect(run: DungeonRun, from_id: int, to_id: int):
 # --- Content population ---
 
 func _populate_node_content(run: DungeonRun, def: DungeonDefinition):
+	var used_events: Array = []
 	for node in run.nodes.values():
 		match node.node_type:
 			DungeonEnums.NodeType.COMBAT: node.encounter = def.get_random_combat()
 			DungeonEnums.NodeType.ELITE: node.encounter = def.get_random_elite()
 			DungeonEnums.NodeType.BOSS: node.encounter = def.get_random_boss()
-			DungeonEnums.NodeType.EVENT: node.event = def.get_random_event(node.floor_num)
+			DungeonEnums.NodeType.EVENT:
+				node.event = def.get_random_event(node.floor_num, used_events)
+				if node.event:
+					used_events.append(node.event)
+				else:
+					# No event fits this floor's window (Gap 37): make it a fight
+					# rather than an empty node.
+					node.node_type = DungeonEnums.NodeType.COMBAT
+					node.encounter = def.get_random_combat()
 			DungeonEnums.NodeType.SHRINE: node.shrine = def.get_random_shrine()
 
 # --- Helpers ---

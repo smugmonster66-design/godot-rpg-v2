@@ -129,11 +129,18 @@ func get_random_boss() -> CombatEncounter:
 	if boss_encounters.size() == 0: return null
 	return boss_encounters[randi() % boss_encounters.size()]
 
-func get_random_event(floor_num: int) -> DungeonEvent:
+func get_random_event(floor_num: int, used: Array = []) -> DungeonEvent:
+	"""An event valid for this floor, preferring ones not yet used this run
+	(Gap 37). Falls back to a repeat only when every valid event is used."""
 	var valid: Array[DungeonEvent] = []
+	var fresh: Array[DungeonEvent] = []
 	for event in event_pool:
-		if event.is_valid_for_floor(floor_num):
+		if event and event.is_valid_for_floor(floor_num):
 			valid.append(event)
+			if not used.has(event):
+				fresh.append(event)
+	if not fresh.is_empty():
+		return fresh[randi() % fresh.size()]
 	if valid.size() == 0: return null
 	return valid[randi() % valid.size()]
 

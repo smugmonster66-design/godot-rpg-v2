@@ -236,6 +236,9 @@ func initialize_affixes(affix_pool = null):
 	elif first_affix_table or second_affix_table or third_affix_table:
 		_roll_from_tables()
 	
+	# Heavy weapons: rolled and inherent affix values count double (Gap 96)
+	_apply_slot_value_multiplier()
+	
 	# LEGENDARY: Always add unique affix if present
 	if rarity == Rarity.LEGENDARY and unique_affix:
 		_add_unique_affix()
@@ -537,6 +540,60 @@ func _roll_from_table(table: AffixTable, tier_name: String):
 
 
 # ============================================================================
+# SLOT VALUE MULTIPLIER (heavy weapons, Gap 96)
+# ============================================================================
+
+## Categories whose value is a multiplier (1.1 = +10%): only the bonus part
+## is scaled, so 1.1 at ×2 becomes 1.2.
+const _MULTIPLIER_CATEGORIES := [
+	Affix.Category.STRENGTH_MULTIPLIER, Affix.Category.AGILITY_MULTIPLIER,
+	Affix.Category.INTELLECT_MULTIPLIER, Affix.Category.LUCK_MULTIPLIER,
+	Affix.Category.DAMAGE_MULTIPLIER, Affix.Category.DEFENSE_MULTIPLIER,
+	Affix.Category.MANA_COST_MULTIPLIER, Affix.Category.ELEMENTAL_DAMAGE_MULTIPLIER,
+	Affix.Category.STATUS_DAMAGE_MULTIPLIER, Affix.Category.ACTION_DAMAGE_MULTIPLIER,
+	Affix.Category.HEALING_MULTIPLIER,
+]
+
+## Categories with no scalable number (grants, unlocks, rank bonuses).
+const _UNSCALED_CATEGORIES := [
+	Affix.Category.NONE, Affix.Category.ELEMENTAL, Affix.Category.NEW_ACTION,
+	Affix.Category.DICE, Affix.Category.MISC, Affix.Category.MANA_ELEMENT_UNLOCK,
+	Affix.Category.MANA_SIZE_UNLOCK, Affix.Category.MANA_DIE_AFFIX,
+	Affix.Category.SKILL_RANK_BONUS, Affix.Category.TREE_SKILL_RANK_BONUS,
+	Affix.Category.CLASS_SKILL_RANK_BONUS, Affix.Category.TAG_SKILL_RANK_BONUS,
+	Affix.Category.ACTION_DIE_SLOT_BONUS, Affix.Category.ACTION_EFFECT_UPGRADE,
+	Affix.Category.CLASS_ACTION_EFFECT_ADD, Affix.Category.CLASS_ACTION_EFFECT_REPLACE,
+	Affix.Category.CLASS_ACTION_UPGRADE, Affix.Category.CLASS_ACTION_CONDITIONAL,
+]
+
+
+func get_affix_value_multiplier() -> float:
+	var sd: SlotDefinition = _get_slot_definition()
+	if sd == null:
+		return 2.0 if equip_slot == EquipSlot.HEAVY else 1.0
+	return sd.affix_value_multiplier
+
+
+static func scale_affix_value(affix: Affix, mult: float) -> void:
+	"""Scale one affix's value in place (see _MULTIPLIER_CATEGORIES)."""
+	if affix == null or mult == 1.0 or affix.category in _UNSCALED_CATEGORIES:
+		return
+	if affix.category in _MULTIPLIER_CATEGORIES:
+		affix.effect_number = snappedf(1.0 + (affix.effect_number - 1.0) * mult, 0.01)
+	else:
+		affix.effect_number = affix._round_value(affix.effect_number * mult)
+
+
+func _apply_slot_value_multiplier() -> void:
+	var mult := get_affix_value_multiplier()
+	if mult == 1.0:
+		return
+	for a in inherent_affixes:
+		scale_affix_value(a, mult)
+	for a in rolled_affixes:
+		scale_affix_value(a, mult)
+
+# ============================================================================
 # UNIQUE LEGENDARY AFFIX
 # ============================================================================
 
@@ -685,6 +742,8 @@ func upgrade_to_level(target_level: int, locked_affix_indices: Array[int] = []) 
 					fallback.roll_value(power_pos, scaling_config)
 				fallback.roll_proc_chance(power_pos, scaling_config)
 				rolled_affixes.append(fallback)
+
+	_apply_slot_value_multiplier()
 
 	# LEGENDARY: re-roll unique affix value
 	if rarity == Rarity.LEGENDARY and unique_affix:
